@@ -1746,7 +1746,7 @@ Homepage:
         http://www.intergate.bc.ca/personal/wac/
 
 SLASHEM Homepage:
-        http://slashem.cjb.net/
+        http://www.slashem.org/
 
         which currently point to 
         

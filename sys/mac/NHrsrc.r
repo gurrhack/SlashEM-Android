@@ -7087,7 +7087,7 @@ resource 'vers' (1, purgeable) {
 	0x4,
 	0,
 	"0.0.6e4f8",
-	"Slash'EM 0.0.6e4f8 (2002/02)\nhttp://slashem.cjb.net/"
+	"Slash'EM 0.0.6e4f8 (2002/02)\nhttp://www.slashem.org/"
 };
 
 resource 'vers' (2, purgeable) {
