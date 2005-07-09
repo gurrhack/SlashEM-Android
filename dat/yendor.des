@@ -1,276 +1,319 @@
 #	SCCS Id: @(#)yendor.des	3.4	1996/10/20
 #	Copyright (c) 1989 by Jean-Christophe Collet
 #	Copyright (c) 1992 by M. Stephenson and Izchak Miller
+#	Copyright (c) 2005 by J. Ali Harlow
 # NetHack may be freely redistributed.  See license for details.
 #
 # The top (real) wizard level.
 # Keeping the Moat for old-time's sake
-MAZE:"wizard1",random
-FLAGS:noteleport,hardfloor
+MAZE:"wizard1",' '
+FLAGS:noteleport,hardfloor,phlegethon
 GEOMETRY:center,center
 MAP
-----------------------------.
-|.......|..|.........|.....|.
-|.......S..|.}}}}}}}.|.....|.
-|..--S--|..|.}}---}}.|---S-|.
-|..|....|..|.}--.--}.|..|..|.
-|..|....|..|.}|...|}.|..|..|.
-|..--------|.}--.--}.|..|..|.
-|..|.......|.}}---}}.|..|..|.
-|..S.......|.}}}}}}}.|..|..|.
-|..|.......|.........|..|..|.
-|..|.......|-----------S-S-|.
-|..|.......S...............|.
-----------------------------.
+     .............                                   ....     ...       ... 
+}}  ............... .........   ........  ........  ......  .......    .....
+}}}}................}}}}}}}}}...}}}}}}}}..}}}}}}}}...................  .....
+}}}}}..............}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}.................. .... 
+.}}}}}............}}}}}---}}}}}}}}----}}}}}}..---}}}}}................ #    
+ .}}}}}...........}}}}----------------------------}}}}}}.....}}}}}......    
+  .}}}}}.........}}}}}|.......|..|.........|.....|..}}}}}}}}}}}}}}}}.....   
+  .}}}}}.......}}}}}}.|.......S..|.}}}}}}}.|.....|...}}}}}}}}}}}}}}}....... 
+ .}}}}}.......}}}}}...|..--S--|..|.}}---}}.|---S-|.... }}}}}}}..}}}}}}......
+  .}}}}}....}}}}}.....|..|....|..|.}--.--}.|..|..|....       ....}}}}}}.....
+ ..}}}}}.....}}}}}....|..|....|..|.}|...|}.|..|..|......   .......}}}}}}....
+....}}}}}...}}}}}}....|..--------|.}--.--}.|..|..|.................}}}}}....
+.....}}}}}}}}}}}}.....|..|.......|.}}---}}.|..|..| ...........  ...}}}}}... 
+ ......}}}}}}}}.......|..S.......|.}}}}}}}.|..|..|  .........  .....}}}}}}  
+  .......}}}..........|..|.......|.........|..|..|  ........  ......}}}}}}}}
+  ....................|..|.......|-----------S-S-|  .......  ........}}}}}}}
+  ....................|..|.......S...............|.........  .........}}}}}}
+ .....................----------------------------.........  ...........}}} 
+.............  ........---........----........---..........   ............  
+......  ....    .........................................        ........   
+  ...            .....................................             ....     
 ENDMAP
-STAIR:levregion(01,00,79,20),(0,0,28,12),up
-STAIR:levregion(01,00,79,20),(0,0,28,12),down
-BRANCH:levregion(01,00,79,20),(0,0,28,12)
-TELEPORT_REGION:levregion(01,00,79,20),(0,0,27,12)
+# The tower
+RANDOM_REGION[0]:(23,06,48,16),(00,00,00,00)
+# South of the river
+RANDOM_REGION[1]:(00,06,67,20),(23,06,48,16)
+# North of the river
+RANDOM_REGION[2]:(03,00,75,08),(19,04,63,08)
+# South west
+STAIR:(00,06,21,16),(07,06,16,11),up
+# South east
+STAIR:(50,06,70,16),(68,06,70,09),down
+BRANCH:(00,00,75,20),(22,05,49,17)
+TELEPORT_REGION:(00,00,75,20),(22,05,49,17)
 # Make it a morgue for rm id in mkmaze.c
 # for the purpose of random sdoor placement
-REGION:(12,01,20,09),unlit,"morgue",unfilled
-MAZEWALK:(28,05),east
-LADDER:(06,05),down
+REGION:(34,05,42,14),unlit,"morgue",unfilled
+LADDER:(28,10),down
 # Non diggable walls
 # Walls inside the moat stay diggable
-NON_DIGGABLE:(00,00,11,12)
-NON_DIGGABLE:(11,00,21,00)
-NON_DIGGABLE:(11,10,27,12)
-NON_DIGGABLE:(21,00,27,10)
+NON_DIGGABLE:(22,05,33,17)
+NON_DIGGABLE:(33,05,43,05)
+NON_DIGGABLE:(33,15,49,17)
+NON_DIGGABLE:(43,05,49,15)
 # Non passable walls
-NON_PASSWALL:(00,00,11,12)
-NON_PASSWALL:(11,00,21,00)
-NON_PASSWALL:(11,10,27,12)
-NON_PASSWALL:(21,00,27,10)
+NON_PASSWALL:(22,05,33,17)
+NON_PASSWALL:(33,05,43,05)
+NON_PASSWALL:(33,15,49,17)
+NON_PASSWALL:(43,05,49,15)
 # The wizard and his guards
-MONSTER:'@',"Wizard of Yendor",(16,05),asleep
-MONSTER:'d',"hell hound",(15,05)
-MONSTER:'V',"vampire lord",(17,05)
+MONSTER:'@',"Wizard of Yendor",(38,10),asleep
+MONSTER:'d',"hell hound",(37,10)
+MONSTER:'V',"vampire lord",(39,10)
 # The local treasure
-OBJECT:'+',"Book of the Dead",(16,05)
+OBJECT:'+',"Book of the Dead",(38,10)
 # Surrounding terror
-MONSTER:';',"kraken",(14,02)
-MONSTER:';',"giant eel",(17,02)
-MONSTER:';',"kraken",(13,04)
-MONSTER:';',"giant eel",(13,06)
-MONSTER:';',"kraken",(19,04)
-MONSTER:';',"giant eel",(19,06)
-MONSTER:';',"kraken",(15,08)
-MONSTER:';',"giant eel",(17,08)
-MONSTER:';',"piranha",(15,02)
-MONSTER:';',"piranha",(19,08)
+MONSTER:';',"kraken",(36,07)
+MONSTER:';',"giant eel",(39,07)
+MONSTER:';',"kraken",(35,09)
+MONSTER:';',"giant eel",(35,11)
+MONSTER:';',"kraken",(41,09)
+MONSTER:';',"giant eel",(41,11)
+MONSTER:';',"kraken",(37,13)
+MONSTER:';',"giant eel",(39,13)
+MONSTER:';',"piranha",(37,07)
+MONSTER:';',"piranha",(41,13)
 # Random monsters
-MONSTER:'D',random,random
-MONSTER:'H',random,random
-MONSTER:'&',random,random
-MONSTER:'&',random,random
-MONSTER:'&',random,random
-MONSTER:'&',random,random
+MONSTER:'D',random,region[0]
+MONSTER:'H',random,region[0]
+MONSTER:'&',random,region[0]
+MONSTER:'&',random,region[0]
+MONSTER:'&',random,region[0]
+MONSTER:'&',random,region[0]
 # And to make things a little harder.
-TRAP:"board",(16,04)
-TRAP:"board",(16,06)
-TRAP:"board",(15,05)
-TRAP:"board",(17,05)
+TRAP:"board",(38,09)
+TRAP:"board",(38,11)
+TRAP:"board",(37,10)
+TRAP:"board",(39,10)
 # Random traps.
-TRAP:"spiked pit",random
-TRAP:"sleep gas",random
-TRAP:"anti magic",random
-TRAP:"magic",random
+TRAP:"spiked pit",region[0]
+TRAP:"sleep gas",region[0]
+TRAP:"anti magic",region[0]
+TRAP:"magic",region[0]
 # Some random loot.
-OBJECT:'*',"ruby",random
-OBJECT:'!',random,random
-OBJECT:'!',random,random
-OBJECT:'?',random,random
-OBJECT:'?',random,random
-OBJECT:'+',random,random
-OBJECT:'+',random,random
-OBJECT:'+',random,random
+OBJECT:'*',"ruby",region[0]
+OBJECT:'!',random,region[0]
+OBJECT:'!',random,region[0]
+OBJECT:'?',random,region[0]
+OBJECT:'?',random,region[0]
+OBJECT:'+',random,region[0]
+OBJECT:'+',random,region[0]
+OBJECT:'+',random,region[0]
+# South of the river
+TRAP:"fire",region[1]
+TRAP:"fire",region[1]
+MONSTER:'L',random,region[1]
+MONSTER:'&',random,region[1]
+MONSTER:'&',random,region[1]
+MONSTER:random,random,region[1]
+MONSTER:random,random,region[1]
+MONSTER:random,random,region[1]
+OBJECT:'(',random,region[1]
+OBJECT:')',random,region[1]
+OBJECT:'?',random,region[1]
+# North of the river (Odysseus' altar)
+ALTAR:(10,10),noalign,altar
+TRAP:"falling rock",region[2]
+MONSTER:' ',"ghost",region[2],"Teiresias"
+MONSTER:' ',"ghost",region[2],"Elpenor"
+MONSTER:' ',"ghost",region[2],"Anticleia"
+MONSTER:random,random,region[2]
+OBJECT:'!',random,region[2]
+OBJECT:'+',random,region[2]
 
 
 # The middle wizard level.
-MAZE:"wizard2",random
-FLAGS:noteleport,hardfloor
+MAZE:"wizard2",' '
+FLAGS:noteleport,hardfloor,phlegethon
 GEOMETRY:center,center
 MAP
-----------------------------.
-|.....|.S....|.............|.
-|.....|.-------S--------S--|.
-|.....|.|.........|........|.
-|..-S--S|.........|........|.
-|..|....|.........|------S-|.
-|..|....|.........|.....|..|.
-|-S-----|.........|.....|..|.
-|.......|.........|S--S--..|.
-|.......|.........|.|......|.
-|-----S----S-------.|......|.
-|............|....S.|......|.
-----------------------------.
+ }}...                 .... ..  ......   ........                   ....    
+}}}}}}.              ..}}}}.}}..}}}}}}...}}}}}}}}..        ...     ......   
+}}}}}}}.. ...      ..}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}..     .}}}.     .       
+}}}}}}}}}.}}}..  ..}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}.. ..}}}}}.  ..  ...   
+   ..}}}}}}}}}}..}}}}}}---}}}}}}}.----}}}}..}}---}}}}}}.}}}}}}}}..  ..}}}...
+ ......}}}}}}}}}}}}}}.----------------------------}}}}}}}}}}}}}}}}  }}}}}}}}
+........}}}.}}}}}}}...|.....|.S....|.............|..}}}}}}}}..}}}}}}}}}}}}}}
+..............}}}.....|.....|.-------S--------S--|....}}........}}}}}}}..}}}
+  ....................|.....|.|.........|........|.......... .....}}}.......
+   ...................|..-S--S|.........|........|  ......... ..............
+  ...........   ......|..|....|.........|------S-|   .......  ........  ... 
+......  ....    ......|..|....|.........|.....|..|.  . ...   ........  ...  
+.....   ...      .....|-S-----|.........|.....|..|..      ........... ....  
+.....  .....     .....|.......|.........|S--S--..|......  ..........  ....  
+ ...  ........  ......|.......|.........|.|......|......    ........   .....
+      ................|-----S----S-------.|......|.........  .........    ..
+       ...............|............|....S.|......|........  ............    
+ .....  ..............----------------------------.......  .......... ....  
+........  .......... ..---........----........---... ..  ............  .... 
+...................    ......... ........  ........ .... .....    ..  ......
+ ..   ...... .....       ......     ....     ...... .........  .....  ......
 ENDMAP
-STAIR:levregion(01,00,79,20),(0,0,28,12),up
-STAIR:levregion(01,00,79,20),(0,0,28,12),down
-BRANCH:levregion(01,00,79,20),(0,0,28,12)
-TELEPORT_REGION:levregion(01,00,79,20),(0,0,27,12)
-REGION:(09,03,17,09),unlit,"zoo"
-DOOR:closed,(15,02)
-DOOR:closed,(11,10)
-MAZEWALK:(28,05),east
-LADDER:(12,01),up
-LADDER:(14,11),down
+# The tower
+RANDOM_REGION[0]:(23,06,48,16),(00,00,00,00)
+# North of the river
+RANDOM_REGION[1]:(00,00,75,04),(00,00,04,04)
+# South of the river
+RANDOM_REGION[2]:(00,05,75,20),(22,05,49,17)
+# South West
+STAIR:(00,04,21,20),(15,04,16,04),up
+# South East
+STAIR:(50,06,75,20),(00,00,00,00),down
+BRANCH:(00,00,75,20),(22,05,49,17)
+TELEPORT_REGION:(00,00,75,20),(22,05,49,17)
+REGION:(31,08,39,14),unlit,"zoo"
+DOOR:closed,(37,07)
+DOOR:closed,(33,15)
+LADDER:(34,06),up
+LADDER:(36,16),down
 # Non diggable walls everywhere
-NON_DIGGABLE:(00,00,27,12)
+NON_DIGGABLE:(22,05,49,17)
 #
-NON_PASSWALL:(00,00,06,12)
-NON_PASSWALL:(06,00,27,02)
-NON_PASSWALL:(16,02,27,12)
-NON_PASSWALL:(06,12,16,12)
+NON_PASSWALL:(22,05,28,17)
+NON_PASSWALL:(28,05,49,07)
+NON_PASSWALL:(28,07,49,17)
+NON_PASSWALL:(28,17,38,17)
 # Random traps.
-TRAP:"spiked pit",random
-TRAP:"sleep gas",random
-TRAP:"anti magic",random
-TRAP:"magic",random
+TRAP:"spiked pit",region[0]
+TRAP:"sleep gas",region[0]
+TRAP:"anti magic",region[0]
+TRAP:"magic",region[0]
 # Some random loot.
-OBJECT:'!',random,random
-OBJECT:'!',random,random
-OBJECT:'?',random,random
-OBJECT:'?',random,random
-OBJECT:'+',random,random
+OBJECT:'!',random,region[0]
+OBJECT:'!',random,region[0]
+OBJECT:'?',random,region[0]
+OBJECT:'?',random,region[0]
+OBJECT:'+',random,region[0]
 # treasures
-OBJECT:'"',random,(04,06)
+OBJECT:'"',random,(26,11)
+# North path
+OBJECT:'/',random,region[1]
+MONSTER:random,random,region[1]
+# The Burning Sand (South of the river)
+TRAP:"fire",region[2]
+TRAP:"fire",region[2]
+TRAP:"fire",region[2]
+TRAP:"fire",region[2]
+OBJECT:'?',random,region[2]
+OBJECT:'!',random,region[2]
+MONSTER:random,random,region[2]
+MONSTER:random,random,region[2]
 
 
 # The bottom wizard level.
 # Memorialize the fakewiz setup.
-MAZE:"wizard3",random
-FLAGS:noteleport,hardfloor
+MAZE:"wizard3",' '
+FLAGS:noteleport,hardfloor,phlegethon
 GEOMETRY:center,center
 MAP
-----------------------------.
-|..|............S..........|.
-|..|..------------------S--|.
-|..|..|.........|..........|.
-|..S..|.}}}}}}}.|..........|.
-|..|..|.}}---}}.|-S--------|.
-|..|..|.}--.--}.|..|.......|.
-|..|..|.}|...|}.|..|.......|.
-|..---|.}--.--}.|..|.......|.
-|.....|.}}---}}.|..|.......|.
-|.....S.}}}}}}}.|..|.......|.
-|.....|.........|..S.......|.
-----------------------------.
+   T.        T..T..      T...T   .T..T.    T.T      T..T.                   
+  ...T.    .T.T...T.T..T..T.T..T.T..T.T..T..T..TT...T.T..TT..      T...T    
+ ..T.T.T..T..T..T.T..T..T..T.T..T.T}}}}.T.T..T...T.T..T.T..T.T..T.T..T...   
+.T..T...T..TT..T.T..T.}}}}}}.T.T}}}}..}}}}T.T}}}}}}   ....T.T.T..T.T..T.T.  
+..T...T..T...T.T..T.}}}---.}}}}}}.----...}}}}}---}}}    T..T...T.T..T.T.    
+.T...T..T..T      .T}}---------------------------- }}}     .T.T.T..T..      
+ ..T..}}}}.        .}}|..|............S..........|  .}}       .T.T.T..T..   
+  ..}}}}}}}...     .}}|..|..------------------S--|....}}}       .T...T..T..T
+  }}}}}}}}}}}}.....}}}|..|..|.........|..........|......}}}     T..T..T..T..
+}}}}}}}T.}}}}}}}}}}}}.|..S..|.}}}}}}}.|..........|........}}    }}}..T.T..  
+}}}}T...T..}}}}}}}}}..|..|..|.}}---}}.|-S--------|.........}}}}}}}}}T.T.T.T 
+}}.T..T...T..T}}}}}}..|..|..|.}--.--}.|..|.......|.........}}}}}}}}}}.T}}}. 
+.T..       .T..}}}}}}.|..|..|.}|...|}.|..|.......|..........}}}}.T}}}}}}}}}}
+.          T..T.}}}}}}|..---|.}--.--}.|..|.......|.........}}}TT.T.T}}}}}}}}
+         ...   T.}}}}}|.....|.}}---}}.|..|.......|........}}}TT.T.T..}}}T}}}
+       ..T     ..T}}}}|.....S.}}}}}}}.|..|.......|...}}}.}}}}T.TT..TT.T.TT..
+     ..T...     ...}}}|.....|.........|..S.......|..}}}}}}}TTT.T.TT..T....T.
+    .T...T       T..}}----------------------------.}}} }}}TT.T.T.T..T.T.T..T
+     .T.T..      .T.}}}---...}}}}}----}}}...}}---.}}}   TTT.T.T.T..T.T...T..
+       ..T        ..T}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}    .T..T...T..T..T..T.
+                   T..}}}}}}}}   }}}}}} }}}}}}}}}}}      ..T..T.T..T..T...T.
 ENDMAP
-STAIR:levregion(01,00,79,20),(0,0,28,12),up
-STAIR:levregion(01,00,79,20),(0,0,28,12),down
-BRANCH:levregion(01,00,79,20),(0,0,28,12)
-TELEPORT_REGION:levregion(01,00,79,20),(0,0,27,12)
-PORTAL:(25,11,25,11),(0,0,0,0),"fakewiz1"
-MAZEWALK:(28,09),east
-REGION:(07,03,15,11),unlit,"morgue",unfilled
-REGION:(17,06,18,11),unlit,"beehive"
+# The tower
+RANDOM_REGION[0]:(23,06,48,16),(00,00,00,00)
+# Outside
+RANDOM_REGION[1]:(00,00,75,20),(22,05,49,17)
+# South west
+STAIR:(00,00,21,08),(00,00,00,00),up
+# South east
+STAIR:(50,00,75,11),(50,06,59,11),down
+BRANCH:(00,00,75,20),(22,05,49,17)
+TELEPORT_REGION:(00,00,75,20),(22,05,49,17)
+PORTAL:(47,16,47,16),(0,0,0,0),"nkai-b"
+REGION:(29,08,37,16),unlit,"morgue",unfilled
+REGION:(39,11,40,16),unlit,"beehive"
 # make the entry chamber a real room; it affects monster arrival;
 # `unfilled' is a kludge to force an ordinary room to remain a room
-REGION:(20,06,26,11),unlit,"ordinary",unfilled
-DOOR:closed,(18,05)
-DOOR:closed,(19,11)
-LADDER:(11,07),up
+REGION:(42,11,48,16),unlit,"ordinary",unfilled
+DOOR:closed,(40,10)
+DOOR:closed,(41,16)
+LADDER:(33,12),up
 # Non diggable walls
 # Walls inside the moat stay diggable
-NON_DIGGABLE:(00,00,06,12)
-NON_DIGGABLE:(06,00,27,02)
-NON_DIGGABLE:(16,02,27,12)
-NON_DIGGABLE:(06,12,16,12)
+NON_DIGGABLE:(22,05,28,17)
+NON_DIGGABLE:(28,05,49,07)
+NON_DIGGABLE:(38,07,49,17)
+NON_DIGGABLE:(28,17,38,17)
 #
-NON_PASSWALL:(00,00,06,12)
-NON_PASSWALL:(06,00,27,02)
-NON_PASSWALL:(16,02,27,12)
-NON_PASSWALL:(06,12,16,12)
+NON_PASSWALL:(22,05,28,17)
+NON_PASSWALL:(28,05,49,07)
+NON_PASSWALL:(38,07,49,17)
+NON_PASSWALL:(28,17,38,17)
 #
-MONSTER:'L',random,(10,07)
-MONSTER:'V',"vampire lord",(12,07)
+MONSTER:'L',random,(32,12)
+MONSTER:'V',"vampire lord",(34,12)
 # Some surrounding horrors
-MONSTER:';',"kraken",(08,05)
-MONSTER:';',"giant eel",(08,08)
-MONSTER:';',"kraken",(14,05)
-MONSTER:';',"giant eel",(14,08)
+MONSTER:';',"kraken",(30,10)
+MONSTER:';',"giant eel",(30,13)
+MONSTER:';',"kraken",(36,10)
+MONSTER:';',"giant eel",(36,13)
 # Other monsters
-MONSTER:'L',random,random
-MONSTER:'D',random,random
-MONSTER:'D',random,(26,09)
-MONSTER:'&',random,random
-MONSTER:'&',random,random
-MONSTER:'&',random,random
+MONSTER:'L',random,region[0]
+MONSTER:'D',random,region[0]
+MONSTER:'D',random,(48,14)
+MONSTER:'&',random,region[0]
+MONSTER:'&',random,region[0]
+MONSTER:'&',random,region[0]
 # And to make things a little harder.
-TRAP:"board",(10,07)
-TRAP:"board",(12,07)
-TRAP:"board",(11,06)
-TRAP:"board",(11,08)
+TRAP:"board",(32,12)
+TRAP:"board",(34,12)
+TRAP:"board",(33,11)
+TRAP:"board",(33,13)
 # Some loot
-OBJECT:')',random,random
-OBJECT:'!',random,random
-OBJECT:'?',random,random
-OBJECT:'?',random,random
-OBJECT:'(',random,random
+OBJECT:')',random,region[0]
+OBJECT:'!',random,region[0]
+OBJECT:'?',random,region[0]
+OBJECT:'?',random,region[0]
+OBJECT:'(',random,region[0]
 # treasures
-OBJECT:'"',random,(11,07)
-
-
-# The former decoy wizard levels.
-# There are two of these, and we need to
-# distinguish between them for the portal.
-MAZE:"fakewiz1",random
-GEOMETRY:center,center
-MAP
-.........
-.}}}}}}}.
-.}}---}}.
-.}--.--}.
-.}|...|}.
-.}--.--}.
-.}}---}}.
-.}}}}}}}.
-ENDMAP
-STAIR:levregion(01,00,79,20),(0,0,8,7),up
-STAIR:levregion(01,00,79,20),(0,0,8,7),down
-BRANCH:levregion(01,00,79,20),(0,0,8,7)
-TELEPORT_REGION:levregion(01,00,79,20),(2,2,6,6)
-PORTAL:(4,4,4,4),(0,0,0,0),"wizard3"
-MAZEWALK:(08,05),east
-REGION:(04,03,06,06),unlit,"ordinary",unfilled,true
-MONSTER:'L',random,(04,04)
-MONSTER:'V',"vampire lord",(03,04)
-MONSTER:';',"kraken",(06,06)
-# And to make things a little harder.
-TRAP:"board",(04,03)
-TRAP:"board",(04,05)
-TRAP:"board",(03,04)
-TRAP:"board",(05,04)
-
-
-MAZE:"fakewiz2",random
-GEOMETRY:center,center
-MAP
-.........
-.}}}}}}}.
-.}}---}}.
-.}--.--}.
-.}|...|}.
-.}--.--}.
-.}}---}}.
-.}}}}}}}.
-ENDMAP
-STAIR:levregion(01,00,79,20),(0,0,8,7),up
-STAIR:levregion(01,00,79,20),(0,0,8,7),down
-BRANCH:levregion(01,00,79,20),(0,0,8,7)
-TELEPORT_REGION:levregion(01,00,79,20),(2,2,6,6)
-MAZEWALK:(08,05),east
-REGION:(04,03,06,06),unlit,"ordinary",unfilled,true
-MONSTER:'L',random,(04,04)
-MONSTER:'V',"vampire lord",(03,04)
-MONSTER:';',"kraken",(06,06)
-# And to make things a little harder.
-TRAP:"board",(04,03)
-TRAP:"board",(04,05)
-TRAP:"board",(03,04)
-TRAP:"board",(05,04)
-# treasures
-OBJECT:'"',random,(04,04)
+OBJECT:'"',random,(33,12)
+# Outside the tower (Wood of the suicides)
+MONSTER:'B',"harpy",region[1]
+MONSTER:'B',"harpy",region[1]
+MONSTER:'B',"harpy",region[1]
+MONSTER:'B',"harpy",region[1]
+MONSTER:'B',"harpy",region[1]
+MONSTER:'B',"harpy",region[1]
+MONSTER:'B',"harpy",region[1]
+MONSTER:'B',"harpy",region[1]
+MONSTER:'B',"harpy",region[1]
+MONSTER:'B',"harpy",region[1]
+MONSTER:'B',"harpy",region[1]
+MONSTER:'d',"hell hound",region[1]
+MONSTER:'d',"hell hound",region[1]
+MONSTER:'d',"hell hound",region[1]
+MONSTER:'d',"hell hound",region[1]
+MONSTER:'d',"hell hound",region[1]
+MONSTER:'d',"hell hound",region[1]
+MONSTER:'d',"hell hound",region[1]
+MONSTER:'d',"hell hound",region[1]
+MONSTER:'d',"hell hound",region[1]
+MONSTER:'d',"hell hound",region[1]
+MONSTER:'d',"hell hound",region[1]
+TRAP:"bear",region[1]
+TRAP:"bear",region[1]
+TRAP:"pit",region[1]
+OBJECT:'!',random,region[1]
+OBJECT:'?',random,region[1]

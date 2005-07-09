@@ -1,5 +1,5 @@
 #	SCCS Id: @(#)data.base	3.4	2003/07/23
-#	    $Id: data.base,v 1.14 2003-12-11 09:49:05 j_ali Exp $
+#	    $Id: data.base,v 1.14.4.1 2005-07-09 18:54:38 j_ali Exp $
 #   Copyright (c) 1994, 1995, 1996 by the NetHack Development Team
 #   Copyright (c) 1994 by Boudewijn Wayers
 #   Copyright (c) 2002 by the Slash'EM Development Team
@@ -1176,6 +1176,11 @@ demon
 	them difficult to deal with, even on the rare occasions when
 	they are friendly.
 	[ The Tough Guide to Fantasyland, by Diana Wynne Jones ]
+demonology
+	The study of demons, including the knowledge of the foul and
+	unspeakable acts necessary to summon one.  If you do summon
+	one, you'd best hope your contract with it is good, for it will
+	attack you if it is not.
 *deva
 	Devas are the descendants of plane-touched aasimon.  They have
 	feathery wings that may be vestigial or functional.
@@ -1409,6 +1414,9 @@ electric eel
 	water, and earth.  Some mystics have postulated the necessity
 	for a fifth type, the spirit elemental, but none have ever
 	been encountered, at least on this plane of existence.
+elementalism
+	The study of the elements and elemental beings, including the
+	risky art of summoning and binding such dangerous entities.
 ~elf ??m*
 ~elf* cl*
 *elf*

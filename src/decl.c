@@ -285,6 +285,12 @@ const char *materialnm[] = {
 	"plastic", "glass", "gemstone", "stone"
 };
 
+/* NOTE: the order of these words exactly corresponds to the
+   order of river values #define'd in rm.h. */
+const char *river_liquid[] = {
+	"water", "sparkling water", "boiling blood"
+};
+
 /* Vision */
 NEARDATA boolean vision_full_recalc = 0;
 NEARDATA char	 **viz_array = 0;/* used in cansee() and couldsee() macros */

@@ -1,0 +1,1627 @@
+#	SCCS Id: @(#)Lethe.des	3.3	97/01/31
+#	Copyright (c) 2000 by Michael Clarke
+# NetHack may be freely redistributed.  See license for details.
+#
+#	The head of the river.
+#
+#	The river starts at the top of the gorge with a big pool.
+#	There are a few interesting things hidden around the place.
+#
+MAZE: "leth-a-1",' '
+FLAGS: hardfloor,lethe
+GEOMETRY:center,center
+MAP
+                                                                            
+   -------                #######H...............#####      ...       ....  
+   |.....|               ##         .......   ...    #####.......    ...... 
+   |..{..+###           ##              #      H     H     .......   .....  
+   |.....|  #############  #########.....      .     ##      ....     ...   
+   ---S---                 #         ......           ###     #        .... 
+      #                ........  }}}}}}}}}}}}}    ....  #     ##     ##.... 
+                    ........}}}}}}}}}}}}}}}}}}}}}}}T....#      #     #  ..  
+             #####H.....T.}}}}}}}}}}}}}}}}}}}}}}}}}}}}...    ###     #      
+             #      ...}}}}}}}}}}...........}}}}}}}}}}}}}}   #       ###    
+          ####       .}}}}}}}}}}.....T........}}}}}}}}}}}}}  H         #    
+          #             }}}}}}}}}}}......T...}}}}}}}}}}}}}}}...        #    
+        .....         }}}}}}}}}}}}}}}}}}}}}}}}}}}}  ##  }}}}}.....   .....  
+       .......       }}}}}}}}}}}}}}}}}}}}}}}}}}}...#####..}}}}}}......T.... 
+     ........}}}      }}}}}}}}}}}}}}}}}}}}}}}}....        .}}}}}}}}}}}}}}}}}
+     .........}         ..}}}}}}   }}}}}}}T.....           ..}}}}}}}}}}}}}}}
+      .......       ###.....         ........T      ....     ..}}}}}}}}}}}}}
+         .....########     ####         #          ......      ...........T 
+                              ###########           .....###H#........      
+                                                                            
+ENDMAP
+# Dungeon Description
+REGION:(00,00,75,19),lit,"ordinary"
+REGION:(04,02,08,04),lit,"ordinary"
+REGION:(05,12,17,15),unlit,"ordinary"
+REGION:(34,01,48,02),unlit,"ordinary"
+REGION:(58,01,65,04),unlit,"ordinary"
+REGION:(69,01,74,07),unlit,"ordinary"
+REGION:(51,16,56,18),unlit,"ordinary"
+# Stairs
+STAIR:(72,02),down
+# Doors
+DOOR:locked,(09,03)
+DOOR:locked,(06,05)
+# Dragons
+MONSTER:'D',"red dragon",(10,13),asleep
+MONSTER:'D',"red dragon",(11,16),asleep
+# The Dragons Hoard
+OBJECT:'(',"chest",(05,14)
+OBJECT:'%',"egg",(05,15)
+OBJECT:'%',"egg",(06,14)
+OBJECT:'%',"egg",(06,15)
+OBJECT:'%',"egg",(06,16)
+OBJECT:'%',"egg",(07,14)
+OBJECT:'%',"egg",(07,15)
+OBJECT:'/',random,(06,14)
+OBJECT:'*',random,(06,14)
+OBJECT:'*',random,(06,15)
+OBJECT:'*',random,(06,15)
+OBJECT:'*',random,(07,13)
+OBJECT:'*',"luckstone",(05,15)
+GOLD:random,(05,14)
+GOLD:random,(05,15)
+GOLD:random,(06,14)
+GOLD:random,(06,15)
+GOLD:random,(06,16)
+GOLD:random,(07,13)
+GOLD:random,(07,14)
+GOLD:random,(07,15)
+GOLD:random,(07,16)
+GOLD:random,(08,15)
+GOLD:random,(08,16)
+TRAP:"board",(10,12)
+# Sea monsters for the lake
+MONSTER:';',random,(63,13)
+MONSTER:';',random,(28,07)
+MONSTER:';',random,(22,10)
+MONSTER:';',random,(59,14)
+MONSTER:';',random,(39,06)
+MONSTER:';',random,(26,15)
+MONSTER:';',"electric eel",(53,08)
+MONSTER:';',"electric eel",(45,14)
+MONSTER:';',random,(29,12)
+MONSTER:';',random,(30,12)
+MONSTER:';',random,(28,11)
+MONSTER:';',random,(52,10)
+MONSTER:';',random,(69,15)
+# Gargoles living on the island
+MONSTER:'g',"winged gargoyle",(35,10),asleep
+MONSTER:'g',"winged gargoyle",(42,10),asleep
+MONSTER[75%]:'g',"winged gargoyle",(38,09),asleep
+MONSTER[50%]:'g',"winged gargoyle",(40,11),asleep
+# And some (empty) decorations
+CONTAINER:'`',"statue",(33,10)
+CONTAINER:'`',"statue",(35,09)
+CONTAINER:'`',"statue",(44,10)
+CONTAINER:'`',"statue",(36,11)
+# And even some treasure
+CONTAINER:'(',"chest",(39,10)
+OBJECT[25%]:'(',"magic lamp",contained,cursed,0
+OBJECT:'!',"oil",contained
+#
+# A few random flapping things
+MONSTER:'B',"vampire bat",random
+MONSTER:'B',"raven",random
+MONSTER:'B',random,random
+MONSTER:'B',random,random
+MONSTER[50%]:'B',random,random
+MONSTER[50%]:'B',random,random
+# Random traps
+TRAP:"rust",random
+TRAP:"rust",random
+TRAP:"rust",random
+TRAP:"pit",random
+TRAP:"pit",random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+# Hidden in the corridor
+OBJECT[50%]:'[',"leather armor",(47,04),blessed,+2
+OBJECT[50%]:'[',"leather armor",(47,04),cursed,-2
+# The fountain room 
+MONSTER:''',"clay golem",(04,03),asleep
+MONSTER:''',"clay golem",(07,03),asleep
+OBJECT:'?',"teleportation",(06,06),cursed,0
+OBJECT:'?',"amnesia",(06,06)
+# Second dragon (note; this guy is awake)
+MONSTER:'D',random,(55,18)
+# Second dragons hoard
+GOLD:random,(51,17)
+GOLD:random,(52,17)
+GOLD:random,(52,16)
+GOLD:random,(53,16)
+OBJECT:'/',random,(51,17)
+OBJECT:'*',random,(51,17)
+OBJECT:'*',random,(52,17)
+OBJECT:'*',random,(52,16)
+OBJECT:'*',random,(53,16)
+OBJECT:'?',"enchant weapon",(52,16)
+# Monsters in the dark
+MONSTER:'t',"trapper",(62,03)
+MONSTER:'t',"lurker above",(43,01)
+
+#
+# Alternate river head - Vampires and Byakhee
+#
+MAZE: "leth-a-2",' '
+FLAGS: hardfloor,lethe
+GEOMETRY:center,center
+MAP
+                                                                            
+   -------                #######H...............#####      ...       ....  
+   |.....|               ##         .......   ...    #####.......    ...... 
+   |...}.+###           ##              #      H     H     .......   .....  
+   |.....|  ####H########  #########.....      .     ##      ....     ...   
+   ---S---       #         #         ......           ###     #        .... 
+      #         ##     ........  }}}}}}}}}}}}}    ....  #     ##     ##.... 
+      H         H   ........}}}}}}}}}}}}}}}}}}}}}}}T....#      #     #  ..  
+      #      #####H.....T.}}}}}}}}}}}}}}}}}}}}}}}}}}}}...    ###     #      
+             #      ...}}}}}}}}}}...........}}}}}}}}}}}}}}   #       ###    
+          ####       .}}}}}}}}}}.....T........}}}}}}}}}}}}}  H         #    
+          #             }}}}}}}}}}}......T...}}}}}}}}}}}}}}}...        #    
+        .....         }}}}}}}}}}}}}}}}}}}}}}}}}}}}  ##  }}}}}.....   .....  
+       .......   }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}...#####..}}}}}}......T.... 
+     ........}}}}}    }}}}}}}}}}}}}}}}}}}}}}}}....        .}}}}}}}}}}}}}}}}}
+     .........}         ..}}}}}}   }}}}}}}T.....           ..}}}}}}}}}}}}}}}
+      .......       ##H.....         ........T      ....     ..}}}}}}}}}}}}}
+         .....########     ####         #          ......      ...........T 
+                              ###########           .....###H#........      
+                                                                            
+ENDMAP
+# Dungeon Description
+REGION:(00,00,75,19),lit,"ordinary"
+REGION:(04,02,08,04),lit,"ordinary"
+REGION:(05,12,17,15),unlit,"ordinary"
+REGION:(34,01,48,02),unlit,"ordinary"
+REGION:(58,01,65,04),unlit,"ordinary"
+REGION:(69,01,74,07),unlit,"ordinary"
+REGION:(51,16,56,18),unlit,"ordinary"
+# Stairs
+STAIR:(72,02),down
+# Doors
+DOOR:locked,(09,03)
+DOOR:locked,(06,05)
+# Sea monsters for the lake
+MONSTER:';',random,(63,13)
+MONSTER:';',random,(28,07)
+MONSTER:';',random,(22,10)
+MONSTER:';',random,(59,14)
+MONSTER:';',random,(39,06)
+MONSTER:';',random,(26,15)
+MONSTER:';',"electric eel",(53,08)
+MONSTER:';',"electric eel",(45,14)
+MONSTER:';',random,(29,12)
+MONSTER:';',random,(30,12)
+MONSTER:';',random,(28,11)
+MONSTER:';',random,(52,10)
+MONSTER:';',random,(69,15)
+# 'Trices living on the island
+MONSTER:'c',"cockatrice",(34,09)
+MONSTER:'c',"pyrolisk",(42,10)
+MONSTER:'c',random,(38,11)
+MONSTER:'c',random,(39,09)
+MONSTER:'c',random,(34,10)
+MONSTER:'c',random,(43,10)
+# And some (empty) decorations
+CONTAINER:'`',"statue",(33,10)
+CONTAINER:'`',"statue",(35,09)
+CONTAINER:'`',"statue",(44,10)
+CONTAINER:'`',"statue",(36,11)
+# And even some treasure
+CONTAINER:'(',"chest",(39,10)
+OBJECT[50%]:'(',"magic lamp",contained,cursed,0
+OBJECT:'!',"oil",contained
+# Byakhee in the big caves
+MONSTER:'B',"byakhee",(09,14),hostile,asleep
+MONSTER:'B',"byakhee",(12,15),hostile,asleep
+MONSTER:'B',"byakhee",(09,16),hostile,asleep
+MONSTER[60%]:'B',"byakhee",(11,12),hostile,asleep
+MONSTER[30%]:'B',"byakhee",(14,14),hostile,asleep
+# A little loot
+OBJECT:'*',"luckstone",(05,15)
+OBJECT:'*',random,(05,14)
+OBJECT:'*',random,(07,13)
+OBJECT:'*',random,(08,16)
+OBJECT:random,random,(11,13)
+OBJECT:random,random,(12,16)
+OBJECT:random,random,(06,15)
+OBJECT:random,random,(09,13)
+# And a door bell
+TRAP:"board",(12,10)
+TRAP:"board",(17,17)
+# A sweeper upper...
+MONSTER:'j',"ochre jelly",(12,16)
+MONSTER:'j',"ochre jelly",(08,12)
+# A few random flapping things
+MONSTER:'B',"vampire bat",random
+MONSTER:'B',"raven",random
+MONSTER:'B',random,random
+MONSTER:'B',random,random
+MONSTER[50%]:'B',random,random
+MONSTER[50%]:'B',random,random
+# Vampire the first
+MONSTER:'V',"vampire",(62,03),asleep,hostile
+OBJECT:'!',"speed",(62,03)
+# Minions
+MONSTER:'o',random,(62,04),asleep,hostile
+MONSTER:'o',random,(62,02),asleep,hostile
+MONSTER:'o',random,(61,03),asleep,hostile
+MONSTER:'o',random,(63,03),asleep,hostile
+# And his door bells
+TRAP:"board",(62,05)
+TRAP:"board",(56,02)
+# Hidden in the corridor
+OBJECT:'[',"leather armor",(47,04),cursed,-2
+# Zombie beyond
+MONSTER:'Z',random,(46,01)
+MONSTER:'Z',random,(44,01)
+MONSTER:'Z',random,(42,01)
+MONSTER:'Z',random,(40,01)
+MONSTER:'Z',random,(38,01)
+MONSTER:'Z',random,(36,01)
+# The fountain room 
+MONSTER:'V',"vampire lord",(05,03),asleep,hostile
+OBJECT:'?',"create monster",(06,06),cursed,0
+OBJECT:'!',"full healing",(06,06)
+# Slaves
+MONSTER:'V',"vampire",(06,03),asleep,hostile
+MONSTER:'V',"vampire",(04,03),asleep,hostile
+MONSTER:'V',"vampire",(05,02),asleep,hostile
+MONSTER:'V',"vampire",(05,04),asleep,hostile
+# Door bell
+TRAP:"board",(10,03)
+# Loot
+OBJECT:'?',"teleportation",(06,06),cursed,0
+OBJECT:'?',"amnesia",(06,06)
+OBJECT:'!',"sickness",(06,06)
+# Real loot
+OBJECT:'(',"chest",(06,08)
+GOLD:random,(06,08)
+# Stray Vampire
+MONSTER:'V',"vampire lord",(53,17),asleep,hostile
+OBJECT:'/',"fire",(53,17)
+OBJECT:'/',"slow monster",(53,17)
+# Guardians
+MONSTER:'d',"warg",(54,17),asleep,hostile
+MONSTER:'d',"warg",(52,18),asleep,hostile
+MONSTER:'d',"winter wolf",(53,16),asleep,hostile
+MONSTER:'d',"winter wolf",(52,17),asleep,hostile
+# Loot
+GOLD:random,(51,17)
+GOLD:random,(52,16)
+OBJECT:'*',random,(52,17)
+OBJECT:'*',random,(53,16)
+# Random traps
+TRAP:"rust",random
+TRAP:"magic",random
+TRAP:"magic",random
+TRAP:"pit",random
+TRAP:"pit",random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+
+#
+#	The entry level for the Lethe branch.
+#
+#	Upstream to the dragons lair, downstream to the castle.
+#
+
+MAZE: "lethe-b",' '
+FLAGS: hardfloor,lethe
+GEOMETRY:center,center
+MAP
+                                                                            
+   ...            ###.......  ....            ....                          
+  .....         ###   ...........           .......####                ...  
+  ....      #####    ...}}}}}}}}}}}}}}     .......    ##         ....H....  
+  ...   ##H##        .T}}}}}}}}}}}}}}}}     .....      ##       .....  ...  
+   #    #   ###     ..}}}}}}}}}}}}}}}}}}       #        #        ...        
+   #H####     #     .}}}}    ....    }}}}    ###     ....          ####     
+     #        ####..}}}}.     ..      }}}}}..#    ......              #     
+     #             }}}}..      #       }}}}}     ........      .......#     
+     .  ..}}}}}}}}}}}}..   ..###      ...}}}}      .....    ....T....       
+     ....}}}}}}}}}}}}     ...      ##....T}}}}...###       ..}}}}}}}}}}}}}} 
+     ..T}}}}}}}}}}}}      .....#      .....}}}}}           .}.}}}}}}}}}}}}} 
+     ..}}}}  ....          ...          .....}}}}          }}}.}}}}}}}}}}}} 
+    ..}}}}      H           #             ...T}}}}}}}}}}}}}}}}}.            
+}}}}}}}}}       .....     ###           ##. ...}}}}}}}}}}}}}}}.    ...      
+}}}}}}}}.    ...........  # #  ....     #     . }}}}}}}}}}}}}.    .....     
+}}}}}}}.    .............## ##.....     #     #   ....T......    ......     
+   .....    ...........       ......#####     ###  ......         #         
+            .....  ...         ....             ####  ....####H####         
+                                                                            
+ENDMAP
+# Dungeon Description
+REGION:(00,00,75,19),lit,"ordinary"
+REGION:(02,01,06,04),unlit,"ordinary"
+REGION:(12,14,24,18),unlit,"ordinary"
+REGION:(26,07,30,10),unlit,"ordinary"
+REGION:(30,15,35,18),unlit,"ordinary"
+REGION:(43,01,50,04),unlit,"ordinary"
+REGION:(49,06,56,09),unlit,"ordinary"
+REGION:(65,14,70,16),unlit,"ordinary"
+REGION:(64,03,68,05),unlit,"ordinary"
+REGION:(70,02,73,04),unlit,"ordinary"
+# Arrival point
+#BRANCH:(32,16,33,17),(0,0,0,0)
+# Stairs
+STAIR:(04,02),up
+STAIR:(72,03),down
+# Objects
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT[75%]:random,random,random
+OBJECT[75%]:random,random,random
+OBJECT[50%]:random,random,random
+OBJECT[25%]:random,random,random
+# Random traps
+TRAP:"rust",random
+TRAP:"rust",random
+TRAP:"rust",random
+TRAP:"rust",random
+TRAP:random,random
+TRAP:random,random
+# Random monsters.
+MONSTER:'h',"deep one",random
+MONSTER:'h',"deep one",random
+MONSTER:'h',"deep one",random
+MONSTER[66%]:'h',"deep one",random
+MONSTER[33%]:'h',"deep one",random
+MONSTER:'h',"deeper one",random
+MONSTER[50%]:'h',"deeper one",random
+MONSTER:';',random,random
+MONSTER:';',random,random
+MONSTER:';',random,random
+MONSTER:';',random,random
+MONSTER:';',random,random
+MONSTER[50%]:';',random,random
+MONSTER:';',"electric eel",random
+MONSTER:';',"electric eel",random
+MONSTER[50%]:';',"electric eel",random
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER:'B',random,random
+MONSTER:'B',random,random
+# Entry chamber
+MONSTER:'h',"deep one",(31,16)
+MONSTER:'h',"deep one",(31,18)
+MONSTER[50%]:'h',"deep one",(33,18)
+# North gate
+MONSTER:'h',"deep one",(28,12)
+# Main chamber
+MONSTER:'h',"deep one",(22,16)
+MONSTER:'h',"deep one",(20,16)
+MONSTER:'h',"deep one",(20,17)
+MONSTER[50%]:'h',"deep one",(16,17)
+MONSTER:'h',"deeper one",(18,16)
+MONSTER[50%]:'h',"deeper one",(18,17)
+OBJECT:'(',"chest",(14,18)
+# A guard for the bridge
+MONSTER:';',"electric eel",(62,13)
+# Treasure cave
+MONSTER:'T',random,(67,15),asleep
+MONSTER:'T',random,(69,16),asleep
+OBJECT:'(',"chest",(68,14)
+# Hard to reach caves
+OBJECT:'!',"water",(43,03),blessed,0
+OBJECT:'!',"gain ability",(49,08)
+MONSTER:'p',"iron piercer",(47,03)
+MONSTER:'p',random,(52,08)
+
+#
+#	The Ogre Stockade for the Lethe branch.
+#
+#	Upstream to the entry level, downstream to the castle.
+#
+
+MAZE: "leth-c-1",' '
+FLAGS: hardfloor,lethe
+GEOMETRY:center,center
+MAP
+                          }                                                 
+          ..      ........}}|.......                                        
+  ###  ##....   ...........}|..........           ......        .......     
+  H ####  ...  ..T.........}|................#+#...........#+##....\..      
+  .    ##...    ..........}}|................#+#.....{.....#+##....\.       
+ ...      ...    ......    }        T.......    .........       .......     
+ ...     ..     ....      }    }}     .....        ....                     
+ ....          ...      T}}} }}}     ##..##                     ###.....    
+  ...##       ...       }}} }..     ###  ####   #    .....    ###  .......  
+      #   .......      }T   ...   ####    ####  +   .......####    .......  
+      ............    }}   .... ....##    ##......   ....           .....   
+       ...T}}}}}}}}}}}}}   ..........     ..........  +    #                
+        }}}}}}}}}}}}}}}}}   .........    ................. +         ....   
+       }}}}}}}}}}}}}}}}}}}    ......   #+.....T.............   #### .....   
+}}}}}}}}}}}}     T...  }}}}           ..  .......{.....T.....###  ##......  
+}}}}}}}}}    ..    H    }}}}       T....    ........T.......      # .....   
+}}}}}}}}   .....   #     }}}}}}}}}}}}}}}}   .............         #  ....   
+           ......###      }}}}}}}}}}}}}}}}   + + + + + +    ...####         
+             ...           }}}}}}}}}}}}}}}}  # # # # # #   ....             
+                                        }}}}                                
+ENDMAP
+# Initialize random monsters
+RANDOM_MONSTERS:'D','H','q','c','T','R'
+# Dungeon Description
+REGION:(00,00,75,19),lit,"ordinary"
+REGION:(09,01,12,03),unlit,"ordinary"
+REGION:(01,04,04,08),unlit,"ordinary"
+REGION:(30,10,36,14),unlit,"ordinary"
+REGION:(51,08,58,10),unlit,"ordinary"
+REGION:(63,02,70,05),lit,"throne",unfilled
+REGION:(67,07,73,10),lit,"temple"
+ALTAR:(70,09),random,shrine
+REGION:(68,12,73,16),unlit,"ordinary"
+REGION:(59,17,62,18),unlit,"ordinary"
+# Stairs
+STAIR:(59,18),down
+STAIR:(02,06),up  
+# Doors
+DOOR:locked,(46,03)
+DOOR:locked,(46,04)
+DOOR:locked,(60,03)
+DOOR:locked,(60,04)
+DOOR:locked,(54,11)
+DOOR:closed,(48,09)
+DOOR:closed,(40,13)
+DOOR:closed,(45,17)
+DOOR:closed,(47,17)
+DOOR:closed,(49,17)
+DOOR:closed,(51,17)
+DOOR:closed,(53,17)
+DOOR:closed,(55,17)
+DOOR:closed,(59,12)
+# The drawbridge
+DRAWBRIDGE:(27,03),east,closed
+# Ogre Kings Throne Room
+# The King
+MONSTER:'O',"ogre king",(66,03)
+# The Queen
+MONSTER:'O',"ogre king",(66,04)
+# An advisor
+MONSTER:'O',"ogre mage",(65,04)
+# The Guards
+MONSTER:'O',"ogre",(65,02)
+MONSTER:'O',"ogre",(67,02)
+MONSTER:'O',"ogre",(65,04)
+MONSTER:'O',"ogre",(67,04)
+# A petitioner
+MONSTER:'k',"kobold lord",(65,03)
+# His treasure
+OBJECT:'(',"chest",(70,02)
+OBJECT:'(',"chest",(70,05)
+# A few ogres
+MONSTER:'O',"ogre mage",(39,05)
+MONSTER:'O',"ogre",(45,12)
+MONSTER:'O',"ogre",(54,14)
+MONSTER:'O',"ogre",(54,09)
+MONSTER[50%]:'O',"ogre",(70,14)
+# Compound guards
+MONSTER[50%]:'O',"ogre",(30,01)
+MONSTER:'O',"ogre",(30,04)
+MONSTER:'O',"ogre",(33,02)
+MONSTER:'O',"ogre",(34,02)
+OBJECT:'/',"striking",(34,02)
+MONSTER:'O',"ogre",(48,03)
+MONSTER:'O',"ogre",(48,04)
+OBJECT:'/',"fire",(48,04)
+# Temple guard
+MONSTER:'O',"ogre",(56,09)
+OBJECT:'/',"sleep",(56,09)
+# A surprise for those being nosy
+MONSTER:';',"electric eel",(25,08)
+# Some doggies...
+MONSTER:'d',random,(39,03)
+MONSTER:'d',random,(43,12)
+MONSTER:'d',random,(53,15)
+MONSTER[50%]:'d',random,(50,11)
+# ...and a nasty ratty
+MONSTER:'@',"wererat",(61,17)
+# Some random pets...
+# In the compound
+MONSTER:monster[0],random,(31,11) 
+MONSTER:monster[0],random,(33,13) 
+MONSTER[50%]:monster[0],random,(34,11)
+# Hidden over the river
+MONSTER:monster[1],random,(13,17)
+MONSTER:monster[1],random,(14,15)
+MONSTER:monster[1],random,(15,18)
+OBJECT:'*',random,(13,17)
+OBJECT:'!',random,(15,16)
+OBJECT:'?',random,(14,15)
+# Some things in the store room...
+OBJECT:'%',random,(69,12)
+OBJECT:'%',random,(70,12)
+OBJECT:'%',random,(71,12)
+OBJECT:'(',random,(72,12)
+OBJECT:'%',random,(70,13)
+OBJECT:')',random,(71,13)
+OBJECT:'%',random,(72,13)
+OBJECT:'%',random,(71,14)
+OBJECT:'(',random,(72,14)
+OBJECT:'%',random,(70,15)
+OBJECT:'%',random,(71,15)
+OBJECT:'%',random,(72,15)
+OBJECT:'(',random,(69,16)
+OBJECT:'%',random,(70,16)
+OBJECT[50%]:'%',random,(71,16)
+OBJECT[50%]:'[',random,(72,16)
+MONSTER:'s',"cave spider",(71,14) 
+MONSTER:'s',"cave spider",(72,13) 
+MONSTER:'s',"cave spider",(70,16) 
+MONSTER:'s',"cave spider",(69,12) 
+MONSTER:'m',"giant mimic",(73,14),m_feature "staircase down"
+# A little trap...
+TRAP:"level teleport",(51,18)
+TRAP:"spiked pit",(24,02)
+TRAP:"spiked pit",(22,03)
+TRAP:"spiked pit",(19,02)
+# Fishes in the river...
+MONSTER:';',"electric eel",(09,13) 
+MONSTER:';',random,(33,17) 
+MONSTER:';',random,(22,12) 
+MONSTER:';',random,(17,12) 
+# A few random monsters to finish things off
+MONSTER:'O',"ogre",random
+MONSTER:'O',"ogre",random
+MONSTER:'O',"ogre",random
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER:random,random,random
+# Essential tools (assume they have a wand of striking)
+OBJECT:'?',"earth",(10,03),blessed,0
+#
+
+#
+#	The Undead Stockade for the Lethe branch.
+#
+#	Upstream to the entry level, downstream to the castle.
+#
+
+MAZE: "leth-c-2",' '
+FLAGS: hardfloor,lethe
+GEOMETRY:center,center
+MAP
+                          }                                                 
+          ..      ........}}|.......                                        
+       ##....   ...........}|..........           ......        .......     
+  H#####  ...  ..T.........}|................#+#...........#+##....\..      
+  .             ..........}}|................#+#.....{.....#+##....\.       
+ ...             ......    }        T.......    .........       .......     
+ ...            ....       }          .....        ....                     
+ ....          ...      T}}T         ##..##                     ###.....    
+  ...##       ...       }}          ###  ####   #    .....    ###  .......  
+      #   .......      }T         ####    ####  +   .......####    .......  
+      ............    }}        ....##    ##......   ....           .....   
+       ...T}}}}}}}}}}}}}      .......     ..........  +    #                
+        }}}}}}}}}}}}}}}}}     .......    ................. +         ....   
+       }}}}}}}}}}}}}}}}}}}     .....   #+.....T.............   #### .....   
+}}}}}}}}}}}}     T...  }}}}           ..  .......{.....T.....###  ##......  
+}}}}}}}}}    ..    H    }}}}       T....    ........T.......      # .....   
+}}}}}}}}   .....   #     }}}}}}}}}}}}}}}}   .............         #  ....   
+           ......###      }}}}}}}}}}}}}}}}   + + + + + +    ...####         
+             ...           }}}}}}}}}}}}}}}}  # # # # # #   ....             
+                                        }}}}                                
+ENDMAP
+# Some random pets...
+RANDOM_MONSTERS:'D','Z','M','c','T','R'
+# Dungeon Description
+REGION:(00,00,75,19),lit,"ordinary"
+REGION:(09,01,12,03),unlit,"ordinary"
+REGION:(01,04,04,08),unlit,"ordinary"
+REGION:(30,10,36,14),unlit,"ordinary"
+REGION:(51,08,58,10),unlit,"ordinary"
+REGION:(63,02,70,05),lit,"morgue",unfilled
+REGION:(67,07,73,10),lit,"temple"
+REGION:(68,12,73,16),unlit,"ordinary"
+REGION:(59,17,62,18),unlit,"ordinary"
+# Stairs
+STAIR:(59,18),down
+STAIR:(02,06),up  
+# Doors
+DOOR:locked,(46,03)
+DOOR:locked,(46,04)
+DOOR:locked,(60,03)
+DOOR:locked,(60,04)
+DOOR:locked,(54,11)
+DOOR:closed,(48,09)
+DOOR:closed,(40,13)
+DOOR:closed,(45,17)
+DOOR:closed,(47,17)
+DOOR:closed,(49,17)
+DOOR:closed,(51,17)
+DOOR:closed,(53,17)
+DOOR:closed,(55,17)
+DOOR:closed,(59,12)
+# The drawbridge
+DRAWBRIDGE:(27,03),east,closed
+# Lich Kings Throne Room
+# The King
+MONSTER:'L',"master lich",(66,03)
+OBJECT:'/',"death",(66,03)
+# The Queen
+MONSTER:'L',"lich",(66,04)
+OBJECT:'/',"lightning",(66,04)
+# The Guards
+MONSTER:'M',"ettin mummy",(65,02)
+MONSTER:'M',"ettin mummy",(67,02)
+MONSTER:'M',"ettin mummy",(65,04)
+MONSTER:'M',"ettin mummy",(67,04)
+# A petitioner or two
+MONSTER:'Z',"ghoul",(65,03)
+MONSTER:'Z',"ghoul mage",(65,04)
+# His treasure
+OBJECT:'(',"chest",(70,02)
+OBJECT:'(',"chest",(70,05)
+# A few mummies
+MONSTER:'M',"human mummy",(39,05)
+MONSTER:'M',"human mummy",(45,12)
+MONSTER:'M',"elf mummy",(54,14)
+MONSTER:'M',"elf mummy",(54,09)
+MONSTER:'M',"elf mummy",(70,14)
+# Compound guards
+MONSTER:'Z',"giant zombie",(30,01)
+MONSTER:'Z',"giant zombie",(30,04)
+MONSTER:'Z',"giant zombie",(33,02)
+MONSTER:'Z',"giant zombie",(34,02)
+MONSTER:'Z',"giant zombie",(48,03)
+MONSTER:'Z',"giant zombie",(48,04)
+# Temple guard
+MONSTER:'Z',"skeleton",(56,09)
+# A surprise for those being nosy
+MONSTER:';',"electric eel",(25,08)
+# Some doggies...
+MONSTER:'d',"hell hound",(39,03)
+MONSTER:'d',"hell hound",(43,12)
+MONSTER:'d',"hell hound",(53,15)
+MONSTER:'d',"hell hound",(50,11)
+# ...and a nasty ratty
+MONSTER:'@',"wererat",(61,17)
+# In the compound
+MONSTER:monster[0],random,(31,11) 
+MONSTER:monster[0],random,(33,13) 
+MONSTER:monster[0],random,(34,11)
+# Hidden over the river
+MONSTER:monster[1],random,(13,17)
+MONSTER:monster[1],random,(14,15)
+MONSTER:monster[1],random,(15,18)
+OBJECT:'*',random,(13,17)
+OBJECT:'!',random,(15,16)
+OBJECT:'?',random,(14,15)
+# Some things in the store room...
+OBJECT:'%',random,(69,12)
+OBJECT:'%',random,(70,12)
+OBJECT:'%',random,(71,12)
+OBJECT:'(',random,(72,12)
+OBJECT:'%',random,(70,13)
+OBJECT:')',random,(71,13)
+OBJECT:'%',random,(72,13)
+OBJECT:'%',random,(71,14)
+OBJECT:'(',random,(72,14)
+OBJECT:'%',random,(70,15)
+OBJECT:'%',random,(71,15)
+OBJECT:'%',random,(72,15)
+OBJECT:'(',random,(69,16)
+OBJECT:'%',random,(70,16)
+OBJECT:'%',random,(71,16)
+OBJECT:'[',random,(72,16)
+MONSTER:'s',"cave spider",(71,14) 
+MONSTER:'s',"cave spider",(72,13) 
+MONSTER:'s',"cave spider",(70,16) 
+MONSTER:'s',"cave spider",(69,12) 
+MONSTER:'m',"giant mimic",(73,14)
+# A little trap...
+TRAP:"level teleport",(51,18)
+TRAP:"spiked pit",(24,02)
+TRAP:"spiked pit",(22,03)
+TRAP:"spiked pit",(19,02)
+# Fishes in the river...
+MONSTER:';',"giant eel",(09,13) 
+MONSTER:';',"giant eel",(33,17) 
+MONSTER:';',"shark",(22,12) 
+MONSTER:';',"kraken",(17,12) 
+# A few random monsters to finish things off
+MONSTER:'M',"human mummy",random
+MONSTER:'M',"human mummy",random
+MONSTER:'M',"elf mummy",random
+MONSTER:'M',"elf mummy",random
+MONSTER:'Z',random,random
+MONSTER:'Z',random,random
+MONSTER:'Z',random,random
+MONSTER:'Z',random,random
+MONSTER:'Z',random,random
+MONSTER:'Z',random,random
+# Essential tools (assume they have a wand of striking)
+OBJECT:'?',"earth",(10,03),blessed,+0
+
+#
+#	The Wizards Manse
+#
+#	Upstream to the entry level, downstream to the castle.
+#
+
+MAZE: "leth-d-1",' '
+FLAGS: hardfloor,lethe
+GEOMETRY:center,center
+MAP
+ ------------------------------------   }}}}              -----             
+ |.............T...........T........|    }}}}             |...|             
+ |TTTT..TTTTT..TTT..TTTTT..TTT..TT..|  ..}}}}..           |...|             
+ |......T...T...........T..T.....T..| ...}}}}...          --+--         ..  
+ |..TTTTTT..T..TTTTTTT..T.....{..T..|...}}}}}}...|  -----   #          .... 
+ |..........T..T.....TTTT..T.....T..|..}}}}}}}}..|  |...|   #        ##.... 
+ |TTTT..TTTTT..TTTT..T..T..TTT..TT..+..}}}}}}}}..+##S...+####        # .... 
+ |..........T........T.....T........|..}}}}}}}}..|  |...|            #  ..  
+ |.T..}}..T.-----------------------S|...}}}}}}...|  -----            ##     
+ |....}}....|.........|..|.|..|.....-------------------  ....         ##    
+ |....}}....|.........|+--+--+|.....|..........|.|....| ..}}}}}}       H    
+ |.T..}}..T.|.........|.......|.....|........\...|....S#.}}}}}}}}}}}   ..   
+ |....}}....|.........|.......|.....|..........|.S....| .}}}}}}}}}}}} ....  
+ |....}}....-----+--------+------+---..........-----+--  }}}}}}}}}}}}}}}}}}}
+ |.T..}}..T.+.......................+.........\..| |.|    }}}}}}T.}}}}}}}}}}
+ |....}}....-----+--------+------+---..........-----+--      .......}}}}}}}}
+ |....}}....|.........|.......|.....|..........|.S....|          #          
+ |.T..}}..T.|.........|.......|.....|........\...|....S###########          
+ |..........|.........|.......|.....|..........|.|....|                     
+ ------------------------------------------------------                     
+ENDMAP
+# Dungeon Description
+REGION:(02,01,35,07),lit,"ordinary"
+REGION:(02,08,11,18),lit,"ordinary"
+REGION:(37,01,48,08),lit,"ordinary"
+REGION:(53,05,55,07),lit,"ordinary"
+REGION:(59,01,61,02),lit,"ordinary"
+REGION:(13,09,21,11),lit,"zoo"
+REGION:(13,16,21,18),lit,"ordinary"
+REGION:(23,11,29,12),unlit,"ordinary"
+REGION:(23,09,24,09),unlit,"ordinary"
+REGION:(26,09,26,09),unlit,"ordinary"
+REGION:(28,09,29,09),unlit,"ordinary"
+REGION:(23,16,29,18),lit,"ordinary"
+REGION:(31,09,35,12),lit,"ordinary"
+REGION:(31,16,35,18),lit,"ordinary"
+REGION:(13,14,35,14),lit,"ordinary"
+# Throne Room, in two parts
+REGION:(38,10,45,13),lit,"throne"
+REGION:(38,15,45,18),lit,"throne"
+REGION:(48,10,48,12),lit,"ordinary"
+REGION:(47,14,48,14),lit,"ordinary"
+REGION:(48,16,48,18),lit,"ordinary"
+REGION:(50,10,53,12),unlit,"ordinary"
+REGION:(50,16,53,18),unlit,"ordinary"
+REGION:(52,14,52,14),unlit,"ordinary"
+REGION:(56,09,75,15),lit,"ordinary"
+REGION:(71,03,74,07),unlit,"ordinary"
+# Stairs
+STAIR:(73,05),down
+STAIR:(60,01),up  
+# Doors
+DOOR:locked,(60,03)
+DOOR:locked,(56,06)
+DOOR:locked,(52,06)
+DOOR:locked,(49,06)
+DOOR:locked,(36,06)
+DOOR:locked,(35,08)
+DOOR:random,(12,14)
+DOOR:random,(17,13)
+DOOR:random,(17,15)
+DOOR:random,(26,13)
+DOOR:random,(26,15)
+DOOR:random,(23,10)
+DOOR:random,(26,10)
+DOOR:random,(29,10)
+DOOR:locked,(33,13)
+DOOR:random,(33,15)
+DOOR:locked,(36,14)
+DOOR:locked,(49,16)
+DOOR:locked,(49,12)
+DOOR:locked,(54,11)
+DOOR:locked,(54,17)
+DOOR:random,(52,13)
+DOOR:random,(52,15)
+# Monsters in the garden
+MONSTER:'a',"killer bee",(03,15) 
+MONSTER:'a',"killer bee",(04,15) 
+MONSTER:'a',"killer bee",(03,16) 
+MONSTER:'a',"killer bee",(04,16) 
+MONSTER:'u',random,(06,03) 
+MONSTER:'u',random,(18,07) 
+MONSTER:'u',random,(30,02) 
+MONSTER:'u',random,(26,07) 
+MONSTER:'C',random,(10,13) 
+MONSTER:'C',random,(10,15) 
+# Traps
+TRAP:"polymorph",(35,09)
+TRAP:"board",(35,14)
+TRAP:"board",(35,14)
+TRAP:"magic",(34,06)
+TRAP:"magic",(53,17)
+# Fishes in the river...
+MONSTER:';',"giant eel",(42,02) 
+MONSTER:';',"giant eel",(44,06) 
+MONSTER:';',"shark",(41,07) 
+MONSTER:';',"giant eel",(59,12) 
+MONSTER:';',"electric eel",(66,12) 
+MONSTER:';',"kraken",(71,15) 
+# Treasure
+OBJECT:'(',"chest",(24,09)
+OBJECT:'(',"chest",(26,09)
+OBJECT:'(',"chest",(28,09)
+# Throne Room Extras
+MONSTER:'h',"mind flayer",(45,11),asleep
+OBJECT:'/',"lightning",(45,11)
+OBJECT:'(',"chest",(48,12)
+MONSTER:'h',"master mind flayer",(46,14),asleep
+OBJECT:'/',"cancellation",(46,14)       
+TRAP[75%]:"magic",(47,14)
+OBJECT:'(',"chest",(48,14)
+MONSTER:'h',"mind flayer",(45,17),asleep
+OBJECT:'/',"sleep",(45,17)
+OBJECT:'(',"chest",(48,16)
+# Decorations
+CONTAINER:'`',"statue",(47,08)
+CONTAINER:'`',"statue",(38,08)
+CONTAINER:'`',"statue",(32,04)
+CONTAINER:'`',"statue",(06,18)
+CONTAINER:'`',"statue",(26,18)
+# Monsters
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER:random,random,random
+# Objects
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+# Random traps
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+
+
+#
+#	The Lichs Manse
+#
+#	Upstream to the entry level, downstream to the castle.
+#
+
+MAZE: "leth-d-2",' '
+FLAGS: hardfloor,lethe
+GEOMETRY:center,center
+MAP
+ ------------------------------------   }}}}              -----             
+ |..................................|    }}}}             |...|             
+ |..................................|  ..}}}}..           |...|             
+ |..................................| ...}}}}...          --+--         ..  
+ |..................................|...}}}}}}...|  -----   #          .... 
+ |..................................|..}}}}}}}}..|  |...|   #        ##.... 
+ |..................................+..}}}}}}}}..+##S...+####        # .... 
+ |..................................|..}}}}}}}}..|  |...|            #  ..  
+ |..........-----------------------S|...}}}}}}...|  -----            ##     
+ |....}}....|.........|..|.|..|.....-------------------  ....         ##    
+ |....}}....|.........|+--+--+|.....|..........|.|....| ..}}}}}}       H    
+ |....}}....|.........|.......|.....|........\...|....S#.}}}}}}}}}}}   ..   
+ |....}}....|.........|.......|.....|..........|.S....| .}}}}}}}}}}}} ....  
+ |....}}....-----+--------+------+---..........-----+--  }}}}}}}}}}}}}}}}}}}
+ |....}}....+.......................+.........\..| |.|    }}}}}}..}}}}}}}}}}
+ |....}}....-----+--------+------+---..........-----+--      .......}}}}}}}}
+ |....}}....|.........|.......|.....|..........|.S....|          #          
+ |....}}....|.........|.......|.....|........\...|....S###########          
+ |..........|.........|.......|.....|..........|.|....|                     
+ ------------------------------------------------------                     
+ENDMAP
+# Dungeon Description
+REGION:(02,01,35,07),lit,"ordinary"
+REGION:(03,02,10,06),lit,"fungusfarm"
+REGION:(13,01,20,03),lit,"fungusfarm"
+REGION:(13,05,20,07),lit,"fungusfarm"
+REGION:(23,02,26,06),lit,"fungusfarm"
+REGION:(29,01,32,02),lit,"fungusfarm"
+REGION:(29,04,32,04),lit,"fungusfarm"
+REGION:(29,06,32,07),lit,"fungusfarm"
+REGION:(02,08,11,18),lit,"ordinary"
+REGION:(37,01,48,08),lit,"ordinary"
+REGION:(53,05,55,07),lit,"ordinary"
+REGION:(59,01,61,02),lit,"ordinary"
+REGION:(13,09,21,11),lit,"morgue"
+REGION:(13,16,21,18),lit,"ordinary"
+REGION:(23,11,29,12),unlit,"ordinary"
+REGION:(23,09,24,09),unlit,"ordinary"
+REGION:(26,09,26,09),unlit,"ordinary"
+REGION:(28,09,29,09),unlit,"ordinary"
+REGION:(23,16,29,18),lit,"ordinary"
+REGION:(31,09,35,12),lit,"ordinary"
+REGION:(31,16,35,18),lit,"ordinary"
+REGION:(13,14,35,14),lit,"ordinary"
+# Throne Room, in two parts
+REGION:(38,10,45,13),lit,"morgue"
+REGION:(38,15,45,18),lit,"morgue"
+REGION:(48,10,48,12),lit,"ordinary"
+REGION:(47,14,48,14),lit,"ordinary"
+REGION:(48,16,48,18),lit,"ordinary"
+REGION:(50,10,53,12),unlit,"ordinary"
+REGION:(50,16,53,18),unlit,"ordinary"
+REGION:(52,14,52,14),unlit,"ordinary"
+REGION:(56,09,75,15),lit,"ordinary"
+REGION:(71,03,74,07),unlit,"ordinary"
+# Stairs
+STAIR:(73,05),down
+STAIR:(60,01),up  
+# Doors
+DOOR:locked,(60,03)
+DOOR:locked,(56,06)
+DOOR:locked,(52,06)
+DOOR:locked,(49,06)
+DOOR:locked,(36,06)
+DOOR:locked,(35,08)
+DOOR:random,(12,14)
+DOOR:random,(17,13)
+DOOR:random,(17,15)
+DOOR:random,(26,13)
+DOOR:random,(26,15)
+DOOR:random,(23,10)
+DOOR:random,(26,10)
+DOOR:random,(29,10)
+DOOR:locked,(33,13)
+DOOR:random,(33,15)
+DOOR:locked,(36,14)
+DOOR:locked,(49,16)
+DOOR:locked,(49,12)
+DOOR:locked,(54,11)
+DOOR:locked,(54,17)
+DOOR:random,(52,13)
+DOOR:random,(52,15)
+# Monsters in the garden
+MONSTER:'a',"killer bee",(03,15) 
+MONSTER:'a',"killer bee",(04,15) 
+MONSTER:'a',"killer bee",(03,16) 
+MONSTER:'a',"killer bee",(04,16) 
+MONSTER:'M',"giant mummy",(10,13),asleep
+MONSTER:'M',"giant mummy",(10,15),asleep
+# Replacement 'trees' in the garden
+MONSTER:'F',"shrieker",(03,11),asleep
+MONSTER:'F',"shrieker",(10,11),asleep
+MONSTER:'F',"shrieker",(03,14),asleep
+MONSTER:'F',"shrieker",(10,14),asleep
+MONSTER:'F',"shrieker",(03,17),asleep
+MONSTER:'F',"shrieker",(10,17),asleep
+# Traps
+TRAP:"polymorph",(35,09)
+TRAP:"board",(35,14)
+TRAP:"board",(35,14)
+TRAP:"magic",(34,06)
+TRAP:"magic",(53,17)
+# Fishes in the river...
+MONSTER:';',"giant eel",(42,02) 
+MONSTER:';',"giant eel",(44,06) 
+MONSTER:';',"shark",(41,07) 
+MONSTER:';',"giant eel",(59,12) 
+MONSTER:';',"electric eel",(66,12) 
+MONSTER:';',"kraken",(71,15) 
+# One security guard
+MONSTER:'D',"black dragon",(26,11),asleep
+# Treasure
+OBJECT:'(',"chest",(24,09)
+OBJECT:'(',"chest",(26,09)
+OBJECT:'(',"chest",(28,09)
+# Throne Room Extras
+MONSTER:'L',"lich",(45,11),asleep
+OBJECT:'/',"lightning",(45,11)
+OBJECT:'(',"chest",(48,12)
+MONSTER:'L',"master lich",(46,14),asleep
+OBJECT:'/',"cancellation",(46,14)       
+TRAP[75%]:"magic",(47,14)
+OBJECT:'(',"chest",(48,14)
+MONSTER:'&',"succubus",(46,13),asleep
+MONSTER:'&',"succubus",(46,15),asleep
+MONSTER:'L',"lich",(45,17),asleep
+OBJECT:'/',"sleep",(45,17)
+OBJECT:'(',"chest",(48,16)
+# Decorations
+CONTAINER:'`',"statue",(47,08)
+CONTAINER:'`',"statue",(38,08)
+CONTAINER:'`',"statue",(26,18)
+# Monsters
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER:random,random,random
+# Objects
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+# Random traps
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+
+#
+#	Troll Bridge
+#
+#	Upstream to the entry level, downstream to the castle.
+#
+
+MAZE: "lethe-e",' '
+FLAGS: hardfloor,lethe
+GEOMETRY:center,center
+MAP
+                          TT###TT               }}}}                        
+           ...         -----###-----            }}}}   .........            
+          ....         |...|###|...|            }}}} .............          
+       ##.....###      |....###....|           }}}}} ..............####     
+       #  ....  #      |....###....|          }}}}}}  ............    # ... 
+  ...  #   ...  #      |...|###|...|         }}}}}}}    ........      ##... 
+ .....##        #      -----###-----        }}}}}}}.        #           ..  
+  ...         ###         TT###TT      }}}}}}}}}}}...      ##  ...          
+              #           T.###.T     }}}}}}}}}}}.T #     ##   ....###....  
+            ......######....###...   }}}}}}}}}}     ##    #    ...  #  ...  
+           .......      ..  ###  .. }}}}}}}T...      #### #         #  ...  
+          .........    ...  ###  ..}}}}}}}...#      ##  ######     ...      
+         .......T}}}}}}}}}}}###}}}}}}}}}}    ###   ##        ###  ......    
+}}}}}}}}}}}.T...}}}}}}}}}}}}###}}}}}}}}}       #  ##   .....   ##.........  
+}}}}}}}}}}}}}}}}}}}}}}}}}}}}###}}}}}}}}      ######   .......     ........  
+}}}}}}}}}}}}}}}}}}}}}}....  ###  T...      ###           H        ......    
+       }}}}}}}}}}}}}    ....###....     ####       ........     #H....      
+                       .....###.....#####  ##   ##..........H####           
+                        ....###....         #####  ........                 
+                            ###                                             
+ENDMAP
+# Dungeon Description
+REGION:(00,00,51,19),lit,"ordinary"
+REGION:(01,05,05,07),unlit,"ordinary"
+REGION:(09,01,13,05),unlit,"ordinary"
+REGION:(24,02,26,05),unlit,"ordinary"
+REGION:(31,02,34,05),unlit,"ordinary"
+REGION:(50,16,59,18),unlit,"ordinary"
+REGION:(54,13,60,14),unlit,"ordinary"
+REGION:(60,14,73,16),lit,"ordinary"
+REGION:(53,01,66,05),lit,"ordinary"
+REGION:(72,04,74,06),unlit,"ordinary"
+REGION:(63,07,66,09),unlit,"ordinary"
+REGION:(70,08,73,10),unlit,"ordinary"
+# Stairs
+STAIR:(73,04),down
+STAIR:(03,07),up 
+# Trolls
+MONSTER:'T',"troll",(24,02)
+MONSTER:'T',"troll",(26,02)
+MONSTER:'T',"troll",(24,05)
+MONSTER:'T',"troll",(26,05)
+MONSTER:'T',"troll",(32,02)
+MONSTER:'T',"troll",(34,02)
+MONSTER:'T',"troll",(32,05)
+MONSTER:'T',"troll",(34,05)
+MONSTER:'T',random,random
+MONSTER:'T',random,random
+MONSTER:'T',random,random
+MONSTER:'T',random,random
+MONSTER:'T',random,random
+MONSTER:'T',random,random
+MONSTER:'T',random,random
+MONSTER:'T',random,random
+MONSTER:'T',random,random
+MONSTER:'T',random,random
+MONSTER:'T',random,random
+MONSTER[50%]:'T',random,random
+MONSTER[50%]:'T',random,random
+MONSTER[50%]:'T',random,random
+# Fishes in the river...
+MONSTER:';',random,(04,14) 
+MONSTER:';',random,(16,15) 
+MONSTER:';',random,(25,13) 
+MONSTER:';',random,(35,13) 
+MONSTER:';',random,(41,09) 
+MONSTER:';',random,(47,06) 
+MONSTER[50%]:';',random,(50,01) 
+# Monsters
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER[50%]:random,random,random
+MONSTER[50%]:random,random,random
+MONSTER[50%]:random,random,random
+# Objects
+OBJECT:'!',"full healing",random
+OBJECT:'!',"full healing",random
+OBJECT:'!',"extra healing",random
+OBJECT:'*',"diamond",random
+OBJECT:'*',"diamond",random
+OBJECT:'*',"diamond",random
+OBJECT:'%',random,random
+OBJECT:'%',random,random
+OBJECT:'%',random,random
+OBJECT:'%',random,random
+OBJECT:'%',random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+# Random traps
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP[50%]:random,random
+ 
+#
+#	Sylvan Park
+#
+#	Upstream to the entry level, downstream to the castle.
+#
+
+MAZE: "lethe-f",' '
+FLAGS: hardfloor,lethe
+GEOMETRY:center,center
+MAP
+ ---------                                                            ------
+ |.S.....|    .........    ######                        ......T......|....|
+ |.|.....|..............H###    #######      #####   .......T.....T...+....|
+ -----+---......T.......              ###.....   ##.....T.............------
+    ..................}}}}}}}}}}}}}}}    ..}..     ..T........T....T....    
+  .................}}}}}}}}}}}}}}}}}}}    ...       ............T....}}}}}}}
+ .....T.....T....}}}}}}}}}}}}}}}}}}}}}}     ###      ....T.........}}}}}}}}}
+ ....T.........}}}}}}}}  ...... }}}}}}}}      #       .......T...}}}}}}}}}}}
+  ............}}}}}}}}    ..  #  }}}}}}}}}    ##...    ...T....}}}}}}}}}}}} 
+   .......T..}}}}}}}}         ##  }}}}}}}}}}    ....    .....}}}}}}}}}}     
+     ..T.....}}}}}}}}}.        ###.}}}..}}}}..   ....    T..}}}}}}}}        
+       .......}}}}}}}}}.           .}}}..}}}}}.. # ...    }}}}}}    ------- 
+       #   ....T.}}}}}}..           .}}.T.}}}}}...       }}}}}      |.....| 
+      ##   # ......}}}}}.            ..}}..}}}.}}T..    }}}}}  --------S--- 
+     ##    #        }}}}..       ###  }}.}}}}..}}}}}.} }}}}}   |...{....|   
+     #   #H##  ....  }}}}.#####  H ##  .}.}}}.}.}}}}}.}}}}}    |..{.{...|   
+    ....H#  ##.....  }}}}.    .. .  ###..}.}.}}}.}}}}}.}}..####+...{....|   
+  .....       ....   }}}}   ......      ..}. T}}}.}}}}}..      ----------   
+   .....       ...  }}}}    .....                                           
+                   }}}}                                                     
+ENDMAP
+# Dungeon Description
+REGION:(00,00,75,19),lit,"ordinary"
+REGION:(02,01,02,02),lit,"ordinary"
+REGION:(04,01,08,02),lit,"temple"
+ALTAR:(06,01),random,shrine
+REGION:(02,16,07,18),unlit,"ordinary"
+REGION:(14,15,18,18),unlit,"ordinary"
+REGION:(28,16,33,18),unlit,"ordinary"
+REGION:(41,03,45,05),unlit,"ordinary"
+REGION:(48,08,53,11),unlit,"ordinary"
+REGION:(71,01,74,02),lit,"ordinary"
+REGION:(64,14,71,16),lit,"ordinary"
+REGION:(69,12,73,12),lit,"ordinary"
+# Stairs
+STAIR:(73,01),down
+STAIR:(30,17),up 
+# Doors
+DOOR:closed,(06,03)
+DOOR:locked,(03,01)
+DOOR:closed,(70,02)
+DOOR:locked,(63,16)
+DOOR:closed,(71,13)
+# Centaurs in the west 
+MONSTER:'C',random,(13,03)
+MONSTER:'C',random,(09,06)
+MONSTER:'C',random,(06,09)
+MONSTER:'C',random,(13,12)
+MONSTER[66%]:'C',random,(22,03)
+MONSTER[33%]:'C',random,(02,07)
+# Chief Centaur and hareem
+MONSTER:'C',"mountain centaur",(16,16)
+OBJECT:'(',"chest",(18,15)
+OBJECT:')',"bow",(16,16),blessed,+2
+MONSTER:'C',"mountain centaur",(04,17)
+MONSTER:'C',"mountain centaur",(05,18)
+OBJECT:'(',"chest",(03,18)
+# Elves in the east
+MONSTER:'@',"Green-elf",(58,03)
+MONSTER:'@',"Green-elf",(64,02)
+MONSTER:'@',"Green-elf",(65,04)
+MONSTER:'@',"Green-elf",(61,05)
+MONSTER[50%]:'@',"Green-elf",(61,01)
+MONSTER:'@',"Woodland-elf",(55,04)
+MONSTER:'@',"Woodland-elf",(53,05)
+MONSTER:'@',"Woodland-elf",(56,06)
+MONSTER:'@',"Woodland-elf",(57,08)
+MONSTER[50%]:'@',"Woodland-elf",(59,10)
+# Nymphs in the middle!
+MONSTER[50%]:'n',random,(39,10)
+MONSTER[50%]:'n',random,(48,13)
+MONSTER[50%]:'n',random,(48,16)
+MONSTER[50%]:'n',random,(44,16)
+MONSTER[50%]:'n',random,(40,14)
+MONSTER[50%]:'n',random,(41,17)
+MONSTER[50%]:'n',random,(34,10)
+MONSTER[50%]:'n',random,(48,12)
+MONSTER[50%]:'n',random,(54,16)
+MONSTER[50%]:'n',random,(45,10)
+# A couple of trolls guarding the door
+MONSTER:'T',"troll",(30,16)
+MONSTER:'T',"troll",(30,17)
+# A monster in the middle darkness...
+MONSTER:';',"kraken",(43,04)
+MONSTER:'p',random,(49,09)
+MONSTER:'p',random,(41,10)
+# A couple of extra random monsters...
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER[50%]:random,random,random
+# A few statues
+CONTAINER:'`',"statue",(05,04),"mountain nymph",1
+CONTAINER:'`',"statue",(07,04),"mountain nymph",1
+CONTAINER:'`',"statue",(69,01),"Death",1
+OBJECT:'/',"death",contained
+CONTAINER:'`',"statue",(67,15),"Poseidon",1
+OBJECT:'"',"amulet of magical breathing",contained
+OBJECT:'`',"statue",(38,10)
+# Deep one servitors for the temple of Poseidon
+MONSTER:'h',"deep one",(65,14),asleep
+MONSTER[50%]:'h',"deep one",(65,16),asleep
+MONSTER:'h',"deeper one",(70,15),asleep
+OBJECT:'(',"chest",(69,12)
+OBJECT:'(',"chest",(73,12)
+OBJECT:'?',"demonology",(70,15),cursed,0
+# A stray amulet
+OBJECT:'"',random,(26,08)
+# A few random traps
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+TRAP[50%]:random,random
+# Fishes in the river...
+MONSTER:';',random,(23,15) 
+MONSTER:';',random,(19,11) 
+MONSTER:';',random,(16,09) 
+MONSTER:';',random,(21,06) 
+MONSTER:';',random,(28,05) 
+MONSTER:';',random,(34,06) 
+MONSTER:';',"electric eel",(38,08) 
+MONSTER:';',random,(43,12) 
+MONSTER:';',random,(50,15) 
+MONSTER[50%]:';',random,(58,14) 
+MONSTER[50%]:';',random,(65,09) 
+MONSTER[50%]:';',random,(72,06) 
+# A few random objects
+OBJECT:'!',random,random
+OBJECT:'!',random,random
+OBJECT:'!',random,random
+OBJECT:'/',random,random
+OBJECT:'*',random,random
+OBJECT:'%',random,random
+OBJECT:'%',random,random
+OBJECT:'%',random,random
+OBJECT:'%',random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+
+#
+#	Honycombe Canyon
+#
+#	Upstream to the entry level, downstream to the castle.
+#
+
+MAZE: "lethe-g",' '
+FLAGS: hardfloor,lethe
+GEOMETRY:center,center
+MAP
+  ---------   ---     ---      ---      ---    ---    ---    ---      ------
+  |.......|----.-------}--------.--------.------.------.------.-------|....|
+  |.......+...........}}}}}}}}........................................+....|
+  |.......|----.-------}}-------.--------.------.------.------.-------|....|
+  ---------   -S-     -}}}     ---      ---    -S-    ---    ---      ------
+               # ...}}}}}}}}                    H                 }}}       
+               ...}}}}}}}}}}}}}     ###      .......             }}}}}}...  
+              ..}}}}}}}}}}}}}}}}.   H ######..........        ..}}}}}}}}}.. 
+              }}.}}}}}}}}}}}}}}}}....        .........H##### ..}}}}}}}}}}}} 
+           }}}}}}.}...    }}}}}}}}....        ......       ...}}}}}}}}}}}}}}
+       }}}}}}}}}....       ..}}}}}.}...         #         ..}}}}}}}}}}}}}}}}
+  }}}}}}}}}}}     H         ...}}.}}}}}         H         }}.}}}}}}}}}}}}}}}
+}}}}}}}}}}}    ####          ....}}}}}}}}}}}  ......  }}}}}}}.}}}}}}}}....  
+}}}}}}}}}}   ###              #   }}}}}}}}}}}}}}}}}}}}}}}}}}}}.}..      #   
+}}}}}}}}}   ##        ...     ##  .}}}}}}}}}}}}}}}}}}}}}}}}}}....      ##   
+  }}}}... ###      ........    #   .}}}}}}}}}}}}}}}}}}}}}}    H       ##    
+    ....### H     ..........H###   .}}}}}}}}}}}}}}}}}}}}}    ........H#     
+     ..     ###  #..........     ##..}}}}}}}}}}}}}}}}}}}}   .........   ..  
+              ####  ...  ...H#####  ....}}}}}}}}}}}}}}}}      .......H#...  
+                                          }}}}}}}}}}}}                      
+ENDMAP
+# Dungeon Description
+REGION:(00,00,75,19),lit,"ordinary"
+REGION:(03,01,09,03),lit,"ordinary"
+REGION:(11,01,69,03),unlit,"ordinary"
+REGION:(71,01,74,03),lit,"ordinary"
+REGION:(18,14,27,18),unlit,"migohive"
+REGION:(44,06,53,09),unlit,"migohive"
+REGION:(60,16,68,18),unlit,"migohive"
+# Stairs
+STAIR:(73,02),down
+STAIR:(04,02),up 
+# Doors
+DOOR:locked,(10,02)
+DOOR:locked,(15,04)
+DOOR:locked,(48,04)
+DOOR:locked,(70,02)
+# A few statues
+CONTAINER:'`',"statue",(04,01),"bone devil",1
+CONTAINER:'`',"statue",(04,03),"bone devil",1
+CONTAINER:'`',"statue",(06,01),"ice devil",1
+CONTAINER:'`',"statue",(06,03),"ice devil",1
+CONTAINER:'`',"statue",(08,01),"balrog",1
+CONTAINER:'`',"statue",(08,03),"balrog",1
+# Long hall
+CONTAINER:'`',"statue",(15,01),"knight",1
+CONTAINER:'`',"statue",(15,03),"barbarian",1
+CONTAINER:'`',"statue",(23,01),"fool",1
+CONTAINER:'`',"statue",(23,03),"Rodney",1
+CONTAINER:'`',"statue",(32,01),"wizard",1
+CONTAINER:'`',"statue",(32,03),"priest",1
+CONTAINER:'`',"statue",(41,01),"ranger",1
+CONTAINER:'`',"statue",(41,03),"rogue",1
+CONTAINER:'`',"statue",(48,01),"caveman",1
+CONTAINER:'`',"statue",(48,03),"samurai",1
+CONTAINER:'`',"statue",(55,01),"monk",1
+CONTAINER:'`',"statue",(55,03),"valkyrie",1
+CONTAINER:'`',"statue",(62,01),"healer",1
+CONTAINER:'`',"statue",(62,03),"Pestilence",1
+OBJECT:'(',"unicorn horn",contained,cursed,+3
+# Final Room
+CONTAINER:'`',"statue",(72,03),"marilith",1
+CONTAINER:'`',"statue",(72,01),"mariltih",1
+CONTAINER:'`',"statue",(74,02),"Asmodeus",1
+OBJECT:'=',"aggravate monster",contained,cursed,0
+OBJECT:'%',"fortune cookie",(71,02)
+# A few traps
+TRAP:"pit",(21,02)
+TRAP:"pit",(30,02)
+TRAP:"board",(19,17)
+TRAP:"board",(46,07)
+TRAP:"board",(62,14)
+TRAP:random,random
+TRAP:random,random
+TRAP:random,random
+# Some random objects
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+OBJECT:random,random,random
+# A little incentive for the last hive
+OBJECT:'!',"full healing",(73,17)
+OBJECT:'!',"full healing",(73,18)
+OBJECT:'[',"levitation boots",(73,12),cursed,0
+# A few monsters (other than bees)
+MONSTER:'t',random,(18,02)
+MONSTER:'t',random,(44,02)
+MONSTER:'t',random,(62,02)
+MONSTER:'B',random,(06,16)
+MONSTER:'B',random,(29,11)
+MONSTER:'B',random,(48,12)
+MONSTER:'B',random,(73,07)
+# A few fishies
+MONSTER:';',random,(05,13)
+MONSTER:';',random,(13,09)
+MONSTER:';',random,(23,07)
+MONSTER:';',random,(26,02)
+MONSTER:';',random,(31,10)
+MONSTER:';',random,(40,14)
+MONSTER:';',random,(48,17)
+MONSTER:';',random,(57,13)
+MONSTER[50%]:';',random,(64,10)
+MONSTER[50%]:';',random,(67,07)
+# A couple of random monsters to finish
+MONSTER:random,random,random
+MONSTER:random,random,random
+MONSTER:random,random,random
+
+#
+#	The gates of Hades.
+#
+#	The river flows through an impressive gates guarded by angels and
+#	demons and thence into the depths of Hades itself.
+#
+MAZE: "lethe-z",' '
+FLAGS: hardfloor,lethe
+GEOMETRY:center,center
+MAP
+                                                        ---------           
+        .....                                           |.......|    }      
+      .....T...                                   }     |.......|   }}}     
+     .........T..........T..              .      .}}    |.......|  .}}      
+    ..T........................           ...   ...}}}  |.......| ...}      
+    ......T....          .T.....T..      ..T.. .....}...|.......|....       
+-----........    -------      .........T...... .........--+-+-+--....       
+|...|......      |..\..|         ..T........-----...................        
+|...+.....   ----|.....---------  .......T..|   |................-----------
+|...|...T    |...+.....+.......|   .........-----........}.......|.....|...|
+-----....    |...------|.......|    T...T...............}}}......+.....S.}.|
+    .....H###S...+.....|.......+####....................}}.......|.....|...|
+    .T...    |...|\....+.......|    ..T.....-----.........}......-----------
+   .......   ----|.....|.......|    T.....T.|   |.............}}}}}}}}      
+}}}}}}}}}}}}     ---------------   }}}}}}}}}-----}}}}}}}}}}}}}}}}}}}}}}}    
+}}}}}}}}}}}}}}                   }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}   
+}}}}}}}}}}}}}}}}}}}           }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}   
+        }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}-----}}}}}}}}}}}}}}}}}}}}}}}    
+            }}}}}}}}}}}}}}}}}}}}}}}}        |   |             }}}}}}}}      
+               }}}}}}}}}}}}}}}}}}}          -----                           
+ENDMAP
+# Dungeon Description
+REGION:(00,00,46,19),lit,"ordinary"
+REGION:(47,00,75,19),unlit,"ordinary"
+REGION:(01,07,03,09),lit,"ordinary"
+REGION:(14,09,16,12),unlit,"ordinary"
+REGION:(18,07,22,09),unlit,"ordinary"
+REGION:(18,11,22,13),unlit,"ordinary"
+REGION:(24,09,29,13),unlit,"barracks"
+REGION:(59,01,63,05),unlit,"morgue"
+REGION:(66,09,70,11),unlit,"ordinary"
+REGION:(72,09,74,11),unlit,"ordinary"
+# Stairs
+STAIR:(74,10),down
+STAIR:(02,08),up
+# Doors
+DOOR:locked,(04,08)
+DOOR:locked,(13,11)
+DOOR:closed,(17,09)
+DOOR:closed,(17,11)
+DOOR:closed,(23,09)
+DOOR:closed,(23,12)
+DOOR:closed,(31,11)
+DOOR:closed,(58,06)
+DOOR:closed,(60,06)
+DOOR:closed,(62,06)
+DOOR:locked,(65,10)
+DOOR:locked,(71,10)
+# Watch Dog
+MONSTER:'d',"Cerberus",(68,10),asleep,hostile
+# Sea monsters for the river
+MONSTER:';',random,(03,15)
+MONSTER:';',random,(09,15)
+MONSTER:';',random,(15,17)
+MONSTER:';',random,(24,18)
+MONSTER:';',random,(33,17)
+MONSTER:';',random,(40,15)
+MONSTER:';',random,(51,15)
+MONSTER:';',random,(59,16)
+MONSTER:';',random,(64,14)
+MONSTER:';',random,(68,16)
+# An assortment of orcs and goblins
+MONSTER:'o',random,(07,12)
+MONSTER:'o',random,(08,07)
+MONSTER:'o',random,(05,04)
+MONSTER:'o',random,(16,04)
+MONSTER:'o',random,(24,03)
+MONSTER[50%]:'o',random,(31,06)
+# And a few things for them to use
+OBJECT:'!',"amnesia",(20,03)
+OBJECT:'!',"amnesia",(04,11)
+OBJECT:'/',"fire",(05,04)
+OBJECT:'/',"lightning",(13,05)
+OBJECT:'?',"demonology",(27,04)
+# Guardians for the dark
+MONSTER:'d',"hell hound",(67,04),asleep        
+MONSTER:'d',"hell hound",(68,05),asleep        
+MONSTER:'&',"horned devil",(53,07),asleep         
+MONSTER:'&',"horned devil",(54,09),asleep         
+MONSTER[60%]:'&',"horned devil",(54,11),asleep        
+MONSTER[60%]:'&',"horned devil",(52,13),asleep         
+MONSTER[60%]:'&',"horned devil",(50,06),asleep        
+MONSTER:'&',"barbed devil",(51,09),asleep         
+MONSTER:'&',"barbed devil",(51,12),asleep         
+MONSTER[75%]:'&',"marilith",(48,10),asleep          
+MONSTER[75%]:'&',"hezrou",(48,11),asleep
+MONSTER[75%]:'&',"nalfeshnee",(51,10),asleep
+# Guardians under the hill
+# Knights
+MONSTER:'@',"knight",(18,09),asleep
+MONSTER:'@',"knight",(19,09),asleep
+MONSTER:'@',"knight",(20,09),asleep
+MONSTER:'@',"knight",(21,09),asleep
+MONSTER:'@',"knight",(22,09),asleep
+MONSTER:'@',"knight",(20,07),asleep
+OBJECT:')',"long sword",(20,07),blessed,+2,"The Sword of Albion"
+# Wizards
+MONSTER:'@',"wizard",(19,11),asleep 
+MONSTER:'@',"wizard",(21,12),asleep 
+MONSTER:'@',"wizard",(22,13),asleep 
+MONSTER:'@',"wizard",(19,13),asleep 
+MONSTER:'@',"wizard",(18,12),asleep
+OBJECT:'/',random,(19,11)
+OBJECT:'/',random,(21,12)
+OBJECT:'/',random,(22,13)
+OBJECT:'/',random,(19,13)
+OBJECT:'/',"sleep",(18,12)
+OBJECT:'/',"lightning",(18,12)
+OBJECT:'"',"amulet of life saving",(18,12)
+OBJECT:'=',"protection",(18,12),blessed,+3
+# Valkyries 
+MONSTER:'@',"valkyrie",(15,09),asleep 
+MONSTER:'@',"valkyrie",(15,10),asleep 
+MONSTER:'@',"valkyrie",(15,11),asleep 
+MONSTER:'@',"valkyrie",(15,12),asleep 
+MONSTER:'@',"valkyrie",(16,10),asleep
+# A statue for the entrance area
+CONTAINER:'`',"statue",(01,08),"Famine",1
+OBJECT:'=',"slow digestion",contained,cursed,0
+# A little still life 
+CONTAINER:'`',"statue",(59,10),"knight",1
+OBJECT:')',"long sword",contained,blessed,+2
+CONTAINER:'`',"statue",(58,09),"angel",1
+OBJECT:'!',"full healing",contained,blessed,0
+CONTAINER:'`',"statue",(58,11),"demon",1
+OBJECT:'?',"taming",contained,blessed,0
+# A scattering of corpses
+OBJECT:'%',"corpse",(52,08),"knight",0
+OBJECT:'%',"corpse",(61,12),"wizard",0
+OBJECT:'%',"corpse",(65,07),"rogue",0
+OBJECT:'%',"corpse",(62,08),"priest",0
+OBJECT:'%',"corpse",(56,13),"ranger",0
+# A few random flapping things
+MONSTER:'B',"vampire bat",random
+MONSTER:'B',"vampire bat",random
+MONSTER[50%]:'B',"vampire bat",random
+MONSTER:'B',"raven",random
+MONSTER[50%]:'B',"raven",random
+MONSTER:'B',random,random
+MONSTER:'B',random,random
+MONSTER[66%]:'B',random,random
+MONSTER[33%]:'B',random,random
+# Random traps
+TRAP:"spiked pit",random
+TRAP:"spiked pit",random
+TRAP:"rust",random
+TRAP:"rust",random
+TRAP:"magic",random
+TRAP:"magic",random
+TRAP:"magic",random
+TRAP:"board",(60,08)
+TRAP:"board",(64,10)
+TRAP:"board",(46,10)
+TRAP:"board",(46,11)
+# An old joke, borrowed from Eric!
+ENGRAVING:(15,04),engrave,"I did it for the children"
+ENGRAVING:(21,03),engrave,"It'll hurt me more than it will you"
+ENGRAVING:(29,04),engrave,"I just wanted it to be right"
+ENGRAVING:(32,06),engrave,"It wasn't supposed to happen that way"
+ENGRAVING:(35,08),engrave,"I wanted to help"
+ENGRAVING:(41,09),engrave,"It was her or me"
+ENGRAVING:(40,11),engrave,"I thought she would understand"
+ENGRAVING:(44,10),engrave,"Now we can be together"   
+ENGRAVING:(44,11),engrave,"This is for your own good"
+
+
+

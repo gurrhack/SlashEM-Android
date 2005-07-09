@@ -1168,14 +1168,16 @@ level_tele()
 	    /* [dlevel used to be set to 1, but it doesn't make sense to
 		teleport out of the dungeon and float or fly down to the
 		surface but then actually arrive back inside the dungeon] */
-	} else if (u.uz.dnum == medusa_level.dnum &&
+/* Lethe... */
+	/* } else if (u.uz.dnum == medusa_level.dnum &&
 	    newlev >= dungeons[u.uz.dnum].depth_start +
 						dunlevs_in_dungeon(&u.uz)) {
 #ifdef WIZARD
 	    if (!(wizard && force_dest))
 #endif
-	    find_hell(&newlevel);
+	    find_hell(&newlevel); */
 	} else {
+#if 0
 	    /* if invocation did not yet occur, teleporting into
 	     * the last level of Gehennom is forbidden.
 	     */
@@ -1185,18 +1187,11 @@ level_tele()
 	    if (Inhell && !u.uevent.invoked &&
 			newlev >= (dungeons[u.uz.dnum].depth_start +
 					dunlevs_in_dungeon(&u.uz) - 1)) {
-# ifdef WIZARD
-                if (!wizard)
-                {
-# endif /* WIZARD */
 		newlev = dungeons[u.uz.dnum].depth_start +
 					dunlevs_in_dungeon(&u.uz) - 2;
 		pline("Sorry...");
-# ifdef WIZARD
-                }
-# endif /* WIZARD */
-
 	    }
+#endif
 	    /* no teleporting out of quest dungeon */
             if
 # ifdef WIZARD
@@ -1673,8 +1668,10 @@ random_teleport_level()
 	min_depth = In_quest(&u.uz) ? dungeons[u.uz.dnum].depth_start : 1;
 	max_depth = dunlevs_in_dungeon(&u.uz) +
 		(dungeons[u.uz.dnum].depth_start - 1);
+#if 0
 	/* can't reach the Sanctum if the invocation hasn't been performed */
 	if (Inhell && !u.uevent.invoked) max_depth -= 1;
+#endif
 
 	/* Get a random value relative to the current dungeon */
 	/* Range is 1 to current+3, current not counting */

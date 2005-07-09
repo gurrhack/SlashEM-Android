@@ -242,7 +242,9 @@ WEAPON("heavy hammer", (char *)0,
 
 /* Quarterstaves */
 WEAPON("quarterstaff", "staff",
-	0, 0, 1, 11, 40,  5,  6,  6, 0, B,   P_QUARTERSTAFF, WOOD, HI_WOOD),
+	0, 0, 1,  8, 40,  5,  6,  6, 0, B,   P_QUARTERSTAFF, WOOD, HI_WOOD),
+WEAPON("silver capped staff", (char *)0,
+	0, 0, 1,  3, 40,100,  6,  6, 0, B,   P_QUARTERSTAFF, SILVER, HI_SILVER),
 
 /* Polearms */
 /* (also weptool fishing pole) */
@@ -1012,31 +1014,33 @@ POTION("amnesia", "sparkling",          1, 0,          16, 100, CLR_CYAN),
 		SCROLL_CLASS, prob, 0, 5, cost, 0, 0, 0, 0, 6, HI_PAPER )
 /* Attack */
 SCROLL("create monster",        "LEP GEX VEN ZEA",      P_ATTACK_SPELL, 1,  45, 200),
+SCROLL("demonology",            "IA CTHULHU",           P_ATTACK_SPELL, 1,  10, 350),
 /* Enchantment */
 SCROLL("taming",                "PRIRUTSENIE",          P_ENCHANTMENT_SPELL, 1,  15, 200),
 /* Divination */
-SCROLL("light",                 "VERR YED HORRE",       P_DIVINATION_SPELL, 1,  90,  50),
+SCROLL("light",                 "VERR YED HORRE",       P_DIVINATION_SPELL, 1,  85,  50),
 SCROLL("food detection",        "YUM YUM",              P_DIVINATION_SPELL, 1,  25, 100),
 SCROLL("gold detection",        "THARR",                P_DIVINATION_SPELL, 1,  33, 100),
-SCROLL("identify",              "KERNOD WEL",           P_DIVINATION_SPELL, 1, 185,  20),
+SCROLL("identify",              "KERNOD WEL",           P_DIVINATION_SPELL, 1, 180,  20),
 SCROLL("magic mapping",         "ELAM EBOW",            P_DIVINATION_SPELL, 1,  45, 100),
 /* Enchantment */
-SCROLL("confuse monster",       "NR 9",                 P_ENCHANTMENT_SPELL,  1,  43, 100),
-SCROLL("scare monster",         "XIXAXA XOXAXA XUXAXA", P_ENCHANTMENT_SPELL,  1,  35, 100),
-SCROLL("enchant weapon",        "DAIYEN FOOELS",        P_ENCHANTMENT_SPELL,  1,  80,  60),
+SCROLL("confuse monster",       "NR 9",                 P_ENCHANTMENT_SPELL,  1,  53, 100),
+SCROLL("scare monster",         "XIXAXA XOXAXA XUXAXA", P_ENCHANTMENT_SPELL,  1,  30, 100),
+SCROLL("enchant weapon",        "DAIYEN FOOELS",        P_ENCHANTMENT_SPELL,  1,  75,  60),
 SCROLL("enchant armor",         "ZELGO MER",            P_ENCHANTMENT_SPELL,  1,  63,  80),
 /* Protection */
 SCROLL("remove curse",          "PRATYAVAYAH",          P_PROTECTION_SPELL, 1,  65,  80),
 /* Body */
 SCROLL("teleportation",         "VENZAR BORGAVVE",      P_BODY_SPELL, 1,  55, 100),
 /* Matter */
-SCROLL("fire",                  "ANDOVA BEGARIN",       P_MATTER_SPELL, 1,  33, 100),
-SCROLL("earth",                 "KIRJE",                P_MATTER_SPELL, 1,  20, 200),
+SCROLL("fire",                  "ANDOVA BEGARIN",       P_MATTER_SPELL, 1,  30, 100),
+SCROLL("earth",                 "KIRJE",                P_MATTER_SPELL, 1,  18, 200),
+SCROLL("elementalism",          "4OFAE OF9 SCC9",       P_MATTER_SPELL, 1,  10, 350),
 
 SCROLL("destroy armor",         "JUYED AWK YACC",       P_NONE, 1,  45, 100),
 SCROLL("amnesia",               "DUAM XNAHT",           P_NONE, 1,  35, 200),
 SCROLL("charging",              "HACKEM MUCHE",         P_NONE, 1,  15, 300),
-SCROLL("genocide",              "ELBIB YLOH",           P_NONE, 1,  15, 300),
+SCROLL("genocide",              "ELBIB YLOH",           P_NONE, 1,  10, 300),
 SCROLL("punishment",            "VE FORBRYDERNE",       P_NONE, 1,  15, 300),
 SCROLL("stinking cloud",	"VELOX NEB",            P_NONE, 1,  15, 300),
 SCROLL((char *)0,		"FOOBIE BLETCH",        P_NONE, 1,   0, 100),

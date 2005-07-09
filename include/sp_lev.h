@@ -24,6 +24,7 @@
 #define ARBOREAL	16
 #define SPOOKY		32
 #define LETHE		64		/* All water on level is Lethe-ized */
+#define PHLEGETHON	128		/* and similarly for phlegethon */
 
     /* special level types */
 #define SP_LEV_ROOMS	1

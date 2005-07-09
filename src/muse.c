@@ -245,6 +245,10 @@ struct obj *otmp;
 #define MUSE_WAN_EXTRA_HEALING 21
 #define MUSE_WAN_CREATE_HORDE 22
 #define MUSE_POT_VAMPIRE_BLOOD 23
+/* Lethe */
+#define MUSE_SCR_DEMONOLOGY 24
+#define MUSE_SCR_ELEMENTALISM 25
+
 /*
 #define MUSE_INNATE_TPT 9999
  * We cannot use this.  Since monsters get unlimited teleportation, if they
@@ -546,6 +550,16 @@ struct monst *mtmp;
 			m.has_defense = MUSE_WAN_CREATE_MONSTER;
 		}
 	    }
+		nomore(MUSE_SCR_DEMONOLOGY);
+		if(obj->otyp == SCR_DEMONOLOGY) {
+			m.defensive = obj;
+			m.has_defense = MUSE_SCR_DEMONOLOGY;
+		}
+		nomore(MUSE_SCR_ELEMENTALISM);
+		if(obj->otyp == SCR_ELEMENTALISM) {
+			m.defensive = obj;
+			m.has_defense = MUSE_SCR_ELEMENTALISM;
+		}
 		nomore(MUSE_SCR_CREATE_MONSTER);
 		if(obj->otyp == SCR_CREATE_MONSTER) {
 			m.defensive = obj;
@@ -780,6 +794,157 @@ mon_tele:
 		m_useup(mtmp, otmp);
 		return 2;
 	    }
+	case MUSE_SCR_DEMONOLOGY:
+	    {	coord cc;
+		struct permonst *pm = 0, *fish = 0;
+		int cnt = 1;
+		struct monst *mon;
+		boolean known = FALSE;
+
+		if (!rn2(73)) cnt += rnd(4);
+		if (mtmp->mconf || otmp->cursed) cnt += rn2(8);
+		if (mtmp->mconf) pm = fish = &mons[PM_MANES];
+		else if (is_pool(mtmp->mx, mtmp->my))
+		    fish = &mons[PM_WATER_DEMON];
+		mreadmsg(mtmp, otmp);
+		/* Pick a demon time... */
+		if (!pm) {
+			switch(rn2(20)) {
+				case  0:
+				case  1:
+					pm = &mons[PM_MANES];
+					cnt += rn2(4);
+					break;
+				case  2:
+				case  3:
+					pm = &mons[PM_WATER_DEMON];
+					break;
+				case  4:
+				case  5:
+					pm = &mons[PM_HORNED_DEVIL];
+					break;
+				case  6:
+				case  7:
+					pm = &mons[PM_SUCCUBUS];
+					break;
+				case  8:
+				case  9:
+					pm = &mons[PM_INCUBUS];
+					break;
+				case 10:
+				case 11:
+					pm = &mons[PM_VROCK];
+					break;
+				case 12:
+					pm = &mons[PM_HEZROU];
+					break;
+				case 13:
+					pm = &mons[PM_BARBED_DEVIL];
+					break;
+				case 14:
+					pm = &mons[PM_MARILITH];
+					break;
+				case 15:
+					pm = &mons[PM_BONE_DEVIL];
+					break;
+				case 16:
+					pm = &mons[PM_ICE_DEVIL];
+					break;
+				case 17:
+					pm = &mons[PM_NALFESHNEE];
+					break;
+				case 18:
+					pm = &mons[PM_PIT_FIEND];
+					break;
+				case 19:
+					pm = &mons[PM_BALROG];
+					break;
+			}
+		}
+		while(cnt--) {
+		    /* `fish' potentially gives bias towards water locations;
+		       `pm' is what to actually create (0 => random) */
+		    if (!enexto(&cc, mtmp->mx, mtmp->my, fish)) break;
+		    mon = makemon(pm, cc.x, cc.y, NO_MM_FLAGS);
+		    if (mon && canspotmon(mon)) known = TRUE;
+		}
+		/* The only case where we don't use oseen.  For wands, you
+		 * have to be able to see the monster zap the wand to know
+		 * what type it is.  For teleport scrolls, you have to see
+		 * the monster to know it teleported.
+		 */
+		if (known)
+		    makeknown(SCR_DEMONOLOGY);
+		else if (!objects[SCR_DEMONOLOGY].oc_name_known
+			&& !objects[SCR_DEMONOLOGY].oc_uname)
+		    docall(otmp);
+		m_useup(mtmp, otmp);
+		return 2;
+	    }
+	case MUSE_SCR_ELEMENTALISM:
+	    {	coord cc;
+		struct permonst *pm = 0, *fish = 0;
+		int cnt = 1;
+		struct monst *mon;
+		boolean known = FALSE;
+
+		if (!rn2(73)) cnt += rnd(4);
+		if (mtmp->mconf || otmp->cursed) cnt += rn2(8);
+		if (mtmp->mconf) pm = fish = &mons[PM_MANES];
+		else if (is_pool(mtmp->mx, mtmp->my))
+		    fish = &mons[PM_WATER_ELEMENTAL];
+		mreadmsg(mtmp, otmp);
+		/* Pick an elemental time... */
+		switch(rn2(4)) {
+		    case  0:			/* Air */
+			if (mtmp->mconf) {
+			    pm = &mons[PM_GAS_SPORE];
+			} else {
+			    pm = &mons[PM_AIR_ELEMENTAL];
+			}
+			break;
+		    case  1:			/* Fire */
+			if (mtmp->mconf) {
+			    pm = &mons[PM_FLAMING_SPHERE];
+			} else {
+			    pm = &mons[PM_FIRE_ELEMENTAL];
+			}
+			break;
+		    case  2:			/* Water */
+			if (mtmp->mconf) {
+			    pm = &mons[PM_FREEZING_SPHERE];
+			} else {
+			    pm = &mons[PM_WATER_ELEMENTAL];
+			}
+			break;
+		    case  3:			/* Earth */
+			if (mtmp->mconf) {
+			    pm = &mons[PM_SHOCKING_SPHERE];
+			} else {
+			    pm = &mons[PM_EARTH_ELEMENTAL];
+			}
+			break;
+		}
+		while(cnt--) {
+		    /* `fish' potentially gives bias towards water locations;
+		       `pm' is what to actually create (0 => random) */
+		    if (!enexto(&cc, mtmp->mx, mtmp->my, fish)) break;
+		    mon = makemon(pm, cc.x, cc.y, NO_MM_FLAGS);
+		    if (mon && canspotmon(mon)) known = TRUE;
+		}
+		/* The only case where we don't use oseen.  For wands, you
+		 * have to be able to see the monster zap the wand to know
+		 * what type it is.  For teleport scrolls, you have to see
+		 * the monster to know it teleported.
+		 */
+		if (known)
+		    makeknown(SCR_ELEMENTALISM);
+		else if (!objects[SCR_ELEMENTALISM].oc_name_known
+			&& !objects[SCR_ELEMENTALISM].oc_uname)
+		    docall(otmp);
+		m_useup(mtmp, otmp);
+		return 2;
+	    }
 	case MUSE_TRAPDOOR:
 		/* trap doors on "bottom" levels of dungeons are rock-drop
 		 * trap doors, not holes in the floor.  We check here for
@@ -826,7 +991,8 @@ mon_tele:
 			return 2;
 		}
 		m_flee(mtmp);
-		if (Inhell && mon_has_amulet(mtmp) && !rn2(4) &&
+		if ((Inhell && !rn2(4) || Is_valley(&u.uz)) &&
+			mon_has_amulet(mtmp) &&
 			(dunlev(&u.uz) < dunlevs_in_dungeon(&u.uz) - 3)) {
 		    if (vismon) pline(
      "As %s climbs the stairs, a mysterious force momentarily surrounds %s...",
@@ -2190,7 +2356,8 @@ struct obj *obj;
 	    break;
 	case SCROLL_CLASS:
 	    if (typ == SCR_TELEPORTATION || typ == SCR_CREATE_MONSTER
-		    || typ == SCR_EARTH)
+		    || typ == SCR_EARTH || typ == SCR_DEMONOLOGY
+		    || typ == SCR_ELEMENTALISM) /* Lethe */
 		return TRUE;
 	    break;
 	case AMULET_CLASS:
@@ -2400,3 +2567,4 @@ boolean stoning;
 }
 
 /*muse.c*/
+

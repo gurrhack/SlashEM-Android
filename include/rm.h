@@ -481,7 +481,10 @@ struct levelflags {
 	Bitfield(is_cavernous_lev,1);
 	Bitfield(arboreal, 1);		/* Trees replace rock */
 	Bitfield(spooky,1);		/* Spooky sounds (Tina Hall) */
-	Bitfield(lethe, 1);			/* All water on level causes amnesia */
+	Bitfield(river, 2);
+#define RIVER_NONE		0	/* Normal level */
+#define RIVER_LETHE		1	/* All water on level causes amnesia */
+#define RIVER_PHLEGETHON	2	/* All "water" is boiling blood */
 };
 
 typedef struct

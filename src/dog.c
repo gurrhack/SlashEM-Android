@@ -904,7 +904,8 @@ register struct obj *obj;
 	    /* KMH -- Added gypsy */
 	    mtmp->isgyp ||
 	    is_covetous(mtmp->data) || is_human(mtmp->data) ||
-	    (is_demon(mtmp->data) && !is_demon(youmonst.data)) ||
+	    /* Demonology kludge */
+/*	    (is_demon(mtmp->data) && !is_demon(youmonst.data)) || */
 	    /* Mik -- New flag to indicate which things cannot be tamed... */
 	    cannot_be_tamed(mtmp->data) ||
 	    (obj && dogfood(mtmp, obj) >= MANFOOD)) return (struct monst *)0;

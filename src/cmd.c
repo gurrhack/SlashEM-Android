@@ -4,7 +4,7 @@
 
 #include "hack.h"
 #include "func_tab.h"
-/* #define DEBUG */	/* uncomment for debugging */
+/* #define DEBUG */	/* uncomment w debugging */
 
 /*
  * Some systems may have getchar() return EOF for various reasons, and

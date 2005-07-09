@@ -1,0 +1,264 @@
+# $Id $
+# Copyright (c) 2005 by J. Ali Harlow
+# NetHack may be freely redistributed.  See license for details.
+#
+#       Mount Olympus: gateway to the elemental planes.
+#
+MAZE: "olympus",' '
+FLAGS: noteleport
+GEOMETRY:center,center
+MAP
+     ...                        II}    ......  . ..       ...  ....    }}}  
+    .T                      ...II }} }}}...T......        .... ...   }}} }} 
+    ..        ..        ....III....}}} }}.}}}.......       ........ }}      
+     .. .   ..PP..   ...T  II     T.....}}}.}}}T...PPP...T.........}}       
+       .T. .PPPPPP...  T. II            ......}}}}..TPP.......}}}T}}        
+          .PPPP         .II           .....TT...T}........}}}}}T}}} .....   
+          .     II   II  I .          ..T..T..T..}}....}}}}}...... ........ 
+         .  .  I  III  I I  .        ..T.TT....T.}}...}}}......... .........
+        .   .  I  -----I II .       .....T..T..T..}}.}}........... .........
+        .    .  I |CCC|I  I .     ..  .T..T..T..T..}}}............. ......  
+       .      I  ICC.CC|I I .    .    ..T...T.T......................       
+       .     I I  |CCC|I  I .          T.T.TT..T............................
+      . .  II    I-----I II .           ...T..T......T......................
+     .   .II .    IIIII  I  .    .       .................T......TT.........
+   ..    II   ..   I    I  .  TT.T.  ... ........T.................T........
+  .T   III      . I       .  T..T.T..   ......T.................T.T..T......
+   .  II  .      II.   ... .T.T..T.      .........T.........   .............
+  ...}}. .      II    .T    .T.TT.T     .... ...............     .T.T... ...
+ ...}}...        II    ..              ....  ...     ......      .......  ..
+  .}}...        II                      ...   ....     ...          ...    .
+ENDMAP
+# Random Monsters
+RANDOM_MONSTERS: '@', 'h'
+# Dungeon Description
+REGION:(00,00,75,19),lit,"ordinary"
+# Portal to endgame
+PORTAL:(20,10,20,10),(0,0,0,0),"earth"
+# Stairs
+STAIR:(70,7),down
+# Boulders fallen from the mountain
+OBJECT:'`',"boulder",(19,16)
+
+#
+#	The Elysian fields: Final resting place of worthy mortals.
+#
+# References:
+#	Virgil's Aeneid 6.637ff
+#	Homer's Odyssey 4.563-569
+MAZE: "elysian",' '
+FLAGS: noteleport
+GEOMETRY:center,center
+MAP
+  ..T.....T....T                                          .T..T..           
+  T....T....T....     ..                            ...  ...T..T..T         
+  .T.T...T......T.  .....    ...       ...       .........T...T..T..        
+ ...T.....T....T.T....  ..  .....    ..T...T.  .....   ..T..T..T...T        
+ .T....T....T.......     ....  ..    T...T...T...       T....T...T          
+ ....T...T.....T.T        ..   .. ....T....T....        .T..T..T.           
+ .T...T.....T...T              .........T....T.            ...              
+ T..T...T..T...T               .... T..T..T.T.              ..              
+  .T..T...T..T.               ..    .T...T..                 ..             
+   ..T..T..T.                ..      ......                  ..             
+     ..T..T.                 ..         ...                 ..              
+        ..                  ..           ..                 ..              
+         ..    .....       ..            ..      .T..T.      ..             
+          ...T.T...T.T    ...             ..    .T..T...T    ..             
+           .T....T....T  ...              .....T..T...T..    ..             
+           ..T.T...T...T....               .....T...T...T  ...              
+           T....T.T..T.....                   T....T..T......               
+            .T.....T.  ...                    .T.T..T..T....                
+              ....                             ...T..T..                    
+                                                                            
+ENDMAP
+# Random Monsters
+RANDOM_MONSTERS: '@', 'h'
+# Dungeon Description
+REGION:(00,00,75,19),lit,"ordinary"
+# Stairs
+STAIR:(00,00,75,19),(0,0,0,0),down
+STAIR:(00,00,75,19),(0,0,0,0),up
+# Armour, etc., of the great line of Teucer
+OBJECT:')',random,random
+OBJECT:')',random,random
+OBJECT:')',random,random
+OBJECT:')',random,random
+OBJECT:'[',random,random
+OBJECT:'[',random,random
+OBJECT:'[',random,random
+OBJECT:'[',random,random
+MONSTER:'h',"warhorse",random,peaceful
+MONSTER:'h',"warhorse",random,peaceful
+MONSTER:'h',"warhorse",random,peaceful
+MONSTER:'h',"warhorse",random,peaceful
+MONSTER:'h',"horse",random,peaceful
+MONSTER:'h',"horse",random,peaceful
+# Flavour
+MONSTER:' ',"ghost",random,"Orpheus",peaceful
+MONSTER:' ',"ghost",random,"Musaeus",peaceful
+MONSTER:' ',"ghost",random,"Anchises",peaceful
+
+#
+#       Minos' castle: Judge of the Underworld
+#
+# References:
+#	Dante's Inferno canto 5.1-12
+#	Virgil's Aeneid 6.432-433
+#	Ovidius' Metamorphoses 9.436-440
+MAZE: "minos",' '
+FLAGS: noteleport
+GEOMETRY:center,center
+MAP
+............................................................................
+............................................................................
+............................................................................
+.............|----|.......................................|----|............
+.............|....|---------------------------------------|....|............
+.............|--+-|.......................................|-+--|............
+...............|...............-------+-------...............|..............
+...............|...............|.............|...............|..............
+...............|...............|.............|...............|..............
+...............|...............|.............|...............|..............
+...............+...............|......\......|...............+..............
+...............|...............---------------...............|..............
+...............|...............|....|...|....|...............|..............
+...............|...............+....|...|....+...............|..............
+...............|...............-------S------|...............|..............
+.............|--+-|.......................................|-+--|............
+.............|....|---------------------------------------|....|............
+.............|----|.......................................|----|............
+............................................................................
+............................................................................
+ENDMAP
+# Random Monsters
+RANDOM_MONSTERS: '@', 'h'
+# The king on his throne
+MONSTER:'S',"king cobra",(38,10),"Minos"
+# Dungeon Description
+REGION:(00,00,75,19),lit,"ordinary"
+# Stairs
+STAIR:(38,12),down
+STAIR:(38,2),up
+
+#
+#       Labyrinth: Home to the minotaur
+#
+# References:
+#	Virgil's Aeneid 6.14-33
+#	Ovidius' Metamorphoses 8.152-174
+MAZE: "laby-a",' '
+FLAGS: noteleport
+GEOMETRY:center,center
+MAP
+                   ..                                                       
+        ..        .  .                                                      
+          .. .    .  .                                                      
+            . .    .  .                                                     
+               .  .    ..                                                   
+          ..    ..       .                                                  
+         .  .           .                                                   
+     ..  .   .  ..     .    ..                                              
+    .  ..     ..  .     .  .  .                                             
+   .               .     ..    . ..  ...                                    
+    .  ..      .    ..          .  .....                                    
+    .    .    . .                    ...                                    
+     .    .  .   .. .  ..      .  .                                         
+     .  ..  .      . ..      .. .  .                                        
+    .  .   .            .   .    ...  ..                                    
+   .   . .  .         .. ...  ..     .  .          .      .                 
+   .    . .  .     ..        .  ..    .  . ..    .. .    . .. ..            
+    .      ..  ....  .  ..    .   .  .    .  .  .    . ..    .              
+     .  ..    .     .  .  .. .     ..         .  .    .                     
+      ..  ....       ..     .                  ..                           
+ENDMAP
+STAIR:(8,1),down
+STAIR:(7,10),down
+STAIR:(21,10),down
+STAIR:(24,12),down
+STAIR:(34,12),down
+STAIR:(63,16),down
+STAIR:(38,10),up
+
+MAZE: "laby-b",' '
+FLAGS: noteleport
+GEOMETRY:center,center
+MAP
+                 .  ..   .   ..       .                                     
+     ....       . ..  . . ...  ...   . .                                    
+    .         ..       .          . .   .                .                  
+   .  ...       .             ...  .     . ..       ..  . .                 
+   . .   .      .    ..          .        .        .  ..   .                
+    .  ..      .   ..  ..         .        ..      .        .     ..        
+      .       .          .    .  .           .  .   . .    .    ..  ..      
+     .        .        .  .  . .  ..          .. .  .  .  .           .     
+    .          .    ... .  ..   .   ..            . .   .  . ..     ..      
+     .        .         .      .      .   .      .   . .    .  .  ..        
+      ..       .   ..    ..   .       .  . .     .  .   ...     ..  .   ..  
+                ...        .  .       . .  .  .   .  .     ....      ...  . 
+            .           ...    ..      .    .. .   . .         ....       . 
+         ... ..    .                           .   .  ..    ..     ...   .  
+       ..      . .. .            ..        ....          ...  ....   .  .   
+      .     ..  .    .      .  ..  ...   ..      ..... ..         .  . .    
+       .      .       ...  . ..       ...    ....     .       ...  .   .    
+        ... .  .         ..     ..  .      ..      ..   ..    .     ....    
+           . ..                   .. ....     ... .  .... .   .             
+                                         .....   ..        ...              
+ENDMAP
+STAIR:(14,2),down
+STAIR:(19,5),down
+STAIR:(30,3),down
+STAIR:(44,3),down
+STAIR:(64,6),down
+STAIR:(20,8),down
+STAIR:(57,10),down
+STAIR:(51,13),down
+STAIR:(12,15),down
+STAIR:(32,17),down
+STAIR:(43,17),down
+STAIR:(8,1),up
+STAIR:(7,10),up
+STAIR:(20,10),up
+STAIR:(24,12),up
+STAIR:(32,12),up
+STAIR:(64,16),up
+
+MAZE: "laby-c",' '
+FLAGS: noteleport
+GEOMETRY:center,center
+MAP
+              ....   ..                                                     
+             .    ...  .                                                    
+            .  ..       .                                                   
+            .    .      .      .            .                               
+             .    .    .      .              .   ..                         
+              .  .  ...      .                . .  .          ...           
+              .  .           .  .          .  .  .  .        .  .           
+               .  ..          .. ...    ... ..   .   ..       .             
+                .   .               .  .        .      ...     .            
+               .                    .... ..      .        . ...             
+              .                    ......  .      ...  ..  .                
+              .                     ....    ...      ..                     
+             .                      .  .       .                            
+            .                 .. ...    ... ..  ...                         
+             .               .  .          .  .                             
+           ..                .                .                             
+                              .              .                              
+                               .            .                               
+                                                                            
+                                                                            
+ENDMAP
+STAIR:(15,2),up
+STAIR:(31,3),up
+STAIR:(44,3),up
+STAIR:(20,5),up
+STAIR:(64,6),up
+STAIR:(20,8),up
+STAIR:(56,10),up
+STAIR:(50,13),up
+STAIR:(11,15),up
+STAIR:(31,17),up
+STAIR:(44,17),up
+BRANCH:(37,10,37,10),(0,0,0,0)
+MONSTER:'H',"minotaur",(38,10)
+OBJECT:')',"battle-axe",(38,10)
+

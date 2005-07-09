@@ -84,13 +84,13 @@ pure sound of a silver bell shall announce thee.  The terrible runes,
 read from Moloch's book, shall cause the earth to tremble mightily.  The
 light of an enchanted candelabrum shall show thee the way.
 -----
-In the deepest recesses of the Dungeons of Doom, guarding access to the
-nether regions, there standeth a castle, wherein lieth a wand of wishes.
-If thou wouldst gain entry, bear with thee an instrument of music, for the
-pontlevis may be charmed down with the proper melody.  What notes comprise
-it only the gods know, but a musical mastermind may yet succeed by witful
-improvisation.  However, the less perspicacious are not without recourse,
-should they be prepared to circumambulate the castle to the postern.
+In the deep gorge of the Lethe, guarding access to the nether regions,
+there standeth a castle, wherein lieth a wand of wishes.  If thou wouldst
+gain entry, bear with thee an instrument of music, for the pontlevis may
+be charmed down with the proper melody.  What notes comprise it only the
+gods know, but a musical mastermind may yet succeed by witful improvization.
+The less perspicacious, however, should be prepared to bring the gates down
+by force, for the only passage leadeth through the castle.
 -----
 Upon a level before all maze
 There lies a woman who kills with gaze.
@@ -101,4 +101,11 @@ The name of Elbereth may strike fear into the hearts of thine enemies, if
 thou dost write it upon the ground at thy feet.  If thou maintainest the
 utmost calm, thy safety will be aided greatly, but beware lest thy clumsy
 feet scuff the inscription, cancelling its potence.
+-----
+Ye waters of the Lethe, being known also as the River of Oblivion, have the
+power to wash away memories.  It floweth from above the green hills of
+earth, thorugh a mighty gorge and unto the depths of Gehennom itself.
+Thence it flows past the palaces of the demon lords, eventully to be lost
+in the endless darkness of the Gulf of N'Kai.  Follow it, for thierin lies
+your weird, but be prepared, for the Gates of Gehennom are well guarded.
 -----

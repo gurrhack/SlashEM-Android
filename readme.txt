@@ -65,9 +65,7 @@ http://www.slashem.org/
 1.2 Changes
 -----------
 
-ver 0.0.8E0F1 [?] [Released by ?]
--fixed bug 1231549: GNU autoconf vpath support is broken
--fixed bug 1231579: Can't specify wizard with GNU autoconf
+ver 0.0.8E1 (Phlegethon experimental branch)
 
 See history.txt for changes made in previous versions.
 

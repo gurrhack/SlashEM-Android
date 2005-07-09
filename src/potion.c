@@ -1219,7 +1219,7 @@ boolean your_fault;
 		/* Uh-oh! */
 		if (uarmh && is_helmet(uarmh) && 
 			rn2(10 - (uarmh->cursed? 8 : 0)))
-		    get_wet(uarmh, TRUE);
+		    get_wet(uarmh, RIVER_LETHE);
 		break;
 	}
     } else {
@@ -1931,9 +1931,9 @@ boolean *used;
 }
 
 boolean
-get_wet(obj, amnesia)
+get_wet(obj, river)
 register struct obj *obj;
-boolean amnesia;
+int river;
 /* returns TRUE if something happened (potion should be used up) */
 {
 	char Your_buf[BUFSZ];
@@ -1941,7 +1941,7 @@ boolean amnesia;
 
 	if (snuff_lit(obj)) return(TRUE);
 
-	if (obj->greased) {
+	if (obj->greased && river != RIVER_PHLEGETHON) {
 		grease_protect(obj,(char *)0,&youmonst);
 		return(FALSE);
 	}
@@ -1949,24 +1949,30 @@ boolean amnesia;
 	/* (Rusting shop goods ought to be charged for.) */
 	switch (obj->oclass) {
 	    case POTION_CLASS:
-		if (obj->otyp == POT_WATER) {
-		    if (amnesia) {
-			Your("%s to sparkle.", aobjnam(obj,"start"));
-			obj->odiluted 	= 0;
-			obj->otyp 	= POT_AMNESIA;
-			used 		= TRUE;
-			break;
+		if (river == RIVER_PHLEGETHON) {
+		    if (obj->otyp == POT_BLOOD ||
+			    obj->otyp == POT_VAMPIRE_BLOOD)
+			return FALSE;
+		} else {
+		    if (obj->otyp == POT_WATER) {
+			if (river == RIVER_LETHE) {
+			    Your("%s to sparkle.", aobjnam(obj,"start"));
+			    obj->odiluted 	= 0;
+			    obj->otyp 	= POT_AMNESIA;
+			    used 		= TRUE;
+			    break;
+			}
+			return FALSE;
 		    }
-		    return FALSE;
-		}
 
-		/* Diluting a !ofAmnesia just gives water... */
-		if (obj->otyp == POT_AMNESIA) {
-			Your("%s flat.", aobjnam(obj, "become"));
-			obj->odiluted = 0;
-			obj->otyp = POT_WATER;
-			used = TRUE;
-			break;
+		    /* Diluting a !ofAmnesia just gives water... */
+		    if (obj->otyp == POT_AMNESIA) {
+			    Your("%s flat.", aobjnam(obj, "become"));
+			    obj->odiluted = 0;
+			    obj->otyp = POT_WATER;
+			    used = TRUE;
+			    break;
+		    }
 		}
 
 		/* KMH -- Water into acid causes an explosion */
@@ -1975,7 +1981,7 @@ boolean amnesia;
 			You("are caught in the explosion!");
 			losehp(Acid_resistance ? rnd(5) : rnd(10),
 			       "elementary chemistry", KILLED_BY);
-			if (amnesia) {
+			if (river == RIVER_LETHE) {
 			    You_feel("a momentary lapse of reason!");
 			    forget(2 + rn2(3));
 			}
@@ -1983,16 +1989,19 @@ boolean amnesia;
 			used = TRUE;
 			break;
 		}
-		if (amnesia)
+		if (river == RIVER_PHLEGETHON)
+		    pline("%s %s red.", Your_buf, aobjnam(obj,"turn"));
+		else if (river == RIVER_LETHE)
 		    pline("%s %s completely.", Your_buf, aobjnam(obj,"dilute"));
 		else
 		    pline("%s %s%s.", Your_buf, aobjnam(obj,"dilute"),
 		      		obj->odiluted ? " further" : "");
 		if(obj->unpaid && costly_spot(u.ux, u.uy)) {
-		    You("dilute it, you pay for it.");
+		    You("%s it, you pay for it.",
+			river == RIVER_PHLEGETHON ? "ruin" : "dilute");
 		    bill_dummy_object(obj);
 		}
-		if (obj->odiluted || amnesia) {
+		if (obj->odiluted || river) {
 			obj->odiluted = 0;
 #ifdef UNIXPC
 			obj->blessed = FALSE;
@@ -2000,7 +2009,10 @@ boolean amnesia;
 #else
 			obj->blessed = obj->cursed = FALSE;
 #endif
-			obj->otyp = POT_WATER;
+			if (river == RIVER_PHLEGETHON)
+			    obj->otyp = POT_BLOOD;
+			else
+			    obj->otyp = POT_WATER;
 		} else obj->odiluted++;
 		used = TRUE;
 		break;
@@ -2022,11 +2034,16 @@ boolean amnesia;
 			obj->otyp = SCR_BLANK_PAPER;
 			obj->spe = 0;
 			used = TRUE;
-		} 
+		}
 		break;
 	    case SPBOOK_CLASS:
 		if (obj->otyp != SPE_BLANK_PAPER) {
 			if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
+			    if (river == RIVER_PHLEGETHON) {
+				pline("%s %s.", The(xname(obj)),
+					otense(obj, "glow"));
+				bless(obj);
+			    } else
 	pline("%s suddenly heats up; steam rises and it remains dry.",
 				The(xname(obj)));
 			} else {
@@ -2046,14 +2063,14 @@ boolean amnesia;
 		}
 		break;
 	    case GEM_CLASS:
-		if (amnesia && (obj->otyp == LUCKSTONE ||
+		if (river == RIVER_LETHE && (obj->otyp == LUCKSTONE ||
 			obj->otyp == LOADSTONE || obj->otyp == HEALTHSTONE ||
 			obj->otyp == TOUCHSTONE))
 		    downgrade_obj(obj, FLINT, &used);
 		break;
 	    case TOOL_CLASS:
 		/* Artifacts aren't downgraded by amnesia */
-		if (amnesia && !obj->oartifact) {
+		if (river == RIVER_LETHE && !obj->oartifact) {
 		    switch (obj->otyp) {
 			case MAGIC_LAMP:
 			    /* Magic lamps forget their djinn... */
@@ -2113,7 +2130,7 @@ boolean amnesia;
 			return TRUE;
 		}
 		/* !ofAmnesia acts as a disenchanter... */
-		if (amnesia && obj->spe > 0) {
+		if (river == RIVER_LETHE && obj->spe > 0) {
 		    pre_downgrade_obj(obj, &used);
 		    drain_item(obj);
 		}
@@ -2132,14 +2149,14 @@ boolean amnesia;
 		break;
 	}
 	/* !ofAmnesia might strip away fooproofing... */
-	if (amnesia && obj->oerodeproof && !rn2(13)) {
+	if (river == RIVER_LETHE && obj->oerodeproof && !rn2(13)) {
 	    pre_downgrade_obj(obj, &used);
 	    obj->oerodeproof = FALSE;
 	}
 
 	/* !ofAmnesia also strips blessed/cursed status... */
 
-	if (amnesia && (obj->cursed || obj->blessed)) {
+	if (river == RIVER_LETHE && (obj->cursed || obj->blessed)) {
 	    /* Blessed objects are valuable, cursed objects aren't, unless
 	     * they're water.
 	     */
@@ -2156,7 +2173,8 @@ boolean amnesia;
 	if (used) 
 	    update_inventory();
 	else 
-	    pline("%s %s wet.", Your_buf, aobjnam(obj,"get"));
+	    pline("%s %s %s.", Your_buf, aobjnam(obj,"get"),
+		    river == RIVER_PHLEGETHON ? "bloody" : "wet");
 
 	return used;
 }
@@ -2654,7 +2672,7 @@ dodip()
 			rider_cant_reach(); /* not skilled enough to reach */
 #endif
 		    } else {
-			(void) get_wet(obj, level.flags.lethe);
+			(void) get_wet(obj, level.flags.river);
 			if (obj->otyp == POT_ACID) useup(obj);
 		    }
 		    return 1;
@@ -2736,7 +2754,7 @@ dodip()
 					  (artifact_wet(obj,TRUE)-1), NULL);
 					break;
 			}
-			if (get_wet(obj, FALSE))
+			if (get_wet(obj, RIVER_NONE))
 			    goto poof;
 		}
 	} else if (potion->otyp == POT_AMNESIA) {
@@ -2745,7 +2763,7 @@ dodip()
 		potion = splitobj(obj, 1L);
 		potion->in_use = TRUE;
 	    }
-	    if (get_wet(obj, TRUE)) goto poof;
+	    if (get_wet(obj, RIVER_LETHE)) goto poof;
 	}
 	/* WAC - Finn Theoderson - make polymorph and gain level msgs similar
 	 * 	 Give out name of new object and allow user to name the potion

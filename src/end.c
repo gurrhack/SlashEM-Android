@@ -731,6 +731,52 @@ int how;
 			return;
 		}
 	}
+
+	/* Lethe */
+	/* Python sketch to the rescue... */
+
+	if ( how < GENOCIDED
+	  && Unchanging
+	  && Upolyd
+	  && u.umonnum == PM_PARROT ) {
+	
+	    register struct monst *shpk;
+
+	    shpk = shop_keeper(inside_shop(u.ux, u.uy));
+
+	    if ( shpk != NULL
+	      && inhishop(shpk)
+	      && !shpk->msleeping
+	      && shpk->mcanmove ) {
+		You("die...");
+
+		mark_synch();   /* flush buffered screen output */
+
+		if (ANGRY(shpk)) {
+		    pline("%s glowers at your corpse.", Monnam(shpk));
+		    pline("%s says 'My, my, a dead parrot.  How uncommon.'", Monnam(shpk));
+		    pline("%s says 'Time to make some parrot pie.'", Monnam(shpk));
+		} else {
+		    pline("%s scowls a your corpse.", Monnam(shpk));
+		    pline("%s says 'You're not dead!  You're only resting!'", Monnam(shpk));
+		    pline("%s says 'Get up you lazy bugger!'", Monnam(shpk));
+
+		    (void) adjattrib(A_CON, -1, TRUE);
+
+		    if(u.mhmax <= 0) {
+			u.mhmax = 10;   /* arbitrary */
+		    }
+
+		    savelife(how);
+
+		    killer = 0;
+		    killer_format = 0;
+
+		    return;
+		}
+	    }
+	}
+	
 	if ((
 #ifdef WIZARD
 			wizard ||

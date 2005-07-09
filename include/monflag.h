@@ -235,4 +235,13 @@
 /* Additional flag for mkclass() */
 #define MKC_ULIMIT	0x10000		/* place an upper limit on difficulty
 					   of generated monster */
+
+/* Lethe */
+/* For create_critters and demonology... */
+#define MAKE_EM_NATURAL		0	/* Create monsters... */
+#define MAKE_EM_HOSTILE		1	/* Create hostile monsters... */
+#define MAKE_EM_PEACEFUL	2	/* Create peaceful monsters... */
+#define MAKE_EM_TAME		3	/* Create tamed monsters... */
+
+
 #endif /* MONFLAG_H */

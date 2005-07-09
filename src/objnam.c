@@ -3040,9 +3040,11 @@ typfnd:
 		delete_contents(otmp);
 	    obfree(otmp, (struct obj *) 0);
 	    otmp = &zeroobj;
-	    pline("For a moment, you feel %s in your %s, but it disappears!",
+/*	    pline("For a moment, you feel %s in your %s, but it disappears!",
 		  something,
-		  makeplural(body_part(HAND)));
+		  makeplural(body_part(HAND))); */
+	    /* Lethe message looks better for this situation... */
+	    moloch_denies_you();
 	}
 
 	if (halfeaten && otmp->oclass == FOOD_CLASS) {

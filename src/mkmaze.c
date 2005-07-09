@@ -542,10 +542,6 @@ fixup_special()
 	level.flags.graveyard = 1;
     } else if (Is_stronghold(&u.uz)) {
 	level.flags.graveyard = 1;
-    } else if(Is_sanctum(&u.uz)) {
-	croom = search_special(TEMPLE);
-
-	create_secret_door(croom, W_ANY);
     } else if(on_level(&u.uz, &orcus_level)) {
 	   register struct monst *mtmp, *mtmp2;
 
@@ -571,6 +567,55 @@ fixup_special()
     if (lregions)
 	free((genericptr_t) lregions),  lregions = 0;
     num_lregions = 0;
+}
+
+/* Pick a spot for the vibrating square... */
+
+void
+mkvsquare()
+{
+	int x,y;
+#define x_maze_min 2
+#define y_maze_min 2
+	/*
+	 * Pick a position where the stairs down to Moloch's Sanctum
+	 * level will ultimately be created.  At that time, an area
+	 * will be altered:  walls removed, moat and traps generated,
+	 * boulders destroyed.  The position picked here must ensure
+	 * that that invocation area won't extend off the map.
+	 *
+	 * We actually allow up to 2 squares around the usual edge of
+	 * the area to get truncated; see mkinvokearea(mklev.c).
+	 */
+#define INVPOS_X_MARGIN (6 - 2)
+#define INVPOS_Y_MARGIN (5 - 2)
+#define INVPOS_DISTANCE 11
+	int x_range = x_maze_max - x_maze_min - 2*INVPOS_X_MARGIN - 1,
+	    y_range = y_maze_max - y_maze_min - 2*INVPOS_Y_MARGIN - 1;
+
+#ifdef DEBUG
+	if (x_range <= INVPOS_X_MARGIN || y_range <= INVPOS_Y_MARGIN ||
+		(x_range * y_range) <= (INVPOS_DISTANCE * INVPOS_DISTANCE))
+	    panic("inv_pos: maze is too small! (%d x %d)",
+		    x_maze_max, y_maze_max);
+#endif
+	inv_pos.x = inv_pos.y = 0; /*{occupied() => invocation_pos()}*/
+	do {
+	    x = rn1(x_range, x_maze_min + INVPOS_X_MARGIN + 1);
+	    y = rn1(y_range, y_maze_min + INVPOS_Y_MARGIN + 1);
+	    /* we don't want it to be too near the stairs, nor
+		to be on a spot that's already in use (wall|trap) */
+	} while (x == xupstair || y == yupstair ||  /*(direct line)*/
+		abs(x - xupstair) == abs(y - yupstair) ||
+		distmin(x, y, xupstair, yupstair) <= INVPOS_DISTANCE ||
+		!SPACE_POS(levl[x][y].typ) || occupied(x, y));
+	inv_pos.x = x;
+	inv_pos.y = y;
+#undef INVPOS_X_MARGIN
+#undef INVPOS_Y_MARGIN
+#undef INVPOS_DISTANCE
+#undef x_maze_min
+#undef y_maze_min
 }
 
 void
@@ -629,6 +674,10 @@ register const char *s;
 	    Strcat(protofile, LEV_EXT);
 	    if(load_special(protofile)) {
 		fixup_special();
+		/* Allow a special level on the invokation level... */
+		if (Invocation_lev(&u.uz)) {
+		    mkvsquare();
+		}
 		/* some levels can end up with monsters
 		   on dead mon list, including light source monsters */
 		dmonsfree();
@@ -663,47 +712,7 @@ register const char *s;
 	    mazexy(&mm);
 	    mkstairs(mm.x, mm.y, 0, (struct mkroom *)0);	/* down */
 	} else {	/* choose "vibrating square" location */
-#define x_maze_min 2
-#define y_maze_min 2
-	    /*
-	     * Pick a position where the stairs down to Moloch's Sanctum
-	     * level will ultimately be created.  At that time, an area
-	     * will be altered:  walls removed, moat and traps generated,
-	     * boulders destroyed.  The position picked here must ensure
-	     * that that invocation area won't extend off the map.
-	     *
-	     * We actually allow up to 2 squares around the usual edge of
-	     * the area to get truncated; see mkinvokearea(mklev.c).
-	     */
-#define INVPOS_X_MARGIN (6 - 2)
-#define INVPOS_Y_MARGIN (5 - 2)
-#define INVPOS_DISTANCE 11
-	    int x_range = x_maze_max - x_maze_min - 2*INVPOS_X_MARGIN - 1,
-		y_range = y_maze_max - y_maze_min - 2*INVPOS_Y_MARGIN - 1;
-
-#ifdef DEBUG
-	    if (x_range <= INVPOS_X_MARGIN || y_range <= INVPOS_Y_MARGIN ||
-		   (x_range * y_range) <= (INVPOS_DISTANCE * INVPOS_DISTANCE))
-		panic("inv_pos: maze is too small! (%d x %d)",
-		      x_maze_max, y_maze_max);
-#endif
-	    inv_pos.x = inv_pos.y = 0; /*{occupied() => invocation_pos()}*/
-	    do {
-		x = rn1(x_range, x_maze_min + INVPOS_X_MARGIN + 1);
-		y = rn1(y_range, y_maze_min + INVPOS_Y_MARGIN + 1);
-		/* we don't want it to be too near the stairs, nor
-		   to be on a spot that's already in use (wall|trap) */
-	    } while (x == xupstair || y == yupstair ||	/*(direct line)*/
-		     abs(x - xupstair) == abs(y - yupstair) ||
-		     distmin(x, y, xupstair, yupstair) <= INVPOS_DISTANCE ||
-		     !SPACE_POS(levl[x][y].typ) || occupied(x, y));
-	    inv_pos.x = x;
-	    inv_pos.y = y;
-#undef INVPOS_X_MARGIN
-#undef INVPOS_Y_MARGIN
-#undef INVPOS_DISTANCE
-#undef x_maze_min
-#undef y_maze_min
+	    mkvsquare();
 	}
 
 	/* place branch stair or portal */

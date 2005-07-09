@@ -1728,16 +1728,22 @@ int mndx;
 /* returns TRUE iff you know monsters have been created */
 
 boolean
-create_critters(cnt, mptr)
+create_critters(cnt, mptr, mood)
 int cnt;
 struct permonst *mptr;		/* usually null; used for confused reading */
+int mood;
 {
 	coord c;
 	int x, y;
-	struct monst *mon;
+	struct monst *mon, *mon2;
 	boolean known = FALSE;
 #ifdef WIZARD
 	boolean ask = wizard;
+
+	if (mptr != (struct permonst *)0) {
+	    ask = FALSE;
+	}
+		
 #endif
 
 	while (cnt--) {
@@ -1757,7 +1763,29 @@ struct permonst *mptr;		/* usually null; used for confused reading */
 		x = c.x,  y = c.y;
 
 	    mon = makemon(mptr, x, y, NO_MM_FLAGS);
-	    if (mon && canspotmon(mon)) known = TRUE;
+
+	    if (mon) {
+		switch (mood) {
+		    case MAKE_EM_TAME:
+			mon2 = tamedog(mon, (struct obj *)0);
+			if (mon2) {
+			    mon = mon2;
+			}
+			break;
+		    case MAKE_EM_PEACEFUL:
+			mon->mpeaceful = TRUE;
+			break;
+		    case MAKE_EM_HOSTILE:
+			setmangry(mon);
+			break;
+		    default:
+			break;
+		}
+		if (canspotmon(mon)) {
+		    known = TRUE;
+		}
+	    }
+
 	}
 	return known;
 }

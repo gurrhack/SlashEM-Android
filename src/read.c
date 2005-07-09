@@ -1168,12 +1168,181 @@ register struct obj	*sobj;
 	case SPE_CREATE_MONSTER:
 	    if (create_critters(1 + ((confused || sobj->cursed) ? 12 : 0) +
 				((sobj->blessed || rn2(73)) ? 0 : rnd(4)),
-			confused ? &mons[PM_ACID_BLOB] : (struct permonst *)0))
+			confused ? &mons[PM_ACID_BLOB] : (struct permonst *)0,
+			MAKE_EM_NATURAL))
 		known = TRUE;
 	    /* no need to flush monsters; we ask for identification only if the
 	     * monsters are not visible
 	     */
 	    break;
+	/* Lethe */
+	case SCR_DEMONOLOGY: {
+	    struct permonst *critter = 0;
+	    int n = 1, x = 0;
+	    int state = MAKE_EM_HOSTILE;
+	    if (sobj->blessed) {
+		if (confused) {
+		    n = 3 + rn2(10);
+		    critter = &mons[PM_MANES];
+		    state = MAKE_EM_TAME;
+		    adjalign(-2);
+		} else if (rn2(2)) {
+		    state = MAKE_EM_TAME;
+		} else {
+		    state = MAKE_EM_HOSTILE;
+		}
+	    } else if (sobj->cursed) {
+		if (confused) {
+		    x = 100;
+		} else {
+		    n = 2 + rn2(3);
+		    x = 5;
+		}
+	    } else {
+		if (confused) {
+		    n = 3 + rn2(10);
+		    critter = &mons[PM_MANES];
+		    adjalign(-2);
+		} else if (rn2(2)) {
+		    state = MAKE_EM_PEACEFUL;
+		}
+	    }
+	    if (critter == (struct permonst *)0) {
+		/* Normally you get a minor demon... */
+		x += rn2(100);
+		if ( x < 35 ) {
+		    critter = &mons[PM_VROCK];
+		} else if ( x < 45 ) {
+		    critter = &mons[PM_HEZROU];
+		} else if ( x < 54 ) {
+		    critter = &mons[PM_HORNED_DEVIL];
+		} else if ( x < 63 ) {
+		    critter = &mons[PM_BARBED_DEVIL];
+		} else if ( x < 71 ) {
+		    critter = &mons[PM_BONE_DEVIL];
+		} else if ( x < 79 ) {
+		    critter = &mons[PM_ICE_DEVIL];
+		} else if ( x < 84 ) {
+		    critter = &mons[PM_MARILITH];
+		} else if ( x < 89 ) {
+		    critter = &mons[PM_NALFESHNEE];
+		} else if ( x < 94 ) {
+		    critter = &mons[PM_PIT_FIEND];
+		} else if ( x < 98 ) {
+		    critter = &mons[PM_BALROG];
+		} else {
+		    /* 1 in 100, you get a major demon... */
+		    int pm = 0;
+		    n = 1;
+		    if (u.ualign.type == A_LAWFUL) {
+			state = MAKE_EM_HOSTILE;
+		    } else if (state == MAKE_EM_TAME) {
+			state = MAKE_EM_PEACEFUL;
+		    }
+		    if (x > 140) {
+			pm = dlord(A_NONE);  /* Yen, Jub */
+		    } else {
+			pm = dprince(A_NONE);  /* Other */
+		    }
+		    /* Send in some MANES if nobody is home... */
+		    if ( pm == 0 ) {
+			pm = PM_MANES;
+			n = 5 + rn2(10);
+			if (u.ualign.type == A_CHAOTIC) {
+			    state = MAKE_EM_TAME;
+			}
+		    } else {
+			adjalign(-2);
+		    }
+		    critter = &mons[pm];
+		}
+	    }
+	    /* Summoning demons is a chaotic thing... */
+	    adjalign((u.ualign.type == A_LAWFUL) ? -3 : -1);
+	    if (create_critters(n, critter,state)) {
+		known = TRUE;
+	    }
+	    if (Hallucination) {
+		You_feel("like a walking study!");
+	    } else {
+		You("smell brimstone.");
+	    }
+	    /* no need to flush monsters; we ask for identification only if the
+	     * monsters are not visible
+	     *                           */
+	    break;
+	}
+	case SCR_ELEMENTALISM: {
+	    struct permonst *critter = 0;
+	    int n = 1;
+	    int state = MAKE_EM_HOSTILE;
+	    if (sobj->blessed) {
+		if (confused) {
+		    n = 3 + rn2(10);
+		    state = MAKE_EM_TAME;
+		} else if (!rn2(3)) {
+		    state = MAKE_EM_HOSTILE;   /* 1 in 3 */
+		} else {
+		    state = MAKE_EM_TAME;
+		}
+	    } else if (sobj->cursed) {
+		if (!confused) {
+		    n = 2 + rn2(3);
+		}
+	    } else {
+		if (confused) {
+		    n = 3 + rn2(10);
+		} else if (!rn2(2)) {
+		    state = MAKE_EM_PEACEFUL;
+		}
+	    }
+	    if (critter == (struct permonst *)0) {
+		/* Normally you get an elemental... */
+		switch (rn2(4)) {
+		    case 0:             /* Air */
+			if (confused) {
+			    critter = &mons[PM_GAS_SPORE];
+			} else {
+			    critter = &mons[PM_AIR_ELEMENTAL];
+			}
+			break;
+		    case 1:             /* Fire */
+			if (confused) {
+			    critter = &mons[PM_FLAMING_SPHERE];
+			} else {
+			    critter = &mons[PM_FIRE_ELEMENTAL];
+			}
+			break;
+		    case 2:             /* Water */
+			if (confused) {
+			    critter = &mons[PM_FREEZING_SPHERE];
+			} else {
+			    critter = &mons[PM_WATER_ELEMENTAL];
+			}
+			break;
+		    default:
+		    case 3:             /* Earth */
+			if (confused) {
+			    critter = &mons[PM_SHOCKING_SPHERE];
+			} else {
+			    critter = &mons[PM_EARTH_ELEMENTAL];
+			}
+			break;
+		}
+	    }
+	    if (create_critters(n, critter,state)) {
+		known = TRUE;
+	    }
+	    if (Hallucination) {
+		You_feel("you have experienced something fundamental.");
+	    } else {
+		pline("The elements swirl around you.");
+	    }
+	    /* no need to flush monsters; we ask for identification only if the
+	     * monsters are not visible
+	     */
+	    break;
+	}			    
 	case SPE_SUMMON_UNDEAD:        
 	    {
 		int cnt = 1, oldmulti = multi;

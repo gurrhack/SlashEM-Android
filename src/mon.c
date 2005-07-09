@@ -1794,17 +1794,55 @@ boolean was_swallowed;			/* digestion */
 		(2 + ((int)(mdat->geno & G_FREQ)<2) + verysmall(mdat))));
 }
 
+/* Check for parrots dieing in shops... */
+void
+check_parrot(corpse)
+register struct obj *corpse;
+{
+	register struct monst *shkp;
+
+	/* Find the shopkeeper... */
+
+	shkp = shop_keeper(inside_shop(corpse->ox, corpse->oy));
+
+	/* Must have an alive, awake and mobile shop keeper... */
+
+	if ( shkp == NULL
+	  || !inhishop(shkp)
+	  || shkp->msleeping
+	  || !shkp->mcanmove ) {
+	    return;
+	}
+
+	revive_parrot(shkp, corpse);
+
+	return;
+}
+
 /* drop (perhaps) a cadaver and remove monster */
 void
 mondied(mdef)
 register struct monst *mdef;
 {
+	register struct obj *corpse;
+	register struct permonst *mdat;
+	int mndx;
+
 	mondead(mdef);
 	if (mdef->mhp > 0) return;	/* lifesaved */
 
-	if (corpse_chance(mdef, (struct monst *)0, FALSE) &&
-	    (accessible(mdef->mx, mdef->my) || is_pool(mdef->mx, mdef->my)))
-		(void) make_corpse(mdef);
+	corpse = NULL;
+
+	if (corpse_chance(mdef, (struct monst*)0, FALSE))
+	    corpse = make_corpse(mdef);
+
+	if (corpse != NULL) {
+	    mdat = mdef->data;
+	    mndx = monsndx(mdat);
+	    if (mndx == PM_PARROT) {
+		check_parrot(corpse);
+	    }
+	}
 }
 
 /* monster disappears, not dies */
@@ -2015,10 +2053,13 @@ xkilled(mtmp, dest)
 	register struct permonst *mdat;
 	int mndx;
 	register struct obj *otmp;
+	register struct obj *corpse;
 	register struct trap *t;
 	boolean redisp = FALSE;
 	boolean wasinside = u.uswallow && (u.ustuck == mtmp);
 
+
+	corpse = NULL;
 
 	/* KMH, conduct */
 	u.uconduct.killer++;
@@ -2117,7 +2158,7 @@ xkilled(mtmp, dest)
 		 * if we want both, we have to specify it explicitly.
 		 */
 		if (corpse_chance(mtmp, (struct monst *)0, FALSE))
-			(void) make_corpse(mtmp);
+			corpse = make_corpse(mtmp);
 	}
 	if(redisp) newsym(x,y);
 cleanup:
@@ -2172,6 +2213,15 @@ cleanup:
 
 	/* malign was already adjusted for u.ualign.type and randomization */
 	adjalign(mtmp->malign);
+
+	/* Some monsters just won't stay dead... */
+
+	if ( mndx == PM_PARROT
+		&& corpse != NULL) {
+	    check_parrot(corpse);
+	}
+
+	return;		
 }
 
 /* changes the monster into a stone monster of the same type */

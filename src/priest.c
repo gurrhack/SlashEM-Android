@@ -183,6 +183,8 @@ register struct monst *priest;
 }
 
 /* exclusively for mktemple() */
+
+/* For Lethe, Cthulhu us the high priest, so there are a few changes... */
 void
 priestini(lvl, sroom, sx, sy, sanctum)
 d_level	*lvl;
@@ -197,8 +199,7 @@ boolean sanctum;   /* is it the seat of the high priest? */
 	if(MON_AT(sx+1, sy))
 		(void) rloc(m_at(sx+1, sy), FALSE); /* insurance */
 
-	priest = makemon(&mons[sanctum ? PM_HIGH_PRIEST : PM_ALIGNED_PRIEST],
-			 sx + 1, sy, NO_MM_FLAGS);
+	priest = makemon(&mons[on_level(&astral_level, &u.uz)? PM_HIGH_PRIEST : PM_ALIGNED_PRIEST], sx + 1, sy, NO_MM_FLAGS);
 	if (priest) {
 		EPRI(priest)->shroom = (sroom - rooms) + ROOMOFFSET;
 		EPRI(priest)->shralign = Amask2align(levl[sx][sy].altarmask);
@@ -212,10 +213,10 @@ boolean sanctum;   /* is it the seat of the high priest? */
 		set_malign(priest); /* mpeaceful may have changed */
 
 		/* now his/her goodies... */
-		if(sanctum && EPRI(priest)->shralign == A_NONE &&
+		/* if(sanctum && EPRI(priest)->shralign == A_NONE &&
 		     on_level(&sanctum_level, &u.uz)) {
 			(void) mongets(priest, AMULET_OF_YENDOR);
-		}
+		} */
 		/* 2 to 4 spellbooks */
 		for (cnt = rn1(3,2); cnt > 0; --cnt) {
 		    (void) mpickobj(priest, mkobj(SPBOOK_CLASS, FALSE));
@@ -346,8 +347,7 @@ register int roomno;
 	if(!temple_occupied(u.urooms0)) {
 	    if(tended) {
 		shrined = has_shrine(priest);
-		sanctum = (priest->data == &mons[PM_HIGH_PRIEST] &&
-			   (Is_sanctum(&u.uz) || In_endgame(&u.uz)));
+		sanctum = (Is_sanctum(&u.uz) || In_endgame(&u.uz));
 		can_speak = (priest->mcanmove && !priest->msleeping &&
 			     flags.soundok);
 		if (can_speak) {

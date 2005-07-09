@@ -302,7 +302,7 @@ lookat(x, y, buf, monbuf)
 	break;
     case S_water:
     case S_pool:
-	Strcpy(buf, level.flags.lethe? "sparkling water" : "water");
+	Strcpy(buf, river_liquid[level.flags.river]);
 	break;
     default:
 	Strcpy(buf,defsyms[glyph_to_cmap(glyph)].explanation);
@@ -664,8 +664,9 @@ do_look(quick)
 		    if (is_cmap_trap(i)) {
 			Sprintf(out_str, "%c       a trap", sym);
 			hit_trap = TRUE;
-		    } else if (level.flags.lethe && !strcmp(x_str, "water")) {
-			Sprintf(out_str, "%c       sparkling water", sym);
+		    } else if (level.flags.river && !strcmp(x_str, "water")) {
+			Sprintf(out_str, "%c       %s", sym,
+				river_liquid[level.flags.river]);
 		    } else {
 			Sprintf(out_str, "%c       %s", sym,
 				article == 2 ? the(x_str) :
@@ -675,9 +676,10 @@ do_look(quick)
 		    found++;
 		} else if (!u.uswallow && !(hit_trap && is_cmap_trap(i)) &&
 			   !(found >= 3 && is_cmap_drawbridge(i))) {
-		    if (level.flags.lethe && !strcmp(x_str, "water"))
-			found += append_str(out_str, "sparkling water");
-		    else
+		    if (level.flags.river && !strcmp(x_str, "water")) {
+			found += append_str(out_str,
+					river_liquid[level.flags.river]);
+		    } else
 		    	found += append_str(out_str,
 					article == 2 ? the(x_str) :
 					article == 1 ? an(x_str) : x_str);
@@ -772,9 +774,14 @@ do_look(quick)
 	    if (found == 1 && ans != LOOK_QUICK && ans != LOOK_ONCE &&
 			(ans == LOOK_VERBOSE || (flags.help && !quick))) {
 		char temp_buf[BUFSZ];
-		Strcpy(temp_buf, level.flags.lethe 
-					&& !strcmp(firstmatch, "water")?
-				"lethe" : firstmatch);
+		if (level.flags.river && !strcmp(firstmatch, "water")) {
+		    if (level.flags.river == RIVER_LETHE)
+			Strcpy(temp_buf, "lethe");
+		    else
+			Strcpy(temp_buf, "phlegethon");
+		}
+		else
+		    Strcpy(temp_buf, firstmatch);
 		checkfile(temp_buf, pm, FALSE, (boolean)(ans == LOOK_VERBOSE));
 	    }
 	} else {

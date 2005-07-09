@@ -467,6 +467,32 @@ decurse:
 	}
 }
 
+void
+moloch_denies_you()
+{
+	pline("The dread voice of %s fills the air!", Moloch);
+
+	verbalize("So, mortal, you seek the powers of the olden gods to use against me?");
+
+	pline( "For a moment, you feel %s in your %s, but it disappears!",
+		something,
+		makeplural(body_part(HAND)));
+
+	verbalize("I think not!");
+
+	summon_minion(A_NONE, FALSE);
+
+	if (!rn2(3)) {
+	    summon_minion(A_NONE, FALSE);
+	}
+
+	if (!rn2(7)) {
+	    summon_minion(A_NONE, FALSE);
+	}
+
+	return;
+}
+
 /* "I am sometimes shocked by...  the nuns who never take a bath without
  * wearing a bathrobe all the time.  When asked why, since no man can see them,
  * they reply 'Oh, but you forget the good God'.  Apparently they conceive of

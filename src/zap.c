@@ -2078,10 +2078,11 @@ register struct obj *obj;
 			break;
 		case WAN_CREATE_MONSTER:
 			known = create_critters(rn2(23) ? 1 : rn1(7,2),
-					(struct permonst *)0);
+					(struct permonst *)0, MAKE_EM_NATURAL);
 			break;
 		case WAN_CREATE_HORDE:
-			known = create_critters(rn1(7,6), (struct permonst *)0);
+			known = create_critters(rn1(7,6), (struct permonst *)0,
+					MAKE_EM_NATURAL);
 			break;
 		case WAN_WISHING:
 			known = TRUE;

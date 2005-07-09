@@ -758,7 +758,9 @@ init_dungeons()
 		for (branch_num = 0; branch_num < pd.n_brs; branch_num++)
 		    if (!strcmp(pd.tmpbranch[branch_num].name, dungeons[i].dname)) {
 			br = add_branch(i, branch_num, &pd);
+#if 0
 			break;
+#endif
 		    }
 		
 		/* Set the dungeon entry level from the first branch */
@@ -859,20 +861,27 @@ init_dungeons()
 				 * levels of the quest dungeon occur.
 				 */
 				Sprintf(x->proto, "%s%s", urole.filecode, &lev_map->lev_name[1]);
-			} else if (lev_map->lev_spec == &knox_level) {
+			} else if (lev_map->lev_spec == &knox_level ||
+					lev_map->lev_spec == &sanctum_level) {
 				branch *br;
 				/*
 				 * Kludge to allow floating Knox entrance.  We
 				 * specify a floating entrance by the fact that
 				 * its entrance (end1) has a bogus dnum, namely
 				 * n_dgns.
+				 * While the sanctum's entrance is at a fixed
+				 * place we treat it as floating so that it
+				 * is not accessible until after the invocation.
 				 */
 				for (br = branches; br; br = br->next)
-				    if (on_level(&br->end2, &knox_level)) break;
-
-				if (br) br->end1.dnum = n_dgns;
-				/* adjust the branch's position on the list */
-				insert_branch(br, TRUE);
+				    if (on_level(&br->end2, &sanctum_level) ||
+					    on_level(&br->end2, &knox_level)) {
+					br->end1.dnum = n_dgns;
+					/* adjust the branch's
+					 * position on the list
+					 */
+					insert_branch(br, TRUE);
+				    }
 			}
 		}
 	}
@@ -884,6 +893,7 @@ init_dungeons()
 	mines_dnum = dname_to_dnum("The Gnomish Mines");
 	spiders_dnum = dname_to_dnum("The Spider Caves");        
 	tower_dnum = dname_to_dnum("Vlad's Tower");
+	gehennom_dnum = dname_to_dnum("Gehennom");
 /*
 #ifdef BLACKMARKET
 	blackmarket_dnum = dname_to_dnum("The Black Market");
@@ -1097,7 +1107,7 @@ boolean	at_stairs;
 		/* Taking an up dungeon branch. */
 		/* KMH -- Upwards branches are okay if not level 1 */
 		/* (Just make sure it doesn't go above depth 1) */
-		if(!u.uz.dnum && u.uz.dlevel == 1 && !u.uhave.amulet) done(ESCAPED);
+		if(!u.uz.dnum && u.uz.dlevel == 1) done(ESCAPED);
 		else goto_level(&sstairs.tolev, at_stairs, FALSE, FALSE);
 	} else {
 		/* Going up a stairs or rising through the ceiling. */
@@ -1251,7 +1261,35 @@ int levnum;
 	} else if (levnum > dungeons[dgn].depth_start
 			    + dungeons[dgn].num_dunlevs - 1) {
 	    /* beyond end of dungeon, jump to last level */
-	    levnum = dungeons[dgn].num_dunlevs;
+	    /* levnum = dungeons[dgn].num_dunlevs; */
+	    /* Lethe change... */
+	    /* In dungeons 0 and 1, we can try the next dungeon... */
+	    switch (dgn) {
+
+		case 0:   /* Dungeons of Doom */
+		    dgn = 1;
+		    if (levnum <= dungeons[dgn].depth_start
+			    + dungeons[dgn].num_dunlevs - 1) {
+			levnum = levnum - dungeons[dgn].depth_start + 1;
+			break;
+		    }
+		
+		case 1:   /* Lethe Gorge */
+		    dgn = 2;
+		    if (levnum <= dungeons[dgn].depth_start
+			    + dungeons[dgn].num_dunlevs - 1) {
+			levnum = levnum - dungeons[dgn].depth_start + 1;
+			break;
+		    }
+		    /* I really dont know why this part was added - if it is
+                       beyond end of gehennom, we can just cap it down */
+//		    dgn = 1;
+//		    impossible("Teleport extension beyond Lethe failed!");
+		
+		default:  /* beyond end of dungeon, jump to last level */
+		    levnum = dungeons[dgn].num_dunlevs;
+		    break;
+	    }				    
 	} else {
 	    /* The desired level is in this dungeon or a "higher" one. */
 
@@ -1472,7 +1510,7 @@ Invocation_lev(lev)
 d_level *lev;
 {
 	return((boolean)(In_hell(lev) &&
-		lev->dlevel == (dungeons[lev->dnum].num_dunlevs - 1)));
+		lev->dlevel == dungeons[lev->dnum].num_dunlevs));
 }
 
 /* use instead of depth() wherever a degree of difficulty is made

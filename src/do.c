@@ -1032,34 +1032,48 @@ boolean at_stairs, falling, portal;
 	 *	 -1    8.33   4.17   0.0	 -1    6.25   8.33  12.5
 	 *	 -2    8.33   4.17   0.0	 -2    6.25   8.33   0.0
 	 *	 -3    8.33   4.17   0.0	 -3    6.25   0.0    0.0
-	 * [Tom] I removed this... it's indescribably annoying.         
-	 *
-	 * if (Inhell && up && u.uhave.amulet && !newdungeon && !portal &&
-	 *			(dunlev(&u.uz) < dunlevs_in_dungeon(&u.uz)-3)) {
-	 *	if (!rn2(4)) {
-	 *	    int odds = 3 + (int)u.ualign.type,          * 2..4 *
-	 *		diff = odds <= 1 ? 0 : rn2(odds);       * paranoia *
-	 *
-	 *	    if (diff != 0) {
-	 *		assign_rnd_level(newlevel, &u.uz, diff);
-	 *		* if inside the tower, stay inside *
-	 *		if (was_in_W_tower &&
-	 *		    !On_W_tower_level(newlevel)) diff = 0;
-	 *	    }
-	 *	    if (diff == 0)
-	 *		assign_level(newlevel, &u.uz);
- 	 *
-	 *	    new_ledger = ledger_no(newlevel);
- 	 *
-	 *	    pline("A mysterious force momentarily surrounds you...");
-	 *	    if (on_level(newlevel, &u.uz)) {
-	 *		(void) safe_teleds(FALSE);
-	 *		(void) next_to_u();
-	 *		return;
-	 *	    } else
-	 *		at_stairs = at_ladder = FALSE;
-	 *	}
-	}*/
+	 * Note: In Slash'EM it is not possible for the amulet to enter the
+	 * mortal world. This is intended to prevent players escaping the
+	 * dungeon when they were trying to enter the elemental planes.
+	 */
+	 if (Inhell && up && u.uhave.amulet &&
+	 			(!newdungeon || Is_valley(&u.uz)) && !portal &&
+				(dunlev(&u.uz) < dunlevs_in_dungeon(&u.uz)-3)) {
+		if (newdungeon) {
+		    /*
+		     * If newdungeon is set, then we can't write to newlevel
+		     * without modifying the dungeon structure, so we take
+		     * the easy way out and always stay on the same level.
+		     */
+		    pline("A mysterious force momentarily surrounds you...");
+		    (void) safe_teleds(FALSE);
+		    (void) next_to_u();
+		    return;
+		}
+		if (!rn2(4)) {
+		    int odds = 3 + (int)u.ualign.type,          /* 2..4 */
+			diff = odds <= 1 ? 0 : rn2(odds);       /* paranoia */
+
+		    if (diff != 0) {
+			assign_rnd_level(newlevel, &u.uz, diff);
+			/* if inside the tower, stay inside */
+			if (was_in_W_tower &&
+			    !On_W_tower_level(newlevel)) diff = 0;
+		    }
+		    if (diff == 0)
+			assign_level(newlevel, &u.uz);
+	
+		    new_ledger = ledger_no(newlevel);
+
+		    pline("A mysterious force momentarily surrounds you...");
+		    if (on_level(newlevel, &u.uz)) {
+			(void) safe_teleds(FALSE);
+			(void) next_to_u();
+			return;
+		    } else
+			at_stairs = at_ladder = FALSE;
+		}
+	}
 
 	/* Prevent the player from going past the first quest level unless
 	 * (s)he has been given the go-ahead by the leader.

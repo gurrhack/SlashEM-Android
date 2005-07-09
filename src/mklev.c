@@ -607,7 +607,7 @@ clear_level_structures()
 	level.flags.arboreal = 0;
 	level.flags.is_maze_lev = 0;
 	level.flags.is_cavernous_lev = 0;
-	level.flags.lethe = 0;
+	level.flags.river = RIVER_NONE;
 
 	nroom = 0;
 	rooms[0].hx = -1;
@@ -1536,7 +1536,17 @@ mkinvokearea()
     }
 
     You("are standing at the top of a stairwell leading down!");
+#if 0
     mkstairs(u.ux, u.uy, 0, (struct mkroom *)0); /* down */
+#else
+    {
+	branch *br;
+	br = dungeon_branch("The Lethe Gorge");
+	br->end1 = u.uz;
+	insert_branch(br, TRUE);
+	place_branch(br, u.ux, u.uy);
+    }
+#endif
     newsym(u.ux, u.uy);
     vision_full_recalc = 1;	/* everything changed */
 }

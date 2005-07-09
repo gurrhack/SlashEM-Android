@@ -633,13 +633,13 @@ check_branch()
 		return(0);
 	    }
 #endif
-	if(tmpbranch[n_dgns].chain == -2) {
+	if(tmpbranch[n_brs].chain == -2) {
 
 		yyerror("Invalid branch chain reference.");
 		return(0);
-	} else if(tmpbranch[n_dgns].chain != -1) {	/* it is chained */
+	} else if(tmpbranch[n_brs].chain != -1) {	/* it is chained */
 
-	    if(tmplevel[tmpbranch[n_dgns].chain].chance != 100) {
+	    if(tmplevel[tmpbranch[n_brs].chain].chance != 100) {
 		yyerror("Branch cannot chain from a probabilistic level.");
 		return(0);
 	    }

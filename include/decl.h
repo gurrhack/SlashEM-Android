@@ -78,6 +78,7 @@ E struct dgn_topology {		/* special dungeon levels for speed */
     xchar	d_sokoban_dnum;
     xchar	d_mines_dnum, d_quest_dnum;
     xchar       d_spiders_dnum;
+    xchar       d_gehennom_dnum;
     d_level	d_lawful_quest_level;
     d_level	d_neutral_quest_level;
     d_level	d_chaotic_quest_level;
@@ -95,6 +96,8 @@ E struct dgn_topology {		/* special dungeon levels for speed */
 #endif
 #define medusa_level		(dungeon_topology.d_medusa_level)
 #define stronghold_level	(dungeon_topology.d_stronghold_level)
+#define ucastle_level		(dungeon_topology.d_ucastle_level)
+#define lethe_last_level	(dungeon_topology.d_lethe_last_level)
 #define valley_level		(dungeon_topology.d_valley_level)
 #define mineend_level           (dungeon_topology.d_mineend_level)
 #define wiz1_level		(dungeon_topology.d_wiz1_level)
@@ -119,6 +122,7 @@ E struct dgn_topology {		/* special dungeon levels for speed */
 #define sokoban_dnum		(dungeon_topology.d_sokoban_dnum)
 #define mines_dnum		(dungeon_topology.d_mines_dnum)
 #define quest_dnum		(dungeon_topology.d_quest_dnum)
+#define gehennom_dnum		(dungeon_topology.d_gehennom_dnum)
 #define qstart_level		(dungeon_topology.d_qstart_level)
 #define qlocate_level		(dungeon_topology.d_qlocate_level)
 #define nemesis_level		(dungeon_topology.d_nemesis_level)
@@ -355,6 +359,9 @@ E const char no_elbow_room[];
 
 /* material strings */
 E const char *materialnm[];
+
+/* river strings */
+E const char *river_liquid[];
 
 /* Monster name articles */
 #define ARTICLE_NONE	0

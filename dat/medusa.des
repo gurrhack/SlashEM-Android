@@ -1,5 +1,5 @@
 #	SCCS Id: @(#)medusa.des	3.4	1996/05/11
-#	$Id: medusa.des,v 1.4 2003-09-06 07:44:22 prousu Exp $
+#	$Id: medusa.des,v 1.4.4.1 2005-07-09 18:54:39 j_ali Exp $
 #	Copyright (c) 1989 by Jean-Christophe Collet
 #	Copyright (c) 1990, 1991 by M. Stephenson
 #	Copyright (c) 2003 by Pasi Kallinen
@@ -95,6 +95,10 @@ MONSTER:';',"jellyfish",(00,08)
 MONSTER:';',"jellyfish",(04,18)
 MONSTER:'T',"water troll",(51,03)
 MONSTER:'T',"water troll",(64,11)
+MONSTER:'h',"deep one",(28,03)
+MONSTER:'h',"deep one",(35,03)
+MONSTER:'h',"deep one",(41,03)
+MONSTER:'h',"deeper one",(65,10)
 MONSTER:'S',random,(38,07)
 MONSTER:'S',random,(38,12)
 MONSTER:random,random,random
@@ -202,6 +206,10 @@ MONSTER:'S',"cobra",(64,10),asleep
 MONSTER:'S',"cobra",(65,10),asleep
 MONSTER:'A',random,(72,08)
 MONSTER:'y',"yellow light",(72,11),asleep
+MONSTER:'h',"deep one",(28,03)
+MONSTER:'h',"deep one",(35,03)
+MONSTER:'h',"deep one",(41,03)
+MONSTER:'h',"deeper one",(55,16)
 MONSTER:random,random,(17,07)
 MONSTER:random,random,(28,11)
 MONSTER:random,random,(32,13)

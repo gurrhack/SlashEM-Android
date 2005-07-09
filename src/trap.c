@@ -2804,7 +2804,7 @@ register struct obj *obj;
 register boolean force, here;
 {
 	/* Dips in the Lethe are a very poor idea */
-	int luckpenalty = level.flags.lethe? 7 : 0;
+	int luckpenalty = level.flags.river == RIVER_LETHE ? 7 : 0;
 	struct obj *otmp;
 
 	/* Scrolls, spellbooks, potions, weapons and
@@ -2839,7 +2839,7 @@ register boolean force, here;
 		    continue;
 		} else {
 		    /* The Lethe strips blessed and cursed status... */
-		    if (level.flags.lethe) {
+		    if (level.flags.river == RIVER_LETHE) {
 			uncurse(obj);
 			unbless(obj);
 		    }
@@ -2850,9 +2850,11 @@ register boolean force, here;
 		    if (obj->otyp != SCR_MAIL)
 #endif
 		    {
-			    /* The Lethe sometimes does a little rewrite */
-			    obj->otyp = (level.flags.lethe && !rn2(10)) ?
-					SCR_AMNESIA : SCR_BLANK_PAPER;
+			/* The Lethe sometimes does a little rewrite */
+			if (level.flags.river == RIVER_LETHE && !rn2(10))
+			    obj->otyp = SCR_AMNESIA;
+			else
+			    obj->otyp = SCR_BLANK_PAPER;
 			obj->spe = 0;
 		    }
 			break;
@@ -2870,7 +2872,7 @@ register boolean force, here;
 				continue;
 			} else
 			/* Potions turn to water or amnesia... */
-			if (level.flags.lethe) {
+			if (level.flags.river == RIVER_LETHE) {
 			    if (obj->otyp == POT_WATER)
 				obj->otyp = POT_AMNESIA;
 			    else if (obj->otyp != POT_AMNESIA) {
@@ -2885,14 +2887,15 @@ register boolean force, here;
 				obj->odiluted++;
 			break;
 		    case GEM_CLASS:
-			if (level.flags.lethe && (obj->otyp == LUCKSTONE
-					|| obj->otyp == LOADSTONE
-					|| obj->otyp == HEALTHSTONE
-					|| obj->otyp == TOUCHSTONE))
+			if (level.flags.river == RIVER_LETHE &&
+				(obj->otyp == LUCKSTONE ||
+				 obj->otyp == LOADSTONE ||
+				 obj->otyp == HEALTHSTONE ||
+				 obj->otyp == TOUCHSTONE))
 			    obj->otyp = FLINT;
 			break;
 		    case TOOL_CLASS:
-			if (level.flags.lethe) {
+			if (level.flags.river == RIVER_LETHE) {
 			    switch (obj->otyp) {
 			    case MAGIC_LAMP:
 				obj->otyp = OIL_LAMP;
@@ -2931,20 +2934,19 @@ register boolean force, here;
 		    case ARMOR_CLASS:
 		    case WAND_CLASS:
 		    case RING_CLASS:
-			if ( level.flags.lethe
-					&& ( obj->oclass == WEAPON_CLASS
-						|| obj->oclass == ARMOR_CLASS
-						|| obj->oclass == WAND_CLASS
-						|| obj->oclass == RING_CLASS
-						|| is_weptool(obj) )) {
-
+			if (level.flags.river == RIVER_LETHE &&
+				(obj->oclass == WEAPON_CLASS ||
+				 obj->oclass == ARMOR_CLASS ||
+				 obj->oclass == WAND_CLASS ||
+				 obj->oclass == RING_CLASS ||
+				 is_weptool(obj))) {
 			    /* Shift enchantment one step closer to 0 */
 			    if (obj->spe > 0) drain_item(obj);
 			}
 
 			/* Magic markers run... */
-			if ( level.flags.lethe
-					&& obj->otyp == MAGIC_MARKER ) {
+			if (level.flags.river == RIVER_LETHE &&
+				obj->otyp == MAGIC_MARKER ) {
 			    obj->spe -= (3 + rn2(10));
 			    if (obj->spe < 0) obj->spe = 0;
 			}
@@ -2957,8 +2959,8 @@ register boolean force, here;
 					 (obj->blessed && !rnl(4))))
 				obj->oeroded++;
 			/* The Lethe may unfooproof the item... */
-			if (level.flags.lethe
-					&& obj->oerodeproof && !rn2(5))
+			if (level.flags.river == RIVER_LETHE &&
+				obj->oerodeproof && !rn2(5))
 			    obj->oerodeproof = FALSE;
 		    }
 		}
@@ -3047,32 +3049,44 @@ drown()
 {
 	boolean inpool_ok = FALSE, crawl_ok;
 	int i, x, y;
-	const char *sparkle = level.flags.lethe? "sparkling " : "";
+	boolean wading = (Swimming || Amphibious) &&
+		(level.flags.river != RIVER_PHLEGETHON ||
+		likes_lava(youmonst.data) &&
+		maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE)));
 
 	/* happily wading in the same contiguous pool */
 	if (u.uinwater && is_pool(u.ux-u.dx,u.uy-u.dy) &&
-	    (Swimming || Amphibious)) {
+	    wading) {
 		/* water effects on objects every now and then */
 		if (!rn2(5)) inpool_ok = TRUE;
 		else return(FALSE);
 	}
 
 	if (!u.uinwater) {
-	    You("%s into the %swater%c",
+	    You("%s into the %s%c",
 		Is_waterlevel(&u.uz) ? "plunge" : "fall",
-		sparkle,
-		Amphibious || Swimming ? '.' : '!');
+		river_liquid[level.flags.river],
+		wading ? '.' : '!');
 	    if (!Swimming && !Is_waterlevel(&u.uz))
 		    You("sink like %s.",
 			Hallucination ? "the Titanic" : "a rock");
 	}
 
-	if (level.flags.lethe) {
+	if (level.flags.river == RIVER_LETHE) {
 	    /* Bad idea */
 	    You_feel("the sparkling waters of the Lethe sweep away your "
 			    "cares!");
 	    forget(25);
 	}
+
+	if (level.flags.river == RIVER_PHLEGETHON) {
+	    burn_away_slime();
+	    if (!Fire_resistance) {
+		destroy_item(SCROLL_CLASS, AD_FIRE);
+		destroy_item(SPBOOK_CLASS, AD_FIRE);
+		destroy_item(POTION_CLASS, AD_FIRE);
+	    }
+	} else {
 
 	water_damage(invent, FALSE, FALSE);
 
@@ -3084,6 +3098,9 @@ drown()
 	    if (u.mhmax > i) u.mhmax -= i;
 	    losehp(i, "rusting away", KILLED_BY);
 	}
+
+	}
+
 	if (inpool_ok) return(FALSE);
 
 	if ((i = number_leashed()) > 0) {
@@ -3093,7 +3110,7 @@ drown()
 		unleash_all();
 	}
 
-	if (Amphibious || Swimming) {
+	if (wading) {
 		if (Amphibious) {
 			if (flags.verbose)
 				pline("But you aren't drowning.");
@@ -3161,7 +3178,9 @@ drown()
 		boolean succ = Is_waterlevel(&u.uz) ? TRUE :
 				emergency_disrobe(&lost);
 
-		You("try to crawl out of the water.");
+		You("try to crawl out of the %s.", 
+			level.flags.river == RIVER_PHLEGETHON ?
+			"blood" : "water");
 		if (lost)
 			You("dump some of your gear to lose weight...");
 		if (succ) {
@@ -3179,11 +3198,14 @@ drown()
 	if (Upolyd && !Unchanging && Race_if(PM_VAMPIRE)) {
 		rehumanize();
 		u.uinwater = 0;
-		You("fly up out of the water!");
+		You("fly up out of the %s!",
+			level.flags.river == RIVER_PHLEGETHON ?
+			"blood" : "water");
 		return (TRUE);
 	}
 	killer_format = KILLED_BY_AN;
 	killer = (levl[u.ux][u.uy].typ == POOL || Is_medusa_level(&u.uz)) ?
+	    level.flags.river == RIVER_PHLEGETHON ? "pool of blood" :
 	    "pool of water" : "moat";
 	done(DROWNING);
 	/* oops, we're still alive.  better get out of the water. */

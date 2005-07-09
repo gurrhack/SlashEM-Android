@@ -24,7 +24,7 @@ mines.des       mtemple.des     newmall.des     nightmar.des    nymph.des
 opthelp         oracle.des      oracles.txt     pet_mark.pbm    quest.txt
 rats.des        rumors.fal      rumors.tru      sea.des         sokoban.des
 spiders.des     stor-1.des      stor-2.des      stor-3.des      template.des
-tomb.des        tower.des       wizhelp         yendor.des
+tomb.des        tower.des       wizhelp         yendor.des	lethe.des
 
 doc:
 (files for all versions)

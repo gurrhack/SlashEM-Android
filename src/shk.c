@@ -3039,6 +3039,26 @@ register boolean peaceful, silent, destruction;
 	return(value);
 }
 
+/* Python's parrot sketch with a twist... */
+
+void
+revive_parrot(shkp, obj)
+register struct monst *shkp;
+register struct obj *obj;
+{
+	/* This time he's telling the truth! */
+
+	pline("%s scowls.", Monnam(shkp));
+	pline("%s says 'It's not dead! It's only resting!'", Monnam(shkp));
+
+	(void) revive(obj);
+
+	pline("The parrot squaarks!");
+
+	return;
+}
+		
+
 /* auto-response flag for/from "sell foo?" 'a' => 'y', 'q' => 'n' */
 static char sell_response = 'a';
 static int sell_how = SELL_NORMAL;
@@ -3096,6 +3116,19 @@ xchar x, y;
 
 	offer = ltmp + cltmp;
 
+	/* OK, we're in a shop and we've dropped obj on the floor
+	     and, presumably, the shop keeper is around... */
+
+	if ( obj->otyp == CORPSE
+	  && (obj->corpsenm == PM_PARROT)
+	  && !shkp->msleeping
+	  && shkp->mcanmove ) {
+
+	    revive_parrot(shkp, obj);
+
+	    return;
+	}
+		
 	/* get one case out of the way: nothing to sell, and no gold */
 	if(!isgold &&
 	   ((offer + gltmp) == 0L || sell_how == SELL_DONTSELL)) {

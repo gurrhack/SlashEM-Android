@@ -1873,7 +1873,9 @@ int typ;
 	if (lev_flags & SPOOKY)
 	    level.flags.spooky = 1;
 	if (lev_flags & LETHE)
-	    level.flags.lethe = 1;
+	    level.flags.river = RIVER_LETHE;
+	else if (lev_flags & PHLEGETHON)
+	    level.flags.river = RIVER_PHLEGETHON;
 
 	/* Read message */
 	Fread((genericptr_t) &n, 1, sizeof(n), fd);

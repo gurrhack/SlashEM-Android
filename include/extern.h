@@ -555,6 +555,8 @@ E boolean FDECL(In_hell, (d_level *));
 E boolean FDECL(In_V_tower, (d_level *));
 E boolean FDECL(On_W_tower_level, (d_level *));
 E boolean FDECL(In_W_tower, (int,int,d_level *));
+E void FDECL(find_castle_dungeon, (d_level *));
+E void FDECL(goto_prision, (BOOLEAN_P,BOOLEAN_P));
 E void FDECL(find_hell, (d_level *));
 E void FDECL(goto_hell, (BOOLEAN_P,BOOLEAN_P));
 E void FDECL(assign_level, (d_level *,d_level *));
@@ -1027,7 +1029,7 @@ E void FDECL(readmail, (struct obj *));
 E boolean FDECL(is_home_elemental, (struct permonst *));
 E struct monst *FDECL(clone_mon, (struct monst *,XCHAR_P,XCHAR_P));
 E struct monst *FDECL(makemon, (struct permonst *,int,int,int));
-E boolean FDECL(create_critters, (int,struct permonst *));
+E boolean FDECL(create_critters, (int,struct permonst *,int));
 E struct permonst *NDECL(rndmonst);
 E void FDECL(reset_rndmonst, (int));
 E struct permonst *FDECL(mkclass, (CHAR_P,int));
@@ -1685,7 +1687,7 @@ E void FDECL(healup, (int,int,BOOLEAN_P,BOOLEAN_P));
 E void FDECL(strange_feeling, (struct obj *,const char *));
 E void FDECL(potionhit, (struct monst *,struct obj *,BOOLEAN_P));
 E void FDECL(potionbreathe, (struct obj *));
-E boolean FDECL(get_wet, (struct obj *, BOOLEAN_P));
+E boolean FDECL(get_wet, (struct obj *, int));
 E int NDECL(dodip);
 E void FDECL(djinni_from_bottle, (struct obj *));
 /* KMH, balance patch -- new function */
@@ -1710,6 +1712,7 @@ E const char *FDECL(align_gname, (ALIGNTYP_P));
 E const char *FDECL(halu_gname, (ALIGNTYP_P));
 E const char *FDECL(align_gtitle, (ALIGNTYP_P));
 E void FDECL(altar_wrath, (int,int));
+E void NDECL(moloch_denies_you);
 
 
 /* ### priest.c ### */
@@ -1947,6 +1950,7 @@ E void FDECL(splitbill, (struct obj *,struct obj *));
 E void FDECL(subfrombill, (struct obj *,struct monst *));
 E long FDECL(stolen_value, (struct obj *,XCHAR_P,XCHAR_P,BOOLEAN_P,BOOLEAN_P,
 			    BOOLEAN_P));
+E void FDECL(revive_parrot, (struct monst *, struct obj *));
 E void FDECL(sellobj_state, (int));
 E void FDECL(sellobj, (struct obj *,XCHAR_P,XCHAR_P));
 E int FDECL(doinvbill, (int));

@@ -392,7 +392,7 @@ register struct obj *obj;
 		if(in_town(u.ux, u.uy))
 		    (void) angry_guards(FALSE);
 		return;
-	} else if (get_wet(obj, FALSE) && !rn2(2))
+	} else if (get_wet(obj, RIVER_NONE) && !rn2(2))
 		return;
 
 	/* Acid and water don't mix */
@@ -508,7 +508,7 @@ register struct obj *obj;
 	    floating_above("toilet");
 	    return;
 	}
-	(void) get_wet(obj, FALSE);
+	(void) get_wet(obj, RIVER_NONE);
 	/* KMH -- acid and water don't mix */
 	if (obj->otyp == POT_ACID) {
 	    useup(obj);
