@@ -62,12 +62,33 @@ All the above, and more, are available via our home page:
 
 http://www.slashem.org/
 
-1.2 Changes
------------
+1.2 Phelegethon experiment
+--------------------------
 
-ver 0.0.8E1 (Phlegethon experimental branch)
+Version 0.0.8E1 is an experimental branch to try out Ali's proposal
+for integrating Mik Clarke's Lethe patch. The following issues are
+known about:
 
-See history.txt for changes made in previous versions.
+* Boiling blood (in the phlegethon river) is blue (share with molten lava 
+  instead).
+* Far looking gives "} sparkling water or molten lava" on lethe levels and
+  "} boiling blood or molten lava" on phlegethon levels. Ideally, we'd like
+  eg., "} water, boiling blood or molten lava (sparkling water)".
+* Data base (review SLethe additions too).
+* Check player level teleport.
+* Check dungeon numbers in dungeon.c - lethe changes assume lethe is
+  dungeon 1 (which is now back to gehennom).
+* ^O feedback for stair to elemental planes is unhelpful.
+* Beef up cerberus.
+* Check bones IDs are unique.
+* Phlegethon should not have kelp fonds in it (replace with boulders).
+* Labyrinth doesn't work (staircase connections).
+* Labyrinth isn't complete (just enough to give an idea of what it might
+  look like).
+* Should labyrinth use corridors rather than dark spaces? The advantage of
+  the current setup is that you can't see where you've been in the TTY
+  interface but I need to check that this is still true with a GUI
+  interface. It doesn't make sense to penalise TTY players.
 
 +----------------------------+
 | Section 2: Getting started |

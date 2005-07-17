@@ -87,12 +87,12 @@ OBJECT:'[',random,random
 OBJECT:'[',random,random
 OBJECT:'[',random,random
 OBJECT:'[',random,random
-MONSTER:'h',"warhorse",random,peaceful
-MONSTER:'h',"warhorse",random,peaceful
-MONSTER:'h',"warhorse",random,peaceful
-MONSTER:'h',"warhorse",random,peaceful
-MONSTER:'h',"horse",random,peaceful
-MONSTER:'h',"horse",random,peaceful
+MONSTER:'u',"warhorse",random,peaceful
+MONSTER:'u',"warhorse",random,peaceful
+MONSTER:'u',"warhorse",random,peaceful
+MONSTER:'u',"warhorse",random,peaceful
+MONSTER:'u',"horse",random,peaceful
+MONSTER:'u',"horse",random,peaceful
 # Flavour
 MONSTER:' ',"ghost",random,"Orpheus",peaceful
 MONSTER:' ',"ghost",random,"Musaeus",peaceful
@@ -137,7 +137,7 @@ MONSTER:'S',"king cobra",(38,10),"Minos"
 # Dungeon Description
 REGION:(00,00,75,19),lit,"ordinary"
 # Stairs
-STAIR:(38,12),down
+BRANCH:(38,12,38,12),(0,0,0,0)
 STAIR:(38,2),up
 
 #
@@ -147,7 +147,7 @@ STAIR:(38,2),up
 #	Virgil's Aeneid 6.14-33
 #	Ovidius' Metamorphoses 8.152-174
 MAZE: "laby-a",' '
-FLAGS: noteleport
+FLAGS: noteleport, nommap
 GEOMETRY:center,center
 MAP
                    ..                                                       
@@ -155,32 +155,36 @@ MAP
           .. .    .  .                                                      
             . .    .  .                                                     
                .  .    ..                                                   
-          ..    ..       .                                                  
-         .  .           .                                                   
-     ..  .   .  ..     .    ..                                              
-    .  ..     ..  .     .  .  .                                             
-   .               .     ..    . ..  ...                                    
-    .  ..      .    ..          .  .....                                    
-    .    .    . .                    ...                                    
-     .    .  .   .. .  ..      .  .                                         
-     .  ..  .      . ..      .. .  .                                        
-    .  .   .            .   .    ...  ..                                    
+          ..    ..       .                          .                       
+         .  .  .        .                          . .  .                   
+     ..  .   .  ..     .    ..                  ...   ..                    
+    .  ..     ..  .     .  .  .                .   ..                       
+   .               .     ..    . ..  ...      .   .  ..                     
+    .  ..      .    ..          .  .....       . .  .  .                    
+    .    .    . .                    ...        .  . .  .                   
+     .    .  .   .. .  ..      .  .               .   ..                    
+     .  ..  .      . ..      .. .  .             .                          
+    .  .   .            .   .    ...  ..          .                         
    .   . .  .         .. ...  ..     .  .          .      .                 
    .    . .  .     ..        .  ..    .  . ..    .. .    . .. ..            
     .      ..  ....  .  ..    .   .  .    .  .  .    . ..    .              
      .  ..    .     .  .  .. .     ..         .  .    .                     
       ..  ....       ..     .                  ..                           
+                                                                            
 ENDMAP
+NON_DIGGABLE:(00,00,75,20)
+NON_PASSWALL:(00,00,75,20)
 STAIR:(8,1),down
 STAIR:(7,10),down
 STAIR:(21,10),down
 STAIR:(24,12),down
 STAIR:(34,12),down
+STAIR:(56,6),up
 STAIR:(63,16),down
-STAIR:(38,10),up
+BRANCH:(38,10,38,10),(0,0,0,0)
 
 MAZE: "laby-b",' '
-FLAGS: noteleport
+FLAGS: noteleport, nommap
 GEOMETRY:center,center
 MAP
                  .  ..   .   ..       .                                     
@@ -198,12 +202,15 @@ MAP
             .           ...    ..      .    .. .   . .         ....       . 
          ... ..    .                           .   .  ..    ..     ...   .  
        ..      . .. .            ..        ....          ...  ....   .  .   
-      .     ..  .    .      .  ..  ...   ..      ..... ..         .  . .    
+      .     ..  .    .      .  ..  ...   ..      ..... ..    .    .  . .    
        .      .       ...  . ..       ...    ....     .       ...  .   .    
         ... .  .         ..     ..  .      ..      ..   ..    .     ....    
            . ..                   .. ....     ... .  .... .   .             
                                          .....   ..        ...              
+                                                                            
 ENDMAP
+NON_DIGGABLE:(00,00,75,20)
+NON_PASSWALL:(00,00,75,20)
 STAIR:(14,2),down
 STAIR:(19,5),down
 STAIR:(30,3),down
@@ -223,7 +230,7 @@ STAIR:(32,12),up
 STAIR:(64,16),up
 
 MAZE: "laby-c",' '
-FLAGS: noteleport
+FLAGS: noteleport, nommap
 GEOMETRY:center,center
 MAP
               ....   ..                                                     
@@ -246,7 +253,10 @@ MAP
                                .            .                               
                                                                             
                                                                             
+                                                                            
 ENDMAP
+NON_DIGGABLE:(00,00,75,20)
+NON_PASSWALL:(00,00,75,20)
 STAIR:(15,2),up
 STAIR:(31,3),up
 STAIR:(44,3),up
