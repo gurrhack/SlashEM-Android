@@ -1,18 +1,58 @@
-#	SCCS Id: @(#)dungeon.def	3.3	96/03/10
-# Copyright (c) 1990-92 by M. Stephenson
+#	SCCS Id: @(#)dungeon.def	3.4	1996/03/10
+#	Copyright (c) 1990-95 by M. Stephenson
 # NetHack may be freely redistributed.  See license for details.
 #
-# The dungeon description file for Slash'em.
-# Modified by KMH for the balance patch.
+#	The dungeon description file for Slash'em.
 #
-# Note:   The order of the definition of dungeons in this file
-#         reflects in their order of creation in the real dungeon.
-#         The "Main" branch must *always* be first.
+#	Note:	The order of the definition of dungeons in this file
+#		reflects in their order of creation in the real dungeon.
+#		The "Main" branch must *always* be first.
 #		Also note that the order of the dungeons in this file
 #		determines the order in which branch levels are assigned.
 #		If two dungeons have overlapping ranges for their entry
 #		points, then you should list the dungeon with the _least_
 #		number of choices for its branch level _first_.
+#
+# 	Bones IDs allocated:
+#
+# 		Dngn	Level	Allocation
+# 		D	4-47	Normal levels in the Dungeons of Doom
+# 		D	B	Big room
+# 		D	K	Kobolds
+# 		D	N	Nymphs
+# 		D	O	Oracle
+# 		D	R	Rats, Rogue (CONFLICT)
+# 		D	T	The mall
+# 		G	G	Geryon
+# 		G	J	Juiblex
+# 		G	K	nkai-a
+# 		G	L	nkai-b
+# 		G	O	Orcus
+# 		G	P	Pleasant valley
+# 		G	V	Valley of the Dead
+# 		G	X	Wizard tower middle level
+# 		G	Y	Yeenoghu
+# 		G	Z	nkai-z
+# 		E	F	Elysian fields
+# 		E	G	Guild of disgruntled adventurers
+# 		Q	*	Various quest levels
+# 		L	A	Asmodeus
+# 		L	S	leth-a
+# 		L	B	Baalzebub
+# 		L	T	lethe-b
+# 		L	U	leth-c
+# 		L	D	Dispater
+# 		L	V	leth-d
+# 		L	E	Demogorgon
+# 		L	W	lethe-e
+# 		L	X	lethe-f
+# 		L	Y	lethe-g
+# 		L	Z	lethe-z
+# 		M	4-15	Normal levels in the Gnomish Mines
+# 		M	E	Mineend
+# 		M	M	Mine King
+# 		M	T	Minetown
+# 		T	*	Various levels in Vlad's tower
 
 ### The Dungeons of Doom ###
 # The main dungeon is from 42 to 47 levels deep...
@@ -279,18 +319,18 @@ LEVEL:          "frnknstn" "none" @ (1, 0)
 DUNGEON:        "The Lethe Gorge" "L" (13, 0)
 ALIGNMENT:      unaligned
 DESCRIPTION:    mazelike
-RNDLEVEL:       "leth-a" "A" @ (1, 0) 2
+RNDLEVEL:       "leth-a" "S" @ (1, 0) 2
 BRANCH:		"The Labyrinth" @ (2, 0) stair up -1
 LEVEL:          "asmodeus" "A" @ (2, 10)
 LEVEL:          "baalz" "B" @ (2, 10)
 LEVEL:          "dispater" "D" @ (2, 10)
-LEVEL:          "lethe-b" "B" @ (2, 10)
+LEVEL:          "lethe-b" "T" @ (2, 10)
 LEVEL:          "demogorg" "E" @ (2, 10)
-RNDLEVEL:       "leth-c" "C" @ (2, 10) 2
-RNDLEVEL:       "leth-d" "D" @ (2, 10) 2
-LEVEL:          "lethe-e" "E" @ (2, 10)
-LEVEL:          "lethe-f" "F" @ (2, 10)
-LEVEL:          "lethe-g" "G" @ (2, 10)
+RNDLEVEL:       "leth-c" "U" @ (2, 10) 2
+RNDLEVEL:       "leth-d" "V" @ (2, 10) 2
+LEVEL:          "lethe-e" "W" @ (2, 10)
+LEVEL:          "lethe-f" "X" @ (2, 10)
+LEVEL:          "lethe-g" "Y" @ (2, 10)
 LEVEL:          "lethe-z" "Z" @ (12, 0)
 LEVEL:          "sanctum" "none" @ (13, 0)
 
@@ -308,10 +348,10 @@ LEVEL:		"laby-c" "none" @ (4, 0)
 #
 #       Elysium
 #
-DUNGEON:        "Elysium" "H" (4, 0)
+DUNGEON:        "Elysium" "E" (4, 0)
 ALIGNMENT:      unaligned
 LEVEL:		"olympus" "none" @ (1, 0)
-LEVEL:		"elysian" "G" @ (2, 0)
+LEVEL:		"elysian" "F" @ (2, 0)
 LEVEL:		"guild" "G" @ (3, 0)
 LEVEL:		"minos" "none" @ (4, 0)
 

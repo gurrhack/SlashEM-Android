@@ -80,7 +80,6 @@ known about:
   dungeon 1 (which is now back to gehennom).
 * ^O feedback for stair to elemental planes is unhelpful.
 * Beef up cerberus.
-* Check bones IDs are unique.
 * Phlegethon should not have kelp fonds in it (replace with boulders).
 * Labyrinth doesn't work (staircase connections).
 * Labyrinth isn't complete (just enough to give an idea of what it might
