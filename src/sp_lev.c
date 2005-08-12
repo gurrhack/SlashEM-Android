@@ -1487,44 +1487,51 @@ schar ftyp, btyp;
 
 /*
  * Disgusting hack: since special levels have their rooms filled before
- * sorting the rooms, we have to re-arrange the speed values upstairs_room
- * and dnstairs_room after the rooms have been sorted.  On normal levels,
+ * sorting the rooms, we have to re-arrange the speed values upstairs_rooms
+ * and dnstairs_rooms after the rooms have been sorted.  On normal levels,
  * stairs don't get created until _after_ sorting takes place.
  */
 STATIC_OVL void
 fix_stair_rooms()
 {
-    int i;
+    int i, j;
+    int x, y;
     struct mkroom *croom;
 
-    if(xdnstair &&
-       !((dnstairs_room->lx <= xdnstair && xdnstair <= dnstairs_room->hx) &&
-	 (dnstairs_room->ly <= ydnstair && ydnstair <= dnstairs_room->hy))) {
+    for(j=0; j < n_dnstairs; j++) {
+	x = dnstairs[j].sx;
+	y = dnstairs[j].sy;
+	if(!((dnstairs_rooms[j]->lx <= x && x <= dnstairs_rooms[j]->hx) &&
+	     (dnstairs_rooms[j]->ly <= y && y <= dnstairs_rooms[j]->hy))) {
 	for(i=0; i < nroom; i++) {
 	    croom = &rooms[i];
-	    if((croom->lx <= xdnstair && xdnstair <= croom->hx) &&
-	       (croom->ly <= ydnstair && ydnstair <= croom->hy)) {
-		dnstairs_room = croom;
+		if((croom->lx <= x && x <= croom->hx) &&
+		   (croom->ly <= y && y <= croom->hy)) {
+		    dnstairs_rooms[j] = croom;
 		break;
 	    }
 	}
 	if(i == nroom)
 	    panic("Couldn't find dnstair room in fix_stair_rooms!");
     }
-    if(xupstair &&
-       !((upstairs_room->lx <= xupstair && xupstair <= upstairs_room->hx) &&
-	 (upstairs_room->ly <= yupstair && yupstair <= upstairs_room->hy))) {
+    }
+    for(j=0; j < n_upstairs; j++) {
+	x = upstairs[j].sx;
+	y = upstairs[j].sy;
+	if(!((upstairs_rooms[j]->lx <= x && x <= upstairs_rooms[j]->hx) &&
+	     (upstairs_rooms[j]->ly <= y && y <= upstairs_rooms[j]->hy))) {
 	for(i=0; i < nroom; i++) {
 	    croom = &rooms[i];
-	    if((croom->lx <= xupstair && xupstair <= croom->hx) &&
-	       (croom->ly <= yupstair && yupstair <= croom->hy)) {
-		upstairs_room = croom;
+		if((croom->lx <= x && x <= croom->hx) &&
+		   (croom->ly <= y && y <= croom->hy)) {
+		    upstairs_rooms[j] = croom;
 		break;
 	    }
 	}
 	if(i == nroom)
 	    panic("Couldn't find upstair room in fix_stair_rooms!");
     }
+}
 }
 
 /*

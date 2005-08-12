@@ -312,11 +312,11 @@ tactics(mtmp)
 		/* unless, of course, there are no stairs (e.g. endlevel) */
 		mtmp->mavenge = 1; /* covetous monsters attack while fleeing */
 		if (In_W_tower(mtmp->mx, mtmp->my, &u.uz) ||
-			(mtmp->iswiz && !xupstair && !mon_has_amulet(mtmp))) {
+			(mtmp->iswiz && !n_upstairs && !mon_has_amulet(mtmp))) {
 		    if (!rn2(3 + mtmp->mhp/10)) (void) rloc(mtmp, FALSE);
-		} else if (xupstair &&
-			 (mtmp->mx != xupstair || mtmp->my != yupstair)) {
-		    (void) mnearto(mtmp, xupstair, yupstair, TRUE);
+		} else if (n_upstairs &&
+			 (mtmp->mx != upstairs->sx || mtmp->my != upstairs->sy)) {
+		    (void) mnearto(mtmp, upstairs->sx, upstairs->sy, TRUE);
 		}
 		/* if you're not around, cast healing spells */
 		if (distu(mtmp->mx,mtmp->my) > (BOLT_LIM * BOLT_LIM))

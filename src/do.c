@@ -64,7 +64,8 @@ boolean pushing;
 {
 	if (!otmp || otmp->otyp != BOULDER)
 	    impossible("Not a boulder?");
-	else if (!Is_waterlevel(&u.uz) && (is_pool(rx,ry) || is_lava(rx,ry))) {
+	else if (!Is_waterlevel(&u.uz) && levl[rx][ry].typ != RIVER &&
+		(is_pool(rx,ry) || is_lava(rx,ry))) {
 	    boolean lava = is_lava(rx,ry), fills_up;
 	    const char *what = waterbody_name(rx,ry);
 	    schar ltyp = levl[rx][ry].typ;
@@ -782,9 +783,8 @@ int
 dodown()
 {
 	struct trap *trap = 0;
-	boolean stairs_down = ((u.ux == xdnstair && u.uy == ydnstair) ||
-		    (u.ux == sstairs.sx && u.uy == sstairs.sy && !sstairs.up)),
-		ladder_down = (u.ux == xdnladder && u.uy == ydnladder);
+	boolean	ladder_down = (u.ux == xdnladder && u.uy == ydnladder),
+		stairs_down = !ladder_down && On_stairs(u.ux, u.uy) == LA_DOWN;
 
 	if (Role_if(PM_GNOME) && on_level(&mineend_level,&u.uz)) {
 		pline("The staircase is filled with tons of rubble and debris.");
@@ -875,11 +875,7 @@ dodown()
 int
 doup()
 {
-	if( (u.ux != xupstair || u.uy != yupstair)
-	     && (!xupladder || u.ux != xupladder || u.uy != yupladder)
-	     && (!sstairs.sx || u.ux != sstairs.sx || u.uy != sstairs.sy
-			|| !sstairs.up)
-	  ) {
+	if (On_stairs(u.ux, u.uy) != LA_UP) {
 		You_cant("go up here.");
 		return(0);
 	}
@@ -1208,7 +1204,7 @@ boolean at_stairs, falling, portal;
 				    IS_WALL(levl[x][y].typ));
 			    u_on_newpos(x, y);
 			} else u_on_sstairs();
-		    } else u_on_dnstairs();
+		    } else u_on_dnstairs(u.ux, u.uy);
 		}
 		/* Remove bug which crashes with levitation/punishment  KAA */
 		if (Punished && !Levitation) {
@@ -1221,7 +1217,7 @@ boolean at_stairs, falling, portal;
 		    u_on_newpos(xupladder, yupladder);
 		} else {
 		    if (newdungeon) u_on_sstairs();
-		    else u_on_upstairs();
+		    else u_on_upstairs(u.ux, u.uy);
 		}
 		if (u.dz && Flying)
 		    You("fly down along the %s.",

@@ -491,12 +491,14 @@ int x, y;
     register int x1, y1;
     int lo_x = max(1,x-1), hi_x = min(x+1,COLNO-1),
 	lo_y = max(0,y-1), hi_y = min(y+1,ROWNO-1);
-    int pool_cnt = 0, moat_cnt = 0, lava_cnt = 0;
+    int river_cnt = 0, pool_cnt = 0, moat_cnt = 0, lava_cnt = 0;
 
     for (x1 = lo_x; x1 <= hi_x; x1++)
 	for (y1 = lo_y; y1 <= hi_y; y1++)
 	    if (levl[x1][y1].typ == POOL)
 		pool_cnt++;
+	    else if (levl[x1][y1].typ == RIVER)
+		river_cnt++;
 	    else if (levl[x1][y1].typ == MOAT ||
 		    (levl[x1][y1].typ == DRAWBRIDGE_UP &&
 			(levl[x1][y1].drawbridgemask & DB_UNDER) == DB_MOAT))
@@ -513,6 +515,8 @@ int x, y;
 	return MOAT;
     else if (pool_cnt > 0 && rn2(pool_cnt + 1))
 	return POOL;
+    else if (river_cnt > 0 && rn2(river_cnt + 1))
+	return RIVER;
     else
 	return ROOM;
 }

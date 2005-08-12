@@ -411,6 +411,7 @@ struct version_info {
 #define MAXDUNGEON	32	/* current maximum number of dungeons */
 #define MAXLEVEL	50	/* max number of levels in one dungeon */
 #define MAXSTAIRS	1	/* max # of special stairways in a dungeon */
+#define MAXNRSTAIRS	32	/* max # of normal stairs up/down on a level */
 #define ALIGNWEIGHT	10	/* generation weight of alignment */
 
 #define MAXULEV		30	/* max character experience level */

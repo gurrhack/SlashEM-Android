@@ -150,14 +150,14 @@ md_start(startp)
      * Arrive at an up or down stairwell if it is in line of sight from the
      * hero.
      */
-    if (couldsee(upstair.sx, upstair.sy)) {
-	startp->x = upstair.sx;
-	startp->y = upstair.sy;
+    if (couldsee(upstairs->sx, upstairs->sy)) {
+	startp->x = upstairs->sx;
+	startp->y = upstairs->sy;
 	return TRUE;
     }
-    if (couldsee(dnstair.sx, dnstair.sy)) {
-	startp->x = dnstair.sx;
-	startp->y = dnstair.sy;
+    if (couldsee(dnstairs->sx, dnstairs->sy)) {
+	startp->x = dnstairs->sx;
+	startp->y = dnstairs->sy;
 	return TRUE;
     }
 

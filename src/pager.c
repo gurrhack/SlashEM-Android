@@ -273,6 +273,8 @@ lookat(x, y, buf, monbuf)
 	    Strcat(buf, " embedded in a wall");
 	else if (closed_door(x,y))
 	    Strcat(buf, " embedded in a door");
+	else if (levl[x][y].typ == RIVER)
+	    Strcat(buf, " in river");
 	else if (is_pool(x,y))
 	    Strcat(buf, " in water");
 	else if (is_lava(x,y))
@@ -299,10 +301,6 @@ lookat(x, y, buf, monbuf)
 	break;
     case S_cloud:
 	Strcpy(buf, Is_airlevel(&u.uz) ? "cloudy area" : "fog/vapor cloud");
-	break;
-    case S_water:
-    case S_pool:
-	Strcpy(buf, river_liquid[level.flags.river]);
 	break;
     default:
 	Strcpy(buf,defsyms[glyph_to_cmap(glyph)].explanation);
@@ -658,15 +656,13 @@ do_look(quick)
 		/* avoid "an air", "a water", or "a floor of a room" */
 		int article = (i == S_room) ? 2 :		/* 2=>"the" */
 			      !(strcmp(x_str, "air") == 0 ||	/* 1=>"an"  */
-				strcmp(x_str, "water") == 0);	/* 0=>(none)*/
+				strcmp(x_str, "water") == 0 ||	/* 0=>(none)*/
+				i == S_phlegethon);
 
 		if (!found) {
 		    if (is_cmap_trap(i)) {
 			Sprintf(out_str, "%c       a trap", sym);
 			hit_trap = TRUE;
-		    } else if (level.flags.river && !strcmp(x_str, "water")) {
-			Sprintf(out_str, "%c       %s", sym,
-				river_liquid[level.flags.river]);
 		    } else {
 			Sprintf(out_str, "%c       %s", sym,
 				article == 2 ? the(x_str) :
@@ -676,10 +672,7 @@ do_look(quick)
 		    found++;
 		} else if (!u.uswallow && !(hit_trap && is_cmap_trap(i)) &&
 			   !(found >= 3 && is_cmap_drawbridge(i))) {
-		    if (level.flags.river && !strcmp(x_str, "water")) {
-			found += append_str(out_str,
-					river_liquid[level.flags.river]);
-		    } else
+		    if (i != S_lethe)	/* Water includes sparking water */
 		    	found += append_str(out_str,
 					article == 2 ? the(x_str) :
 					article == 1 ? an(x_str) : x_str);

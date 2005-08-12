@@ -1781,6 +1781,7 @@ draw_energy()
 				break;
 			    case AIR:
 			    case MOAT: /* Doesn't freeze */
+			    case RIVER:
 			    case WATER:
 			    	powbonus = 4;
 				break;

@@ -162,6 +162,25 @@ vobj_at(x,y)
 #endif	/* else vobj_at() is defined in display.h */
 
 /*
+ * svobj_at()
+ *
+ * A version of vobj_at() that looks for a specific object type.
+ */
+struct obj *
+svobj_at(n,x,y)
+    int n;
+    xchar x,y;
+{
+    register struct obj *obj = level.objects[x][y];
+
+    while (obj) {
+	if (obj->otyp == n && (!obj->oinvis || See_invisible)) return obj;
+	obj = obj->nexthere;
+    }
+    return ((struct obj *) 0);
+}
+
+/*
  * magic_map_background()
  *
  * This function is similar to map_background (see below) except we pay
@@ -364,6 +383,9 @@ unmap_object(x, y)
     if (level.flags.hero_memory) {					\
 	if ((obj = vobj_at(x, y)) && !covers_objects(x, y))		\
 	    map_object(obj, FALSE);					\
+	else if ((obj = svobj_at(BOULDER, x, y)) &&			\
+		!covers_boulders(x, y))					\
+	    map_object(obj, FALSE);					\
 	else								\
 	    levl[x][y].mem_corpse = levl[x][y].mem_obj = 0;		\
 	if ((trap = t_at(x, y)) && trap->tseen && !covers_traps(x, y))	\
@@ -373,6 +395,8 @@ unmap_object(x, y)
 	map_background(x, y, FALSE);					\
 	if (show) show_glyph(x, y, memory_glyph(x, y));			\
     } else if ((obj = vobj_at(x,y)) && !covers_objects(x,y))		\
+	map_object(obj,show);						\
+    else if ((obj = svobj_at(BOULDER,x,y)) && !covers_boulders(x,y))	\
 	map_object(obj,show);						\
     else if ((trap = t_at(x,y)) && trap->tseen && !covers_traps(x,y))	\
 	map_trap(trap,show);						\
@@ -386,6 +410,8 @@ unmap_object(x, y)
     register struct trap  *trap;					\
 									\
     if ((obj = vobj_at(x,y)) && !covers_objects(x,y))			\
+	map_object(obj,show);						\
+    else if ((obj = svobj_at(BOULDER,x,y)) && !covers_boulders(x,y))	\
 	map_object(obj,show);						\
     else if ((trap = t_at(x,y)) && trap->tseen && !covers_traps(x,y))	\
 	map_trap(trap,show);						\
@@ -1727,8 +1753,15 @@ back_to_cmap(x,y)
 		idx = S_ndoor;
 	    break;
 	case TREE:		idx = S_tree;     break;
-	case POOL:
-	case MOAT:		idx = S_pool;	  break;
+	case POOL:		idx = S_pool;	  break;
+	case MOAT:
+	case RIVER:
+	    switch(level.flags.river) {
+		case RIVER_LETHE:	idx = S_lethe; break;
+		case RIVER_PHLEGETHON:	idx = S_phlegethon; break;
+		default:		idx = S_pool; break;
+	    }
+	    break;
 	case STAIRS:
 	    idx = (ptr->ladder & LA_DOWN) ? S_dnstair : S_upstair;
 	    break;

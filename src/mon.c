@@ -1691,7 +1691,7 @@ register struct monst *mtmp;
 	    /* Dead Kops may come back. */
 	    switch(rnd(5)) {
 		case 1:	     /* returns near the stairs */
-			(void) makemon(mtmp->data,xdnstair,ydnstair,NO_MM_FLAGS);
+			(void) makemon(mtmp->data,dnstairs->sx,dnstairs->sy,NO_MM_FLAGS);
 			break;
 		case 2:	     /* randomly */
 			(void) makemon(mtmp->data,0,0,NO_MM_FLAGS);

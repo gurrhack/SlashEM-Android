@@ -1545,6 +1545,7 @@ dopois:
 			    boolean moat =
 				(levl[mtmp->mx][mtmp->my].typ != POOL) &&
 				(levl[mtmp->mx][mtmp->my].typ != WATER) &&
+				(levl[mtmp->mx][mtmp->my].typ != RIVER) &&
 				!Is_medusa_level(&u.uz) &&
 				!Is_waterlevel(&u.uz);
 

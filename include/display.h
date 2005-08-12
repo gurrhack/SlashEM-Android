@@ -173,6 +173,7 @@
 
 /*
  * covers_objects()
+ * covers_boulders()
  * covers_traps()
  *
  * These routines are true if what is really at the given location will
@@ -180,6 +181,9 @@
  */
 #define covers_objects(xx,yy)						      \
     ((is_pool(xx,yy) && !Underwater) || (levl[xx][yy].typ == LAVAPOOL))
+
+#define covers_boulders(xx,yy)						      \
+    (levl[xx][yy].typ != RIVER && covers_objects(xx,yy))
 
 #define covers_traps(xx,yy)	covers_objects(xx,yy)
 

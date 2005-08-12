@@ -440,12 +440,12 @@ register boolean nearshop;
 		trap = trap->ntrap;
 	      }
 	    } else {
-		mm.x = xdnstair;
-		mm.y = ydnstair;
+		mm.x = dnstairs->sx;
+		mm.y = dnstairs->sy;
 	    }            
 #else /* BLACKMARKET */
-	    mm.x = xdnstair;
-	    mm.y = ydnstair;
+	    mm.x = dnstairs->sx;
+	    mm.y = dnstairs->sy;
 #endif /* BLACKMARKET */
 	    makekops(&mm);
 	    /* Create swarm near shopkeeper (hinders return to shop) */

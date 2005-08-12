@@ -252,6 +252,8 @@ const struct symdef defsyms[MAXPCHARS] = {
 	{'}', "water",		C(CLR_BLUE)},	/* pool */
 	{'.', "ice",		C(CLR_CYAN)},	/* ice */
 	{'}', "molten lava",	C(CLR_RED)},	/* lava */
+	{'}', "sparkling water",C(CLR_BLUE)},	/* lethe */
+	{'}', "boiling blood",	C(CLR_RED)},	/* phlegethon */
 	{'.', "lowered drawbridge",C(CLR_BROWN)},	/* vodbridge */
 	{'.', "lowered drawbridge",C(CLR_BROWN)},	/* hodbridge */
 	{'#', "raised drawbridge",C(CLR_BROWN)},/* vcdbridge */
@@ -361,6 +363,8 @@ static uchar ibm_graphics[MAXPCHARS] = {
 	0xf7,	/* S_pool:	meta-w, approx. equals */
 	0xfa,	/* S_ice:	meta-z, centered dot */
 	0xf7,	/* S_lava:	meta-w, approx. equals */
+	0xf7,	/* S_lethe:	meta-w, approx. equals */
+	0xf7,	/* S_phlegethon:meta-w, approx. equals */
 	0xfa,	/* S_vodbridge:	meta-z, centered dot */
 	0xfa,	/* S_hodbridge:	meta-z, centered dot */
 	g_FILLER(S_vcdbridge),
@@ -461,6 +465,8 @@ static uchar dec_graphics[MAXPCHARS] = {
 	0xe0,	/* S_pool:	meta-\, diamond */
 	0xfe,	/* S_ice:	meta-~, centered dot */
 	0xe0,	/* S_lava:	meta-\, diamond */
+	0xe0,	/* S_lethe:	meta-\, diamond */
+	0xe0,	/* S_phlegethon:meta-\, diamond */
 	0xfe,	/* S_vodbridge:	meta-~, centered dot */
 	0xfe,	/* S_hodbridge:	meta-~, centered dot */
 	g_FILLER(S_vcdbridge),
@@ -559,6 +565,8 @@ static uchar mac_graphics[MAXPCHARS] = {
 	0xe0,	/* S_pool */
 	g_FILLER(S_ice),
 	g_FILLER(S_lava),
+	g_FILLER(S_lethe),
+	g_FILLER(S_phlegethon),
 	g_FILLER(S_vodbridge),
 	g_FILLER(S_hodbridge),
 	g_FILLER(S_vcdbridge),

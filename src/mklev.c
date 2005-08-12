@@ -616,7 +616,7 @@ clear_level_structures()
 	doorindex = 0;
 	init_rect();
 	init_vault();
-	xdnstair = ydnstair = xupstair = yupstair = 0;
+	n_dnstairs = n_upstairs = 0;
 	sstairs.sx = sstairs.sy = 0;
 	xdnladder = ydnladder = xupladder = yupladder = 0;
 	made_branch = FALSE;
@@ -910,8 +910,11 @@ mineralize()
 	for (x = 2; x < (COLNO - 2); x++)
 	    for (y = 1; y < (ROWNO - 1); y++)
 		if ((levl[x][y].typ == POOL && !rn2(10)) ||
+			(levl[x][y].typ == RIVER && !rn2(20)) ||
 			(levl[x][y].typ == MOAT && !rn2(30)))
-	    	    (void)mksobj_at(KELP_FROND, x, y, TRUE, FALSE);
+	    	    (void)mksobj_at(level.flags.river == RIVER_PHLEGETHON ?
+			    levl[x][y].typ == RIVER ? BOULDER : ROCK :
+			    KELP_FROND, x, y, TRUE, FALSE);
 
 	/* determine if it is even allowed;
 	   almost all special levels are excluded */
@@ -1083,12 +1086,18 @@ find_branch_room(mp)
     } else {
 	/* not perfect - there may be only one stairway */
 	if(nroom > 2) {
-	    int tryct = 0;
+	    int stair, tryct = 0;
 
-	    do
+	    do {
 		croom = &rooms[rn2(nroom)];
-	    while((croom == dnstairs_room || croom == upstairs_room ||
-		  croom->rtype != OROOM) && (++tryct < 100));
+		for(stair = n_dnstairs - 1; stair >= 0; stair--)
+		    if (croom == dnstairs_rooms[stair])
+			break;
+		if (stair < 0)
+		    for(stair = n_upstairs - 1; stair >= 0; stair--)
+			if (croom == upstairs_rooms[stair])
+			    break;
+	    } while((stair >= 0 || croom->rtype != OROOM) && (++tryct < 100));
 	} else
 	    croom = &rooms[rn2(nroom)];
 
@@ -1348,13 +1357,17 @@ struct mkroom *croom;
 	    return;
 
 	if(up) {
-		xupstair = x;
-		yupstair = y;
-		upstairs_room = croom;
+	    if (n_upstairs == MAXNRSTAIRS)
+		panic("Too many stairways up!");
+	    upstairs[n_upstairs].sx = x;
+	    upstairs[n_upstairs].sy = y;
+	    upstairs_rooms[n_upstairs++] = croom;
 	} else {
-		xdnstair = x;
-		ydnstair = y;
-		dnstairs_room = croom;
+	    if (n_dnstairs == MAXNRSTAIRS)
+		panic("Too many stairways down!");
+	    dnstairs[n_dnstairs].sx = x;
+	    dnstairs[n_dnstairs].sy = y;
+	    dnstairs_rooms[n_dnstairs++] = croom;
 	}
 
 	levl[x][y].typ = STAIRS;

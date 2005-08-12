@@ -955,10 +955,7 @@ peffects(otmp)
 			/* reverse kludge */
 			HLevitation = 0;
 			if (otmp->cursed && !Is_waterlevel(&u.uz)) {
-	if((u.ux != xupstair || u.uy != yupstair)
-	   && (u.ux != sstairs.sx || u.uy != sstairs.sy || !sstairs.up)
-	   && (!xupladder || u.ux != xupladder || u.uy != yupladder)
-	) {
+				if (On_stairs(u.ux, u.uy) != LA_UP) {
 					You("hit your %s on the %s.",
 						body_part(HEAD),
 						ceiling(u.ux,u.uy));

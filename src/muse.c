@@ -371,12 +371,18 @@ struct monst *mtmp;
 	}
 
 	if (levl[x][y].typ == STAIRS && !stuck && !immobile) {
-		if (x == xdnstair && y == ydnstair && !is_floater(mtmp->data))
+	    int i;
+	    if (!is_floater(mtmp->data))
+		for(i = 0; i < n_dnstairs; i++)
+		    if (x == dnstairs[i].sx && y == dnstairs[i].sy) {
 			m.has_defense = MUSE_DOWNSTAIRS;
-		if (x == xupstair && y == yupstair && ledger_no(&u.uz) != 1)
-	/* Unfair to let the monsters leave the dungeon with the Amulet */
-	/* (or go to the endlevel since you also need it, to get there) */
+			break;
+		    }
+	    for(i = 0; i < n_upstairs; i++)
+		if (x == upstairs[i].sx && y == upstairs[i].sy) {
 			m.has_defense = MUSE_UPSTAIRS;
+		    break;
+		}
 	} else if (levl[x][y].typ == LADDER && !stuck && !immobile) {
 		if (x == xupladder && y == yupladder)
 			m.has_defense = MUSE_UP_LADDER;

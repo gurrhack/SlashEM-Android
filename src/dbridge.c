@@ -41,7 +41,8 @@ int x,y;
 
     if (!isok(x,y)) return FALSE;
     ltyp = levl[x][y].typ;
-    if (ltyp == POOL || ltyp == MOAT || ltyp == WATER) return TRUE;
+    if (ltyp == POOL || ltyp == MOAT || ltyp == WATER || ltyp == RIVER)
+	return TRUE;
     if (ltyp == DRAWBRIDGE_UP &&
 	(levl[x][y].drawbridgemask & DB_UNDER) == DB_MOAT) return TRUE;
     return FALSE;

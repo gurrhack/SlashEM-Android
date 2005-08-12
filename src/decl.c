@@ -115,7 +115,8 @@ NEARDATA struct dig_info digging;
 
 NEARDATA dungeon dungeons[MAXDUNGEON];	/* ini'ed by init_dungeon() */
 NEARDATA s_level *sp_levchn;
-NEARDATA stairway upstair = { 0, 0 }, dnstair = { 0, 0 };
+NEARDATA stairway upstairs[MAXNRSTAIRS], dnstairs[MAXNRSTAIRS];
+NEARDATA int n_upstairs = 0, n_dnstairs = 0;
 NEARDATA stairway upladder = { 0, 0 }, dnladder = { 0, 0 };
 NEARDATA stairway sstairs = { 0, 0 };
 NEARDATA dest_area updest = { 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -137,7 +138,8 @@ NEARDATA struct door doors[DOORMAX] = {DUMMY};
 
 NEARDATA struct mkroom rooms[(MAXNROFROOMS+1)*2] = {DUMMY};
 NEARDATA struct mkroom* subrooms = &rooms[MAXNROFROOMS+1];
-struct mkroom *upstairs_room, *dnstairs_room, *sstairs_room;
+struct mkroom *upstairs_rooms[MAXNRSTAIRS], *dnstairs_rooms[MAXNRSTAIRS],
+	*sstairs_room;
 
 dlevel_t level;		/* level map */
 struct trap *ftrap = (struct trap *)0;

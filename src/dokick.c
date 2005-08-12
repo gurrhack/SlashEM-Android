@@ -1463,7 +1463,7 @@ obj_delivery()
 	    otmp->owornmask = 0L;
 
 	    switch ((int)where) {
-	     case MIGR_STAIRS_UP:   nx = xupstair,  ny = yupstair;
+	     case MIGR_STAIRS_UP:   nx = upstairs->sx,  ny = upstairs->sy;
 				break;
 	     case MIGR_LADDER_UP:   nx = xupladder,  ny = yupladder;
 				break;
@@ -1528,15 +1528,14 @@ xchar x, y;
 	if (on_level(&u.uz, &qstart_level) && !ok_to_quest())
 	    return MIGR_NOWHERE;
 
-	if ((xdnstair == x && ydnstair == y) ||
-		(sstairs.sx == x && sstairs.sy == y && !sstairs.up)) {
-	    gate_str = "down the stairs";
-	    return (xdnstair == x && ydnstair == y) ?
-		    MIGR_STAIRS_UP : MIGR_SSTAIRS;
-	}
 	if (xdnladder == x && ydnladder == y) {
 	    gate_str = "down the ladder";
 	    return MIGR_LADDER_UP;
+	}
+	if (On_stairs(x, y) == LA_DOWN) {
+	    gate_str = "down the stairs";
+	    return (sstairs.sx == x && sstairs.sx == y) ?
+		    MIGR_SSTAIRS : MIGR_STAIRS_UP;
 	}
 
 	if (((ttmp = t_at(x, y)) != 0 && ttmp->tseen) &&

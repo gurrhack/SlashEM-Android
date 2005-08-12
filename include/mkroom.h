@@ -43,7 +43,8 @@ extern NEARDATA struct mkroom* subrooms;
  * there is at most one non-vault special room on a level
  */
 
-extern struct mkroom *dnstairs_room, *upstairs_room, *sstairs_room;
+extern struct mkroom *dnstairs_rooms[MAXNRSTAIRS], *upstairs_rooms[MAXNRSTAIRS],
+	*sstairs_room;
 
 struct door {
 	xchar x,y;

@@ -605,9 +605,9 @@ mkvsquare()
 	    y = rn1(y_range, y_maze_min + INVPOS_Y_MARGIN + 1);
 	    /* we don't want it to be too near the stairs, nor
 		to be on a spot that's already in use (wall|trap) */
-	} while (x == xupstair || y == yupstair ||  /*(direct line)*/
-		abs(x - xupstair) == abs(y - yupstair) ||
-		distmin(x, y, xupstair, yupstair) <= INVPOS_DISTANCE ||
+	} while (x == upstairs->sx || y == upstairs->sy ||  /*(direct line)*/
+		abs(x - upstairs->sx) == abs(y - upstairs->sy) ||
+		distmin(x, y, upstairs->sx, upstairs->sy) <= INVPOS_DISTANCE ||
 		!SPACE_POS(levl[x][y].typ) || occupied(x, y));
 	inv_pos.x = x;
 	inv_pos.y = y;
@@ -1254,11 +1254,11 @@ xchar x,y;
 		 (ltyp == DRAWBRIDGE_UP &&
 		  (levl[x][y].drawbridgemask & DB_UNDER) == DB_ICE))
 		return "ice";
-	else if (((ltyp != POOL) && (ltyp != WATER) &&
+	else if (((ltyp != POOL) && (ltyp != WATER) && (ltyp != RIVER) &&
 	  !Is_medusa_level(&u.uz) && !Is_waterlevel(&u.uz) && !Is_juiblex_level(&u.uz)) ||
 	   (ltyp == DRAWBRIDGE_UP && (levl[x][y].drawbridgemask & DB_UNDER) == DB_MOAT))
 		return "moat";
-	else if ((ltyp != POOL) && (ltyp != WATER) && Is_juiblex_level(&u.uz))
+	else if ((ltyp != POOL) && (ltyp != WATER) && (ltyp != RIVER) && Is_juiblex_level(&u.uz))
 		return "swamp";
 	else if (ltyp == POOL)
 		return "pool of water";

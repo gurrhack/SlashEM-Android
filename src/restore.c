@@ -814,8 +814,10 @@ boolean ghostly;
 #endif	/* RLECOMP */
 
 	mread(fd, (genericptr_t)&omoves, sizeof(omoves));
-	mread(fd, (genericptr_t)&upstair, sizeof(stairway));
-	mread(fd, (genericptr_t)&dnstair, sizeof(stairway));
+	mread(fd, (genericptr_t)&n_upstairs, sizeof(int));
+	mread(fd, (genericptr_t)upstairs, n_upstairs * sizeof(stairway));
+	mread(fd, (genericptr_t)&n_dnstairs, sizeof(int));
+	mread(fd, (genericptr_t)dnstairs, n_dnstairs * sizeof(stairway));
 	mread(fd, (genericptr_t)&upladder, sizeof(stairway));
 	mread(fd, (genericptr_t)&dnladder, sizeof(stairway));
 	mread(fd, (genericptr_t)&sstairs, sizeof(stairway));
@@ -895,12 +897,13 @@ boolean ghostly;
 	    freefruitchn(oldfruit),  oldfruit = 0;
 
 	    if (lev > ledger_no(&medusa_level) &&
-			lev < ledger_no(&stronghold_level) && xdnstair == 0) {
+			lev < ledger_no(&stronghold_level) && n_dnstairs == 0) {
 		coord cc;
 
 		mazexy(&cc);
-		xdnstair = cc.x;
-		ydnstair = cc.y;
+		dnstairs[0].sx = cc.x;
+		dnstairs[0].sy = cc.y;
+		n_dnstairs++;
 		levl[cc.x][cc.y].typ = STAIRS;
 	    }
 

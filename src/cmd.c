@@ -3497,14 +3497,8 @@ click_to_cmd(x, y, mod)
 	} else if(IS_THRONE(levl[u.ux][u.uy].typ)) {
 	    cmd[0]=M('s');
 	    return cmd;
-	} else if((u.ux == xupstair && u.uy == yupstair)
-		  || (u.ux == sstairs.sx && u.uy == sstairs.sy && sstairs.up)
-		  || (u.ux == xupladder && u.uy == yupladder)) {
-	    return "<";
-	} else if((u.ux == xdnstair && u.uy == ydnstair)
-		  || (u.ux == sstairs.sx && u.uy == sstairs.sy && !sstairs.up)
-		  || (u.ux == xdnladder && u.uy == ydnladder)) {
-	    return ">";
+	} else if((dir = On_stairs(u.ux, u.uy))) {
+	    return dir == LA_UP ? "<" : ">";
 	} else if(OBJ_AT(u.ux, u.uy)) {
 	    cmd[0] = Is_container(level.objects[u.ux][u.uy]) ? M('l') : ',';
 	    return cmd;

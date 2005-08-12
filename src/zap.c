@@ -2809,7 +2809,7 @@ struct obj *obj;	/* wand or spell */
 	    if (is_db_wall(x,y) && find_drawbridge(&xx, &yy)) {
 		open_drawbridge(xx, yy);
 		disclose = TRUE;
-	    } else if (u.dz > 0 && (x == xdnstair && y == ydnstair) &&
+	    } else if (u.dz > 0 && (x == dnstairs->sx && y == dnstairs->sy) &&
 			/* can't use the stairs down to quest level 2 until
 			   leader "unlocks" them; give feedback if you try */
 			on_level(&u.uz, &qstart_level) && !ok_to_quest()) {
@@ -4344,12 +4344,17 @@ boolean *shopdamage;
 		boolean lava = is_lava(x,y);
 		boolean moat = (!lava && (lev->typ != POOL) &&
 				(lev->typ != WATER) &&
+				(lev->typ != RIVER) &&
 				!Is_medusa_level(&u.uz) &&
 				!Is_waterlevel(&u.uz));
 
-		if (lev->typ == WATER) {
-		    /* For now, don't let WATER freeze. */
+		if (lev->typ == WATER || lev->typ == RIVER) {
+		    /* For now, don't let WATER or RIVER freeze. */
 		    if (cansee(x,y))
+			if (lev->typ == RIVER &&
+				level.flags.river == RIVER_PHLEGETHON)
+			    pline_The("blood cools for a moment.");
+			else
 			pline_The("water freezes for a moment.");
 		    else
 			You_hear("a soft crackling.");

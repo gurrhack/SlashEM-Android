@@ -578,6 +578,7 @@ char c;
 #endif
 		  case '}'  : return(MOAT);
 		  case 'P'  : return(POOL);
+		  case 'R'  : return(RIVER);
 		  case 'L'  : return(LAVAPOOL);
 		  case 'I'  : return(ICE);
 		  case 'W'  : return(WATER);

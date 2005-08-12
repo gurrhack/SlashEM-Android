@@ -135,11 +135,9 @@ E struct dgn_topology {		/* special dungeon levels for speed */
 #define blackmarket_level	(dungeon_topology.d_blackmarket_level)
 #endif /* BLACKMARKET */
 
-E NEARDATA stairway dnstair, upstair;		/* stairs up and down */
-#define xdnstair	(dnstair.sx)
-#define ydnstair	(dnstair.sy)
-#define xupstair	(upstair.sx)
-#define yupstair	(upstair.sy)
+E NEARDATA stairway upstairs[MAXNRSTAIRS];	/* stairs up */
+E NEARDATA stairway dnstairs[MAXNRSTAIRS];	/* ... and down */
+E NEARDATA int n_upstairs, n_dnstairs;		/* ... and their counters */
 
 E NEARDATA stairway dnladder, upladder;		/* ladders up and down */
 #define xdnladder	(dnladder.sx)

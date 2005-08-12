@@ -64,10 +64,13 @@ unsigned gpflags;
 		is_badpos = 1;
 
 	    if (pool && !ignorewater) {
-		if (mtmp == &youmonst)
-			return (HLevitation || Flying || Wwalking ||
-				    Swimming || Amphibious) ? is_badpos : -1;
-		else	return (is_flyer(mdat) || is_swimmer(mdat) ||
+		boolean wade = level.flags.river != RIVER_PHLEGETHON ||
+			likes_lava(mdat) &&
+			maybe_polyd(is_vampire(mdat), Race_if(PM_VAMPIRE));
+		if (mtmp == &youmonst) {
+			return (HLevitation || Flying || Wwalking || wade &&
+				(Swimming || Amphibious)) ? is_badpos : -1;
+		} else	return (is_flyer(mdat) || wade && is_swimmer(mdat) ||
 				    is_clinger(mdat)) ? is_badpos : -1;
 	    } else if (is_lava(x,y)) {
 		if (mtmp == &youmonst)
@@ -1404,7 +1407,7 @@ boolean suppress_impossible;
 
 	if (mtmp->iswiz && mtmp->mx) {	/* Wizard, not just arriving */
 	    if (!In_W_tower(u.ux, u.uy, &u.uz))
-		x = xupstair,  y = yupstair;
+		x = upstairs->sx,  y = upstairs->sy;
 	    else if (!xdnladder)	/* bottom level of tower */
 		x = xupladder,  y = yupladder;
 	    else

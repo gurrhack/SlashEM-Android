@@ -177,6 +177,8 @@ register int x, y;
 	    return "maw";
 	else if (IS_AIR(lev->typ) && Is_airlevel(&u.uz))
 	    return "air";
+	else if (lev->typ == RIVER)
+	    return "river";
 	else if (is_pool(x,y))
 	    return (Underwater && !Is_waterlevel(&u.uz)) ? "bottom" : "water";
 	else if (is_ice(x,y))

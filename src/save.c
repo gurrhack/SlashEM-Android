@@ -590,8 +590,12 @@ int mode;
 #endif /* RLECOMP */
 
 	bwrite(fd,(genericptr_t) &monstermoves,sizeof(monstermoves));
-	bwrite(fd,(genericptr_t) &upstair,sizeof(stairway));
-	bwrite(fd,(genericptr_t) &dnstair,sizeof(stairway));
+	bwrite(fd,(genericptr_t) &n_upstairs,sizeof(int));
+	if (n_upstairs)
+	    bwrite(fd,(genericptr_t) upstairs,n_upstairs*sizeof(stairway));
+	bwrite(fd,(genericptr_t) &n_dnstairs,sizeof(int));
+	if (n_dnstairs)
+	    bwrite(fd,(genericptr_t) dnstairs,n_dnstairs*sizeof(stairway));
 	bwrite(fd,(genericptr_t) &upladder,sizeof(stairway));
 	bwrite(fd,(genericptr_t) &dnladder,sizeof(stairway));
 	bwrite(fd,(genericptr_t) &sstairs,sizeof(stairway));

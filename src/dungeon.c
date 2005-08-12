@@ -1160,32 +1160,67 @@ u_on_sstairs() {	/* place you on the special staircase */
 }
 
 void
-u_on_upstairs()	/* place you on upstairs (or special equivalent) */
+u_on_upstairs(x, y)	/* place you on upstairs (or special equivalent) */
+int x, y;
 {
-	if (xupstair) {
-		u_on_newpos(xupstair, yupstair);
+	int stair, dist, i, d;
+	if (n_upstairs) {
+	    stair = 0;
+	    if (n_upstairs > 1 && x != 0) {
+		dist = dist2(upstairs->sx, upstairs->sy, x, y);
+		for(i = 1; i < n_upstairs; i++) {
+		    d = dist2(upstairs[i].sx, upstairs[i].sy, x, y);
+		    if (d < dist) {
+			dist = d;
+			stair = i;
+		    }
+		}
+	    }
+	    u_on_newpos(upstairs[stair].sx, upstairs[stair].sy);
 	} else
 		u_on_sstairs();
 }
 
 void
-u_on_dnstairs()	/* place you on dnstairs (or special equivalent) */
+u_on_dnstairs(x, y)	/* place you on dnstairs (or special equivalent) */
+int x, y;
 {
-	if (xdnstair) {
-		u_on_newpos(xdnstair, ydnstair);
+	int stair, dist, i, d;
+	if (n_dnstairs) {
+	    stair = 0;
+	    if (n_dnstairs > 1 && x != 0) {
+		dist = dist2(dnstairs->sx, dnstairs->sy, x, y);
+		for(i = 1; i < n_dnstairs; i++) {
+		    d = dist2(dnstairs[i].sx, dnstairs[i].sy, x, y);
+		    if (d < dist) {
+			dist = d;
+			stair = i;
+		    }
+		}
+	    }
+	    u_on_newpos(dnstairs[stair].sx, dnstairs[stair].sy);
 	} else
 		u_on_sstairs();
 }
 
-boolean
+int
 On_stairs(x, y)
 xchar x, y;
 {
-	return((boolean)((x == xupstair && y == yupstair) ||
-	       (x == xdnstair && y == ydnstair) ||
-	       (x == xdnladder && y == ydnladder) ||
-	       (x == xupladder && y == yupladder) ||
-	       (x == sstairs.sx && y == sstairs.sy)));
+	int i;
+	if (x == sstairs.sx && y == sstairs.sy)
+	    return sstairs.up ? LA_UP : LA_DOWN;
+	if (x == xupladder && y == yupladder)
+	    return LA_UP;
+	if (x == xdnladder && y == ydnladder)
+	    return LA_DOWN;
+	for(i = 0; i < n_upstairs; i++)
+	    if (x == upstairs[i].sx && y == upstairs[i].sy)
+		return LA_UP;
+	for(i = 0; i < n_dnstairs; i++)
+	    if (x == dnstairs[i].sx && y == dnstairs[i].sy)
+		return LA_DOWN;
+	return 0;
 }
 
 boolean

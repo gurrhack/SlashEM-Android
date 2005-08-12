@@ -572,7 +572,7 @@ newgame()
 /*	quest_init();*/	/* Now part of role_init() */
 
 	mklev();
-	u_on_upstairs();
+	u_on_upstairs(0, 0);
 	vision_reset();		/* set up internals for level (after mklev) */
 	check_special_room(FALSE);
 

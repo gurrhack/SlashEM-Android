@@ -2397,6 +2397,7 @@ char *buf;
 	int ltyp = lev->typ, cmap = -1;
 	const char *dfeature = 0;
 	static char altbuf[BUFSZ];
+	int dir;
 
 	if (IS_DOOR(ltyp)) {
 	    switch (lev->doormask) {
@@ -2428,16 +2429,12 @@ char *buf;
 	    Sprintf(altbuf, "altar to %s (%s)", a_gname(),
 		    align_str(Amask2align(lev->altarmask & ~AM_SHRINE)));
 	    dfeature = altbuf;
-	} else if ((x == xupstair && y == yupstair) ||
-		 (x == sstairs.sx && y == sstairs.sy && sstairs.up))
-	    cmap = S_upstair;				/* "staircase up" */
-	else if ((x == xdnstair && y == ydnstair) ||
-		 (x == sstairs.sx && y == sstairs.sy && !sstairs.up))
-	    cmap = S_dnstair;				/* "staircase down" */
-	else if (x == xupladder && y == yupladder)
+	} else if (x == xupladder && y == yupladder)
 	    cmap = S_upladder;				/* "ladder up" */
 	else if (x == xdnladder && y == ydnladder)
 	    cmap = S_dnladder;				/* "ladder down" */
+	else if ((dir = On_stairs(x, y)))		/* "staircase ..." */
+	    cmap = dir == LA_UP ? S_upstair : S_dnstair;/* "... up / down" */
 	else if (ltyp == DRAWBRIDGE_DOWN)
 	    cmap = S_vodbridge;			/* "lowered drawbridge" */
 	else if (ltyp == DBWALL)
