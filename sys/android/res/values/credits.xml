@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string
+		name="credits">
+<![CDATA[
+
+<p><h1>Slash\'EM Android Port</h1><br/>
+Based on Slash\'EM 0.0.7E7F3<br/>
+<a href="http://www.slashem.org">http://www.slashem.org</a></p>
+
+<p><br/><br/><h2>Abigaba Tiles</h2>
+<i>by James Hogwood</i><br/>
+<a href="https://web.archive.org/web/20121029092206/http://www.multifoliate.com/nh/">http://www.multifoliate.com/nh</a><br/></p>
+
+<p><br/><br/><h2>Geoduck\'s tileset</h2>
+<i>by Robert M. Cook</i><br/>
+<a href="http://www.geoduckthings.net/nhack/nhack.html">http://www.geoduckthings.net/nhack/nhack.html</a></p>
+
+<p><br/><small>&copy; 2016 Martin Gustafsson</small></p>
+]]>
+	</string>
+</resources>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tileNames">
+        <item>Abigaba</item>
+    	<item>Ascii (no tiles)</item>
+        <item>Default</item>
+        <item>Geoduck</item>
+        <item>Itakura</item>
+    </string-array>
+    <string-array name="tileValues">
+        <item>abigaba_24</item>
+        <item>TTY</item>
+        <item>default_32</item>
+        <item>geoduck_20x40</item>
+        <item>itakura_32</item>
+    </string-array>
+
+</resources>

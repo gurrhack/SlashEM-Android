@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	package="com.tbd.SlashEM"
+	android:versionCode="100"
+	android:versionName="0.0.7E7F3"
+	android:installLocation="auto">
+	<uses-sdk
+		android:minSdkVersion="7"/>
+	<uses-permission
+		android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+	<application
+		android:label="Slash'EM"
+		android:icon="@drawable/icon"
+		android:largeHeap="true"
+		android:theme="@android:style/Theme"
+		android:debuggable="true"
+		android:allowBackup="true">
+		<activity
+			android:name="com.tbd.forkfront.ForkFront"
+			android:label="Slash'EM"
+			android:windowSoftInputMode="adjustResize|stateAlwaysHidden"
+			android:launchMode="singleTask"
+			android:configChanges="mcc|mnc|locale|keyboard|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|fontScale">
+			<!-- Prevent activity from restarting when configuration changes -->
+			<intent-filter>
+				<action
+					android:name="android.intent.action.MAIN"/>
+				<category
+					android:name="android.intent.category.LAUNCHER"/>
+			</intent-filter>
+		</activity>
+		<activity
+			android:name="com.tbd.forkfront.Settings"
+			android:label="Slash'EM Settings">
+		</activity>
+	</application>
+</manifest>
