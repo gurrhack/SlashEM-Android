@@ -60,6 +60,9 @@ extern void NDECL(win_proxy_init);
 #ifdef MSWIN_GRAPHICS
 extern struct window_procs mswin_procs;
 #endif
+#ifdef ANDROID_GRAPHICS
+extern struct window_procs and_procs;
+#endif
 
 STATIC_DCL void FDECL(def_raw_print, (const char *s));
 
@@ -112,6 +115,9 @@ struct win_choices {
 #endif
 #ifdef MSWIN_GRAPHICS
     { &mswin_procs, 0 },
+#endif
+#ifdef ANDROID_GRAPHICS
+    { &and_procs, 0 },
 #endif
     { 0, 0 }		/* must be last */
 };

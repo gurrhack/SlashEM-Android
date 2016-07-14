@@ -655,9 +655,43 @@ char *buf;
 	return strcat(strcpy(buf, "kicking "), what);
 }
 
+#ifdef ANDROID
 int
-dokick()
+autokick()
 {
+	if (nolimbs(youmonst.data) || slithy(youmonst.data))
+		return 0;
+	if (verysmall(youmonst.data))
+		return 0;
+	if (u.usteed)
+		return 0;
+	if (Wounded_legs)
+		return 0;
+	if (near_capacity() > SLT_ENCUMBER)
+		return 0;
+	if (youmonst.data->mlet == S_LIZARD)
+		return 0;
+	if (u.utrap)
+		return 0;
+
+	if( yn("Kick it open?") == 'y')
+		return dokick_indir(TRUE);
+
+	return 0;
+}
+int
+dokick() {
+	return dokick_indir(FALSE);
+}
+
+int
+dokick_indir(has_dir)
+boolean has_dir;
+{
+#else
+int
+dokick() {
+#endif
 	int x, y;
 	int avrg_attrib;
 	register struct monst *mtmp;
@@ -721,8 +755,16 @@ dokick()
 		return 0;
 	}
 
-	if(!getdir((char *)0)) return(0);
-	if(!u.dx && !u.dy) return(0);
+	if (
+#ifdef ANDROID
+		!has_dir &&
+#endif
+		!getdir((char *)0)
+	)
+		return(0);
+
+	if (!u.dx && !u.dy)
+	    return(0);
 
 	x = u.ux + u.dx;
 	y = u.uy + u.dy;

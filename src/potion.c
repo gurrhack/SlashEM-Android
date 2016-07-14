@@ -334,6 +334,36 @@ ghost_from_bottle()
 
 /* "Quaffing is like drinking, except you spill more."  -- Terry Pratchett
  */
+#ifdef ANDROID
+int
+dodrink_thisplace()
+{
+	if (Strangled) {
+		pline("If you can't breathe air, how can you drink liquid?");
+		return 0;
+	}
+
+	if (u.uswallow)
+		return 0;
+
+	if (IS_FOUNTAIN(levl[u.ux][u.uy].typ)) {
+		drinkfountain();
+	}
+#ifdef SINKS
+	else if (IS_SINK(levl[u.ux][u.uy].typ)) {
+		drinksink();
+	}
+	else if (IS_TOILET(levl[u.ux][u.uy].typ)) {
+		drinktoilet();
+	}
+#endif
+	else if (Underwater || IS_POOL(levl[u.ux][u.uy].typ)) {
+	    pline("Do you know what lives in this water!");
+	}
+
+	return 1;
+}
+#endif
 int
 dodrink()
 {

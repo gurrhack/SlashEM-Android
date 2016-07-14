@@ -203,6 +203,10 @@ typedef xchar	boolean;		/* 0 or 1 */
 #endif
 #endif
 
+#ifdef ANDROID
+#include "androidconf.h"
+#endif
+
 #ifndef FILE_AREAS
 
 #define fopen_datafile_area(area, filename, mode, use_spfx) \
@@ -314,7 +318,8 @@ typedef xchar	boolean;		/* 0 or 1 */
 # define EXIT_FAILURE 1
 #endif
 
-#if defined(X11_GRAPHICS) || defined(QT_GRAPHICS) || defined(GNOME_GRAPHICS) || defined(MSWIN_GRAPHICS)
+#if defined(X11_GRAPHICS) || defined(QT_GRAPHICS) || defined(GNOME_GRAPHICS) \
+	|| defined(MSWIN_GRAPHICS) || defined(ANDROID_GRAPHICS)
 # ifndef USE_TILES
 #  define USE_TILES		/* glyph2tile[] will be available */
 # endif

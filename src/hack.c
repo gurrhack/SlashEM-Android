@@ -17,6 +17,8 @@ STATIC_DCL boolean FDECL(monstinroom, (struct permonst *,int));
 
 STATIC_DCL void FDECL(move_update, (BOOLEAN_P));
 
+static boolean door_opened;	/* set to true if door was opened during test_move */
+
 #define IS_SHOP(x)	(rooms[x].rtype >= SHOPBASE)
 
 #ifdef OVL2
@@ -937,9 +939,13 @@ int mode;
 	    if (artifact_door(x, y)) {
 		if (mode == DO_MOVE) {
 		    if (amorphous(youmonst.data))
-			You("try to ooze under the door, but the gap is too small.");
+				You("try to ooze under the door, but the gap is too small.");
 		    else if (tunnels(youmonst.data) && !needspick(youmonst.data))
-			You("hurt your teeth on the re-enforced door.");
+				You("hurt your teeth on the re-enforced door.");
+#ifdef AUTO_OPEN
+			else if (flags.autoopen && !flags.run && !Confusion && !Stunned && !Fumbling)
+				door_opened = flags.move = doopen_indir(x, y);
+#endif
 		    else if (x == u.ux || y == u.uy) {
 			if (Blind || Stunned || ACURR(A_DEX) < 10 || Fumbling) {                            pline("Ouch!  You bump into a heavy door.");
 			    exercise(A_DEX, FALSE);
@@ -958,7 +964,11 @@ int mode;
 	    } else {
 		if (mode == DO_MOVE) {
 		    if (amorphous(youmonst.data))
-			You("try to ooze under the door, but can't squeeze your possessions through.");
+				You("try to ooze under the door, but can't squeeze your possessions through.");
+#ifdef AUTO_OPEN
+			else if (flags.autoopen && !flags.run && !Confusion && !Stunned && !Fumbling)
+				door_opened = flags.move = doopen_indir(x, y);
+#endif
 		    else if (x == ux || y == uy) {
 			if (Blind || Stunned || ACURR(A_DEX) < 10 || Fumbling) {
 #ifdef STEED
@@ -1640,8 +1650,12 @@ domove()
 	}
 
 	if (!test_move(u.ux, u.uy, x-u.ux, y-u.uy, DO_MOVE)) {
-	    flags.move = 0;
-	    nomul(0);
+		if (!door_opened) {
+			flags.move = 0;
+			nomul(0);
+		} else {
+			door_opened = 0;
+		}
 	    return;
 	}
 

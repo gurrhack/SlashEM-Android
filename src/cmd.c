@@ -75,6 +75,9 @@ extern int NDECL(dohelp); /**/
 extern int NDECL(dohistory); /**/
 extern int NDECL(doloot); /**/
 extern int NDECL(dodrink); /**/
+#ifdef ANDROID
+extern int NDECL(dodrink_thisplace); /**/
+#endif
 extern int NDECL(dodip); /**/
 extern int NDECL(dosacrifice); /**/
 extern int NDECL(dopray); /**/
@@ -102,8 +105,11 @@ extern int NDECL(dowieldquiver); /**/
 extern int NDECL(dozap); /**/
 extern int NDECL(doorganize); /**/
 extern int NDECL(dolistvanq); /**/
-
 #endif /* DUMB */
+
+#ifdef ANDROID
+extern void NDECL(quit_possible);
+#endif
 
 #ifdef OVL1
 static int NDECL((*timed_occ_fn));
@@ -2072,6 +2078,9 @@ int final;
 #endif
 
 static const struct func_tab cmdlist[] = {
+#ifdef ANDROID
+	{0x80, FALSE, dodrink_thisplace}, /* special "hidden" command for drinking directly from fountains on click */
+#endif
 	{C('d'), FALSE, dokick}, /* "D" is for door!...?  Msg is in dokick.c */
 #ifdef WIZARD
 	{C('b'), FALSE, playersteal},
@@ -2657,10 +2666,16 @@ register char *cmd;
 	}
 	if (*cmd == '\033') { /* <esc> key - user might be panicking */
 		/* Bring up the menu */
+#ifndef ANDROID
 		if (multi || !flags.menu_on_esc || !(domenusystem())) {
+#else
+		quit_possible();
+#endif
 		flags.move = FALSE;
 		    multi = 0;
+#ifndef ANDROID
 		}
+#endif
 		return;
 #if 0
 		flags.move = FALSE;
@@ -3078,6 +3093,9 @@ click_to_cmd(x, y, mod)
     int x, y, mod;
 {
     int dir;
+#ifdef ANDROID
+	char c;
+#endif
     static char cmd[4];
     cmd[1]=0;
 
@@ -3096,12 +3114,64 @@ click_to_cmd(x, y, mod)
 
     if(x == 0 && y == 0) {
 	/* here */
+#ifndef ANDROID
 	if(IS_FOUNTAIN(levl[u.ux][u.uy].typ) || IS_SINK(levl[u.ux][u.uy].typ)) {
 	    cmd[0]=mod == CLICK_1 ? 'q' : M('d');
 	    return cmd;
-	} else if(IS_THRONE(levl[u.ux][u.uy].typ)) {
+	} else
+#endif
+	if(IS_THRONE(levl[u.ux][u.uy].typ)) {
 	    cmd[0]=M('s');
 	    return cmd;
+#ifdef ANDROID
+	} else if(!u.uswallow && IS_FOUNTAIN(levl[u.ux][u.uy].typ)) {
+		cmd[0]=yn("Drink from the fountain?") == 'y' ? 0x80 : '.';
+		return cmd;
+#ifdef SINKS
+	} else if(!u.uswallow && IS_SINK(levl[u.ux][u.uy].typ)) {
+		cmd[0]=yn("Drink from the sink?") == 'y' ? 0x80 : '.';
+		return cmd;
+	} else if(!u.uswallow && IS_TOILET(levl[u.ux][u.uy].typ)) {
+ 		if(u.umonnum == PM_LITTLE_DOG || u.umonnum == PM_DOG || u.umonnum == PM_LARGE_DOG)
+			cmd[0]=yn("Drink from the toilet?") == 'y' ? 0x80 : '.';
+		else
+		    cmd[0]=M('s');
+	    return cmd;
+#endif
+	} else if(!u.uswallow && (Underwater || IS_POOL(levl[u.ux][u.uy].typ))) {
+		cmd[0]=yn(Underwater ? "Take a sip of water?" : "Drink from the pool?") == 'y' ? 0x80 : '.';
+		return cmd;
+	} else {
+		cmd[0] = '.';
+		if((u.ux == xupstair && u.uy == yupstair)
+			|| (u.ux == sstairs.sx && u.uy == sstairs.sy && sstairs.up)
+			|| (u.ux == xupladder && u.uy == yupladder)) {
+			cmd[0] = '<';
+		} else if((u.ux == xdnstair && u.uy == ydnstair)
+			|| (u.ux == sstairs.sx && u.uy == sstairs.sy && !sstairs.up)
+			|| (u.ux == xdnladder && u.uy == ydnladder)) {
+			cmd[0] = '>';
+		}
+
+		if(OBJ_AT(u.ux, u.uy)) {
+			c = 0;
+			if(cmd[0] != '.') {
+				/* On stairs with object(s) */
+				c = yn_function("There are objects here. Still climb?", ynqchars, 'y');
+
+				if(c == 'n')
+					cmd[0] = Is_container(level.objects[u.ux][u.uy]) ? M('l') : ',';
+				else if(c == 'q')
+					cmd[0] = '.';
+			} else {
+				cmd[0] = Is_container(level.objects[u.ux][u.uy]) ? M('l') : ',';
+			}
+		} else if(flags.menu_on_self && cmd[0] == '.') {
+			return "`";
+		}
+		return cmd;
+	}
+#else
 	} else if((u.ux == xupstair && u.uy == yupstair)
 		  || (u.ux == sstairs.sx && u.uy == sstairs.sy && sstairs.up)
 		  || (u.ux == xupladder && u.uy == yupladder)) {
@@ -3116,6 +3186,7 @@ click_to_cmd(x, y, mod)
 	} else {
 	    return "."; /* just rest */
 	}
+#endif
     }
 
     /* directional commands */

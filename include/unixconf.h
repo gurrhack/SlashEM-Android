@@ -35,10 +35,10 @@
 /* define any of the following that are appropriate */
 #define SVR4		/* use in addition to SYSV for System V Release 4 */
 			/* including Solaris 2+ */
-#define NETWORK		/* if running on a networked system */
+/* #define NETWORK */		/* if running on a networked system */
 			/* e.g. Suns sharing a playground through NFS */
 /* #define SUNOS4 */	/* SunOS 4.x */
-/* #define LINUX */	/* Another Unix clone */
+#define LINUX	/* Another Unix clone */
 /* #define CYGWIN32 */	/* Unix on Win32 -- use with case sensitive defines */
 /* #define GENIX */	/* Yet Another Unix Clone */
 /* #define HISX */	/* Bull Unix for XPS Machines */
@@ -210,7 +210,7 @@
  * A stat system call is done on the mailbox every MAILCKFREQ moves.
  */
 
-#define MAIL			/* Deliver mail during the game */
+/* #define MAIL */			/* Deliver mail during the game */
 
 /* The Andrew Message System does mail a little differently from normal
  * UNIX.  Mail is deposited in the user's own directory in ~/Mailbox

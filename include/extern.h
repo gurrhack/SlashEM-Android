@@ -109,6 +109,8 @@ E schar NDECL(acurrstr);
 E void FDECL(adjalign, (int));
 /* KMH, balance patch -- new function */
 E void NDECL(recalc_health);
+E int NDECL(uhp);
+E int NDECL(uhpmax);
 
 /* ### ball.c ### */
 
@@ -469,6 +471,9 @@ E void FDECL(wantdoor, (int,int,genericptr_t));
 
 E boolean FDECL(ghitm, (struct monst *,struct obj *));
 E void FDECL(container_impact_dmg, (struct obj *));
+#ifdef ANDROID
+E int NDECL(autokick);
+#endif
 E int NDECL(dokick);
 E boolean FDECL(ship_object, (struct obj *,XCHAR_P,XCHAR_P,BOOLEAN_P));
 E void NDECL(obj_delivery);
@@ -946,12 +951,23 @@ E boolean FDECL(picking_lock, (int *,int *));
 E boolean FDECL(picking_at, (int,int));
 E void NDECL(reset_pick);
 E int FDECL(pick_lock, (struct obj **));
+#ifdef ANDROID
+E boolean NDECL(can_force);
+E int FDECL(doforce_specific, (boolean,struct obj *));
+#endif
 E int NDECL(doforce);
 E boolean FDECL(boxlock, (struct obj *,struct obj *));
 E boolean FDECL(doorlock, (struct obj *,int,int));
 E int NDECL(doopen);
+#ifdef AUTO_OPEN
+E int FDECL(doopen_indir, (int, int));
+#endif
 E int NDECL(doclose);
 E int FDECL(artifact_door, (int,int));
+
+#ifdef ANDROID
+E void FDECL(lock_mouse_cursor, (boolean));
+#endif
 
 #ifdef MAC
 /* These declarations are here because the main code calls them. */
@@ -1503,6 +1519,9 @@ E void FDECL(set_duplicate_opt_detection, (int));
 E void FDECL(set_wc_option_mod_status, (unsigned long, int));
 E void FDECL(set_wc2_option_mod_status, (unsigned long, int));
 E void FDECL(set_option_mod_status, (const char *, int));
+#ifdef STATUS_COLORS
+E boolean FDECL(parse_status_color_options, (char *));
+#endif
 #ifdef MENU_COLOR
 E boolean FDECL(add_menu_coloring, (char *));
 #endif
@@ -1660,6 +1679,9 @@ E void FDECL(make_sick, (long, const char *, BOOLEAN_P,int));
 E void FDECL(make_vomiting, (long,BOOLEAN_P));
 E boolean FDECL(make_hallucinated, (long,BOOLEAN_P,long));
 E int NDECL(dodrink);
+#ifdef ANDROID
+E int NDECL(dodrink_thisplace);
+#endif
 E int FDECL(dopotion, (struct obj *));
 E int FDECL(peffects, (struct obj *));
 E void FDECL(healup, (int,int,BOOLEAN_P,BOOLEAN_P));

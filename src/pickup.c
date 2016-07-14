@@ -1561,6 +1561,13 @@ lootcont:
 		any = TRUE;
 
 		if (cobj->olocked) {
+#ifdef ANDROID
+			if (flags.autokick && can_force()) {
+				u.dx = u.dy = u.dz = 0;
+				if(doforce_specific(TRUE, cobj))
+					return 1;
+			} else
+#endif
 		    pline("Hmmm, it seems to be locked.");
 		    continue;
 		}

@@ -60,6 +60,7 @@
 /* #define MSWIN_GRAPHICS */	/* Windows NT, CE, Graphics */
 /* #define GL_GRAPHICS */	/* OpenGL graphics */
 /* #define SDL_GRAPHICS */	/* Software SDL graphics */
+#define ANDROID_GRAPHICS
 
 /*
  * Define the default window system.  This should be one that is compiled
@@ -188,6 +189,17 @@
 # endif
 #endif
 
+#ifdef ANDROID
+#define ANDROID_GRAPHICS
+#ifdef TTY_GRAPHICS
+#undef TTY_GRAPHICS
+#endif
+#ifdef DEFAULT_WINDOW_SYS
+#undef DEFAULT_WINDOW_SYS
+#endif
+#define DEFAULT_WINDOW_SYS "and"
+#endif
+
 #ifndef DEFAULT_WINDOW_SYS
 # define DEFAULT_WINDOW_SYS "tty"
 #endif
@@ -228,7 +240,7 @@
  *	compression.
  */
 
-#ifdef UNIX
+#if defined(UNIX) && !defined(ANDROID)
 /* path and file name extension for compression program */
 # define COMPRESS "/usr/bin/compress" /* Lempel-Ziv compression */
 # define COMPRESS_EXTENSION ".Z"	     /* compress's extension */
@@ -391,7 +403,7 @@ typedef unsigned char	uchar;
 
 /* dungeon levels */
 #define WALLIFIED_MAZE	/* Fancy mazes - Jean-Christophe Collet */
-/* #define REINCARNATION */     /* Special Rogue-like levels */
+#define REINCARNATION     /* Special Rogue-like levels */
 #define BLACKMARKET     /* Massimo Campostrini (campo@sunthpi3.difi.unipi.it) */
 
 /* monsters & objects */
@@ -420,7 +432,7 @@ typedef unsigned char	uchar;
 #if !defined(MAC)
 # define CLIPPING	/* allow smaller screens -- ERS */
 #endif
-#ifdef TTY_GRAPHICS
+#if defined(TTY_GRAPHICS) || defined(ANDROID_GRAPHICS)
 # define MENU_COLOR
 #endif
 
@@ -474,6 +486,8 @@ typedef unsigned char	uchar;
 #define OTHER_SERVICES  /* shopkeeper services */
 #define DUNGEON_GROWTH
 
+#define STATUS_COLORS
+
 /* #define SHOUT */ /* JRN -- shouting and petcommands - not implemented */
 
 #define DISPLAY_LAYERS	/* Improved support for transparent tile sets - ALI */
@@ -488,6 +502,8 @@ typedef unsigned char	uchar;
 
 /*#define GOLDOBJ */	/* Gold is kept on obj chains - Helge Hafting */
 /*#define AUTOPICKUP_EXCEPTIONS */ /* exceptions to autopickup */
+
+#define AUTO_OPEN	/* open doors by walking into them - Stefano Busti */
 
 /* End of Section 5 */
 

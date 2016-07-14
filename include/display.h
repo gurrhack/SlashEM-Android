@@ -301,13 +301,16 @@
 
 /* This has the unfortunate side effect of needing a global variable	*/
 /* to store a result. 'otg_temp' is defined and declared in decl.{ch}.	*/
+#define random_obj_to_glyph()				\
+	((otg_temp = random_object()) == CORPSE	\
+		? random_monster() + GLYPH_BODY_OFF	\
+		: otg_temp + GLYPH_OBJ_OFF)
+
 #define obj_to_glyph(obj)						      \
     (Hallucination ?							      \
-	((otg_temp = random_object()) == CORPSE ?			      \
-	    random_monster() + GLYPH_BODY_OFF :				      \
-	    otg_temp + GLYPH_OBJ_OFF)	:				      \
+	random_obj_to_glyph()	:				          \
 	((obj)->otyp == CORPSE ?					      \
-	    (int) (obj)->corpsenm + GLYPH_BODY_OFF :			      \
+	    (int) (obj)->corpsenm + GLYPH_BODY_OFF :	  \
 	    (int) (obj)->otyp + GLYPH_OBJ_OFF))
 
 #define cmap_to_glyph(cmap_idx) ((int) (cmap_idx)   + GLYPH_CMAP_OFF)

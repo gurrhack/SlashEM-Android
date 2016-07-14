@@ -20,6 +20,9 @@ STATIC_DCL boolean FDECL(putting_on, (const char *));
 STATIC_PTR int FDECL(ckunpaid,(struct obj *));
 STATIC_PTR int FDECL(ckvalidcat,(struct obj *));
 static char FDECL(display_pickinv, (const char *,BOOLEAN_P, long *));
+#ifdef ANDROID
+static char FDECL(display_pickinv_q, (const char *,BOOLEAN_P, long *, const char *, BOOLEAN_P, BOOLEAN_P, BOOLEAN_P, BOOLEAN_P, BOOLEAN_P));
+#endif
 #ifdef OVLB
 STATIC_DCL boolean FDECL(this_type_only, (struct obj *));
 STATIC_DCL void NDECL(dounpaid);
@@ -857,7 +860,7 @@ struct obj *otmp;
 		|| (!strcmp(word, "revive") && otyp != CORPSE) /* revive */
 		|| (!strcmp(word, "sacrifice") &&
 		    (otyp != CORPSE &&
-		     otyp != SEVERED_HAND &&                    
+		     otyp != SEVERED_HAND &&
 		     otyp != EYEBALL &&	/* KMH -- fixed */
 		     otyp != AMULET_OF_YENDOR && otyp != FAKE_AMULET_OF_YENDOR))
 		|| (!strcmp(word, "write with") &&
@@ -895,7 +898,7 @@ struct obj *otmp;
 		     (otyp != POT_OIL || !otmp->dknown ||
 		      !objects[POT_OIL].oc_name_known) &&
 		      /* water is only for untrapping */
-		     (strcmp(word, "untrap with") || 
+		     (strcmp(word, "untrap with") ||
 		      otyp != POT_WATER || !otmp->dknown ||
 		      !objects[POT_WATER].oc_name_known)) ||
 		     (otmp->oclass == FOOD_CLASS &&
@@ -1104,7 +1107,7 @@ register const char *let,*word;
 			foox ? "else " : "", word);
 		return((struct obj *)0);
 	}
-	
+
 	for(;;) {
 		cnt = 0;
 		if (allowcnt == 2) allowcnt = 1;  /* abort previous count */
@@ -1130,6 +1133,18 @@ register const char *let,*word;
 #ifdef REDO
 		if (in_doagain)
 		    ilet = readchar();
+		else
+#endif
+#ifdef ANDROID /* automenu on ANDROID */
+		if(iflags.automenu) {
+			putstr(WIN_MESSAGE, 0, qbuf);
+		    ilet = display_pickinv_q(lets, TRUE, allowcnt ? &cnt : (long *)0, qbuf, allowgold, allownone, allowfloor, allowthisplace, !strcmp(word, "read"));
+		    if (ilet && allowcnt && cnt >= 0) {
+		    	if(!cnt) prezero = TRUE;
+		    	allowcnt = 2;
+		    }
+		    else cnt = 0;
+		}
 		else
 #endif
 		    ilet = yn_function(qbuf, (char *)0, '\0');
@@ -1168,7 +1183,7 @@ register const char *let,*word;
 				You("are not carrying any gold.");
 				return(struct obj *)0;
 #endif
-			} 
+			}
 			if(cnt == 0 && prezero) return((struct obj *)0);
 			/* Historic note: early Nethack had a bug which was
 			 * first reported for Larn, where trying to drop 2^32-n
@@ -1565,19 +1580,19 @@ unsigned *resultflags;
 	else {
 #else
 	else /*!!!! if (allowgold == 2 && !oletct)
-	    !!!! return 1;	 you dropped gold (or at least tried to) 
+	    !!!! return 1;	 you dropped gold (or at least tried to)
             !!!! test gold dropping
 	else*/ {
 #endif
-	    int cnt = askchain(&invent, olets, allflag, fn, ckfn, mx, word); 
+	    int cnt = askchain(&invent, olets, allflag, fn, ckfn, mx, word);
 	    /*
 	     * askchain() has already finished the job in this case
 	     * so set a special flag to convey that back to the caller
 	     * so that it won't continue processing.
-	     * Fix for bug C331-1 reported by Irina Rempt-Drijfhout. 
+	     * Fix for bug C331-1 reported by Irina Rempt-Drijfhout.
 	     */
 	    if (combo && allflag && resultflags)
-		*resultflags |= ALL_FINISHED; 
+		*resultflags |= ALL_FINISHED;
 	    return cnt;
 	}
 }
@@ -1922,6 +1937,23 @@ register const char *lets;
 boolean want_reply;
 long* out_cnt;
 {
+#ifdef ANDROID
+	return display_pickinv_q(lets, want_reply, out_cnt, 0, FALSE, FALSE, FALSE, FALSE, FALSE);
+}
+
+static char
+display_pickinv_q(lets, want_reply, out_cnt, quest, allowgold, allownone, allowfloor, allowthisplace, is_read)
+register const char *lets;
+boolean want_reply;
+long* out_cnt;
+const char *quest;
+boolean allowgold;
+boolean allownone;
+boolean allowfloor;
+boolean allowthisplace;
+boolean is_read;
+{
+#endif
 	struct obj *otmp;
 	char ilet, ret;
 	char *invlet = flags.inv_order;
@@ -1957,7 +1989,11 @@ long* out_cnt;
 	an issue if empty checks are done before hand and the call
 	to here is short circuited away.
 	*/
-	if (!invent && !(flags.perm_invent && !lets && !want_reply)) {
+	if (!invent && !(flags.perm_invent && !lets && !want_reply)
+#ifdef ANDROID
+		&& (!iflags.automenu || !allowgold && !allownone && !allowfloor && !allowthisplace)
+#endif
+	) {
 #ifndef GOLDOBJ
 	    pline("Not carrying anything%s.", u.ugold ? " except gold" : "");
 #else
@@ -1972,6 +2008,9 @@ long* out_cnt;
 	/* oxymoron? temporarily assign permanent inventory letters */
 	if (!flags.invlet_constant) reassign();
 
+#ifdef ANDROID /* automenu on ANDROID */
+	if(!iflags.automenu) {
+#endif
 	if (lets && strlen(lets) == 1) {
 	    /* when only one item of interest, use pline instead of menus;
 	       we actually use a fake message-line menu in order to allow
@@ -1991,14 +2030,39 @@ long* out_cnt;
 #endif
 	    return ret;
 	}
+#ifdef ANDROID
+	}
+#endif
 
 	start_menu(win);
+#if defined(ANDROID) && !defined(GOLDOBJ)
+	if(iflags.automenu && allowgold) {
+
+		int glyph = Hallucination ? random_obj_to_glyph() : GOLD_PIECE + GLYPH_OBJ_OFF;
+	    char qbuf[QBUFSZ];
+
+		if(u.ugold == 1)
+			Strcpy(qbuf, "a gold piece");
+		else
+			Sprintf(qbuf, "%ld gold pieces", u.ugold);
+
+		any.a_void = 0;		/* zero */
+		add_menu(win, NO_GLYPH, &any, 0, 0, iflags.menu_headings, "Coins", MENU_UNSELECTED);
+		any.a_char = def_oc_syms[COIN_CLASS];
+		add_menu(win, glyph, &any, def_oc_syms[COIN_CLASS], 0, ATR_NONE, qbuf, MENU_UNSELECTED);
+	}
+#endif
 nextclass:
 	classcount = 0;
 	any.a_void = 0;		/* set all bits to zero */
 	for(otmp = invent; otmp; otmp = otmp->nobj) {
 		ilet = otmp->invlet;
-		if(!lets || !*lets || index(lets, ilet)) {
+		if(!lets || !*lets
+#ifdef ANDROID
+		// Don't list everything if ',' or '.' is still an option
+		&& (!iflags.automenu || !allowfloor && !allowthisplace)
+#endif
+		|| index(lets, ilet)) {
 			if (!flags.sortpack || otmp->oclass == *invlet) {
 			    if (flags.sortpack && !classcount) {
 				any.a_void = 0;		/* zero */
@@ -2022,7 +2086,39 @@ nextclass:
 		}
 #endif
 	}
+#ifdef ANDROID
+	if(iflags.automenu && lets) {
+		any.a_void = 0;		/* zero */
+		add_menu(win, NO_GLYPH, &any, 0, 0, iflags.menu_headings, "Special", MENU_UNSELECTED);
+		if(allowfloor) {
+			any.a_char = ',';
+			add_menu(win, NO_GLYPH, &any, ',', 0, ATR_NONE, "(something on the floor)", MENU_UNSELECTED);
+		}
+		if(allowthisplace) {
+			const char* title;
+			any.a_char = '.';
+			/* hacky */
+			if(is_read) title = "engraving on the floor";
+			else if(IS_FOUNTAIN(levl[u.ux][u.uy].typ)) title="from the fountain";
+#ifdef SINKS
+			else if(IS_SINK(levl[u.ux][u.uy].typ)) title="from the sink";
+			else if(IS_TOILET(levl[u.ux][u.uy].typ)) title="from the toilet";
+#endif
+			else if(Underwater) title="the water you're in";
+			else if(IS_POOL(levl[u.ux][u.uy].typ)) title="from the pool";
+			add_menu(win, NO_GLYPH, &any, '.', 0, ATR_NONE, title, MENU_UNSELECTED);
+		}
+		if(allownone) {
+			any.a_char = '-';
+			add_menu(win, NO_GLYPH, &any, '-', 0, ATR_NONE, "(nothing)", MENU_UNSELECTED);
+		}
+	    any.a_char = '*';
+	    add_menu(win, NO_GLYPH, &any, '*', 0, ATR_NONE, "(list everything)", MENU_UNSELECTED);
+	}
+	end_menu(win, (char *) quest);
+#else
 	end_menu(win, (char *) 0);
+#endif
 
 	n = select_menu(win, want_reply ? PICK_ONE : PICK_NONE, &selected);
 	if (n > 0) {
@@ -2073,7 +2169,7 @@ count_unpaid(list)
 }
 
 /*
- * Returns the number of items with b/u/c/unknown within the given list.  
+ * Returns the number of items with b/u/c/unknown within the given list.
  * This does NOT include contained objects.
  */
 int
@@ -2391,7 +2487,7 @@ char *buf;
 	return dfeature;
 }
 
-/* look at what is here; if there are many objects (5 or more),
+/* look at what is here; if there are many objects (pile_limit or more),
    don't show them unless obj_cnt is 0 */
 int
 look_here(obj_cnt, picked_some)
@@ -2404,8 +2500,11 @@ boolean picked_some;
 	const char *dfeature = (char*) 0;
 	char fbuf[BUFSZ], fbuf2[BUFSZ];
 	winid tmpwin;
-	boolean skip_objects = (obj_cnt >= 5), felt_cockatrice = FALSE;
+    boolean skip_objects, felt_cockatrice = FALSE;
 
+    /* default pile_limit is 5; a value of 0 means "never skip"
+       (and 1 effectively forces "always skip") */
+    skip_objects = (flags.pile_limit > 0 && obj_cnt >= flags.pile_limit);
 	if (u.uswallow && u.ustuck) {
 	    struct monst *mtmp = u.ustuck;
 	    Sprintf(fbuf, "Contents of %s %s",
@@ -2456,6 +2555,7 @@ boolean picked_some;
 
 	if (dfeature) {
 		Sprintf(fbuf, "There is %s here.", an(dfeature));
+#ifndef ANDROID
 		if (flags.suppress_alert < FEATURE_NOTICE_VER(0,0,7) &&
 			(IS_FOUNTAIN(levl[u.ux][u.uy].typ) ||
 #ifdef SINKS
@@ -2464,6 +2564,7 @@ boolean picked_some;
 #endif
 			))
 		    Strcat(fbuf, "  Use \"q.\" to drink from it.");
+#endif
 	}
 
 	if (!otmp || is_lava(u.ux,u.uy) || (is_pool(u.ux,u.uy) && !Underwater)) {
@@ -2479,8 +2580,14 @@ boolean picked_some;
 	    if (dfeature) pline(fbuf);
 	    sense_engr_at(u.ux, u.uy, FALSE); /* Eric Backus */
 	    There("are %s%s objects here.",
-		  (obj_cnt <= 10) ? "several" : "many",
-		  picked_some ? " more" : "");
+#ifdef ANDROID
+                (obj_cnt == 2) ? "two" : (
+#endif
+		  (obj_cnt <= 10) ? "several" : "many"
+#ifdef ANDROID
+                )
+#endif
+		 , picked_some ? " more" : "");
 	} else if (!otmp->nexthere) {
 	    /* only one object */
 	    if (dfeature) pline(fbuf);

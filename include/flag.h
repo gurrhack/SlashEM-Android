@@ -24,6 +24,12 @@ struct flag {
 #endif
 	boolean  autodig;       /* MRKR: Automatically dig */
 	boolean  autoquiver;	/* Automatically fill quiver */
+#ifdef AUTO_OPEN
+    boolean autoopen;   /* open doors by walking into them */
+#endif
+#ifdef ANDROID
+	boolean  autokick;	/* Automatically kick doors and force locks */
+#endif
 	boolean  beginner;
 #ifdef MAIL
 	boolean  biff;		/* enable checking for mail */
@@ -44,6 +50,7 @@ struct flag {
 	boolean  friday13;	/* it's Friday the 13th */
 	boolean  groundhogday;	/* KMH -- February 2 */
 	boolean  help;		/* look in data file for info about stuff */
+    boolean  hitpointbar; /* colourful hit point status bar */
 	boolean  ignintr;	/* ignore interrupts */
 #ifdef INSURANCE
 	boolean  ins_chkpt;	/* checkpoint as appropriate */
@@ -60,7 +67,11 @@ struct flag {
 	boolean  legacy;	/* print game entry "story" */
 	boolean  lit_corridor;	/* show a dark corr as lit if it is in sight */
 	boolean  made_amulet;
+#ifdef ANDROID
+	boolean  menu_on_self;	/* show menu when clicking self */
+#else
 	boolean  menu_on_esc;	/* show menu when hitting esc */
+#endif
 	boolean  mon_moving;	/* monsters' turn to move */
 	boolean  move;
 	boolean  mv;
@@ -115,6 +126,7 @@ struct flag {
 	int	 warnlevel;
 	int	 djinni_count, ghost_count;	/* potion effect tuning */
 	int	 pickup_burden;		/* maximum burden before prompt */
+    int pile_limit;    /* controls feedback when walking over objects */
 	/* KMH, role patch -- Variables used during startup.
 	 *
 	 * If the user wishes to select a role, race, gender, and/or alignment
@@ -200,6 +212,9 @@ struct instance_flags {
 #ifdef TTY_GRAPHICS
 	char prevmsg_window;	/* type of old message window to use */
 	boolean  extmenu;	/* extended commands use menu interface */
+#endif
+#if defined(STATUS_COLORS) && defined(TEXTCOLOR)
+	boolean use_status_colors; /* use color in status line; only if wc_color */
 #endif
 #ifdef MENU_COLOR
         boolean use_menu_color; /* use color in menus; only if wc_color */
@@ -302,6 +317,9 @@ struct instance_flags {
 #ifdef WIN32CON
 #define MAX_ALTKEYHANDLER 25
 	char	 altkeyhandler[MAX_ALTKEYHANDLER];
+#endif
+#ifdef ANDROID
+	boolean  automenu; /* Automatically show menues */
 #endif
 };
 

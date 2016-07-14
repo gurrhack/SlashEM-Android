@@ -43,7 +43,7 @@ STATIC_DCL boolean FDECL(list_vanquished, (CHAR_P, BOOLEAN_P));
 STATIC_DCL void FDECL(list_genocided, (CHAR_P, BOOLEAN_P));
 STATIC_DCL boolean FDECL(should_query_disclose_option, (int,char *));
 
-#if defined(__BEOS__) || defined(MICRO) || defined(WIN32) || defined(OS2)
+#if defined(__BEOS__) || defined(MICRO) || defined(WIN32) || defined(OS2) || defined(ANDROID)
 extern void FDECL(nethack_exit,(int));
 #else
 #define nethack_exit exit
@@ -194,6 +194,9 @@ register struct monst *mtmp;
 	/* for those wand o'death, touch o'death, poisoned spike times... */        
 	if (Instant_Death)
 	    You("were hosed!");
+#ifdef ANDROID
+	and_you_die();
+#endif
 	mark_synch();	/* flush buffered screen output */
 	buf[0] = '\0';
 	killer_format = KILLED_BY_AN;
