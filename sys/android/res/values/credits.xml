@@ -4,8 +4,9 @@
 		name="credits">
 <![CDATA[
 
-<p><h1>Slash\'EM Android Port</h1><br/>
-Based on Slash\'EM 0.0.7E7F3<br/>
+<h1>Slash\'EM Android Port</h1>
+<a href="https://github.com/gurrhack/SlashEM-Android">Project Home</a><br/>
+<p>Based on Slash\'EM 0.0.7E7F3<br/>
 <a href="http://www.slashem.org">http://www.slashem.org</a></p>
 
 <p><br/><br/><h2>Abigaba Tiles</h2>
@@ -16,7 +17,7 @@ Based on Slash\'EM 0.0.7E7F3<br/>
 <i>by Robert M. Cook</i><br/>
 <a href="http://www.geoduckthings.net/nhack/nhack.html">http://www.geoduckthings.net/nhack/nhack.html</a></p>
 
-<p><br/><small>&copy; 2016 Martin Gustafsson</small></p>
+<p><br/></p>
 ]]>
 	</string>
 </resources>

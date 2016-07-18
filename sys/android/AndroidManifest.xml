@@ -16,7 +16,6 @@
 		android:icon="@drawable/icon"
 		android:largeHeap="true"
 		android:theme="@android:style/Theme"
-		android:debuggable="true"
 		android:allowBackup="true">
 		<activity
 			android:name="com.tbd.forkfront.ForkFront"
