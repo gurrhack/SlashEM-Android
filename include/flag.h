@@ -192,6 +192,9 @@ struct instance_flags {
 	unsigned msg_history;	/* hint: # of top lines to save */
 	boolean  num_pad;	/* use numbers for movement commands */
 	boolean  news;		/* print news */
+#ifdef ANDROID
+    boolean implicit_uncursed; /* maybe omit "uncursed" status in inventory */
+#endif
 	boolean  window_inited; /* true if init_nhwindows() completed */
 	boolean  vision_inited; /* true if vision is ready */
 	boolean  menu_tab_sep;	/* Use tabs to separate option menu fields */

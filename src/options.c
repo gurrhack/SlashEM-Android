@@ -127,6 +127,9 @@ static struct Bool_Opt
 #else
 	{"ignintr", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
+#ifdef ANDROID
+    { "implicit_uncursed", &iflags.implicit_uncursed, FALSE, SET_IN_GAME },
+#endif
 #ifdef SHOW_WEIGHT
 	{"invweight", &flags.invweight, FALSE, SET_IN_GAME},
 #else

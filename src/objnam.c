@@ -647,7 +647,11 @@ boolean with_price;
 		Strcat(prefix, "cursed ");
 	    else if (Hallucination ? !rn2(10) : obj->blessed)
 		Strcat(prefix, "blessed ");
-	    else if ((!obj->known || !objects[obj->otyp].oc_charged ||
+	    else if (
+#ifdef ANDROID
+	    	!iflags.implicit_uncursed ||
+#endif
+	    	 ((!obj->known || !objects[obj->otyp].oc_charged ||
 		      (obj->oclass == ARMOR_CLASS ||
 		       obj->oclass == RING_CLASS))
 		/* For most items with charges or +/-, if you know how many
@@ -665,7 +669,7 @@ boolean with_price;
 #endif
 			&& obj->otyp != FAKE_AMULET_OF_YENDOR
 			&& obj->otyp != AMULET_OF_YENDOR
-			&& !Role_if(PM_PRIEST) && !Role_if(PM_NECROMANCER))
+			&& !Role_if(PM_PRIEST) && !Role_if(PM_NECROMANCER)))
 		Strcat(prefix, "uncursed ");
 	}
 
