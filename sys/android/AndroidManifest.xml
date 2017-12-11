@@ -5,8 +5,8 @@
 	android:versionCode="100"
 	android:versionName="0.0.7E7F3"
 	android:installLocation="auto">
-	<uses-sdk
-		android:minSdkVersion="7"/>
+	<uses-sdk android:minSdkVersion="7"
+	          android:targetSdkVersion="15"/>
 	<uses-permission
 		android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
