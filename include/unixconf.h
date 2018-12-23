@@ -40,7 +40,7 @@
 /* define any of the following that are appropriate */
 #define SVR4		/* use in addition to SYSV for System V Release 4 */
 			/* including Solaris 2+ */
-#define NETWORK		/* if running on a networked system */
+/* #define NETWORK */		/* if running on a networked system */
 			/* e.g. Suns sharing a playground through NFS */
 /* #define SUNOS4 */	/* SunOS 4.x */
 #if !defined(BSD) && !defined(__APPLE__)
@@ -236,7 +236,7 @@
  * A stat system call is done on the mailbox every MAILCKFREQ moves.
  */
 
-#define MAIL 			/* Deliver mail during the game */
+/* #define MAIL */			/* Deliver mail during the game */
 
 #ifdef PUBLIC_SERVER		/* No reason to have mail except on a server. */
 #define SIMPLE_MAIL		/* dgamelaunch simple mail */
@@ -309,7 +309,7 @@
  * Comment out the USE_FCNTL if for some reason you have a strange
  * os/filesystem combination for which fcntl(2) does not work. */
 #ifdef POSIX_TYPES
-# define USE_FCNTL
+/* # define USE_FCNTL */
 #endif
 
 /*

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="namespace">com.tbd.slex</string>
+	<string name="nativeDataDir">slexdir</string>
+	<string name="libraryName">slex</string>
+	<string name="defaultsFile">defaults.nh</string>
+	<string name="defaultCmdPanel">menu ... # 20s . : ; , e d r z Z q t f w x i E Q P R W T o ^d ^p a A ^t D F p ^x ^o ?</string>
+	<bool name="useCP437Decoder">true</bool>
+	<bool name="hearseAvailable">false</bool>
+	<bool name="oldStatusMode">true</bool>
+</resources>

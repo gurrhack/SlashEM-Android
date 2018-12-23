@@ -64,11 +64,14 @@ static struct Bool_Opt
 	{"asksavedisk", (boolean *)0, FALSE, SET_IN_GAME},
 #endif
 	{"autodig", &flags.autodig, FALSE, SET_IN_GAME},
-
-	{"autopickup", &flags.pickup, FALSE, SET_IN_GAME},
+#ifdef ANDROID
+	{"autokick", &flags.autokick, TRUE, SET_IN_GAME},
+	{"automenu", &iflags.automenu, TRUE, SET_IN_GAME},
+#endif
 #ifdef AUTO_OPEN
-	{"autoopen", &iflags.autoopen, TRUE, SET_IN_GAME},
-#endif /* AUTO_OPEN */
+    {"autoopen", &iflags.autoopen, TRUE, SET_IN_GAME},
+#endif
+	{"autopickup", &flags.pickup, FALSE, SET_IN_GAME},
 	{"autoquiver", &flags.autoquiver, FALSE, SET_IN_GAME},
 
 	{"bash_reminder", &flags.bash_reminder, TRUE, SET_IN_GAME},
@@ -90,7 +93,7 @@ static struct Bool_Opt
 	{"checkspace", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
 	{"cmdassist", &iflags.cmdassist, TRUE, SET_IN_GAME},
-# if defined(MICRO) || defined(WIN32) || defined(UNIX) || defined(CURSES_GRAPHICS)
+# if defined(MICRO) || defined(WIN32) || defined(UNIX) || defined(CURSES_GRAPHICS) || defined(ANDROID)
 	{"color",         &iflags.wc_color,TRUE, SET_IN_GAME},		/*WC*/
 # else	/* systems that support multiple terminals, many monochrome */
 	{"color",         &iflags.wc_color, FALSE, SET_IN_GAME},	/*WC*/
@@ -138,6 +141,7 @@ static struct Bool_Opt
 	{"help", &flags.help, TRUE, SET_IN_GAME},
 	{"hilite_pet",    &iflags.wc_hilite_pet, TRUE, SET_IN_GAME},	/*WC*/
 	{"hitpointbar", &flags.hitpointbar, TRUE, SET_IN_GAME},
+	{"hitpointbar", &flags.hitpointbar, TRUE, SET_IN_GAME},
 #ifdef ASCIIGRAPH
 	{"IBMgraphics", &iflags.IBMgraphics, FALSE, SET_IN_GAME},
 #else
@@ -147,6 +151,9 @@ static struct Bool_Opt
 	{"ignintr", &flags.ignintr, FALSE, SET_IN_GAME},
 #else
 	{"ignintr", (boolean *)0, FALSE, SET_IN_FILE},
+#endif
+#ifdef ANDROID
+    { "implicit_uncursed", &iflags.implicit_uncursed, FALSE, SET_IN_GAME },
 #endif
 #ifdef SHOW_WEIGHT
 	{"invweight", &flags.invweight, TRUE, SET_IN_GAME},
@@ -184,7 +191,7 @@ static struct Bool_Opt
 	{"statuscolors", (boolean *)0, TRUE, SET_IN_GAME},
 #endif
 #ifdef MENU_COLOR
-# ifdef MICRO
+# if defined(MICRO) || defined(ANDROID)
 	{"menucolors", &iflags.use_menu_color, TRUE,  SET_IN_GAME},
 # else
 	{"menucolors", &iflags.use_menu_color, FALSE, SET_IN_GAME},
@@ -192,8 +199,12 @@ static struct Bool_Opt
 #else
 	{"menucolors", (boolean *)0, FALSE, SET_IN_GAME},
 #endif
+#ifdef ANDROID
+	{"menu_on_self", &flags.menu_on_self, TRUE, SET_IN_GAME},
+#else
         /* Not supported in tty at the moment (hence SET_IN_FILE), but curses has it */
 	{"menu_on_esc", &flags.menu_on_esc, TRUE, SET_IN_GAME},
+#endif
 	{"menu_glyphs", &iflags.use_menu_glyphs, FALSE, SET_IN_GAME},  
 #ifdef WIZARD
 	/* for menu debugging only*/
@@ -287,6 +298,11 @@ static struct Bool_Opt
 	{"sound", &flags.soundok, TRUE, SET_IN_GAME},
 	{"sparkle", &flags.sparkle, TRUE, SET_IN_GAME},
 	{"standout", &flags.standout, FALSE, SET_IN_GAME},
+#if defined(STATUS_COLORS) && defined(TEXTCOLOR)
+	{"statuscolors", &iflags.use_status_colors, TRUE, SET_IN_GAME},
+#else
+	{"statuscolors", (boolean *)0, TRUE, SET_IN_GAME},
+#endif
 	{"splash_screen",     &iflags.wc_splash_screen, TRUE, DISP_IN_GAME},	/*WC*/
 
 	{"tabcursesconfirm", &flags.tabcursesconfirm, FALSE, SET_IN_GAME},
@@ -302,7 +318,7 @@ static struct Bool_Opt
 	{"tombstone",&flags.tombstone, TRUE, SET_IN_GAME},
 	{"toptenwin",&flags.toptenwin, FALSE, SET_IN_GAME},
 	{"travel", &iflags.travelcmd, TRUE, SET_IN_GAME},
-#ifdef WIN32CON
+#if defined(WIN32) || defined(ANDROID)
 	{"use_inverse",   &iflags.wc_inverse, TRUE, SET_IN_GAME},		/*WC*/
 #else
 	{"use_inverse",   &iflags.wc_inverse, FALSE, SET_IN_GAME},		/*WC*/

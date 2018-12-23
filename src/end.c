@@ -61,7 +61,7 @@ STATIC_DCL void list_genocided(CHAR_P,BOOLEAN_P);
 #endif /* DUMP_LOG */
 STATIC_DCL boolean should_query_disclose_option(int,char *);
 
-#if defined(__BEOS__) || defined(MICRO) || defined(WIN32) || defined(OS2)
+#if defined(__BEOS__) || defined(MICRO) || defined(WIN32) || defined(OS2) || defined(ANDROID)
 extern void nethack_exit(int);
 #else
 #define nethack_exit exit
@@ -843,6 +843,12 @@ int how;
 	    }
 #endif
 	}
+
+#ifdef ANDROID
+	if(how != TRICKED && how != QUIT && how != PANICKED && how != ESCAPED) {
+		and_you_die();
+	}
+#endif
 
 	/* kilbuf: used to copy killer in case it comes from something like
 	 *	xname(), which would otherwise get overwritten when we call

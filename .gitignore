@@ -143,3 +143,10 @@ util/lev_comp.exe
 util/lev_flex.c
 util/makedefs.exe
 util/uudecode.exe
+
+# android-specific stuff
+/sys/android/bin
+/sys/android/libs
+/sys/android/assets/slexdir
+/sys/android/gen
+

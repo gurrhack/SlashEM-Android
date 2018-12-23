@@ -28,6 +28,10 @@ struct flag {
 	boolean  autodig;       /* MRKR: Automatically dig */
 	boolean  autoquiver;	/* Automatically fill quiver */
 
+#ifdef ANDROID
+	boolean  autokick;	/* Automatically kick doors and force locks */
+#endif
+
 	boolean  bash_reminder;	/* remind player about bashing with a launcher or non-weapon */
 	boolean  etimed_autosave;	/* automatically save state every 100 turns to ward off phantom crash bugs --Amy */
 	boolean  xtimed_autosave;	/* automatically save state every 100 turns to ward off phantom crash bugs --Amy */
@@ -77,7 +81,11 @@ struct flag {
 	boolean  lit_corridor;	/* show a dark corr as lit if it is in sight */
 	boolean  made_amulet;
 	boolean  materialglyph;	/* always show glyph for item materials in inventory */
+#ifdef ANDROID
+	boolean  menu_on_self;	/* show menu when clicking self */
+#else
 	boolean  menu_on_esc;	/* show menu when hitting esc */
+#endif
 	boolean  missing_safety;	/* don't show the player's polymorphed species as a missingno */
 	boolean  pokedex;		/* show pokedex (not on public servers) */
 	boolean  tech_description;	/* show descriptions when choosing techniques */
@@ -266,6 +274,9 @@ struct instance_flags {
 	unsigned msg_history;	/* hint: # of top lines to save */
 	boolean  num_pad;	/* use numbers for movement commands */
 	boolean  news;		/* print news */
+#ifdef ANDROID
+    boolean implicit_uncursed; /* maybe omit "uncursed" status in inventory */
+#endif
 	boolean  window_inited; /* true if init_nhwindows() completed */
 	boolean  vision_inited; /* true if vision is ready */
 	boolean  menu_tab_sep;	/* Use tabs to separate option menu fields */
@@ -411,6 +422,9 @@ struct instance_flags {
 #ifdef WIN32CON
 #define MAX_ALTKEYHANDLER 25
 	char	 altkeyhandler[MAX_ALTKEYHANDLER];
+#endif
+#ifdef ANDROID
+	boolean  automenu; /* Automatically show menues */
 #endif
 #ifdef REALTIME_ON_BOTL
   boolean  showrealtime; /* show actual elapsed time */

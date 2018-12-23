@@ -543,6 +543,9 @@ E void wantdoor(int,int,void *);
 
 E boolean ghitm(struct monst *,struct obj *);
 E void container_impact_dmg(struct obj *);
+#ifdef ANDROID
+E int autokick(void);
+#endif
 E int dokick(void);
 E boolean ship_object(struct obj *,XCHAR_P,XCHAR_P,BOOLEAN_P);
 E void obj_delivery(void);
@@ -1341,6 +1344,10 @@ E boolean picking_lock(int *,int *);
 E boolean picking_at(int,int);
 E void reset_pick(void);
 E int pick_lock(struct obj **);
+#ifdef ANDROID
+E boolean can_force(void);
+E int doforce_specific(boolean,struct obj *);
+#endif
 E int doforce(void);
 E boolean boxlock(struct obj *,struct obj *);
 E boolean doorlock(struct obj *,int,int);
@@ -1348,6 +1355,10 @@ E boolean doorlockX(int,int,BOOLEAN_P);
 E int doopen(void);
 E int doclose(void);
 E int artifact_door(int,int);
+
+#ifdef ANDROID
+E void lock_mouse_cursor(boolean);
+#endif
 
 #ifdef MAC
 /* These declarations are here because the main code calls them. */

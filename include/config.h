@@ -43,8 +43,8 @@
  * Define all of those you want supported in your binary.
  * Some combinations make no sense.  See the installation document.
  */
-#define TTY_GRAPHICS		/* good old tty based graphics */
-#define CURSES_GRAPHICS	/* awful curses interface */
+/* #define TTY_GRAPHICS */		/* good old tty based graphics */
+/* #define CURSES_GRAPHICS */	/* awful curses interface */
 /* #define X11_GRAPHICS */	/* X11 interface */
 /* #define QT_GRAPHICS */	/* Qt Interface */
 /* #define KDE */		/* KDE Interface */
@@ -54,6 +54,7 @@
 /* #define MSWIN_GRAPHICS */	/* Windows NT, CE, Graphics */
 /* #define GL_GRAPHICS */	/* OpenGL graphics */
 /* #define SDL_GRAPHICS */	/* Software SDL graphics */
+#define ANDROID_GRAPHICS
 
 /*
  * Define the default window system.  This should be one that is compiled
@@ -192,6 +193,20 @@
 # endif
 #endif
 
+#ifdef ANDROID
+#define ANDROID_GRAPHICS
+#ifdef TTY_GRAPHICS
+#undef TTY_GRAPHICS
+#endif
+#ifdef CURSES_GRAPHICS
+#undef CURSES_GRAPHICS
+#endif
+#ifdef DEFAULT_WINDOW_SYS
+#undef DEFAULT_WINDOW_SYS
+#endif
+#define DEFAULT_WINDOW_SYS "and"
+#endif
+
 #ifndef DEFAULT_WINDOW_SYS
 # define DEFAULT_WINDOW_SYS "tty"
 #endif
@@ -241,7 +256,7 @@
  */
 
 #if 0 /* why bother? it's 2015 */
-#ifdef UNIX
+#ifdef UNIX && !defined(ANDROID)
 /* path and file name extension for compression program */
 /* # define COMPRESS "/usr/bin/compress" */ /* Lempel-Ziv compression */
 /* # define COMPRESS_EXTENSION ".Z" */	     /* compress's extension */
@@ -446,7 +461,7 @@ typedef unsigned char	uchar;
 #if !defined(MAC)
 # define CLIPPING	/* allow smaller screens -- ERS */
 #endif
-#if defined(TTY_GRAPHICS) || defined(CURSES_GRAPHICS)
+#if defined(TTY_GRAPHICS) || defined(CURSES_GRAPHICS) || defined(ANDROID_GRAPHICS)
 # define MENU_COLOR
 #endif
 
@@ -492,6 +507,8 @@ typedef unsigned char	uchar;
                         /* and in inventory (madmax@fly.cc.fer.hr). */
                         /* Originally added by zaga. */
 #define DUNGEON_GROWTH
+
+#define STATUS_COLORS
 
 /* #define SHOUT */ /* JRN -- shouting and petcommands - not implemented */
 

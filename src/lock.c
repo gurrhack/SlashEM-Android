@@ -321,6 +321,17 @@ int
 pick_lock(pickp) /* pick a lock with a given object */
 	struct	obj	**pickp;
 {
+#ifdef ANDROID
+    return pick_lock_specific(pickp, 0, 0, 0);
+}
+
+int
+pick_lock_specific(pickp, cont, x, y)		/* pick a lock, on specific container if given, in direction u.dx/u.dy with a given object */
+	struct	obj	**pickp;
+	struct obj	*cont;
+	int x, y;
+{
+#endif /* ANDROID */
 	int picktyp, c, ch;
 	coord cc;
 	int key;
@@ -371,6 +382,13 @@ pick_lock(pickp) /* pick a lock with a given object */
 	}
 	ch = 0;		/* lint suppression */
 
+#ifdef ANDROID
+	if (x > 0 && y > 0) {
+		cc.x = x;
+		cc.y = y;
+	}
+	else
+#endif
 	if(!get_adjacent_loc((char *)0, "Invalid location!", u.ux, u.uy, &cc)) return 0;
 	if (cc.x == u.ux && cc.y == u.uy) {	/* pick lock on a container */
 	    const char *verb;
@@ -392,7 +410,11 @@ pick_lock(pickp) /* pick a lock with a given object */
 
 	    count = 0;
 	    c = 'n';			/* in case there are no boxes here */
-	    for(otmp = level.objects[cc.x][cc.y]; otmp; otmp = otmp->nexthere)
+	    for(otmp = level.objects[cc.x][cc.y]; otmp; otmp = otmp->nexthere) {
+#ifdef ANDROID
+		if(cont && cont != otmp)
+			continue;
+#endif
 		if (Is_box(otmp)) {
 		    ++count;
 		    if (!can_reach_floor()) {
@@ -479,6 +501,7 @@ pick_lock(pickp) /* pick a lock with a given object */
 		    xlock.box = otmp;
 		    xlock.door = 0;
 		    break;
+		}
 		}
 	    if (c != 'y') {
 		if (!count)
@@ -618,10 +641,63 @@ pick_lock(pickp) /* pick a lock with a given object */
 	return(1);
 }
 
+#ifdef ANDROID
+boolean
+can_force()
+{
+    if (!uwep || u.utrap && u.utraptype == TT_WEB) {
+        return FALSE;
+	}
+
+#ifdef LIGHTSABERS
+	if (is_lightsaber(uwep) && !uwep->lamplit) {
+        return FALSE;
+    }
+#endif
+
+ 	if(!can_reach_floor()) {
+        return FALSE;
+	}
+
+	if(uwep->otyp == LOCK_PICK ||
+#ifdef TOURIST
+		uwep->otyp == CREDIT_CARD ||
+#endif
+		uwep->otyp == SKELETON_KEY) {
+		return TRUE;
+	}
+
+	if((uwep->oclass != WEAPON_CLASS && !is_weptool(uwep) &&
+	    uwep->oclass != ROCK_CLASS) ||
+	   (objects[uwep->otyp].oc_skill < P_DAGGER) ||
+	   (objects[uwep->otyp].oc_skill > P_LANCE) ||
+	   uwep->otyp == FLAIL || uwep->otyp == AKLYS
+#ifdef KOPS
+	   || uwep->otyp == RUBBER_HOSE
+#endif
+	  ) {
+        return FALSE;
+	}
+
+    return TRUE;
+}
+
+int
+doforce()
+{
+	return doforce_specific(FALSE, 0);
+}
+
+int
+doforce_specific(has_dir, cont)		/* try to force a chest, or specific container if given, with your weapon */
+boolean has_dir;
+struct obj *cont;
+{
+#else
 int
 doforce()		/* try to force a chest with your weapon */
 {
-
+#endif
 	if (MenuIsBugged) {
 	pline("The force command is currently unavailable!");
 	if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
@@ -655,6 +731,9 @@ doforce()		/* try to force a chest with your weapon */
 	    uwep->otyp == DATA_CHIP ||
 	    uwep->otyp == SECRET_KEY ||
 	    uwep->otyp == SKELETON_KEY) {
+#ifdef ANDROID
+		if(has_dir) return pick_lock_specific(&uwep, cont, u.ux + u.dx, u.uy + u.dy);
+#endif
 	    	return pick_lock(&uwep);
 	/* not a lightsaber or lockpicking device*/
 	} else if(!uwep ||     /* proper type test */
@@ -694,7 +773,13 @@ doforce()		/* try to force a chest with your weapon */
 	/* A lock is made only for the honest man, the thief will break it. */
 	xlock.box = (struct obj *)0;
 
-	if(!getdir((char *)0)) return(0);
+	if (
+#ifdef ANDROID
+		!has_dir &&
+#endif
+		!getdir((char *)0)
+	)
+		return(0);
 
 	x = u.ux + u.dx;
 	y = u.uy + u.dy;
@@ -712,7 +797,11 @@ doforce()		/* try to force a chest with your weapon */
 		return 0;
 	    }
 
-	    for(otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere)
+	    for(otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere) {
+#ifdef ANDROID
+		if(cont && cont != otmp)
+			continue;
+#endif
 		if(Is_box(otmp)) {
 		    if (!can_reach_floor()) {
 			You_cant("reach %s from up here.", the(xname(otmp)));
@@ -724,11 +813,24 @@ doforce()		/* try to force a chest with your weapon */
 			  doname(otmp), otmp->obroken ? "broken" : "unlocked");
 		    continue;
 		}
+#ifdef ANDROID
+		if(cont)
+		sprintf(qbuf,"%s is locked, force its lock?",
+			safe_qbuf("", sizeof(" is locked, force its lock?"),
+				The(xname(otmp)), The(simple_typename(otmp->otyp)),
+				"The box"));
+		else
+#endif
 		sprintf(qbuf,"There is %s here, force its lock?",
 			safe_qbuf("", sizeof("There is  here, force its lock?"),
 				doname(otmp), an(simple_typename(otmp->otyp)),
 				"a box"));
 
+#ifdef ANDROID
+		if(cont)
+			c = yn(qbuf);
+		else
+#endif
 		c = ynq(qbuf);
 		if(c == 'q') return(0);
 		if(c == 'n') continue;
@@ -748,6 +850,7 @@ doforce()		/* try to force a chest with your weapon */
 		xlock.picktyp = picktyp;
 		xlock.usedtime = 0;
 		break;
+	    }
 	    }
 	    if(xlock.box)   {
 	    	xlock.door = 0;
@@ -1065,15 +1168,29 @@ doopen_indir(x, y)		/* try to open a door in direction u.dx/u.dy */
 
 	if (!(door->doormask & D_CLOSED)) {
 	    const char *mesg;
+#ifdef ANDROID
+	    int locked=FALSE;
+#endif
 
 	    switch (door->doormask) {
 	    case D_BROKEN: mesg = " is broken"; break;
 	    case D_NODOOR: mesg = "way has no door"; break;
 	    case D_ISOPEN: mesg = " is already open"; break;
-	    default:	   mesg = " is locked"; break;
+	    default:	   mesg = " is locked";
+#ifdef ANDROID
+		    locked=TRUE;
+#endif
+			break;
 	    }
 	    pline("This door%s.", mesg);
 	    if (Blind) feel_location(cc.x,cc.y);
+#ifdef ANDROID
+	    if (locked && flags.autokick) {
+			if (can_force())
+				return doforce_specific(TRUE, 0);
+			return autokick();
+	    }
+#endif
 	    return(0);
 	}
 

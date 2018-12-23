@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string
+		name="credits">
+<![CDATA[
+
+<h1>Slash\'EM Extended Android Port</h1>
+<a href="https://github.com/gurrhack/SlashEM-Android">Project Home</a><br/>
+<p>Based on Slash\'EM Extended 2.3.7<br/>
+<a href="https://github.com/SLASHEM-Extended">https://github.com/SLASHEM-Extended</a></p>
+
+<p><br/></p>
+]]>
+	</string>
+</resources>

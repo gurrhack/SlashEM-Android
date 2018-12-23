@@ -5817,9 +5817,10 @@ char *prefix;
 		       is_flammable(obj) ? "fireproof " : "stainless "); /* Amy edit: let's use that :-) */
 }
 
-char *
-doname(obj)
+static char *
+doname_base(obj, with_price)
 register struct obj *obj;
+boolean with_price;
 {
 	boolean ispoisoned = FALSE;
 	char prefix[PREFIX];
@@ -6154,7 +6155,8 @@ ring:
 			strcat(bp, " (alternate weapon; not wielded)");
 	}
 	if(obj->owornmask & W_QUIVER) strcat(bp, " (in quiver)");
-	if (!Hallucination && obj->unpaid) {
+	if (!Hallucination) {
+	 if(obj->unpaid) {
 		xchar ox, oy; 
 		long quotedprice = unpaid_cost(obj);
 		struct monst *shkp = (struct monst *)0;
@@ -6166,6 +6168,14 @@ ring:
 			quotedprice += contained_cost(obj, shkp, 0L, FALSE, TRUE);
 		sprintf(eos(bp), " (unpaid, %ld %s)",
 			quotedprice, currency(quotedprice));
+	} else if(with_price) {
+		/* price needs to be recalculated in case identification
+		 * changes the price e.g. with worthless glass */
+		long price = get_cost_of_shop_item(obj);
+		if (price > 0) {
+			sprintf(eos(bp), " (%ld %s)", price, currency(price));
+		}
+	}
 	}
 #ifdef WIZARD
 	if (wizard && obj->in_use)	/* Can't use "(in use)", see leashes */
@@ -6194,6 +6204,21 @@ ring:
 
 	bp = strprepend(bp, prefix);
 	return(bp);
+}
+
+char *
+doname(obj)
+register struct obj *obj;
+{
+    return doname_base(obj, FALSE);
+}
+
+/* Name of object including price. */
+char *
+doname_with_price(obj)
+register struct obj *obj;
+{
+    return doname_base(obj, TRUE);
 }
 
 #endif /* OVL0 */

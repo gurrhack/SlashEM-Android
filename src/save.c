@@ -193,8 +193,10 @@ dosave0()
 		return 0;
 	fq_save = fqname(SAVEF, SAVEPREFIX, 1);	/* level files take 0 */
 
+#ifndef ANDROID
 #if defined(UNIX) || defined(VMS)
 	(void) signal(SIGHUP, SIG_IGN);
+#endif
 #endif
 #ifndef NO_SIGNAL
 	(void) signal(SIGINT, SIG_IGN);
@@ -204,6 +206,7 @@ dosave0()
 	if (!saveDiskPrompt(0)) return 0;
 #endif
 
+#ifndef ANDROID
 	HUP if (iflags.window_inited) {
 	    uncompress_area(fq_save, SAVEF);
 	    fd = open_savefile();
@@ -221,6 +224,7 @@ dosave0()
 		}
 	    }
 	}
+#endif
 
 	HUP mark_synch();	/* flush any buffered screen output */
 

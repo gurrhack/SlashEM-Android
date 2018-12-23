@@ -249,7 +249,6 @@ extern int dozap(void); /**/
 extern int doorganize(void); /**/
 extern int domarkforpet(void); /**/
 extern int doremoveimarkers(void); /**/
-
 #ifdef LIVELOG_SHOUT
 extern int doshout(void); /**/
 #endif
@@ -257,6 +256,10 @@ extern int doshout(void); /**/
 extern int dolistvanq(void); /**/
 
 #endif /* DUMB */
+
+#ifdef ANDROID
+extern void quit_possible(void);
+#endif
 
 #ifdef OVL1
 static int (*timed_occ_fn)(void);
@@ -11109,8 +11112,10 @@ commands_init(void)
 #endif
 	while(extcmdlist[count].ef_txt) count++;
 
+#ifndef ANDROID
 	qsort(extcmdlist, count, sizeof(struct ext_func_tab),
 	      &compare_commands);
+#endif
 
 	init_bind_list();	/* initialize all keyboard commands */
 	change_bind_list();	/* change keyboard commands based on options */
@@ -11439,10 +11444,16 @@ register char *cmd;
 
 	if (*cmd == DOESCAPE) { /* <esc> key - user might be panicking */
 		/* Bring up the menu */
+#ifndef ANDROID
 		if (multi || !flags.menu_on_esc || !(domenusystem())) {
+#else
+		quit_possible();
+#endif
 		flags.move = FALSE;
 		    multi = 0;
+#ifndef ANDROID
 		}
+#endif
 		return;
 #if 0
 		flags.move = FALSE;
@@ -11967,6 +11978,9 @@ click_to_cmd(x, y, mod)
     int x, y, mod;
 {
     int dir;
+#ifdef ANDROID
+	char c;
+#endif
     static char cmd[4];
     cmd[1]=0;
 
@@ -12035,6 +12049,11 @@ click_to_cmd(x, y, mod)
 	    cmd[0] = Is_container(level.objects[u.ux][u.uy]) ? M('l') : ',';
 	    return cmd;
 	} else {
+#ifdef ANDROID
+		if(flags.menu_on_self) {
+			return "`";
+		}
+#endif
 	    return "."; /* just rest */
 	}
     }

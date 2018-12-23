@@ -13,7 +13,7 @@
 # START
 
 /* Config Filename */
-#ifdef UNIX                
+#if defined(UNIX) && !defined(ANDROID)
 # define NH_CONFIG_FILE     ".@LOWER@rc"
 #else
 # if defined(MAC) || defined(__BEOS__)
@@ -25,7 +25,7 @@
 #   define NH_CONFIG_FILE2    "sys$login:@LOWER@.ini"
 #   define NH_CONFIG_FILE3    "@UPPER@.cnf"
 #  else                     
-#   if defined(MSDOS) || defined(WIN32)
+#   if defined(MSDOS) || defined(WIN32) || defined(ANDROID)
 #    define NH_CONFIG_FILE     "defaults.nh";
 #   else                     
 #    define NH_CONFIG_FILE     "@UPPER@.cnf"

@@ -60,12 +60,12 @@ const char *goal;
     }
     cx = cc->x;
     cy = cc->y;
-#ifdef CLIPPING
+#if defined(CLIPPING) && !defined(ANDROID)
     cliparound(cx, cy);
 #endif
     curs(WIN_MAP, cx,cy);
     flush_screen(0);
-#ifdef MAC
+#if defined(MAC) || defined(ANDROID)
     lock_mouse_cursor(TRUE);
 #endif
     for (;;) {
@@ -182,7 +182,7 @@ const char *goal;
 	curs(WIN_MAP,cx,cy);
 	flush_screen(0);
     }
-#ifdef MAC
+#if defined(MAC) || defined(ANDROID)
     lock_mouse_cursor(FALSE);
 #endif
     if (msg_given) clear_nhwindow(WIN_MESSAGE);

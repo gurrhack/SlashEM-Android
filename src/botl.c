@@ -63,6 +63,11 @@ extern const struct percent_color_option *hp_colors;
 extern const struct percent_color_option *pw_colors;
 extern const struct text_color_option *text_colors;
 
+#ifdef ANDROID
+void and_set_health_color(struct color_option);
+void and_bot_updated(void);
+#endif
+
 struct color_option
 text_color_of(text, color_options)
 const char *text;
@@ -725,6 +730,7 @@ bot2str(char *newbot2)
 	register char *nb;
 	int hp, hpmax;
 	int cap = near_capacity();
+	struct color_option colop;
 #if defined(STATUS_COLORS) && defined(TEXTCOLOR)
 	struct color_option color_option;
 	int save_botlx = flags.botlx;
@@ -778,7 +784,11 @@ bot2str(char *newbot2)
 	flags.botlx = 0;
 
 	sprintf(nb = eos(nb), "%d(%d)", hp, hpmax);
-	apply_color_option(percentage_color_of(hp, hpmax, hp_colors), newbot2, 2);
+	colop = percentage_color_of(hp, hpmax, hp_colors);
+#ifdef ANDROID
+	and_set_health_color(colop);
+#endif
+	apply_color_option(colop, newbot2, 2);
 #else
 	sprintf(nb = eos(nb), "HP%d(%d)", hp, hpmax);
 #endif
@@ -1081,10 +1091,16 @@ bot2()
 {
 	char  newbot2[MAXCO];
 
+#if defined(STATUS_COLORS) && defined(TEXTCOLOR)
+	int save_botlx = flags.botlx;
+#endif
 	bot2str(newbot2);
 	curs(WIN_STATUS, 1, 1);
 
 	putstr(WIN_STATUS, 0, newbot2);
+#if defined(STATUS_COLORS) && defined(TEXTCOLOR)
+	flags.botlx = save_botlx;
+#endif
 	return;
 }
 
@@ -1262,6 +1278,9 @@ bot()
 	if (!DisplayDoesNotGo) bot2();
 	}
 	flags.botl = flags.botlx = 0;
+#ifdef ANDROID
+	and_bot_updated();
+#endif
 }
 
 void

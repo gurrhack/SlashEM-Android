@@ -815,7 +815,7 @@ boolean (*allow)(OBJ_P);/* allow function */
 		    add_menu(win, obj_to_glyph(curr), &any,
 			    qflags & USE_INVLET ? curr->invlet : 0,
 			    def_oc_syms[(int)objects[curr->otyp].oc_class],
-			    ATR_NONE, doname(curr), MENU_UNSELECTED);
+			    ATR_NONE, doname_with_price(curr), MENU_UNSELECTED);
 		}
 	    }
 	    pack++;
@@ -1697,6 +1697,13 @@ lootcont:
 		any = TRUE;
 
 		if (cobj->olocked) {
+#ifdef ANDROID
+			if (flags.autokick && can_force()) {
+				u.dx = u.dy = u.dz = 0;
+				if(doforce_specific(TRUE, cobj))
+					return 1;
+			} else
+#endif
 		    pline("Hmmm, it seems to be locked.");
 		    continue;
 		}

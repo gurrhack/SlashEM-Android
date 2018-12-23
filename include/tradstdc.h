@@ -191,7 +191,9 @@
  * append this to a prototype declaration (see pline() in extern.h).
  */
 #ifdef __GNUC__
-# if __GNUC__ >= 2
+#ifdef ANDROID
+#define PRINTF_F(f,v) __attribute__ ((format (__printf__, f, v)))
+#elif __GNUC__ >= 2
 #define PRINTF_F(f,v) __attribute__ ((format (printf, f, v)))
 # endif
 #endif

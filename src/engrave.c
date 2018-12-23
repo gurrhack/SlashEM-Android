@@ -1294,10 +1294,14 @@ boolean read_it; /* Read any sensed engraving */
 				Something);
 		sensed = 1;
 	    }
+#ifdef ANDROID
+	    if (sensed) {
+#else
 	    if (sensed && !read_it &&
 			    flags.suppress_alert < FEATURE_NOTICE_VER(0,0,7)) {
 		pline("Use \"r.\" to read it.");
 	    } else if (sensed && read_it) {
+#endif
 	    	char *et;
 	    	unsigned len, maxelen = BUFSZ - sizeof("You feel the words: \"\". ");
 	    	len = strlen(ep->engr_txt);
