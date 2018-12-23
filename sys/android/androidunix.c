@@ -24,6 +24,25 @@ char *s;
 		*lp = '_';
 }
 
+#include <dirent.h>
+static boolean dir_has_file(const char* fname, struct dirent** files, int n) {
+	int l = 0, r = n;
+	int c = n >> 1;
+	while(l < r) {
+		int cmp = strcmp(fname, files[c]->d_name);
+		if(cmp < 0) {
+			r = c;
+			c = l + ((r - l) >> 1);
+		} else if(cmp > 0) {
+			l = c + 1;
+			c = l + ((r - l) >> 1);
+		} else {
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 static int
 eraseoldlocks()
 {
@@ -33,11 +52,24 @@ eraseoldlocks()
 	 * before starting everything (including the dungeon initialization
 	 * that sets astral_level, needed for maxledgerno()) up
 	 */
+	// Extract file list first instead of calling unlink for every possible file because it takes way too long
+	// on some devices (> 1 minute).
+	struct dirent **files;
+	int n = scandir(".", &files, NULL, alphasort);
+	const char* lock_fname;
 	for(i = 1; i <= MAXDUNGEON*MAXLEVEL + 1; i++) {
 		/* try to remove all */
 		set_levelfile_name(lock, i);
-		(void) unlink(fqname(lock, LEVELPREFIX, 0));
+		lock_fname = fqname(lock, LEVELPREFIX, 0);
+		if(dir_has_file(lock_fname, files, n)) {
+			(void) unlink(lock_fname);
+		}
 	}
+	// Free file listing
+	while(n--)
+		free(files[n]);
+	free(files);
+	// Do last lock
 	set_levelfile_name(lock, 0);
 	if (unlink(fqname(lock, LEVELPREFIX, 0)))
 		return(0);				/* cannot remove it */
