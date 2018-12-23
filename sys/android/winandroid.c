@@ -1534,7 +1534,8 @@ int do_ext_cmd_menu()
 
 	wid = and_create_nhwindow(NHW_MENU);
 	and_start_menu(wid);
-	for(i = 0; (ptr = extcmdlist[i].ef_txt); i++)
+	// TODO fix too many items in menu causes crash
+	for(i = 0; i<100&& (ptr = extcmdlist[i].ef_txt); i++)
 	{
 		any.a_int = i+1;
 		and_add_menu(wid, NO_GLYPH, &any, accelerator, 0, ATR_NONE, ptr, FALSE);
