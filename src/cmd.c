@@ -11578,6 +11578,14 @@ walkwalkwalk:
 	} else if (*cmd == ' ' && !flags.rest_on_space) {
 	    bad_command = TRUE;		/* skip cmdlist[] loop */
 	/* handle bound commands */
+#ifdef ANDROID
+	} else if (*cmd == '`' && flags.menu_on_self) {
+		if(!domenusystem()) {
+			flags.move = FALSE;
+			multi = 0;
+		}
+		return;
+#endif
 	} else {
 	    const struct key_tab *keytab = &cmdlist[(unsigned char)*cmd];
 	    if (keytab->bind_cmd != NULL) {
