@@ -97,6 +97,7 @@ BRANCH:	"Space Base" @ (2, 48)
 RNDLEVEL:		"nymph" "N" @ (23, 27) 5
 RNDLEVEL:	"bigrm" "B" @ (20, 30) 60
 RNDLEVEL:	"exmall" "Y" @ (25, 25) 9
+LEVELDESC:	town
 LEVEL:		"cowlc" "A" @ (25, 25)
 LEVEL:		"cowld" "A" @ (25, 25)
 LEVALIGN:		chaotic
@@ -186,6 +187,11 @@ BRANCH:         "Frankenstein's Lab" @ (3, 42) up
 BRANCH:	"Angmar" @ (3, 42)
 BRANCH:	"Swimming Pool" @ (3, 42)
 BRANCH:	"Hell's Bathroom" @ (3, 42)
+BRANCH:	"Resting Zone GA" @ (2, 47) up
+BRANCH:	"Resting Zone GB" @ (2, 47) up
+BRANCH:	"Resting Zone GC" @ (2, 47) up
+BRANCH:	"Resting Zone GD" @ (2, 47) up
+BRANCH:	"Resting Zone GE" @ (2, 47) up
 # Half-way down
 LEVEL:          "wizard1" "none" @ (25, 0)
 CHAINLEVEL:     "wizard2" "X" "wizard1" + (1, 0)
@@ -207,6 +213,7 @@ RNDLEVEL:          "slexd" "M" @ (2, 47) 12
 RNDLEVEL:          "slexd" "M" @ (2, 47) 12
 
 RNDLEVEL:	"hllma" "H" @ (2, 47) 10
+LEVELDESC:	town
 BRANCH:         "Sheol" @ (3, 46) down
 
 RNDLEVEL:          "heck" "Q" @ (2, 47) 96
@@ -299,12 +306,12 @@ RNDLEVEL:		"soko4" "D" @ (4, 0) 28
 #
 DUNGEON:	"Town" "A" (5, 0)
 LEVALIGN:       lawful
+LEVELDESC:      town
 RNDLEVEL:       "town" "T" @ (1, 0) 4
 RNDLEVEL:          "unhck" "X" @ (2, 0) 96
 RNDLEVEL:	"bigrm" "B" @ (3, 0) 60
 RNDLEVEL:	"intpla" "J" @ (4, 0) 5
 LEVEL:		"schoolX" "C" @ (5, 0) 5
-LEVELDESC:      town
 
 ### Grund's Stronghold ###
 DUNGEON:        "Grund's Stronghold" "Z" (1, 0)
@@ -396,10 +403,12 @@ DESCRIPTION:    hellish
 DUNGEON:        "Angmar" "F" (15, 0)
 ALIGNMENT:      chaotic
 DESCRIPTION:    hellish
+BRANCH:	"Resting Zone A" @ (2, 13) up
 
 DUNGEON:        "Swimming Pool" "F" (15, 0)
 ALIGNMENT:      lawful
 DESCRIPTION:    hellish
+BRANCH:	"Resting Zone S" @ (2, 13) up
 
 DUNGEON:        "Hell's Bathroom" "F" (3, 0)
 ALIGNMENT:      chaotic
@@ -451,9 +460,19 @@ ALIGNMENT:      chaotic
 # Yendorian Tower: bonus dungeon after getting the Amulet --Amy
 DUNGEON:        "Yendorian Tower" "Y" (100, 0)
 DESCRIPTION:    hellish
-BRANCH:         "Forging Chamber" @ (1, 99)
-BRANCH:         "Dead Grounds" @ (1, 99)
-BRANCH:         "Ordered Chaos" @ (1, 99)
+BRANCH:         "Forging Chamber" @ (2, 98)
+BRANCH:         "Dead Grounds" @ (2, 98)
+BRANCH:         "Ordered Chaos" @ (2, 98)
+BRANCH:	"Resting Zone TA" @ (2, 98) up
+BRANCH:	"Resting Zone TB" @ (2, 98) up
+BRANCH:	"Resting Zone TC" @ (2, 98) up
+BRANCH:	"Resting Zone TD" @ (2, 98) up
+BRANCH:	"Resting Zone TE" @ (2, 98) up
+BRANCH:	"Resting Zone TF" @ (2, 98) up
+BRANCH:	"Resting Zone TG" @ (2, 98) up
+BRANCH:	"Resting Zone TH" @ (2, 98) up
+BRANCH:	"Resting Zone TI" @ (2, 98) up
+BRANCH:	"Resting Zone TJ" @ (2, 98) up
 
 LEVEL:		"elderp" "P" @ (1, 0)
 
@@ -463,6 +482,7 @@ RNDLEVEL:	"bigrm" "B" @ (1, 99) 60
 RNDLEVEL:	"bigrm" "B" @ (1, 99) 60
 RNDLEVEL:	"bigrm" "B" @ (1, 99) 60
 RNDLEVEL:	"exmall" "Y" @ (1, 99) 9
+LEVELDESC:	town
 LEVEL:		"rndmaze" "Z" @ (1, 99)
 LEVEL:		"rndmazea" "T" @ (1, 99)
 RNDLEVEL:	"intpla" "J" @ (1, 99) 5
@@ -511,6 +531,24 @@ DESCRIPTION:    hellish
 
 DUNGEON:        "Ordered Chaos" "R" (1, 0)
 DESCRIPTION:    hellish
+
+DUNGEON:        "Resting Zone GA" "R" (1, 0)
+DUNGEON:        "Resting Zone GB" "R" (1, 0)
+DUNGEON:        "Resting Zone GC" "R" (1, 0)
+DUNGEON:        "Resting Zone GD" "R" (1, 0)
+DUNGEON:        "Resting Zone GE" "R" (1, 0)
+DUNGEON:        "Resting Zone TA" "R" (1, 0)
+DUNGEON:        "Resting Zone TB" "R" (1, 0)
+DUNGEON:        "Resting Zone TC" "R" (1, 0)
+DUNGEON:        "Resting Zone TD" "R" (1, 0)
+DUNGEON:        "Resting Zone TE" "R" (1, 0)
+DUNGEON:        "Resting Zone TF" "R" (1, 0)
+DUNGEON:        "Resting Zone TG" "R" (1, 0)
+DUNGEON:        "Resting Zone TH" "R" (1, 0)
+DUNGEON:        "Resting Zone TI" "R" (1, 0)
+DUNGEON:        "Resting Zone TJ" "R" (1, 0)
+DUNGEON:        "Resting Zone A" "R" (1, 0)
+DUNGEON:        "Resting Zone S" "R" (1, 0)
 
 ### The Endgame levels ###
 #

@@ -6,7 +6,6 @@
 
 #include "hack.h"
 #include "extern.h"
-#include "date.h"
 #include "func_tab.h"
 /* #define DEBUG */	/* uncomment for debugging */
 
@@ -19,53 +18,6 @@
 #endif
 
 #define CMD_TRAVEL (char)0x90
-
-/* categories whose names don't come from OBJ_NAME(objects[type]) */
-#define PN_POLEARMS		(-1)
-#define PN_SABER		(-2)
-#define PN_HAMMER		(-3)
-#define PN_WHIP			(-4)
-#define PN_PADDLE		(-5)
-#define PN_FIREARMS		(-6)
-#define PN_ATTACK_SPELL		(-7)
-#define PN_HEALING_SPELL	(-8)
-#define PN_DIVINATION_SPELL	(-9)
-#define PN_ENCHANTMENT_SPELL	(-10)
-#define PN_PROTECTION_SPELL	(-11)
-#define PN_BODY_SPELL		(-12)
-#define PN_OCCULT_SPELL		(-13)
-#define PN_ELEMENTAL_SPELL		(-14)
-#define PN_CHAOS_SPELL		(-15)
-#define PN_MATTER_SPELL		(-16)
-#define PN_BARE_HANDED		(-17)
-#define PN_HIGH_HEELS		(-18)
-#define PN_GENERAL_COMBAT		(-19)
-#define PN_SHIELD		(-20)
-#define PN_BODY_ARMOR		(-21)
-#define PN_TWO_HANDED_WEAPON		(-22)
-#define PN_POLYMORPHING		(-23)
-#define PN_DEVICES		(-24)
-#define PN_SEARCHING		(-25)
-#define PN_SPIRITUALITY		(-26)
-#define PN_PETKEEPING		(-27)
-#define PN_MISSILE_WEAPONS		(-28)
-#define PN_TECHNIQUES		(-29)
-#define PN_IMPLANTS		(-30)
-#define PN_SEXY_FLATS		(-31)
-#define PN_SHII_CHO		(-32)
-#define PN_MAKASHI		(-33)
-#define PN_SORESU		(-34)
-#define PN_ATARU		(-35)
-#define PN_SHIEN		(-36)
-#define PN_DJEM_SO		(-37)
-#define PN_NIMAN		(-38)
-#define PN_JUYO		(-39)
-#define PN_VAAPAD		(-40)
-#define PN_WEDI		(-41)
-#define PN_MARTIAL_ARTS		(-42)
-#define PN_RIDING		(-43)
-#define PN_TWO_WEAPONS		(-44)
-#define PN_LIGHTSABER		(-45)
 
 #ifndef OVLB
 
@@ -97,6 +49,7 @@ STATIC_OVL NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
 	PN_TWO_HANDED_WEAPON,	PN_POLYMORPHING,	PN_DEVICES,
 	PN_SEARCHING,	PN_SPIRITUALITY,	PN_PETKEEPING,
 	PN_MISSILE_WEAPONS,	PN_TECHNIQUES,	PN_IMPLANTS,	PN_SEXY_FLATS,
+	PN_MEMORIZATION,	PN_GUN_CONTROL,	PN_SQUEAKING,	PN_SYMBIOSIS,
 	PN_SHII_CHO,	PN_MAKASHI,	PN_SORESU,
 	PN_ATARU,	PN_SHIEN,	PN_DJEM_SO,
 	PN_NIMAN,	PN_JUYO,	PN_VAAPAD,	PN_WEDI,
@@ -139,6 +92,10 @@ STATIC_OVL NEARDATA const char * const odd_skill_names[] = {
     "techniques",
     "implants",
     "sexy flats",
+    "memorization",
+    "gun control",
+    "squeaking",
+    "symbiosis",
     "form I (Shii-Cho)",
     "form II (Makashi)",
     "form III (Soresu)",
@@ -249,6 +206,8 @@ extern int dozap(void); /**/
 extern int doorganize(void); /**/
 extern int domarkforpet(void); /**/
 extern int doremoveimarkers(void); /**/
+extern int dodeletespell(void); /**/
+
 #ifdef LIVELOG_SHOUT
 extern int doshout(void); /**/
 #endif
@@ -368,6 +327,11 @@ doprev_message()
 	if (MenuIsBugged) {
 	pline("The previous message command is currently unavailable!");
 	if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+	return 0;
+	}
+
+	if (AutomaticMorePrompt) {
+	pline("No, sorry, you can't review earlier messages.");
 	return 0;
 	}
 
@@ -1099,6 +1063,40 @@ int traitno;
 			return "monsters with a game-specific regular attack";
 		case 359:
 			return "monsters with a game-specific nastiness attack";
+		case 360:
+			return "monsters with ranged thorns";
+		case 361:
+			return "monsters that originate from Elona";
+		case 362:
+			return "monsters that put nasty curses on your equipment";
+		case 363:
+			return "monsters whose attacks increase your sanity";
+		case 364:
+			return "monsters whose attacks cause really bad effects";
+		case 365:
+			return "monsters with bleedout attacks";
+		case 366:
+			return "monsters whose attacks shank you out of your armor";
+		case 367:
+			return "monsters that drain your score";
+		case 368:
+			return "monsters that cause terrain terror";
+		case 369:
+			return "monsters with feminism attacks";
+		case 370:
+			return "monsters with levitation attacks";
+		case 371:
+			return "monsters with illusion attacks";
+		case 372:
+			return "monsters whose attacks reduce your magic cancellation";
+		case 373:
+			return "monsters with armor-burning flame attacks";
+		case 374:
+			return "monsters with debuff attacks";
+		case 375:
+			return "monsters whose attacks un-erosionproof your gear";
+		case 376:
+			return "monsters who nivellate your HP and Pw";
 
 		default:
 			impossible("bad trait no %d, please update montraitname() in cmd.c", traitno);
@@ -1187,6 +1185,8 @@ popch() {
 char
 pgetchar() {		/* curtesy of aeb@cwi.nl */
 	register int ch;
+
+	if (iflags.debug_fuzzer) return randomkey();
 
 	if(!(ch = popch()))
 		ch = nhgetch();
@@ -1439,12 +1439,65 @@ dooverview_or_wiz_where()
 STATIC_PTR int
 domonability()
 {
+	char buf[BUFSZ];
+
+	if (uinsymbiosis && yn("Do you want to check your symbiote's stats?")=='y') {
+		pline("Current symbiote is %s. Health: %d(%d). BUC: %s%s%s%s%s. ", mons[u.usymbiote.mnum].mname, u.usymbiote.mhp, u.usymbiote.mhpmax, u.usymbiote.stckcurse ? "sticky" : "", u.usymbiote.evilcurse ? " evil" : "", u.usymbiote.morgcurse ? " morgothian" : "", u.usymbiote.bbcurse ? " blackbreath" : "", u.usymbiote.prmcurse ? " prime cursed" : u.usymbiote.hvycurse ? " heavily cursed" : u.usymbiote.cursed ? " cursed" : "uncursed");
+#ifdef EXTENDED_INFO
+		if (u.shutdowntime) pline("Your symbiote has been shut down for %d turns.", u.shutdowntime);
+		corpsepager(u.usymbiote.mnum);
+#endif
+		return FALSE;
+	}
+	else if (uinsymbiosis && yn("Do you want to kill your symbiote?")=='y') {
+		if (u.usymbiote.cursed) {
+			You("can't. It's cursed.");
+			return TRUE;
+		}
+		getlin("Do you really want to murder your symbiote? [yes/no]?",buf);
+		(void) lcase (buf);
+		if (!(strcmp (buf, "yes"))) {
+
+			u.usymbiote.active = 0;
+			u.usymbiote.mnum = PM_PLAYERMON;
+			u.usymbiote.mhp = 0;
+			u.usymbiote.mhpmax = 0;
+			u.usymbiote.cursed = u.usymbiote.hvycurse = u.usymbiote.prmcurse = u.usymbiote.bbcurse = u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.stckcurse = 0;
+			if (flags.showsymbiotehp) flags.botl = TRUE;
+			u.cnd_symbiotesdied++;
+
+			adjalign(-50);	/* bad!! */
+			change_luck(-1);
+			if (!FunnyHallu) {(Role_if(PM_PIRATE) || Role_if(PM_KORSAIR) || (uwep && uwep->oartifact == ART_ARRRRRR_MATEY) ) ? pline("Batten down the hatches!") : You_hear("the rumble of distant thunder...");}
+			else You_hear("the studio audience applaud!");
+			if (PlayerHearsSoundEffects) pline(issoviet ? "Molodets, geroy - ty ubil sobstvennogo domashnego zhivotnogo, potomu chto vy byli glupy. Vy na samom dele sovetskaya Pyat' Lo? Potomu chto on ne igrayet namnogo khuzhe, chem vy." : "Wummm. Wummmmmmmm!");
+
+			You("no longer have a symbiote.");
+			use_skill(P_SQUEAKING, 2);
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
 
 	/* snail can't equip pick-axes, so should be able to dig without one from time to time --Amy */
-	if (Race_if(PM_ELONA_SNAIL) && !u.snaildigging && yn("Do you want to fire a digging ray?")=='y' ) {
+	else if (Race_if(PM_ELONA_SNAIL) && !u.snaildigging && yn("Do you want to fire a digging ray?")=='y' ) {
 		u.snaildigging = rnz(1000);
+		if (!PlayerCannotUseSkills && u.snaildigging >= 2) {
+			switch (P_SKILL(P_SQUEAKING)) {
+		      	case P_BASIC:	u.snaildigging *= 9; u.snaildigging /= 10; break;
+		      	case P_SKILLED:	u.snaildigging *= 8; u.snaildigging /= 10; break;
+		      	case P_EXPERT:	u.snaildigging *= 7; u.snaildigging /= 10; break;
+		      	case P_MASTER:	u.snaildigging *= 6; u.snaildigging /= 10; break;
+		      	case P_GRAND_MASTER:	u.snaildigging *= 5; u.snaildigging /= 10; break;
+		      	case P_SUPREME_MASTER:	u.snaildigging *= 4; u.snaildigging /= 10; break;
+		      	default: break;
+			}
+		}
 		getdir((char *)0);
 		zap_dig(FALSE); /* dig only one tile, just like in Elona */
+		use_skill(P_SQUEAKING, rnd(20));
 		return TRUE;
 	}
 	else if (uarmf && uarmf->oartifact == ART_STEFANJE_S_PROBLEM && yn("Do you want to repair your 'Stefanje' sandals?")=='y') {
@@ -1456,35 +1509,103 @@ domonability()
 			set_occupation(stefanjerepair, "repairing your 'Stefanje' sandals", 0);
 			return TRUE;
 		}
+	} else if (issokosolver && !u.sokosolveboulder && yn("Do you want to create a boulder?")=='y' ) {
+		u.sokosolveboulder = rnz(1000);
+		if (!PlayerCannotUseSkills && u.sokosolveboulder >= 2) {
+			switch (P_SKILL(P_SQUEAKING)) {
+		      	case P_BASIC:	u.sokosolveboulder *= 9; u.sokosolveboulder /= 10; break;
+		      	case P_SKILLED:	u.sokosolveboulder *= 8; u.sokosolveboulder /= 10; break;
+		      	case P_EXPERT:	u.sokosolveboulder *= 7; u.sokosolveboulder /= 10; break;
+		      	case P_MASTER:	u.sokosolveboulder *= 6; u.sokosolveboulder /= 10; break;
+		      	case P_GRAND_MASTER:	u.sokosolveboulder *= 5; u.sokosolveboulder /= 10; break;
+		      	case P_SUPREME_MASTER:	u.sokosolveboulder *= 4; u.sokosolveboulder /= 10; break;
+		      	default: break;
 	}
-	else if (can_breathe(youmonst.data) && yn("Do you want to use your breath attack?")=='y' ) return dobreathe();
-	else if (attacktype(youmonst.data, AT_SPIT) && yn("Do you want to use your spit attack?")=='y' ) return dospit();
-	else if (youmonst.data->mlet == S_NYMPH && yn("Do you want to remove an iron ball?")=='y' ) return doremove();
-	else if (attacktype(youmonst.data, AT_GAZE) && yn("Do you want to use your gaze attack?")=='y' ) return dogaze();
+		}
+		register struct obj *otmp2;
+		otmp2 = mksobj(BOULDER, FALSE, FALSE, FALSE);
+		if (!otmp2) {
+			pline("For some strange reason, no boulder appeared!");
+			return TRUE;
+		}
+		otmp2->quan = 1;
+		otmp2->owt = weight(otmp2);
+		place_object(otmp2, u.ux, u.uy);
+		stackobj(otmp2);
+		newsym(u.ux, u.uy);
+		pline("Kadoom! A boulder appeared underneath you.");
+		use_skill(P_SQUEAKING, rnd(10));
+		return TRUE;
+	} else if (issokosolver && !u.sokosolveuntrap && yn("Do you want to disarm adjacent traps? (this doesn't work on pits, holes or other boulder-swallowing traps)")=='y' ) {
+		int i, j, bd = 1, trpcount = 0, undtrpcnt = 0;
+		struct trap *ttmp;
+
+		u.sokosolveuntrap = rnz(4000);
+		if (!PlayerCannotUseSkills && u.sokosolveuntrap >= 2) {
+			switch (P_SKILL(P_SQUEAKING)) {
+		      	case P_BASIC:	u.sokosolveuntrap *= 9; u.sokosolveuntrap /= 10; break;
+		      	case P_SKILLED:	u.sokosolveuntrap *= 8; u.sokosolveuntrap /= 10; break;
+		      	case P_EXPERT:	u.sokosolveuntrap *= 7; u.sokosolveuntrap /= 10; break;
+		      	case P_MASTER:	u.sokosolveuntrap *= 6; u.sokosolveuntrap /= 10; break;
+		      	case P_GRAND_MASTER:	u.sokosolveuntrap *= 5; u.sokosolveuntrap /= 10; break;
+		      	case P_SUPREME_MASTER:	u.sokosolveuntrap *= 4; u.sokosolveuntrap /= 10; break;
+		      	default: break;
+			}
+		}
+
+		for (i = -bd; i <= bd; i++) for(j = -bd; j <= bd; j++) {
+
+			if ((ttmp = t_at(u.ux + i, u.uy + j)) != 0) {
+				if (ttmp->ttyp == MAGIC_PORTAL || ttmp->ttyp == HOLE || ttmp->ttyp == TRAPDOOR || ttmp->ttyp == SHAFT_TRAP || ttmp->ttyp == CURRENT_SHAFT || ttmp->ttyp == PIT || ttmp->ttyp == SPIKED_PIT || ttmp->ttyp == GIANT_CHASM || ttmp->ttyp == SHIT_PIT || ttmp->ttyp == MANA_PIT || ttmp->ttyp == ANOXIC_PIT || ttmp->ttyp == ACID_PIT) {
+					undtrpcnt++;
+					continue;
+				}
+				deltrap(ttmp);
+				trpcount++;
+			}
+
+		}
+		(void) doredraw();
+		pline("%d traps were disarmed.", trpcount);
+		if (undtrpcnt) pline("%d traps could not be disarmed.", undtrpcnt);
+		use_skill(P_SQUEAKING, rnd(30));
+		return TRUE;
+	} else if ((can_breathe(youmonst.data) || (!PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_EXPERT && uactivesymbiosis && can_breathe(&mons[u.usymbiote.mnum]) )) && yn("Do you want to use your breath attack?")=='y' ) return dobreathe();
+	else if ((attacktype(youmonst.data, AT_SPIT) || (!PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_BASIC && uactivesymbiosis && attacktype(&mons[u.usymbiote.mnum], AT_SPIT) )) && yn("Do you want to use your spit attack?")=='y' ) return dospit();
+	else if ((youmonst.data->mlet == S_NYMPH || (!PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_MASTER && uactivesymbiosis && ((mons[u.usymbiote.mnum].mlet) == S_NYMPH) )) && yn("Do you want to remove an iron ball?")=='y' ) return doremove();
+	else if ((attacktype(youmonst.data, AT_GAZE) || (!PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_SKILLED && uactivesymbiosis && attacktype(&mons[u.usymbiote.mnum], AT_GAZE) )) && yn("Do you want to use your gaze attack?")=='y' ) return dogaze();
 	else if (is_were(youmonst.data) && yn("Do you want to summon help?")=='y' ) return dosummon();
-	else if (webmaker(youmonst.data) && yn("Do you want to spin webs?")=='y' ) return dospinweb();
-	else if (is_hider(youmonst.data) && yn("Do you want to hide?")=='y' ) return dohide();
-	else if (is_mind_flayer(youmonst.data) && yn("Do you want to emit a mind blast?")=='y' ) return domindblast();
-	else if (u.umonnum == PM_GREMLIN && yn("Do you want to replicate in water?")=='y' ) {
+	else if ((webmaker(youmonst.data) || (!PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_SKILLED && uactivesymbiosis && webmaker(&mons[u.usymbiote.mnum]) )) && yn("Do you want to spin webs?")=='y' ) return dospinweb();
+	else if ((is_hider(youmonst.data) || (!PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_SKILLED && uactivesymbiosis && is_hider(&mons[u.usymbiote.mnum]) )) && yn("Do you want to hide?")=='y' ) return dohide();
+	else if ((is_mind_flayer(youmonst.data) || (!PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_SKILLED && uactivesymbiosis && is_mind_flayer(&mons[u.usymbiote.mnum]) )) && yn("Do you want to emit a mind blast?")=='y' ) return domindblast();
+	else if (splittinggremlin(youmonst.data) && yn("Do you want to replicate in water?")=='y' ) {
 	    if(IS_FOUNTAIN(levl[u.ux][u.uy].typ)) {
 		if (split_mon(&youmonst, (struct monst *)0))
 		    dryup(u.ux, u.uy, TRUE);
 	    } else There("is no fountain here.");
-	} else if ( (is_unicorn(youmonst.data) || (Race_if(PM_PLAYER_UNICORN) && !Upolyd) ) && yn("Do you want to cure yourself with your horn?")=='y' ) {
+	} else if ( (is_unicorn(youmonst.data) || (!PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_EXPERT && uactivesymbiosis && is_unicorn(&mons[u.usymbiote.mnum])) || (Race_if(PM_PLAYER_UNICORN) && !Upolyd) ) && yn("Do you want to cure yourself with your horn?")=='y' ) {
 	    use_unicorn_horn((struct obj *)0);
 	    return 1;
-	} else if (youmonst.data->msound == MS_SHRIEK && yn("Do you want to shriek?")=='y' ) {
+	} else if ((youmonst.data->msound == MS_SHRIEK || (!PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_BASIC && uactivesymbiosis && mons[u.usymbiote.mnum].msound == MS_SHRIEK )) && yn("Do you want to shriek?")=='y' ) {
 	    You("shriek.");
 	    if(u.uburied)
 		pline("Unfortunately sound does not carry well through rock.");
 	    else aggravate();
-	} else if ((youmonst.data->msound == MS_FART_QUIET || (Race_if(PM_LOLI) && !Upolyd && mons[PM_LOLI].msound == MS_FART_QUIET)) && yn("Do you want to fart?")=='y' ) {
+	} else if ((youmonst.data->msound == MS_FART_QUIET || (PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_BASIC && uactivesymbiosis && mons[u.usymbiote.mnum].msound == MS_FART_QUIET) || (Race_if(PM_LOLI) && !Upolyd && mons[PM_LOLI].msound == MS_FART_QUIET)) && yn("Do you want to fart?")=='y' ) {
 		if (u.uhunger <= 10) {
 			pline("There isn't enough gas stored in your %s butt!", flags.female ? "sexy" : "ugly");
 			return 0;
 		} else {
 			morehungry(10);
 			pline("You produce %s farting noises with your %s butt.", rn2(2) ? "tender" : "soft", flags.female ? "sexy" : "ugly");
+			if (practicantterror) {
+				pline("%s booms: 'Stop farting in public, you disgusting practicant! Now you have to pay a fine of 500 zorkmids to me!'", noroelaname());
+				fineforpracticant(500, 0, 0);
+			}
+
+			use_skill(P_SQUEAKING, 1);
+			u.cnd_fartingcount++;
+			if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 
 			if (uarmf && uarmf->oartifact == ART_SARAH_S_GRANNY_WEAR) {
 				healup((level_difficulty() + 5), 0, FALSE, FALSE);
@@ -1503,9 +1624,9 @@ domonability()
 				badeffect();
 				badeffect();
 			}
-			badeffect();
+			if (!extralongsqueak()) badeffect();
 
-			if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "breath control helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "shlem upravleniya dykhaniyem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "nafasni boshqarish dubulg'asi")) ) {
+			if (uarmh && itemhasappearance(uarmh, APP_BREATH_CONTROL_HELMET) ) {
 				pline("Your breath control helmet keeps pumping the farting gas into your %s...", body_part(NOSE));
 				badeffect();
 				badeffect();
@@ -1523,13 +1644,21 @@ domonability()
 
 			return 1;
 		}
-	} else if ((youmonst.data->msound == MS_FART_NORMAL || (Race_if(PM_LOLI) && !Upolyd && mons[PM_LOLI].msound == MS_FART_NORMAL)) && yn("Do you want to fart?")=='y' ) {
+	} else if ((youmonst.data->msound == MS_FART_NORMAL || (PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_BASIC && uactivesymbiosis && mons[u.usymbiote.mnum].msound == MS_FART_NORMAL) || (Race_if(PM_LOLI) && !Upolyd && mons[PM_LOLI].msound == MS_FART_NORMAL)) && yn("Do you want to fart?")=='y' ) {
 		if (u.uhunger <= 10) {
 			pline("There isn't enough gas stored in your %s butt!", flags.female ? "sexy" : "ugly");
 			return 0;
 		} else {
 			morehungry(10);
 			pline("You produce %s farting noises with your %s butt.", rn2(2) ? "beautiful" : "squeaky", flags.female ? "sexy" : "ugly");
+			if (practicantterror) {
+				pline("%s booms: 'Stop farting in public, you disgusting practicant! Now you have to pay a fine of 500 zorkmids to me!'", noroelaname());
+				fineforpracticant(500, 0, 0);
+			}
+			use_skill(P_SQUEAKING, 1);
+			u.cnd_fartingcount++;
+			if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
+
 			if (uarmf && uarmf->oartifact == ART_ELIANE_S_SHIN_SMASH) {
 				pline("The farting gas destroys your footwear instantly.");
 			      useup(uarmf);
@@ -1541,9 +1670,9 @@ domonability()
 				badeffect();
 				badeffect();
 			}
-			badeffect();
+			if (!extralongsqueak()) badeffect();
 
-			if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "breath control helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "shlem upravleniya dykhaniyem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "nafasni boshqarish dubulg'asi")) ) {
+			if (uarmh && itemhasappearance(uarmh, APP_BREATH_CONTROL_HELMET) ) {
 				pline("Your breath control helmet keeps pumping the farting gas into your %s...", body_part(NOSE));
 				badeffect();
 				badeffect();
@@ -1561,13 +1690,21 @@ domonability()
 
 			return 1;
 		}
-	} else if ((youmonst.data->msound == MS_FART_LOUD || (Race_if(PM_LOLI) && !Upolyd && mons[PM_LOLI].msound == MS_FART_LOUD)) && yn("Do you want to fart?")=='y' ) {
+	} else if ((youmonst.data->msound == MS_FART_LOUD || (PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_BASIC && uactivesymbiosis && mons[u.usymbiote.mnum].msound == MS_FART_LOUD) || (Race_if(PM_LOLI) && !Upolyd && mons[PM_LOLI].msound == MS_FART_LOUD)) && yn("Do you want to fart?")=='y' ) {
 		if (u.uhunger <= 10) {
 			pline("There isn't enough gas stored in your %s butt!", flags.female ? "sexy" : "ugly");
 			return 0;
 		} else {
 			morehungry(10);
 			pline("You produce %s farting noises with your %s butt.", rn2(2) ? "disgusting" : "loud", flags.female ? "sexy" : "ugly");
+			if (practicantterror) {
+				pline("%s booms: 'Stop farting in public, you disgusting practicant! Now you have to pay a fine of 500 zorkmids to me!'", noroelaname());
+				fineforpracticant(500, 0, 0);
+			}
+			use_skill(P_SQUEAKING, 1);
+			u.cnd_fartingcount++;
+			if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
+
 			if (uarmf && uarmf->oartifact == ART_ELIANE_S_SHIN_SMASH) {
 				pline("The farting gas destroys your footwear instantly.");
 			      useup(uarmf);
@@ -1579,9 +1716,9 @@ domonability()
 				badeffect();
 				badeffect();
 			}
-			badeffect();
+			if (!extralongsqueak()) badeffect();
 
-			if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "breath control helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "shlem upravleniya dykhaniyem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "nafasni boshqarish dubulg'asi")) ) {
+			if (uarmh && itemhasappearance(uarmh, APP_BREATH_CONTROL_HELMET) ) {
 				pline("Your breath control helmet keeps pumping the farting gas into your %s...", body_part(NOSE));
 				badeffect();
 				badeffect();
@@ -1622,12 +1759,24 @@ domonability()
 			}
 		}
 		u.hussyperfume = rnz(4000);
+		if (!PlayerCannotUseSkills && u.hussyperfume >= 2) {
+			switch (P_SKILL(P_SQUEAKING)) {
+		      	case P_BASIC:	u.hussyperfume *= 9; u.hussyperfume /= 10; break;
+		      	case P_SKILLED:	u.hussyperfume *= 8; u.hussyperfume /= 10; break;
+		      	case P_EXPERT:	u.hussyperfume *= 7; u.hussyperfume /= 10; break;
+		      	case P_MASTER:	u.hussyperfume *= 6; u.hussyperfume /= 10; break;
+		      	case P_GRAND_MASTER:	u.hussyperfume *= 5; u.hussyperfume /= 10; break;
+		      	case P_SUPREME_MASTER:	u.hussyperfume *= 4; u.hussyperfume /= 10; break;
+		      	default: break;
+			}
+		}
+		use_skill(P_SQUEAKING, rnd(40));
 
 	} else if (Role_if(PM_HUSSY) && flags.female && u.uhs <= 0 && isok(u.ux, u.uy) && yn("Do you want to take a crap?") == 'y') {
 
 		if (uarmu && uarmu->oartifact == ART_KATIA_S_SOFT_COTTON) {
 			You("produce very erotic noises.");
-			if (!rn2(10)) adjattrib(rn2(A_CHA), 1, -1);
+			if (!rn2(10)) adjattrib(rn2(A_CHA), 1, -1, TRUE);
 		} else You("grunt.");
 		morehungry(rn2(400)+200);
 
@@ -1641,9 +1790,132 @@ domonability()
 			}
 
 		}
+		use_skill(P_SQUEAKING, rnd(10));
+
 		return 1;
 
-	} else if (P_SKILL(P_MARTIAL_ARTS) >= P_UNSKILLED && P_SKILL(P_BARE_HANDED_COMBAT) >= P_UNSKILLED) {
+	} else if (Race_if(PM_IRAHA) && !u.irahapoison && yn("Do you want to poison your weapon?") == 'y') {
+
+		if (!uwep) {
+			pline("You are not holding a weapon!");
+			return 0;
+		}
+		/* Iraha are somehow capable of poisoning weapons that cannot be poisoned, this is by design --Amy */
+		if (uwep) {
+			if (!stack_too_big(uwep)) {
+				uwep->opoisoned = TRUE;
+				pline("Your weapon was poisoned.");
+			} else pline("Unfortunately your wielded stack of weapons was too big, and so the poisoning failed.");
+
+		}
+
+		u.irahapoison = rnz(1000);
+		if (!PlayerCannotUseSkills && u.irahapoison >= 2) {
+			switch (P_SKILL(P_SQUEAKING)) {
+		      	case P_BASIC:	u.irahapoison *= 9; u.irahapoison /= 10; break;
+		      	case P_SKILLED:	u.irahapoison *= 8; u.irahapoison /= 10; break;
+		      	case P_EXPERT:	u.irahapoison *= 7; u.irahapoison /= 10; break;
+		      	case P_MASTER:	u.irahapoison *= 6; u.irahapoison /= 10; break;
+		      	case P_GRAND_MASTER:	u.irahapoison *= 5; u.irahapoison /= 10; break;
+		      	case P_SUPREME_MASTER:	u.irahapoison *= 4; u.irahapoison /= 10; break;
+		      	default: break;
+			}
+		}
+		use_skill(P_SQUEAKING, rnd(10));
+
+	} else if (!PlayerCannotUseSkills && u.juyofleeing && P_SKILL(P_JUYO) >= P_BASIC && yn("Do you want to turn off the increased chance of making a monster flee?") == 'y') {
+		u.juyofleeing = 0;
+		pline("Monsters have the regular chance of fleeing from you now, which is useful mainly if you are a role or race that gets penalties for hitting a fleeing monster.");
+		return 0;
+	} else if (!PlayerCannotUseSkills && !u.juyofleeing && P_SKILL(P_JUYO) >= P_BASIC && yn("You have the Juyo skill, which allows you to make it more likely that monsters flee when you hit them. That feature is currently deactivated. Do you want to activate it?") == 'y') {
+		u.juyofleeing = 1;
+		pline("Monsters will now be more likely to flee from you when hit, with the chance depending on your Juyo skill!");
+		return 0;
+
+	} else if (Role_if(PM_JANITOR) && yn("Do you want to clean up the trash at your location?") == 'y') {
+		register struct obj *objchain, *allchain, *blahchain;
+		register int trashvalue = 0;
+		char objroom;
+		struct monst *shkp = (struct monst *)0;
+
+		if (Levitation && !Race_if(PM_LEVITATOR)) {
+			pline("Since you're levitating, you can't reach the trash!");
+			return 0;
+		} else if (u.uswallow) {
+			pline("Well, it seems you have some other problem to take care of first.");
+			return 0;
+		} else if (u.garbagecleaned >= 1000) {
+			You("already filled your trash bin! You'll have to wait until the garbage truck arrives so you can empty it.");
+			/* if for some reason the garbage truck time is zero, call a truck now (shouldn't happen) --Amy */
+			if (!u.garbagetrucktime) u.garbagetrucktime = rn1(500,500);
+
+			return 0;
+		}
+
+		objchain = level.objects[u.ux][u.uy];
+
+		for (allchain = objchain; allchain; allchain = blahchain) {
+
+			if (u.garbagecleaned >= 1000) {
+				You("filled your trash bin, and call a garbage truck that will arrive shortly.");
+				u.garbagetrucktime = rn1(500,500);
+				break;
+			}
+
+			blahchain = allchain->nexthere;
+
+			/* have to special-case some stuff... --Amy
+			 * iron chains and balls could be chained to you, caught by wornmask check
+			 * invocation artifacts are of course immune
+			 * gold is immune
+			 * items of variable weight: statues, corpses and containers are also immune */
+			if (allchain->owornmask) continue;
+			if (evades_destruction(allchain)) continue;
+			if (allchain->oclass == COIN_CLASS) continue;
+			if (allchain->otyp == STATUE || allchain->otyp == CORPSE || Is_container(allchain)) continue;
+
+			if (objects[allchain->otyp].oc_weight > 0) trashvalue = (objects[allchain->otyp].oc_weight) * allchain->quan;
+			else trashvalue = allchain->quan;
+
+			u.garbagecleaned += trashvalue;
+			You("clean up %s and add %d weight units to your trash bin.", doname(allchain), trashvalue);
+
+			objroom = *in_rooms(allchain->ox, allchain->oy, SHOPBASE);
+			shkp = shop_keeper(objroom);
+			if (shkp && inhishop(shkp)) {
+				if (costly_spot(u.ux, u.uy) && objroom == *u.ushops) {
+					Norep("You trash it, you pay for it!");
+					bill_dummy_object(allchain);
+				} else (void) stolen_value(allchain, allchain->ox, allchain->oy, FALSE, FALSE, FALSE);
+			}
+
+			delobj(allchain);
+
+			if (u.garbagecleaned >= 1000) {
+				You("filled your trash bin, and call a garbage truck that will arrive shortly.");
+				u.garbagetrucktime = rn1(500,500);
+				break;
+			}
+
+		}
+
+	} else if (Race_if(PM_PLAYER_MUSHROOM)) {
+
+		/* This does not consume a turn, which is intentional. --Amy */
+		if (!u.mushroompoles && yn("Currently your ability to use any weapon as a polearm is deactivated. Do you want to activate it?") == 'y') {
+			u.mushroompoles = TRUE;
+			pline("You switch to polearm mode.");
+			return 0;
+		} else if (u.mushroompoles && yn("Currently your ability to use any weapon as a polearm is activated. Do you want to deactivate it?") == 'y') {
+			u.mushroompoles = FALSE;
+			pline("You switch to regular weapon application mode.");
+			return 0;
+		}
+
+		goto mushroomannoyance;
+	} else
+mushroomannoyance:
+	if (P_SKILL(P_MARTIAL_ARTS) >= P_UNSKILLED && P_SKILL(P_BARE_HANDED_COMBAT) >= P_UNSKILLED) {
 
 		if (!u.disablemartial && yn("You have both the martial arts and bare-handed combat skills, which are mutually exclusive. Currently martial arts is activated. Deactivate it?") == 'y') {
 			u.disablemartial = TRUE;
@@ -1655,7 +1927,24 @@ domonability()
 			pline("You switch to martial arts.");
 			return 1;
 		}
-
+		goto flowannoyance;
+	} else
+flowannoyance:
+	if (Role_if(PM_DEMAGOGUE) && !u.temprecursion && !u.demagoguerecursion && u.demagogueabilitytimer == 0 && !(In_endgame(&u.uz)) && yn("Do you want to use recursion to temporarily become someone else?") == 'y') {
+		use_skill(P_SQUEAKING, rnd(20));
+		u.demagogueabilitytimer = rnz(2500);
+		if (!PlayerCannotUseSkills && u.demagogueabilitytimer >= 2) {
+			switch (P_SKILL(P_SQUEAKING)) {
+		      	case P_BASIC:	u.demagogueabilitytimer *= 9; u.demagogueabilitytimer /= 10; break;
+		      	case P_SKILLED:	u.demagogueabilitytimer *= 8; u.demagogueabilitytimer /= 10; break;
+		      	case P_EXPERT:	u.demagogueabilitytimer *= 7; u.demagogueabilitytimer /= 10; break;
+		      	case P_MASTER:	u.demagogueabilitytimer *= 6; u.demagogueabilitytimer /= 10; break;
+		      	case P_GRAND_MASTER:	u.demagogueabilitytimer *= 5; u.demagogueabilitytimer /= 10; break;
+		      	case P_SUPREME_MASTER:	u.demagogueabilitytimer *= 4; u.demagogueabilitytimer /= 10; break;
+		      	default: break;
+			}
+		}
+		demagoguerecursioneffect();
 	} else if (Upolyd)
 		pline("Any (other) special ability you may have is purely reflexive.");
 	else You("don't have another special ability in your normal form!");
@@ -1719,8 +2008,17 @@ playersteal()
 
 	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER)) {
 		pline("Could be hard without hands ...");
-		no_steal = TRUE;
-	} else
+		if (yn("Attempt it anyway?") == 'y') {
+			if (rn2(3) && !polyskillchance()) {
+				drain_en(rnz(monster_difficulty() + 1) );
+				pline("You lose  Mana");
+				if (!rn2(20)) badeffect();
+				return 1;
+			}
+
+		}
+		else no_steal = TRUE;
+	}
 	if (near_capacity() > SLT_ENCUMBER) {
 		Your("load is too heavy to attempt to steal.");
 		no_steal = TRUE;
@@ -1787,7 +2085,7 @@ playersteal()
 		else if (uarm && uarm->owt < 375) chanch -= 20;
 		else if (uarm)                    chanch -= 25;
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "polnish gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "pol'skiye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "polsha qo'lqop") ) ) {
+		if (uarmg && itemhasappearance(uarmg, APP_POLNISH_GLOVES) ) {
 			if (chanch < 5) chanch = 5;
 			chanch *= 2;
 		}
@@ -1799,6 +2097,11 @@ playersteal()
 
 		if (uarm && uarm->oartifact == ART_GREGOR_S_GANGSTER_GARMENTS) {
 			if (chanch < 5) chanch = 5;
+			chanch *= 2;
+		}
+
+		if (uarmg && uarmg->oartifact == ART_REALSTEAL) {
+		if (chanch < 5) chanch = 5;
 			chanch *= 2;
 		}
 
@@ -1870,7 +2173,7 @@ wiz_wish()	/* Unlimited wishes for debug mode by Paul Polderman */
 	    boolean save_verbose = flags.verbose;
 
 	    flags.verbose = FALSE;
-	    makewish();
+	    makewish(TRUE);
 	    flags.verbose = save_verbose;
 	    (void) encumber_msg();
 	} else
@@ -1915,7 +2218,7 @@ specialpower()      /* Special class abilites [modified by Tom] */
 		} else if(invent) {
 		    int ret;
 			You("examine your possessions.");
-			identify_pack(1, 0);
+			identify_pack(1, 0, 0);
 /*WAC this should be better - made like scroll of identify*/
 /* KMH -- also commented out use of 'ret' without initialization */
 /*                  ret = ggetobj("identify", identify, 1, FALSE);*/
@@ -2094,7 +2397,7 @@ specialpower()      /* Special class abilites [modified by Tom] */
 STATIC_PTR int
 wiz_identify()
 {
-	if (wizard)	identify_pack(0, 1);
+	if (wizard)	identify_pack(0, 1, 0);
 	else		pline("Unavailable command '^I'.");
 	return 0;
 }
@@ -2273,6 +2576,12 @@ wiz_level_change()
 STATIC_PTR int
 wiz_panic()
 {
+	if (iflags.debug_fuzzer) {
+		u.uhp = u.uhpmax = 1000;
+		u.uen = u.uenmax = 1000;
+		return 0;
+	}
+
 	if (yn("Do you want to call panic() and end your game?") == 'y')
 		panic("crash test.");
         return 0;
@@ -2466,6 +2775,8 @@ boolean guaranteed;
 	putstr(en_win, 0, final ? "Final Attributes:" : "Current Attributes:");
 	putstr(en_win, 0, "");
 
+	if (u.freeplaymode) you_are("a demigod");
+	if (flags.zapem) you_are("playing in ZAPM mode");
 	if (flags.wonderland) you_are("playing in wonderland mode");
 	if (flags.lostsoul && !flags.uberlostsoul) you_are("playing in lost soul mode");
 	if (flags.uberlostsoul) you_are("playing in uber lost soul mode");
@@ -2514,19 +2825,24 @@ boolean guaranteed;
 		enl_msg("You ", "carry", "carried", buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && ((wizard || (!rn2(10)) || final >= 1 ) )) {
+	if ((guaranteed || !rn2(10)) && (u.impossibleproperty >= 0) && ((wizard || (!rn2(10)) || final >= 1 ) )) {
 		sprintf(buf, " %s", enchname(u.impossibleproperty) );
 		enl_msg("You ", "cannot have this property at all:", "could not have this property at all:", buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && ((wizard || (!rn2(10)) || final >= 1 ) )) {
+	if ((guaranteed || !rn2(10)) && (u.nonextrinsicproperty >= 0 ) && ((wizard || (!rn2(10)) || final >= 1 ) )) {
 		sprintf(buf, " %s", enchname(u.nonextrinsicproperty) );
 		enl_msg("You ", "cannot have this property extrinsically:", "could not have this property extrinsically:", buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && ((wizard || (!rn2(10)) || final >= 1 ) )) {
+	if ((guaranteed || !rn2(10)) && (u.nonintrinsicproperty >= 0 ) && ((wizard || (!rn2(10)) || final >= 1 ) )) {
 		sprintf(buf, " %s", enchname(u.nonintrinsicproperty) );
 		enl_msg("You ", "cannot have this property intrinsically:", "could not have this property intrinsically:", buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && (u.nondoubleproperty >= 0 ) && ((wizard || (!rn2(10)) || final >= 1 ) )) {
+		sprintf(buf, " %s", enchname(u.nondoubleproperty) );
+		enl_msg("You ", "cannot have the double effect of this property:", "could not have the double effect of this property:", buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && ((wizard || (!rn2(10)) || final >= 1 ) && u.idscrollpenalty > 100)) {
@@ -2644,6 +2960,11 @@ boolean guaranteed;
 		enl_msg("Food drop chance ", "is reduced to", "was reduced to", buf);
 	}
 
+	if ((guaranteed || !rn2(10)) && ((wizard || (!rn2(10)) || final >= 1 ) && u.shopitemreduction)) {
+		sprintf(buf, " %d%%", 100 - u.shopitemreduction);
+		enl_msg("Shop item generation ", "is reduced to", "was reduced to", buf);
+	}
+
 	if ((guaranteed || !rn2(10)) && ((wizard || (!rn2(10)) || final >= 1 ) && u.antimusablebias)) {
 		sprintf(buf, " %d%%", u.antimusablebias);
 		enl_msg("Musable item generation frequency ", "has a negative bias of", "had a negative bias of", buf);
@@ -2659,37 +2980,37 @@ boolean guaranteed;
 		enl_msg("Monster death drops ", "spawn with only", "spawned with only", buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 ) ) {
+	if ((guaranteed || !rn2(10)) && u.untrainableskill && (wizard || (!rn2(10)) || final >= 1 ) ) {
 		sprintf(buf, " %s", P_NAME(u.untrainableskill));
 		enl_msg("The following skill ", "cannot be trained at all:", "could not be trained at all:", buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 ) ) {
+	if ((guaranteed || !rn2(10)) && u.halfspeedskill && (wizard || (!rn2(10)) || final >= 1 ) ) {
 		sprintf(buf, " %s", P_NAME(u.halfspeedskill));
 		enl_msg("The following skill ", "is trained at half the usual rate:", "was trained at half the usual rate:", buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 ) ) {
+	if ((guaranteed || !rn2(10)) && u.fifthspeedskill && (wizard || (!rn2(10)) || final >= 1 ) ) {
 		sprintf(buf, " %s", P_NAME(u.fifthspeedskill));
 		enl_msg("The following skill ", "is trained at one fifth the usual rate:", "was trained at one fifth the usual rate:", buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 ) ) {
+	if ((guaranteed || !rn2(10)) && u.basiclimitskill && (wizard || (!rn2(10)) || final >= 1 ) ) {
 		sprintf(buf, " %s", P_NAME(u.basiclimitskill));
 		enl_msg("The following skill ", "is limited to basic proficiency:", "was limited to basic proficiency:", buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 ) ) {
+	if ((guaranteed || !rn2(10)) && u.skilledlimitskill && (wizard || (!rn2(10)) || final >= 1 ) ) {
 		sprintf(buf, " %s", P_NAME(u.skilledlimitskill));
 		enl_msg("The following skill ", "is limited to skilled proficiency:", "was limited to skilled proficiency:", buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 ) ) {
+	if ((guaranteed || !rn2(10)) && u.expertlimitskill && (wizard || (!rn2(10)) || final >= 1 ) ) {
 		sprintf(buf, " %s", P_NAME(u.expertlimitskill));
 		enl_msg("The following skill ", "is limited to expert proficiency:", "was limited to expert proficiency:", buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 ) ) {
+	if ((guaranteed || !rn2(10)) && u.earlytrainingskill && (wizard || (!rn2(10)) || final >= 1 ) ) {
 		sprintf(buf, " %s (turn %d)", P_NAME(u.earlytrainingskill), u.earlytrainingtimer);
 		enl_msg("The following skill ", "becomes untrainable if you try to train it too early:", "became untrainable if you tried to train it too early:", buf);
 		if (u.earlytrainingblown) {
@@ -2698,7 +3019,7 @@ boolean guaranteed;
 		}
 	}
 
-	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 ) ) {
+	if ((guaranteed || !rn2(10)) && u.frtrainingskill && (wizard || (!rn2(10)) || final >= 1 ) ) {
 		sprintf(buf, " %s (turn %d)", P_NAME(u.frtrainingskill), u.frtrainingtimer);
 		enl_msg("The following skill ", "becomes untrainable if you try to train it too early:", "became untrainable if you tried to train it too early:", buf);
 		if (u.frtrainingblown) {
@@ -2707,14 +3028,19 @@ boolean guaranteed;
 		}
 	}
 
-	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 ) ) {
+	if ((guaranteed || !rn2(10)) && u.latetrainingskill && (wizard || (!rn2(10)) || final >= 1 ) ) {
 		sprintf(buf, " %s (turn %d)", P_NAME(u.latetrainingskill), u.latetrainingtimer);
 		enl_msg("The following skill ", "becomes untrainable after a while:", "became untrainable after a while:", buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 ) ) {
+	if ((guaranteed || !rn2(10)) && u.lavtrainingskill && (wizard || (!rn2(10)) || final >= 1 ) ) {
 		sprintf(buf, " %s (turn %d)", P_NAME(u.lavtrainingskill), u.lavtrainingtimer);
 		enl_msg("The following skill ", "can't be trained before a certain turn number is reached:", "couldn't be trained before a certain turn number is reached:", buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && u.slowtrainingskill && (wizard || (!rn2(10)) || final >= 1 ) ) {
+		sprintf(buf, " %s", P_NAME(u.slowtrainingskill));
+		enl_msg("The following skill ", "becomes harder to train at higher skill levels:", "became harder to train at higher skill levels:", buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 ) && u.stickycursechance ) {
@@ -2787,7 +3113,7 @@ boolean guaranteed;
 		enl_msg("Today, the monster class that always gets generated hidden ", "is ", "was ", monexplain[u.alwayshidden] );
 	}
 
-	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 )) {
+	if ((guaranteed || !rn2(10)) && (u.freqmonsterbonus && (wizard || (!rn2(10)) || final >= 1 ))) {
 		sprintf(buf, "spawned more often: %s (freq bonus %d)", monexplain[u.frequentmonster], u.freqmonsterbonus);
 		enl_msg("The monster class that ", "is ", "was ", buf );
 	}
@@ -3037,7 +3363,7 @@ boolean guaranteed;
 		enl_msg("The monster class that ", "is ", "was ", buf );
 	}
 
-	if ((guaranteed || !rn2(10)) && u.minimalism) {sprintf(buf, " %d", u.minimalism);
+	if ((guaranteed || !rn2(10)) && u.minimalism && isminimalist) {sprintf(buf, " %d", u.minimalism);
 		enl_msg("Items generate only 1 time in X, and X ", "is", "was", buf);
 	}
 
@@ -3271,14 +3597,39 @@ boolean guaranteed;
 		enl_msg("The RNG hath decreed that this trap ", "is ", "was ", buf );
 	}
 
+	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 ) && u.spellbookbias1 != -1) {
+		sprintf(buf, "%s (freq bonus %d)", P_NAME(u.spellbookbias1), u.spellbookchance1);
+		enl_msg("The spell school whose books are more common ", "is ", "was ", buf );
+	}
+
+	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 ) && u.spellbookbias2 != -1) {
+		sprintf(buf, "%s (freq bonus %d)", P_NAME(u.spellbookbias2), u.spellbookchance2);
+		enl_msg("The spell school whose books are more common ", "is ", "was ", buf );
+	}
+
+	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 ) && u.spellbookbias3 != -1) {
+		sprintf(buf, "%s (freq bonus %d)", P_NAME(u.spellbookbias3), u.spellbookchance3);
+		enl_msg("The spell school whose books are more common ", "is ", "was ", buf );
+	}
+
 	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 )) {
 		sprintf(buf, "for 1 in %d traps", u.traprandomizing);
 		enl_msg("Trap randomization ", "happens ", "happened ", buf );
 	}
 
+	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 )) {
+		sprintf(buf, "spawned invisible 1 times in %d", u.invistrapchance);
+		enl_msg("Traps ", "are ", "were ", buf );
+	}
+
 	if ((guaranteed || !rn2(10)) && u.trapxtradiff && (wizard || (!rn2(10)) || final >= 1 )) {
 		sprintf(buf, "increased by %d", u.trapxtradiff);
 		enl_msg("Trap difficulty ", "is ", "was ", buf );
+	}
+
+	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 )) {
+		sprintf(buf, "extra hard to find %d%% of the time", u.xdifftrapchance);
+		enl_msg("Traps ", "are ", "were ", buf );
 	}
 
 	if ((guaranteed || !rn2(10)) && (wizard || (!rn2(10)) || final >= 1 )) {sprintf(buf, " turn %d", u.next_check);
@@ -3314,6 +3665,31 @@ boolean guaranteed;
 		enl_msg("You're trembling, which reduces your to-hit and spellcasting chances. The amount ", "is", "was", buf);
 	}
 
+	if ((guaranteed || !rn2(10)) && u.tsloss_str) {
+		sprintf(buf, " %d", u.tsloss_str);
+		enl_msg("Your strength ", "is temporarily reduced by", "was temporarily reduced by", buf);
+	}
+	if ((guaranteed || !rn2(10)) && u.tsloss_dex) {
+		sprintf(buf, " %d", u.tsloss_dex);
+		enl_msg("Your dexterity ", "is temporarily reduced by", "was temporarily reduced by", buf);
+	}
+	if ((guaranteed || !rn2(10)) && u.tsloss_con) {
+		sprintf(buf, " %d", u.tsloss_con);
+		enl_msg("Your constitution ", "is temporarily reduced by", "was temporarily reduced by", buf);
+	}
+	if ((guaranteed || !rn2(10)) && u.tsloss_wis) {
+		sprintf(buf, " %d", u.tsloss_wis);
+		enl_msg("Your wisdom ", "is temporarily reduced by", "was temporarily reduced by", buf);
+	}
+	if ((guaranteed || !rn2(10)) && u.tsloss_int) {
+		sprintf(buf, " %d", u.tsloss_int);
+		enl_msg("Your intelligence ", "is temporarily reduced by", "was temporarily reduced by", buf);
+	}
+	if ((guaranteed || !rn2(10)) && u.tsloss_cha) {
+		sprintf(buf, " %d", u.tsloss_cha);
+		enl_msg("Your charisma ", "is temporarily reduced by", "was temporarily reduced by", buf);
+	}
+
 	if ((guaranteed || !rn2(10)) && u.extralives == 1) {
 		you_have("an extra life");
 	}
@@ -3327,22 +3703,22 @@ boolean guaranteed;
 	}
 
 	/*** Resistances to troubles ***/
-	if ((guaranteed || !rn2(10)) && Fire_resistance) you_are("fire resistant");
-	if ((guaranteed || !rn2(10)) && Cold_resistance) you_are("cold resistant");
-	if ((guaranteed || !rn2(10)) && Sleep_resistance) you_are("sleep resistant");
-	if ((guaranteed || !rn2(10)) && Disint_resistance) you_are("disintegration-resistant");
-	if ((guaranteed || !rn2(10)) && Shock_resistance) you_are("shock resistant");
-	if ((guaranteed || !rn2(10)) && Poison_resistance) you_are("poison resistant");
-	if ((guaranteed || !rn2(10)) && Drain_resistance) you_are("level-drain resistant");
-	if ((guaranteed || !rn2(10)) && Sick_resistance) you_are("immune to sickness");
-	if ((guaranteed || !rn2(10)) && Antimagic) you_are("magic-protected");
-	if ((guaranteed || !rn2(10)) && Acid_resistance) you_are("acid resistant");
-	if ((guaranteed || !rn2(10)) && Fear_resistance) you_are("resistant to fear");
+	if ((guaranteed || !rn2(10)) && Fire_resistance) you_are(StrongFire_resistance ? "doubly fire resistant" : "fire resistant");
+	if ((guaranteed || !rn2(10)) && Cold_resistance) you_are(StrongCold_resistance ? "doubly cold resistant" : "cold resistant");
+	if ((guaranteed || !rn2(10)) && Sleep_resistance) you_are(StrongSleep_resistance ? "doubly sleep resistant" : "sleep resistant");
+	if ((guaranteed || !rn2(10)) && Disint_resistance) you_are(StrongDisint_resistance ? "doubly disintegration-resistant" : "disintegration-resistant");
+	if ((guaranteed || !rn2(10)) && Shock_resistance) you_are(StrongShock_resistance ? "doubly shock resistant" : "shock resistant");
+	if ((guaranteed || !rn2(10)) && Poison_resistance) you_are(StrongPoison_resistance ? "doubly poison resistant" : "poison resistant");
+	if ((guaranteed || !rn2(10)) && Drain_resistance) you_are(StrongDrain_resistance ? "doubly level-drain resistant" : "level-drain resistant");
+	if ((guaranteed || !rn2(10)) && Sick_resistance) you_are(StrongSick_resistance ? "completely immune to sickness" : IntSick_resistance ? "immune to sickness" : "resistant to sickness");
+	if ((guaranteed || !rn2(10)) && Antimagic) you_are(StrongAntimagic ? "doubly magic-protected" : "magic-protected");
+	if ((guaranteed || !rn2(10)) && Acid_resistance) you_are(StrongAcid_resistance ? "doubly acid resistant" : "acid resistant");
+	if ((guaranteed || !rn2(10)) && Fear_resistance) you_are(StrongFear_resistance ? "highly resistant to fear" : "resistant to fear");
 	if ((guaranteed || !rn2(10)) && Stone_resistance)
-		you_are("petrification resistant");
+		you_are(StrongStone_resistance ? "completely immune to petrification" : IntStone_resistance ? "immune to petrification" : "petrification resistant");
 	if ((guaranteed || !rn2(10)) && Invulnerable) {
 		sprintf(buf, "invulnerable");
-	    if (wizard || (!rn2(10)) || final >= 1  ) sprintf(eos(buf), " (%d)", Invulnerable);
+	    if (wizard || (!rn2(10)) || final >= 1  ) sprintf(eos(buf), " (%ld)", Invulnerable);
 		you_are(buf);
 	}
 	/*if (u.urealedibility) you_can("recognize detrimental food");*/
@@ -3367,55 +3743,55 @@ boolean guaranteed;
 	if ((guaranteed || !rn2(10)) && Hallucination) {
 		if (HeavyHallu) sprintf(buf, "badly hallucinating");
 		else sprintf(buf, "hallucinating");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HHallucination);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HHallucination);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && Stunned) {
 		if (HeavyStunned) sprintf(buf, "badly stunned");
 		else sprintf(buf, "stunned");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HStun);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HStun);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && Confusion) {
 		if (HeavyConfusion) sprintf(buf, "badly confused");
 		else sprintf(buf, "confused");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HConfusion);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HConfusion);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && Blind) {
 		if (HeavyBlind) sprintf(buf, "badly blinded");
 		else sprintf(buf, "blinded");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Blinded);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Blinded);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && Sick) {
 		sprintf(buf, "sick");
 			if (u.usick_type & SICK_VOMITABLE) sprintf(eos(buf), " from food poisoning");
 			if (u.usick_type & SICK_NONVOMITABLE) sprintf(eos(buf), " from illness");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Sick);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Sick);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && Vomiting) {
 		sprintf(buf, "nauseated");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Vomiting);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Vomiting);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && Feared) {
 		if (HeavyFeared) sprintf(buf, "stricken with very strong fear");
 		else sprintf(buf, "stricken with fear");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HFeared);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HFeared);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && Numbed) {
 		if (HeavyNumbed) sprintf(buf, "badly numbed");
 		else sprintf(buf, "numbed");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HNumbed);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HNumbed);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && Frozen) {
 		if (HeavyFrozen) sprintf(buf, "frozen rigid and solid");
 		else sprintf(buf, "frozen solid");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HFrozen);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HFrozen);
 		you_are(buf);
 	}
 
@@ -3428,14 +3804,14 @@ boolean guaranteed;
 	if ((guaranteed || !rn2(10)) && Burned) {
 		if (HeavyBurned) sprintf(buf, "badly burned");
 		else sprintf(buf, "burned");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HBurned);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HBurned);
 		you_are(buf);
 	}
 		
 	if ((guaranteed || !rn2(10)) && Dimmed) {
 		if (HeavyDimmed) sprintf(buf, "badly dimmed");
 		else sprintf(buf, "dimmed");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HDimmed);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HDimmed);
 		you_are(buf);
 	}
 		
@@ -3453,17 +3829,22 @@ boolean guaranteed;
 
 	if ((guaranteed || !rn2(10)) && Stoned) {
 		sprintf(buf, "turning to stone");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Stoned);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Stoned);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && Slimed) {
 		sprintf(buf, "turning into slime");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Slimed);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Slimed);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && Strangled) {
 		sprintf(buf, (u.uburied) ? "buried" : "being strangled");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Strangled);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Strangled);
+		you_are(buf);
+	}
+	if ((guaranteed || !rn2(10)) && PlayerBleeds) {
+		sprintf(buf, "bleeding");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", PlayerBleeds);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && Prem_death) {
@@ -3472,99 +3853,99 @@ boolean guaranteed;
 	}
 	if ((guaranteed || !rn2(10)) && IsGlib) {
 		sprintf(buf, "slippery %s", makeplural(body_part(FINGER)));
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Glib);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Glib);
 		you_have(buf);
 	}
 
 
 	if ((guaranteed || !rn2(10)) && (MenuBug || u.uprops[MENU_LOST].extrinsic || have_menubugstone())) {
 		sprintf(buf, "the menu bug.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MenuBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MenuBug);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (SpeedBug || u.uprops[SPEED_BUG].extrinsic || have_speedbugstone())) {
 		sprintf(buf, "the speed bug.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", SpeedBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", SpeedBug);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (Superscroller || u.uprops[SUPERSCROLLER_ACTIVE].extrinsic || have_superscrollerstone())) {
 		sprintf(buf, "the superscroller.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Superscroller);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Superscroller);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (RMBLoss || u.uprops[RMB_LOST].extrinsic || have_rmbstone())) {
 		sprintf(buf, "the following problem: Your right mouse button failed.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", RMBLoss);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", RMBLoss);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (DisplayLoss || u.uprops[DISPLAY_LOST].extrinsic || have_displaystone())) {
 		sprintf(buf, "the following problem: Your display failed.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", DisplayLoss);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", DisplayLoss);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (SpellLoss || u.uprops[SPELLS_LOST].extrinsic || have_spelllossstone())) {
 		sprintf(buf, "the following problem: You lost spells.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", SpellLoss);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", SpellLoss);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (YellowSpells || u.uprops[YELLOW_SPELLS].extrinsic || have_yellowspellstone())) {
 		sprintf(buf, "the following problem: Your spells became yellow.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", YellowSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", YellowSpells);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (AutoDestruct || u.uprops[AUTO_DESTRUCT].extrinsic || have_autodestructstone())) {
 		sprintf(buf, "the following problem: An auto destruct mechanism was initiated.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", AutoDestruct);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", AutoDestruct);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (MemoryLoss || u.uprops[MEMORY_LOST].extrinsic || have_memorylossstone())) {
 		sprintf(buf, "the following problem: There is low local memory.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MemoryLoss);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MemoryLoss);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (InventoryLoss || u.uprops[INVENTORY_LOST].extrinsic || have_inventorylossstone())) {
 		sprintf(buf, "the following problem: There is not enough memory to create an inventory window.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", InventoryLoss);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", InventoryLoss);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (BlackNgWalls || u.uprops[BLACK_NG_WALLS].extrinsic || have_blackystone())) {
 		sprintf(buf, "the following problem: Blacky and his NG walls are closing in.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", BlackNgWalls);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BlackNgWalls);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (FreeHandLoss || u.uprops[FREE_HAND_LOST].extrinsic || have_freehandbugstone())) {
 		sprintf(buf, "the following problem: Your free hand is less likely to be free.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FreeHandLoss);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FreeHandLoss);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (Unidentify || u.uprops[UNIDENTIFY].extrinsic || have_unidentifystone())) {
 		sprintf(buf, "the following problem: Your possessions sometimes unidentify themselves.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Unidentify);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Unidentify);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (Thirst || u.uprops[THIRST].extrinsic || have_thirststone())) {
 		sprintf(buf, "a strong sense of thirst.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Thirst);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Thirst);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (LuckLoss || u.uprops[LUCK_LOSS].extrinsic || have_unluckystone())) {
 		sprintf(buf, "the following problem: You're shitting out of luck (SOL).");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", LuckLoss);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", LuckLoss);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (ShadesOfGrey || u.uprops[SHADES_OF_GREY].extrinsic || have_shadesofgreystone())) {
 		sprintf(buf, "the following problem: Everything displays in various shades of grey.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ShadesOfGrey);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ShadesOfGrey);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (FaintActive || u.uprops[FAINT_ACTIVE].extrinsic || have_faintingstone())) {
 		sprintf(buf, "the following problem: You randomly faint.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FaintActive);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FaintActive);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (Itemcursing || u.uprops[ITEMCURSING].extrinsic || have_cursingstone() || have_primecurse() )) {
 		sprintf(buf, "the following problem: Your inventory gradually fills up with cursed items.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Itemcursing);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Itemcursing);
 		you_have(buf);
 	}
 
@@ -3583,959 +3964,995 @@ boolean guaranteed;
 
 	if ((guaranteed || !rn2(10)) && (DifficultyIncreased || u.uprops[DIFFICULTY_INCREASED].extrinsic || have_difficultystone())) {
 		sprintf(buf, "the following problem: The difficulty of the game was arbitrarily increased.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", DifficultyIncreased);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", DifficultyIncreased);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (Deafness || u.uprops[DEAFNESS].extrinsic || have_deafnessstone())) {
 		sprintf(buf, "a hearing break.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Deafness);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Deafness);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (CasterProblem || u.uprops[CASTER_PROBLEM].extrinsic || have_antimagicstone())) {
 		sprintf(buf, "blood mana.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", CasterProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", CasterProblem);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (WeaknessProblem || u.uprops[WEAKNESS_PROBLEM].extrinsic || have_weaknessstone())) {
 		sprintf(buf, "the following problem: Being weak from hunger damages your health.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", WeaknessProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", WeaknessProblem);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (RotThirteen || u.uprops[ROT_THIRTEEN].extrinsic || have_rotthirteenstone())) {
 		sprintf(buf, "the following problem: A rot13 cypher has been activated for lowercase letters.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", RotThirteen);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", RotThirteen);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (BishopGridbug || u.uprops[BISHOP_GRIDBUG].extrinsic || have_bishopstone())) {
 		sprintf(buf, "the following problem: You cannot move diagonally.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", BishopGridbug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BishopGridbug);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (ConfusionProblem || u.uprops[CONFUSION_PROBLEM].extrinsic || have_confusionstone())) {
 		sprintf(buf, "a confusing problem.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ConfusionProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ConfusionProblem);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (NoDropProblem || u.uprops[DROP_BUG].extrinsic || have_dropbugstone())) {
 		sprintf(buf, "the following problem: You cannot drop items.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", NoDropProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", NoDropProblem);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (DSTWProblem || u.uprops[DSTW_BUG].extrinsic || have_dstwstone())) {
 		sprintf(buf, "the following problem: Your potions don't always work.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", DSTWProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", DSTWProblem);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (StatusTrapProblem || u.uprops[STATUS_FAILURE].extrinsic || have_statusstone())) {
 		sprintf(buf, "the following problem: You can't cure status effects.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", StatusTrapProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", StatusTrapProblem);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (AlignmentProblem || u.uprops[ALIGNMENT_FAILURE].extrinsic || have_alignmentstone())) {
 		sprintf(buf, "the following problem: Your maximum alignment will decrease over time.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", AlignmentProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", AlignmentProblem);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (StairsProblem || u.uprops[STAIRSTRAP].extrinsic || have_stairstrapstone())) {
 		sprintf(buf, "the following problem: Stairs are always trapped.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", StairsProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", StairsProblem);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (UninformationProblem || u.uprops[UNINFORMATION].extrinsic || have_uninformationstone())) {
 		sprintf(buf, "the following problem: The game gives insufficient amounts of information.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", UninformationProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", UninformationProblem);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (TimerunBug || u.uprops[TIMERUN_BUG].extrinsic || have_timerunstone())) {
 		sprintf(buf, "the following problem: All actions take turns.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", TimerunBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", TimerunBug);
+		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && (SanityTrebleEffect || u.uprops[SANITY_TREBLE_EFFECT].extrinsic || have_sanitytreblestone())) {
+		sprintf(buf, "the following problem: Sanity effects will increase your sanity by a much higher amount than usual.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", SanityTrebleEffect);
+		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && (StatDecreaseBug || u.uprops[STAT_DECREASE_BUG].extrinsic || have_statdecreasestone())) {
+		sprintf(buf, "the following problem: The soft cap for your attributes is much lower.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", StatDecreaseBug);
+		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && (SimeoutBug || u.uprops[SIMEOUT_BUG].extrinsic || have_simeoutstone())) {
+		sprintf(buf, "the following problem: Your sanity slowly increases over time.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", SimeoutBug);
+		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && (BadPartBug || u.uprops[BAD_PARTS].extrinsic || have_badpartstone())) {
+		sprintf(buf, "in the bad part.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BadPartBug);
+		you_are(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && (CompletelyBadPartBug || u.uprops[COMPLETELY_BAD_PARTS].extrinsic || have_completelybadpartstone())) {
+		sprintf(buf, "in the completely bad part.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", CompletelyBadPartBug);
+		you_are(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && (EvilVariantActive || u.uprops[EVIL_VARIANT_ACTIVE].extrinsic || have_evilvariantstone())) {
+		sprintf(buf, "the following problem: You're forced to play the evil variant.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", EvilVariantActive);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (OrangeSpells || u.uprops[ORANGE_SPELLS].extrinsic || have_orangespellstone())) {
 		sprintf(buf, "the following problem: Your spells became orange.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", OrangeSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", OrangeSpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (VioletSpells || u.uprops[VIOLET_SPELLS].extrinsic || have_violetspellstone())) {
 		sprintf(buf, "the following problem: Your spells became violet.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", VioletSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", VioletSpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (LongingEffect || u.uprops[LONGING_EFFECT].extrinsic || have_longingstone())) {
 		sprintf(buf, "the following problem: The game bombards you with 'sexy' messages.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", LongingEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", LongingEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (CursedParts || u.uprops[CURSED_PARTS].extrinsic || have_cursedpartstone())) {
 		sprintf(buf, "the following problem: Sometimes you're forced to wear cursed equipment.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", CursedParts);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", CursedParts);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (Quaversal || u.uprops[QUAVERSAL].extrinsic || have_quaversalstone())) {
 		sprintf(buf, "the following problem: Unless you're standing on specific tiles, the entire screen is black.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Quaversal);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Quaversal);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (AppearanceShuffling || u.uprops[APPEARANCE_SHUFFLING].extrinsic || have_appearanceshufflingstone())) {
 		sprintf(buf, "the following problem: The randomized appearances of items are occasionally shuffled.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", AppearanceShuffling);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", AppearanceShuffling);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (BrownSpells || u.uprops[BROWN_SPELLS].extrinsic || have_brownspellstone())) {
 		sprintf(buf, "the following problem: Your spells became brown.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", BrownSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BrownSpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (Choicelessness || u.uprops[CHOICELESSNESS].extrinsic || have_choicelessstone())) {
-		sprintf(buf, "the following problem: Direction prompts don't allow you to select anything.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Choicelessness);
+		sprintf(buf, "the following problem: Direction prompts often don't allow you to select anything.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Choicelessness);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (Goldspells || u.uprops[GOLDSPELLS].extrinsic || have_goldspellstone())) {
-		sprintf(buf, "the following problem: You can't choose which spell you want to cast.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Goldspells);
+		sprintf(buf, "the following problem: You often can't choose which spell you want to cast.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Goldspells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (Deprovement || u.uprops[DEPROVEMENT].extrinsic || have_deprovementstone())) {
 		sprintf(buf, "the following problem: Leveling up no longer increases your maximum HP and Pw.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Deprovement);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Deprovement);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (InitializationFail || u.uprops[INITIALIZATION_FAIL].extrinsic || have_initializationstone())) {
 		sprintf(buf, "the following problem: Prompts that let you choose an item will not appear.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", InitializationFail);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", InitializationFail);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (GushlushEffect || u.uprops[GUSHLUSH].extrinsic || have_gushlushstone())) {
 		sprintf(buf, "the following problem: To-hit, spellcasting chances and some other stuff always assume that you're experience level 1.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", GushlushEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", GushlushEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (SoiltypeEffect || u.uprops[SOILTYPE].extrinsic || have_soiltypestone())) {
 		sprintf(buf, "the following problem: You trigger ground-based traps even while flying or levitating.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", SoiltypeEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", SoiltypeEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (DangerousTerrains || u.uprops[DANGEROUS_TERRAINS].extrinsic || have_dangerousterrainstone())) {
 		sprintf(buf, "the following problem: Standing next to dangerous terrain may confuse or stun you with no warning.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", DangerousTerrains);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", DangerousTerrains);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (FalloutEffect || u.uprops[FALLOUT_EFFECT].extrinsic || have_falloutstone())) {
 		sprintf(buf, "the following problem: Your contamination increases over time.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FalloutEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FalloutEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (MojibakeEffect || u.uprops[MOJIBAKE].extrinsic || have_mojibakestone())) {
 		sprintf(buf, "the following problem: Some glyphs are randomized.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MojibakeEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MojibakeEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (GravationEffect || u.uprops[GRAVATION].extrinsic || have_gravationstone())) {
 		sprintf(buf, "the following problem: Random monster spawns use aggravate monster rules.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", GravationEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", GravationEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (UncalledEffect || u.uprops[UNCALLED_EFFECT].extrinsic || have_uncalledstone())) {
 		sprintf(buf, "the following problem: You can't give names to items or monsters.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", UncalledEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", UncalledEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (ExplodingDiceEffect || u.uprops[EXPLODING_DICE].extrinsic || have_explodingdicestone())) {
 		sprintf(buf, "the following problem: Monster attacks use exploding dice for damage calculations.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ExplodingDiceEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ExplodingDiceEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (PermacurseEffect || u.uprops[PERMACURSE_EFFECT].extrinsic || have_permacursestone())) {
 		sprintf(buf, "the following problem: Many conventional methods of curse removal no longer work.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", PermacurseEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", PermacurseEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (ShroudedIdentity || u.uprops[SHROUDED_IDENTITY].extrinsic || have_shroudedidentitystone())) {
 		sprintf(buf, "the following problem: Identifying items is much harder.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ShroudedIdentity);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ShroudedIdentity);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (FeelerGauges || u.uprops[FEELER_GAUGES].extrinsic || have_feelergaugesstone())) {
 		sprintf(buf, "the following problem: Monsters always know where you are and come straight for you.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FeelerGauges);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FeelerGauges);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (LongScrewup || u.uprops[LONG_SCREWUP].extrinsic || have_longscrewupstone())) {
 		sprintf(buf, "the following problem: Triggering a nasty trap causes the effect to last for a really long time.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", LongScrewup);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", LongScrewup);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (WingYellowChange || u.uprops[WING_YELLOW_GLYPHS].extrinsic || have_wingyellowstone())) {
 		sprintf(buf, "the following problem: You're forced to play with a different tileset.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", WingYellowChange);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", WingYellowChange);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (LifeSavingBug || u.uprops[LIFE_SAVING_BUG].extrinsic || have_lifesavingstone())) {
 		sprintf(buf, "the following problem: Monsters occasionally lifesave when killed.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", LifeSavingBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", LifeSavingBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (CurseuseEffect || u.uprops[CURSEUSE_EFFECT].extrinsic || have_curseusestone())) {
 		sprintf(buf, "the following problem: Any scroll, potion, spellbook, wand or tool you use automatically becomes cursed.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", CurseuseEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", CurseuseEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (CutNutritionEffect || u.uprops[CUT_NUTRITION].extrinsic || have_cutnutritionstone())) {
 		sprintf(buf, "the following problem: You gain much less nutrition than usual.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", CutNutritionEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", CutNutritionEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (SkillLossEffect || u.uprops[SKILL_LOSS_EFFECT].extrinsic || have_skilllossstone())) {
 		sprintf(buf, "the following problem: Your skills will gradually lose training.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", SkillLossEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", SkillLossEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (AutopilotEffect || u.uprops[AUTOPILOT_EFFECT].extrinsic || have_autopilotstone())) {
 		sprintf(buf, "the following problem: You're on autopilot.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", AutopilotEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", AutopilotEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (MysteriousForceActive || u.uprops[MYSTERIOUS_FORCE_EFFECT].extrinsic || have_forcestone())) {
 		sprintf(buf, "the following problem: The dirty mysterious force full of dirt is back.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MysteriousForceActive);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MysteriousForceActive);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (MonsterGlyphChange || u.uprops[MONSTER_GLYPH_BUG].extrinsic || have_monsterglyphstone())) {
 		sprintf(buf, "the following problem: Monsters rapidly change glyphs.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MonsterGlyphChange);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MonsterGlyphChange);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (ChangingDirectives || u.uprops[CHANGING_DIRECTIVES].extrinsic || have_changingdirectivestone())) {
 		sprintf(buf, "the following problem: The directives you've given to your pets will change randomly.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ChangingDirectives);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ChangingDirectives);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (ContainerKaboom || u.uprops[CONTAINER_KABOOM].extrinsic || have_containerkaboomstone())) {
 		sprintf(buf, "the following problem: Opening a container causes bad stuff to happen.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ContainerKaboom);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ContainerKaboom);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (StealDegrading || u.uprops[STEAL_DEGRADING].extrinsic || have_stealdegradestone())) {
 		sprintf(buf, "the following problem: If a monster steals your items, the stolen items are cursed and disenchanted.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", StealDegrading);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", StealDegrading);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (LeftInventoryBug || u.uprops[LEFT_INVENTORY].extrinsic || have_leftinventorystone())) {
 		sprintf(buf, "the following problem: Items that leave your inventory will be unidentified.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", LeftInventoryBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", LeftInventoryBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (FluctuatingSpeed || u.uprops[FLUCTUATING_SPEED].extrinsic || have_fluctuatingspeedstone())) {
 		sprintf(buf, "the following problem: Your movement speed fluctuates from extremely fast to ultra slow.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FluctuatingSpeed);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FluctuatingSpeed);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (TarmuStrokingNora || u.uprops[TARMU_STROKING_NORA].extrinsic || have_tarmustrokingnorastone())) {
 		sprintf(buf, "the following problem: Searching may cause a new trap to spawn.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", TarmuStrokingNora);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", TarmuStrokingNora);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone())) {
 		sprintf(buf, "the following problem: The messages 'nothing happens' or 'never mind' become dangerous.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FailureEffects);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FailureEffects);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (BrightCyanSpells || u.uprops[BRIGHT_CYAN_SPELLS].extrinsic || have_brightcyanspellstone())) {
 		sprintf(buf, "the following problem: Your spells became bright cyan.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", BrightCyanSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BrightCyanSpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (FrequentationSpawns || u.uprops[FREQUENTATION_SPAWNS].extrinsic || have_frequentationspawnstone())) {
 		sprintf(buf, "the following problem: Some monster trait is more common than usual.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FrequentationSpawns);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FrequentationSpawns);
 	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%s)", montraitname(u.frequentationtrait));
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (PetAIScrewed || u.uprops[PET_AI_SCREWED].extrinsic || have_petaistone())) {
 		sprintf(buf, "the following problem: Your pets refuse to follow you.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", PetAIScrewed);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", PetAIScrewed);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (SatanEffect || u.uprops[SATAN_EFFECT].extrinsic || have_satanstone())) {
 		sprintf(buf, "the following problem: Satan made it so that changing dungeon levels paralyzes you for a turn.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", SatanEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", SatanEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (RememberanceEffect || u.uprops[REMEMBERANCE_EFFECT].extrinsic || have_rememberancestone())) {
 		sprintf(buf, "the following problem: Spells with low spell memory are harder to cast.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", RememberanceEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", RememberanceEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (PokelieEffect || u.uprops[POKELIE_EFFECT].extrinsic || have_pokeliestone())) {
 		sprintf(buf, "the following problem: The pokedex lies to you.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", PokelieEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", PokelieEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (AlwaysAutopickup || u.uprops[AUTOPICKUP_ALWAYS].extrinsic || have_autopickupstone())) {
 		sprintf(buf, "the following problem: You always pick up items.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", AlwaysAutopickup);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", AlwaysAutopickup);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (DywypiProblem || u.uprops[DYWYPI_PROBLEM].extrinsic || have_dywypistone())) {
 		sprintf(buf, "the following problem: If you lifesave, you have to give the correct answer or you die anyway.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", DywypiProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", DywypiProblem);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (SilverSpells || u.uprops[SILVER_SPELLS].extrinsic || have_silverspellstone())) {
 		sprintf(buf, "the following problem: Your spells became silver.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", SilverSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", SilverSpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (MetalSpells || u.uprops[METAL_SPELLS].extrinsic || have_metalspellstone())) {
 		sprintf(buf, "the following problem: Your spells became metal.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MetalSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MetalSpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (PlatinumSpells || u.uprops[PLATINUM_SPELLS].extrinsic || have_platinumspellstone())) {
 		sprintf(buf, "the following problem: Your spells became platinum.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", PlatinumSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", PlatinumSpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (ManlerEffect || u.uprops[MANLER_EFFECT].extrinsic || have_manlerstone())) {
 		sprintf(buf, "the following problem: The manler is chasing you.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ManlerEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ManlerEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (DoorningEffect || u.uprops[DOORNING_EFFECT].extrinsic || have_doorningstone())) {
 		sprintf(buf, "the following problem: Doors are dangerous.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", DoorningEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", DoorningEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (NownsibleEffect || u.uprops[NOWNSIBLE_EFFECT].extrinsic || have_nownsiblestone())) {
 		sprintf(buf, "the following problem: Triggering a trap makes it invisible.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", NownsibleEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", NownsibleEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (ElmStreetEffect || u.uprops[ELM_STREET_EFFECT].extrinsic || have_elmstreetstone())) {
 		sprintf(buf, "the following problem: The game behaves as if it were Friday the 13th.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ElmStreetEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ElmStreetEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (MonnoiseEffect || u.uprops[MONNOISE_EFFECT].extrinsic || have_monnoisestone())) {
 		sprintf(buf, "the following problem: Monsters make noises.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MonnoiseEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MonnoiseEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (RangCallEffect || u.uprops[RANG_CALL_EFFECT].extrinsic || have_rangcallstone())) {
 		sprintf(buf, "the following problem: The presence of boss monsters increases your sanity.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", RangCallEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", RangCallEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (RecurringSpellLoss || u.uprops[RECURRING_SPELL_LOSS].extrinsic || have_recurringspelllossstone())) {
 		sprintf(buf, "the following problem: You repeatedly lose spell memory.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", RecurringSpellLoss);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", RecurringSpellLoss);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (AntitrainingEffect || u.uprops[ANTI_TRAINING_EFFECT].extrinsic || have_antitrainingstone())) {
 		sprintf(buf, "the following problem: Your skill training is occasionally reduced.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", AntitrainingEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", AntitrainingEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (TechoutBug || u.uprops[TECHOUT_BUG].extrinsic || have_techoutstone())) {
 		sprintf(buf, "the following problem: Your techniques may sometimes be put on timeout.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", TechoutBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", TechoutBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (StatDecay || u.uprops[STAT_DECAY].extrinsic || have_statdecaystone())) {
 		sprintf(buf, "the following problem: Your stats will gradually decay.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", StatDecay);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", StatDecay);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (Movemork || u.uprops[MOVEMORKING].extrinsic || have_movemorkstone())) {
 		sprintf(buf, "the following problem: Monsters are generated with movement energy.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Movemork);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Movemork);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (LootcutBug || u.uprops[LOOTCUT_BUG].extrinsic || have_lootcutstone())) {
 		sprintf(buf, "the following problem: Monsters delete their musable items when killed.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", LootcutBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", LootcutBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (MonsterSpeedBug || u.uprops[MONSTER_SPEED_BUG].extrinsic || have_monsterspeedstone())) {
 		sprintf(buf, "the following problem: Monsters are moving faster.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MonsterSpeedBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MonsterSpeedBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (ScalingBug || u.uprops[SCALING_BUG].extrinsic || have_scalingstone())) {
 		sprintf(buf, "the following problem: Minimum monster level depends on your current depth.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ScalingBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ScalingBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (EnmityBug || u.uprops[ENMITY_BUG].extrinsic || have_inimicalstone())) {
 		sprintf(buf, "the following problem: Monsters always spawn hostile.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", EnmityBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", EnmityBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (WhiteSpells || u.uprops[WHITE_SPELLS].extrinsic || have_whitespellstone())) {
 		sprintf(buf, "the following problem: Your spells became white.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", WhiteSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", WhiteSpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (CompleteGraySpells || u.uprops[COMPLETE_GRAY_SPELLS].extrinsic || have_greyoutstone())) {
 		sprintf(buf, "the following problem: Your spells became completely gray.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", CompleteGraySpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", CompleteGraySpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (QuasarVision || u.uprops[QUASAR_BUG].extrinsic || have_quasarstone())) {
 		sprintf(buf, "the following problem: You can barely see the quasars.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", QuasarVision);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", QuasarVision);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (MommaBugEffect || u.uprops[MOMMA_BUG].extrinsic || have_mommystone())) {
 		sprintf(buf, "the following problem: Your momma will repeatedly be insulted.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MommaBugEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MommaBugEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (HorrorBugEffect || u.uprops[HORROR_BUG].extrinsic || have_horrorstone())) {
 		sprintf(buf, "the following problem: You will repeatedly get hit with status effects.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HorrorBugEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HorrorBugEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (ArtificerBug || u.uprops[ARTIFICER_BUG].extrinsic || have_artificialstone())) {
 		sprintf(buf, "the following problem: You will be forced to equip evil artifacts.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ArtificerBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ArtificerBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (WereformBug || u.uprops[WEREFORM_BUG].extrinsic || have_wereformstone())) {
 		sprintf(buf, "the following problem: You randomly polymorph into werecreatures.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", WereformBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", WereformBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (NonprayerBug || u.uprops[NON_PRAYER_BUG].extrinsic || have_antiprayerstone())) {
 		sprintf(buf, "the following problem: Your prayer timeout goes up instead of down.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", NonprayerBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", NonprayerBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (EvilPatchEffect || u.uprops[EVIL_PATCH_EFFECT].extrinsic || have_evilpatchstone())) {
 		sprintf(buf, "the following problem: You will get nasty trap effects intrinsically over time.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", EvilPatchEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", EvilPatchEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (HardModeEffect || u.uprops[HARD_MODE_EFFECT].extrinsic || have_hardmodestone())) {
 		sprintf(buf, "the following problem: All damage you take is doubled.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HardModeEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HardModeEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (SecretAttackBug || u.uprops[SECRET_ATTACK_BUG].extrinsic || have_secretattackstone())) {
 		sprintf(buf, "the following problem: Monsters occasionally use their secret attacks.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", SecretAttackBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", SecretAttackBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (EaterBugEffect || u.uprops[EATER_BUG].extrinsic || have_eaterstone())) {
 		sprintf(buf, "the following problem: Monsters can eat all items they encounter.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", EaterBugEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", EaterBugEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (CovetousnessBug || u.uprops[COVETOUSNESS_BUG].extrinsic || have_covetousstone())) {
 		sprintf(buf, "the following problem: Covetous monster AI fires each turn.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", CovetousnessBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", CovetousnessBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (NotSeenBug || u.uprops[NOT_SEEN_BUG].extrinsic || have_nonseeingstone())) {
 		sprintf(buf, "the following problem: The walls became invisible.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", NotSeenBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", NotSeenBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (DarkModeBug || u.uprops[DARK_MODE_BUG].extrinsic || have_darkmodestone())) {
 		sprintf(buf, "the following problem: Lit tiles aren't visible unless you would also see them if they were unlit.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", DarkModeBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", DarkModeBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (AntisearchEffect || u.uprops[ANTISEARCH_EFFECT].extrinsic || have_unfindablestone())) {
 		sprintf(buf, "the following problem: The search command never finds anything.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", AntisearchEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", AntisearchEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (HomicideEffect || u.uprops[HOMICIDE_EFFECT].extrinsic || have_homicidestone())) {
 		sprintf(buf, "the following problem: Monsters build new traps for you to blunder into.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HomicideEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HomicideEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (NastynationBug || u.uprops[NASTY_NATION_BUG].extrinsic || have_multitrappingstone())) {
 		sprintf(buf, "the following problem: All trap types except beneficial ones are equally likely to generate.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", NastynationBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", NastynationBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (WakeupCallBug || u.uprops[WAKEUP_CALL_BUG].extrinsic || have_wakeupcallstone())) {
 		sprintf(buf, "the following problem: Peaceful monsters may spontaneously turn hostile.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", WakeupCallBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", WakeupCallBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (GrayoutBug || u.uprops[GRAYOUT_BUG].extrinsic || have_grayoutstone())) {
 		sprintf(buf, "the following problem: The display intermittently becomes all gray.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", GrayoutBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", GrayoutBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (GrayCenterBug || u.uprops[GRAY_CENTER_BUG].extrinsic || have_graycenterstone())) {
 		sprintf(buf, "the following problem: Your immediate surroundings are obscured by a gray shroud.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", GrayCenterBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", GrayCenterBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (CheckerboardBug || u.uprops[CHECKERBOARD_BUG].extrinsic || have_checkerboardstone())) {
 		sprintf(buf, "the following problem: Only one color of checkerboard tiles is ever visible at any given time.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", CheckerboardBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", CheckerboardBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (ClockwiseSpinBug || u.uprops[CLOCKWISE_SPIN_BUG].extrinsic || have_clockwisestone())) {
 		sprintf(buf, "the following problem: Your directional keys are shifted 45 degrees clockwise.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ClockwiseSpinBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ClockwiseSpinBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (CounterclockwiseSpin || u.uprops[COUNTERCLOCKWISE_SPIN_BUG].extrinsic || have_counterclockwisestone())) {
 		sprintf(buf, "the following problem: Your directional keys are shifted 90 degrees counterclockwise.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", CounterclockwiseSpin);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", CounterclockwiseSpin);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (LagBugEffect || u.uprops[LAG_BUG].extrinsic || have_lagstone())) {
 		sprintf(buf, "the following problem: The game lags.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", LagBugEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", LagBugEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (BlesscurseEffect || u.uprops[BLESSCURSE_EFFECT].extrinsic || have_blesscursestone())) {
 		sprintf(buf, "the following problem: Picking up a blessed item instantly curses it.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", BlesscurseEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BlesscurseEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (DeLightBug || u.uprops[DE_LIGHT_BUG].extrinsic || have_delightstone())) {
 		sprintf(buf, "the following problem: Tiles that you're walking on automatically become unlit.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", DeLightBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", DeLightBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (DischargeBug || u.uprops[DISCHARGE_BUG].extrinsic || have_dischargestone())) {
 		sprintf(buf, "the following problem: If you use wands or tools that have charges, more charges are used up than normal.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", DischargeBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", DischargeBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (TrashingBugEffect || u.uprops[TRASHING_EFFECT].extrinsic || have_trashstone())) {
 		sprintf(buf, "the following problem: If you equip enchanted weapons, armor or rings, their enchantment value decreases.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", TrashingBugEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", TrashingBugEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (FilteringBug || u.uprops[FILTERING_BUG].extrinsic || have_filteringstone())) {
 		sprintf(buf, "the following problem: Certain messages may be replaced with generic ones.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FilteringBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FilteringBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (DeformattingBug || u.uprops[DEFORMATTING_BUG].extrinsic || have_deformattingstone())) {
 		sprintf(buf, "the following problem: Your pokedex doesn't work.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", DeformattingBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", DeformattingBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (FlickerStripBug || u.uprops[FLICKER_STRIP_BUG].extrinsic || have_flickerstripstone())) {
 		sprintf(buf, "the following problem: The bottom status line only displays garbage strings.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FlickerStripBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FlickerStripBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (UndressingEffect || u.uprops[UNDRESSING_EFFECT].extrinsic || have_undressingstone())) {
 		sprintf(buf, "the following problem: You spontaneously take off equipment.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", UndressingEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", UndressingEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (Hyperbluewalls || u.uprops[HYPERBLUEWALL_BUG].extrinsic || have_hyperbluestone())) {
 		sprintf(buf, "the following problem: Walls are blue, and walking into them hurts you.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Hyperbluewalls);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Hyperbluewalls);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (NoliteBug || u.uprops[NOLITE_BUG].extrinsic || have_nolightstone())) {
 		sprintf(buf, "the following problem: Staircases and object piles are no longer highlighted.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", NoliteBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", NoliteBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (ParanoiaBugEffect || u.uprops[PARANOIA_BUG].extrinsic || have_paranoiastone())) {
 		sprintf(buf, "the following problem: There is no confirmation if you walk into traps, water or lava.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ParanoiaBugEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ParanoiaBugEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (FleecescriptBug || u.uprops[FLEECESCRIPT_BUG].extrinsic || have_fleecestone())) {
 		sprintf(buf, "the following problem: Inventory item descriptions appear in fleecy colors, which is actually not all that problematic. :-)");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FleecescriptBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FleecescriptBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (InterruptEffect || u.uprops[INTERRUPT_EFFECT].extrinsic || have_interruptionstone())) {
 		sprintf(buf, "the following problem: The read, quaff, zap and apply commands now take several turns to use and can be interrupted.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", InterruptEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", InterruptEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (DustbinBug || u.uprops[DUSTBIN_BUG].extrinsic || have_dustbinstone())) {
 		sprintf(buf, "the following problem: If you pick up a scroll, it may disintegrate.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", DustbinBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", DustbinBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (ManaBatteryBug || u.uprops[MANA_BATTERY_BUG].extrinsic || have_batterystone())) {
 		sprintf(buf, "a living mana battery.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ManaBatteryBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ManaBatteryBug);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (Monsterfingers || u.uprops[MONSTERFINGERS_EFFECT].extrinsic || have_butterfingerstone())) {
 		sprintf(buf, "the following problem: Picking up potions may break them and subject you to their vapors.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Monsterfingers);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Monsterfingers);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (MiscastBug || u.uprops[MISCAST_BUG].extrinsic || have_miscastingstone())) {
 		sprintf(buf, "the following problem: Casting a spell always causes backlash, regardless of whether the spell worked.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MiscastBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MiscastBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (MessageSuppression || u.uprops[MESSAGE_SUPPRESSION_BUG].extrinsic || have_messagesuppressionstone())) {
 		sprintf(buf, "the following problem: The top status line doesn't display anything.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MessageSuppression);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MessageSuppression);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (StuckAnnouncement || u.uprops[STUCK_ANNOUNCEMENT_BUG].extrinsic || have_stuckannouncementstone())) {
 		sprintf(buf, "the following problem: The bottom status line only updates if you explicitly tell it to do so.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", StuckAnnouncement);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", StuckAnnouncement);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (BloodthirstyEffect || u.uprops[BLOODTHIRSTY_EFFECT].extrinsic || have_stormstone())) {
 		sprintf(buf, "the following problem: There is no confirmation if you walk into a peaceful monster.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", BloodthirstyEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BloodthirstyEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (MaximumDamageBug || u.uprops[MAXIMUM_DAMAGE_BUG].extrinsic || have_maximumdamagestone())) {
 		sprintf(buf, "the following problem: Monster attacks always deal maximum damage to you.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MaximumDamageBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MaximumDamageBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (LatencyBugEffect || u.uprops[LATENCY_BUG].extrinsic || have_latencystone())) {
 		sprintf(buf, "the following problem: There is background latency.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", LatencyBugEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", LatencyBugEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (StarlitBug || u.uprops[STARLIT_BUG].extrinsic || have_starlitskystone())) {
 		sprintf(buf, "the following problem: All monsters look the same and you can't tell them apart.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", StarlitBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", StarlitBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (KnowledgeBug || u.uprops[KNOWLEDGE_BUG].extrinsic || have_trapknowledgestone())) {
 		sprintf(buf, "the following problem: All traps look the same and you can't tell them apart.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", KnowledgeBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", KnowledgeBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (HighscoreBug || u.uprops[HIGHSCORE_BUG].extrinsic || have_highscorestone())) {
 		sprintf(buf, "the following problem: The game continuously spawns spacewars monsters and nasty traps.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HighscoreBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HighscoreBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (PinkSpells || u.uprops[PINK_SPELLS].extrinsic || have_pinkspellstone())) {
 		sprintf(buf, "the following problem: Your spells became pink.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", PinkSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", PinkSpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (GreenSpells || u.uprops[GREEN_SPELLS].extrinsic || have_greenspellstone())) {
 		sprintf(buf, "the following problem: Your spells became green.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", GreenSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", GreenSpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (EvencoreEffect || u.uprops[EVC_EFFECT].extrinsic || have_evcstone())) {
 		sprintf(buf, "the following problem: The game will spawn fake invisible monster markers.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", EvencoreEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", EvencoreEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (UnderlayerBug || u.uprops[UNDERLAYER_BUG].extrinsic || have_underlaidstone())) {
 		sprintf(buf, "the following problem: Invisible monster markers are not visible, but bumping into them uses up a turn.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", UnderlayerBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", UnderlayerBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (DamageMeterBug || u.uprops[DAMAGE_METER_BUG].extrinsic || have_damagemeterstone())) {
 		sprintf(buf, "the following problem: The game won't tell you exactly how much damage an attack does.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", DamageMeterBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", DamageMeterBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (ArbitraryWeightBug || u.uprops[ARBITRARY_WEIGHT_BUG].extrinsic || have_weightstone())) {
 		sprintf(buf, "the following problem: You can't see your carry capacity or the weight of items.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ArbitraryWeightBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ArbitraryWeightBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (FuckedInfoBug || u.uprops[FUCKED_INFO_BUG].extrinsic || have_infofuckstone())) {
 		sprintf(buf, "the following problem: You can't see what character you are playing.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FuckedInfoBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FuckedInfoBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (BlackSpells || u.uprops[BLACK_SPELLS].extrinsic || have_blackspellstone())) {
 		sprintf(buf, "the following problem: Your spells became black.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", BlackSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BlackSpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (CyanSpells || u.uprops[CYAN_SPELLS].extrinsic || have_cyanspellstone())) {
 		sprintf(buf, "the following problem: Your spells became cyan.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", CyanSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", CyanSpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (HeapEffectBug || u.uprops[HEAP_EFFECT].extrinsic || have_heapstone())) {
 		sprintf(buf, "the following problem: Messages are repeated randomly.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HeapEffectBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HeapEffectBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (BlueSpells || u.uprops[BLUE_SPELLS].extrinsic || have_bluespellstone())) {
 		sprintf(buf, "the following problem: Your spells became blue.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", BlueSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BlueSpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (TronEffect || u.uprops[TRON_EFFECT].extrinsic || have_tronstone())) {
 		sprintf(buf, "the following problem: You can't walk in the same direction twice in a row.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", TronEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", TronEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (RedSpells || u.uprops[RED_SPELLS].extrinsic || have_redspellstone())) {
 		sprintf(buf, "the following problem: Your spells became red.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", RedSpells);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", RedSpells);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (TooHeavyEffect || u.uprops[TOO_HEAVY_EFFECT].extrinsic || have_tooheavystone())) {
 		sprintf(buf, "the following problem: Picking up an item increases your carried weight by more than what the item weighs.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", TooHeavyEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", TooHeavyEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (ElongationBug || u.uprops[ELONGATION_BUG].extrinsic || have_elongatedstone())) {
 		sprintf(buf, "the following problem: Monsters' hug attacks, ranged weapons and breaths can hit you from very far away.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ElongationBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ElongationBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (WrapoverEffect || u.uprops[WRAPOVER_EFFECT].extrinsic || have_wrapoverstone())) {
 		sprintf(buf, "the following problem: Your positively enchanted items may randomly turn into negatively enchanted ones.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", WrapoverEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", WrapoverEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (DestructionEffect || u.uprops[DESTRUCTION_EFFECT].extrinsic || have_destructionstone())) {
 		sprintf(buf, "the following problem: Item destruction may happen randomly.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", DestructionEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", DestructionEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (MeleePrefixBug || u.uprops[MELEE_PREFIX_BUG].extrinsic || have_meleeprefixstone())) {
 		sprintf(buf, "the following problem: If you simply walk into monsters to attack, you lose a turn.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MeleePrefixBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MeleePrefixBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (AutomoreBug || u.uprops[AUTOMORE_BUG].extrinsic || have_automorestone())) {
 		sprintf(buf, "the following problem: There are no --More-- prompts.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", AutomoreBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", AutomoreBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (UnfairAttackBug || u.uprops[UNFAIR_ATTACK_BUG].extrinsic || have_unfairattackstone())) {
 		sprintf(buf, "the following problem: Monsters will occasionally use very unfair attacks on you.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", UnfairAttackBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", UnfairAttackBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (DisconnectedStairs || u.uprops[DISCONNECTED_STAIRS].extrinsic || have_disconnectstone())) {
 		sprintf(buf, "the following problem: Staircases are disconnected.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", DisconnectedStairs);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", DisconnectedStairs);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (InterfaceScrewed || u.uprops[INTERFACE_SCREW].extrinsic || have_interfacescrewstone())) {
 		sprintf(buf, "the following problem: The main game display does not update automatically.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", InterfaceScrewed);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", InterfaceScrewed);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (Bossfights || u.uprops[BOSSFIGHT].extrinsic || have_bossfightstone())) {
 		sprintf(buf, "the following problem: Boss monsters spawn much more often.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Bossfights);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Bossfights);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (EntireLevelMode || u.uprops[ENTIRE_LEVEL].extrinsic || have_entirelevelstone())) {
 		sprintf(buf, "the following problem: Monster types that used to be rare are common now.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", EntireLevelMode);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", EntireLevelMode);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (BonesLevelChange || u.uprops[BONES_CHANGE].extrinsic || have_bonestone())) {
 		sprintf(buf, "the following problem: You always find or leave bones levels if possible.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", BonesLevelChange);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BonesLevelChange);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (AutocursingEquipment || u.uprops[AUTOCURSE_EQUIP].extrinsic || have_autocursestone())) {
 		sprintf(buf, "the following problem: Every item you put on automatically curses itself.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", AutocursingEquipment);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", AutocursingEquipment);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (HighlevelStatus || u.uprops[HIGHLEVEL_STATUS].extrinsic || have_highlevelstone())) {
 		sprintf(buf, "the following problem: Higher-level monsters are more likely to spawn.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HighlevelStatus);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HighlevelStatus);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (SpellForgetting || u.uprops[SPELL_FORGETTING].extrinsic || have_spellforgettingstone())) {
 		sprintf(buf, "the following problem: Your spell memory decreases rapidly.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", SpellForgetting);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", SpellForgetting);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (SoundEffectBug || u.uprops[SOUND_EFFECT_BUG].extrinsic || have_soundeffectstone())) {
 		sprintf(buf, "the following problem: Things that happen will play 'sound effects'.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", SoundEffectBug);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", SoundEffectBug);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (CaptchaProblem || u.uprops[CAPTCHA].extrinsic || have_captchastone())) {
 		sprintf(buf, "the following problem: You sometimes have to solve captchas.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", CaptchaProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", CaptchaProblem);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (FarlookProblem || u.uprops[FARLOOK_BUG].extrinsic || have_farlookstone())) {
 		sprintf(buf, "the following problem: Farlooking peaceful monsters angers them.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FarlookProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FarlookProblem);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (RespawnProblem || u.uprops[RESPAWN_BUG].extrinsic || have_respawnstone())) {
 		sprintf(buf, "the following problem: Killing monsters will cause them to respawn somewhere on the level.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", RespawnProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", RespawnProblem);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (BigscriptEffect || u.uprops[BIGSCRIPT].extrinsic || have_bigscriptstone())) {
 		sprintf(buf, "BIGscript.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", BigscriptEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BigscriptEffect);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (BankTrapEffect || u.uprops[BANKBUG].extrinsic || have_bankstone())) {
 		sprintf(buf, "the following problem: Your money will wander into a mysterious bank.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", BankTrapEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BankTrapEffect);
 	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (amount stored: %d)", u.bankcashamount);
 	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (money limit: %d)", u.bankcashlimit);
 		you_have(buf);
@@ -4557,123 +4974,123 @@ boolean guaranteed;
 	}
 	if ((guaranteed || !rn2(10)) && (MapTrapEffect || u.uprops[MAPBUG].extrinsic || have_mapstone())) {
 		sprintf(buf, "the following problem: The map doesn't display correctly.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MapTrapEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MapTrapEffect);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (TechTrapEffect || u.uprops[TECHBUG].extrinsic || have_techniquestone())) {
-		sprintf(buf, "the following problem: Your techniques don't work.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", TechTrapEffect);
+		sprintf(buf, "the following problem: Your techniques frequently don't work.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", TechTrapEffect);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (RecurringDisenchant || u.uprops[RECURRING_DISENCHANT].extrinsic || have_disenchantmentstone())) {
 		sprintf(buf, "the following problem: Your possessions disenchant themselves spontaneously.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", RecurringDisenchant);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", RecurringDisenchant);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (verisiertEffect || u.uprops[VERISIERTEFFECT].extrinsic || have_verisiertstone())) {
 		sprintf(buf, "the following problem: Monster respawn speeds up rapidly.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", verisiertEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", verisiertEffect);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (ChaosTerrain || u.uprops[CHAOS_TERRAIN].extrinsic || have_chaosterrainstone())) {
 		sprintf(buf, "the following problem: The terrain slowly becomes ever more chaotic.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ChaosTerrain);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ChaosTerrain);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (Muteness || u.uprops[MUTENESS].extrinsic || have_mutenessstone())) {
-		sprintf(buf, "the following problem: You're completely unable to cast spells.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Muteness);
+		sprintf(buf, "the following problem: You're mute, and have great difficulty when trying to cast spells.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Muteness);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (EngravingDoesntWork || u.uprops[ENGRAVINGBUG].extrinsic || have_engravingstone())) {
 		sprintf(buf, "the following problem: Monsters don't respect Elbereth.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", EngravingDoesntWork);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", EngravingDoesntWork);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (MagicDeviceEffect || u.uprops[MAGIC_DEVICE_BUG].extrinsic || have_magicdevicestone())) {
 		sprintf(buf, "the following problem: Zapping a wand can cause it to explode.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MagicDeviceEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MagicDeviceEffect);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (BookTrapEffect || u.uprops[BOOKBUG].extrinsic || have_bookstone())) {
 		sprintf(buf, "the following problem: Reading spellbooks confuses you.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", BookTrapEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BookTrapEffect);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (LevelTrapEffect || u.uprops[LEVELBUG].extrinsic || have_levelstone())) {
 		sprintf(buf, "the following problem: Monsters become stronger if many of their species have been generated already.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", LevelTrapEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", LevelTrapEffect);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (QuizTrapEffect || u.uprops[QUIZZES].extrinsic || have_quizstone())) {
 		sprintf(buf, "the following problem: You have to partake in the Great NetHack Quiz.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", QuizTrapEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", QuizTrapEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (FastMetabolismEffect || u.uprops[FAST_METABOLISM].extrinsic || have_metabolicstone())) {
 		sprintf(buf, "the following problem: Your food consumption is much faster.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FastMetabolismEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FastMetabolismEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (NoReturnEffect || u.uprops[NORETURN].extrinsic || have_noreturnstone())) {
 		sprintf(buf, "the following problem: You cannot teleport at all.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", NoReturnEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", NoReturnEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (AlwaysEgotypeMonsters || u.uprops[ALWAYS_EGOTYPES].extrinsic || have_egostone())) {
 		sprintf(buf, "the following problem: Monsters always spawn with egotypes.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", AlwaysEgotypeMonsters);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", AlwaysEgotypeMonsters);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (TimeGoesByFaster || u.uprops[FAST_FORWARD].extrinsic || have_fastforwardstone())) {
 		sprintf(buf, "the following problem: Time goes by faster.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", TimeGoesByFaster);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", TimeGoesByFaster);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (FoodIsAlwaysRotten || u.uprops[FOOD_IS_ROTTEN].extrinsic || have_rottenstone())) {
 		sprintf(buf, "the following problem: Your food is always rotten.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FoodIsAlwaysRotten);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FoodIsAlwaysRotten);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (AllSkillsUnskilled || u.uprops[SKILL_DEACTIVATED].extrinsic || have_unskilledstone())) {
 		sprintf(buf, "the following problem: Your skills are deactivated.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", AllSkillsUnskilled);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", AllSkillsUnskilled);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (AllStatsAreLower || u.uprops[STATS_LOWERED].extrinsic || have_lowstatstone())) {
 		sprintf(buf, "the following problem: All of your stats are lowered.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", AllStatsAreLower);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", AllStatsAreLower);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (PlayerCannotTrainSkills || u.uprops[TRAINING_DEACTIVATED].extrinsic || have_trainingstone())) {
 		sprintf(buf, "the following problem: You cannot train skills.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", PlayerCannotTrainSkills);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", PlayerCannotTrainSkills);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (PlayerCannotExerciseStats || u.uprops[EXERCISE_DEACTIVATED].extrinsic || have_exercisestone())) {
 		sprintf(buf, "the following problem: You cannot exercise your stats.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", PlayerCannotExerciseStats);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", PlayerCannotExerciseStats);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && MCReduction) {
 		sprintf(buf, "reduced magic cancellation.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", MCReduction);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", MCReduction);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[INTRINSIC_LOSS].extrinsic || IntrinsicLossProblem || have_intrinsiclossstone() )) {
 		sprintf(buf, "a case of random intrinsic loss.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", IntrinsicLossProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", IntrinsicLossProblem);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && u.uprops[TRAP_REVEALING].extrinsic) {
@@ -4682,22 +5099,22 @@ boolean guaranteed;
 	}
 	if ((guaranteed || !rn2(10)) && (u.uprops[BLOOD_LOSS].extrinsic || BloodLossProblem || have_bloodlossstone() )) {
 		sprintf(buf, "bleeding out");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", BloodLossProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BloodLossProblem);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (u.uprops[NASTINESS_EFFECTS].extrinsic || NastinessProblem || have_nastystone() )) {
 		sprintf(buf, "subjected to random nasty trap effects");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", NastinessProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", NastinessProblem);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (u.uprops[BAD_EFFECTS].extrinsic || BadEffectProblem || have_badeffectstone() )) {
 		sprintf(buf, "subjected to random bad effects");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", BadEffectProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", BadEffectProblem);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (u.uprops[AUTOMATIC_TRAP_CREATION].extrinsic || TrapCreationProblem || have_trapcreationstone() )) {
 		sprintf(buf, "more likely to encounter traps");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", TrapCreationProblem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", TrapCreationProblem);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && u.uprops[SENTIENT_HIGH_HEELS].extrinsic) {
@@ -4706,144 +5123,144 @@ boolean guaranteed;
 	}
 	if ((guaranteed || !rn2(10)) && (u.uprops[REPEATING_VULNERABILITY].extrinsic || AutomaticVulnerabilitiy || have_vulnerabilitystone() )) {
 		sprintf(buf, "the risk of temporarily losing intrinsics");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", AutomaticVulnerabilitiy);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", AutomaticVulnerabilitiy);
 		you_have(buf);
 	}
 	if ((guaranteed || !rn2(10)) && (u.uprops[TELEPORTING_ITEMS].extrinsic || TeleportingItems || have_itemportstone() )) {
 		sprintf(buf, "teleporting items");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", TeleportingItems);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", TeleportingItems);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[RECURRING_AMNESIA].extrinsic || RecurringAmnesia || have_amnesiastone() )) {
 		sprintf(buf, "going to suffer from amnesia now and then");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", RecurringAmnesia);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", RecurringAmnesia);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[TURNLIMITATION].extrinsic || TurnLimitation || have_limitationstone() )) {
 		sprintf(buf, "getting your ascension turn limit reduced whenever you take damage");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", TurnLimitation);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", TurnLimitation);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[WEAKSIGHT].extrinsic || WeakSight || have_weaksightstone() )) {
 		sprintf(buf, "short-sighted");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", WeakSight);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", WeakSight);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[RANDOM_MESSAGES].extrinsic || RandomMessages || have_messagestone() )) {
 		sprintf(buf, "reading random messages");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", RandomMessages);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", RandomMessages);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[DESECRATION].extrinsic || Desecration || have_nonsacredstone() )) {
 		sprintf(buf, "the following problem: Altars malfunction whenever you try to use them");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Desecration);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Desecration);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[STARVATION_EFFECT].extrinsic || StarvationEffect || have_starvationstone() )) {
 		sprintf(buf, "not going to get corpses from defeated enemies");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", StarvationEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", StarvationEffect);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() )) {
 		sprintf(buf, "not going to get death drops from monsters");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", NoDropsEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", NoDropsEffect);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[LOW_EFFECTS].extrinsic || LowEffects || have_loweffectstone() )) {
 		sprintf(buf, "reduced power of magical effects");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", LowEffects);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", LowEffects);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[INVIS_TRAPS_EFFECT].extrinsic || InvisibleTrapsEffect || have_invisostone() )) {
 		sprintf(buf, "not going to see traps");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", InvisibleTrapsEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", InvisibleTrapsEffect);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[GHOST_WORLD].extrinsic || GhostWorld || have_ghostlystone() )) {
 		sprintf(buf, "in a ghost world");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", GhostWorld);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", GhostWorld);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[DEHYDRATION].extrinsic || Dehydration || have_dehydratingstone() )) {
 		sprintf(buf, "going to become dehydrated");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Dehydration);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Dehydration);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[HATE_TRAP_EFFECT].extrinsic || HateTrapEffect || have_hatestone() )) {
 		sprintf(buf, "the following problem: Pets hate you with a fiery passion.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HateTrapEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HateTrapEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[TOTTER_EFFECT].extrinsic || TotterTrapEffect || have_directionswapstone() )) {
 		sprintf(buf, "the following problem: Your directional keys got swapped.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", TotterTrapEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", TotterTrapEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() )) {
 		sprintf(buf, "unable to get intrinsics from eating corpses");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Nonintrinsics);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Nonintrinsics);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[DROPCURSES_EFFECT].extrinsic || Dropcurses || have_dropcursestone() )) {
 		sprintf(buf, "the following problem: Dropping items causes them to autocurse.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Dropcurses);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Dropcurses);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[NAKEDNESS].extrinsic || Nakedness || have_nakedstone() )) {
 		sprintf(buf, "effectively naked");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Nakedness);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Nakedness);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[ANTILEVELING].extrinsic || Antileveling || have_antilevelstone() )) {
-		sprintf(buf, "unable to gain experience");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Antileveling);
+		sprintf(buf, "unable to gain experience past experience level 10, and slower to reach XL10");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Antileveling);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[ITEM_STEALING_EFFECT].extrinsic || ItemStealingEffect || have_stealerstone() )) {
 		sprintf(buf, "more likely to have your items stolen");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ItemStealingEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ItemStealingEffect);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[REBELLION_EFFECT].extrinsic || Rebellions || have_rebelstone() )) {
 		sprintf(buf, "the following problem: Pets can spontaneously rebel and become hostile.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", Rebellions);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", Rebellions);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[CRAP_EFFECT].extrinsic || CrapEffect || have_shitstone() )) {
 		sprintf(buf, "diarrhea");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", CrapEffect);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", CrapEffect);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[PROJECTILES_MISFIRE].extrinsic || ProjectilesMisfire || have_misfirestone() )) {
 		sprintf(buf, "the following problem: Your projectiles often misfire.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", ProjectilesMisfire);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", ProjectilesMisfire);
 		you_have(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && (u.uprops[WALL_TRAP_EFFECT].extrinsic || WallTrapping || have_wallstone() )) {
 		sprintf(buf, "the following problem: Dungeon regrowth is excessively fast.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", WallTrapping);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", WallTrapping);
 		you_have(buf);
 	}
 
@@ -4854,13 +5271,19 @@ boolean guaranteed;
 
 	if ((guaranteed || !rn2(10)) && IncreasedGravity) {
 		sprintf(buf, "increased encumbrance due to a stronger gravity.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", IncreasedGravity);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", IncreasedGravity);
 		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && u.graundweight) {
+		sprintf(buf, "burdened by some dead weight.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.graundweight);
+		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoStaircase) {
 		sprintf(buf, "to wait until you can use staircases again.");
-	      sprintf(eos(buf), " (%d)", NoStaircase);
+	      sprintf(eos(buf), " (%ld)", NoStaircase);
 		you_have(buf);
 	}
 
@@ -4870,118 +5293,166 @@ boolean guaranteed;
 		you_are(buf);
 	}
 
+	if ((guaranteed || !rn2(10)) && u.sokosolveboulder && issokosolver) {
+		sprintf(buf, "to wait until you can create boulders again.");
+	      if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.sokosolveboulder);
+		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && u.sokosolveuntrap && issokosolver) {
+		sprintf(buf, "to wait until you can disarm traps again.");
+	      if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.sokosolveuntrap);
+		you_have(buf);
+	}
+
 	if ((guaranteed || !rn2(10)) && u.footererlevel) {
 		sprintf(buf, "going to encounter the footerers.");
 	      if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (level %d)", u.footererlevel);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapFemmy) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveFemmy) {
 		sprintf(buf, "possessed by the ghost of Femmy.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapFemmy);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapFemmy);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapMadeleine) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveMadeleine) {
 		sprintf(buf, "possessed by the ghost of Madeleine.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapMadeleine);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapMadeleine);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapMarlena) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveMarlena) {
 		sprintf(buf, "possessed by the ghost of Marlena.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapMarlena);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapMarlena);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapAnastasia) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveSarah) {
+		sprintf(buf, "possessed by the ghost of Sarah.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapSarah);
+		you_are(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && FemtrapActiveClaudia) {
+		sprintf(buf, "possessed by the ghost of Claudia.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapClaudia);
+		you_are(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && FemtrapActiveLudgera) {
+		sprintf(buf, "possessed by the ghost of Ludgera.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapLudgera);
+		you_are(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && FemtrapActiveKati) {
+		sprintf(buf, "possessed by the ghost of Kati.");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapKati);
+		you_are(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && FemtrapActiveAnastasia) {
 		sprintf(buf, "possessed by the ghost of Anastasia.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapAnastasia);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapAnastasia);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapJessica) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveJessica) {
 		sprintf(buf, "possessed by the ghost of Jessica.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapJessica);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapJessica);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapSolvejg) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveSolvejg) {
 		sprintf(buf, "possessed by the ghost of Solvejg.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapSolvejg);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapSolvejg);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapWendy) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveWendy) {
 		sprintf(buf, "possessed by the ghost of Wendy.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapWendy);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapWendy);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapKatharina) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveKatharina) {
 		sprintf(buf, "possessed by the ghost of Katharina.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapKatharina);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapKatharina);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapElena) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveElena) {
 		sprintf(buf, "possessed by the ghost of Elena.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapElena);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapElena);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapThai) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveThai) {
 		sprintf(buf, "possessed by the ghost of Thai.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapThai);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapThai);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapElif) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveElif) {
 		sprintf(buf, "possessed by the ghost of Elif.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapElif);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapElif);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapNadja) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveNadja) {
 		sprintf(buf, "possessed by the ghost of Nadja.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapNadja);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapNadja);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapSandra) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveSandra) {
 		sprintf(buf, "possessed by the ghost of Sandra.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapSandra);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapSandra);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapNatalje) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveNatalje) {
 		sprintf(buf, "possessed by the ghost of Natalje.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapNatalje);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapNatalje);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapJeanetta) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveJeanetta) {
 		sprintf(buf, "possessed by the ghost of Jeanetta.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapJeanetta);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapJeanetta);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapYvonne) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveYvonne) {
 		sprintf(buf, "possessed by the ghost of Yvonne.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapYvonne);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapYvonne);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapMaurah) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveMaurah) {
 		sprintf(buf, "possessed by the ghost of Maurah.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapMaurah);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapMaurah);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && FemaleTrapMeltem) {
+	if ((guaranteed || !rn2(10)) && FemtrapActiveMeltem) {
 		sprintf(buf, "possessed by the ghost of Meltem.");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", FemaleTrapMeltem);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", FemaleTrapMeltem);
 		you_are(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && Race_if(PM_PERVERT)) {
+		sprintf(buf, "had sex the last time this many turns ago:");
+		sprintf(eos(buf), " %d", u.pervertsex);
+		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && Race_if(PM_PERVERT)) {
+		sprintf(buf, "prayed the last time this many turns ago:");
+		sprintf(eos(buf), " %d", u.pervertpray);
+		you_have(buf);
 	}
 
 	if (u.hangupamount) {
@@ -5011,10 +5482,10 @@ boolean guaranteed;
 	}
 
 	if (Role_if(PM_HUSSY)) {
-	    	sprintf(buf, "%d ", (u.hussyhurtturn - moves));
+	    	sprintf(buf, "%ld ", (u.hussyhurtturn - moves));
 		sprintf(eos(buf), "turns left to hit a guy.");
 		you_have(buf);
-	    	sprintf(buf, "%d ", (u.hussykillturn - moves));
+	    	sprintf(buf, "%ld ", (u.hussykillturn - moves));
 		sprintf(eos(buf), "turns left to defeat a guy.");
 		you_have(buf);
 	}
@@ -5045,7 +5516,7 @@ boolean guaranteed;
 
 	if ((guaranteed || !rn2(10)) && TimeStopped) {
 		sprintf(buf, "stopped the flow of time.");
-	      sprintf(eos(buf), " (%d)", TimeStopped);
+	      sprintf(eos(buf), " (%ld)", TimeStopped);
 		you_have(buf);
 	}
 
@@ -5145,6 +5616,42 @@ boolean guaranteed;
 		you_have(buf);
 	}
 
+	if ((guaranteed || !rn2(10)) && u.swappositioncount) {
+		sprintf(buf, "going to swap positions with the next monster you move into.");
+	      sprintf(eos(buf), " (%d)", u.swappositioncount);
+		you_are(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && u.contingencyturns) {
+		sprintf(buf, "signed up a contract with the reaper.");
+	      sprintf(eos(buf), " (%d)", u.contingencyturns);
+		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && u.horsehopturns) {
+		sprintf(buf, "the ability to jump as long as you're riding.");
+	      sprintf(eos(buf), " (%d)", u.horsehopturns);
+		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && u.bodyfluideffect) {
+		sprintf(buf, "very acidic skin.");
+	      sprintf(eos(buf), " (%d)", u.bodyfluideffect);
+		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && u.antitelespelltimeout) {
+		sprintf(buf, "erected an anti-teleportation field.");
+	      sprintf(eos(buf), " (%d)", u.antitelespelltimeout);
+		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && u.breathenhancetimer) {
+		sprintf(buf, "magically enhanced breath.");
+	      sprintf(eos(buf), " (%d)", u.breathenhancetimer);
+		you_have(buf);
+	}
+
 	if ((guaranteed || !rn2(10)) && u.snaildigging) {
 		sprintf(buf, "to wait until you can fire another digging ray.");
 	      sprintf(eos(buf), " (%d)", u.snaildigging);
@@ -5154,6 +5661,36 @@ boolean guaranteed;
 	if ((guaranteed || !rn2(10)) && u.hussyperfume) {
 		sprintf(buf, "to wait until you can spread the perfume again.");
 	      sprintf(eos(buf), " (%d)", u.hussyperfume);
+		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && u.irahapoison) {
+		sprintf(buf, "to wait until you can poison your weapon again.");
+	      sprintf(eos(buf), " (%d)", u.irahapoison);
+		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && Role_if(PM_JANITOR)) {
+		sprintf(buf, "the following amount of trash in your trash can:");
+	      sprintf(eos(buf), " %d", u.garbagecleaned);
+		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && Role_if(PM_JANITOR) && u.garbagetrucktime) {
+		sprintf(buf, "called the garbage truck, and it will arrive in");
+	      sprintf(eos(buf), " %d turns", u.garbagetrucktime);
+		you_have(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && u.walscholarpass) {
+		sprintf(buf, "able to pass through grave walls.");
+	      sprintf(eos(buf), " (%d)", u.walscholarpass);
+		you_are(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && u.demagogueabilitytimer && isdemagogue) {
+		sprintf(buf, "to wait until you can use your special recursion.");
+	      sprintf(eos(buf), " (%d)", u.demagogueabilitytimer);
 		you_have(buf);
 	}
 
@@ -5170,7 +5707,7 @@ boolean guaranteed;
 	}
 
 	if ((guaranteed || !rn2(10)) && UseTheForce) {
-		sprintf(buf, "able to use the force like a true jedi");
+		sprintf(buf, StrongUseTheForce ? "able to use the force like a jedi grandmaster" : "able to use the force like a true jedi");
 		you_are(buf);
 	}
 
@@ -5181,344 +5718,356 @@ boolean guaranteed;
 
 	if ((guaranteed || !rn2(10)) && NoFire_resistance && (final || u.uprops[DEAC_FIRE_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having fire resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_FIRE_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FIRE_RES].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoCold_resistance && (final || u.uprops[DEAC_COLD_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having cold resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_COLD_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_COLD_RES].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoSleep_resistance && (final || u.uprops[DEAC_SLEEP_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having sleep resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_SLEEP_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SLEEP_RES].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoDisint_resistance && (final || u.uprops[DEAC_DISINT_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having disintegration resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_DISINT_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DISINT_RES].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoShock_resistance && (final || u.uprops[DEAC_SHOCK_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having shock resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_SHOCK_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SHOCK_RES].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoPoison_resistance && (final || u.uprops[DEAC_POISON_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having poison resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_POISON_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_POISON_RES].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoDrain_resistance && (final || u.uprops[DEAC_DRAIN_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having drain resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_DRAIN_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DRAIN_RES].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoSick_resistance && (final || u.uprops[DEAC_SICK_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having sickness resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_SICK_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SICK_RES].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoAntimagic_resistance && (final || u.uprops[DEAC_ANTIMAGIC].intrinsic) ) {
 		sprintf(buf, "prevented from having magic resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_ANTIMAGIC].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_ANTIMAGIC].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoAcid_resistance && (final || u.uprops[DEAC_ACID_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having acid resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_ACID_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_ACID_RES].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoStone_resistance && (final || u.uprops[DEAC_STONE_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having petrification resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_STONE_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_STONE_RES].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoFear_resistance && (final || u.uprops[DEAC_FEAR_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having fear resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_FEAR_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FEAR_RES].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoSee_invisible && (final || u.uprops[DEAC_SEE_INVIS].intrinsic) ) {
 		sprintf(buf, "prevented from having see invisible");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_SEE_INVIS].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SEE_INVIS].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoManaleech && (final || u.uprops[DEAC_MANALEECH].intrinsic) ) {
 		sprintf(buf, "prevented from having manaleech");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_MANALEECH].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_MANALEECH].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoPeacevision && (final || u.uprops[DEAC_PEACEVISION].intrinsic) ) {
 		sprintf(buf, "prevented from having peacevision");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_PEACEVISION].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_PEACEVISION].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoTelepat && (final || u.uprops[DEAC_TELEPAT].intrinsic) ) {
 		sprintf(buf, "prevented from having telepathy");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_TELEPAT].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_TELEPAT].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoWarning && (final || u.uprops[DEAC_WARNING].intrinsic) ) {
 		sprintf(buf, "prevented from having warning");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_WARNING].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_WARNING].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoSearching && (final || u.uprops[DEAC_SEARCHING].intrinsic) ) {
 		sprintf(buf, "prevented from having automatic searching");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_SEARCHING].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SEARCHING].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoClairvoyant && (final || u.uprops[DEAC_CLAIRVOYANT].intrinsic) ) {
 		sprintf(buf, "prevented from having clairvoyance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_CLAIRVOYANT].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_CLAIRVOYANT].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoInfravision && (final || u.uprops[DEAC_INFRAVISION].intrinsic) ) {
 		sprintf(buf, "prevented from having infravision");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_INFRAVISION].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_INFRAVISION].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoDetect_monsters && (final || u.uprops[DEAC_DETECT_MONSTERS].intrinsic) ) {
 		sprintf(buf, "prevented from having detect monsters");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_DETECT_MONSTERS].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DETECT_MONSTERS].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoInvisible && (final || u.uprops[DEAC_INVIS].intrinsic) ) {
 		sprintf(buf, "prevented from having invisibility");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_INVIS].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_INVIS].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoDisplaced && (final || u.uprops[DEAC_DISPLACED].intrinsic) ) {
 		sprintf(buf, "prevented from having displacement");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_DISPLACED].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DISPLACED].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoStealth && (final || u.uprops[DEAC_STEALTH].intrinsic) ) {
 		sprintf(buf, "prevented from having stealth");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_STEALTH].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_STEALTH].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoJumping && (final || u.uprops[DEAC_JUMPING].intrinsic) ) {
 		sprintf(buf, "prevented from having jumping");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_JUMPING].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_JUMPING].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoTeleport_control && (final || u.uprops[DEAC_TELEPORT_CONTROL].intrinsic) ) {
 		sprintf(buf, "prevented from having teleport control");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_TELEPORT_CONTROL].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_TELEPORT_CONTROL].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoFlying && (final || u.uprops[DEAC_FLYING].intrinsic) ) {
 		sprintf(buf, "prevented from having flying");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_FLYING].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FLYING].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoBreathless && (final || u.uprops[DEAC_MAGICAL_BREATHING].intrinsic) ) {
 		sprintf(buf, "prevented from having magical breathing");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_MAGICAL_BREATHING].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_MAGICAL_BREATHING].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoPasses_walls && (final || u.uprops[DEAC_PASSES_WALLS].intrinsic) ) {
 		sprintf(buf, "prevented from having phasing");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_PASSES_WALLS].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_PASSES_WALLS].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoSlow_digestion && (final || u.uprops[DEAC_SLOW_DIGESTION].intrinsic) ) {
 		sprintf(buf, "prevented from having slow digestion");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_SLOW_DIGESTION].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SLOW_DIGESTION].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoHalf_spell_damage && (final || u.uprops[DEAC_HALF_SPDAM].intrinsic) ) {
 		sprintf(buf, "prevented from having half spell damage");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_HALF_SPDAM].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_HALF_SPDAM].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoHalf_physical_damage && (final || u.uprops[DEAC_HALF_PHDAM].intrinsic) ) {
 		sprintf(buf, "prevented from having half physical damage");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_HALF_PHDAM].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_HALF_PHDAM].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoRegeneration && (final || u.uprops[DEAC_REGENERATION].intrinsic) ) {
 		sprintf(buf, "prevented from having regeneration");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_REGENERATION].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_REGENERATION].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoEnergy_regeneration && (final || u.uprops[DEAC_ENERGY_REGENERATION].intrinsic) ) {
 		sprintf(buf, "prevented from having mana regeneration");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_ENERGY_REGENERATION].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_ENERGY_REGENERATION].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoPolymorph_control && (final || u.uprops[DEAC_POLYMORPH_CONTROL].intrinsic) ) {
 		sprintf(buf, "prevented from having polymorph control");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_POLYMORPH_CONTROL].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_POLYMORPH_CONTROL].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoFast && (final || u.uprops[DEAC_FAST].intrinsic) ) {
 		sprintf(buf, "prevented from having speed");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_FAST].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FAST].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoReflecting && (final || u.uprops[DEAC_REFLECTING].intrinsic) ) {
 		sprintf(buf, "prevented from having reflection");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_REFLECTING].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_REFLECTING].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoKeen_memory && (final || u.uprops[DEAC_KEEN_MEMORY].intrinsic) ) {
 		sprintf(buf, "prevented from having keen memory");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_KEEN_MEMORY].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_KEEN_MEMORY].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoSight_bonus && (final || u.uprops[DEAC_SIGHT_BONUS].intrinsic) ) {
 		sprintf(buf, "prevented from having a sight bonus");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_SIGHT_BONUS].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SIGHT_BONUS].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoVersus_curses && (final || u.uprops[DEAC_VERSUS_CURSES].intrinsic) ) {
 		sprintf(buf, "prevented from having curse resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_VERSUS_CURSES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_VERSUS_CURSES].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoStun_resist && (final || u.uprops[DEAC_STUN_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having stun resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_STUN_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_STUN_RES].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoConf_resist && (final || u.uprops[DEAC_CONF_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having confusion resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_CONF_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_CONF_RES].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoPsi_resist && (final || u.uprops[DEAC_PSI_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having psi resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_PSI_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_PSI_RES].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoDouble_attack && (final || u.uprops[DEAC_DOUBLE_ATTACK].intrinsic) ) {
 		sprintf(buf, "prevented from having double attacks");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_DOUBLE_ATTACK].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DOUBLE_ATTACK].intrinsic);
 		you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && NoQuad_attack && (final || u.uprops[DEAC_QUAD_ATTACK].intrinsic) ) {
 		sprintf(buf, "prevented from having quad attacks");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_QUAD_ATTACK].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_QUAD_ATTACK].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoFree_action && (final || u.uprops[DEAC_FREE_ACTION].intrinsic) ) {
 		sprintf(buf, "prevented from having free action");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_FREE_ACTION].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FREE_ACTION].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoHallu_party && (final || u.uprops[DEAC_HALLU_PARTY].intrinsic) ) {
 		sprintf(buf, "prevented from hallu partying");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_HALLU_PARTY].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_HALLU_PARTY].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoDrunken_boxing && (final || u.uprops[DEAC_DRUNKEN_BOXING].intrinsic) ) {
 		sprintf(buf, "prevented from drunken boxing");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_DRUNKEN_BOXING].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DRUNKEN_BOXING].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoStunnopathy && (final || u.uprops[DEAC_STUNNOPATHY].intrinsic) ) {
 		sprintf(buf, "prevented from having stunnopathy");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_STUNNOPATHY].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_STUNNOPATHY].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoNumbopathy && (final || u.uprops[DEAC_NUMBOPATHY].intrinsic) ) {
 		sprintf(buf, "prevented from having numbopathy");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_NUMBOPATHY].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_NUMBOPATHY].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoDimmopathy && (final || u.uprops[DEAC_DIMMOPATHY].intrinsic) ) {
 		sprintf(buf, "prevented from having dimmopathy");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_DIMMOPATHY].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DIMMOPATHY].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoFreezopathy && (final || u.uprops[DEAC_FREEZOPATHY].intrinsic) ) {
 		sprintf(buf, "prevented from having freezopathy");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_FREEZOPATHY].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FREEZOPATHY].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoStoned_chiller && (final || u.uprops[DEAC_STONED_CHILLER].intrinsic) ) {
 		sprintf(buf, "prevented from being a stoned chiller");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_STONED_CHILLER].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_STONED_CHILLER].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoCorrosivity && (final || u.uprops[DEAC_CORROSIVITY].intrinsic) ) {
 		sprintf(buf, "prevented from having corrosivity");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_CORROSIVITY].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_CORROSIVITY].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoFear_factor && (final || u.uprops[DEAC_FEAR_FACTOR].intrinsic) ) {
 		sprintf(buf, "prevented from having an increased fear factor");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_FEAR_FACTOR].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FEAR_FACTOR].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoBurnopathy && (final || u.uprops[DEAC_BURNOPATHY].intrinsic) ) {
 		sprintf(buf, "prevented from having burnopathy");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_BURNOPATHY].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_BURNOPATHY].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoSickopathy && (final || u.uprops[DEAC_SICKOPATHY].intrinsic) ) {
 		sprintf(buf, "prevented from having sickopathy");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_SICKOPATHY].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SICKOPATHY].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoWonderlegs && (final || u.uprops[DEAC_WONDERLEGS].intrinsic) ) {
 		sprintf(buf, "prevented from having wonderlegs");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_WONDERLEGS].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_WONDERLEGS].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoGlib_combat && (final || u.uprops[DEAC_GLIB_COMBAT].intrinsic) ) {
 		sprintf(buf, "prevented from having glib combat");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_GLIB_COMBAT].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_GLIB_COMBAT].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoUseTheForce && (final || u.uprops[DEAC_THE_FORCE].intrinsic) ) {
 		sprintf(buf, "prevented from using the force like a real jedi");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_THE_FORCE].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_THE_FORCE].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoCont_resist && (final || u.uprops[DEAC_CONT_RES].intrinsic) ) {
 		sprintf(buf, "prevented from having contamination resistance");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_CONT_RES].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_CONT_RES].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoDiscount_action && (final || u.uprops[DEAC_DISCOUNT_ACTION].intrinsic) ) {
 		sprintf(buf, "prevented from having discount action");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_DISCOUNT_ACTION].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DISCOUNT_ACTION].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoFull_nutrient && (final || u.uprops[DEAC_FULL_NUTRIENT].intrinsic) ) {
 		sprintf(buf, "prevented from having full nutrients");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_FULL_NUTRIENT].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FULL_NUTRIENT].intrinsic);
 		you_are(buf);
 	}
 
 	if ((guaranteed || !rn2(10)) && NoTechnicality && (final || u.uprops[DEAC_TECHNICALITY].intrinsic) ) {
 		sprintf(buf, "prevented from having technicality");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uprops[DEAC_TECHNICALITY].intrinsic);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_TECHNICALITY].intrinsic);
+		you_are(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && NoScentView && (final || u.uprops[DEAC_SCENT_VIEW].intrinsic) ) {
+		sprintf(buf, "prevented from having scent view");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SCENT_VIEW].intrinsic);
+		you_are(buf);
+	}
+
+	if ((guaranteed || !rn2(10)) && NoDiminishedBleeding && (final || u.uprops[DEAC_DIMINISHED_BLEEDING].intrinsic) ) {
+		sprintf(buf, "prevented from having diminished bleeding");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DIMINISHED_BLEEDING].intrinsic);
 		you_are(buf);
 	}
 
@@ -5557,7 +6106,7 @@ boolean guaranteed;
 			break;
 		case ELVEN_SHIELD:
 			shieldblockrate = 20;
-			if (Race_if(PM_ELF) || Race_if(PM_DROW) || Role_if(PM_ELPH) || Role_if(PM_TWELPH)) shieldblockrate += 5;
+			if (Race_if(PM_ELF) || Race_if(PM_PLAYER_MYRKALFR) || Race_if(PM_DROW) || Role_if(PM_ELPH) || Role_if(PM_TWELPH)) shieldblockrate += 5;
 			break;
 		case URUK_HAI_SHIELD:
 			shieldblockrate = 22;
@@ -5582,10 +6131,12 @@ boolean guaranteed;
 			break;
 		case CRYSTAL_SHIELD:
 		case RAPIRAPI:
+		case HIDE_SHIELD:
 			shieldblockrate = 35;
 			break;
 		case SHIELD_OF_REFLECTION:
 		case SILVER_SHIELD:
+		case ANCIENT_SHIELD:
 		case MIRROR_SHIELD:
 			shieldblockrate = 25;
 			break;
@@ -5599,6 +6150,8 @@ boolean guaranteed;
 			shieldblockrate = 30;
 			break;
 		case VENOM_SHIELD:
+		case CHROME_SHIELD:
+		case ANTISHADOW_SHIELD:
 			shieldblockrate = 30;
 			break;
 		case SHIELD_OF_LIGHT:
@@ -5629,6 +6182,11 @@ boolean guaranteed;
 		case RUBY_DRAGON_SCALE_SHIELD:
 		case GREEN_DRAGON_SCALE_SHIELD:
 		case GOLDEN_DRAGON_SCALE_SHIELD:
+		case FEMINISM_DRAGON_SCALE_SHIELD:
+		case CANCEL_DRAGON_SCALE_SHIELD:
+		case NEGATIVE_DRAGON_SCALE_SHIELD:
+		case CORONA_DRAGON_SCALE_SHIELD:
+		case HEROIC_DRAGON_SCALE_SHIELD:
 		case STONE_DRAGON_SCALE_SHIELD:
 		case CYAN_DRAGON_SCALE_SHIELD:
 		case PSYCHIC_DRAGON_SCALE_SHIELD:
@@ -5648,7 +6206,7 @@ boolean guaranteed;
 			shieldblockrate = 33;
 			break;
 
-		default: impossible("Unknown type of shield (%d)", uarms->otyp);
+		default: impossible("Unknown type of shield (%ld)", uarms->otyp);
 
 		}
 
@@ -5667,9 +6225,11 @@ boolean guaranteed;
 		if (uarms->oartifact == ART_LURTZ_S_WALL) shieldblockrate += 20;
 		if (uarms->oartifact == ART_I_M_GETTING_HUNGRY) shieldblockrate += 20;
 		if (uarms->oartifact == ART_WHANG_CLINK_CLONK) shieldblockrate += 10;
+		if (uarms->oartifact == ART_LOOK_HOW_IT_BLOCKS) shieldblockrate += 20;
 		if (uarms->oartifact == ART_BLOCKING_EXTREME) shieldblockrate += 10;
 		if (uarms->oartifact == ART_CUTTING_THROUGH) shieldblockrate += 5;
 		if (uwep && uwep->oartifact == ART_VEST_REPLACEMENT) shieldblockrate += 10;
+		if (Race_if(PM_MACTHEIST)) shieldblockrate += 10;
 
 		if (u.holyshield) shieldblockrate += (3 + spell_damage_bonus(SPE_HOLY_SHIELD));
 
@@ -5698,6 +6258,10 @@ boolean guaranteed;
 			shieldblockrate *= 2;
 			shieldblockrate /= 3;
 		}
+		if (StrongConflict && shieldblockrate > 0) {
+			shieldblockrate *= 2;
+			shieldblockrate /= 3;
+		}
 
 		if (shieldblockrate < 0) shieldblockrate = 0;
 
@@ -5705,10 +6269,14 @@ boolean guaranteed;
 		enl_msg("Your chance to block ", "is ", "was ", buf );
 	}
 
-	if ((guaranteed || !rn2(10)) && Fumbling) enl_msg("You fumble", "", "d", "");
+	if ((guaranteed || !rn2(10)) && Fumbling) {
+		sprintf(buf, "fumbling");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.fumbleduration);
+		you_are(buf);
+	}
 	if ((guaranteed || !rn2(10)) && (Wounded_legs && !u.usteed)) {
 		sprintf(buf, "wounded %s", makeplural(body_part(LEG)));
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HWounded_legs);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HWounded_legs);
 		you_have(buf);
 	}
 #if defined(WIZARD) /*randomly tell this to the player outside of wizard mode too --Amy */
@@ -5720,17 +6288,20 @@ boolean guaranteed;
 	}
 #endif
 	if ((guaranteed || !rn2(10)) && Sleeping) enl_msg("You ", "fall", "fell", " asleep");
-	if ((guaranteed || !rn2(10)) && Hunger) enl_msg("You hunger", "", "ed", " rapidly");
+	if ((guaranteed || !rn2(10)) && Hunger && !StrongHunger) enl_msg("You hunger", "", "ed", " rapidly");
+	if ((guaranteed || !rn2(10)) && Hunger && StrongHunger) enl_msg("You hunger", "", "ed", " extremely rapidly");
 
 	if ((guaranteed || !rn2(10)) && have_sleepstone()) enl_msg("You ", "are", "were", " very tired");
 	if ((guaranteed || !rn2(10)) && have_cursedmagicresstone()) enl_msg("You ", "take", "took", " double damage");
 	if ((guaranteed || !rn2(10)) && uamul && uamul->otyp == AMULET_OF_VULNERABILITY) enl_msg("You ", "take", "took", " extra damage");
 
 	/*** Vision and senses ***/
-	if ((guaranteed || !rn2(10)) && See_invisible) enl_msg(You_, "see", "saw", " invisible");
-	if ((guaranteed || !rn2(10)) && Manaleech) enl_msg(You_, "leech", "leeched", " mana");
-	if ((guaranteed || !rn2(10)) && Peacevision) enl_msg(You_, "recognize", "recognized", " peaceful creatures");
-	if ((guaranteed || !rn2(10)) && Blind_telepat) you_are("telepathic");
+	if ((guaranteed || !rn2(10)) && See_invisible && !StrongSee_invisible) enl_msg(You_, "see", "saw", " invisible");
+	if ((guaranteed || !rn2(10)) && See_invisible && StrongSee_invisible) enl_msg(You_, "see", "saw", " invisible and hidden");
+	if ((guaranteed || !rn2(10)) && Manaleech) enl_msg(You_, "leech", "leeched", StrongManaleech ? " a lot of mana" : " mana");
+	if ((guaranteed || !rn2(10)) && Peacevision) enl_msg(You_, "recognize", "recognized", StrongPeacevision ? " peaceful creatures and other stuff" : " peaceful creatures");
+	if ((guaranteed || !rn2(10)) && (Blind_telepat || Unblind_telepat) && !StrongTelepat) you_are("telepathic");
+	if ((guaranteed || !rn2(10)) && (Blind_telepat || Unblind_telepat) && StrongTelepat) you_are("very telepathic");
 	if ((guaranteed || !rn2(10)) && Map_amnesia) enl_msg(You_, "have", "had", " map amnesia");
 
 	if ((guaranteed || !rn2(10)) && Hallu_party) you_are("hallu partying");
@@ -5747,7 +6318,7 @@ boolean guaranteed;
 	if ((guaranteed || !rn2(10)) && Wonderlegs) you_have("wonderlegs");
 	if ((guaranteed || !rn2(10)) && Glib_combat) you_are("a glibbery fighter");
 
-	if ((guaranteed || !rn2(10)) && Warning) you_are("warned");
+	if ((guaranteed || !rn2(10)) && Warning) you_are(StrongWarning ? "definitely warned" : "warned");
 	if ((guaranteed || !rn2(10)) && (Warn_of_mon && flags.warntype)) {
 	    /* [ALI] Add support for undead */
 	    int i, nth = 0;
@@ -5804,15 +6375,15 @@ boolean guaranteed;
 	if ((guaranteed || !rn2(10)) && isselfhybrid) you_are("aware of the presence of strong wanderers");
 	if ((guaranteed || !rn2(10)) && isselfhybrid) you_are("aware of the presence of monsters that are valid polymorph forms for monsters only");
 
-	if ((guaranteed || !rn2(10)) && Searching) you_have("automatic searching");
+	if ((guaranteed || !rn2(10)) && Searching) you_have(StrongSearching ? "quick autosearching" : "automatic searching");
 
 	if ((guaranteed || !rn2(10)) && Clairvoyant) {
-		sprintf(buf, "clairvoyant");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HClairvoyant);
+		sprintf(buf, StrongClairvoyant ? "highly clairvoyant" : "clairvoyant");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HClairvoyant);
 		you_are(buf);
 	}
 
-	if ((guaranteed || !rn2(10)) && Infravision) you_have("infravision");
+	if ((guaranteed || !rn2(10)) && Infravision) you_have(StrongInfravision ? "strong infravision" : "infravision");
 
 	if ((guaranteed || !rn2(10)) && u.banishmentbeam) you_are("going to be banished");
 	if ((guaranteed || !rn2(10)) && u.levelporting) you_are("going to be levelported");
@@ -5829,9 +6400,15 @@ boolean guaranteed;
 		you_are(buf);
 	}
 
+	if ((guaranteed || !rn2(10)) && u.demagoguerecursion) {
+		sprintf(buf, "temporarily playing as another role");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.demagoguerecursiontime);
+		you_are(buf);
+	}
+
 	if ((guaranteed || !rn2(10)) && Detect_monsters) {
-		sprintf(buf, "sensing the presence of monsters");
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", HDetect_monsters);
+		sprintf(buf, StrongDetect_monsters ? "sensing all monsters" : "sensing the presence of monsters");
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", HDetect_monsters);
 		you_are(buf);
 	}
 
@@ -5852,45 +6429,51 @@ boolean guaranteed;
 	    else
 		you_are("adorned");
 	}
-	if ((guaranteed || !rn2(10)) && Invisible) you_are("invisible");
-	else if ((guaranteed || !rn2(10)) && Invis) you_are("invisible to others");
+	if ((guaranteed || !rn2(10)) && Invisible) you_are(StrongInvis ? "very invisible" : "invisible");
+	else if ((guaranteed || !rn2(10)) && Invis) you_are(StrongInvis ? "very invisible to others" : "invisible to others");
 	/* ordinarily "visible" is redundant; this is a special case for
 	   the situation when invisibility would be an expected attribute */
 	else if ((guaranteed || !rn2(10)) && ((HInvis || EInvis || pm_invisible(youmonst.data)) && BInvis))
 	    you_are("visible");
-	if ((guaranteed || !rn2(10)) && Displaced) you_are("displaced");
-	if ((guaranteed || !rn2(10)) && Stealth) you_are("stealthy");
-	if ((guaranteed || !rn2(10)) && Aggravate_monster) enl_msg("You aggravate", "", "d", " monsters");
-	if ((guaranteed || !rn2(10)) && Conflict) enl_msg("You cause", "", "d", " conflict");
+	if ((guaranteed || !rn2(10)) && Displaced) you_are(StrongDisplaced ? "very displaced" : "displaced");
+	if ((guaranteed || !rn2(10)) && Stealth) you_are(StrongStealth ? "very stealthy" : "stealthy");
+	if ((guaranteed || !rn2(10)) && StrongAggravate_monster) enl_msg("You completely aggravate", "", "d", " monsters");
+	if ((guaranteed || !rn2(10)) && !StrongAggravate_monster && ExtAggravate_monster) enl_msg("You strongly aggravate", "", "d", " monsters");
+	if ((guaranteed || !rn2(10)) && !StrongAggravate_monster && IntAggravate_monster) enl_msg("You aggravate", "", "d", " monsters");
+	if ((guaranteed || !rn2(10)) && Aggravate_monster) {
+		sprintf(buf, "aggravating monsters for %ld more turns", HAggravate_monster);
+		you_are(buf);
+	}
+	if ((guaranteed || !rn2(10)) && Conflict) enl_msg("You cause", "", "d", StrongConflict ? " lots of conflict" : " conflict");
 
 	/*** Transportation ***/
-	if ((guaranteed || !rn2(10)) && Jumping) you_can("jump");
-	if ((guaranteed || !rn2(10)) && Teleportation) you_have("teleportitis");
-	if ((guaranteed || !rn2(10)) && Teleport_control) you_have("teleport control");
+	if ((guaranteed || !rn2(10)) && Jumping) you_can(StrongJumping ? "jump far" : "jump");
+	if ((guaranteed || !rn2(10)) && Teleportation) you_have(StrongTeleportation ? "chronic teleportitis" : "teleportitis");
+	if ((guaranteed || !rn2(10)) && Teleport_control) you_have(StrongTeleport_control ? "complete teleport control" : "teleport control");
 	/*if (Lev_at_will) you_are("levitating, at will");
-	else if ((guaranteed || !rn2(10)) && Levitation) you_are("levitating");*/	/* without control */
+	else if ((guaranteed || !rn2(10)) && Levitation) you_are(StrongLevitation ? "floatitating" : "levitating");*/	/* without control */
 
 	if ((guaranteed || !rn2(10)) && Lev_at_will)  {
 	    sprintf(buf, "levitating, at will");
 #ifdef WIZARD
-	    if (wizard || !rn2(10) || final >= 1 ) sprintf(eos(buf), " (%d)", HLevitation);
+	    if (wizard || !rn2(10) || final >= 1 ) sprintf(eos(buf), " (%ld)", HLevitation);
 #endif /*same like above --Amy */
 	    you_are(buf);
 	}
 	if ((guaranteed || !rn2(10)) && Levitation)  {
-	    sprintf(buf, "levitating");
+	    sprintf(buf, StrongLevitation ? "floatitating" : "levitating");
 #ifdef WIZARD
-	    if (wizard || !rn2(10) || final >= 1 ) sprintf(eos(buf), " (%d)", HLevitation);
+	    if (wizard || !rn2(10) || final >= 1 ) sprintf(eos(buf), " (%ld)", HLevitation);
 #endif /*same like above --Amy */
 	    you_are(buf);
 	}
 
-	else if ((guaranteed || !rn2(10)) && Flying) you_can("fly");
+	else if ((guaranteed || !rn2(10)) && Flying) you_can(StrongFlying ? "fly up and down" : "fly");
 	if ((guaranteed || !rn2(10)) && Wwalking) you_can("walk on water");
-	if ((guaranteed || !rn2(10)) && Swimming) you_can("swim");        
-	if ((guaranteed || !rn2(10)) && Breathless) you_can("survive without air");
+	if ((guaranteed || !rn2(10)) && Swimming) you_can(StrongSwimming ? "swim like a world champion" : "swim");        
+	if ((guaranteed || !rn2(10)) && Breathless) you_can(StrongMagical_breathing ? "survive everywhere without needing to breathe" : "survive without air");
 	else if ((guaranteed || !rn2(10)) && Amphibious) you_can("breathe water");
-	if ((guaranteed || !rn2(10)) && Passes_walls) you_can("walk through walls");
+	if ((guaranteed || !rn2(10)) && Passes_walls) you_can(StrongPasses_walls ? "walk through every wall" : "walk through walls");
 	/* If you die while dismounting, u.usteed is still set.  Since several
 	 * places in the done() sequence depend on u.usteed, just detect this
 	 * special case. */
@@ -5916,28 +6499,30 @@ boolean guaranteed;
 	    you_have(enlght_combatinc("to hit", u.uhitinc, final, buf));
 	if ((guaranteed || !rn2(10)) && u.udaminc)
 	    you_have(enlght_combatinc("damage", u.udaminc, final, buf));
-	if ((guaranteed || !rn2(10)) && Slow_digestion) you_have("slower digestion");
+	if ((guaranteed || !rn2(10)) && Slow_digestion) you_have(StrongSlow_digestion ? "extremely slow digestion" : "slower digestion");
 	if ((guaranteed || !rn2(10)) && Keen_memory)
-		enl_msg("Your memory ", "is", "was", " keen");
-	if ((guaranteed || !rn2(10)) && Sight_bonus) enl_msg("Your sight ", "is", "was", " improved");
-	if ((guaranteed || !rn2(10)) && Versus_curses) you_have("curse resistance");
+		enl_msg("Your memory ", "is", "was", StrongKeen_memory ? " very keen" : " keen");
+	if ((guaranteed || !rn2(10)) && Sight_bonus) enl_msg("Your sight ", "is", "was", StrongSight_bonus ? " greatly improved" : " improved");
+	if ((guaranteed || !rn2(10)) && Versus_curses) you_have(StrongVersus_curses ? "double curse resistance" : "curse resistance");
 
-	if ((guaranteed || !rn2(10)) && Stun_resist) you_have("stun resistance");
-	if ((guaranteed || !rn2(10)) && Conf_resist) you_have("confusion resistance");
-	if ((guaranteed || !rn2(10)) && Cont_resist) you_have("contamination resistance");
-	if ((guaranteed || !rn2(10)) && Discount_action) you_have("discount action");
-	if ((guaranteed || !rn2(10)) && Full_nutrient) you_have("full nutrients");
-	if ((guaranteed || !rn2(10)) && Technicality) you_have("improved technique levels");
-	if ((guaranteed || !rn2(10)) && Psi_resist) you_have("psi resistance");
-	if ((guaranteed || !rn2(10)) && Extra_wpn_practice) enl_msg("You ", "can", "could", " train skills and attributes faster");
+	if ((guaranteed || !rn2(10)) && Stun_resist) you_have(StrongStun_resist ? "double stun resistance" : "stun resistance");
+	if ((guaranteed || !rn2(10)) && Conf_resist) you_have(StrongConf_resist ? "double confusion resistance" : "confusion resistance");
+	if ((guaranteed || !rn2(10)) && Cont_resist) you_have(StrongCont_resist ? "double contamination resistance" : "contamination resistance");
+	if ((guaranteed || !rn2(10)) && Discount_action) you_have(StrongDiscount_action ? "high discount action" : "discount action");
+	if ((guaranteed || !rn2(10)) && Full_nutrient) you_have(StrongFull_nutrient ? "very full nutrients" : "full nutrients");
+	if ((guaranteed || !rn2(10)) && Technicality) you_have(StrongTechnicality ? "greatly improved technique levels" : "improved technique levels");
+	if ((guaranteed || !rn2(10)) && (ScentView || EcholocationActive)) you_have(StrongScentView ? "scent view and echolocation" : (ScentView && EcholocationActive) ? "scent view and echolocation" : EcholocationActive ? "echolocation" : "scent view");
+	if ((guaranteed || !rn2(10)) && DiminishedBleeding) you_have(StrongDiminishedBleeding ? "greatly diminished bleeding" : "diminished bleeding");
+	if ((guaranteed || !rn2(10)) && Psi_resist) you_have(StrongPsi_resist ? "double psi resistance" : "psi resistance");
+	if ((guaranteed || !rn2(10)) && Extra_wpn_practice) enl_msg("You ", "can", "could", StrongExtra_wpn_practice ? " train skills and attributes much faster" : " train skills and attributes faster");
 	if ((guaranteed || !rn2(10)) && Death_resistance) you_have("resistance to death rays");
-	if ((guaranteed || !rn2(10)) && Double_attack) you_have("double attacks");
-	if ((guaranteed || !rn2(10)) && Quad_attack) you_have("quad attacks");
+	if ((guaranteed || !rn2(10)) && Double_attack) you_have(StrongDouble_attack ? "super double attacks" : "double attacks");
+	if ((guaranteed || !rn2(10)) && Quad_attack) you_have(StrongQuad_attack ? "super quad attacks" : "quad attacks");
 
-	if ((guaranteed || !rn2(10)) && Half_physical_damage) you_have("physical resistance");
-	if ((guaranteed || !rn2(10)) && Half_spell_damage) you_have("spell resistance");
-	if ((guaranteed || !rn2(10)) && Regeneration) enl_msg("You regenerate", "", "d", "");
-	if ((guaranteed || !rn2(10)) && Energy_regeneration) you_have("mana regeneration");
+	if ((guaranteed || !rn2(10)) && Half_physical_damage) you_have(StrongHalf_physical_damage ? "strong physical resistance" : "physical resistance");
+	if ((guaranteed || !rn2(10)) && Half_spell_damage) you_have(StrongHalf_spell_damage ? "strong spell resistance" : "spell resistance");
+	if ((guaranteed || !rn2(10)) && Regeneration) enl_msg(StrongRegeneration ? "You quickly regenerate" : "You regenerate", "", "d", "");
+	if ((guaranteed || !rn2(10)) && Energy_regeneration) you_have(StrongEnergy_regeneration ? "quick mana regeneration" : "mana regeneration");
 	if ((guaranteed || !rn2(10)) && (u.uspellprot || Protection)) {
 	    int prot = 0;
 
@@ -5953,8 +6538,8 @@ boolean guaranteed;
 	}
 	if ((guaranteed || !rn2(10)) && Protection_from_shape_changers)
 		you_are("protected from shape changers");
-	if ((guaranteed || !rn2(10)) && Polymorph) you_have("polymorphitis");
-	if ((guaranteed || !rn2(10)) && Polymorph_control) you_have("polymorph control");
+	if ((guaranteed || !rn2(10)) && Polymorph) you_have(StrongPolymorph ? "chronic polymorphitis" : "polymorphitis");
+	if ((guaranteed || !rn2(10)) && Polymorph_control) you_have(StrongPolymorph_control ? "complete polymorph control" : "polymorph control");
 	if ((guaranteed || !rn2(10)) && (u.ulycn >= LOW_PM)) {
 		strcpy(buf, an(mons[u.ulycn].mname));
 		you_are(buf);
@@ -5967,20 +6552,30 @@ boolean guaranteed;
 #endif
 	    you_are(buf);
 	}
+	if ((guaranteed || !rn2(10)) && uinsymbiosis) {
+		sprintf(buf, "in symbiosis with %s, symbiote health %d(%d), BUC %s%s%s%s%s", mons[u.usymbiote.mnum].mname, u.usymbiote.mhp, u.usymbiote.mhpmax, u.usymbiote.stckcurse ? "sticky" : "", u.usymbiote.evilcurse ? " evil" : "", u.usymbiote.morgcurse ? " morgothian" : "", u.usymbiote.bbcurse ? " blackbreath" : "", u.usymbiote.prmcurse ? " prime cursed" : u.usymbiote.hvycurse ? " heavily cursed" : u.usymbiote.cursed ? " cursed" : "uncursed");
+		if (u.shutdowntime) {
+			sprintf(eos(buf), ", shutdown for %d turns", u.shutdowntime);
+		}
+		you_are(buf);
+	}
+
 	if ((guaranteed || !rn2(10)) && Unchanging) you_can("not change from your current form");
-	if ((guaranteed || !rn2(10)) && (Fast && !SpeedBug && !u.uprops[SPEED_BUG].extrinsic && !(uarmf && uarmf->oartifact == ART_UNEVEN_ENGINE) && !(uarmf && uarmf->oartifact == ART_ERROR_IN_PLAY_ENCHANTMENT) && !have_speedbugstone())) you_are(Very_fast ? "very fast" : "fast");
-	if ((guaranteed || !rn2(10)) && (Fast && (SpeedBug || u.uprops[SPEED_BUG].extrinsic || (uarmf && uarmf->oartifact == ART_UNEVEN_ENGINE) || (uarmf && uarmf->oartifact == ART_ERROR_IN_PLAY_ENCHANTMENT) || have_speedbugstone()) )) you_are(Very_fast ? "very slow" : "slow");
+	if ((guaranteed || !rn2(10)) && (Fast && !SpeedBug && !u.uprops[SPEED_BUG].extrinsic && !(uarmf && uarmf->oartifact == ART_UNEVEN_ENGINE) && !(uarmf && uarmf->oartifact == ART_ERROR_IN_PLAY_ENCHANTMENT) && !have_speedbugstone())) you_are(StrongFast ? "ultra fast" : Very_fast ? "very fast" : "fast");
+	if ((guaranteed || !rn2(10)) && (Fast && (SpeedBug || u.uprops[SPEED_BUG].extrinsic || (uarmf && uarmf->oartifact == ART_UNEVEN_ENGINE) || (uarmf && uarmf->oartifact == ART_ERROR_IN_PLAY_ENCHANTMENT) || have_speedbugstone()) )) you_are(StrongFast ? "ultra slow" : Very_fast ? "very slow" : "slow");
 	if ((guaranteed || !rn2(10)) && (!Fast && Very_fast && !SpeedBug && !u.uprops[SPEED_BUG].extrinsic && !(uarmf && uarmf->oartifact == ART_UNEVEN_ENGINE) && !(uarmf && uarmf->oartifact == ART_ERROR_IN_PLAY_ENCHANTMENT) && !have_speedbugstone())) you_are("very fast");
 	if ((guaranteed || !rn2(10)) && (!Fast && Very_fast && (SpeedBug || u.uprops[SPEED_BUG].extrinsic || (uarmf && uarmf->oartifact == ART_UNEVEN_ENGINE) || (uarmf && uarmf->oartifact == ART_ERROR_IN_PLAY_ENCHANTMENT) || have_speedbugstone()) )) you_are("very slow");
-	if ((guaranteed || !rn2(10)) && Reflecting) you_have("reflection");
-	if ((guaranteed || !rn2(10)) && Free_action) you_have("free action");
-	if ((guaranteed || !rn2(10)) && (Fixed_abil || Race_if(PM_SUSTAINER) || (uarms && uarms->oartifact == ART_SYSTEMATIC_CHAOS) || (uarms && uarms->oartifact == ART_BONUS_HOLD) || (uamul && uamul->oartifact == ART_FIX_EVERYTHING) || (uarmf && uarmf->oartifact == ART_ELENETTES) )) you_have("fixed abilities");
+	if ((guaranteed || !rn2(10)) && Reflecting) you_have(StrongReflecting ? "powerful reflection" : "reflection");
+	if ((guaranteed || !rn2(10)) && Free_action) you_have(StrongFree_action ? "very free action" : "free action");
+	if ((guaranteed || !rn2(10)) && SustainAbilityOn) you_have("fixed abilities");
 	if ((guaranteed || !rn2(10)) && (uamul && uamul->otyp == AMULET_VERSUS_STONE))
 		enl_msg("You ", "will be", "would have been", " depetrified");
 	if ((guaranteed || !rn2(10)) && Lifesaved)
 		enl_msg("Your life ", "will be", "would have been", " saved");
 	if ((guaranteed || !rn2(10)) && Second_chance)
   	  enl_msg("You ","will be", "would have been"," given a second chance");
+	if ((guaranteed || !rn2(10)) && u.metalguard)	
+  	  enl_msg("The next damage you ","take will be", "took would have been"," nullified");
 	if ((guaranteed || !rn2(10)) && u.twoweap) {
 	    if (uwep && uswapwep)
 		sprintf(buf, "wielding two weapons at once");
@@ -6023,7 +6618,7 @@ boolean guaranteed;
 		sprintf(buf, "%s health", u.uhealbonus > 0 ? "extra" :
 			"reduced");
 #ifdef WIZARD
-	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%d)", u.uhealbonus);
+	    if (wizard || (!rn2(10)) || final >= 1 ) sprintf(eos(buf), " (%ld)", u.uhealbonus);
 #endif
 		you_have(buf);
 	}
@@ -6043,6 +6638,10 @@ boolean guaranteed;
 #ifdef WIZARD
 	 else if (wizard) enl_msg("Your mana bonus ", "is", "was", " zero");
 #endif
+	if (guaranteed || !rn2(10)) {
+		sprintf(buf, "spell retention for remembering %d spells", urole.spelrete);
+		you_have(buf);
+	}
 
 	if ((guaranteed || !rn2(10)) && u.ugangr) {
 	    sprintf(buf, " %sangry with you",
@@ -6161,6 +6760,8 @@ int final;
 
 	dump("", "Final attributes");
 
+	if (u.freeplaymode) dump(youwere, "a demigod");
+	if (flags.zapem) dump(youwere, "playing in ZAPM mode");
 	if (flags.wonderland) dump(youwere, "playing in wonderland mode");
 	if (flags.lostsoul && !flags.uberlostsoul) dump(youwere, "playing in lost soul mode");
 	if (flags.uberlostsoul) dump(youwere, "playing in uber lost soul mode");
@@ -6210,14 +6811,25 @@ int final;
 	sprintf(buf, " %d sins", u.ualign.sins);
 	dump("  You carried ", buf);
 
+	if (u.impossibleproperty >= 0) {
 	sprintf(buf, " %s", enchname(u.impossibleproperty) );
 	dump("  You could not have this property at all:", buf);
+	}
 
+	if (u.nonextrinsicproperty >= 0) {
 	sprintf(buf, " %s", enchname(u.nonextrinsicproperty) );
 	dump("  You could not have this property extrinsically:", buf);
+	}
 
+	if (u.nonintrinsicproperty >= 0) {
 	sprintf(buf, " %s", enchname(u.nonintrinsicproperty) );
 	dump("  You could not have this property intrinsically:", buf);
+	}
+
+	if (u.nondoubleproperty >= 0) {
+		sprintf(buf, " %s", enchname(u.nondoubleproperty) );
+		dump("  You could not have the double effect of this property:", buf);
+	}
 
 	if (u.idscrollpenalty > 100) {
 		sprintf(buf, " %d", u.idscrollpenalty);
@@ -6338,6 +6950,11 @@ int final;
 		dump("  Food drop chance was reduced to", buf);
 	}
 
+	if (u.shopitemreduction) {
+		sprintf(buf, " %d%%", 100 - u.shopitemreduction);
+		dump("  Shop item generation was reduced to", buf);
+	}
+
 	if (u.concealitemchance) {
 		sprintf(buf, " %d%% of the time only", 100 - u.concealitemchance);
 		dump("  Concealing monsters were spawned underneath items", buf);
@@ -6348,45 +6965,70 @@ int final;
 		dump("  Monster death drops spawned with only", buf);
 	}
 
+	if (u.untrainableskill) {
 		sprintf(buf, " %s", P_NAME(u.untrainableskill));
 		dump("  The following skill could not be trained at all:", buf);
+	}
 
+	if (u.halfspeedskill) {
 		sprintf(buf, " %s", P_NAME(u.halfspeedskill));
 		dump("  The following skill was trained at half the usual rate:", buf);
+	}
 
+	if (u.fifthspeedskill) {
 		sprintf(buf, " %s", P_NAME(u.fifthspeedskill));
 		dump("  The following skill was trained at one fifth the usual rate:", buf);
+	}
 
+	if (u.basiclimitskill) {
 		sprintf(buf, " %s", P_NAME(u.basiclimitskill));
 		dump("  The following skill was limited to basic proficiency:", buf);
+	}
 
+	if (u.skilledlimitskill) {
 		sprintf(buf, " %s", P_NAME(u.skilledlimitskill));
 		dump("  The following skill was limited to skilled proficiency:", buf);
+	}
 
+	if (u.expertlimitskill) {
 		sprintf(buf, " %s", P_NAME(u.expertlimitskill));
 		dump("  The following skill was limited to expert proficiency:", buf);
+	}
 
+	if (u.earlytrainingskill) {
 		sprintf(buf, " %s (turn %d)", P_NAME(u.earlytrainingskill), u.earlytrainingtimer);
 		dump("  The following skill became untrainable if you tried to train it too early:", buf);
+	}
 
 	if (u.earlytrainingblown) {
 		sprintf(buf, "blown your chance of training the %s skill", P_NAME(u.earlytrainingskill));
 		dump(youhad, buf);
 	}
 
+	if (u.frtrainingskill) {
 		sprintf(buf, " %s (turn %d)", P_NAME(u.frtrainingskill), u.frtrainingtimer);
 		dump("  The following skill became untrainable if you tried to train it too early:", buf);
+	}
 
 	if (u.frtrainingblown) {
 		sprintf(buf, "blown your chance of training the %s skill", P_NAME(u.frtrainingskill));
 		dump(youhad, buf);
 	}
 
+	if (u.latetrainingskill) {
 		sprintf(buf, " %s (turn %d)", P_NAME(u.latetrainingskill), u.latetrainingtimer);
 		dump("  The following skill became untrainable after a while:", buf);
+	}
 
+	if (u.lavtrainingskill) {
 		sprintf(buf, " %s (turn %d)", P_NAME(u.lavtrainingskill), u.lavtrainingtimer);
 		dump("  The following skill couldn't be trained before a certain turn number is reached:", buf);
+	}
+
+	if (u.slowtrainingskill) {
+		sprintf(buf, " %s", P_NAME(u.slowtrainingskill));
+		dump("  The following skill became harder to train at higher skill levels:", buf);
+	}
 
 	if (u.stickycursechance) {
 		sprintf(buf, " %d%%", u.stickycursechance);
@@ -6454,8 +7096,10 @@ int final;
 		dump("  Today, this monster class was always generated hidden: ", monexplain[u.alwayshidden] );
 	}
 
+	if (u.freqmonsterbonus) {
 	sprintf(buf, "spawned more often: %s (freq bonus %d)", monexplain[u.frequentmonster], u.freqmonsterbonus);
 	dump("  The monster class that was ", buf );
+	}
 
 	if (u.freqcolorbonus) {
 		sprintf(buf, "spawned more often: %s (freq bonus %d)", c_obj_colors[u.frequentcolor], u.freqcolorbonus);
@@ -6640,7 +7284,7 @@ int final;
 		dump("  The monster class that ", buf );
 	}
 
-	if (u.minimalism) {
+	if (u.minimalism && isminimalist) {
 		sprintf(buf, " %d", u.minimalism);
 		dump("  Items generated only 1 time in", buf);
 	}
@@ -6791,13 +7435,34 @@ int final;
 	sprintf(buf, "generated more often: %s (freq bonus %d)", defsyms[trap_to_defsym(u.frequenttrap)].explanation, u.freqtrapbonus);
 	dump("  The RNG hath decreed that this trap was ", buf );
 
+	if (u.spellbookbias1 != -1) {
+		sprintf(buf, "%s (freq bonus %d)", P_NAME(u.spellbookbias1), u.spellbookchance1);
+		dump("  The spell school whose books are more common was ", buf );
+	}
+
+	if (u.spellbookbias2 != -1) {
+		sprintf(buf, "%s (freq bonus %d)", P_NAME(u.spellbookbias2), u.spellbookchance2);
+		dump("  The spell school whose books are more common was ", buf );
+	}
+
+	if (u.spellbookbias3 != -1) {
+		sprintf(buf, "%s (freq bonus %d)", P_NAME(u.spellbookbias3), u.spellbookchance3);
+		dump("  The spell school whose books are more common was ", buf );
+	}
+
 	sprintf(buf, "for 1 in %d traps", u.traprandomizing);
 	dump("  Trap randomization happened ", buf );
+
+	sprintf(buf, "spawned invisible 1 times in %d", u.invistrapchance);
+	dump("  Traps were ", buf );
 
 	if (u.trapxtradiff) {
 		sprintf(buf, "increased by %d", u.trapxtradiff);
 		dump("  Trap difficulty was ", buf );
 	}
+
+	sprintf(buf, "extra hard to find %d%% of the time", u.xdifftrapchance);
+	dump("  Traps were ", buf );
 
 	sprintf(buf, " turn %d", u.next_check);
 	dump("  Next attribute increase check would have come at", buf);
@@ -6827,6 +7492,31 @@ int final;
 		dump("  You were tremling, reducing your to-hit and spellcasting chances. Amount:", buf);
 	}
 
+	if (u.tsloss_str) {
+		sprintf(buf, " %d", u.tsloss_str);
+		dump("  Your strength was temporarily reduced by", buf);
+	}
+	if (u.tsloss_dex) {
+		sprintf(buf, " %d", u.tsloss_dex);
+		dump("  Your dexterity was temporarily reduced by", buf);
+	}
+	if (u.tsloss_con) {
+		sprintf(buf, " %d", u.tsloss_con);
+		dump("  Your constitution was temporarily reduced by", buf);
+	}
+	if (u.tsloss_wis) {
+		sprintf(buf, " %d", u.tsloss_wis);
+		dump("  Your wisdom was temporarily reduced by", buf);
+	}
+	if (u.tsloss_int) {
+		sprintf(buf, " %d", u.tsloss_int);
+		dump("  Your intelligence was temporarily reduced by", buf);
+	}
+	if (u.tsloss_cha) {
+		sprintf(buf, " %d", u.tsloss_cha);
+		dump("  Your charisma was temporarily reduced by", buf);
+	}
+
 	if (u.extralives == 1) {
 		dump(youhad, "an extra life");
 	}
@@ -6842,18 +7532,18 @@ int final;
 	}
 
 	/*** Resistances to troubles ***/
-	if (Fire_resistance) dump(youwere, "fire resistant");
-	if (Cold_resistance) dump(youwere, "cold resistant");
-	if (Sleep_resistance) dump(youwere, "sleep resistant");
-	if (Disint_resistance) dump(youwere, "disintegration-resistant");
-	if (Shock_resistance) dump(youwere, "shock resistant");
-	if (Poison_resistance) dump(youwere, "poison resistant");
-	if (Drain_resistance) dump(youwere, "level-drain resistant");
-	if (Sick_resistance) dump(youwere, "immune to sickness");
-	if (Antimagic) dump(youwere, "magic-protected");
-	if (Acid_resistance) dump(youwere, "acid resistant");
-	if (Fear_resistance) dump(youwere, "resistant to fear");
-	if (Stone_resistance) dump(youwere, "petrification resistant");
+	if (Fire_resistance) dump(youwere, StrongFire_resistance ? "doubly fire resistant" : "fire resistant");
+	if (Cold_resistance) dump(youwere, StrongCold_resistance ? "doubly cold resistant" : "cold resistant");
+	if (Sleep_resistance) dump(youwere, StrongSleep_resistance ? "doubly sleep resistant" : "sleep resistant");
+	if (Disint_resistance) dump(youwere, StrongDisint_resistance ? "doubly disintegration-resistant" : "disintegration-resistant");
+	if (Shock_resistance) dump(youwere, StrongShock_resistance ? "doubly shock resistant" : "shock resistant");
+	if (Poison_resistance) dump(youwere, StrongPoison_resistance ? "doubly poison resistant" : "poison resistant");
+	if (Drain_resistance) dump(youwere, StrongDrain_resistance ? "doubly level-drain resistant" : "level-drain resistant");
+	if (Sick_resistance) dump(youwere, StrongSick_resistance ? "completely immune to sickness" : IntSick_resistance ? "immune to sickness" : "resistant to sickness");
+	if (Antimagic) dump(youwere, StrongAntimagic ? "doubly magic-protected" : "magic-protected");
+	if (Acid_resistance) dump(youwere, StrongAcid_resistance ? "doubly acid resistant" : "acid resistant");
+	if (Fear_resistance) dump(youwere, StrongFear_resistance ? "highly resistant to fear" : "resistant to fear");
+	if (Stone_resistance) dump(youwere, StrongStone_resistance ? "completely immune to petrification" : IntStone_resistance ? "immune to petrification" : "petrification resistant");
 	if (Invulnerable) dump(youwere, "invulnerable");
 	if (u.urealedibility) {
 		sprintf(buf, "recognize detrimental food");
@@ -6873,55 +7563,55 @@ int final;
 	if (Hallucination) {
 		if (HeavyHallu) sprintf(buf, "badly hallucinating");
 		else sprintf(buf, "hallucinating");
-	      sprintf(eos(buf), " (%d)", HHallucination);
+	      sprintf(eos(buf), " (%ld)", HHallucination);
 		dump(youwere, buf);
 	}
 	if (Stunned) {
 		if (HeavyStunned) sprintf(buf, "badly stunned");
 		else sprintf(buf, "stunned");
-	      sprintf(eos(buf), " (%d)", HStun);
+	      sprintf(eos(buf), " (%ld)", HStun);
 		dump(youwere, buf);
 	}
 	if (Confusion) {
 		if (HeavyConfusion) sprintf(buf, "badly confused");
 		else sprintf(buf, "confused");
-	      sprintf(eos(buf), " (%d)", HConfusion);
+	      sprintf(eos(buf), " (%ld)", HConfusion);
 		dump(youwere, buf);
 	}
 	if (Blinded) {
 		if (HeavyBlind) sprintf(buf, "badly blinded");
 		else sprintf(buf, "blinded");
-	      sprintf(eos(buf), " (%d)", Blinded);
+	      sprintf(eos(buf), " (%ld)", Blinded);
 		dump(youwere, buf);
 	}
 	if (Sick) {
 		sprintf(buf, "sick");
 			if (u.usick_type & SICK_VOMITABLE) sprintf(eos(buf), " from food poisoning");
 			if (u.usick_type & SICK_NONVOMITABLE) sprintf(eos(buf), " from illness");
-	      sprintf(eos(buf), " (%d)", Sick);
+	      sprintf(eos(buf), " (%ld)", Sick);
 		dump(youwere, buf);
 	}
 	if (Vomiting) {
 		sprintf(buf, "nauseated");
-	      sprintf(eos(buf), " (%d)", Vomiting);
+	      sprintf(eos(buf), " (%ld)", Vomiting);
 		dump(youwere, buf);
 	}
 	if (Feared) {
 		if (HeavyFeared) sprintf(buf, "stricken with very strong fear");
 		else sprintf(buf, "stricken with fear");
-	      sprintf(eos(buf), " (%d)", HFeared);
+	      sprintf(eos(buf), " (%ld)", HFeared);
 		dump(youwere, buf);
 	}
 	if (Numbed) {
 		if (HeavyNumbed) sprintf(buf, "badly numbed");
 		else sprintf(buf, "numbed");
-	      sprintf(eos(buf), " (%d)", HNumbed);
+	      sprintf(eos(buf), " (%ld)", HNumbed);
 		dump(youwere, buf);
 	}
 	if (Frozen) {
 		if (HeavyFrozen) sprintf(buf, "frozen rigid and solid");
 		else sprintf(buf, "frozen solid");
-	      sprintf(eos(buf), " (%d)", HFrozen);
+	      sprintf(eos(buf), " (%ld)", HFrozen);
 		dump(youwere, buf);
 	}
 
@@ -6934,14 +7624,14 @@ int final;
 	if (Burned) {
 		if (HeavyBurned) sprintf(buf, "badly burned");
 		else sprintf(buf, "burned");
-	      sprintf(eos(buf), " (%d)", HBurned);
+	      sprintf(eos(buf), " (%ld)", HBurned);
 		dump(youwere, buf);
 	}
 		
 	if (Dimmed) {
 		if (HeavyDimmed) sprintf(buf, "badly dimmed");
 		else sprintf(buf, "dimmed");
-	      sprintf(eos(buf), " (%d)", HDimmed);
+	      sprintf(eos(buf), " (%ld)", HDimmed);
 		dump(youwere, buf);
 	}
 		
@@ -6953,17 +7643,22 @@ int final;
 
 	if (Stoned) {
 		sprintf(buf, "turning to stone");
-	      sprintf(eos(buf), " (%d)", Stoned);
+	      sprintf(eos(buf), " (%ld)", Stoned);
 		dump(youwere, buf);
 	}
 	if (Slimed) {
 		sprintf(buf, "turning into slime");
-	      sprintf(eos(buf), " (%d)", Slimed);
+	      sprintf(eos(buf), " (%ld)", Slimed);
 		dump(youwere, buf);
 	}
 	if (Strangled) {
 		sprintf(buf, (u.uburied) ? "buried" : "being strangled");
-	      sprintf(eos(buf), " (%d)", Strangled);
+	      sprintf(eos(buf), " (%ld)", Strangled);
+		dump(youwere, buf);
+	}
+	if (PlayerBleeds) {
+		sprintf(buf, "bleeding");
+	      sprintf(eos(buf), " (%ld)", PlayerBleeds);
 		dump(youwere, buf);
 	}
 	if (Prem_death) {
@@ -6973,98 +7668,98 @@ int final;
 
 	if (IsGlib) {
 		sprintf(buf, "slippery %s", makeplural(body_part(FINGER)));
-	      sprintf(eos(buf), " (%d)", Glib);
+	      sprintf(eos(buf), " (%ld)", Glib);
 		dump(youhad, buf);
 	}
 
 	if (MenuBug || u.uprops[MENU_LOST].extrinsic || have_menubugstone()) {
 		sprintf(buf, "the menu bug.");
-	      sprintf(eos(buf), " (%d)", MenuBug);
+	      sprintf(eos(buf), " (%ld)", MenuBug);
 		dump(youhad, buf);
 	}
 	if (SpeedBug || u.uprops[SPEED_BUG].extrinsic || have_speedbugstone()) {
 		sprintf(buf, "the speed bug.");
-	      sprintf(eos(buf), " (%d)", SpeedBug);
+	      sprintf(eos(buf), " (%ld)", SpeedBug);
 		dump(youhad, buf);
 	}
 	if (Superscroller || u.uprops[SUPERSCROLLER_ACTIVE].extrinsic || have_superscrollerstone()) {
 		sprintf(buf, "the superscroller.");
-	      sprintf(eos(buf), " (%d)", Superscroller);
+	      sprintf(eos(buf), " (%ld)", Superscroller);
 		dump(youhad, buf);
 	}
 	if (RMBLoss || u.uprops[RMB_LOST].extrinsic || have_rmbstone()) {
 		sprintf(buf, "the following problem: Your right mouse button failed.");
-	      sprintf(eos(buf), " (%d)", RMBLoss);
+	      sprintf(eos(buf), " (%ld)", RMBLoss);
 		dump(youhad, buf);
 	}
 	if (DisplayLoss || u.uprops[DISPLAY_LOST].extrinsic || have_displaystone()) {
 		sprintf(buf, "the following problem: Your display failed.");
-	      sprintf(eos(buf), " (%d)", DisplayLoss);
+	      sprintf(eos(buf), " (%ld)", DisplayLoss);
 		dump(youhad, buf);
 	}
 	if (SpellLoss || u.uprops[SPELLS_LOST].extrinsic || have_spelllossstone()) {
 		sprintf(buf, "the following problem: You lost spells.");
-	      sprintf(eos(buf), " (%d)", SpellLoss);
+	      sprintf(eos(buf), " (%ld)", SpellLoss);
 		dump(youhad, buf);
 	}
 	if (YellowSpells || u.uprops[YELLOW_SPELLS].extrinsic || have_yellowspellstone()) {
 		sprintf(buf, "the following problem: Your spells became yellow.");
-	      sprintf(eos(buf), " (%d)", YellowSpells);
+	      sprintf(eos(buf), " (%ld)", YellowSpells);
 		dump(youhad, buf);
 	}
 	if (AutoDestruct || u.uprops[AUTO_DESTRUCT].extrinsic || have_autodestructstone()) {
 		sprintf(buf, "the following problem: An auto destruct mechanism was initiated.");
-	      sprintf(eos(buf), " (%d)", AutoDestruct);
+	      sprintf(eos(buf), " (%ld)", AutoDestruct);
 		dump(youhad, buf);
 	}
 	if (MemoryLoss || u.uprops[MEMORY_LOST].extrinsic || have_memorylossstone()) {
 		sprintf(buf, "the following problem: There was low local memory.");
-	      sprintf(eos(buf), " (%d)", MemoryLoss);
+	      sprintf(eos(buf), " (%ld)", MemoryLoss);
 		dump(youhad, buf);
 	}
 	if (InventoryLoss || u.uprops[INVENTORY_LOST].extrinsic || have_inventorylossstone()) {
 		sprintf(buf, "the following problem: There was not enough memory to create an inventory window.");
-	      sprintf(eos(buf), " (%d)", InventoryLoss);
+	      sprintf(eos(buf), " (%ld)", InventoryLoss);
 		dump(youhad, buf);
 	}
 	if (BlackNgWalls || u.uprops[BLACK_NG_WALLS].extrinsic || have_blackystone()) {
 		sprintf(buf, "the following problem: Blacky and his NG walls were closing in.");
-	      sprintf(eos(buf), " (%d)", BlackNgWalls);
+	      sprintf(eos(buf), " (%ld)", BlackNgWalls);
 		dump(youhad, buf);
 	}
 	if (FreeHandLoss || u.uprops[FREE_HAND_LOST].extrinsic || have_freehandbugstone()) {
 		sprintf(buf, "the following problem: Your free hand was less likely to be free.");
-	      sprintf(eos(buf), " (%d)", FreeHandLoss);
+	      sprintf(eos(buf), " (%ld)", FreeHandLoss);
 		dump(youhad, buf);
 	}
 	if (Unidentify || u.uprops[UNIDENTIFY].extrinsic || have_unidentifystone()) {
 		sprintf(buf, "the following problem: Your possessions sometimes unidentified themselves.");
-	      sprintf(eos(buf), " (%d)", Unidentify);
+	      sprintf(eos(buf), " (%ld)", Unidentify);
 		dump(youhad, buf);
 	}
 	if (Thirst || u.uprops[THIRST].extrinsic || have_thirststone()) {
 		sprintf(buf, "a strong sense of thirst.");
-	      sprintf(eos(buf), " (%d)", Thirst);
+	      sprintf(eos(buf), " (%ld)", Thirst);
 		dump(youhad, buf);
 	}
 	if (LuckLoss || u.uprops[LUCK_LOSS].extrinsic || have_unluckystone()) {
 		sprintf(buf, "the following problem: You were shitting out of luck (SOL).");
-	      sprintf(eos(buf), " (%d)", LuckLoss);
+	      sprintf(eos(buf), " (%ld)", LuckLoss);
 		dump(youhad, buf);
 	}
 	if (ShadesOfGrey || u.uprops[SHADES_OF_GREY].extrinsic || have_shadesofgreystone()) {
 		sprintf(buf, "the following problem: Everything displayed in various shades of grey.");
-	      sprintf(eos(buf), " (%d)", ShadesOfGrey);
+	      sprintf(eos(buf), " (%ld)", ShadesOfGrey);
 		dump(youhad, buf);
 	}
 	if (FaintActive || u.uprops[FAINT_ACTIVE].extrinsic || have_faintingstone()) {
 		sprintf(buf, "the following problem: You randomly fainted.");
-	      sprintf(eos(buf), " (%d)", FaintActive);
+	      sprintf(eos(buf), " (%ld)", FaintActive);
 		dump(youhad, buf);
 	}
 	if (Itemcursing || u.uprops[ITEMCURSING].extrinsic || have_cursingstone() || have_primecurse() ) {
 		sprintf(buf, "the following problem: Your inventory gradually filled up with cursed items.");
-	      sprintf(eos(buf), " (%d)", Itemcursing);
+	      sprintf(eos(buf), " (%ld)", Itemcursing);
 		dump(youhad, buf);
 	}
 	if (have_morgothiancurse() ) {
@@ -7082,958 +7777,994 @@ int final;
 
 	if (DifficultyIncreased || u.uprops[DIFFICULTY_INCREASED].extrinsic || have_difficultystone()) {
 		sprintf(buf, "the following problem: The difficulty of the game was arbitrarily increased.");
-	      sprintf(eos(buf), " (%d)", DifficultyIncreased);
+	      sprintf(eos(buf), " (%ld)", DifficultyIncreased);
 		dump(youhad, buf);
 	}
 	if (Deafness || u.uprops[DEAFNESS].extrinsic || have_deafnessstone()) {
 		sprintf(buf, "a hearing break.");
-	      sprintf(eos(buf), " (%d)", Deafness);
+	      sprintf(eos(buf), " (%ld)", Deafness);
 		dump(youhad, buf);
 	}
 	if (CasterProblem || u.uprops[CASTER_PROBLEM].extrinsic || have_antimagicstone()) {
 		sprintf(buf, "blood mana.");
-	      sprintf(eos(buf), " (%d)", CasterProblem);
+	      sprintf(eos(buf), " (%ld)", CasterProblem);
 		dump(youhad, buf);
 	}
 	if (WeaknessProblem || u.uprops[WEAKNESS_PROBLEM].extrinsic || have_weaknessstone()) {
 		sprintf(buf, "the following problem: Being weak from hunger damaged your health.");
-	      sprintf(eos(buf), " (%d)", WeaknessProblem);
+	      sprintf(eos(buf), " (%ld)", WeaknessProblem);
 		dump(youhad, buf);
 	}
 	if (RotThirteen || u.uprops[ROT_THIRTEEN].extrinsic || have_rotthirteenstone()) {
 		sprintf(buf, "the following problem: A rot13 cypher had been activated for lowercase letters.");
-	      sprintf(eos(buf), " (%d)", RotThirteen);
+	      sprintf(eos(buf), " (%ld)", RotThirteen);
 		dump(youhad, buf);
 	}
 	if (BishopGridbug || u.uprops[BISHOP_GRIDBUG].extrinsic || have_bishopstone()) {
 		sprintf(buf, "the following problem: You could not move diagonally.");
-	      sprintf(eos(buf), " (%d)", BishopGridbug);
+	      sprintf(eos(buf), " (%ld)", BishopGridbug);
 		dump(youhad, buf);
 	}
 	if (ConfusionProblem || u.uprops[CONFUSION_PROBLEM].extrinsic || have_confusionstone()) {
 		sprintf(buf, "a confusing problem.");
-	      sprintf(eos(buf), " (%d)", ConfusionProblem);
+	      sprintf(eos(buf), " (%ld)", ConfusionProblem);
 		dump(youhad, buf);
 	}
 	if (NoDropProblem || u.uprops[DROP_BUG].extrinsic || have_dropbugstone()) {
 		sprintf(buf, "the following problem: You could not drop items.");
-	      sprintf(eos(buf), " (%d)", NoDropProblem);
+	      sprintf(eos(buf), " (%ld)", NoDropProblem);
 		dump(youhad, buf);
 	}
 	if (DSTWProblem || u.uprops[DSTW_BUG].extrinsic || have_dstwstone()) {
 		sprintf(buf, "the following problem: Your potions didn't always work.");
-	      sprintf(eos(buf), " (%d)", DSTWProblem);
+	      sprintf(eos(buf), " (%ld)", DSTWProblem);
 		dump(youhad, buf);
 	}
 	if (StatusTrapProblem || u.uprops[STATUS_FAILURE].extrinsic || have_statusstone()) {
 		sprintf(buf, "the following problem: You could not cure status effects.");
-	      sprintf(eos(buf), " (%d)", StatusTrapProblem);
+	      sprintf(eos(buf), " (%ld)", StatusTrapProblem);
 		dump(youhad, buf);
 	}
 	if (AlignmentProblem || u.uprops[ALIGNMENT_FAILURE].extrinsic || have_alignmentstone()) {
 		sprintf(buf, "the following problem: Your maximum alignment decreased over time.");
-	      sprintf(eos(buf), " (%d)", AlignmentProblem);
+	      sprintf(eos(buf), " (%ld)", AlignmentProblem);
 		dump(youhad, buf);
 	}
 	if (StairsProblem || u.uprops[STAIRSTRAP].extrinsic || have_stairstrapstone()) {
 		sprintf(buf, "the following problem: Stairs were always trapped.");
-	      sprintf(eos(buf), " (%d)", StairsProblem);
+	      sprintf(eos(buf), " (%ld)", StairsProblem);
 		dump(youhad, buf);
 	}
 	if (UninformationProblem || u.uprops[UNINFORMATION].extrinsic || have_uninformationstone()) {
 		sprintf(buf, "the following problem: The game gave insufficient amounts of information.");
-	      sprintf(eos(buf), " (%d)", UninformationProblem);
+	      sprintf(eos(buf), " (%ld)", UninformationProblem);
 		dump(youhad, buf);
 	}
 	if (TimerunBug || u.uprops[TIMERUN_BUG].extrinsic || have_timerunstone()) {
 		sprintf(buf, "the following problem: All actions take turns.");
-	      sprintf(eos(buf), " (%d)", TimerunBug);
+	      sprintf(eos(buf), " (%ld)", TimerunBug);
+		dump(youhad, buf);
+	}
+
+	if (SanityTrebleEffect || u.uprops[SANITY_TREBLE_EFFECT].extrinsic || have_sanitytreblestone()) {
+		sprintf(buf, "the following problem: Sanity effects will increase your sanity by a much higher amount than usual.");
+	      sprintf(eos(buf), " (%ld)", SanityTrebleEffect);
+		dump(youhad, buf);
+	}
+
+	if (StatDecreaseBug || u.uprops[STAT_DECREASE_BUG].extrinsic || have_statdecreasestone()) {
+		sprintf(buf, "the following problem: The soft cap for your attributes is much lower.");
+	      sprintf(eos(buf), " (%ld)", StatDecreaseBug);
+		dump(youhad, buf);
+	}
+
+	if (SimeoutBug || u.uprops[SIMEOUT_BUG].extrinsic || have_simeoutstone()) {
+		sprintf(buf, "the following problem: Your sanity slowly increases over time.");
+	      sprintf(eos(buf), " (%ld)", SimeoutBug);
+		dump(youhad, buf);
+	}
+
+	if (BadPartBug || u.uprops[BAD_PARTS].extrinsic || have_badpartstone()) {
+		sprintf(buf, "in the bad part.");
+	      sprintf(eos(buf), " (%ld)", BadPartBug);
+		dump(youwere, buf);
+	}
+
+	if (CompletelyBadPartBug || u.uprops[COMPLETELY_BAD_PARTS].extrinsic || have_completelybadpartstone()) {
+		sprintf(buf, "in the completely bad part.");
+	      sprintf(eos(buf), " (%ld)", CompletelyBadPartBug);
+		dump(youwere, buf);
+	}
+
+	if (EvilVariantActive || u.uprops[EVIL_VARIANT_ACTIVE].extrinsic || have_evilvariantstone()) {
+		sprintf(buf, "the following problem: You're forced to play the evil variant.");
+	      sprintf(eos(buf), " (%ld)", EvilVariantActive);
 		dump(youhad, buf);
 	}
 
 	if (OrangeSpells || u.uprops[ORANGE_SPELLS].extrinsic || have_orangespellstone()) {
 		sprintf(buf, "the following problem: Your spells became orange.");
-	      sprintf(eos(buf), " (%d)", OrangeSpells);
+	      sprintf(eos(buf), " (%ld)", OrangeSpells);
 		dump(youhad, buf);
 	}
 
 	if (VioletSpells || u.uprops[VIOLET_SPELLS].extrinsic || have_violetspellstone()) {
 		sprintf(buf, "the following problem: Your spells became violet.");
-	      sprintf(eos(buf), " (%d)", VioletSpells);
+	      sprintf(eos(buf), " (%ld)", VioletSpells);
 		dump(youhad, buf);
 	}
 
 	if (LongingEffect || u.uprops[LONGING_EFFECT].extrinsic || have_longingstone()) {
 		sprintf(buf, "the following problem: The game bombards you with 'sexy' messages.");
-	      sprintf(eos(buf), " (%d)", LongingEffect);
+	      sprintf(eos(buf), " (%ld)", LongingEffect);
 		dump(youhad, buf);
 	}
 
 	if (CursedParts || u.uprops[CURSED_PARTS].extrinsic || have_cursedpartstone()) {
 		sprintf(buf, "the following problem: Sometimes you're forced to wear cursed equipment.");
-	      sprintf(eos(buf), " (%d)", CursedParts);
+	      sprintf(eos(buf), " (%ld)", CursedParts);
 		dump(youhad, buf);
 	}
 
 	if (Quaversal || u.uprops[QUAVERSAL].extrinsic || have_quaversalstone()) {
 		sprintf(buf, "the following problem: Unless you're standing on specific tiles, the entire screen is black.");
-	      sprintf(eos(buf), " (%d)", Quaversal);
+	      sprintf(eos(buf), " (%ld)", Quaversal);
 		dump(youhad, buf);
 	}
 
 	if (AppearanceShuffling || u.uprops[APPEARANCE_SHUFFLING].extrinsic || have_appearanceshufflingstone()) {
 		sprintf(buf, "the following problem: The randomized appearances of items are occasionally shuffled.");
-	      sprintf(eos(buf), " (%d)", AppearanceShuffling);
+	      sprintf(eos(buf), " (%ld)", AppearanceShuffling);
 		dump(youhad, buf);
 	}
 
 	if (BrownSpells || u.uprops[BROWN_SPELLS].extrinsic || have_brownspellstone()) {
 		sprintf(buf, "the following problem: Your spells became brown.");
-	      sprintf(eos(buf), " (%d)", BrownSpells);
+	      sprintf(eos(buf), " (%ld)", BrownSpells);
 		dump(youhad, buf);
 	}
 
 	if (Choicelessness || u.uprops[CHOICELESSNESS].extrinsic || have_choicelessstone()) {
-		sprintf(buf, "the following problem: Direction prompts don't allow you to select anything.");
-	      sprintf(eos(buf), " (%d)", Choicelessness);
+		sprintf(buf, "the following problem: Direction prompts often don't allow you to select anything.");
+	      sprintf(eos(buf), " (%ld)", Choicelessness);
 		dump(youhad, buf);
 	}
 
 	if (Goldspells || u.uprops[GOLDSPELLS].extrinsic || have_goldspellstone()) {
-		sprintf(buf, "the following problem: You can't choose which spell you want to cast.");
-	      sprintf(eos(buf), " (%d)", Goldspells);
+		sprintf(buf, "the following problem: You often can't choose which spell you want to cast.");
+	      sprintf(eos(buf), " (%ld)", Goldspells);
 		dump(youhad, buf);
 	}
 
 	if (Deprovement || u.uprops[DEPROVEMENT].extrinsic || have_deprovementstone()) {
 		sprintf(buf, "the following problem: Leveling up no longer increases your maximum HP and Pw.");
-	      sprintf(eos(buf), " (%d)", Deprovement);
+	      sprintf(eos(buf), " (%ld)", Deprovement);
 		dump(youhad, buf);
 	}
 
 	if (InitializationFail || u.uprops[INITIALIZATION_FAIL].extrinsic || have_initializationstone()) {
 		sprintf(buf, "the following problem: Prompts that let you choose an item will not appear.");
-	      sprintf(eos(buf), " (%d)", InitializationFail);
+	      sprintf(eos(buf), " (%ld)", InitializationFail);
 		dump(youhad, buf);
 	}
 
 	if (GushlushEffect || u.uprops[GUSHLUSH].extrinsic || have_gushlushstone()) {
 		sprintf(buf, "the following problem: To-hit, spellcasting chances and some other stuff always assume that you're experience level 1.");
-	      sprintf(eos(buf), " (%d)", GushlushEffect);
+	      sprintf(eos(buf), " (%ld)", GushlushEffect);
 		dump(youhad, buf);
 	}
 
 	if (SoiltypeEffect || u.uprops[SOILTYPE].extrinsic || have_soiltypestone()) {
 		sprintf(buf, "the following problem: You trigger ground-based traps even while flying or levitating.");
-	      sprintf(eos(buf), " (%d)", SoiltypeEffect);
+	      sprintf(eos(buf), " (%ld)", SoiltypeEffect);
 		dump(youhad, buf);
 	}
 
 	if (DangerousTerrains || u.uprops[DANGEROUS_TERRAINS].extrinsic || have_dangerousterrainstone()) {
 		sprintf(buf, "the following problem: Standing next to dangerous terrain may confuse or stun you with no warning.");
-	      sprintf(eos(buf), " (%d)", DangerousTerrains);
+	      sprintf(eos(buf), " (%ld)", DangerousTerrains);
 		dump(youhad, buf);
 	}
 
 	if (FalloutEffect || u.uprops[FALLOUT_EFFECT].extrinsic || have_falloutstone()) {
 		sprintf(buf, "the following problem: Your contamination increases over time.");
-	      sprintf(eos(buf), " (%d)", FalloutEffect);
+	      sprintf(eos(buf), " (%ld)", FalloutEffect);
 		dump(youhad, buf);
 	}
 
 	if (MojibakeEffect || u.uprops[MOJIBAKE].extrinsic || have_mojibakestone()) {
 		sprintf(buf, "the following problem: Some glyphs are randomized.");
-	      sprintf(eos(buf), " (%d)", MojibakeEffect);
+	      sprintf(eos(buf), " (%ld)", MojibakeEffect);
 		dump(youhad, buf);
 	}
 
 	if (GravationEffect || u.uprops[GRAVATION].extrinsic || have_gravationstone()) {
 		sprintf(buf, "the following problem: Random monster spawns use aggravate monster rules.");
-	      sprintf(eos(buf), " (%d)", GravationEffect);
+	      sprintf(eos(buf), " (%ld)", GravationEffect);
 		dump(youhad, buf);
 	}
 
 	if (UncalledEffect || u.uprops[UNCALLED_EFFECT].extrinsic || have_uncalledstone()) {
 		sprintf(buf, "the following problem: You can't give names to items or monsters.");
-	      sprintf(eos(buf), " (%d)", UncalledEffect);
+	      sprintf(eos(buf), " (%ld)", UncalledEffect);
 		dump(youhad, buf);
 	}
 
 	if (ExplodingDiceEffect || u.uprops[EXPLODING_DICE].extrinsic || have_explodingdicestone()) {
 		sprintf(buf, "the following problem: Monster attacks use exploding dice for damage calculations.");
-	      sprintf(eos(buf), " (%d)", ExplodingDiceEffect);
+	      sprintf(eos(buf), " (%ld)", ExplodingDiceEffect);
 		dump(youhad, buf);
 	}
 
 	if (PermacurseEffect || u.uprops[PERMACURSE_EFFECT].extrinsic || have_permacursestone()) {
 		sprintf(buf, "the following problem: Many conventional methods of curse removal no longer work.");
-	      sprintf(eos(buf), " (%d)", PermacurseEffect);
+	      sprintf(eos(buf), " (%ld)", PermacurseEffect);
 		dump(youhad, buf);
 	}
 
 	if (ShroudedIdentity || u.uprops[SHROUDED_IDENTITY].extrinsic || have_shroudedidentitystone()) {
 		sprintf(buf, "the following problem: Identifying items is much harder.");
-	      sprintf(eos(buf), " (%d)", ShroudedIdentity);
+	      sprintf(eos(buf), " (%ld)", ShroudedIdentity);
 		dump(youhad, buf);
 	}
 
 	if (FeelerGauges || u.uprops[FEELER_GAUGES].extrinsic || have_feelergaugesstone()) {
 		sprintf(buf, "the following problem: Monsters always know where you are and come straight for you.");
-	      sprintf(eos(buf), " (%d)", FeelerGauges);
+	      sprintf(eos(buf), " (%ld)", FeelerGauges);
 		dump(youhad, buf);
 	}
 
 	if (LongScrewup || u.uprops[LONG_SCREWUP].extrinsic || have_longscrewupstone()) {
 		sprintf(buf, "the following problem: Triggering a nasty trap causes the effect to last for a really long time.");
-	      sprintf(eos(buf), " (%d)", LongScrewup);
+	      sprintf(eos(buf), " (%ld)", LongScrewup);
 		dump(youhad, buf);
 	}
 
 	if (WingYellowChange || u.uprops[WING_YELLOW_GLYPHS].extrinsic || have_wingyellowstone()) {
 		sprintf(buf, "the following problem: You're forced to play with a different tileset.");
-	      sprintf(eos(buf), " (%d)", WingYellowChange);
+	      sprintf(eos(buf), " (%ld)", WingYellowChange);
 		dump(youhad, buf);
 	}
 
 	if (LifeSavingBug || u.uprops[LIFE_SAVING_BUG].extrinsic || have_lifesavingstone()) {
 		sprintf(buf, "the following problem: Monsters occasionally lifesave when killed.");
-	      sprintf(eos(buf), " (%d)", LifeSavingBug);
+	      sprintf(eos(buf), " (%ld)", LifeSavingBug);
 		dump(youhad, buf);
 	}
 
 	if (CurseuseEffect || u.uprops[CURSEUSE_EFFECT].extrinsic || have_curseusestone()) {
 		sprintf(buf, "the following problem: Any scroll, potion, spellbook, wand or tool you use automatically becomes cursed.");
-	      sprintf(eos(buf), " (%d)", CurseuseEffect);
+	      sprintf(eos(buf), " (%ld)", CurseuseEffect);
 		dump(youhad, buf);
 	}
 
 	if (CutNutritionEffect || u.uprops[CUT_NUTRITION].extrinsic || have_cutnutritionstone()) {
 		sprintf(buf, "the following problem: You gain much less nutrition than usual.");
-	      sprintf(eos(buf), " (%d)", CutNutritionEffect);
+	      sprintf(eos(buf), " (%ld)", CutNutritionEffect);
 		dump(youhad, buf);
 	}
 
 	if (SkillLossEffect || u.uprops[SKILL_LOSS_EFFECT].extrinsic || have_skilllossstone()) {
 		sprintf(buf, "the following problem: Your skills will gradually lose training.");
-	      sprintf(eos(buf), " (%d)", SkillLossEffect);
+	      sprintf(eos(buf), " (%ld)", SkillLossEffect);
 		dump(youhad, buf);
 	}
 
 	if (AutopilotEffect || u.uprops[AUTOPILOT_EFFECT].extrinsic || have_autopilotstone()) {
 		sprintf(buf, "the following problem: You're on autopilot.");
-	      sprintf(eos(buf), " (%d)", AutopilotEffect);
+	      sprintf(eos(buf), " (%ld)", AutopilotEffect);
 		dump(youhad, buf);
 	}
 
 	if (MysteriousForceActive || u.uprops[MYSTERIOUS_FORCE_EFFECT].extrinsic || have_forcestone()) {
 		sprintf(buf, "the following problem: The dirty mysterious force full of dirt is back.");
-	      sprintf(eos(buf), " (%d)", MysteriousForceActive);
+	      sprintf(eos(buf), " (%ld)", MysteriousForceActive);
 		dump(youhad, buf);
 	}
 
 	if (MonsterGlyphChange || u.uprops[MONSTER_GLYPH_BUG].extrinsic || have_monsterglyphstone()) {
 		sprintf(buf, "the following problem: Monsters rapidly change glyphs.");
-	      sprintf(eos(buf), " (%d)", MonsterGlyphChange);
+	      sprintf(eos(buf), " (%ld)", MonsterGlyphChange);
 		dump(youhad, buf);
 	}
 
 	if (ChangingDirectives || u.uprops[CHANGING_DIRECTIVES].extrinsic || have_changingdirectivestone()) {
 		sprintf(buf, "the following problem: The directives you've given to your pets will change randomly.");
-	      sprintf(eos(buf), " (%d)", ChangingDirectives);
+	      sprintf(eos(buf), " (%ld)", ChangingDirectives);
 		dump(youhad, buf);
 	}
 
 	if (ContainerKaboom || u.uprops[CONTAINER_KABOOM].extrinsic || have_containerkaboomstone()) {
 		sprintf(buf, "the following problem: Opening a container causes bad stuff to happen.");
-	      sprintf(eos(buf), " (%d)", ContainerKaboom);
+	      sprintf(eos(buf), " (%ld)", ContainerKaboom);
 		dump(youhad, buf);
 	}
 
 	if (StealDegrading || u.uprops[STEAL_DEGRADING].extrinsic || have_stealdegradestone()) {
 		sprintf(buf, "the following problem: If a monster steals your items, the stolen items are cursed and disenchanted.");
-	      sprintf(eos(buf), " (%d)", StealDegrading);
+	      sprintf(eos(buf), " (%ld)", StealDegrading);
 		dump(youhad, buf);
 	}
 
 	if (LeftInventoryBug || u.uprops[LEFT_INVENTORY].extrinsic || have_leftinventorystone()) {
 		sprintf(buf, "the following problem: Items that leave your inventory will be unidentified.");
-	      sprintf(eos(buf), " (%d)", LeftInventoryBug);
+	      sprintf(eos(buf), " (%ld)", LeftInventoryBug);
 		dump(youhad, buf);
 	}
 
 	if (FluctuatingSpeed || u.uprops[FLUCTUATING_SPEED].extrinsic || have_fluctuatingspeedstone()) {
 		sprintf(buf, "the following problem: Your movement speed fluctuates from extremely fast to ultra slow.");
-	      sprintf(eos(buf), " (%d)", FluctuatingSpeed);
+	      sprintf(eos(buf), " (%ld)", FluctuatingSpeed);
 		dump(youhad, buf);
 	}
 
 	if (TarmuStrokingNora || u.uprops[TARMU_STROKING_NORA].extrinsic || have_tarmustrokingnorastone()) {
 		sprintf(buf, "the following problem: Searching may cause a new trap to spawn.");
-	      sprintf(eos(buf), " (%d)", TarmuStrokingNora);
+	      sprintf(eos(buf), " (%ld)", TarmuStrokingNora);
 		dump(youhad, buf);
 	}
 
 	if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
 		sprintf(buf, "the following problem: The messages 'nothing happens' or 'never mind' become dangerous.");
-	      sprintf(eos(buf), " (%d)", FailureEffects);
+	      sprintf(eos(buf), " (%ld)", FailureEffects);
 		dump(youhad, buf);
 	}
 
 	if (BrightCyanSpells || u.uprops[BRIGHT_CYAN_SPELLS].extrinsic || have_brightcyanspellstone()) {
 		sprintf(buf, "the following problem: Your spells became bright cyan.");
-	      sprintf(eos(buf), " (%d)", BrightCyanSpells);
+	      sprintf(eos(buf), " (%ld)", BrightCyanSpells);
 		dump(youhad, buf);
 	}
 
 	if (FrequentationSpawns || u.uprops[FREQUENTATION_SPAWNS].extrinsic || have_frequentationspawnstone()) {
 		sprintf(buf, "the following problem: Some monster trait is more common than usual.");
-	      sprintf(eos(buf), " (%d)", FrequentationSpawns);
+	      sprintf(eos(buf), " (%ld)", FrequentationSpawns);
 		sprintf(eos(buf), " (%s)", montraitname(u.frequentationtrait));
 		dump(youhad, buf);
 	}
 
 	if (PetAIScrewed || u.uprops[PET_AI_SCREWED].extrinsic || have_petaistone()) {
 		sprintf(buf, "the following problem: Your pets refuse to follow you.");
-	      sprintf(eos(buf), " (%d)", PetAIScrewed);
+	      sprintf(eos(buf), " (%ld)", PetAIScrewed);
 		dump(youhad, buf);
 	}
 
 	if (SatanEffect || u.uprops[SATAN_EFFECT].extrinsic || have_satanstone()) {
 		sprintf(buf, "the following problem: Satan made it so that changing dungeon levels paralyzes you for a turn.");
-	      sprintf(eos(buf), " (%d)", SatanEffect);
+	      sprintf(eos(buf), " (%ld)", SatanEffect);
 		dump(youhad, buf);
 	}
 
 	if (RememberanceEffect || u.uprops[REMEMBERANCE_EFFECT].extrinsic || have_rememberancestone()) {
 		sprintf(buf, "the following problem: Spells with low spell memory are harder to cast.");
-	      sprintf(eos(buf), " (%d)", RememberanceEffect);
+	      sprintf(eos(buf), " (%ld)", RememberanceEffect);
 		dump(youhad, buf);
 	}
 
 	if (PokelieEffect || u.uprops[POKELIE_EFFECT].extrinsic || have_pokeliestone()) {
 		sprintf(buf, "the following problem: The pokedex lies to you.");
-	      sprintf(eos(buf), " (%d)", PokelieEffect);
+	      sprintf(eos(buf), " (%ld)", PokelieEffect);
 		dump(youhad, buf);
 	}
 
 	if (AlwaysAutopickup || u.uprops[AUTOPICKUP_ALWAYS].extrinsic || have_autopickupstone()) {
 		sprintf(buf, "the following problem: You always pick up items.");
-	      sprintf(eos(buf), " (%d)", AlwaysAutopickup);
+	      sprintf(eos(buf), " (%ld)", AlwaysAutopickup);
 		dump(youhad, buf);
 	}
 
 	if (DywypiProblem || u.uprops[DYWYPI_PROBLEM].extrinsic || have_dywypistone()) {
 		sprintf(buf, "the following problem: If you lifesave, you have to give the correct answer or you die anyway.");
-	      sprintf(eos(buf), " (%d)", DywypiProblem);
+	      sprintf(eos(buf), " (%ld)", DywypiProblem);
 		dump(youhad, buf);
 	}
 
 	if (SilverSpells || u.uprops[SILVER_SPELLS].extrinsic || have_silverspellstone()) {
 		sprintf(buf, "the following problem: Your spells became silver.");
-	      sprintf(eos(buf), " (%d)", SilverSpells);
+	      sprintf(eos(buf), " (%ld)", SilverSpells);
 		dump(youhad, buf);
 	}
 
 	if (MetalSpells || u.uprops[METAL_SPELLS].extrinsic || have_metalspellstone()) {
 		sprintf(buf, "the following problem: Your spells became metal.");
-	      sprintf(eos(buf), " (%d)", MetalSpells);
+	      sprintf(eos(buf), " (%ld)", MetalSpells);
 		dump(youhad, buf);
 	}
 
 	if (PlatinumSpells || u.uprops[PLATINUM_SPELLS].extrinsic || have_platinumspellstone()) {
 		sprintf(buf, "the following problem: Your spells became platinum.");
-	      sprintf(eos(buf), " (%d)", PlatinumSpells);
+	      sprintf(eos(buf), " (%ld)", PlatinumSpells);
 		dump(youhad, buf);
 	}
 
 	if (ManlerEffect || u.uprops[MANLER_EFFECT].extrinsic || have_manlerstone()) {
 		sprintf(buf, "the following problem: The manler is chasing you.");
-	      sprintf(eos(buf), " (%d)", ManlerEffect);
+	      sprintf(eos(buf), " (%ld)", ManlerEffect);
 		dump(youhad, buf);
 	}
 
 	if (DoorningEffect || u.uprops[DOORNING_EFFECT].extrinsic || have_doorningstone()) {
 		sprintf(buf, "the following problem: Doors are dangerous.");
-	      sprintf(eos(buf), " (%d)", DoorningEffect);
+	      sprintf(eos(buf), " (%ld)", DoorningEffect);
 		dump(youhad, buf);
 	}
 
 	if (NownsibleEffect || u.uprops[NOWNSIBLE_EFFECT].extrinsic || have_nownsiblestone()) {
 		sprintf(buf, "the following problem: Triggering a trap makes it invisible.");
-	      sprintf(eos(buf), " (%d)", NownsibleEffect);
+	      sprintf(eos(buf), " (%ld)", NownsibleEffect);
 		dump(youhad, buf);
 	}
 
 	if (ElmStreetEffect || u.uprops[ELM_STREET_EFFECT].extrinsic || have_elmstreetstone()) {
 		sprintf(buf, "the following problem: The game behaves as if it were Friday the 13th.");
-	      sprintf(eos(buf), " (%d)", ElmStreetEffect);
+	      sprintf(eos(buf), " (%ld)", ElmStreetEffect);
 		dump(youhad, buf);
 	}
 
 	if (MonnoiseEffect || u.uprops[MONNOISE_EFFECT].extrinsic || have_monnoisestone()) {
 		sprintf(buf, "the following problem: Monsters make noises.");
-	      sprintf(eos(buf), " (%d)", MonnoiseEffect);
+	      sprintf(eos(buf), " (%ld)", MonnoiseEffect);
 		dump(youhad, buf);
 	}
 
 	if (RangCallEffect || u.uprops[RANG_CALL_EFFECT].extrinsic || have_rangcallstone()) {
 		sprintf(buf, "the following problem: The presence of boss monsters increases your sanity.");
-	      sprintf(eos(buf), " (%d)", RangCallEffect);
+	      sprintf(eos(buf), " (%ld)", RangCallEffect);
 		dump(youhad, buf);
 	}
 
 	if (RecurringSpellLoss || u.uprops[RECURRING_SPELL_LOSS].extrinsic || have_recurringspelllossstone()) {
 		sprintf(buf, "the following problem: You repeatedly lose spell memory.");
-	      sprintf(eos(buf), " (%d)", RecurringSpellLoss);
+	      sprintf(eos(buf), " (%ld)", RecurringSpellLoss);
 		dump(youhad, buf);
 	}
 
 	if (AntitrainingEffect || u.uprops[ANTI_TRAINING_EFFECT].extrinsic || have_antitrainingstone()) {
 		sprintf(buf, "the following problem: Your skill training is occasionally reduced.");
-	      sprintf(eos(buf), " (%d)", AntitrainingEffect);
+	      sprintf(eos(buf), " (%ld)", AntitrainingEffect);
 		dump(youhad, buf);
 	}
 
 	if (TechoutBug || u.uprops[TECHOUT_BUG].extrinsic || have_techoutstone()) {
 		sprintf(buf, "the following problem: Your techniques may sometimes be put on timeout.");
-	      sprintf(eos(buf), " (%d)", TechoutBug);
+	      sprintf(eos(buf), " (%ld)", TechoutBug);
 		dump(youhad, buf);
 	}
 
 	if (StatDecay || u.uprops[STAT_DECAY].extrinsic || have_statdecaystone()) {
 		sprintf(buf, "the following problem: Your stats will gradually decay.");
-	      sprintf(eos(buf), " (%d)", StatDecay);
+	      sprintf(eos(buf), " (%ld)", StatDecay);
 		dump(youhad, buf);
 	}
 
 	if (Movemork || u.uprops[MOVEMORKING].extrinsic || have_movemorkstone()) {
 		sprintf(buf, "the following problem: Monsters are generated with movement energy.");
-	      sprintf(eos(buf), " (%d)", Movemork);
+	      sprintf(eos(buf), " (%ld)", Movemork);
 		dump(youhad, buf);
 	}
 
 	if (LootcutBug || u.uprops[LOOTCUT_BUG].extrinsic || have_lootcutstone()) {
 		sprintf(buf, "the following problem: Monsters delete their musable items when killed.");
-	      sprintf(eos(buf), " (%d)", LootcutBug);
+	      sprintf(eos(buf), " (%ld)", LootcutBug);
 		dump(youhad, buf);
 	}
 
 	if (MonsterSpeedBug || u.uprops[MONSTER_SPEED_BUG].extrinsic || have_monsterspeedstone()) {
 		sprintf(buf, "the following problem: Monsters are moving faster.");
-	      sprintf(eos(buf), " (%d)", MonsterSpeedBug);
+	      sprintf(eos(buf), " (%ld)", MonsterSpeedBug);
 		dump(youhad, buf);
 	}
 
 	if (ScalingBug || u.uprops[SCALING_BUG].extrinsic || have_scalingstone()) {
 		sprintf(buf, "the following problem: Minimum monster level depends on your current depth.");
-	      sprintf(eos(buf), " (%d)", ScalingBug);
+	      sprintf(eos(buf), " (%ld)", ScalingBug);
 		dump(youhad, buf);
 	}
 
 	if (EnmityBug || u.uprops[ENMITY_BUG].extrinsic || have_inimicalstone()) {
 		sprintf(buf, "the following problem: Monsters always spawn hostile.");
-	      sprintf(eos(buf), " (%d)", EnmityBug);
+	      sprintf(eos(buf), " (%ld)", EnmityBug);
 		dump(youhad, buf);
 	}
 
 	if (WhiteSpells || u.uprops[WHITE_SPELLS].extrinsic || have_whitespellstone()) {
 		sprintf(buf, "the following problem: Your spells became white.");
-	      sprintf(eos(buf), " (%d)", WhiteSpells);
+	      sprintf(eos(buf), " (%ld)", WhiteSpells);
 		dump(youhad, buf);
 	}
 
 	if (CompleteGraySpells || u.uprops[COMPLETE_GRAY_SPELLS].extrinsic || have_greyoutstone()) {
 		sprintf(buf, "the following problem: Your spells became completely gray.");
-	      sprintf(eos(buf), " (%d)", CompleteGraySpells);
+	      sprintf(eos(buf), " (%ld)", CompleteGraySpells);
 		dump(youhad, buf);
 	}
 
 	if (QuasarVision || u.uprops[QUASAR_BUG].extrinsic || have_quasarstone()) {
 		sprintf(buf, "the following problem: You can barely see the quasars.");
-	      sprintf(eos(buf), " (%d)", QuasarVision);
+	      sprintf(eos(buf), " (%ld)", QuasarVision);
 		dump(youhad, buf);
 	}
 
 	if (MommaBugEffect || u.uprops[MOMMA_BUG].extrinsic || have_mommystone()) {
 		sprintf(buf, "the following problem: Your momma will repeatedly be insulted.");
-	      sprintf(eos(buf), " (%d)", MommaBugEffect);
+	      sprintf(eos(buf), " (%ld)", MommaBugEffect);
 		dump(youhad, buf);
 	}
 
 	if (HorrorBugEffect || u.uprops[HORROR_BUG].extrinsic || have_horrorstone()) {
 		sprintf(buf, "the following problem: You will repeatedly get hit with status effects.");
-	      sprintf(eos(buf), " (%d)", HorrorBugEffect);
+	      sprintf(eos(buf), " (%ld)", HorrorBugEffect);
 		dump(youhad, buf);
 	}
 
 	if (ArtificerBug || u.uprops[ARTIFICER_BUG].extrinsic || have_artificialstone()) {
 		sprintf(buf, "the following problem: You will be forced to equip evil artifacts.");
-	      sprintf(eos(buf), " (%d)", ArtificerBug);
+	      sprintf(eos(buf), " (%ld)", ArtificerBug);
 		dump(youhad, buf);
 	}
 
 	if (WereformBug || u.uprops[WEREFORM_BUG].extrinsic || have_wereformstone()) {
 		sprintf(buf, "the following problem: You randomly polymorph into werecreatures.");
-	      sprintf(eos(buf), " (%d)", WereformBug);
+	      sprintf(eos(buf), " (%ld)", WereformBug);
 		dump(youhad, buf);
 	}
 
 	if (NonprayerBug || u.uprops[NON_PRAYER_BUG].extrinsic || have_antiprayerstone()) {
 		sprintf(buf, "the following problem: Your prayer timeout goes up instead of down.");
-	      sprintf(eos(buf), " (%d)", NonprayerBug);
+	      sprintf(eos(buf), " (%ld)", NonprayerBug);
 		dump(youhad, buf);
 	}
 
 	if (EvilPatchEffect || u.uprops[EVIL_PATCH_EFFECT].extrinsic || have_evilpatchstone()) {
 		sprintf(buf, "the following problem: You will get nasty trap effects intrinsically over time.");
-	      sprintf(eos(buf), " (%d)", EvilPatchEffect);
+	      sprintf(eos(buf), " (%ld)", EvilPatchEffect);
 		dump(youhad, buf);
 	}
 
 	if (HardModeEffect || u.uprops[HARD_MODE_EFFECT].extrinsic || have_hardmodestone()) {
 		sprintf(buf, "the following problem: All damage you take is doubled.");
-	      sprintf(eos(buf), " (%d)", HardModeEffect);
+	      sprintf(eos(buf), " (%ld)", HardModeEffect);
 		dump(youhad, buf);
 	}
 
 	if (SecretAttackBug || u.uprops[SECRET_ATTACK_BUG].extrinsic || have_secretattackstone()) {
 		sprintf(buf, "the following problem: Monsters occasionally use their secret attacks.");
-	      sprintf(eos(buf), " (%d)", SecretAttackBug);
+	      sprintf(eos(buf), " (%ld)", SecretAttackBug);
 		dump(youhad, buf);
 	}
 
 	if (EaterBugEffect || u.uprops[EATER_BUG].extrinsic || have_eaterstone()) {
 		sprintf(buf, "the following problem: Monsters can eat all items they encounter.");
-	      sprintf(eos(buf), " (%d)", EaterBugEffect);
+	      sprintf(eos(buf), " (%ld)", EaterBugEffect);
 		dump(youhad, buf);
 	}
 
 	if (CovetousnessBug || u.uprops[COVETOUSNESS_BUG].extrinsic || have_covetousstone()) {
 		sprintf(buf, "the following problem: Covetous monster AI fires each turn.");
-	      sprintf(eos(buf), " (%d)", CovetousnessBug);
+	      sprintf(eos(buf), " (%ld)", CovetousnessBug);
 		dump(youhad, buf);
 	}
 
 	if (NotSeenBug || u.uprops[NOT_SEEN_BUG].extrinsic || have_nonseeingstone()) {
 		sprintf(buf, "the following problem: The walls became invisible.");
-	      sprintf(eos(buf), " (%d)", NotSeenBug);
+	      sprintf(eos(buf), " (%ld)", NotSeenBug);
 		dump(youhad, buf);
 	}
 
 	if (DarkModeBug || u.uprops[DARK_MODE_BUG].extrinsic || have_darkmodestone()) {
 		sprintf(buf, "the following problem: Lit tiles aren't visible unless you would also see them if they were unlit.");
-	      sprintf(eos(buf), " (%d)", DarkModeBug);
+	      sprintf(eos(buf), " (%ld)", DarkModeBug);
 		dump(youhad, buf);
 	}
 
 	if (AntisearchEffect || u.uprops[ANTISEARCH_EFFECT].extrinsic || have_unfindablestone()) {
 		sprintf(buf, "the following problem: The search command never finds anything.");
-	      sprintf(eos(buf), " (%d)", AntisearchEffect);
+	      sprintf(eos(buf), " (%ld)", AntisearchEffect);
 		dump(youhad, buf);
 	}
 
 	if (HomicideEffect || u.uprops[HOMICIDE_EFFECT].extrinsic || have_homicidestone()) {
 		sprintf(buf, "the following problem: Monsters build new traps for you to blunder into.");
-	      sprintf(eos(buf), " (%d)", HomicideEffect);
+	      sprintf(eos(buf), " (%ld)", HomicideEffect);
 		dump(youhad, buf);
 	}
 
 	if (NastynationBug || u.uprops[NASTY_NATION_BUG].extrinsic || have_multitrappingstone()) {
 		sprintf(buf, "the following problem: All trap types except beneficial ones are equally likely to generate.");
-	      sprintf(eos(buf), " (%d)", NastynationBug);
+	      sprintf(eos(buf), " (%ld)", NastynationBug);
 		dump(youhad, buf);
 	}
 
 	if (WakeupCallBug || u.uprops[WAKEUP_CALL_BUG].extrinsic || have_wakeupcallstone()) {
 		sprintf(buf, "the following problem: Peaceful monsters may spontaneously turn hostile.");
-	      sprintf(eos(buf), " (%d)", WakeupCallBug);
+	      sprintf(eos(buf), " (%ld)", WakeupCallBug);
 		dump(youhad, buf);
 	}
 
 	if (GrayoutBug || u.uprops[GRAYOUT_BUG].extrinsic || have_grayoutstone()) {
 		sprintf(buf, "the following problem: The display intermittently becomes all gray.");
-	      sprintf(eos(buf), " (%d)", GrayoutBug);
+	      sprintf(eos(buf), " (%ld)", GrayoutBug);
 		dump(youhad, buf);
 	}
 
 	if (GrayCenterBug || u.uprops[GRAY_CENTER_BUG].extrinsic || have_graycenterstone()) {
 		sprintf(buf, "the following problem: Your immediate surroundings are obscured by a gray shroud.");
-	      sprintf(eos(buf), " (%d)", GrayCenterBug);
+	      sprintf(eos(buf), " (%ld)", GrayCenterBug);
 		dump(youhad, buf);
 	}
 
 	if (CheckerboardBug || u.uprops[CHECKERBOARD_BUG].extrinsic || have_checkerboardstone()) {
 		sprintf(buf, "the following problem: Only one color of checkerboard tiles is ever visible at any given time.");
-	      sprintf(eos(buf), " (%d)", CheckerboardBug);
+	      sprintf(eos(buf), " (%ld)", CheckerboardBug);
 		dump(youhad, buf);
 	}
 
 	if (ClockwiseSpinBug || u.uprops[CLOCKWISE_SPIN_BUG].extrinsic || have_clockwisestone()) {
 		sprintf(buf, "the following problem: Your directional keys are shifted 45 degrees clockwise.");
-	      sprintf(eos(buf), " (%d)", ClockwiseSpinBug);
+	      sprintf(eos(buf), " (%ld)", ClockwiseSpinBug);
 		dump(youhad, buf);
 	}
 
 	if (CounterclockwiseSpin || u.uprops[COUNTERCLOCKWISE_SPIN_BUG].extrinsic || have_counterclockwisestone()) {
 		sprintf(buf, "the following problem: Your directional keys are shifted 90 degrees counterclockwise.");
-	      sprintf(eos(buf), " (%d)", CounterclockwiseSpin);
+	      sprintf(eos(buf), " (%ld)", CounterclockwiseSpin);
 		dump(youhad, buf);
 	}
 
 	if (LagBugEffect || u.uprops[LAG_BUG].extrinsic || have_lagstone()) {
 		sprintf(buf, "the following problem: The game lags.");
-	      sprintf(eos(buf), " (%d)", LagBugEffect);
+	      sprintf(eos(buf), " (%ld)", LagBugEffect);
 		dump(youhad, buf);
 	}
 
 	if (BlesscurseEffect || u.uprops[BLESSCURSE_EFFECT].extrinsic || have_blesscursestone()) {
 		sprintf(buf, "the following problem: Picking up a blessed item instantly curses it.");
-	      sprintf(eos(buf), " (%d)", BlesscurseEffect);
+	      sprintf(eos(buf), " (%ld)", BlesscurseEffect);
 		dump(youhad, buf);
 	}
 
 	if (DeLightBug || u.uprops[DE_LIGHT_BUG].extrinsic || have_delightstone()) {
 		sprintf(buf, "the following problem: Tiles that you're walking on automatically become unlit.");
-	      sprintf(eos(buf), " (%d)", DeLightBug);
+	      sprintf(eos(buf), " (%ld)", DeLightBug);
 		dump(youhad, buf);
 	}
 
 	if (DischargeBug || u.uprops[DISCHARGE_BUG].extrinsic || have_dischargestone()) {
 		sprintf(buf, "the following problem: If you use wands or tools that have charges, more charges are used up than normal.");
-	      sprintf(eos(buf), " (%d)", DischargeBug);
+	      sprintf(eos(buf), " (%ld)", DischargeBug);
 		dump(youhad, buf);
 	}
 
 	if (TrashingBugEffect || u.uprops[TRASHING_EFFECT].extrinsic || have_trashstone()) {
 		sprintf(buf, "the following problem: If you equip enchanted weapons, armor or rings, their enchantment value decreases.");
-	      sprintf(eos(buf), " (%d)", TrashingBugEffect);
+	      sprintf(eos(buf), " (%ld)", TrashingBugEffect);
 		dump(youhad, buf);
 	}
 
 	if (FilteringBug || u.uprops[FILTERING_BUG].extrinsic || have_filteringstone()) {
 		sprintf(buf, "the following problem: Certain messages may be replaced with generic ones.");
-	      sprintf(eos(buf), " (%d)", FilteringBug);
+	      sprintf(eos(buf), " (%ld)", FilteringBug);
 		dump(youhad, buf);
 	}
 
 	if (DeformattingBug || u.uprops[DEFORMATTING_BUG].extrinsic || have_deformattingstone()) {
 		sprintf(buf, "the following problem: Your pokedex doesn't work.");
-	      sprintf(eos(buf), " (%d)", DeformattingBug);
+	      sprintf(eos(buf), " (%ld)", DeformattingBug);
 		dump(youhad, buf);
 	}
 
 	if (FlickerStripBug || u.uprops[FLICKER_STRIP_BUG].extrinsic || have_flickerstripstone()) {
 		sprintf(buf, "the following problem: The bottom status line only displays garbage strings.");
-	      sprintf(eos(buf), " (%d)", FlickerStripBug);
+	      sprintf(eos(buf), " (%ld)", FlickerStripBug);
 		dump(youhad, buf);
 	}
 
 	if (UndressingEffect || u.uprops[UNDRESSING_EFFECT].extrinsic || have_undressingstone()) {
 		sprintf(buf, "the following problem: You spontaneously take off equipment.");
-	      sprintf(eos(buf), " (%d)", UndressingEffect);
+	      sprintf(eos(buf), " (%ld)", UndressingEffect);
 		dump(youhad, buf);
 	}
 
 	if (Hyperbluewalls || u.uprops[HYPERBLUEWALL_BUG].extrinsic || have_hyperbluestone()) {
 		sprintf(buf, "the following problem: Walls are blue, and walking into them hurts you.");
-	      sprintf(eos(buf), " (%d)", Hyperbluewalls);
+	      sprintf(eos(buf), " (%ld)", Hyperbluewalls);
 		dump(youhad, buf);
 	}
 
 	if (NoliteBug || u.uprops[NOLITE_BUG].extrinsic || have_nolightstone()) {
 		sprintf(buf, "the following problem: Staircases and object piles are no longer highlighted.");
-	      sprintf(eos(buf), " (%d)", NoliteBug);
+	      sprintf(eos(buf), " (%ld)", NoliteBug);
 		dump(youhad, buf);
 	}
 
 	if (ParanoiaBugEffect || u.uprops[PARANOIA_BUG].extrinsic || have_paranoiastone()) {
 		sprintf(buf, "the following problem: There is no confirmation if you walk into traps, water or lava.");
-	      sprintf(eos(buf), " (%d)", ParanoiaBugEffect);
+	      sprintf(eos(buf), " (%ld)", ParanoiaBugEffect);
 		dump(youhad, buf);
 	}
 
 	if (FleecescriptBug || u.uprops[FLEECESCRIPT_BUG].extrinsic || have_fleecestone()) {
 		sprintf(buf, "the following problem: Inventory item descriptions appear in fleecy colors, which is actually not all that problematic. :-)");
-	      sprintf(eos(buf), " (%d)", FleecescriptBug);
+	      sprintf(eos(buf), " (%ld)", FleecescriptBug);
 		dump(youhad, buf);
 	}
 
 	if (InterruptEffect || u.uprops[INTERRUPT_EFFECT].extrinsic || have_interruptionstone()) {
 		sprintf(buf, "the following problem: The read, quaff, zap and apply commands now take several turns to use and can be interrupted.");
-	      sprintf(eos(buf), " (%d)", InterruptEffect);
+	      sprintf(eos(buf), " (%ld)", InterruptEffect);
 		dump(youhad, buf);
 	}
 
 	if (DustbinBug || u.uprops[DUSTBIN_BUG].extrinsic || have_dustbinstone()) {
 		sprintf(buf, "the following problem: If you pick up a scroll, it may disintegrate.");
-	      sprintf(eos(buf), " (%d)", DustbinBug);
+	      sprintf(eos(buf), " (%ld)", DustbinBug);
 		dump(youhad, buf);
 	}
 
 	if (ManaBatteryBug || u.uprops[MANA_BATTERY_BUG].extrinsic || have_batterystone()) {
 		sprintf(buf, "a living mana battery.");
-	      sprintf(eos(buf), " (%d)", ManaBatteryBug);
+	      sprintf(eos(buf), " (%ld)", ManaBatteryBug);
 		dump(youwere, buf);
 	}
 
 	if (Monsterfingers || u.uprops[MONSTERFINGERS_EFFECT].extrinsic || have_butterfingerstone()) {
 		sprintf(buf, "the following problem: Picking up potions may break them and subject you to their vapors.");
-	      sprintf(eos(buf), " (%d)", Monsterfingers);
+	      sprintf(eos(buf), " (%ld)", Monsterfingers);
 		dump(youhad, buf);
 	}
 
 	if (MiscastBug || u.uprops[MISCAST_BUG].extrinsic || have_miscastingstone()) {
 		sprintf(buf, "the following problem: Casting a spell always causes backlash, regardless of whether the spell worked.");
-	      sprintf(eos(buf), " (%d)", MiscastBug);
+	      sprintf(eos(buf), " (%ld)", MiscastBug);
 		dump(youhad, buf);
 	}
 
 	if (MessageSuppression || u.uprops[MESSAGE_SUPPRESSION_BUG].extrinsic || have_messagesuppressionstone()) {
 		sprintf(buf, "the following problem: The top status line doesn't display anything.");
-	      sprintf(eos(buf), " (%d)", MessageSuppression);
+	      sprintf(eos(buf), " (%ld)", MessageSuppression);
 		dump(youhad, buf);
 	}
 
 	if (StuckAnnouncement || u.uprops[STUCK_ANNOUNCEMENT_BUG].extrinsic || have_stuckannouncementstone()) {
 		sprintf(buf, "the following problem: The bottom status line only updates if you explicitly tell it to do so.");
-	      sprintf(eos(buf), " (%d)", StuckAnnouncement);
+	      sprintf(eos(buf), " (%ld)", StuckAnnouncement);
 		dump(youhad, buf);
 	}
 
 	if (BloodthirstyEffect || u.uprops[BLOODTHIRSTY_EFFECT].extrinsic || have_stormstone()) {
 		sprintf(buf, "the following problem: There is no confirmation if you walk into a peaceful monster.");
-	      sprintf(eos(buf), " (%d)", BloodthirstyEffect);
+	      sprintf(eos(buf), " (%ld)", BloodthirstyEffect);
 		dump(youhad, buf);
 	}
 
 	if (MaximumDamageBug || u.uprops[MAXIMUM_DAMAGE_BUG].extrinsic || have_maximumdamagestone()) {
 		sprintf(buf, "the following problem: Monster attacks always deal maximum damage to you.");
-	      sprintf(eos(buf), " (%d)", MaximumDamageBug);
+	      sprintf(eos(buf), " (%ld)", MaximumDamageBug);
 		dump(youhad, buf);
 	}
 
 	if (LatencyBugEffect || u.uprops[LATENCY_BUG].extrinsic || have_latencystone()) {
 		sprintf(buf, "the following problem: There is background latency.");
-	      sprintf(eos(buf), " (%d)", LatencyBugEffect);
+	      sprintf(eos(buf), " (%ld)", LatencyBugEffect);
 		dump(youhad, buf);
 	}
 
 	if (StarlitBug || u.uprops[STARLIT_BUG].extrinsic || have_starlitskystone()) {
 		sprintf(buf, "the following problem: All monsters look the same and you can't tell them apart.");
-	      sprintf(eos(buf), " (%d)", StarlitBug);
+	      sprintf(eos(buf), " (%ld)", StarlitBug);
 		dump(youhad, buf);
 	}
 
 	if (KnowledgeBug || u.uprops[KNOWLEDGE_BUG].extrinsic || have_trapknowledgestone()) {
 		sprintf(buf, "the following problem: All traps look the same and you can't tell them apart.");
-	      sprintf(eos(buf), " (%d)", KnowledgeBug);
+	      sprintf(eos(buf), " (%ld)", KnowledgeBug);
 		dump(youhad, buf);
 	}
 
 	if (HighscoreBug || u.uprops[HIGHSCORE_BUG].extrinsic || have_highscorestone()) {
 		sprintf(buf, "the following problem: The game continuously spawns spacewars monsters and nasty traps.");
-	      sprintf(eos(buf), " (%d)", HighscoreBug);
+	      sprintf(eos(buf), " (%ld)", HighscoreBug);
 		dump(youhad, buf);
 	}
 
 	if (PinkSpells || u.uprops[PINK_SPELLS].extrinsic || have_pinkspellstone()) {
 		sprintf(buf, "the following problem: Your spells became pink.");
-	      sprintf(eos(buf), " (%d)", PinkSpells);
+	      sprintf(eos(buf), " (%ld)", PinkSpells);
 		dump(youhad, buf);
 	}
 
 	if (GreenSpells || u.uprops[GREEN_SPELLS].extrinsic || have_greenspellstone()) {
 		sprintf(buf, "the following problem: Your spells became green.");
-	      sprintf(eos(buf), " (%d)", GreenSpells);
+	      sprintf(eos(buf), " (%ld)", GreenSpells);
 		dump(youhad, buf);
 	}
 
 	if (EvencoreEffect || u.uprops[EVC_EFFECT].extrinsic || have_evcstone()) {
 		sprintf(buf, "the following problem: The game will spawn fake invisible monster markers.");
-	      sprintf(eos(buf), " (%d)", EvencoreEffect);
+	      sprintf(eos(buf), " (%ld)", EvencoreEffect);
 		dump(youhad, buf);
 	}
 
 	if (UnderlayerBug || u.uprops[UNDERLAYER_BUG].extrinsic || have_underlaidstone()) {
 		sprintf(buf, "the following problem: Invisible monster markers are not visible, but bumping into them uses up a turn.");
-	      sprintf(eos(buf), " (%d)", UnderlayerBug);
+	      sprintf(eos(buf), " (%ld)", UnderlayerBug);
 		dump(youhad, buf);
 	}
 
 	if (DamageMeterBug || u.uprops[DAMAGE_METER_BUG].extrinsic || have_damagemeterstone()) {
 		sprintf(buf, "the following problem: The game won't tell you exactly how much damage an attack does.");
-	      sprintf(eos(buf), " (%d)", DamageMeterBug);
+	      sprintf(eos(buf), " (%ld)", DamageMeterBug);
 		dump(youhad, buf);
 	}
 
 	if (ArbitraryWeightBug || u.uprops[ARBITRARY_WEIGHT_BUG].extrinsic || have_weightstone()) {
 		sprintf(buf, "the following problem: You can't see your carry capacity or the weight of items.");
-	      sprintf(eos(buf), " (%d)", ArbitraryWeightBug);
+	      sprintf(eos(buf), " (%ld)", ArbitraryWeightBug);
 		dump(youhad, buf);
 	}
 
 	if (FuckedInfoBug || u.uprops[FUCKED_INFO_BUG].extrinsic || have_infofuckstone()) {
 		sprintf(buf, "the following problem: You can't see what character you are playing.");
-	      sprintf(eos(buf), " (%d)", FuckedInfoBug);
+	      sprintf(eos(buf), " (%ld)", FuckedInfoBug);
 		dump(youhad, buf);
 	}
 
 	if (BlackSpells || u.uprops[BLACK_SPELLS].extrinsic || have_blackspellstone()) {
 		sprintf(buf, "the following problem: Your spells became black.");
-	      sprintf(eos(buf), " (%d)", BlackSpells);
+	      sprintf(eos(buf), " (%ld)", BlackSpells);
 		dump(youhad, buf);
 	}
 
 	if (CyanSpells || u.uprops[CYAN_SPELLS].extrinsic || have_cyanspellstone()) {
 		sprintf(buf, "the following problem: Your spells became cyan.");
-	      sprintf(eos(buf), " (%d)", CyanSpells);
+	      sprintf(eos(buf), " (%ld)", CyanSpells);
 		dump(youhad, buf);
 	}
 
 	if (HeapEffectBug || u.uprops[HEAP_EFFECT].extrinsic || have_heapstone()) {
 		sprintf(buf, "the following problem: Messages are repeated randomly.");
-	      sprintf(eos(buf), " (%d)", HeapEffectBug);
+	      sprintf(eos(buf), " (%ld)", HeapEffectBug);
 		dump(youhad, buf);
 	}
 
 	if (BlueSpells || u.uprops[BLUE_SPELLS].extrinsic || have_bluespellstone()) {
 		sprintf(buf, "the following problem: Your spells became blue.");
-	      sprintf(eos(buf), " (%d)", BlueSpells);
+	      sprintf(eos(buf), " (%ld)", BlueSpells);
 		dump(youhad, buf);
 	}
 
 	if (TronEffect || u.uprops[TRON_EFFECT].extrinsic || have_tronstone()) {
 		sprintf(buf, "the following problem: You can't walk in the same direction twice in a row.");
-	      sprintf(eos(buf), " (%d)", TronEffect);
+	      sprintf(eos(buf), " (%ld)", TronEffect);
 		dump(youhad, buf);
 	}
 
 	if (RedSpells || u.uprops[RED_SPELLS].extrinsic || have_redspellstone()) {
 		sprintf(buf, "the following problem: Your spells became red.");
-	      sprintf(eos(buf), " (%d)", RedSpells);
+	      sprintf(eos(buf), " (%ld)", RedSpells);
 		dump(youhad, buf);
 	}
 
 	if (TooHeavyEffect || u.uprops[TOO_HEAVY_EFFECT].extrinsic || have_tooheavystone()) {
 		sprintf(buf, "the following problem: Picking up an item increases your carried weight by more than what the item weighs.");
-	      sprintf(eos(buf), " (%d)", TooHeavyEffect);
+	      sprintf(eos(buf), " (%ld)", TooHeavyEffect);
 		dump(youhad, buf);
 	}
 
 	if (ElongationBug || u.uprops[ELONGATION_BUG].extrinsic || have_elongatedstone()) {
 		sprintf(buf, "the following problem: Monsters' hug attacks, ranged weapons and breaths can hit you from very far away.");
-	      sprintf(eos(buf), " (%d)", ElongationBug);
+	      sprintf(eos(buf), " (%ld)", ElongationBug);
 		dump(youhad, buf);
 	}
 
 	if (WrapoverEffect || u.uprops[WRAPOVER_EFFECT].extrinsic || have_wrapoverstone()) {
 		sprintf(buf, "the following problem: Your positively enchanted items may randomly turn into negatively enchanted ones.");
-	      sprintf(eos(buf), " (%d)", WrapoverEffect);
+	      sprintf(eos(buf), " (%ld)", WrapoverEffect);
 		dump(youhad, buf);
 	}
 
 	if (DestructionEffect || u.uprops[DESTRUCTION_EFFECT].extrinsic || have_destructionstone()) {
 		sprintf(buf, "the following problem: Item destruction may happen randomly.");
-	      sprintf(eos(buf), " (%d)", DestructionEffect);
+	      sprintf(eos(buf), " (%ld)", DestructionEffect);
 		dump(youhad, buf);
 	}
 
 	if (MeleePrefixBug || u.uprops[MELEE_PREFIX_BUG].extrinsic || have_meleeprefixstone()) {
 		sprintf(buf, "the following problem: If you simply walk into monsters to attack, you lose a turn.");
-	      sprintf(eos(buf), " (%d)", MeleePrefixBug);
+	      sprintf(eos(buf), " (%ld)", MeleePrefixBug);
 		dump(youhad, buf);
 	}
 
 	if (AutomoreBug || u.uprops[AUTOMORE_BUG].extrinsic || have_automorestone()) {
 		sprintf(buf, "the following problem: There are no --More-- prompts.");
-	      sprintf(eos(buf), " (%d)", AutomoreBug);
+	      sprintf(eos(buf), " (%ld)", AutomoreBug);
 		dump(youhad, buf);
 	}
 
 	if (UnfairAttackBug || u.uprops[UNFAIR_ATTACK_BUG].extrinsic || have_unfairattackstone()) {
 		sprintf(buf, "the following problem: Monsters will occasionally use very unfair attacks on you.");
-	      sprintf(eos(buf), " (%d)", UnfairAttackBug);
+	      sprintf(eos(buf), " (%ld)", UnfairAttackBug);
 		dump(youhad, buf);
 	}
 
 	if (DisconnectedStairs || u.uprops[DISCONNECTED_STAIRS].extrinsic || have_disconnectstone()) {
 		sprintf(buf, "the following problem: Staircases were disconnected.");
-	      sprintf(eos(buf), " (%d)", DisconnectedStairs);
+	      sprintf(eos(buf), " (%ld)", DisconnectedStairs);
 		dump(youhad, buf);
 	}
 
 	if (InterfaceScrewed || u.uprops[INTERFACE_SCREW].extrinsic || have_interfacescrewstone()) {
 		sprintf(buf, "the following problem: The main game display did not update automatically.");
-	      sprintf(eos(buf), " (%d)", InterfaceScrewed);
+	      sprintf(eos(buf), " (%ld)", InterfaceScrewed);
 		dump(youhad, buf);
 	}
 
 	if (Bossfights || u.uprops[BOSSFIGHT].extrinsic || have_bossfightstone()) {
 		sprintf(buf, "the following problem: Boss monsters spawned much more often.");
-	      sprintf(eos(buf), " (%d)", Bossfights);
+	      sprintf(eos(buf), " (%ld)", Bossfights);
 		dump(youhad, buf);
 	}
 
 	if (EntireLevelMode || u.uprops[ENTIRE_LEVEL].extrinsic || have_entirelevelstone()) {
 		sprintf(buf, "the following problem: Monster types that used to be rare were common.");
-	      sprintf(eos(buf), " (%d)", EntireLevelMode);
+	      sprintf(eos(buf), " (%ld)", EntireLevelMode);
 		dump(youhad, buf);
 	}
 
 	if (BonesLevelChange || u.uprops[BONES_CHANGE].extrinsic || have_bonestone()) {
 		sprintf(buf, "the following problem: You always found or left bones levels if possible.");
-	      sprintf(eos(buf), " (%d)", BonesLevelChange);
+	      sprintf(eos(buf), " (%ld)", BonesLevelChange);
 		dump(youhad, buf);
 	}
 
 	if (AutocursingEquipment || u.uprops[AUTOCURSE_EQUIP].extrinsic || have_autocursestone()) {
 		sprintf(buf, "the following problem: Every item you put on automatically cursed itself.");
-	      sprintf(eos(buf), " (%d)", AutocursingEquipment);
+	      sprintf(eos(buf), " (%ld)", AutocursingEquipment);
 		dump(youhad, buf);
 	}
 
 	if (HighlevelStatus || u.uprops[HIGHLEVEL_STATUS].extrinsic || have_highlevelstone()) {
 		sprintf(buf, "the following problem: Higher-level monsters were more likely to spawn.");
-	      sprintf(eos(buf), " (%d)", HighlevelStatus);
+	      sprintf(eos(buf), " (%ld)", HighlevelStatus);
 		dump(youhad, buf);
 	}
 
 	if (SpellForgetting || u.uprops[SPELL_FORGETTING].extrinsic || have_spellforgettingstone()) {
 		sprintf(buf, "the following problem: Your spell memory decreased rapidly.");
-	      sprintf(eos(buf), " (%d)", SpellForgetting);
+	      sprintf(eos(buf), " (%ld)", SpellForgetting);
 		dump(youhad, buf);
 	}
 
 	if (SoundEffectBug || u.uprops[SOUND_EFFECT_BUG].extrinsic || have_soundeffectstone()) {
 		sprintf(buf, "the following problem: Things that happened would play 'sound effects'.");
-	      sprintf(eos(buf), " (%d)", SoundEffectBug);
+	      sprintf(eos(buf), " (%ld)", SoundEffectBug);
 		dump(youhad, buf);
 	}
 
 	if (CaptchaProblem || u.uprops[CAPTCHA].extrinsic || have_captchastone()) {
 		sprintf(buf, "the following problem: You sometimes had to solve captchas.");
-	      sprintf(eos(buf), " (%d)", CaptchaProblem);
+	      sprintf(eos(buf), " (%ld)", CaptchaProblem);
 		dump(youhad, buf);
 	}
 	if (FarlookProblem || u.uprops[FARLOOK_BUG].extrinsic || have_farlookstone()) {
 		sprintf(buf, "the following problem: Farlooking peaceful monsters angered them.");
-	      sprintf(eos(buf), " (%d)", FarlookProblem);
+	      sprintf(eos(buf), " (%ld)", FarlookProblem);
 		dump(youhad, buf);
 	}
 	if (RespawnProblem || u.uprops[RESPAWN_BUG].extrinsic || have_respawnstone()) {
 		sprintf(buf, "the following problem: Killing monsters caused them to respawn somewhere on the level.");
-	      sprintf(eos(buf), " (%d)", RespawnProblem);
+	      sprintf(eos(buf), " (%ld)", RespawnProblem);
 		dump(youhad, buf);
 	}
 
 	if (BigscriptEffect || u.uprops[BIGSCRIPT].extrinsic || have_bigscriptstone()) {
 		sprintf(buf, "BIGscript.");
-	      sprintf(eos(buf), " (%d)", BigscriptEffect);
+	      sprintf(eos(buf), " (%ld)", BigscriptEffect);
 		dump(youhad, buf);
 	}
 	if (BankTrapEffect || u.uprops[BANKBUG].extrinsic || have_bankstone()) {
 		sprintf(buf, "the following problem: Your money wandered into a mysterious bank.");
-	      sprintf(eos(buf), " (%d)", BankTrapEffect);
+	      sprintf(eos(buf), " (%ld)", BankTrapEffect);
 	      sprintf(eos(buf), " (amount stored: %d)", u.bankcashamount);
 	      sprintf(eos(buf), " (money limit: %d)", u.bankcashlimit);
 		dump(youhad, buf);
@@ -8051,123 +8782,123 @@ int final;
 	}
 	if (MapTrapEffect || u.uprops[MAPBUG].extrinsic || have_mapstone()) {
 		sprintf(buf, "the following problem: The map didn't display correctly.");
-	      sprintf(eos(buf), " (%d)", MapTrapEffect);
+	      sprintf(eos(buf), " (%ld)", MapTrapEffect);
 		dump(youhad, buf);
 	}
 	if (TechTrapEffect || u.uprops[TECHBUG].extrinsic || have_techniquestone()) {
-		sprintf(buf, "the following problem: Your techniques didn't work.");
-	      sprintf(eos(buf), " (%d)", TechTrapEffect);
+		sprintf(buf, "the following problem: Your techniques frequently didn't work.");
+	      sprintf(eos(buf), " (%ld)", TechTrapEffect);
 		dump(youhad, buf);
 	}
 	if (RecurringDisenchant || u.uprops[RECURRING_DISENCHANT].extrinsic || have_disenchantmentstone()) {
 		sprintf(buf, "the following problem: Your possessions disenchanted themselves spontaneously.");
-	      sprintf(eos(buf), " (%d)", RecurringDisenchant);
+	      sprintf(eos(buf), " (%ld)", RecurringDisenchant);
 		dump(youhad, buf);
 	}
 	if (verisiertEffect || u.uprops[VERISIERTEFFECT].extrinsic || have_verisiertstone()) {
 		sprintf(buf, "the following problem: Monster respawn speeded up rapidly.");
-	      sprintf(eos(buf), " (%d)", verisiertEffect);
+	      sprintf(eos(buf), " (%ld)", verisiertEffect);
 		dump(youhad, buf);
 	}
 	if (ChaosTerrain || u.uprops[CHAOS_TERRAIN].extrinsic || have_chaosterrainstone()) {
 		sprintf(buf, "the following problem: The terrain slowly became ever more chaotic.");
-	      sprintf(eos(buf), " (%d)", ChaosTerrain);
+	      sprintf(eos(buf), " (%ld)", ChaosTerrain);
 		dump(youhad, buf);
 	}
 	if (Muteness || u.uprops[MUTENESS].extrinsic || have_mutenessstone()) {
-		sprintf(buf, "the following problem: You were completely unable to cast spells.");
-	      sprintf(eos(buf), " (%d)", Muteness);
+		sprintf(buf, "the following problem: You were mute, and had great difficulty when trying to cast spells.");
+	      sprintf(eos(buf), " (%ld)", Muteness);
 		dump(youhad, buf);
 	}
 	if (EngravingDoesntWork || u.uprops[ENGRAVINGBUG].extrinsic || have_engravingstone()) {
 		sprintf(buf, "the following problem: Monsters didn't respect Elbereth.");
-	      sprintf(eos(buf), " (%d)", EngravingDoesntWork);
+	      sprintf(eos(buf), " (%ld)", EngravingDoesntWork);
 		dump(youhad, buf);
 	}
 	if (MagicDeviceEffect || u.uprops[MAGIC_DEVICE_BUG].extrinsic || have_magicdevicestone()) {
 		sprintf(buf, "the following problem: Zapping a wand could cause it to explode.");
-	      sprintf(eos(buf), " (%d)", MagicDeviceEffect);
+	      sprintf(eos(buf), " (%ld)", MagicDeviceEffect);
 		dump(youhad, buf);
 	}
 	if (BookTrapEffect || u.uprops[BOOKBUG].extrinsic || have_bookstone()) {
 		sprintf(buf, "the following problem: Reading spellbooks confused you.");
-	      sprintf(eos(buf), " (%d)", BookTrapEffect);
+	      sprintf(eos(buf), " (%ld)", BookTrapEffect);
 		dump(youhad, buf);
 	}
 	if (LevelTrapEffect || u.uprops[LEVELBUG].extrinsic || have_levelstone()) {
 		sprintf(buf, "the following problem: Monsters became stronger if many of their species had been generated already.");
-	    sprintf(eos(buf), " (%d)", LevelTrapEffect);
+	    sprintf(eos(buf), " (%ld)", LevelTrapEffect);
 		dump(youhad, buf);
 	}
 	if (QuizTrapEffect || u.uprops[QUIZZES].extrinsic || have_quizstone()) {
 		sprintf(buf, "the following problem: You had to partake in the Great NetHack Quiz.");
-	      sprintf(eos(buf), " (%d)", QuizTrapEffect);
+	      sprintf(eos(buf), " (%ld)", QuizTrapEffect);
 		dump(youhad, buf);
 	}
 
 	if (FastMetabolismEffect || u.uprops[FAST_METABOLISM].extrinsic || have_metabolicstone()) {
 		sprintf(buf, "the following problem: Your food consumption was much faster.");
-	      sprintf(eos(buf), " (%d)", FastMetabolismEffect);
+	      sprintf(eos(buf), " (%ld)", FastMetabolismEffect);
 		dump(youhad, buf);
 	}
 
 	if (NoReturnEffect || u.uprops[NORETURN].extrinsic || have_noreturnstone()) {
 		sprintf(buf, "the following problem: You could not teleport at all.");
-	      sprintf(eos(buf), " (%d)", NoReturnEffect);
+	      sprintf(eos(buf), " (%ld)", NoReturnEffect);
 		dump(youhad, buf);
 	}
 
 	if (AlwaysEgotypeMonsters || u.uprops[ALWAYS_EGOTYPES].extrinsic || have_egostone()) {
 		sprintf(buf, "the following problem: Monsters always spawned with egotypes.");
-	      sprintf(eos(buf), " (%d)", AlwaysEgotypeMonsters);
+	      sprintf(eos(buf), " (%ld)", AlwaysEgotypeMonsters);
 		dump(youhad, buf);
 	}
 
 	if (TimeGoesByFaster || u.uprops[FAST_FORWARD].extrinsic || have_fastforwardstone()) {
 		sprintf(buf, "the following problem: Time went by faster.");
-	      sprintf(eos(buf), " (%d)", TimeGoesByFaster);
+	      sprintf(eos(buf), " (%ld)", TimeGoesByFaster);
 		dump(youhad, buf);
 	}
 
 	if (FoodIsAlwaysRotten || u.uprops[FOOD_IS_ROTTEN].extrinsic || have_rottenstone()) {
 		sprintf(buf, "the following problem: Your food was always rotten.");
-	      sprintf(eos(buf), " (%d)", FoodIsAlwaysRotten);
+	      sprintf(eos(buf), " (%ld)", FoodIsAlwaysRotten);
 		dump(youhad, buf);
 	}
 
 	if (AllSkillsUnskilled || u.uprops[SKILL_DEACTIVATED].extrinsic || have_unskilledstone()) {
 		sprintf(buf, "the following problem: Your skills were deactivated.");
-	      sprintf(eos(buf), " (%d)", AllSkillsUnskilled);
+	      sprintf(eos(buf), " (%ld)", AllSkillsUnskilled);
 		dump(youhad, buf);
 	}
 
 	if (AllStatsAreLower || u.uprops[STATS_LOWERED].extrinsic || have_lowstatstone()) {
 		sprintf(buf, "the following problem: All of your stats were lowered.");
-	      sprintf(eos(buf), " (%d)", AllStatsAreLower);
+	      sprintf(eos(buf), " (%ld)", AllStatsAreLower);
 		dump(youhad, buf);
 	}
 
 	if (PlayerCannotTrainSkills || u.uprops[TRAINING_DEACTIVATED].extrinsic || have_trainingstone()) {
 		sprintf(buf, "the following problem: You could not train skills.");
-	      sprintf(eos(buf), " (%d)", PlayerCannotTrainSkills);
+	      sprintf(eos(buf), " (%ld)", PlayerCannotTrainSkills);
 		dump(youhad, buf);
 	}
 
 	if (PlayerCannotExerciseStats || u.uprops[EXERCISE_DEACTIVATED].extrinsic || have_exercisestone()) {
 		sprintf(buf, "the following problem: You could not exercise your stats.");
-	      sprintf(eos(buf), " (%d)", PlayerCannotExerciseStats);
+	      sprintf(eos(buf), " (%ld)", PlayerCannotExerciseStats);
 		dump(youhad, buf);
 	}
 
 	if (MCReduction) {
 		sprintf(buf, "reduced magic cancellation.");
-	      sprintf(eos(buf), " (%d)", MCReduction);
+	      sprintf(eos(buf), " (%ld)", MCReduction);
 		dump(youhad, buf);
 	}
 
 	if (u.uprops[INTRINSIC_LOSS].extrinsic || IntrinsicLossProblem || have_intrinsiclossstone() ) {
 		sprintf(buf, "a case of random intrinsic loss.");
-	      sprintf(eos(buf), " (%d)", IntrinsicLossProblem);
+	      sprintf(eos(buf), " (%ld)", IntrinsicLossProblem);
 		dump(youhad, buf);
 	}
 	if (u.uprops[TRAP_REVEALING].extrinsic) {
@@ -8176,22 +8907,22 @@ int final;
 	}
 	if (u.uprops[BLOOD_LOSS].extrinsic || BloodLossProblem || have_bloodlossstone() ) {
 		sprintf(buf, "bleeding out");
-	      sprintf(eos(buf), " (%d)", BloodLossProblem);
+	      sprintf(eos(buf), " (%ld)", BloodLossProblem);
 		dump(youwere, buf);
 	}
 	if (u.uprops[NASTINESS_EFFECTS].extrinsic || NastinessProblem || have_nastystone() ) {
 		sprintf(buf, "subjected to random nasty trap effects");
-	      sprintf(eos(buf), " (%d)", NastinessProblem);
+	      sprintf(eos(buf), " (%ld)", NastinessProblem);
 		dump(youwere, buf);
 	}
 	if (u.uprops[BAD_EFFECTS].extrinsic || BadEffectProblem || have_badeffectstone() ) {
 		sprintf(buf, "subjected to random bad effects");
-	      sprintf(eos(buf), " (%d)", BadEffectProblem);
+	      sprintf(eos(buf), " (%ld)", BadEffectProblem);
 		dump(youwere, buf);
 	}
 	if (u.uprops[AUTOMATIC_TRAP_CREATION].extrinsic || TrapCreationProblem || have_trapcreationstone() ) {
 		sprintf(buf, "more likely to encounter traps");
-	      sprintf(eos(buf), " (%d)", TrapCreationProblem);
+	      sprintf(eos(buf), " (%ld)", TrapCreationProblem);
 		dump(youwere, buf);
 	}
 	if (u.uprops[SENTIENT_HIGH_HEELS].extrinsic) {
@@ -8200,144 +8931,144 @@ int final;
 	}
 	if (u.uprops[REPEATING_VULNERABILITY].extrinsic || AutomaticVulnerabilitiy || have_vulnerabilitystone() ) {
 		sprintf(buf, "the risk of temporarily losing intrinsics");
-	      sprintf(eos(buf), " (%d)", AutomaticVulnerabilitiy);
+	      sprintf(eos(buf), " (%ld)", AutomaticVulnerabilitiy);
 		dump(youhad, buf);
 	}
 	if (u.uprops[TELEPORTING_ITEMS].extrinsic || TeleportingItems || have_itemportstone() ) {
 		sprintf(buf, "teleporting items");
-	      sprintf(eos(buf), " (%d)", TeleportingItems);
+	      sprintf(eos(buf), " (%ld)", TeleportingItems);
 		dump(youhad, buf);
 	}
 
 	if (u.uprops[DESECRATION].extrinsic || Desecration || have_nonsacredstone() ) {
 		sprintf(buf, "the following problem: Altars malfunction whenever you try to use them");
-	      sprintf(eos(buf), " (%d)", Desecration);
+	      sprintf(eos(buf), " (%ld)", Desecration);
 		dump(youhad, buf);
 	}
 
 	if (u.uprops[STARVATION_EFFECT].extrinsic || StarvationEffect || have_starvationstone() ) {
 		sprintf(buf, "not going to get corpses from defeated enemies");
-	      sprintf(eos(buf), " (%d)", StarvationEffect);
+	      sprintf(eos(buf), " (%ld)", StarvationEffect);
 		dump(youwere, buf);
 	}
 
 	if (u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) {
 		sprintf(buf, "not going to get death drops from monsters");
-	      sprintf(eos(buf), " (%d)", NoDropsEffect);
+	      sprintf(eos(buf), " (%ld)", NoDropsEffect);
 		dump(youwere, buf);
 	}
 
 	if (u.uprops[LOW_EFFECTS].extrinsic || LowEffects || have_loweffectstone() ) {
 		sprintf(buf, "reduced power of magical effects");
-	      sprintf(eos(buf), " (%d)", LowEffects);
+	      sprintf(eos(buf), " (%ld)", LowEffects);
 		dump(youhad, buf);
 	}
 
 	if (u.uprops[INVIS_TRAPS_EFFECT].extrinsic || InvisibleTrapsEffect || have_invisostone() ) {
 		sprintf(buf, "not going to see traps");
-	      sprintf(eos(buf), " (%d)", InvisibleTrapsEffect);
+	      sprintf(eos(buf), " (%ld)", InvisibleTrapsEffect);
 		dump(youwere, buf);
 	}
 
 	if (u.uprops[GHOST_WORLD].extrinsic || GhostWorld || have_ghostlystone() ) {
 		sprintf(buf, "in a ghost world");
-	      sprintf(eos(buf), " (%d)", GhostWorld);
+	      sprintf(eos(buf), " (%ld)", GhostWorld);
 		dump(youwere, buf);
 	}
 
 	if (u.uprops[DEHYDRATION].extrinsic || Dehydration || have_dehydratingstone() ) {
 		sprintf(buf, "going to become dehydrated");
-	      sprintf(eos(buf), " (%d)", Dehydration);
+	      sprintf(eos(buf), " (%ld)", Dehydration);
 		dump(youwere, buf);
 	}
 
 	if (u.uprops[HATE_TRAP_EFFECT].extrinsic || HateTrapEffect || have_hatestone() ) {
 		sprintf(buf, "the following problem: Pets hate you with a fiery passion.");
-	      sprintf(eos(buf), " (%d)", HateTrapEffect);
+	      sprintf(eos(buf), " (%ld)", HateTrapEffect);
 		dump(youhad, buf);
 	}
 
 	if (u.uprops[TOTTER_EFFECT].extrinsic || TotterTrapEffect || have_directionswapstone() ) {
 		sprintf(buf, "the following problem: Your directional keys got swapped.");
-	      sprintf(eos(buf), " (%d)", TotterTrapEffect);
+	      sprintf(eos(buf), " (%ld)", TotterTrapEffect);
 		dump(youhad, buf);
 	}
 
 	if (u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) {
 		sprintf(buf, "unable to get intrinsics from eating corpses");
-	      sprintf(eos(buf), " (%d)", Nonintrinsics);
+	      sprintf(eos(buf), " (%ld)", Nonintrinsics);
 		dump(youwere, buf);
 	}
 
 	if (u.uprops[DROPCURSES_EFFECT].extrinsic || Dropcurses || have_dropcursestone() ) {
 		sprintf(buf, "the following problem: Dropping items causes them to autocurse.");
-	      sprintf(eos(buf), " (%d)", Dropcurses);
+	      sprintf(eos(buf), " (%ld)", Dropcurses);
 		dump(youhad, buf);
 	}
 
 	if (u.uprops[NAKEDNESS].extrinsic || Nakedness || have_nakedstone() ) {
 		sprintf(buf, "effectively naked");
-	      sprintf(eos(buf), " (%d)", Nakedness);
+	      sprintf(eos(buf), " (%ld)", Nakedness);
 		dump(youwere, buf);
 	}
 
 	if (u.uprops[ANTILEVELING].extrinsic || Antileveling || have_antilevelstone() ) {
-		sprintf(buf, "unable to gain experience");
-	      sprintf(eos(buf), " (%d)", Antileveling);
+		sprintf(buf, "unable to gain experience past experience level 10, and slower to reach XL10");
+	      sprintf(eos(buf), " (%ld)", Antileveling);
 		dump(youwere, buf);
 	}
 
 	if (u.uprops[ITEM_STEALING_EFFECT].extrinsic || ItemStealingEffect || have_stealerstone() ) {
 		sprintf(buf, "more likely to have your items stolen");
-	      sprintf(eos(buf), " (%d)", ItemStealingEffect);
+	      sprintf(eos(buf), " (%ld)", ItemStealingEffect);
 		dump(youwere, buf);
 	}
 
 	if (u.uprops[REBELLION_EFFECT].extrinsic || Rebellions || have_rebelstone() ) {
 		sprintf(buf, "the following problem: Pets can spontaneously rebel and become hostile.");
-	      sprintf(eos(buf), " (%d)", Rebellions);
+	      sprintf(eos(buf), " (%ld)", Rebellions);
 		dump(youhad, buf);
 	}
 
 	if (u.uprops[CRAP_EFFECT].extrinsic || CrapEffect || have_shitstone() ) {
 		sprintf(buf, "diarrhea");
-	      sprintf(eos(buf), " (%d)", CrapEffect);
+	      sprintf(eos(buf), " (%ld)", CrapEffect);
 		dump(youhad, buf);
 	}
 
 	if (u.uprops[PROJECTILES_MISFIRE].extrinsic || ProjectilesMisfire || have_misfirestone() ) {
 		sprintf(buf, "the following problem: Your projectiles often misfire.");
-	      sprintf(eos(buf), " (%d)", ProjectilesMisfire);
+	      sprintf(eos(buf), " (%ld)", ProjectilesMisfire);
 		dump(youhad, buf);
 	}
 
 	if (u.uprops[WALL_TRAP_EFFECT].extrinsic || WallTrapping || have_wallstone() ) {
 		sprintf(buf, "the following problem: Dungeon regrowth is excessively fast.");
-	      sprintf(eos(buf), " (%d)", WallTrapping);
+	      sprintf(eos(buf), " (%ld)", WallTrapping);
 		dump(youhad, buf);
 	}
 
 	if (u.uprops[RECURRING_AMNESIA].extrinsic || RecurringAmnesia || have_amnesiastone() ) {
 		sprintf(buf, "going to suffer from amnesia now and then");
-	      sprintf(eos(buf), " (%d)", RecurringAmnesia);
+	      sprintf(eos(buf), " (%ld)", RecurringAmnesia);
 		dump(youwere, buf);
 	}
 
 	if (u.uprops[TURNLIMITATION].extrinsic || TurnLimitation || have_limitationstone() ) {
 		sprintf(buf, "getting your ascension turn limit reduced whenever you take damage");
-	      sprintf(eos(buf), " (%d)", TurnLimitation);
+	      sprintf(eos(buf), " (%ld)", TurnLimitation);
 		dump(youwere, buf);
 	}
 
 	if (u.uprops[WEAKSIGHT].extrinsic || WeakSight || have_weaksightstone() ) {
 		sprintf(buf, "short-sighted");
-	      sprintf(eos(buf), " (%d)", WeakSight);
+	      sprintf(eos(buf), " (%ld)", WeakSight);
 		dump(youwere, buf);
 	}
 
 	if (u.uprops[RANDOM_MESSAGES].extrinsic || RandomMessages || have_messagestone() ) {
 		sprintf(buf, "reading random messages");
-	      sprintf(eos(buf), " (%d)", RandomMessages);
+	      sprintf(eos(buf), " (%ld)", RandomMessages);
 		dump(youwere, buf);
 	}
 
@@ -8349,13 +9080,19 @@ int final;
 
 	if (IncreasedGravity) {
 		sprintf(buf, "increased encumbrance due to a stronger gravity.");
-	      sprintf(eos(buf), " (%d)", IncreasedGravity);
+	      sprintf(eos(buf), " (%ld)", IncreasedGravity);
 		dump(youhad, buf);
+	}
+
+	if (u.graundweight) {
+		sprintf(buf, "burdened by some dead weight.");
+		sprintf(eos(buf), " (%ld)", u.graundweight);
+		dump(youwere, buf);
 	}
 
 	if (NoStaircase) {
 		sprintf(buf, "to wait until you could use staircases again.");
-	      sprintf(eos(buf), " (%d)", NoStaircase);
+	      sprintf(eos(buf), " (%ld)", NoStaircase);
 		dump(youhad, buf);
 	}
 
@@ -8365,118 +9102,166 @@ int final;
 		dump(youwere, buf);
 	}
 
+	if (u.sokosolveboulder && issokosolver) {
+		sprintf(buf, "to wait until you can create boulders again.");
+	      sprintf(eos(buf), " (%d)", u.sokosolveboulder);
+		dump(youhad, buf);
+	}
+
+	if (u.sokosolveuntrap && issokosolver) {
+		sprintf(buf, "to wait until you can disarm traps again.");
+	      sprintf(eos(buf), " (%d)", u.sokosolveuntrap);
+		dump(youhad, buf);
+	}
+
 	if (u.footererlevel) {
 		sprintf(buf, "going to encounter the footerers.");
 	      sprintf(eos(buf), " (level %d)", u.footererlevel);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapFemmy) {
+	if (FemtrapActiveFemmy) {
 		sprintf(buf, "possessed by the ghost of Femmy.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapFemmy);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapFemmy);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapMadeleine) {
+	if (FemtrapActiveMadeleine) {
 		sprintf(buf, "possessed by the ghost of Madeleine.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapMadeleine);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapMadeleine);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapMarlena) {
+	if (FemtrapActiveMarlena) {
 		sprintf(buf, "possessed by the ghost of Marlena.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapMarlena);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapMarlena);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapAnastasia) {
+	if (FemtrapActiveSarah) {
+		sprintf(buf, "possessed by the ghost of Sarah.");
+	      sprintf(eos(buf), " (%ld)", FemaleTrapSarah);
+		dump(youwere, buf);
+	}
+
+	if (FemtrapActiveClaudia) {
+		sprintf(buf, "possessed by the ghost of Claudia.");
+	      sprintf(eos(buf), " (%ld)", FemaleTrapClaudia);
+		dump(youwere, buf);
+	}
+
+	if (FemtrapActiveLudgera) {
+		sprintf(buf, "possessed by the ghost of Ludgera.");
+	      sprintf(eos(buf), " (%ld)", FemaleTrapLudgera);
+		dump(youwere, buf);
+	}
+
+	if (FemtrapActiveKati) {
+		sprintf(buf, "possessed by the ghost of Kati.");
+	      sprintf(eos(buf), " (%ld)", FemaleTrapKati);
+		dump(youwere, buf);
+	}
+
+	if (FemtrapActiveAnastasia) {
 		sprintf(buf, "possessed by the ghost of Anastasia.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapAnastasia);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapAnastasia);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapJessica) {
+	if (FemtrapActiveJessica) {
 		sprintf(buf, "possessed by the ghost of Jessica.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapJessica);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapJessica);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapSolvejg) {
+	if (FemtrapActiveSolvejg) {
 		sprintf(buf, "possessed by the ghost of Solvejg.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapSolvejg);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapSolvejg);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapWendy) {
+	if (FemtrapActiveWendy) {
 		sprintf(buf, "possessed by the ghost of Wendy.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapWendy);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapWendy);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapKatharina) {
+	if (FemtrapActiveKatharina) {
 		sprintf(buf, "possessed by the ghost of Katharina.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapKatharina);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapKatharina);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapElena) {
+	if (FemtrapActiveElena) {
 		sprintf(buf, "possessed by the ghost of Elena.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapElena);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapElena);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapThai) {
+	if (FemtrapActiveThai) {
 		sprintf(buf, "possessed by the ghost of Thai.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapThai);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapThai);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapElif) {
+	if (FemtrapActiveElif) {
 		sprintf(buf, "possessed by the ghost of Elif.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapElif);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapElif);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapNadja) {
+	if (FemtrapActiveNadja) {
 		sprintf(buf, "possessed by the ghost of Nadja.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapNadja);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapNadja);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapSandra) {
+	if (FemtrapActiveSandra) {
 		sprintf(buf, "possessed by the ghost of Sandra.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapSandra);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapSandra);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapNatalje) {
+	if (FemtrapActiveNatalje) {
 		sprintf(buf, "possessed by the ghost of Natalje.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapNatalje);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapNatalje);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapJeanetta) {
+	if (FemtrapActiveJeanetta) {
 		sprintf(buf, "possessed by the ghost of Jeanetta.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapJeanetta);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapJeanetta);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapYvonne) {
+	if (FemtrapActiveYvonne) {
 		sprintf(buf, "possessed by the ghost of Yvonne.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapYvonne);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapYvonne);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapMaurah) {
+	if (FemtrapActiveMaurah) {
 		sprintf(buf, "possessed by the ghost of Maurah.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapMaurah);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapMaurah);
 		dump(youwere, buf);
 	}
 
-	if (FemaleTrapMeltem) {
+	if (FemtrapActiveMeltem) {
 		sprintf(buf, "possessed by the ghost of Meltem.");
-	      sprintf(eos(buf), " (%d)", FemaleTrapMeltem);
+	      sprintf(eos(buf), " (%ld)", FemaleTrapMeltem);
 		dump(youwere, buf);
+	}
+
+	if (Race_if(PM_PERVERT)) {
+		sprintf(buf, "had sex the last time this many turns ago:");
+		sprintf(eos(buf), " %d", u.pervertsex);
+		dump(youhad, buf);
+	}
+
+	if (Race_if(PM_PERVERT)) {
+		sprintf(buf, "prayed the last time this many turns ago:");
+		sprintf(eos(buf), " %d", u.pervertpray);
+		dump(youhad, buf);
 	}
 
 	if (u.hangupamount) {
@@ -8505,10 +9290,10 @@ int final;
 	}
 
 	if (Role_if(PM_HUSSY)) {
-	    	sprintf(buf, "%d ", (u.hussyhurtturn - moves));
+	    	sprintf(buf, "%ld ", (u.hussyhurtturn - moves));
 		sprintf(eos(buf), "turns left to hit a guy.");
 		dump(youhad, buf);
-	    	sprintf(buf, "%d ", (u.hussykillturn - moves));
+	    	sprintf(buf, "%ld ", (u.hussykillturn - moves));
 		sprintf(eos(buf), "turns left to defeat a guy.");
 		dump(youhad, buf);
 	}
@@ -8539,7 +9324,7 @@ int final;
 
 	if (TimeStopped) {
 		sprintf(buf, "stopped the flow of time.");
-	      sprintf(eos(buf), " (%d)", TimeStopped);
+	      sprintf(eos(buf), " (%ld)", TimeStopped);
 		dump(youhad, buf);
 	}
 
@@ -8639,6 +9424,42 @@ int final;
 		dump(youhad, buf);
 	}
 
+	if (u.swappositioncount) {
+		sprintf(buf, "going to swap positions with the next monster you move into.");
+	      sprintf(eos(buf), " (%d)", u.swappositioncount);
+		dump(youwere, buf);
+	}
+
+	if (u.contingencyturns) {
+		sprintf(buf, "signed up a contract with the reaper.");
+	      sprintf(eos(buf), " (%d)", u.contingencyturns);
+		dump(youhad, buf);
+	}
+
+	if (u.horsehopturns) {
+		sprintf(buf, "the ability to jump as long as you're riding.");
+	      sprintf(eos(buf), " (%d)", u.horsehopturns);
+		dump(youhad, buf);
+	}
+
+	if (u.bodyfluideffect) {
+		sprintf(buf, "very acidic skin.");
+	      sprintf(eos(buf), " (%d)", u.bodyfluideffect);
+		dump(youhad, buf);
+	}
+
+	if (u.antitelespelltimeout) {
+		sprintf(buf, "erected an anti-teleportation field.");
+	      sprintf(eos(buf), " (%d)", u.antitelespelltimeout);
+		dump(youhad, buf);
+	}
+
+	if (u.breathenhancetimer) {
+		sprintf(buf, "magically enhanced breath.");
+	      sprintf(eos(buf), " (%d)", u.breathenhancetimer);
+		dump(youhad, buf);
+	}
+
 	if (u.snaildigging) {
 		sprintf(buf, "to wait until you can fire another digging ray.");
 	      sprintf(eos(buf), " (%d)", u.snaildigging);
@@ -8648,6 +9469,36 @@ int final;
 	if (u.hussyperfume) {
 		sprintf(buf, "to wait until you can spread the perfume again.");
 	      sprintf(eos(buf), " (%d)", u.hussyperfume);
+		dump(youhad, buf);
+	}
+
+	if (u.irahapoison) {
+		sprintf(buf, "to wait until you can poison your weapon again.");
+	      sprintf(eos(buf), " (%d)", u.irahapoison);
+		dump(youhad, buf);
+	}
+
+	if (Role_if(PM_JANITOR)) {
+		sprintf(buf, "the following amount of trash in your trash can:");
+	      sprintf(eos(buf), " %d", u.garbagecleaned);
+		dump(youhad, buf);
+	}
+
+	if (Role_if(PM_JANITOR) && u.garbagetrucktime) {
+		sprintf(buf, "called the garbage truck, and it will arrive in");
+	      sprintf(eos(buf), " %d turns", u.garbagetrucktime);
+		dump(youhad, buf);
+	}
+
+	if (u.walscholarpass) {
+		sprintf(buf, "able to pass through grave walls.");
+	      sprintf(eos(buf), " (%d)", u.walscholarpass);
+		dump(youwere, buf);
+	}
+
+	if (u.demagogueabilitytimer && isdemagogue) {
+		sprintf(buf, "to wait until you can use your special recursion.");
+	      sprintf(eos(buf), " (%d)", u.demagogueabilitytimer);
 		dump(youhad, buf);
 	}
 
@@ -8664,7 +9515,7 @@ int final;
 	}
 
 	if (UseTheForce) {
-		sprintf(buf, "able to use the force like a true jedi");
+		sprintf(buf, StrongUseTheForce ? "able to use the force like a jedi grandmaster" : "able to use the force like a true jedi");
 		dump(youwere, buf);
 	}
 
@@ -8675,342 +9526,355 @@ int final;
 
 	if (NoFire_resistance) {
 		sprintf(buf, "prevented from having fire resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_FIRE_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FIRE_RES].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoCold_resistance) {
 		sprintf(buf, "prevented from having cold resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_COLD_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_COLD_RES].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoSleep_resistance) {
 		sprintf(buf, "prevented from having sleep resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_SLEEP_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SLEEP_RES].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoDisint_resistance) {
 		sprintf(buf, "prevented from having disintegration resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_DISINT_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DISINT_RES].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoShock_resistance) {
 		sprintf(buf, "prevented from having shock resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_SHOCK_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SHOCK_RES].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoPoison_resistance) {
 		sprintf(buf, "prevented from having poison resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_POISON_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_POISON_RES].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoDrain_resistance) {
 		sprintf(buf, "prevented from having drain resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_DRAIN_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DRAIN_RES].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoSick_resistance) {
 		sprintf(buf, "prevented from having sickness resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_SICK_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SICK_RES].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoAntimagic_resistance) {
 		sprintf(buf, "prevented from having magic resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_ANTIMAGIC].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_ANTIMAGIC].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoAcid_resistance) {
 		sprintf(buf, "prevented from having acid resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_ACID_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_ACID_RES].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoStone_resistance) {
 		sprintf(buf, "prevented from having petrification resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_STONE_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_STONE_RES].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoFear_resistance) {
 		sprintf(buf, "prevented from having fear resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_FEAR_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FEAR_RES].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoSee_invisible) {
 		sprintf(buf, "prevented from having see invisible");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_SEE_INVIS].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SEE_INVIS].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoManaleech) {
 		sprintf(buf, "prevented from having manaleech");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_MANALEECH].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_MANALEECH].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoPeacevision) {
 		sprintf(buf, "prevented from having peacevision");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_PEACEVISION].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_PEACEVISION].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoTelepat) {
 		sprintf(buf, "prevented from having telepathy");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_TELEPAT].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_TELEPAT].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoWarning) {
 		sprintf(buf, "prevented from having warning");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_WARNING].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_WARNING].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoSearching) {
 		sprintf(buf, "prevented from having automatic searching");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_SEARCHING].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SEARCHING].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoClairvoyant) {
 		sprintf(buf, "prevented from having clairvoyance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_CLAIRVOYANT].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_CLAIRVOYANT].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoInfravision) {
 		sprintf(buf, "prevented from having infravision");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_INFRAVISION].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_INFRAVISION].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoDetect_monsters) {
 		sprintf(buf, "prevented from having detect monsters");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_DETECT_MONSTERS].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DETECT_MONSTERS].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoInvisible) {
 		sprintf(buf, "prevented from having invisibility");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_INVIS].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_INVIS].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoDisplaced) {
 		sprintf(buf, "prevented from having displacement");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_DISPLACED].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DISPLACED].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoStealth) {
 		sprintf(buf, "prevented from having stealth");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_STEALTH].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_STEALTH].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoJumping) {
 		sprintf(buf, "prevented from having jumping");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_JUMPING].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_JUMPING].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoTeleport_control) {
 		sprintf(buf, "prevented from having teleport control");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_TELEPORT_CONTROL].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_TELEPORT_CONTROL].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoFlying) {
 		sprintf(buf, "prevented from having flying");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_FLYING].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FLYING].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoBreathless) {
 		sprintf(buf, "prevented from having magical breathing");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_MAGICAL_BREATHING].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_MAGICAL_BREATHING].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoPasses_walls) {
 		sprintf(buf, "prevented from having phasing");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_PASSES_WALLS].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_PASSES_WALLS].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoSlow_digestion) {
 		sprintf(buf, "prevented from having slow digestion");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_SLOW_DIGESTION].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SLOW_DIGESTION].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoHalf_spell_damage) {
 		sprintf(buf, "prevented from having half spell damage");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_HALF_SPDAM].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_HALF_SPDAM].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoHalf_physical_damage) {
 		sprintf(buf, "prevented from having half physical damage");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_HALF_PHDAM].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_HALF_PHDAM].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoRegeneration) {
 		sprintf(buf, "prevented from having regeneration");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_REGENERATION].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_REGENERATION].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoEnergy_regeneration) {
 		sprintf(buf, "prevented from having mana regeneration");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_ENERGY_REGENERATION].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_ENERGY_REGENERATION].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoPolymorph_control) {
 		sprintf(buf, "prevented from having polymorph control");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_POLYMORPH_CONTROL].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_POLYMORPH_CONTROL].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoFast) {
 		sprintf(buf, "prevented from having speed");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_FAST].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FAST].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoReflecting) {
 		sprintf(buf, "prevented from having reflection");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_REFLECTING].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_REFLECTING].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoKeen_memory) {
 		sprintf(buf, "prevented from having keen memory");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_KEEN_MEMORY].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_KEEN_MEMORY].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoSight_bonus) {
 		sprintf(buf, "prevented from having a sight bonus");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_SIGHT_BONUS].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SIGHT_BONUS].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoVersus_curses) {
 		sprintf(buf, "prevented from having curse resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_VERSUS_CURSES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_VERSUS_CURSES].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoStun_resist) {
 		sprintf(buf, "prevented from having stun resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_STUN_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_STUN_RES].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoConf_resist) {
 		sprintf(buf, "prevented from having confusion resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_CONF_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_CONF_RES].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoPsi_resist) {
 		sprintf(buf, "prevented from having psi resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_PSI_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_PSI_RES].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoDouble_attack) {
 		sprintf(buf, "prevented from having double attacks");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_DOUBLE_ATTACK].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DOUBLE_ATTACK].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoQuad_attack) {
 		sprintf(buf, "prevented from having quad attacks");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_QUAD_ATTACK].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_QUAD_ATTACK].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoFree_action) {
 		sprintf(buf, "prevented from having free action");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_FREE_ACTION].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FREE_ACTION].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoHallu_party) {
 		sprintf(buf, "prevented from hallu partying");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_HALLU_PARTY].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_HALLU_PARTY].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoDrunken_boxing) {
 		sprintf(buf, "prevented from drunken boxing");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_DRUNKEN_BOXING].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DRUNKEN_BOXING].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoStunnopathy) {
 		sprintf(buf, "prevented from having stunnopathy");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_STUNNOPATHY].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_STUNNOPATHY].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoNumbopathy) {
 		sprintf(buf, "prevented from having numbopathy");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_NUMBOPATHY].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_NUMBOPATHY].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoDimmopathy) {
 		sprintf(buf, "prevented from having dimmopathy");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_DIMMOPATHY].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DIMMOPATHY].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoFreezopathy) {
 		sprintf(buf, "prevented from having freezopathy");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_FREEZOPATHY].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FREEZOPATHY].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoStoned_chiller) {
 		sprintf(buf, "prevented from being a stoned chiller");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_STONED_CHILLER].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_STONED_CHILLER].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoCorrosivity) {
 		sprintf(buf, "prevented from having corrosivity");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_CORROSIVITY].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_CORROSIVITY].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoFear_factor) {
 		sprintf(buf, "prevented from having an increased fear factor");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_FEAR_FACTOR].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FEAR_FACTOR].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoBurnopathy) {
 		sprintf(buf, "prevented from having burnopathy");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_BURNOPATHY].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_BURNOPATHY].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoSickopathy) {
 		sprintf(buf, "prevented from having sickopathy");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_SICKOPATHY].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SICKOPATHY].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoWonderlegs) {
 		sprintf(buf, "prevented from having wonderlegs");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_WONDERLEGS].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_WONDERLEGS].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoGlib_combat) {
 		sprintf(buf, "prevented from having glib combat");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_GLIB_COMBAT].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_GLIB_COMBAT].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoUseTheForce) {
 		sprintf(buf, "prevented from using the force like a real jedi");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_THE_FORCE].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_THE_FORCE].intrinsic);
 		dump(youwere, buf);
 	}
 	if (NoCont_resist) {
 		sprintf(buf, "prevented from having contamination resistance");
-	      sprintf(eos(buf), " (%d)", u.uprops[DEAC_CONT_RES].intrinsic);
+	      sprintf(eos(buf), " (%ld)", u.uprops[DEAC_CONT_RES].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoDiscount_action) {
 		sprintf(buf, "prevented from having discount action");
-	   	sprintf(eos(buf), " (%d)", u.uprops[DEAC_DISCOUNT_ACTION].intrinsic);
+	   	sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DISCOUNT_ACTION].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoFull_nutrient) {
 		sprintf(buf, "prevented from having full nutrients");
-	    	sprintf(eos(buf), " (%d)", u.uprops[DEAC_FULL_NUTRIENT].intrinsic);
+	    	sprintf(eos(buf), " (%ld)", u.uprops[DEAC_FULL_NUTRIENT].intrinsic);
 		dump(youwere, buf);
 	}
 
 	if (NoTechnicality) {
 		sprintf(buf, "prevented from having technicality");
-	    	sprintf(eos(buf), " (%d)", u.uprops[DEAC_TECHNICALITY].intrinsic);
+	    	sprintf(eos(buf), " (%ld)", u.uprops[DEAC_TECHNICALITY].intrinsic);
 		dump(youwere, buf);
 	}
+
+	if (NoScentView) {
+		sprintf(buf, "prevented from having scent view");
+		sprintf(eos(buf), " (%ld)", u.uprops[DEAC_SCENT_VIEW].intrinsic);
+		dump(youwere, buf);
+	}
+
+	if (NoDiminishedBleeding) {
+		sprintf(buf, "prevented from having diminished bleeding");
+		sprintf(eos(buf), " (%ld)", u.uprops[DEAC_DIMINISHED_BLEEDING].intrinsic);
+		dump(youwere, buf);
+	}
+
 	int shieldblockrate = 0;
 
 	if (uarms) {
@@ -9046,7 +9910,7 @@ int final;
 			break;
 		case ELVEN_SHIELD:
 			shieldblockrate = 20;
-			if (Race_if(PM_ELF) || Race_if(PM_DROW) || Role_if(PM_ELPH) || Role_if(PM_TWELPH)) shieldblockrate += 5;
+			if (Race_if(PM_ELF) || Race_if(PM_PLAYER_MYRKALFR) || Race_if(PM_DROW) || Role_if(PM_ELPH) || Role_if(PM_TWELPH)) shieldblockrate += 5;
 			break;
 		case URUK_HAI_SHIELD:
 			shieldblockrate = 22;
@@ -9071,10 +9935,12 @@ int final;
 			break;
 		case CRYSTAL_SHIELD:
 		case RAPIRAPI:
+		case HIDE_SHIELD:
 			shieldblockrate = 35;
 			break;
 		case SHIELD_OF_REFLECTION:
 		case SILVER_SHIELD:
+		case ANCIENT_SHIELD:
 		case MIRROR_SHIELD:
 			shieldblockrate = 25;
 			break;
@@ -9088,6 +9954,8 @@ int final;
 			shieldblockrate = 30;
 			break;
 		case VENOM_SHIELD:
+		case CHROME_SHIELD:
+		case ANTISHADOW_SHIELD:
 			shieldblockrate = 30;
 			break;
 		case SHIELD_OF_LIGHT:
@@ -9118,6 +9986,11 @@ int final;
 		case RUBY_DRAGON_SCALE_SHIELD:
 		case GREEN_DRAGON_SCALE_SHIELD:
 		case GOLDEN_DRAGON_SCALE_SHIELD:
+		case FEMINISM_DRAGON_SCALE_SHIELD:
+		case CANCEL_DRAGON_SCALE_SHIELD:
+		case NEGATIVE_DRAGON_SCALE_SHIELD:
+		case CORONA_DRAGON_SCALE_SHIELD:
+		case HEROIC_DRAGON_SCALE_SHIELD:
 		case STONE_DRAGON_SCALE_SHIELD:
 		case CYAN_DRAGON_SCALE_SHIELD:
 		case PSYCHIC_DRAGON_SCALE_SHIELD:
@@ -9156,9 +10029,11 @@ int final;
 		if (uarms->oartifact == ART_LURTZ_S_WALL) shieldblockrate += 20;
 		if (uarms->oartifact == ART_I_M_GETTING_HUNGRY) shieldblockrate += 20;
 		if (uarms->oartifact == ART_WHANG_CLINK_CLONK) shieldblockrate += 10;
+		if (uarms->oartifact == ART_LOOK_HOW_IT_BLOCKS) shieldblockrate += 20;
 		if (uarms->oartifact == ART_BLOCKING_EXTREME) shieldblockrate += 10;
 		if (uarms->oartifact == ART_CUTTING_THROUGH) shieldblockrate += 5;
 		if (uwep && uwep->oartifact == ART_VEST_REPLACEMENT) shieldblockrate += 10;
+		if (Race_if(PM_MACTHEIST)) shieldblockrate += 10;
 
 		if (u.holyshield) shieldblockrate += (3 + spell_damage_bonus(SPE_HOLY_SHIELD));
 
@@ -9187,6 +10062,10 @@ int final;
 			shieldblockrate *= 2;
 			shieldblockrate /= 3;
 		}
+		if (StrongConflict && shieldblockrate > 0) {
+			shieldblockrate *= 2;
+			shieldblockrate /= 3;
+		}
 
 		if (shieldblockrate < 0) shieldblockrate = 0;
 
@@ -9195,9 +10074,16 @@ int final;
 	}
 
 	if (Fumbling) dump("  ", "You fumbled");
+
+	if (Fumbling) {
+		sprintf(buf, "fumbling");
+		sprintf(eos(buf), " (%ld)", u.fumbleduration);
+		dump(youwere, buf);
+	}
+
 	if (Wounded_legs && !u.usteed ) {
 		sprintf(buf, "wounded %s", makeplural(body_part(LEG)));
-	      sprintf(eos(buf), " (%d)", HWounded_legs);
+	      sprintf(eos(buf), " (%ld)", HWounded_legs);
 		dump(youhad, buf);
 	}
 	if (Wounded_legs && u.usteed) {
@@ -9208,18 +10094,22 @@ int final;
 	    dump("  ", buf);
 	}
 	if (Sleeping) dump("  ", "You fell asleep");
-	if (Hunger) dump("  ", "You hungered rapidly");
+	if (Hunger && !StrongHunger) dump("  ", "You hungered rapidly");
+	if (Hunger && StrongHunger) dump("  ", "You hungered extremely rapidly");
 
 	if (have_sleepstone())  dump("  ", "You were very tired");
 	if (have_cursedmagicresstone()) dump("  ", "You took double damage");
 	if (uamul && uamul->otyp == AMULET_OF_VULNERABILITY) dump("  ", "You took extra damage");
 
 	/*** Vision and senses ***/
-	if (See_invisible) dump("  ", "You saw invisible");
-	if (Manaleech) dump("  ", "You leeched mana");
-	if (Peacevision) dump("  ", "You recognized peaceful creatures");
+	if (See_invisible && !StrongSee_invisible) dump("  ", "You saw invisible");
+	if (See_invisible && StrongSee_invisible) dump("  ", "You saw invisible and hidden");
+	if (Manaleech && !StrongManaleech) dump("  ", "You leeched mana");
+	if (Manaleech && StrongManaleech) dump("  ", "You leeched a lot of mana");
+	if (Peacevision) dump("  ", StrongPeacevision ? "You recognized peaceful creatures and other stuff" : "You recognized peaceful creatures");
 	if (Map_amnesia) dump("  ", "You had map amnesia");
-	if (Blind_telepat) dump(youwere, "telepathic");
+	if ((Blind_telepat || Unblind_telepat) && !StrongTelepat) dump(youwere, "telepathic");
+	if ((Blind_telepat || Unblind_telepat) && StrongTelepat) dump(youwere, "very telepathic");
 
 	if (Hallu_party) dump(youwere, "hallu partying");
 	if (Drunken_boxing) dump(youwere, "a drunken boxer");
@@ -9235,7 +10125,7 @@ int final;
 	if (Wonderlegs) dump(youhad, "wonderlegs");
 	if (Glib_combat) dump(youwere, "a glibbery fighter");
 
-	if (Warning) dump(youwere, "warned");
+	if (Warning) dump(youwere, StrongWarning ? "definitely warned" : "warned");
 	if (Warn_of_mon && flags.warntype) {
 		sprintf(buf, "aware of the presence of %s",
 			(flags.warntype & M2_ORC) ? "orcs" :
@@ -9263,14 +10153,14 @@ int final;
 	if (isselfhybrid) dump(youwere, "aware of the presence of strong wanderers");
 	if (isselfhybrid) dump(youwere, "aware of the presence of monsters that are valid polymorph forms for monsters only");
 
-	if (Searching) dump(youhad, "automatic searching");
+	if (Searching) dump(youhad, StrongSearching ? "quick autosearching" : "automatic searching");
 	if (Clairvoyant) {
-		sprintf(buf, "clairvoyant");
-	      sprintf(eos(buf), " (%d)", HClairvoyant);
+		sprintf(buf, StrongClairvoyant ? "highly clairvoyant" : "clairvoyant");
+	      sprintf(eos(buf), " (%ld)", HClairvoyant);
 		dump(youwere, buf);
 
 	}
-	if (Infravision) dump(youhad, "infravision");
+	if (Infravision) dump(youhad, StrongInfravision ? "strong infravision" : "infravision");
 
 	if (u.banishmentbeam) dump(youwere, "going to be banished");
 	if (u.levelporting) dump(youwere, "going to be levelported");
@@ -9287,9 +10177,14 @@ int final;
 		dump(youwere, buf);
 	}
 
+	if (u.demagoguerecursion) {
+		sprintf(buf, "temporarily playing as another role");
+		sprintf(eos(buf), " (%d)", u.demagoguerecursiontime);
+		dump(youwere, buf);
+	}
 	if (Detect_monsters) {
-		sprintf(buf, "sensing the presence of monsters");
-	      sprintf(eos(buf), " (%d)", HDetect_monsters);
+		sprintf(buf, StrongDetect_monsters ? "sensing all monsters" : "sensing the presence of monsters");
+	      sprintf(eos(buf), " (%ld)", HDetect_monsters);
 		dump(youwere, buf);
 	}
 
@@ -9308,39 +10203,46 @@ int final;
 	    else
 		dump(youwere, "adorned");
 	}
-	if (Invisible) dump(youwere, "invisible");
-	else if (Invis) dump(youwere, "invisible to others");
+	if (Invisible) dump(youwere, StrongInvis ? "very invisible" : "invisible");
+	else if (Invis) dump(youwere, StrongInvis ? "very invisible to others" : "invisible to others");
 	/* ordinarily "visible" is redundant; this is a special case for
 	   the situation when invisibility would be an expected attribute */
 	else if ((HInvis || EInvis || pm_invisible(youmonst.data)) && BInvis)
 	    dump(youwere, "visible");
-	if (Displaced) dump(youwere, "displaced");
-	if (Stealth) dump(youwere, "stealthy");
-	if (Aggravate_monster) dump("  ", "You aggravated monsters");
-	if (Conflict) dump("  ", "You caused conflict");
+	if (Displaced) dump(youwere, StrongDisplaced ? "very displaced" : "displaced");
+	if (Stealth) dump(youwere, StrongStealth ? "very stealthy" : "stealthy");
+	if (StrongAggravate_monster) dump("  ", "You completely aggravated monsters");
+	if (!StrongAggravate_monster && ExtAggravate_monster) dump("  ", "You strongly aggravated monsters");
+	if (!StrongAggravate_monster && IntAggravate_monster) dump("  ", "You aggravated monsters");
+	if (Aggravate_monster) {
+		sprintf(buf, "aggravating monsters for %ld more turns", HAggravate_monster);
+		dump(youwere, buf);
+	}
+
+	if (Conflict) dump("  ", StrongConflict ? "You caused lots of conflict" : "You caused conflict");
 
 	/*** Transportation ***/
-	if (Jumping) dump(youcould, "jump");
-	if (Teleportation) dump(youcould, "teleport");
-	if (Teleport_control) dump(youhad, "teleport control");
+	if (Jumping) dump(youcould, StrongJumping ? "jump far" : "jump");
+	if (Teleportation) dump(youhad, StrongTeleportation ? "chronic teleportitis" : "teleportitis");
+	if (Teleport_control) dump(youhad, StrongTeleport_control ? "complete teleport control" : "teleport control");
 
 	if (Lev_at_will)  {
 	    sprintf(buf, "levitating, at will");
-	    sprintf(eos(buf), " (%d)", HLevitation);
+	    sprintf(eos(buf), " (%ld)", HLevitation);
 	    dump(youwere, buf);
 	}
 	if (Levitation)  {
-	    sprintf(buf, "levitating");
-	    sprintf(eos(buf), " (%d)", HLevitation);
+	    sprintf(buf, StrongLevitation ? "floatitating" : "levitating");
+	    sprintf(eos(buf), " (%ld)", HLevitation);
 	    dump(youwere, buf);
 	}
 
-	else if (Flying) dump(youcould, "fly");
+	else if (Flying) dump(youcould, StrongFlying ? "fly up and down" : "fly");
 	if (Wwalking) dump(youcould, "walk on water");
-	if (Swimming) dump(youcould, "swim");
-	if (Breathless) dump(youcould, "survive without air");
+	if (Swimming) dump(youcould, StrongSwimming ? "swim like a world champion" : "swim");
+	if (Breathless) dump(youcould, StrongMagical_breathing ? "survive everywhere without needing to breathe" : "survive without air");
 	else if (Amphibious) dump(youcould, "breathe water");
-	if (Passes_walls) dump(youcould, "walk through walls");
+	if (Passes_walls) dump(youcould, StrongPasses_walls ? "walk through every wall" : "walk through walls");
 	if (u.usteed && (final < 2 || strcmp(killer, "riding accident"))) {
 	    sprintf(buf, "riding %s", y_monnam(u.usteed));
 	    dump(youwere, buf);
@@ -9365,28 +10267,31 @@ int final;
 	if (u.udaminc)
 	    dump(youhad,
 		enlght_combatinc("damage", u.udaminc, final, buf));
-	if (Slow_digestion) dump(youhad, "slower digestion");
-	if (Keen_memory) dump("  ", "Your memory was keen");
+	if (Slow_digestion) dump(youhad, StrongSlow_digestion ? "extremely slow digestion" : "slower digestion");
+	if (Keen_memory) dump("  ", StrongKeen_memory ? "Your memory was very keen" : "Your memory was keen");
 
-	if (Sight_bonus) dump("  ", "Your sight was improved");
-	if (Versus_curses) dump(youhad, "curse resistance");
+	if (Sight_bonus) dump("  ", StrongSight_bonus ? "Your sight was greatly improved" : "Your sight was improved");
+	if (Versus_curses) dump(youhad, StrongVersus_curses ? "double curse resistance" : "curse resistance");
 
-	if (Stun_resist) dump(youhad, "stun resistance");
-	if (Conf_resist) dump(youhad, "confusion resistance");
-	if (Cont_resist) dump(youhad, "contamination resistance");
-	if (Discount_action) dump(youhad, "discount action");
-	if (Full_nutrient) dump(youhad, "full nutrients");
-	if (Technicality) dump(youhad, "improved technique levels");
-	if (Psi_resist) dump(youhad, "psi resistance");
-	if (Extra_wpn_practice) dump("  ", "You could train skills and attributes faster");
+	if (Stun_resist) dump(youhad, StrongStun_resist ? "double stun resistance" : "stun resistance");
+	if (Conf_resist) dump(youhad, StrongConf_resist ? "double confusion resistance" : "confusion resistance");
+	if (Cont_resist) dump(youhad, StrongCont_resist ? "double contamination resistance" : "contamination resistance");
+	if (Discount_action) dump(youhad, StrongDiscount_action ? "high discount action" : "discount action");
+	if (Full_nutrient) dump(youhad, StrongFull_nutrient ? "very full nutrients" : "full nutrients");
+	if (Technicality) dump(youhad, StrongTechnicality ? "greatly improved technique levels" : "improved technique levels");
+	if (ScentView || EcholocationActive) dump(youhad, StrongScentView ? "scent view and echolocation" : (ScentView && EcholocationActive) ? "scent view and echolocation" : EcholocationActive ? "echolocation" : "scent view");
+	if (DiminishedBleeding) dump(youhad, StrongDiminishedBleeding ? "greatly diminished bleeding" : "diminished bleeding");
+	if (Psi_resist) dump(youhad, StrongPsi_resist ? "double psi resistance" : "psi resistance");
+	if (Extra_wpn_practice) dump("  ", StrongExtra_wpn_practice ? "You could train skills and attributes much faster" : "You could train skills and attributes faster");
 	if (Death_resistance) dump(youhad, "resistance to death rays");
-	if (Double_attack) dump(youhad, "double attacks");
-	if (Quad_attack) dump(youhad, "quad attacks");
+	if (Double_attack) dump(youhad, StrongDouble_attack ? "super double attacks" : "double attacks");
+	if (Quad_attack) dump(youhad, StrongQuad_attack ? "super quad attacks" : "quad attacks");
 
-	if (Half_physical_damage) dump(youhad, "physical resistance");
-	if (Half_spell_damage) dump(youhad, "spell resistance");
+	if (Half_physical_damage) dump(youhad, StrongHalf_physical_damage ? "strong physical resistance" : "physical resistance");
+	if (Half_spell_damage) dump(youhad, StrongHalf_spell_damage ? "strong spell resistance" : "spell resistance");
 
-	if (Regeneration) dump("  ", "You regenerated");
+	if (Regeneration) dump("  ", StrongRegeneration ? "You quickly regenerated" : "You regenerated");
+	if (Energy_regeneration) dump("  ", StrongEnergy_regeneration ? "You quickly regenerated mana" : "You regenerated mana");
 	if (u.uspellprot || Protection) {
 	    int prot = 0;
 
@@ -9402,8 +10307,8 @@ int final;
 	}
 	if (Protection_from_shape_changers)
 		dump(youwere, "protected from shape changers");
-	if (Polymorph) dump(youwere, "polymorphing");
-	if (Polymorph_control) dump(youhad, "polymorph control");
+	if (Polymorph) dump(youhad, StrongPolymorph ? "chronic polymorphitis" : "polymorphitis");
+	if (Polymorph_control) dump(youhad, StrongPolymorph_control ? "complete polymorph control" : "polymorph control");
 	if (u.ulycn >= LOW_PM) {
 		strcpy(buf, an(mons[u.ulycn].mname));
 		dump(youwere, buf);
@@ -9417,21 +10322,31 @@ int final;
 #endif
 	    dump(youwere, buf);
 	}
+	if (uinsymbiosis) {
+		sprintf(buf, "in symbiosis with %s, symbiote health %d(%d), BUC %s%s%s%s%s", mons[u.usymbiote.mnum].mname, u.usymbiote.mhp, u.usymbiote.mhpmax, u.usymbiote.stckcurse ? "sticky" : "", u.usymbiote.evilcurse ? " evil" : "", u.usymbiote.morgcurse ? " morgothian" : "", u.usymbiote.bbcurse ? " blackbreath" : "", u.usymbiote.prmcurse ? " prime cursed" : u.usymbiote.hvycurse ? " heavily cursed" : u.usymbiote.cursed ? " cursed" : "uncursed");
+		if (u.shutdowntime) {
+			sprintf(eos(buf), ", shutdown for %d turns", u.shutdowntime);
+		}
+		dump(youwere, buf);
+	}
+
 	if (Unchanging)
 	  dump(youcould, "not change from your current form");
-	if (Fast && !SpeedBug && !u.uprops[SPEED_BUG].extrinsic && !(uarmf && uarmf->oartifact == ART_UNEVEN_ENGINE) && !(uarmf && uarmf->oartifact == ART_ERROR_IN_PLAY_ENCHANTMENT) && !have_speedbugstone()) dump(youwere, Very_fast ? "very fast" : "fast");
-	if (Fast && (SpeedBug || u.uprops[SPEED_BUG].extrinsic || (uarmf && uarmf->oartifact == ART_UNEVEN_ENGINE) || (uarmf && uarmf->oartifact == ART_ERROR_IN_PLAY_ENCHANTMENT) || have_speedbugstone()) ) dump(youwere, Very_fast ? "very slow" : "slow");
+	if (Fast && !SpeedBug && !u.uprops[SPEED_BUG].extrinsic && !(uarmf && uarmf->oartifact == ART_UNEVEN_ENGINE) && !(uarmf && uarmf->oartifact == ART_ERROR_IN_PLAY_ENCHANTMENT) && !have_speedbugstone()) dump(youwere, StrongFast ? "ultra fast" : Very_fast ? "very fast" : "fast");
+	if (Fast && (SpeedBug || u.uprops[SPEED_BUG].extrinsic || (uarmf && uarmf->oartifact == ART_UNEVEN_ENGINE) || (uarmf && uarmf->oartifact == ART_ERROR_IN_PLAY_ENCHANTMENT) || have_speedbugstone()) ) dump(youwere, StrongFast ? "ultra slow" : Very_fast ? "very slow" : "slow");
 	if (!Fast && Very_fast && !SpeedBug && !u.uprops[SPEED_BUG].extrinsic && !(uarmf && uarmf->oartifact == ART_UNEVEN_ENGINE) && !(uarmf && uarmf->oartifact == ART_ERROR_IN_PLAY_ENCHANTMENT) && !have_speedbugstone()) dump(youwere, "very fast");
 	if (!Fast && Very_fast && (SpeedBug || u.uprops[SPEED_BUG].extrinsic || (uarmf && uarmf->oartifact == ART_UNEVEN_ENGINE) || (uarmf && uarmf->oartifact == ART_ERROR_IN_PLAY_ENCHANTMENT) || have_speedbugstone()) ) dump(youwere, "very slow");
-	if (Reflecting) dump(youhad, "reflection");
-	if (Free_action) dump(youhad, "free action");
-	if (Fixed_abil || Race_if(PM_SUSTAINER) || (uarms && uarms->oartifact == ART_SYSTEMATIC_CHAOS) || (uarms && uarms->oartifact == ART_BONUS_HOLD) || (uamul && uamul->oartifact == ART_FIX_EVERYTHING) || (uarmf && uarmf->oartifact == ART_ELENETTES) ) dump(youhad, "fixed abilities");
+	if (Reflecting) dump(youhad, StrongReflecting ? "powerful reflection" : "reflection");
+	if (Free_action) dump(youhad, StrongFree_action ? "very free action" : "free action");
+	if (SustainAbilityOn) dump(youhad, "fixed abilities");
 	if (uamul && uamul->otyp == AMULET_VERSUS_STONE)
 		dump("  ", "You would have been depetrified");
 	if (Lifesaved)
 		dump("  ", "Your life would have been saved");
 	if (Second_chance)
 		dump("  ", "You would have been given a second chance");
+	if (u.metalguard)	
+  	  	dump("  ", "The next damage you took would have been nullified");
 	if (u.twoweap) dump(youwere, "wielding two weapons at once");
 
 	/*** Miscellany ***/
@@ -9457,7 +10372,7 @@ int final;
 	{
 		sprintf(buf, "%s health", u.uhealbonus > 0 ? "extra" :
 			"reduced");
-	      sprintf(eos(buf), " (%d)", u.uhealbonus);
+	      sprintf(eos(buf), " (%ld)", u.uhealbonus);
 	      dump(youhad, buf);
 	}
 	else dump("  ", "Your health bonus was zero");
@@ -9471,16 +10386,17 @@ int final;
 	}
 	else dump("  ", "Your mana bonus was zero");
 
+	sprintf(buf, "spell retention for remembering %d spells", urole.spelrete);
+	dump(youhad, buf);
+
 	    sprintf(buf, "Your pantheon consisted of %s, %s and %s", align_gname(A_LAWFUL), align_gname(A_NEUTRAL), align_gname(A_CHAOTIC) );
 	    dump("  ", buf);
 
 	    sprintf(buf, "Your deity was %s", u_gname());
 	    dump("  ", buf);
 
-	if (VERSION_ID) {
-		sprintf(buf, "The version you were playing was: %s", VERSION_ID);
-		dump("  ", buf);
-	}
+	    getversionstring(buf);
+	    dump("  The version you were playing was: ", buf);
 
 	if (u.ugangr) {
 	    sprintf(buf, " %sangry with you",
@@ -9541,17 +10457,66 @@ minimal_enlightenment()
 	char statline[BUFSZ];
 
 	*statline = '\0';
+	char xtrabuf[BUFSZ];
 
 	if (TheInfoIsFucked) {
 		pline("Somehow the information is fucked up and won't display.");
 		return 0;
 	}
 
+	*xtrabuf = '\0';
+
+	int hybridcount = 0;
+
+	if (flags.hybridangbander && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "angbander ");
+	if (flags.hybridaquarian && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "aquarian ");
+	if (flags.hybridcurser && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "curser ");
+	if (flags.hybridhaxor && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "haxor ");
+	if (flags.hybridhomicider && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "homicider ");
+	if (flags.hybridsuxxor && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "suxxor ");
+	if (flags.hybridwarper && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "warper ");
+	if (flags.hybridrandomizer && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "randomizer ");
+	if (flags.hybridnullrace && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "null ");
+	if (flags.hybridmazewalker && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "mazewalker ");
+	if (flags.hybridsoviet && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "soviet ");
+	if (flags.hybridxrace && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "x-race ");
+	if (flags.hybridheretic && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "heretic ");
+	if (flags.hybridsokosolver && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "sokosolver ");
+	if (flags.hybridspecialist && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "specialist ");
+	if (flags.hybridamerican && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "american ");
+	if (flags.hybridminimalist && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "minimalist ");
+	if (flags.hybridnastinator && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "nastinator ");
+	if (flags.hybridrougelike && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "rougelike ");
+	if (flags.hybridsegfaulter && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "segfaulter ");
+	if (flags.hybridironman && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "ironman ");
+	if (flags.hybridamnesiac && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "amnesiac ");
+	if (flags.hybridproblematic && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "problematic ");
+	if (flags.hybridwindinhabitant && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "windinhabitant ");
+	if (flags.hybridaggravator && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "aggravator ");
+	if (flags.hybridevilvariant && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "evilvariant ");
+	if (flags.hybridlevelscaler && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "levelscaler ");
+	if (flags.hybriderosator && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "erosator ");
+	if (flags.hybridroommate && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "roommate ");
+	if (flags.hybridextravator && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "extravator ");
+	if (flags.hybridhallucinator && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "hallucinator ");
+	if (flags.hybridbossrusher && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "bossrusher ");
+	if (flags.hybriddorian && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "dorian ");
+	if (flags.hybridtechless && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "techless ");
+	if (flags.hybridblait && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "blait ");
+	if (flags.hybridgrouper && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "grouper ");
+	if (flags.hybridscriptor && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "scriptor ");
+	if (flags.hybridunbalancor && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "unbalancor ");
+	if (flags.hybridbeacher && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "beacher ");
+	if (flags.hybridstairseeker && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "stairseeker ");
+	if (flags.hybridmatrayser && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "matrayser ");
+	if (flags.hybridfeminizer && (hybridcount++ < 20)) sprintf(eos(xtrabuf), "feminizer ");
+	if (hybridcount >= 20) sprintf(eos(xtrabuf), "(%d hybrids) ", hybridcount);
+
 	if (!DisplayDoesNotGo) {
 		/* Yes I know, this is far from optimized. But it's a crutch for terminals with
 		 * less than 25 lines, where bot2() doesn't display everything if you have lots of status effects. --Amy */
 
-		sprintf(eos(statline), "You are %s, a %s %s %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s %s.", playeraliasname, align_str(u.ualign.type), (flags.female ? "female" : "male"), (flags.hybridangbander ? "angbander " : ""), (flags.hybridaquarian ? "aquarian " : ""), (flags.hybridcurser ? "curser " : ""), (flags.hybridhaxor ? "haxor " : ""), (flags.hybridhomicider ? "homicider " : ""), (flags.hybridsuxxor ? "suxxor " : ""), (flags.hybridwarper ? "warper " : ""), (flags.hybridrandomizer ? "randomizer " : ""), (flags.hybridnullrace ? "null " : ""), (flags.hybridmazewalker ? "mazewalker " : ""), (flags.hybridsoviet ? "soviet " : ""), (flags.hybridxrace ? "x-race " : ""), (flags.hybridheretic ? "heretic " : ""), (flags.hybridsokosolver ? "sokosolver " : ""), (flags.hybridspecialist ? "specialist " : ""), (flags.hybridamerican ? "american " : ""), (flags.hybridminimalist ? "minimalist " : ""), (flags.hybridnastinator ? "nastinator " : ""), (flags.hybridrougelike ? "rougelike " : ""), (flags.hybridsegfaulter ? "segfaulter " : ""), (flags.hybridironman ? "ironman " : ""), (flags.hybridamnesiac ? "amnesiac " : ""), (flags.hybridproblematic ? "problematic " : ""), (flags.hybridwindinhabitant ? "windinhabitant " : ""), (flags.hybridaggravator ? "aggravator " : ""), (flags.hybridevilvariant ? "evilvariant " : ""), (flags.hybridlevelscaler ? "levelscaler " : ""), (flags.hybriderosator ? "erosator " : ""), (flags.hybridroommate ? "roommate " : ""), (flags.hybridextravator ? "extravator " : ""), urace.adj, (flags.female && urole.name.f) ? urole.name.f : urole.name.m);
+		sprintf(eos(statline), "You are %s, a %s %s %s%s %s.", playeraliasname, align_str(u.ualign.type), (flags.female ? "female" : "male"), xtrabuf, urace.adj, (flags.female && urole.name.f) ? urole.name.f : urole.name.m);
 
 		if (!Upolyd) sprintf(eos(statline), " HP: %d (max %d)", u.uhp, u.uhpmax);
 		else sprintf(eos(statline), " HP: %d (max %d)", u.mh, u.mhmax);
@@ -9591,11 +10556,12 @@ minimal_enlightenment()
 		if (IsGlib) sprintf(eos(statline), "glib, ");
 		if (Wounded_legs) sprintf(eos(statline), "wounded legs, ");
 		if (Strangled) sprintf(eos(statline), "strangled, ");
+		if (PlayerBleeds) sprintf(eos(statline), "bleeding, ");
 		if (Vomiting) sprintf(eos(statline), "vomiting, ");
 		if(u.ustuck && !u.uswallow && !sticks(youmonst.data)) sprintf(eos(statline), "held by a monster, ");
 		if(near_capacity() > UNENCUMBERED) sprintf(eos(statline), "%s, ", encx_stat[near_capacity()]);
-		if (!Thirst && !u.uprops[THIRST].extrinsic && !have_thirststone() && !(uwep && uwep->oartifact == ART_LUISA_S_CHARMING_BEAUTY) && !(u.twoweap && uswapwep && uswapwep->oartifact == ART_LUISA_S_CHARMING_BEAUTY) && u.urealedibility && u.uhunger >= 4500) sprintf(eos(statline), "oversatiated, ");
-		else if(!Thirst && !u.uprops[THIRST].extrinsic && !have_thirststone() && !(uwep && uwep->oartifact == ART_LUISA_S_CHARMING_BEAUTY) && !(u.twoweap && uswapwep && uswapwep->oartifact == ART_LUISA_S_CHARMING_BEAUTY) && strcmp(hux_stat[u.uhs], "        ")) sprintf(eos(statline), "%s, ", hux_stat[u.uhs]);
+		if (!YouAreThirsty && u.urealedibility && u.uhunger >= 4500) sprintf(eos(statline), "oversatiated, ");
+		else if(!YouAreThirsty && strcmp(hux_stat[u.uhs], "        ")) sprintf(eos(statline), "%s, ", hux_stat[u.uhs]);
 
 		sprintf(eos(statline), ".");
 
@@ -10105,6 +11071,598 @@ int final;
 	    enl_msg(You_, "have broken ", "broke ", buf);
 	}
 
+	/* extra statistics by Amy. Most of them can be accessed by using the #conduct command, but some would leak info
+	 * that the player couldn't otherwise have during a running game and are therefore only displayed when the game is
+	 * over. In fact, you could probably leak info with all of them when having nasty traps active, but oh well... */
+
+	if (u.cnd_applycount) {
+		sprintf(buf, "%d time%s", u.cnd_applycount, plur(u.cnd_applycount));
+		enl_msg(You_, "have applied items ", "applied items ", buf);
+	}
+	if (u.cnd_unihorncount) {
+		sprintf(buf, "%d time%s", u.cnd_unihorncount, plur(u.cnd_unihorncount));
+		enl_msg(You_, "experienced the healing effects of unicorn horns ", "experienced the healing effects of unicorn horns ", buf);
+	}
+	if (u.cnd_markercount) {
+		sprintf(buf, "%d item%s with the magic marker", u.cnd_markercount, plur(u.cnd_markercount));
+		enl_msg(You_, "have created ", "created ", buf);
+	}
+	if (u.cnd_chemistrycount) {
+		sprintf(buf, "%d item%s with the chemistry set", u.cnd_chemistrycount, plur(u.cnd_chemistrycount));
+		enl_msg(You_, "have created ", "created ", buf);
+	}
+	if (u.cnd_quaffcount) {
+		sprintf(buf, "%d potion%s", u.cnd_quaffcount, plur(u.cnd_quaffcount));
+		enl_msg(You_, "have quaffed ", "quaffed ", buf);
+	}
+	if (u.cnd_zapcount) {
+		sprintf(buf, "%d time%s", u.cnd_zapcount, plur(u.cnd_zapcount));
+		enl_msg(You_, "have zapped wands ", "zapped wands ", buf);
+	}
+	if (u.cnd_scrollcount) {
+		sprintf(buf, "%d time%s", u.cnd_scrollcount, plur(u.cnd_scrollcount));
+		enl_msg(You_, "have read scrolls ", "read scrolls ", buf);
+	}
+	if (u.cnd_spellbookcount) {
+		sprintf(buf, "%d time%s", u.cnd_spellbookcount, plur(u.cnd_spellbookcount));
+		enl_msg(You_, "have read spellbooks ", "read spellbooks ", buf);
+	}
+	if (u.cnd_spellcastcount) {
+		sprintf(buf, "%d time%s", u.cnd_spellcastcount, plur(u.cnd_spellcastcount));
+		enl_msg(You_, "have successfully cast spells ", "successfully cast spells ", buf);
+	}
+	if (u.cnd_spellfailcount) {
+		sprintf(buf, "%d time%s", u.cnd_spellfailcount, plur(u.cnd_spellfailcount));
+		enl_msg(You_, "have failed to cast a spell ", "failed to cast a spell ", buf);
+	}
+	if (u.cnd_forgottenspellcount) {
+		sprintf(buf, "%d time%s", u.cnd_forgottenspellcount, plur(u.cnd_forgottenspellcount));
+		enl_msg(You_, "have attempted to cast forgotten spells ", "attempted to cast forgotten spells ", buf);
+	}
+	if (u.cnd_invokecount) {
+		sprintf(buf, "%d time%s", u.cnd_invokecount, plur(u.cnd_invokecount));
+		enl_msg(You_, "have used the invocation effects of artifacts ", "used the invocation effects of artifacts ", buf);
+	}
+	if (u.cnd_techcount) {
+		sprintf(buf, "%d time%s", u.cnd_techcount, plur(u.cnd_techcount));
+		enl_msg(You_, "have used techniques ", "used techniques ", buf);
+	}
+	if (u.cnd_phasedoorcount) {
+		sprintf(buf, "%d time%s", u.cnd_phasedoorcount, plur(u.cnd_phasedoorcount));
+		enl_msg(You_, "have phase doored ", "phase doored ", buf);
+	}
+	if (u.cnd_teleportcount) {
+		sprintf(buf, "%d time%s", u.cnd_teleportcount, plur(u.cnd_teleportcount));
+		enl_msg(You_, "have teleported ", "teleported ", buf);
+	}
+	if (u.cnd_telelevelcount) {
+		sprintf(buf, "%d time%s", u.cnd_telelevelcount, plur(u.cnd_telelevelcount));
+		enl_msg(You_, "have levelported ", "levelported ", buf);
+	}
+	if (u.cnd_branchportcount) {
+		sprintf(buf, "%d time%s", u.cnd_branchportcount, plur(u.cnd_branchportcount));
+		enl_msg(You_, "have branchported ", "branchported ", buf);
+	}
+	if (u.cnd_banishmentcount) {
+		sprintf(buf, "%d time%s", u.cnd_banishmentcount, plur(u.cnd_banishmentcount));
+		enl_msg(You_, "were banished ", "were banished ", buf);
+	}
+	if (u.cnd_punishmentcount) {
+		sprintf(buf, "%d time%s", u.cnd_punishmentcount, plur(u.cnd_punishmentcount));
+		enl_msg(You_, "were punished ", "were punished ", buf);
+	}
+	/* pet death count not disclosed because you might not notice that your pet died --Amy */
+	if (u.cnd_petdeathcount && final) {
+		sprintf(buf, "%d pet%s", u.cnd_petdeathcount, plur(u.cnd_petdeathcount));
+		enl_msg(You_, "had to mourn the death of ", "had to mourn the death of ", buf);
+	}
+	/* amnesia count not disclosed because there's not always a clue that you got hit by amnesia --Amy */
+	if (u.cnd_amnesiacount && final) {
+		sprintf(buf, "%d time%s", u.cnd_amnesiacount, plur(u.cnd_amnesiacount));
+		enl_msg(You_, "have suffered from amnesia ", "suffered from amnesia ", buf);
+	}
+	if (final) {
+		sprintf(buf, "%d", u.cnd_minalignment);
+		enl_msg(You_, "had a minimum alignment of ", "had a minimum alignment of ", buf);
+	}
+	if (final) {
+		sprintf(buf, "%d", u.cnd_maxalignment);
+		enl_msg(You_, "had a maximum alignment of ", "had a maximum alignment of ", buf);
+	}
+	if (u.cnd_maxsanity) {
+		sprintf(buf, "%d", u.cnd_maxsanity);
+		enl_msg(You_, "had a maximum sanity of ", "had a maximum sanity of ", buf);
+	}
+	/* sanity can be displayed, contamination requires enlightenment, so the latter is not disclosed --Amy */
+	if (u.cnd_maxcontamination && final) {
+		sprintf(buf, "%d", u.cnd_maxcontamination);
+		enl_msg(You_, "had a maximum contamination of ", "had a maximum contamination of ", buf);
+	}
+	if (u.cnd_searchtrapcount) {
+		sprintf(buf, "%d time%s", u.cnd_searchtrapcount, plur(u.cnd_searchtrapcount));
+		enl_msg(You_, "have successfully searched for traps ", "successfully searched for traps ", buf);
+	}
+	if (u.cnd_searchsecretcount) {
+		sprintf(buf, "%d time%s", u.cnd_searchsecretcount, plur(u.cnd_searchsecretcount));
+		enl_msg(You_, "have successfully searched for doors or corridors ", "successfully searched for doors or corridors ", buf);
+	}
+	if (u.cnd_fartingcount) {
+		sprintf(buf, "%d time%s", u.cnd_fartingcount, plur(u.cnd_fartingcount));
+		enl_msg(You_, "heard farting noises ", "heard farting noises ", buf);
+	}
+	if (u.cnd_crappingcount) {
+		sprintf(buf, "%d time%s", u.cnd_crappingcount, plur(u.cnd_crappingcount));
+		enl_msg(You_, "heard crapping noises ", "heard crapping noises ", buf);
+	}
+	if (u.cnd_conversioncount) {
+		sprintf(buf, "%d time%s", u.cnd_conversioncount, plur(u.cnd_conversioncount));
+		enl_msg(You_, "listened to conversion sermon ", "listened to conversion sermon ", buf);
+	}
+	if (u.cnd_wouwoucount) {
+		sprintf(buf, "%d time%s", u.cnd_wouwoucount, plur(u.cnd_wouwoucount));
+		enl_msg(You_, "heard the frightening wouwou taunts ", "heard the frightening wouwou taunts ", buf);
+	}
+	if (u.cnd_supermancount) {
+		sprintf(buf, "%d time%s", u.cnd_supermancount, plur(u.cnd_supermancount));
+		enl_msg(You_, "heard superman taunts ", "heard superman taunts ", buf);
+	}
+	if (u.cnd_perfumecount) {
+		sprintf(buf, "%d time%s", u.cnd_perfumecount, plur(u.cnd_perfumecount));
+		enl_msg(You_, "inhaled scentful feminine perfume ", "inhaled scentful feminine perfume ", buf);
+	}
+	if (u.cnd_nutkickamount) {
+		sprintf(buf, "%d time%s", u.cnd_nutkickamount, plur(u.cnd_nutkickamount));
+		enl_msg(You_, "got your nuts kicked ", "got your nuts kicked ", buf);
+	}
+	if (u.cnd_breastripamount) {
+		sprintf(buf, "%d time%s", u.cnd_breastripamount, plur(u.cnd_breastripamount));
+		enl_msg(You_, "got hit in the breasts ", "got hit in the breasts ", buf);
+	}
+	if (u.cnd_saveamount) {
+		sprintf(buf, "%d time%s", u.cnd_saveamount, plur(u.cnd_saveamount));
+		enl_msg(You_, "have saved the game ", "saved the game ", buf);
+	}
+	if (u.cnd_ragnarokamount) {
+		sprintf(buf, "%d time%s", u.cnd_ragnarokamount, plur(u.cnd_ragnarokamount));
+		enl_msg(You_, "encountered the ragnarok event ", "encountered the ragnarok event ", buf);
+	}
+	if (u.cnd_datadeleteamount) {
+		sprintf(buf, "%d time%s", u.cnd_datadeleteamount, plur(u.cnd_datadeleteamount));
+		enl_msg(You_, "had your data deleted ", "had your data deleted ", buf);
+	}
+	/* the curse items effect seems to give no message if you're blind, so you don't always see it happen --Amy */
+	if (u.cnd_curseitemsamount && final) {
+		sprintf(buf, "%d time%s", u.cnd_curseitemsamount, plur(u.cnd_curseitemsamount));
+		enl_msg(You_, "encountered the curse items effect ", "encountered the curse items effect ", buf);
+	}
+	/* nasty traps give no message and don't reveal themselves, so I sure as heck won't leak info here --Amy */
+	if (u.cnd_nastytrapamount && final) {
+		sprintf(buf, "%d time%s", u.cnd_nastytrapamount, plur(u.cnd_nastytrapamount));
+		enl_msg(You_, "have triggered nasty traps ", "triggered nasty traps ", buf);
+	}
+	/* these do give messages, but still, there might be situations where they don't --Amy */
+	if (u.cnd_feminismtrapamount && final) {
+		sprintf(buf, "%d time%s", u.cnd_feminismtrapamount, plur(u.cnd_feminismtrapamount));
+		enl_msg(You_, "have triggered feminism traps ", "triggered feminism traps ", buf);
+	}
+	if (u.cnd_plineamount) {
+		sprintf(buf, "%d time%s", u.cnd_plineamount, plur(u.cnd_plineamount));
+		enl_msg(You_, "had to read random messages ", "had to read random messages ", buf);
+	}
+	/* yeah we obviously can't leak how many monsters were summoned --Amy */
+	if (u.cnd_aggravateamount && final) {
+		sprintf(buf, "%d monster%s come out of portals", u.cnd_aggravateamount, plur(u.cnd_aggravateamount));
+		enl_msg(You_, "saw ", "saw ", buf);
+	}
+	if (u.cnd_eatrinsicamount) {
+		sprintf(buf, "%d time%s", u.cnd_eatrinsicamount, plur(u.cnd_eatrinsicamount));
+		enl_msg(You_, "have gained intrinsics from eating corpses ", "gained intrinsics from eating corpses ", buf);
+	}
+	if (u.cnd_shkserviceamount) {
+		sprintf(buf, "%d time%s", u.cnd_shkserviceamount, plur(u.cnd_shkserviceamount));
+		enl_msg(You_, "have purchased shopkeeper services ", "purchased shopkeeper services ", buf);
+	}
+	/* yet again, player doesn't always know how many were summoned --Amy */
+	if (u.cnd_kopsummonamount && final) {
+		sprintf(buf, "%d time%s", u.cnd_kopsummonamount, plur(u.cnd_kopsummonamount));
+		enl_msg(You_, "had the kops called on you ", "had the kops called on you ", buf);
+	}
+	if (u.cnd_captchaamount) {
+		sprintf(buf, "%d captcha%s", u.cnd_captchaamount, plur(u.cnd_captchaamount));
+		enl_msg(You_, "have solved ", "solved ", buf);
+	}
+	if (u.cnd_captchafail) {
+		sprintf(buf, "%d time%s", u.cnd_captchafail, plur(u.cnd_captchafail));
+		enl_msg(You_, "failed to solve a captcha ", "failed to solve a captcha ", buf);
+	}
+	if (u.cnd_quizamount) {
+		sprintf(buf, "%d quiz question%s", u.cnd_quizamount, plur(u.cnd_quizamount));
+		enl_msg(You_, "correctly answered ", "correctly answered ", buf);
+	}
+	if (u.cnd_quizfail) {
+		sprintf(buf, "%d quiz question%s", u.cnd_quizfail, plur(u.cnd_quizfail));
+		enl_msg(You_, "incorrectly answered ", "incorrectly answered ", buf);
+	}
+	/* alter reality doesn't always give a message --Amy */
+	if (u.cnd_alterrealityamount && final) {
+		sprintf(buf, "%d time%s", u.cnd_alterrealityamount, plur(u.cnd_alterrealityamount));
+		enl_msg(You_, "had the reality altered ", "had the reality altered ", buf);
+	}
+	if (u.cnd_unlockamount) {
+		sprintf(buf, "%d lock%s", u.cnd_unlockamount, plur(u.cnd_unlockamount));
+		enl_msg(You_, "picked ", "picked ", buf);
+	}
+	if (u.cnd_altarconvertamount) {
+		sprintf(buf, "%d altar%s", u.cnd_altarconvertamount, plur(u.cnd_altarconvertamount));
+		enl_msg(You_, "have converted ", "converted ", buf);
+	}
+	if (u.cnd_itemstealamount) {
+		sprintf(buf, "%d time%s", u.cnd_itemstealamount, plur(u.cnd_itemstealamount));
+		enl_msg(You_, "had your items stolen ", "had your items stolen ", buf);
+	}
+	if (u.cnd_poisonamount) {
+		sprintf(buf, "%d time%s", u.cnd_poisonamount, plur(u.cnd_poisonamount));
+		enl_msg(You_, "got poisoned ", "got poisoned ", buf);
+	}
+	if (u.cnd_nursehealamount) {
+		sprintf(buf, "%d extra hit point%s from nurses", u.cnd_nursehealamount, plur(u.cnd_nursehealamount));
+		enl_msg(You_, "have gained ", "gained ", buf);
+	}
+	if (u.cnd_nurseserviceamount) {
+		sprintf(buf, "%d time%s", u.cnd_nurseserviceamount, plur(u.cnd_nurseserviceamount));
+		enl_msg(You_, "have purchased nurse services ", "purchased nurse services ", buf);
+	}
+	/* if you're blind, the game doesn't tell you that elbereth did something --Amy */
+	if (u.cnd_elberethamount && final) {
+		sprintf(buf, "%d monster%s with Elbereth engravings", u.cnd_elberethamount, plur(u.cnd_elberethamount));
+		enl_msg(You_, "scared ", "scared ", buf);
+	}
+	/* disenchantment can also happen silently --Amy */
+	if (u.cnd_disenchantamount && final) {
+		sprintf(buf, "%d time%s", u.cnd_disenchantamount, plur(u.cnd_disenchantamount));
+		enl_msg(You_, "had your items disenchanted ", "had your items disenchanted ", buf);
+	}
+	if (u.cnd_permstatdamageamount) {
+		sprintf(buf, "%d time%s", u.cnd_permstatdamageamount, plur(u.cnd_permstatdamageamount));
+		enl_msg(You_, "permanently lost stat points ", "permanently lost stat points ", buf);
+	}
+	if (u.cnd_shoedamageamount) {
+		sprintf(buf, "%d time%s", u.cnd_shoedamageamount, plur(u.cnd_shoedamageamount));
+		enl_msg(You_, "got whacked or kicked by female shoes ", "got whacked or kicked by female shoes ", buf);
+	}
+	if (u.cnd_farmlandremoved) {
+		sprintf(buf, "%d time%s", u.cnd_farmlandremoved, plur(u.cnd_farmlandremoved));
+		enl_msg(You_, "forced farmland tiles out of existence ", "forced farmland tiles out of existence ", buf);
+	}
+	if (u.cnd_nethermistremoved) {
+		sprintf(buf, "%d time%s", u.cnd_nethermistremoved, plur(u.cnd_nethermistremoved));
+		enl_msg(You_, "dissipated nether mist ", "dissipated nether mist ", buf);
+	}
+	/* you don't necessarily see the square that your ammo ended up on --Amy */
+	if (u.cnd_ammomulched && final) {
+		sprintf(buf, "%d ranged weapon ammo%s", u.cnd_ammomulched, plur(u.cnd_ammomulched));
+		enl_msg(You_, "have mulched ", "mulched ", buf);
+	}
+	/* you don't always see or hear your grenades explode either --Amy */
+	if (u.cnd_gunpowderused && final) {
+		sprintf(buf, "%d gram%s of gunpowder", u.cnd_gunpowderused, plur(u.cnd_gunpowderused));
+		enl_msg(You_, "have used up ", "used up ", buf);
+	}
+	/* we won't leak whether your scroll of charging was cursed or not --Amy */
+	if (u.cnd_chargingcount && final) {
+		sprintf(buf, "%d time%s", u.cnd_chargingcount, plur(u.cnd_chargingcount));
+		enl_msg(You_, "have recharged your items ", "recharged your items ", buf);
+	}
+	if (u.cnd_offercount) {
+		sprintf(buf, "%d time%s", u.cnd_offercount, plur(u.cnd_offercount));
+		enl_msg(You_, "have made offerings to the gods ", "made offerings to the gods ", buf);
+	}
+	if (u.cnd_forcecount) {
+		sprintf(buf, "%d time%s", u.cnd_forcecount, plur(u.cnd_forcecount));
+		enl_msg(You_, "have used the force against an enemy ", "used the force against an enemy ", buf);
+	}
+	if (u.cnd_kickmonstercount) {
+		sprintf(buf, "%d time%s", u.cnd_kickmonstercount, plur(u.cnd_kickmonstercount));
+		enl_msg(You_, "have kicked monsters ", "kicked monsters ", buf);
+	}
+	if (u.cnd_kicklockcount) {
+		sprintf(buf, "%d time%s", u.cnd_kicklockcount, plur(u.cnd_kicklockcount));
+		enl_msg(You_, "have kicked doors or locked containers ", "kicked doors or locked containers ", buf);
+	}
+	if (u.cnd_fumbled) {
+		sprintf(buf, "%d time%s", u.cnd_fumbled, plur(u.cnd_fumbled));
+		enl_msg(You_, "have fumbled ", "fumbled ", buf);
+	}
+	if (u.cnd_wandwresting) {
+		sprintf(buf, "%d time%s", u.cnd_wandwresting, plur(u.cnd_wandwresting));
+		enl_msg(You_, "have wrested wands ", "wrested wands ", buf);
+	}
+	if (u.cnd_firedestroy) {
+		sprintf(buf, "%d items to fire damage", u.cnd_firedestroy, plur(u.cnd_firedestroy));
+		enl_msg(You_, "lost ", "lost ", buf);
+	}
+	if (u.cnd_colddestroy) {
+		sprintf(buf, "%d items to cold damage", u.cnd_colddestroy, plur(u.cnd_colddestroy));
+		enl_msg(You_, "lost ", "lost ", buf);
+	}
+	if (u.cnd_shockdestroy) {
+		sprintf(buf, "%d items to shock damage", u.cnd_shockdestroy, plur(u.cnd_shockdestroy));
+		enl_msg(You_, "lost ", "lost ", buf);
+	}
+	if (u.cnd_poisondestroy) {
+		sprintf(buf, "%d items to poison damage", u.cnd_poisondestroy, plur(u.cnd_poisondestroy));
+		enl_msg(You_, "lost ", "lost ", buf);
+	}
+	if (u.cnd_diggingamount) {
+		sprintf(buf, "%d time%s", u.cnd_diggingamount, plur(u.cnd_diggingamount));
+		enl_msg(You_, "dug with digging tools ", "dug with digging tools ", buf);
+	}
+	if (u.cnd_gravewallamount) {
+		sprintf(buf, "%d time%s", u.cnd_gravewallamount, plur(u.cnd_gravewallamount));
+		enl_msg(You_, "dug out grave walls ", "dug out grave walls ", buf);
+	}
+	if (u.cnd_treechopamount) {
+		sprintf(buf, "%d tree%s", u.cnd_treechopamount, plur(u.cnd_treechopamount));
+		enl_msg(You_, "chopped down ", "chopped down ", buf);
+	}
+	if (u.cnd_barbashamount) {
+		sprintf(buf, "%d set%s of iron bars", u.cnd_barbashamount, plur(u.cnd_barbashamount));
+		enl_msg(You_, "bashed down ", "bashed down ", buf);
+	}
+	if (u.cnd_fountainamount) {
+		sprintf(buf, "%d time%s", u.cnd_fountainamount, plur(u.cnd_fountainamount));
+		enl_msg(You_, "interacted with fountains ", "interacted with fountains ", buf);
+	}
+	if (u.cnd_throneamount) {
+		sprintf(buf, "%d time%s", u.cnd_throneamount, plur(u.cnd_throneamount));
+		enl_msg(You_, "sat on a throne ", "sat on a throne ", buf);
+	}
+	if (u.cnd_sinkamount) {
+		sprintf(buf, "%d time%s", u.cnd_sinkamount, plur(u.cnd_sinkamount));
+		enl_msg(You_, "interacted with a sink ", "interacted with a sink ", buf);
+	}
+	if (u.cnd_toiletamount) {
+		sprintf(buf, "%d time%s", u.cnd_toiletamount, plur(u.cnd_toiletamount));
+		enl_msg(You_, "interacted with a toilet ", "interacted with a toilet ", buf);
+	}
+	if (u.cnd_pentagramamount) {
+		sprintf(buf, "%d time%s", u.cnd_pentagramamount, plur(u.cnd_pentagramamount));
+		enl_msg(You_, "invoked a pentagram ", "invoked a pentagram ", buf);
+	}
+	if (u.cnd_wellamount) {
+		sprintf(buf, "%d time%s", u.cnd_wellamount, plur(u.cnd_wellamount));
+		enl_msg(You_, "quaffed from a well ", "quaffed from a well ", buf);
+	}
+	if (u.cnd_poisonedwellamount) {
+		sprintf(buf, "%d time%s", u.cnd_poisonedwellamount, plur(u.cnd_poisonedwellamount));
+		enl_msg(You_, "quaffed from a poisoned well ", "quaffed from a poisoned well ", buf);
+	}
+	if (u.cnd_bedamount) {
+		sprintf(buf, "%d time%s", u.cnd_bedamount, plur(u.cnd_bedamount));
+		enl_msg(You_, "slept in a bed ", "slept in a bed ", buf);
+	}
+	if (u.cnd_mattressamount) {
+		sprintf(buf, "%d time%s", u.cnd_mattressamount, plur(u.cnd_mattressamount));
+		enl_msg(You_, "slept on a mattress ", "slept on a mattress ", buf);
+	}
+	if (u.cnd_criticalcount) {
+		sprintf(buf, "%d critical hit%s", u.cnd_criticalcount, plur(u.cnd_criticalcount));
+		enl_msg(You_, "landed ", "landed ", buf);
+	}
+	if (u.cnd_stealamount) {
+		sprintf(buf, "%d zorkmid%s", u.cnd_stealamount, plur(u.cnd_stealamount));
+		enl_msg(You_, "have stolen goods worth ", "stole goods worth ", buf);
+	}
+	if (u.cnd_monsterdigamount && final) {
+		sprintf(buf, "%d wall tile%s", u.cnd_monsterdigamount, plur(u.cnd_monsterdigamount));
+		enl_msg(You_, "let monsters dig out ", "let monsters dig out ", buf);
+	}
+	if (u.cnd_untrapamount) {
+		sprintf(buf, "%d trap%s", u.cnd_untrapamount, plur(u.cnd_untrapamount));
+		enl_msg(You_, "have untrapped ", "untrapped ", buf);
+	}
+	if (u.cnd_longingamount) {
+		sprintf(buf, "%d time%s", u.cnd_longingamount, plur(u.cnd_longingamount));
+		enl_msg(You_, "had to read longing messages ", "had to read longing messages ", buf);
+	}
+	if (u.cnd_symbiotesdied) {
+		sprintf(buf, "%d symbiote%s", u.cnd_symbiotesdied, plur(u.cnd_symbiotesdied));
+		enl_msg(You_, "had to mourn the death of ", "had to mourn the death of ", buf);
+	}
+	if (u.cnd_sickfoodpois) {
+		sprintf(buf, "%d time%s", u.cnd_sickfoodpois, plur(u.cnd_sickfoodpois));
+		enl_msg(You_, "got sick from food poisoning ", "got sick from food poisoning ", buf);
+	}
+	if (u.cnd_sickillness) {
+		sprintf(buf, "%d time%s", u.cnd_sickillness, plur(u.cnd_sickillness));
+		enl_msg(You_, "got sick from illness ", "got sick from illness ", buf);
+	}
+	if (u.cnd_slimingcount) {
+		sprintf(buf, "%d time%s", u.cnd_slimingcount, plur(u.cnd_slimingcount));
+		enl_msg(You_, "got slimed ", "got slimed ", buf);
+	}
+	if (u.cnd_stoningcount) {
+		sprintf(buf, "%d time%s", u.cnd_stoningcount, plur(u.cnd_stoningcount));
+		enl_msg(You_, "got stoned ", "got stoned ", buf);
+	}
+	if (u.cnd_polybreak) {
+		sprintf(buf, "%d item%s due to polymorphing into bad monsters", u.cnd_polybreak, plur(u.cnd_polybreak));
+		enl_msg(You_, "have broken ", "broke ", buf);
+	}
+	if (u.cnd_monpotioncount && final) {
+		sprintf(buf, "%d potion%s", u.cnd_monpotioncount, plur(u.cnd_monpotioncount));
+		enl_msg(You_, "allowed monsters to quaff ", "allowed monsters to quaff ", buf);
+	}
+	if (u.cnd_monscrollcount && final) {
+		sprintf(buf, "%d scroll%s", u.cnd_monscrollcount, plur(u.cnd_monscrollcount));
+		enl_msg(You_, "allowed monsters to read ", "allowed monsters to read ", buf);
+	}
+	if (u.cnd_monwandcount && final) {
+		sprintf(buf, "%d wand%s", u.cnd_monwandcount, plur(u.cnd_monwandcount));
+		enl_msg(You_, "allowed monsters to zap ", "allowed monsters to zap ", buf);
+	}
+	if (u.cnd_demongates && final) {
+		sprintf(buf, "%d time%s", u.cnd_demongates, plur(u.cnd_demongates));
+		enl_msg(You_, "saw demons being gated in ", "saw demons being gated in ", buf);
+	}
+	if (u.cnd_demonlordgates && final) {
+		sprintf(buf, "%d time%s", u.cnd_demonlordgates, plur(u.cnd_demonlordgates));
+		enl_msg(You_, "saw demon lords being gated in ", "saw demon lords being gated in ", buf);
+	}
+	if (u.cnd_demonprincegates && final) {
+		sprintf(buf, "%d time%s", u.cnd_demonprincegates, plur(u.cnd_demonprincegates));
+		enl_msg(You_, "saw demon princes being gated in ", "saw demon princes being gated in ", buf);
+	}
+	if (u.cnd_artiblastcount) {
+		sprintf(buf, "%d time%s", u.cnd_artiblastcount, plur(u.cnd_artiblastcount));
+		enl_msg(You_, "were blasted by artifacts ", "were blasted by artifacts ", buf);
+	}
+	if (u.cnd_moneatmetal && final) {
+		sprintf(buf, "%d time%s", u.cnd_moneatmetal, plur(u.cnd_moneatmetal));
+		enl_msg(You_, "allowed monsters to eat metallic items ", "allowed monsters to eat metallic items ", buf);
+	}
+	if (u.cnd_moneatstone && final) {
+		sprintf(buf, "%d time%s", u.cnd_moneatstone, plur(u.cnd_moneatstone));
+		enl_msg(You_, "allowed monsters to eat lithic items ", "allowed monsters to eat lithic items ", buf);
+	}
+	if (u.cnd_moneatorganic && final) {
+		sprintf(buf, "%d time%s", u.cnd_moneatorganic, plur(u.cnd_moneatorganic));
+		enl_msg(You_, "allowed monsters to eat organic items ", "allowed monsters to eat organic items ", buf);
+	}
+	if (u.cnd_moneatall && final) {
+		sprintf(buf, "%d time%s", u.cnd_moneatall, plur(u.cnd_moneatall));
+		enl_msg(You_, "allowed allivores to eat items ", "allowed allivores to eat items ", buf);
+	}
+	if (u.cnd_unidentifycount && final) {
+		sprintf(buf, "%d time%s", u.cnd_unidentifycount, plur(u.cnd_unidentifycount));
+		enl_msg(You_, "had your possessions unidentify themselves ", "had your possessions unidentify themselves ", buf);
+	}
+	if (u.cnd_dehydratedcount && final) {
+		sprintf(buf, "%d time%s", u.cnd_dehydratedcount, plur(u.cnd_dehydratedcount));
+		enl_msg(You_, "became dehydrated ", "became dehydrated ", buf);
+	}
+	if (u.cnd_luckrollovercount && final) {
+		sprintf(buf, "%d time%s", u.cnd_luckrollovercount, plur(u.cnd_luckrollovercount));
+		enl_msg(You_, "had your luck roll over ", "had your luck roll over ", buf);
+	}
+	if (u.cnd_confusedscrollread && final) {
+		sprintf(buf, "%d time%s", u.cnd_confusedscrollread, plur(u.cnd_confusedscrollread));
+		enl_msg(You_, "experienced confused scroll effects ", "experienced confused scroll effects ", buf);
+	}
+	if (u.cnd_nonworkpotioncount && final) {
+		sprintf(buf, "%d time%s", u.cnd_nonworkpotioncount, plur(u.cnd_nonworkpotioncount));
+		enl_msg(You_, "quaffed non-working potions ", "quaffed non-working potions ", buf);
+	}
+	if (u.cnd_stairstrapcount && final) {
+		sprintf(buf, "%d time%s", u.cnd_stairstrapcount, plur(u.cnd_stairstrapcount));
+		enl_msg(You_, "encountered stairs traps ", "encountered stairs traps ", buf);
+	}
+	if (u.cnd_intrinsiclosscount && final) {
+		sprintf(buf, "%d time%s", u.cnd_intrinsiclosscount, plur(u.cnd_intrinsiclosscount));
+		enl_msg(You_, "lost intrinsics ", "lost intrinsics ", buf);
+	}
+	if (u.cnd_traprevealcount && final) {
+		sprintf(buf, "%d trap%s", u.cnd_traprevealcount, plur(u.cnd_traprevealcount));
+		enl_msg(You_, "randomly revealed ", "randomly revealed ", buf);
+	}
+	if (u.cnd_badeffectcount && final) {
+		sprintf(buf, "%d time%s", u.cnd_badeffectcount, plur(u.cnd_badeffectcount));
+		enl_msg(You_, "got hit by bad effects ", "got hit by bad effects ", buf);
+	}
+	if (u.cnd_reallybadeffectcount && final) {
+		sprintf(buf, "%d time%s", u.cnd_reallybadeffectcount, plur(u.cnd_reallybadeffectcount));
+		enl_msg(You_, "got hit by really bad effects ", "got hit by really bad effects ", buf);
+	}
+	if (u.cnd_itemportcount && final) {
+		sprintf(buf, "%d item%s teleported out of your inventory", u.cnd_itemportcount, plur(u.cnd_itemportcount));
+		enl_msg(You_, "had ", "had ", buf);
+	}
+	if (u.cnd_bonescount && final) {
+		sprintf(buf, "%d bones level%s", u.cnd_bonescount, plur(u.cnd_bonescount));
+		enl_msg(You_, "encountered ", "encountered ", buf);
+	}
+	if (u.cnd_mommacount && final) {
+		sprintf(buf, "%d time%s", u.cnd_mommacount, plur(u.cnd_mommacount));
+		enl_msg(You_, "had to read insults against your momma ", "had to read insults against your momma ", buf);
+	}
+	if (u.cnd_badequipcount && final) {
+		sprintf(buf, "%d time%s", u.cnd_badequipcount, plur(u.cnd_badequipcount));
+		enl_msg(You_, "were forced to equip bad items ", "were forced to equip bad items ", buf);
+	}
+	if (u.cnd_badarticount && final) {
+		sprintf(buf, "%d time%s", u.cnd_badarticount, plur(u.cnd_badarticount));
+		enl_msg(You_, "were forced to equip bad artifacts ", "were forced to equip bad artifacts ", buf);
+	}
+	if (u.cnd_badheelcount && final) {
+		sprintf(buf, "%d time%s", u.cnd_badheelcount, plur(u.cnd_badheelcount));
+		enl_msg(You_, "were forced to equip bad high heels ", "were forced to equip bad high heels ", buf);
+	}
+	if (u.cnd_appearanceshufflingcount && final) {
+		sprintf(buf, "%d time%s", u.cnd_appearanceshufflingcount, plur(u.cnd_appearanceshufflingcount));
+		enl_msg(You_, "encountered appearance shuffling ", "encountered appearance shuffling ", buf);
+	}
+	if (u.cnd_mysteriousforcecount && final) {
+		sprintf(buf, "%d time%s", u.cnd_mysteriousforcecount, plur(u.cnd_mysteriousforcecount));
+		enl_msg(You_, "got affected by the dirty mysterious dirt force full of dirt ", "got affected by the dirty mysterious dirt force full of dirt ", buf);
+	}
+	if (u.cnd_manlergetcount && final) {
+		sprintf(buf, "%d time%s", u.cnd_manlergetcount, plur(u.cnd_manlergetcount));
+		enl_msg(You_, "were caught by the manler ", "were caught by the manler ", buf);
+	}
+	if (u.cnd_wandbreakcount && final) {
+		sprintf(buf, "%d time%s", u.cnd_wandbreakcount, plur(u.cnd_wandbreakcount));
+		enl_msg(You_, "broke wands ", "broke wands ", buf);
+	}
+	if (u.cnd_alchemycount) {
+		sprintf(buf, "%d time%s", u.cnd_alchemycount, plur(u.cnd_alchemycount));
+		enl_msg(You_, "performed alchemy ", "performed alchemy ", buf);
+	}
+	if (u.cnd_weaponbreakcount) {
+		sprintf(buf, "%d hostile weapon%s", u.cnd_weaponbreakcount, plur(u.cnd_weaponbreakcount));
+		enl_msg(You_, "have destroyed ", "destroyed ", buf);
+	}
+	if (u.cnd_newmancount) {
+		sprintf(buf, "%s %d time%s", ((flags.female && urace.individual.f) ? urace.individual.f :
+		(urace.individual.m) ? urace.individual.m : urace.noun), u.cnd_newmancount, plur(u.cnd_newmancount));
+		enl_msg(You_, "felt like a new ", "felt like a new ", buf);
+	}
+	if (u.cnd_eggcount && final) {
+		sprintf(buf, "%d egg%s to hatch", u.cnd_eggcount, plur(u.cnd_eggcount));
+		enl_msg(You_, "allowed ", "allowed ", buf);
+	}
+	if (u.cnd_wipecount) {
+		sprintf(buf, "%s %d time%s", body_part(FACE), u.cnd_wipecount, plur(u.cnd_wipecount));
+		enl_msg(You_, "wiped your ", "wiped your ", buf);
+	}
+	if (u.cnd_acquirementcount) {
+		sprintf(buf, "%d item%s", u.cnd_acquirementcount, plur(u.cnd_acquirementcount));
+		enl_msg(You_, "have acquired ", "acquired ", buf);
+	}
+	if (u.cnd_cannibalcount) {
+		sprintf(buf, "%d time%s", u.cnd_cannibalcount, plur(u.cnd_cannibalcount));
+		enl_msg(You_, "have been a cannibal ", "were a cannibal ", buf);
+	}
+	if (u.cnd_ringtrinsiccount && final) {
+		sprintf(buf, "%d time%s", u.cnd_ringtrinsiccount, plur(u.cnd_ringtrinsiccount));
+		enl_msg(You_, "have gained intrinsics from eating jewelry ", "gained intrinsics from eating jewelry ", buf);
+	}
+	if (u.cnd_potionthrowyoucount && final) {
+		sprintf(buf, "%d potion%s", u.cnd_potionthrowyoucount, plur(u.cnd_potionthrowyoucount));
+		enl_msg(You_, "have thrown ", "threw ", buf);
+	}
+	if (u.cnd_potionthrowmoncount && final) {
+		sprintf(buf, "%d potion%s", u.cnd_potionthrowmoncount, plur(u.cnd_potionthrowmoncount));
+		enl_msg(You_, "allowed monsters to throw ", "allowed monsters to throw ", buf);
+	}
+	if (u.cnd_overlevelcount) {
+		sprintf(buf, "%d time%s", u.cnd_overlevelcount, plur(u.cnd_overlevelcount));
+		enl_msg(You_, "have leveled past the maximum experience level ", "leveled past the maximum experience level ", buf);
+	}
+	if (u.cnd_vomitingcount) {
+		sprintf(buf, "%d time%s", u.cnd_vomitingcount, plur(u.cnd_vomitingcount));
+		enl_msg(You_, "have vomited ", "vomited ", buf);
+	}
+
 	/* Pop up the window and wait for a key */
 	display_nhwindow(en_win, TRUE);
 	destroy_nhwindow(en_win);
@@ -10229,6 +11787,436 @@ int final;
 	    dump("  You have broken ", buf);
 	}
 
+	sprintf(buf, "%d time%s", u.cnd_applycount, plur(u.cnd_applycount));
+	dump("  You applied items ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_unihorncount, plur(u.cnd_unihorncount));
+	dump("  You experienced the healing effects of unicorn horns ", buf);
+
+	sprintf(buf, "%d item%s with the magic marker", u.cnd_markercount, plur(u.cnd_markercount));
+	dump("  You created ", buf);
+
+	sprintf(buf, "%d item%s with the chemistry set", u.cnd_chemistrycount, plur(u.cnd_chemistrycount));
+	dump("  You created ", buf);
+
+	sprintf(buf, "%d potion%s", u.cnd_quaffcount, plur(u.cnd_quaffcount));
+	dump("  You quaffed ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_zapcount, plur(u.cnd_zapcount));
+	dump("  You zapped wands ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_scrollcount, plur(u.cnd_scrollcount));
+	dump("  You read scrolls ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_spellbookcount, plur(u.cnd_spellbookcount));
+	dump("  You read spellbooks ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_spellcastcount, plur(u.cnd_spellcastcount));
+	dump("  You successfully cast spells ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_spellfailcount, plur(u.cnd_spellfailcount));
+	dump("  You failed to cast a spell ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_forgottenspellcount, plur(u.cnd_forgottenspellcount));
+	dump("  You attempted to cast forgotten spells ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_invokecount, plur(u.cnd_invokecount));
+	dump("  You used the invocation effects of artifacts ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_techcount, plur(u.cnd_techcount));
+	dump("  You used techniques ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_phasedoorcount, plur(u.cnd_phasedoorcount));
+	dump("  You phase doored ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_teleportcount, plur(u.cnd_teleportcount));
+	dump("  You teleported ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_telelevelcount, plur(u.cnd_telelevelcount));
+	dump("  You levelported ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_branchportcount, plur(u.cnd_branchportcount));
+	dump("  You branchported ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_banishmentcount, plur(u.cnd_banishmentcount));
+	dump("  You were banished ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_punishmentcount, plur(u.cnd_punishmentcount));
+	dump("  You were punished ", buf);
+
+	sprintf(buf, "%d pet%s", u.cnd_petdeathcount, plur(u.cnd_petdeathcount));
+	dump("  You had to mourn the death of ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_amnesiacount, plur(u.cnd_amnesiacount));
+	dump("  You suffered from amnesia ", buf);
+
+	sprintf(buf, "%d", u.cnd_minalignment);
+	dump("  You had a minimum alignment of ", buf);
+
+	sprintf(buf, "%d", u.cnd_maxalignment);
+	dump("  You had a maximum alignment of ", buf);
+
+	sprintf(buf, "%d", u.cnd_maxsanity);
+	dump("  You had a maximum sanity of ", buf);
+
+	sprintf(buf, "%d", u.cnd_maxcontamination);
+	dump("  You had a maximum contamination of ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_searchtrapcount, plur(u.cnd_searchtrapcount));
+	dump("  You successfully searched for traps ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_searchsecretcount, plur(u.cnd_searchsecretcount));
+	dump("  You successfully searched for doors or corridors ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_fartingcount, plur(u.cnd_fartingcount));
+	dump("  You heard farting noises ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_crappingcount, plur(u.cnd_crappingcount));
+	dump("  You heard crapping noises ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_conversioncount, plur(u.cnd_conversioncount));
+	dump("  You listened to conversion sermon ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_wouwoucount, plur(u.cnd_wouwoucount));
+	dump("  You heard the frightening wouwou taunts ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_supermancount, plur(u.cnd_supermancount));
+	dump("  You heard superman taunts ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_perfumecount, plur(u.cnd_perfumecount));
+	dump("  You inhaled scentful feminine perfume ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_nutkickamount, plur(u.cnd_nutkickamount));
+	dump("  You got your nuts kicked ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_breastripamount, plur(u.cnd_breastripamount));
+	dump("  You got hit in the breasts ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_saveamount, plur(u.cnd_saveamount));
+	dump("  You saved the game ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_ragnarokamount, plur(u.cnd_ragnarokamount));
+	dump("  You encountered the ragnarok event ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_datadeleteamount, plur(u.cnd_datadeleteamount));
+	dump("  You had your data deleted ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_curseitemsamount, plur(u.cnd_curseitemsamount));
+	dump("  You encountered the curse items effect ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_nastytrapamount, plur(u.cnd_nastytrapamount));
+	dump("  You triggered nasty traps ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_feminismtrapamount, plur(u.cnd_feminismtrapamount));
+	dump("  You triggered feminism traps ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_plineamount, plur(u.cnd_plineamount));
+	dump("  You had to read random messages ", buf);
+
+	sprintf(buf, "%d monster%s come out of portals", u.cnd_aggravateamount, plur(u.cnd_aggravateamount));
+	dump("  You saw ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_eatrinsicamount, plur(u.cnd_eatrinsicamount));
+	dump("  You gained intrinsics from eating corpses ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_shkserviceamount, plur(u.cnd_shkserviceamount));
+	dump("  You purchased shopkeeper services ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_kopsummonamount, plur(u.cnd_kopsummonamount));
+	dump("  You had the kops called on you ", buf);
+
+	sprintf(buf, "%d captcha%s", u.cnd_captchaamount, plur(u.cnd_captchaamount));
+	dump("  You solved ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_captchafail, plur(u.cnd_captchafail));
+	dump("  You failed to solve a captcha ", buf);
+
+	sprintf(buf, "%d quiz question%s", u.cnd_quizamount, plur(u.cnd_quizamount));
+	dump("  You correctly answered ", buf);
+
+	sprintf(buf, "%d quiz question%s", u.cnd_quizfail, plur(u.cnd_quizfail));
+	dump("  You incorrectly answered ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_alterrealityamount, plur(u.cnd_alterrealityamount));
+	dump("  You had the reality altered ", buf);
+
+	sprintf(buf, "%d lock%s", u.cnd_unlockamount, plur(u.cnd_unlockamount));
+	dump("  You picked ", buf);
+
+	sprintf(buf, "%d altar%s", u.cnd_altarconvertamount, plur(u.cnd_altarconvertamount));
+	dump("  You converted ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_itemstealamount, plur(u.cnd_itemstealamount));
+	dump("  You had your items stolen ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_poisonamount, plur(u.cnd_poisonamount));
+	dump("  You got poisoned ", buf);
+
+	sprintf(buf, "%d extra hit point%s from nurses", u.cnd_nursehealamount, plur(u.cnd_nursehealamount));
+	dump("  You gained ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_nurseserviceamount, plur(u.cnd_nurseserviceamount));
+	dump("  You purchased nurse services ", buf);
+
+	sprintf(buf, "%d monster%s with Elbereth engravings", u.cnd_elberethamount, plur(u.cnd_elberethamount));
+	dump("  You scared ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_disenchantamount, plur(u.cnd_disenchantamount));
+	dump("  You had your items disenchanted ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_permstatdamageamount, plur(u.cnd_permstatdamageamount));
+	dump("  You permanently lost stat points ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_shoedamageamount, plur(u.cnd_shoedamageamount));
+	dump("  You got whacked or kicked by female shoes ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_farmlandremoved, plur(u.cnd_farmlandremoved));
+	dump("  You forced farmland tiles out of existence ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_nethermistremoved, plur(u.cnd_nethermistremoved));
+	dump("  You dissipated nether mist ", buf);
+
+	sprintf(buf, "%d ranged weapon ammo%s", u.cnd_ammomulched, plur(u.cnd_ammomulched));
+	dump("  You mulched ", buf);
+
+	sprintf(buf, "%d gram%s of gunpowder", u.cnd_gunpowderused, plur(u.cnd_gunpowderused));
+	dump("  You used up ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_chargingcount, plur(u.cnd_chargingcount));
+	dump("  You recharged your items ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_offercount, plur(u.cnd_offercount));
+	dump("  You made offerings to the gods ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_forcecount, plur(u.cnd_forcecount));
+	dump("  You used the force against an enemy ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_kickmonstercount, plur(u.cnd_kickmonstercount));
+	dump("  You kicked monsters ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_kicklockcount, plur(u.cnd_kicklockcount));
+	dump("  You kicked doors or locked containers ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_fumbled, plur(u.cnd_fumbled));
+	dump("  You fumbled ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_wandwresting, plur(u.cnd_wandwresting));
+	dump("  You wrested wands ", buf);
+
+	sprintf(buf, "%d items to fire damage", u.cnd_firedestroy, plur(u.cnd_firedestroy));
+	dump("  You lost ", buf);
+
+	sprintf(buf, "%d items to cold damage", u.cnd_colddestroy, plur(u.cnd_colddestroy));
+	dump("  You lost ", buf);
+
+	sprintf(buf, "%d items to shock damage", u.cnd_shockdestroy, plur(u.cnd_shockdestroy));
+	dump("  You lost ", buf);
+
+	sprintf(buf, "%d items to poison damage", u.cnd_poisondestroy, plur(u.cnd_poisondestroy));
+	dump("  You lost ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_diggingamount, plur(u.cnd_diggingamount));
+	dump("  You dug with digging tools ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_gravewallamount, plur(u.cnd_gravewallamount));
+	dump("  You dug out grave walls ", buf);
+
+	sprintf(buf, "%d tree%s", u.cnd_treechopamount, plur(u.cnd_treechopamount));
+	dump("  You chopped down ", buf);
+
+	sprintf(buf, "%d set%s of iron bars", u.cnd_barbashamount, plur(u.cnd_barbashamount));
+	dump("  You bashed down ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_fountainamount, plur(u.cnd_fountainamount));
+	dump("  You interacted with fountains ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_throneamount, plur(u.cnd_throneamount));
+	dump("  You sat on a throne ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_sinkamount, plur(u.cnd_sinkamount));
+	dump("  You interacted with a sink ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_toiletamount, plur(u.cnd_toiletamount));
+	dump("  You interacted with a toilet ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_pentagramamount, plur(u.cnd_pentagramamount));
+	dump("  You invoked a pentagram ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_wellamount, plur(u.cnd_wellamount));
+	dump("  You quaffed from a well ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_poisonedwellamount, plur(u.cnd_poisonedwellamount));
+	dump("  You quaffed from a poisoned well ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_bedamount, plur(u.cnd_bedamount));
+	dump("  You slept in a bed ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_mattressamount, plur(u.cnd_mattressamount));
+	dump("  You slept on a mattress ", buf);
+
+	sprintf(buf, "%d critical hit%s", u.cnd_criticalcount, plur(u.cnd_criticalcount));
+	dump("  You landed ", buf);
+
+	sprintf(buf, "%d zorkmid%s", u.cnd_stealamount, plur(u.cnd_stealamount));
+	dump("  You stole goods worth ", buf);
+
+	sprintf(buf, "%d wall tile%s", u.cnd_monsterdigamount, plur(u.cnd_monsterdigamount));
+	dump("  You let monsters dig out ", buf);
+
+	sprintf(buf, "%d trap%s", u.cnd_untrapamount, plur(u.cnd_untrapamount));
+	dump("  You untrapped ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_longingamount, plur(u.cnd_longingamount));
+	dump("  You had to read longing messages ", buf);
+
+	sprintf(buf, "%d symbiote%s", u.cnd_symbiotesdied, plur(u.cnd_symbiotesdied));
+	dump("  You had to mourn the death of ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_sickfoodpois, plur(u.cnd_sickfoodpois));
+	dump("  You got sick from food poisoning ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_sickillness, plur(u.cnd_sickillness));
+	dump("  You got sick from illness ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_slimingcount, plur(u.cnd_slimingcount));
+	dump("  You got slimed ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_stoningcount, plur(u.cnd_stoningcount));
+	dump("  You got stoned ", buf);
+
+	sprintf(buf, "%d item%s due to polymorphing into bad monsters", u.cnd_polybreak, plur(u.cnd_polybreak));
+	dump("  You broke ", buf);
+
+	sprintf(buf, "%d potion%s", u.cnd_monpotioncount, plur(u.cnd_monpotioncount));
+	dump("  You allowed monsters to quaff ", buf);
+
+	sprintf(buf, "%d scroll%s", u.cnd_monscrollcount, plur(u.cnd_monscrollcount));
+	dump("  You allowed monsters to read ", buf);
+
+	sprintf(buf, "%d wand%s", u.cnd_monwandcount, plur(u.cnd_monwandcount));
+	dump("  You allowed monsters to zap ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_demongates, plur(u.cnd_demongates));
+	dump("  You saw demons being gated in ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_demonlordgates, plur(u.cnd_demonlordgates));
+	dump("  You saw demon lords being gated in ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_demonprincegates, plur(u.cnd_demonprincegates));
+	dump("  You saw demon princes being gated in ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_artiblastcount, plur(u.cnd_artiblastcount));
+	dump("  You were blasted by artifacts ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_moneatmetal, plur(u.cnd_moneatmetal));
+	dump("  You allowed monsters to eat metallic items ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_moneatstone, plur(u.cnd_moneatstone));
+	dump("  You allowed monsters to eat lithic items ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_moneatorganic, plur(u.cnd_moneatorganic));
+	dump("  You allowed monsters to eat organic items ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_moneatall, plur(u.cnd_moneatall));
+	dump("  You allowed allivores to eat items ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_unidentifycount, plur(u.cnd_unidentifycount));
+	dump("  You had your possessions unidentify themselves ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_dehydratedcount, plur(u.cnd_dehydratedcount));
+	dump("  You became dehydrated ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_luckrollovercount, plur(u.cnd_luckrollovercount));
+	dump("  You had your luck roll over ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_confusedscrollread, plur(u.cnd_confusedscrollread));
+	dump("  You experienced confused scroll effects ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_nonworkpotioncount, plur(u.cnd_nonworkpotioncount));
+	dump("  You quaffed non-working potions ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_stairstrapcount, plur(u.cnd_stairstrapcount));
+	dump("  You encountered stairs traps ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_intrinsiclosscount, plur(u.cnd_intrinsiclosscount));
+	dump("  You lost intrinsics ", buf);
+
+	sprintf(buf, "%d trap%s", u.cnd_traprevealcount, plur(u.cnd_traprevealcount));
+	dump("  You randomly revealed ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_badeffectcount, plur(u.cnd_badeffectcount));
+	dump("  You got hit by bad effects ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_reallybadeffectcount, plur(u.cnd_reallybadeffectcount));
+	dump("  You got hit by really bad effects ", buf);
+
+	sprintf(buf, "%d item%s teleported out of your inventory", u.cnd_itemportcount, plur(u.cnd_itemportcount));
+	dump("  You had ", buf);
+
+	sprintf(buf, "%d bones level%s", u.cnd_bonescount, plur(u.cnd_bonescount));
+	dump("  You encountered ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_mommacount, plur(u.cnd_mommacount));
+	dump("  You had to read insults against your momma ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_badequipcount, plur(u.cnd_badequipcount));
+	dump("  You were forced to equip bad items ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_badarticount, plur(u.cnd_badarticount));
+	dump("  You were forced to equip bad artifacts ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_badheelcount, plur(u.cnd_badheelcount));
+	dump("  You were forced to equip bad high heels ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_appearanceshufflingcount, plur(u.cnd_appearanceshufflingcount));
+	dump("  You encountered appearance shuffling ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_mysteriousforcecount, plur(u.cnd_mysteriousforcecount));
+	dump("  You got affected by the dirty mysterious dirt force full of dirt ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_manlergetcount, plur(u.cnd_manlergetcount));
+	dump("  You were caught by the manler ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_wandbreakcount, plur(u.cnd_wandbreakcount));
+	dump("  You broke wands ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_alchemycount, plur(u.cnd_alchemycount));
+	dump("  You performed alchemy ", buf);
+
+	sprintf(buf, "%d hostile weapon%s", u.cnd_weaponbreakcount, plur(u.cnd_weaponbreakcount));
+	dump("  You destroyed ", buf);
+
+	sprintf(buf, "%s %d time%s", ((flags.female && urace.individual.f) ? urace.individual.f :
+	(urace.individual.m) ? urace.individual.m : urace.noun), u.cnd_newmancount, plur(u.cnd_newmancount));
+	dump("  You felt like a new ", buf);
+
+	sprintf(buf, "%d egg%s to hatch", u.cnd_eggcount, plur(u.cnd_eggcount));
+	dump("  You allowed ", buf);
+
+	sprintf(buf, "%s %d time%s", body_part(FACE), u.cnd_wipecount, plur(u.cnd_wipecount));
+	dump("  You wiped your ", buf);
+
+	sprintf(buf, "%d item%s", u.cnd_acquirementcount, plur(u.cnd_acquirementcount));
+	dump("  You acquired ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_cannibalcount, plur(u.cnd_cannibalcount));
+	dump("  You were a cannibal ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_ringtrinsiccount, plur(u.cnd_ringtrinsiccount));
+	dump("  You gained intrinsics from eating jewelry ", buf);
+
+	sprintf(buf, "%d potion%s", u.cnd_potionthrowyoucount, plur(u.cnd_potionthrowyoucount));
+	dump("  You threw ", buf);
+
+	sprintf(buf, "%d potion%s", u.cnd_potionthrowmoncount, plur(u.cnd_potionthrowmoncount));
+	dump("  You allowed monsters to throw ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_overlevelcount, plur(u.cnd_overlevelcount));
+	dump("  You leveled past the maximum experience level ", buf);
+
+	sprintf(buf, "%d time%s", u.cnd_vomitingcount, plur(u.cnd_vomitingcount));
+	dump("  You vomited ", buf);
+
 	dump("", "");
 }
 #endif /* DUMP_LOG */
@@ -10305,6 +12293,7 @@ struct ext_func_tab extcmdlist[] = {
 
 	{"apply", "apply (use) a tool (pick-axe, key, lamp...)", doapply, !IFBURIED},
 	{"removeimarkers", "remove all \"I\"s, remembered, unseen creatures from the level", doremoveimarkers, IFBURIED},
+	{"spelldelete", "delete lowest spell in the list (must be forgotten)", dodeletespell, IFBURIED, AUTOCOMPLETE},
 	{"attributes", "show your attributes (intrinsic ones included in debug or explore mode)", doattributes, IFBURIED},
 	{"close", "close a door", doclose, !IFBURIED},
 	{"cast", "zap (cast) a spell", docast, IFBURIED},
@@ -11319,6 +13308,48 @@ parseautocomplete(autocomplete,condition)
 	wait_synch();
 }
 
+char
+randomkey()
+{
+	static unsigned i = 0;
+	char c;
+
+	switch (rn2(16)) {
+	default:
+		c = '\033';
+		break;
+	case 0:
+		c = '\n';
+		break;
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+		c = (char) rn1('~' - ' ' + 1, ' ');
+		break;
+	case 5:
+		c = (char) (rn2(2) ? '\t' : ' ');
+		break;
+	case 6:
+		c = (char) rn1('z' - 'a' + 1, 'a');
+		break;
+	case 7:
+		c = (char) rn1('Z' - 'A' + 1, 'A');
+		break;
+	case 9:
+		c = '#';
+		break;
+	case 13:
+		c = (char) rn1('9' - '0' + 1, '0');
+		break;
+	case 14:
+		/* any char, but avoid '\0' because it's used for mouse click */
+		c = (char) rnd(iflags.wc_eight_bit_input ? 255 : 127);
+		break;
+	}
+
+	return c;
+}
 
 void
 rhack(cmd)
@@ -11341,7 +13372,7 @@ register char *cmd;
 	}
 
 	/* Autopilot means your char does random things depending on your contamination --Amy */
-	if (*cmd && (AutopilotEffect || u.uprops[AUTOPILOT_EFFECT].extrinsic || have_autopilotstone()) ) {
+	if (*cmd && (AutopilotEffect || u.uprops[AUTOPILOT_EFFECT].extrinsic || have_autopilotstone() || (uarmf && uarmf->oartifact == ART_PRADA_S_DEVIL_WEAR) ) ) {
 		int autopilotchance = u.contamination;
 		if (isevilvariant && (autopilotchance > 900)) autopilotchance = 900;
 		else if (!isevilvariant && (autopilotchance > 500)) autopilotchance = 500;
@@ -11489,6 +13520,17 @@ register char *cmd;
 	do_walk = do_rush = prefix_seen = FALSE;
 	flags.travel = iflags.travel1 = 0;
 	if (*cmd == DORUSH) {
+
+		if (TronEffectIsActive || SpellColorPink) {
+
+			pline("Some sinister force is preventing you from using the rush command.");
+			if (FunnyHallu) pline("Could this be the work of Arabella?");
+			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+			flags.move = FALSE;
+			return;
+
+		}
+
 	    if (movecmd(cmd[1])) {
 		flags.run = 2;
 		do_rush = TRUE;
@@ -11496,6 +13538,17 @@ register char *cmd;
 		prefix_seen = TRUE;
 	} else if ( (*cmd == '5' && iflags.num_pad)
 		    || *cmd == DORUN) {
+
+		if (TronEffectIsActive || SpellColorPink) {
+
+			pline("Some sinister force is preventing you from using the run command.");
+			if (FunnyHallu) pline("Could this be the work of Arabella?");
+			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+			flags.move = FALSE;
+			return;
+
+		}
+
 	    if (movecmd(lowc(cmd[1]))) {
 		flags.run = 3;
 		do_rush = TRUE;
@@ -11522,6 +13575,17 @@ register char *cmd;
 	    } else
 		prefix_seen = TRUE;
 	} else if (*cmd == DORUN_NOPICKUP) {
+
+		if (TronEffectIsActive || SpellColorPink) {
+
+			pline("Some sinister force is preventing you from using the run-no-pickup command.");
+			if (FunnyHallu) pline("Could this be the work of Arabella?");
+			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+			flags.move = FALSE;
+			return;
+
+		}
+
 	    if (movecmd(lowc(cmd[1]))) {
 		flags.run = 1;
 		flags.nopick = 1;
@@ -11543,9 +13607,31 @@ register char *cmd;
 		do_walk = TRUE;
 	    } else if (movecmd(iflags.num_pad ?
 			       UNMETA(*cmd) : lowc(*cmd))) {
+
+		if (TronEffectIsActive || SpellColorPink) {
+
+			pline("Some sinister force is preventing you from using the meta-run command.");
+			if (FunnyHallu) pline("Could this be the work of Arabella?");
+			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+			flags.move = FALSE;
+			return;
+
+		}
+
 		flags.run = 1;
 		do_rush = TRUE;
 	    } else if (movecmd(UNCTRL(*cmd))) {
+
+		if (TronEffectIsActive || SpellColorPink) {
+
+			pline("Some sinister force is preventing you from using whatever weird run command this is.");
+			if (FunnyHallu) pline("Could this be the work of Arabella?");
+			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+			flags.move = FALSE;
+			return;
+
+		}
+
 		flags.run = 3;
 		do_rush = TRUE;
 	    }
@@ -11834,10 +13920,17 @@ const char *s;
 	/* WAC add dirsymbols to generic prompt */
 	char buf[BUFSZ];
 
+	/* choicelessness by Amy; it would be far too evil to unconditionally prevent you from choosing... */
 	if (Choicelessness || u.uprops[CHOICELESSNESS].extrinsic || have_choicelessstone()) {
+		int choicelesschance;
+		choicelesschance = 20 + (u.uen * 80 / u.uenmax);
+		if (choicelesschance < 20) choicelesschance = 20;
+		if (choicelesschance > 80) choicelesschance = 80;
+		if (choicelesschance > rn2(100)) {
 		u.dx = u.dy = u.dz = 0;
 		confdir();
 		return 1;
+	}
 	}
 
 	sprintf(buf, "In what direction? [%s]",
@@ -11863,7 +13956,7 @@ const char *s;
 		}
 		return 0;
 	}
-	if ((Stunned && !rn2(issoviet ? 1 : Stun_resist ? 8 : 2)) || (Confusion && !rn2(issoviet ? 2 : Conf_resist ? 40 : 8))) confdir();
+	if ((Stunned && !rn2(issoviet ? 1 : StrongStun_resist ? 20 : Stun_resist ? 8 : 2)) || (Confusion && !rn2(issoviet ? 2 : StrongConf_resist ? 200 : Conf_resist ? 40 : 8))) confdir();
 	return 1;
 }
 
@@ -11992,6 +14085,8 @@ click_to_cmd(x, y, mod)
     static char cmd[4];
     cmd[1]=0;
 
+	if (!youmonst.data) goto quaakskip;
+
 	if (MenuIsBugged) {
 	pline("The travel command is currently unavailable!");
 	if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
@@ -11999,7 +14094,7 @@ click_to_cmd(x, y, mod)
 	return cmd;
 	}
 
-	if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "racer gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "gonshchik perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "poygachi qo'lqop") ) ) {
+	if (uarmg && itemhasappearance(uarmg, APP_RACER_GLOVES) ) {
 	pline("Your gloves prevent quicktravel!");
 	if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 	cmd[0] = ' ';
@@ -12008,7 +14103,7 @@ click_to_cmd(x, y, mod)
 
 	if (u.uprops[TOTTER_EFFECT].extrinsic || TotterTrapEffect || have_directionswapstone() || u.totter || ClockwiseSpinBug || u.uprops[CLOCKWISE_SPIN_BUG].extrinsic || have_clockwisestone() || CounterclockwiseSpin || u.uprops[COUNTERCLOCKWISE_SPIN_BUG].extrinsic || have_counterclockwisestone() || TronEffect || u.uprops[TRON_EFFECT].extrinsic || have_tronstone() || SpellColorPink) {
 		pline("A sinister force prevents you from quicktraveling!");
-		if (Hallucination) pline("Could this be the work of Arabella?");
+		if (FunnyHallu) pline("Could this be the work of Arabella?");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		cmd[0] = ' ';
 		return cmd;
@@ -12023,6 +14118,8 @@ click_to_cmd(x, y, mod)
 	return cmd;
 
 	}
+
+quaakskip:
 
     x -= u.ux;
     y -= u.uy;
@@ -12247,6 +14344,8 @@ readchar()
 	register int sym;
 	int x = u.ux, y = u.uy, mod = 0;
 
+	if (iflags.debug_fuzzer) return randomkey();
+
 	if ( *readchar_queue )
 	    sym = *readchar_queue++;
 	else
@@ -12305,13 +14404,13 @@ dotravel()
 
 	if (u.uprops[TOTTER_EFFECT].extrinsic || TotterTrapEffect || have_directionswapstone() || u.totter || ClockwiseSpinBug || u.uprops[CLOCKWISE_SPIN_BUG].extrinsic || have_clockwisestone() || CounterclockwiseSpin || u.uprops[COUNTERCLOCKWISE_SPIN_BUG].extrinsic || have_counterclockwisestone() || TronEffect || u.uprops[TRON_EFFECT].extrinsic || have_tronstone() || SpellColorPink) {
 		pline("A sinister force prevents you from quicktraveling!");
-		if (Hallucination) pline("Could this be the work of Arabella?");
+		if (FunnyHallu) pline("Could this be the work of Arabella?");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return 0;
 
 	}
 
-	if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "racer gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "gonshchik perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "poygachi qo'lqop") ) ) {
+	if (uarmg && itemhasappearance(uarmg, APP_RACER_GLOVES) ) {
 	pline("Your gloves prevent quicktravel!");
 	if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 	return 0;

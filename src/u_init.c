@@ -686,6 +686,56 @@ static struct trobj Camperstriker[] = {
 	{ 0, 0, 0, 0, 0 }
 };
 
+static struct trobj CellarChild[] = {
+	{ QUARTERSTAFF, 3, WEAPON_CLASS, 1, 0 },
+	{ MAGE_PLATE_MAIL, -3, WEAPON_CLASS, 1, 0 },
+	{ POT_HEALING, 0, POTION_CLASS, 3, 0 },
+	{ SPE_FROST, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
+	{ SPE_WATER_FLAME, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
+	{ SPE_HEALING, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
+	{ SPE_JUMPING, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
+	{ SCR_TELEPORTATION, 0, SCROLL_CLASS, 2, 0 },
+	{ RIN_COLD_RESISTANCE, 0, RING_CLASS, 1, 0 },
+	{ FROST_HORN, UNDEF_SPE, TOOL_CLASS, 1, 0 },
+	{ CHARGER, UNDEF_SPE, TOOL_CLASS, 1, 0 },
+	{ WAN_IDENTIFY, 5, WAND_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Demagogue[] = {
+	{ MALLET, 0, WEAPON_CLASS, 1, 0 },
+	{ PLATE_MAIL, 0, ARMOR_CLASS, 1, 0 },
+	{ TIN_WHISTLE, 0, TOOL_CLASS, 1, 0 },
+	{ BUGLE, 0, TOOL_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Walscholar[] = {
+	{ DIAMOND, UNDEF_SPE, GEM_CLASS, 10, 0 },
+	{ DAGGER, 0, WEAPON_CLASS, 1, 0 },
+	{ LEATHER_ARMOR, 0, ARMOR_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj SocialJusticeWarrior[] = {
+	{ FLY_SWATTER, 0, WEAPON_CLASS, 1, 0 },
+	{ FEDORA, 0, ARMOR_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Grenadonin[] = {
+	{ ORCISH_SHORT_SWORD, 2, WEAPON_CLASS, 1, 0 },
+	{ SHURIKEN, 3, WEAPON_CLASS, 40, 0 },
+	{ FRAG_GRENADE, 0, WEAPON_CLASS, 20, 0 },
+	{ ORCISH_RING_MAIL, 6, ARMOR_CLASS, 1, 0 },
+	{ LEATHER_CLOAK, -4, ARMOR_CLASS, 1, 0 },
+	{ FEDORA, -1, ARMOR_CLASS, 1, 0 },
+	{ DRAGON_EYEPATCH, 0, TOOL_CLASS, 1, 0 },
+	{ LEATHER_GLOVES, -6, ARMOR_CLASS, 1, 0 },
+	{ AMULET_OF_QUICK_ATTACK, 0, AMULET_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
 static struct trobj Rocker[] = {
 	{ ROCK, UNDEF_SPE, GEM_CLASS, 1, UNDEF_BLESS },
 	{ ROCK, UNDEF_SPE, GEM_CLASS, 1, UNDEF_BLESS },
@@ -879,6 +929,164 @@ static struct trobj Scientist[] = {
 	{ 0, 0, 0, 0, 0 }
 };
 
+static struct trobj Cartomancer[] = {
+	{ HAWAIIAN_SHIRT, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+	{ DAGGER, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+	{ SHURIKEN, 0, GEM_CLASS, 15, UNDEF_BLESS },
+	{ UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 4, UNDEF_BLESS },
+	{ SCR_CREATE_MONSTER, 0, SCROLL_CLASS, 3, UNDEF_BLESS },
+
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Dragonmaster[] = {
+	{ BROADSWORD, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+	{ SCALE_MAIL, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
+	{ FOOD_RATION, 0, FOOD_CLASS, 2, 0 },
+	{ TRIPE_RATION, 0, FOOD_CLASS, 2, 0 },
+
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Combatant[] = {
+	{ RING_MAIL, 0, ARMOR_CLASS, 1, 0 },
+	{ UNDEF_TYP, 0, TOOL_CLASS, 1, 0 },
+	{ UNDEF_TYP, 0, TOOL_CLASS, 1, 0 },
+	{ UNDEF_TYP, 0, FOOD_CLASS, 1, 0 },
+	{ UNDEF_TYP, 0, FOOD_CLASS, 1, 0 },
+	{ UNDEF_TYP, 0, RING_CLASS, 1, 0 },
+	{ UNDEF_TYP, 0, SCROLL_CLASS, 1, 0 },
+	{ UNDEF_TYP, 0, POTION_CLASS, 1, 0 },
+
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Fjorde[] = {
+	{ FISHING_POLE, 2, TOOL_CLASS, 1, 0 },
+	{ GRAPPLING_HOOK, 2, TOOL_CLASS, 1, 0 },
+	{ CONDOME, 0, TOOL_CLASS, 1, 0 },
+	{ STUDDED_LEATHER_ARMOR, 0, ARMOR_CLASS, 1, 0 },
+	{ POT_WATER, 0, POTION_CLASS, 2, 0 },
+	{ UNDEF_TYP, 0, POTION_CLASS, 2, 0 },
+
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Practicant[] = {
+	{ STEEL_CAPPED_SANDAL, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
+	{ BLACK_DRESS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+	{ MAID_DRESS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+	{ LADY_BOOTS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+	{ UNDEF_TYP, 0, POTION_CLASS, 5, 0 },
+	{ BOTTLE, 0, TOOL_CLASS, 3, 0 },
+	{ CHEMISTRY_SET, 5, TOOL_CLASS, 1, 0 },
+	{ SPE_CHEMISTRY, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
+	/* should start with rn1(50,50) zorkmids */
+
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Emera[] = {
+#define EMERA_FLINT		1 /* 50 + d50 ammo */
+	{ SLING, 5, WEAPON_CLASS, 1, 0 },
+	{ FLINT, 0, WEAPON_CLASS, 50, 0 },
+	{ RAZOR_WHIP, 0, WEAPON_CLASS, 1, 0 },
+	{ FUTON_SWATTER, 0, WEAPON_CLASS, 1, 0 },
+	{ BUNNY_UNIFORM, 0, ARMOR_CLASS, 1, 0 },
+	{ RIN_INCREASE_DAMAGE, 1, RING_CLASS, 1, 0 },
+	{ LEATHER_LEASH, 0, TOOL_CLASS, 1, 0 },
+	{ SPE_LINE_LOSS, 2, SPBOOK_CLASS, 1, 0 },
+
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Tosser[] = {
+	{ JAVELIN, 5, WEAPON_CLASS, 1, 1 },
+	{ JAVELIN, 0, WEAPON_CLASS, 20, 0 },
+	{ STACK_JAVELIN, 0, WEAPON_CLASS, 5, 0 },
+	{ ASBESTOS_JAVELIN, 0, WEAPON_CLASS, 3, 0 },
+	{ SPIRIT_THROWER, 1, WEAPON_CLASS, 1, 0 },
+	{ COURSE_JAVELIN, 1, WEAPON_CLASS, 1, 0 },
+	{ WAR_HAMMER, 0, WEAPON_CLASS, 1, 0 },
+	{ KNIFE, 0, WEAPON_CLASS, 1, 0 },
+	{ CLUB, 0, WEAPON_CLASS, 1, 0 },
+	{ RING_MAIL, 0, ARMOR_CLASS, 1, 0 },
+	{ LOW_BOOTS, 0, ARMOR_CLASS, 1, 0 },
+	{ PAPER_SHIELD, -1, ARMOR_CLASS, 1, 0 },
+	{ LEATHER_CLOAK, 0, ARMOR_CLASS, 1, 0 },
+	{ WAN_STUN_MONSTER, UNDEF_SPE, WAND_CLASS, 1, 0 },
+
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Aklyst[] = {
+	{ AKLYS, 5, WEAPON_CLASS, 1, 1 },
+	{ AKLYS, 4, WEAPON_CLASS, 1, 1 },
+	{ AKLYS, 3, WEAPON_CLASS, 1, 1 },
+	{ AKLYS, 2, WEAPON_CLASS, 1, 1 },
+	{ AKLYS, 1, WEAPON_CLASS, 1, 1 },
+	{ AKLYS, 0, WEAPON_CLASS, 1, 1 },
+	{ AKLYS, 0, WEAPON_CLASS, 1, 1 },
+	{ AKLYS, 0, WEAPON_CLASS, 1, 1 },
+	{ AKLYS, 0, WEAPON_CLASS, 1, 1 },
+	{ AKLYS, 0, WEAPON_CLASS, 1, 1 },
+	{ LEATHER_ARMOR, 0, ARMOR_CLASS, 1, 1 },
+	{ ELVEN_HELM, 0, ARMOR_CLASS, 1, 1 },
+	{ LEATHER_SHOES, 0, ARMOR_CLASS, 1, 1 },
+	{ WAX_CANDLE, 0, TOOL_CLASS, 2, 1 },
+	{ TALLOW_CANDLE, 0, TOOL_CLASS, 2, 1 },
+
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj MillSwallower[] = {
+#define MS_BOLTS		3 /* 20 + d40 ammo */
+	{ AXE, 1, WEAPON_CLASS, 1, 0 },
+	{ WAR_HAMMER, 0, WEAPON_CLASS, 1, 0 },
+	{ CROSSBOW, 0, WEAPON_CLASS, 1, 0 },
+	{ CROSSBOW_BOLT, 0, WEAPON_CLASS, 20, 0 },
+	{ CHAIN_MAIL, 0, ARMOR_CLASS, 1, 0 },
+	{ DWARVISH_IRON_HELM, 0, ARMOR_CLASS, 1, 0 },
+	{ ROCKET_GAUNTLETS, 0, ARMOR_CLASS, 1, 0 },
+	{ BINNING_KIT, UNDEF_SPE, TOOL_CLASS, 1, 0 },
+
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Symbiant[] = {
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, UNDEF_BLESS },
+	{ MACE, 0, WEAPON_CLASS, 1, 0 },
+	{ LIZARD_SCALES, 0, ARMOR_CLASS, 1, 0 },
+	{ DRAGON_HORNED_HEADPIECE, 0, ARMOR_CLASS, 1, 0 },
+
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Genderstarist[] = {
+	{ AMULET_OF_CHANGE, 0, AMULET_CLASS, 1, 0 },
+
+	{ 0, 0, 0, 0, 0 }
+};
+
 static struct trobj Healer[] = {
 	{ SCALPEL, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
 	{ LEATHER_GLOVES, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
@@ -920,6 +1128,10 @@ static struct trobj GreenSaber[] = {
 };
 static struct trobj BlueSaber[] = {
 	{ BLUE_LIGHTSABER, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
+	{ 0, 0, 0, 0, 0, }
+};
+static struct trobj MysterySaber[] = {
+	{ MYSTERY_LIGHTSABER, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
 	{ 0, 0, 0, 0, 0, }
 };
 static struct trobj RedSaber[] = {
@@ -1419,6 +1631,190 @@ static struct trobj Transsylvanian[] = {
 	{ 0, 0, 0, 0, 0 }
 };
 
+static struct trobj SoftwareEngineer[] = {
+	{ FLINTLOCK, 0, WEAPON_CLASS, 1, 0 },
+	{ HEALER_UNIFORM, 0, ARMOR_CLASS, 1, 0 },
+	{ UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+	{ UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+	{ UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+	{ UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+	{ UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+	{ POT_COFFEE, 0, POTION_CLASS, 1, 0 },
+	{ BULLET, 0, WEAPON_CLASS, 50, 0 },
+	{ HAIRCLIP, 0, TOOL_CLASS, 1, 0 },
+	{ CHARGER, 0, TOOL_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Cracker[] = {
+	{ FLINTLOCK, 0, WEAPON_CLASS, 1, 0 },
+	{ BULLET, 0, WEAPON_CLASS, 50, 0 },
+	{ HEALER_UNIFORM, 0, ARMOR_CLASS, 1, 0 },
+	{ UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+	{ UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+	{ UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+	{ UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+	{ UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+	{ POT_COFFEE, 0, POTION_CLASS, 1, 0 },
+	{ HAIRCLIP, 0, TOOL_CLASS, 1, 0 },
+	{ CHARGER, 0, TOOL_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Janitor[] = {
+	{ MOP, 1, WEAPON_CLASS, 1, 0 },
+	{ BUNNY_UNIFORM, 0, ARMOR_CLASS, 1, 0 },
+	{ IRON_SHOES, 0, ARMOR_CLASS, 1, 0 },
+	{ POT_OIL, 0, POTION_CLASS, 1, 0 },
+	{ PICK_AXE, 0, TOOL_CLASS, 1, 0 },
+	{ SKELETON_KEY, 0, TOOL_CLASS, 1, 0 },
+	{ HAIRCLIP, 0, TOOL_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj SpaceMarine[] = {
+	{ PISTOL, 0, WEAPON_CLASS, 1, 0 },
+	{ HAND_BLASTER, 0, WEAPON_CLASS, 1, 0 },
+	{ BULLET, 0, WEAPON_CLASS, 50, 0 },
+	{ BULLET, 0, WEAPON_CLASS, 50, 0 },
+	{ BLASTER_BOLT, 0, WEAPON_CLASS, 50, 0 },
+	{ BLASTER_BOLT, 0, WEAPON_CLASS, 50, 0 },
+	{ TORCH, 0, TOOL_CLASS, 5, 0 },
+	{ POT_MONSTER_DETECTION, 0, POTION_CLASS, 1, 1 },
+	{ JUMPSUIT, 1, ARMOR_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Stormboy[] = {
+	{ SNIPER_RIFLE, 0, WEAPON_CLASS, 1, 0 },
+	{ BULLET, 0, WEAPON_CLASS, 50, 0 },
+	{ FRAG_GRENADE, 0, WEAPON_CLASS, 20, 0 },
+	{ JUMPSUIT, 0, ARMOR_CLASS, 1, 0 },
+	{ HELM_OF_WARNING, 0, ARMOR_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Yautja[] = {
+	{ ARM_BLASTER, 0, WEAPON_CLASS, 1, 0 },
+	{ BLASTER_BOLT, 0, WEAPON_CLASS, 50, 0 },
+	{ BLASTER_BOLT, 0, WEAPON_CLASS, 50, 0 },
+	{ SPEAR, 0, WEAPON_CLASS, 5, 0 },
+	{ BOOMERANG, 0, WEAPON_CLASS, 1, 0 },
+	{ SCIMITAR, 1, WEAPON_CLASS, 1, 0 },
+	{ RAZOR_WHIP, 0, WEAPON_CLASS, 1, 0 },
+	{ NATURAL_STICK, 0, WEAPON_CLASS, 1, 0 },
+	{ SCR_TELEPORTATION, 0, SCROLL_CLASS, 1, 0 },
+	{ PLATE_MAIL, 0, ARMOR_CLASS, 1, 0 },
+	{ LEATHER_CLOAK, 0, ARMOR_CLASS, 1, 0 },
+	{ ANTENNA, 0, ARMOR_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Quarterback[] = {
+	{ LEATHER_GLOVES, 0, ARMOR_CLASS, 1, 0 },
+	{ HELMET, 0, ARMOR_CLASS, 1, 0 },
+	{ BASEBALL_BAT, 2, WEAPON_CLASS, 1, 1 },
+	{ BULLET, 0, WEAPON_CLASS, 50, 0 },
+	{ POT_BOOZE, 0, POTION_CLASS, 6, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Psyker[] = {
+	{ SPE_PSYBEAM, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ SPE_CURE_BLINDNESS, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ SPE_EXTRA_HEALING, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ SPE_JUMPING, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ HAND_BLASTER, 1, WEAPON_CLASS, 1, 0 },
+	{ BLASTER_BOLT, 0, WEAPON_CLASS, 50, 0 },
+	{ HEALER_UNIFORM, 1, ARMOR_CLASS, 1, 0 },
+	{ POT_HEALING, 0, POTION_CLASS, 1, 0 },
+	{ POT_CURE_INSANITY, 0, POTION_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Empath[] = {
+	{ SPE_RADAR, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ SPE_HASTE_SELF, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ SPE_DIRECTIVE, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ ELVEN_DAGGER, 2, WEAPON_CLASS, 1, 0 },
+	{ ELVEN_TOGA, 0, ARMOR_CLASS, 1, 0 },
+	{ POT_JOLT_COLA, 0, POTION_CLASS, 2, 0 },
+	{ POT_HEALING, 0, POTION_CLASS, 2, 0 },
+	{ POT_CURE_INSANITY, 0, POTION_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Mastermind[] = {
+	{ SPE_HORRIFY, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ SPE_AULE_SMITHING, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ SPE_ESP, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ STETHOSCOPE, 0, TOOL_CLASS, 1, 0 },
+	{ SILK_MAIL, 0, ARMOR_CLASS, 1, 0 },
+	{ WAN_MANA, UNDEF_SPE, WAND_CLASS, 1, 0 },
+	{ RAYGUN, 1, WEAPON_CLASS, 1, 0 },
+	{ BLASTER_BOLT, 0, WEAPON_CLASS, 50, 0 },
+	{ BLASTER_BOLT, 0, WEAPON_CLASS, 50, 0 },
+	{ BLASTER_BOLT, 0, WEAPON_CLASS, 50, 0 },
+	{ POT_FULL_HEALING, 0, POTION_CLASS, 1, 0 },
+	{ POT_CURE_INSANITY, 0, POTION_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Weirdboy[] = {
+	{ SPE_INDUCE_VOMITING, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ SPE_ENCHANT_WEAPON, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ SPE_ENCHANT_ARMOR, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ SPE_INERTIA_CONTROL, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ SPE_SPELLBINDER, UNDEF_SPE, SPBOOK_CLASS, 1, 0 },
+	{ HELM_OF_WARNING, 0, ARMOR_CLASS, 1, 0 },
+	{ BRONZE_MORNING_STAR, 1, WEAPON_CLASS, 1, 0 },
+	{ HEALER_UNIFORM, 0, ARMOR_CLASS, 1, 0 },
+	{ POT_JOLT_COLA, 0, POTION_CLASS, 2, 0 },
+	{ POT_HEALING, 0, POTION_CLASS, 1, 0 },
+	{ POT_CURE_INSANITY, 0, POTION_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Astronaut[] = {
+	{ JUMPSUIT, 0, ARMOR_CLASS, 1, 0 },
+	{ HELM_OF_DECONTAMINATION, 0, ARMOR_CLASS, 1, 0 },
+	{ FLYING_BOOTS, 0, ARMOR_CLASS, 1, 0 },
+	{ EVENCORE_CLOAK, -3, ARMOR_CLASS, 1, 0 },
+	{ SCR_ANTIMATTER, 0, SCROLL_CLASS, 1, 0 },
+	{ POT_HEALING, 0, POTION_CLASS, 1, 0 },
+	{ POT_WATER, 0, POTION_CLASS, 1, 0 },
+	{ MAGIC_CANDLE, 0, TOOL_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Cyberninja[] = {
+	{ KATANA, 1, WEAPON_CLASS, 0, 0 },
+	{ FRAG_GRENADE, 0, WEAPON_CLASS, 4, 0 },
+	{ SPECIAL_CAMOUFLAGED_CLOTHES, 1, ARMOR_CLASS, 1, 0 },
+	{ LOCK_PICK, 0, TOOL_CLASS, 1, 0 },
+	{ BOSS_VISOR, 0, TOOL_CLASS, 1, 0 },
+	{ UNDEF_TYP, UNDEF_SPE, IMPLANT_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj Dissident[] = {
+	{ GREEN_DRAGON_SCALES, 0, ARMOR_CLASS, 1, 0 },
+	{ CLOAK_OF_STABILITY, 0, ARMOR_CLASS, 1, 0 },
+	{ UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+	{ UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
+	{ SPIKED_CLUB, 1, WEAPON_CLASS, 1, 0 },
+	{ GAS_GRENADE, 0, WEAPON_CLASS, 3, 0 },
+	{ HAND_BLASTER, 0, WEAPON_CLASS, 1, 0 },
+	{ BLASTER_BOLT, 0, WEAPON_CLASS, 50, 0 },
+	{ BLASTER_BOLT, 0, WEAPON_CLASS, 50, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+/* according to PRIME, XelNaga has: No starting mutations. No knowledge at all. No equipment either. */
+static struct trobj XelNaga[] = {
+	{ 0, 0, 0, 0, 0 }
+};
+
 static struct trobj Acu[] = {
 #define ACUWEAPON	0
 	{ SHORT_SWORD, 1, WEAPON_CLASS, 1, 0 },
@@ -1623,6 +2019,21 @@ static struct trobj HerbalistItemI[] = {
 
 static struct trobj HerbalistItemJ[] = {
 	{ APPLE, 0, FOOD_CLASS, 10, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj CupidItem[] = {
+	{ RIN_LEVITATION, 0, RING_CLASS, 1, UNDEF_BLESS },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj KoronstItem[] = {
+	{ CATAPULT, 0, WEAPON_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj GoauldItem[] = {
+	{ SYMBIOTE, 0, TOOL_CLASS, 1, 0 },
 	{ 0, 0, 0, 0, 0 }
 };
 
@@ -1917,6 +2328,11 @@ static struct trobj AlwaysStartItemD[] = {
 
 static struct trobj AlwaysStartItemE[] = {
 	{ SCR_PHASE_DOOR, 0, SCROLL_CLASS, 3, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
+static struct trobj AlwaysStartItemF[] = {
+	{ SCR_HEAL_OTHER, 0, SCROLL_CLASS, 1, 0 },
 	{ 0, 0, 0, 0, 0 }
 };
 
@@ -2600,6 +3016,11 @@ static struct trobj OgroItem[] = {
 	{ 0, 0, 0, 0, 0 }
 };
 
+static struct trobj NemesisItem[] = {
+	{ TRIDENT, 7, WEAPON_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
+};
+
 static struct trobj BatmanItem[] = {
 	{ BOOMERANG, 0, WEAPON_CLASS, 1, 0 },
 	{ 0, 0, 0, 0, 0 }
@@ -2795,7 +3216,7 @@ static struct trobj WarXtrT[] = {
 
 /* race-based substitutions for initial inventory;
    the weaker cloak for elven rangers is intentional--they shoot better */
-static struct inv_sub { short race_pm, item_otyp, subs_otyp; } inv_subs[] = {
+static struct inv_sub { int race_pm, item_otyp, subs_otyp; } inv_subs[] = {
     { PM_ELF,	DAGGER,			ELVEN_DAGGER	      },
     { PM_ELF,	SPEAR,			ELVEN_SPEAR	      },
     { PM_ELF,	SHORT_SWORD,		ELVEN_SHORT_SWORD     },
@@ -2910,6 +3331,8 @@ static const struct def_skill Skill_A[] = {
     { P_PROTECTION_SPELL, P_EXPERT },    { P_BODY_SPELL, P_EXPERT },
     { P_MATTER_SPELL, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_DEVICES, P_GRAND_MASTER },
     { P_SEARCHING, P_GRAND_MASTER },
@@ -2942,8 +3365,10 @@ static const struct def_skill Skill_Ana[] = {
     { P_BODY_ARMOR, P_EXPERT },
     { P_TECHNIQUES, P_EXPERT },
     { P_IMPLANTS, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
 
     { P_CHAOS_SPELL, P_EXPERT },
+    { P_GUN_CONTROL, P_MASTER },
 
     { P_SHII_CHO, P_MASTER },
     { P_MAKASHI, P_MASTER },
@@ -2959,6 +3384,7 @@ static const struct def_skill Skill_Ana[] = {
     { P_TWO_WEAPON_COMBAT, P_EXPERT },  
     { P_BARE_HANDED_COMBAT, P_EXPERT },  
     { P_MISSILE_WEAPONS, P_EXPERT },  
+    { P_SYMBIOSIS, P_EXPERT },
     { P_NONE, 0 }  
 };  
 
@@ -2973,12 +3399,15 @@ static const struct def_skill Skill_Art[] = {
     { P_MATTER_SPELL, P_EXPERT },   { P_ENCHANTMENT_SPELL, P_EXPERT },
     { P_HIGH_HEELS, P_MASTER },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_TWO_HANDED_WEAPON, P_EXPERT },
     { P_POLYMORPHING, P_MASTER },
     { P_DEVICES, P_EXPERT },
     { P_SPIRITUALITY, P_MASTER },
     { P_TECHNIQUES, P_MASTER },
+    { P_SQUEAKING, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
 	{ P_FIREARM, P_MASTER },
 
@@ -3009,6 +3438,8 @@ static const struct def_skill Skill_Gam[] = {
 	{ P_MATTER_SPELL, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
     { P_SEXY_FLATS, P_MASTER },
+    { P_MEMORIZATION, P_GRAND_MASTER },
+    { P_GUN_CONTROL, P_MASTER },
 
     { P_GENERAL_COMBAT, P_MASTER },
     { P_SHIELD, P_EXPERT },
@@ -3036,6 +3467,7 @@ static const struct def_skill Skill_Scr[] = {
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_FIREARM, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_SPIRITUALITY, P_EXPERT },
@@ -3055,6 +3487,7 @@ static const struct def_skill Skill_Sup[] = {
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_FIREARM, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_POLYMORPHING, P_EXPERT },
@@ -3075,10 +3508,13 @@ static const struct def_skill Skill_Lib[] = {
     { P_TWO_WEAPON_COMBAT, P_EXPERT },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_HIGH_HEELS, P_MASTER },
+    { P_MEMORIZATION, P_GRAND_MASTER },
+    { P_SQUEAKING, P_EXPERT },
 
     { P_POLYMORPHING, P_EXPERT },
     { P_DEVICES, P_MASTER },
     { P_SEARCHING, P_GRAND_MASTER },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_OCCULT_SPELL, P_MASTER },
 
@@ -3098,6 +3534,7 @@ static const struct def_skill Skill_Aug[] = {
     { P_DEVICES, P_EXPERT },
     { P_SPIRITUALITY, P_GRAND_MASTER },
     { P_TECHNIQUES, P_GRAND_MASTER },
+    { P_MEMORIZATION, P_GRAND_MASTER },
 
     { P_OCCULT_SPELL, P_GRAND_MASTER },
     { P_ELEMENTAL_SPELL, P_EXPERT },
@@ -3119,6 +3556,7 @@ static const struct def_skill Skill_Coo[] = {
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_DEVICES, P_MASTER },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_NONE, 0 }
 };
@@ -3167,6 +3605,7 @@ static const struct def_skill Skill_Bard[] = {
     { P_ENCHANTMENT_SPELL, P_EXPERT },	{ P_BODY_SPELL, P_EXPERT },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_DEVICES, P_MASTER },
     { P_SPIRITUALITY, P_EXPERT },
@@ -3187,6 +3626,10 @@ static const struct def_skill Skill_Sta[] = {
     { P_ENCHANTMENT_SPELL, P_EXPERT },	{ P_BODY_SPELL, P_EXPERT },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
+    { P_SYMBIOSIS, P_GRAND_MASTER },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_BODY_ARMOR, P_EXPERT },
@@ -3234,6 +3677,7 @@ static const struct def_skill Skill_C[] = {
     { P_PETKEEPING, P_EXPERT },
     { P_MISSILE_WEAPONS, P_MASTER },
     { P_TECHNIQUES, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
 /*WAC - 'C' is at one with the elements - matter spells, as well as
         basic enchantments - removed attack spell basic skill as
@@ -3256,6 +3700,8 @@ static const struct def_skill Skill_Ass[] = {
 	{ P_DIVINATION_SPELL, P_EXPERT },	{ P_MATTER_SPELL, P_EXPERT },
 	{ P_BODY_SPELL, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
+    { P_SQUEAKING, P_MASTER },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_MASTER },
     { P_SHIELD, P_EXPERT },
@@ -3281,6 +3727,9 @@ static const struct def_skill Skill_Bul[] = {
     { P_MATTER_SPELL, P_EXPERT },             { P_BARE_HANDED_COMBAT,  P_EXPERT },
     { P_HIGH_HEELS, P_MASTER },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SQUEAKING, P_MASTER },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_BODY_ARMOR, P_EXPERT },
@@ -3296,6 +3745,7 @@ static const struct def_skill Skill_Pic[] = {
     { P_BOW, P_EXPERT },		{ P_DART,  P_EXPERT },
     { P_SHORT_SWORD, P_EXPERT },		{ P_BARE_HANDED_COMBAT,  P_EXPERT },
 	{ P_FIREARM,  P_EXPERT },		{ P_TWO_WEAPON_COMBAT,  P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_SHIELD, P_EXPERT },
@@ -3324,6 +3774,7 @@ static const struct def_skill Skill_Roc[] = {
     { P_MATTER_SPELL, P_EXPERT },      { P_ENCHANTMENT_SPELL, P_EXPERT },
     { P_ATTACK_SPELL, P_EXPERT },      { P_DIVINATION_SPELL, P_EXPERT },
     { P_HIGH_HEELS, P_GRAND_MASTER },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_MASTER },
     { P_SHIELD, P_EXPERT },
@@ -3366,6 +3817,7 @@ static const struct def_skill Skill_F[] = {
 /*  Added expert matter spell (elements), skilled in attack, basic in rest
         He is a mage,  so knows the types.*/
     { P_RIDING, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_DEVICES, P_EXPERT },
@@ -3388,6 +3840,7 @@ static struct def_skill Skill_Fig[] = {
 	{ P_BROAD_SWORD, P_EXPERT }, { P_SCIMITAR, P_EXPERT },
 	{ P_CROSSBOW, P_EXPERT },		{ P_JAVELIN, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_MASTER },
     { P_SHIELD, P_MASTER },
@@ -3446,6 +3899,8 @@ static const struct def_skill Skill_Med[] = {
     { P_BODY_SPELL, P_EXPERT },	{ P_FIREARM, P_EXPERT },
     { P_MARTIAL_ARTS, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
+    { P_SQUEAKING, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_SHIELD, P_EXPERT },
@@ -3454,6 +3909,7 @@ static const struct def_skill Skill_Med[] = {
     { P_SEARCHING, P_EXPERT },
     { P_SPIRITUALITY, P_GRAND_MASTER },
     { P_TECHNIQUES, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_OCCULT_SPELL, P_MASTER },
     { P_SORESU, P_GRAND_MASTER },
@@ -3524,6 +3980,7 @@ static const struct def_skill Skill_Fir[] = {
         He is a mage,  so knows the types.*/
     { P_RIDING, P_EXPERT },
     { P_SEXY_FLATS, P_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_SHIELD, P_EXPERT },
@@ -3567,6 +4024,10 @@ static const struct def_skill Skill_Zyb[] = {
 	{ P_LIGHTSABER, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_ATTACK_SPELL, P_EXPERT },      { P_HEALING_SPELL, P_EXPERT },
     { P_DIVINATION_SPELL, P_EXPERT },   { P_ENCHANTMENT_SPELL, P_EXPERT },
@@ -3642,6 +4103,7 @@ static const struct def_skill Skill_Tha[] = {
     { P_MISSILE_WEAPONS, P_EXPERT },
     { P_TECHNIQUES, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
 
     { P_OCCULT_SPELL, P_GRAND_MASTER },
     { P_ELEMENTAL_SPELL, P_EXPERT },
@@ -3677,6 +4139,9 @@ static const struct def_skill Skill_Lun[] = {
 	{ P_LIGHTSABER, P_EXPERT },
     { P_HIGH_HEELS, P_MASTER },
     { P_SEXY_FLATS, P_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_ATTACK_SPELL, P_EXPERT },      { P_HEALING_SPELL, P_EXPERT },
     { P_DIVINATION_SPELL, P_EXPERT },   { P_ENCHANTMENT_SPELL, P_EXPERT },
@@ -3684,6 +4149,7 @@ static const struct def_skill Skill_Lun[] = {
     { P_MATTER_SPELL, P_EXPERT },
 
     { P_RIDING, P_GRAND_MASTER },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_MASTER },
     { P_SHIELD, P_EXPERT },
@@ -3719,6 +4185,9 @@ static const struct def_skill Skill_Lun[] = {
 static const struct def_skill Skill_Pol[] = {
 	{ P_MARTIAL_ARTS, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SQUEAKING, P_GRAND_MASTER },
+    { P_GUN_CONTROL, P_GRAND_MASTER },
 
     { P_SPIRITUALITY, P_EXPERT },
 
@@ -3726,6 +4195,545 @@ static const struct def_skill Skill_Pol[] = {
 };
 
 static const struct def_skill Skill_Sli[] = {
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Sof[] = {
+    { P_DAGGER, P_EXPERT },		{ P_SHORT_SWORD, P_EXPERT },
+    { P_SCIMITAR, P_EXPERT },		{ P_CLUB, P_EXPERT },
+    { P_FLAIL, P_EXPERT },		{ P_HAMMER, P_EXPERT },
+    { P_SPEAR, P_EXPERT },		{ P_SLING, P_EXPERT },
+    { P_FIREARM, P_EXPERT },		{ P_DART, P_EXPERT },
+    { P_WHIP, P_EXPERT },		{ P_LIGHTSABER, P_EXPERT },
+    { P_ATTACK_SPELL, P_EXPERT },		{ P_DIVINATION_SPELL, P_EXPERT },
+    { P_MARTIAL_ARTS, P_EXPERT },		{ P_HIGH_HEELS, P_EXPERT },
+    { P_GENERAL_COMBAT, P_EXPERT },		{ P_BODY_ARMOR, P_EXPERT },
+    { P_POLYMORPHING, P_EXPERT },		{ P_DEVICES, P_MASTER },
+    { P_SEARCHING, P_GRAND_MASTER },		{ P_MISSILE_WEAPONS, P_EXPERT },
+    { P_TECHNIQUES, P_MASTER },		{ P_SEXY_FLATS, P_EXPERT },
+    { P_SHII_CHO, P_EXPERT },		{ P_MAKASHI, P_EXPERT },
+    { P_SHIEN, P_EXPERT },		{ P_NIMAN, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Car[] = {
+    { P_DAGGER, P_EXPERT },	    { P_KNIFE, P_EXPERT },
+    { P_AXE, P_EXPERT },	    { P_SHORT_SWORD, P_EXPERT },
+    { P_CLUB, P_EXPERT },	    { P_MACE, P_EXPERT },
+    { P_QUARTERSTAFF, P_EXPERT },	    { P_POLEARMS, P_EXPERT },
+    { P_SPEAR, P_EXPERT },	    { P_TRIDENT, P_EXPERT },
+    { P_SLING, P_EXPERT },	    { P_DART, P_EXPERT },
+    { P_SHURIKEN, P_MASTER },	    { P_ATTACK_SPELL, P_EXPERT },
+    { P_HEALING_SPELL, P_EXPERT },	    { P_DIVINATION_SPELL, P_EXPERT },
+    { P_ENCHANTMENT_SPELL, P_EXPERT },	    { P_PROTECTION_SPELL, P_EXPERT },
+    { P_BODY_SPELL, P_EXPERT },	    { P_MATTER_SPELL, P_EXPERT },
+    { P_RIDING, P_EXPERT },	    { P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_JAVELIN, P_EXPERT },		{ P_FIREARM, P_EXPERT },
+    { P_OCCULT_SPELL, P_EXPERT },		{ P_SHIELD, P_EXPERT },
+    { P_POLYMORPHING, P_EXPERT },		{ P_DEVICES, P_GRAND_MASTER },
+    { P_SEARCHING, P_MASTER },		{ P_SPIRITUALITY, P_EXPERT },
+    { P_PETKEEPING, P_EXPERT },		{ P_MISSILE_WEAPONS, P_EXPERT },
+    { P_TECHNIQUES, P_EXPERT },		{ P_MEMORIZATION, P_MASTER },
+    { P_SORESU, P_EXPERT },		{ P_DJEM_SO, P_EXPERT },
+    { P_NIMAN, P_EXPERT },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Dra[] = {
+    { P_DAGGER, P_MASTER },	    { P_KNIFE, P_MASTER },
+    { P_AXE, P_EXPERT },	    { P_PICK_AXE, P_EXPERT },
+    { P_SHORT_SWORD, P_MASTER },	    { P_BROAD_SWORD, P_GRAND_MASTER },
+    { P_LONG_SWORD, P_MASTER },	    { P_TWO_HANDED_SWORD, P_EXPERT },
+    { P_SCIMITAR, P_GRAND_MASTER },	    { P_SABER, P_GRAND_MASTER },
+    { P_CLUB, P_EXPERT },	    { P_MACE, P_MASTER },
+    { P_MORNING_STAR, P_MASTER },	    { P_FLAIL, P_EXPERT },
+    { P_HAMMER, P_EXPERT },	    { P_POLEARMS, P_GRAND_MASTER },
+    { P_SPEAR, P_GRAND_MASTER },	    { P_TRIDENT, P_EXPERT },
+    { P_LANCE, P_GRAND_MASTER },	    { P_BOW, P_EXPERT },
+    { P_CROSSBOW, P_EXPERT },	    { P_ATTACK_SPELL, P_EXPERT },
+    { P_JAVELIN, P_GRAND_MASTER },
+    { P_HEALING_SPELL, P_EXPERT },	    { P_PROTECTION_SPELL, P_EXPERT },
+    { P_RIDING, P_GRAND_MASTER },	    { P_TWO_WEAPON_COMBAT, P_GRAND_MASTER },
+    { P_BARE_HANDED_COMBAT, P_MASTER },		{ P_LIGHTSABER, P_EXPERT },
+    { P_CHAOS_SPELL, P_EXPERT },		{ P_ELEMENTAL_SPELL, P_MASTER },
+    { P_HIGH_HEELS, P_EXPERT },		{ P_GENERAL_COMBAT, P_MASTER },
+    { P_BODY_ARMOR, P_EXPERT },		{ P_POLYMORPHING, P_MASTER },
+    { P_DEVICES, P_EXPERT },		{ P_PETKEEPING, P_GRAND_MASTER },
+    { P_TECHNIQUES, P_EXPERT },		{ P_SHII_CHO, P_EXPERT },
+    { P_MAKASHI, P_EXPERT },		{ P_ATARU, P_GRAND_MASTER },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Com[] = { /* grand master at all combat skills, has no other starting skills */
+    { P_BARE_HANDED_COMBAT, P_GRAND_MASTER },		{ P_HIGH_HEELS, P_GRAND_MASTER },
+    { P_GENERAL_COMBAT, P_GRAND_MASTER },		{ P_SHIELD, P_GRAND_MASTER },
+    { P_BODY_ARMOR, P_GRAND_MASTER },		{ P_TWO_HANDED_WEAPON, P_GRAND_MASTER },
+    { P_POLYMORPHING, P_GRAND_MASTER },		{ P_DEVICES, P_GRAND_MASTER },
+    { P_SEARCHING, P_GRAND_MASTER },		{ P_SPIRITUALITY, P_GRAND_MASTER },
+    { P_PETKEEPING, P_GRAND_MASTER },		{ P_MISSILE_WEAPONS, P_GRAND_MASTER },
+    { P_TECHNIQUES, P_GRAND_MASTER },		{ P_IMPLANTS, P_GRAND_MASTER },
+    { P_SEXY_FLATS, P_GRAND_MASTER },		{ P_MEMORIZATION, P_GRAND_MASTER },
+    { P_GUN_CONTROL, P_GRAND_MASTER },		{ P_SQUEAKING, P_GRAND_MASTER },
+    { P_SYMBIOSIS, P_GRAND_MASTER },		{ P_SHII_CHO, P_GRAND_MASTER },
+    { P_MAKASHI, P_GRAND_MASTER },		{ P_SORESU, P_GRAND_MASTER },
+    { P_ATARU, P_GRAND_MASTER },		{ P_SHIEN, P_GRAND_MASTER },
+    { P_DJEM_SO, P_GRAND_MASTER },		{ P_NIMAN, P_GRAND_MASTER },
+    { P_JUYO, P_GRAND_MASTER },		{ P_VAAPAD, P_GRAND_MASTER },
+    { P_WEDI, P_GRAND_MASTER },		{ P_MARTIAL_ARTS, P_GRAND_MASTER },
+    { P_TWO_WEAPON_COMBAT, P_GRAND_MASTER },		{ P_RIDING, P_GRAND_MASTER },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Fjo[] = {
+    { P_DAGGER, P_EXPERT },		{ P_KNIFE, P_EXPERT },
+    { P_SCIMITAR, P_EXPERT },		{ P_PADDLE, P_EXPERT },
+    { P_QUARTERSTAFF, P_EXPERT },		{ P_POLEARMS, P_MASTER },
+    { P_SPEAR, P_EXPERT },		{ P_JAVELIN, P_EXPERT },
+    { P_TRIDENT, P_EXPERT },		{ P_LANCE, P_EXPERT },
+    { P_SLING, P_MASTER },		{ P_HEALING_SPELL, P_EXPERT },
+    { P_DIVINATION_SPELL, P_EXPERT },		{ P_BODY_SPELL, P_MASTER },
+    { P_BARE_HANDED_COMBAT, P_EXPERT },		{ P_DEVICES, P_MASTER },
+    { P_SEARCHING, P_EXPERT },		{ P_SHII_CHO, P_EXPERT },
+    { P_DJEM_SO, P_EXPERT },		{ P_RIDING, P_EXPERT },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Pra[] = {
+    { P_KNIFE, P_EXPERT },		{ P_AXE, P_EXPERT },
+    { P_SCIMITAR, P_EXPERT },		{ P_CLUB, P_MASTER },
+    { P_PADDLE, P_EXPERT },		{ P_FLAIL, P_EXPERT },
+    { P_HAMMER, P_MASTER },		{ P_QUARTERSTAFF, P_EXPERT },
+    { P_SLING, P_EXPERT },		{ P_FIREARM, P_EXPERT },
+    { P_DART, P_MASTER },		{ P_BOOMERANG, P_EXPERT },
+    { P_UNICORN_HORN, P_MASTER },		{ P_DIVINATION_SPELL, P_EXPERT },
+    { P_PROTECTION_SPELL, P_MASTER },		{ P_OCCULT_SPELL, P_EXPERT },
+    { P_CHAOS_SPELL, P_EXPERT },		{ P_MATTER_SPELL, P_EXPERT },
+    { P_BARE_HANDED_COMBAT, P_MASTER },		{ P_HIGH_HEELS, P_MASTER },
+    { P_GENERAL_COMBAT, P_EXPERT },		{ P_SHIELD, P_MASTER },
+    { P_POLYMORPHING, P_EXPERT },		{ P_DEVICES, P_EXPERT },
+    { P_SEARCHING, P_EXPERT },		{ P_PETKEEPING, P_EXPERT },
+    { P_TECHNIQUES, P_EXPERT },		{ P_SEXY_FLATS, P_MASTER },
+    { P_SQUEAKING, P_MASTER },		{ P_SORESU, P_EXPERT },
+    { P_SHIEN, P_EXPERT },		{ P_DJEM_SO, P_MASTER },
+    { P_MARTIAL_ARTS, P_EXPERT },		{ P_RIDING, P_EXPERT },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Eme[] = {
+    { P_AXE, P_MASTER },		{ P_PICK_AXE, P_MASTER },
+    { P_LONG_SWORD, P_EXPERT },		{ P_TWO_HANDED_SWORD, P_EXPERT },
+    { P_PADDLE, P_MASTER },		{ P_MACE, P_EXPERT },
+    { P_MORNING_STAR, P_MASTER },		{ P_FLAIL, P_MASTER },
+    { P_HAMMER, P_GRAND_MASTER },		{ P_QUARTERSTAFF, P_MASTER },
+    { P_POLEARMS, P_EXPERT },		{ P_BOW, P_EXPERT },
+    { P_SLING, P_EXPERT },		{ P_FIREARM, P_GRAND_MASTER },
+    { P_CROSSBOW, P_MASTER },		{ P_DART, P_MASTER },
+    { P_SHURIKEN, P_EXPERT },		{ P_LIGHTSABER, P_MASTER },
+    { P_ATTACK_SPELL, P_GRAND_MASTER },		{ P_BODY_SPELL, P_MASTER },
+    { P_CHAOS_SPELL, P_GRAND_MASTER },		{ P_BARE_HANDED_COMBAT, P_GRAND_MASTER },
+    { P_GENERAL_COMBAT, P_MASTER },		{ P_BODY_ARMOR, P_MASTER },
+    { P_TWO_HANDED_WEAPON, P_MASTER },		{ P_MISSILE_WEAPONS, P_MASTER },
+    { P_TECHNIQUES, P_EXPERT },		{ P_GUN_CONTROL, P_GRAND_MASTER },
+    { P_MAKASHI, P_MASTER },		{ P_ATARU, P_GRAND_MASTER },
+    { P_DJEM_SO, P_MASTER },		{ P_JUYO, P_EXPERT },
+    { P_VAAPAD, P_GRAND_MASTER },		{ P_TWO_WEAPON_COMBAT, P_MASTER },
+    { P_RIDING, P_EXPERT },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Tos[] = {
+    { P_JAVELIN, P_GRAND_MASTER },		{ P_DAGGER, P_EXPERT },
+    { P_KNIFE, P_EXPERT },		{ P_SHORT_SWORD, P_EXPERT },
+    { P_SABER, P_EXPERT },		{ P_CLUB, P_EXPERT },
+    { P_MACE, P_EXPERT },		{ P_MORNING_STAR, P_EXPERT },
+    { P_FLAIL, P_EXPERT },		{ P_HAMMER, P_EXPERT },
+    { P_SPEAR, P_MASTER },		{ P_TRIDENT, P_EXPERT },
+    { P_SLING, P_EXPERT },		{ P_WHIP, P_EXPERT },
+    { P_ENCHANTMENT_SPELL, P_EXPERT },		{ P_MISSILE_WEAPONS, P_GRAND_MASTER },
+    { P_BARE_HANDED_COMBAT, P_EXPERT },		{ P_HIGH_HEELS, P_EXPERT },
+    { P_GENERAL_COMBAT, P_EXPERT },		{ P_SHIELD, P_MASTER },
+    { P_DEVICES, P_EXPERT },		{ P_SPIRITUALITY, P_EXPERT },
+    { P_PETKEEPING, P_EXPERT },		{ P_TECHNIQUES, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },		{ P_SHII_CHO, P_EXPERT },
+    { P_SHIEN, P_EXPERT },		{ P_DJEM_SO, P_GRAND_MASTER },
+    { P_RIDING, P_MASTER },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Akl[] = {
+    { P_CLUB, P_GRAND_MASTER },		{ P_DAGGER, P_EXPERT },
+    { P_KNIFE, P_EXPERT },		{ P_PICK_AXE, P_EXPERT },
+    { P_SHORT_SWORD, P_EXPERT },		{ P_BROAD_SWORD, P_EXPERT },
+    { P_SCIMITAR, P_EXPERT },		{ P_PADDLE, P_MASTER },
+    { P_MACE, P_EXPERT },		{ P_MORNING_STAR, P_MASTER },
+    { P_FLAIL, P_EXPERT },		{ P_HAMMER, P_EXPERT },
+    { P_QUARTERSTAFF, P_EXPERT },		{ P_POLEARMS, P_EXPERT },
+    { P_SPEAR, P_EXPERT },		{ P_LANCE, P_EXPERT },
+    { P_SLING, P_EXPERT },		{ P_CROSSBOW, P_EXPERT },
+    { P_DART, P_EXPERT },		{ P_WHIP, P_MASTER },
+    { P_ATTACK_SPELL, P_EXPERT },		{ P_PROTECTION_SPELL, P_EXPERT },
+    { P_BODY_SPELL, P_EXPERT },		{ P_OCCULT_SPELL, P_EXPERT },
+    { P_BARE_HANDED_COMBAT, P_EXPERT },		{ P_GENERAL_COMBAT, P_EXPERT },
+    { P_SHIELD, P_EXPERT },		{ P_MISSILE_WEAPONS, P_GRAND_MASTER },
+    { P_BODY_ARMOR, P_EXPERT },		{ P_DEVICES, P_EXPERT },
+    { P_SEARCHING, P_MASTER },		{ P_SPIRITUALITY, P_EXPERT },
+    { P_PETKEEPING, P_EXPERT },		{ P_MAKASHI, P_EXPERT },
+    { P_DJEM_SO, P_EXPERT },		{ P_JUYO, P_EXPERT },
+    { P_WEDI, P_EXPERT },		{ P_TWO_WEAPON_COMBAT, P_EXPERT },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Mil[] = {
+    { P_DAGGER, P_EXPERT },		{ P_KNIFE, P_EXPERT },
+    { P_AXE, P_EXPERT },		{ P_SHORT_SWORD, P_EXPERT },
+    { P_CLUB, P_EXPERT },		{ P_PADDLE, P_EXPERT },
+    { P_FLAIL, P_EXPERT },		{ P_HAMMER, P_EXPERT },
+    { P_SLING, P_EXPERT },		{ P_DART, P_EXPERT },
+    { P_WHIP, P_EXPERT },		{ P_MATTER_SPELL, P_EXPERT },
+    { P_BARE_HANDED_COMBAT, P_EXPERT },		{ P_BODY_ARMOR, P_EXPERT },
+    { P_DEVICES, P_EXPERT },		{ P_TECHNIQUES, P_EXPERT },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Sym[] = {
+    { P_DAGGER, P_EXPERT },		{ P_SHORT_SWORD, P_EXPERT },
+    { P_SCIMITAR, P_EXPERT },		{ P_CLUB, P_EXPERT },
+    { P_MACE, P_EXPERT },		{ P_FLAIL, P_EXPERT },
+    { P_QUARTERSTAFF, P_EXPERT },		{ P_HEALING_SPELL, P_EXPERT },
+    { P_ENCHANTMENT_SPELL, P_EXPERT },		{ P_PROTECTION_SPELL, P_EXPERT },
+    { P_BARE_HANDED_COMBAT, P_MASTER },		{ P_SYMBIOSIS, P_GRAND_MASTER },
+    { P_POLYMORPHING, P_EXPERT },		{ P_DEVICES, P_MASTER },
+    { P_SEARCHING, P_EXPERT },		{ P_PETKEEPING, P_MASTER },
+    { P_TECHNIQUES, P_EXPERT },		{ P_SHIEN, P_EXPERT },
+    { P_NIMAN, P_EXPERT },		{ P_RIDING, P_EXPERT },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Gen[] = {
+    { P_KNIFE, P_EXPERT },		{ P_SHORT_SWORD, P_EXPERT },
+    { P_SABER, P_MASTER },		{ P_MORNING_STAR, P_EXPERT },
+    { P_HAMMER, P_EXPERT },		{ P_FIREARM, P_MASTER },
+    { P_LIGHTSABER, P_EXPERT },		{ P_BODY_SPELL, P_MASTER },
+    { P_HIGH_HEELS, P_EXPERT },		{ P_POLYMORPHING, P_MASTER },
+    { P_SPIRITUALITY, P_EXPERT },		{ P_PETKEEPING, P_EXPERT },
+    { P_SEXY_FLATS, P_EXPERT },		{ P_MARTIAL_ARTS, P_EXPERT },
+    { P_SQUEAKING, P_GRAND_MASTER },		{ P_GUN_CONTROL, P_GRAND_MASTER },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Cra[] = {
+    { P_DAGGER, P_MASTER },		{ P_KNIFE, P_EXPERT },
+    { P_AXE, P_EXPERT },		{ P_PICK_AXE, P_EXPERT },
+    { P_SABER, P_MASTER },		{ P_CLUB, P_EXPERT },
+    { P_PADDLE, P_EXPERT },		{ P_MACE, P_EXPERT },
+    { P_FLAIL, P_MASTER },		{ P_HAMMER, P_EXPERT },
+    { P_POLEARMS, P_EXPERT },		{ P_SLING, P_EXPERT },
+    { P_FIREARM, P_EXPERT },		{ P_ATTACK_SPELL, P_EXPERT },
+    { P_ENCHANTMENT_SPELL, P_EXPERT },		{ P_OCCULT_SPELL, P_EXPERT },
+    { P_CHAOS_SPELL, P_EXPERT },		{ P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_GENERAL_COMBAT, P_EXPERT },		{ P_BODY_ARMOR, P_EXPERT },
+    { P_TWO_HANDED_WEAPON, P_EXPERT },		{ P_POLYMORPHING, P_MASTER },
+    { P_DEVICES, P_GRAND_MASTER },		{ P_SEARCHING, P_EXPERT },
+    { P_TECHNIQUES, P_MASTER },		{ P_ATARU, P_EXPERT },
+    { P_DJEM_SO, P_EXPERT },		{ P_NIMAN, P_EXPERT },
+    { P_JUYO, P_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Jan[] = {
+    { P_DAGGER, P_EXPERT },		{ P_KNIFE, P_EXPERT },
+    { P_SHORT_SWORD, P_EXPERT },		{ P_CLUB, P_EXPERT },
+    { P_PADDLE, P_MASTER },		{ P_MACE, P_EXPERT },
+    { P_MORNING_STAR, P_EXPERT },		{ P_FLAIL, P_EXPERT },
+    { P_HAMMER, P_EXPERT },		{ P_JAVELIN, P_EXPERT },
+    { P_BOW, P_EXPERT },		{ P_SLING, P_MASTER },
+    { P_FIREARM, P_EXPERT },		{ P_CROSSBOW, P_EXPERT },
+    { P_WHIP, P_MASTER },		{ P_PROTECTION_SPELL, P_EXPERT },
+    { P_BODY_SPELL, P_EXPERT },		{ P_MATTER_SPELL, P_EXPERT },
+    { P_BARE_HANDED_COMBAT, P_MASTER },		{ P_GENERAL_COMBAT, P_EXPERT },
+    { P_SHIELD, P_EXPERT },		{ P_DEVICES, P_MASTER },
+    { P_SEARCHING, P_EXPERT },		{ P_SPIRITUALITY, P_EXPERT },
+    { P_PETKEEPING, P_EXPERT },		{ P_TECHNIQUES, P_EXPERT },
+    { P_SHII_CHO, P_EXPERT },		{ P_SHIEN, P_EXPERT },
+    { P_RIDING, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
+    { P_SYMBIOSIS, P_EXPERT },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Sma[] = {
+    { P_AXE, P_EXPERT },		{ P_BROAD_SWORD, P_EXPERT },
+    { P_LONG_SWORD, P_EXPERT },		{ P_TWO_HANDED_SWORD, P_EXPERT },
+    { P_SABER, P_EXPERT },		{ P_HAMMER, P_EXPERT },
+    { P_POLEARMS, P_EXPERT },		{ P_SPEAR, P_EXPERT },
+    { P_LANCE, P_EXPERT },		{ P_BOW, P_EXPERT },
+    { P_FIREARM, P_GRAND_MASTER },		{ P_CROSSBOW, P_EXPERT },
+    { P_LIGHTSABER, P_MASTER },		{ P_BODY_SPELL, P_EXPERT },
+    { P_BARE_HANDED_COMBAT, P_MASTER },		{ P_GENERAL_COMBAT, P_MASTER },
+    { P_SHIELD, P_EXPERT },		{ P_BODY_ARMOR, P_GRAND_MASTER },
+    { P_TWO_HANDED_WEAPON, P_MASTER },		{ P_MISSILE_WEAPONS, P_MASTER },
+    { P_SHII_CHO, P_EXPERT },		{ P_MAKASHI, P_MASTER },
+    { P_ATARU, P_MASTER },		{ P_SHIEN, P_EXPERT },
+    { P_DJEM_SO, P_MASTER },		{ P_JUYO, P_MASTER },
+    { P_VAAPAD, P_MASTER },		{ P_TWO_WEAPON_COMBAT, P_MASTER },
+    { P_RIDING, P_EXPERT },
+    { P_GUN_CONTROL, P_GRAND_MASTER },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Sto[] = {
+    { P_DAGGER, P_EXPERT },		{ P_KNIFE, P_EXPERT },
+    { P_LONG_SWORD, P_EXPERT },		{ P_SABER, P_MASTER },
+    { P_MORNING_STAR, P_EXPERT },		{ P_SPEAR, P_EXPERT },
+    { P_TRIDENT, P_MASTER },		{ P_FIREARM, P_MASTER },
+    { P_CROSSBOW, P_EXPERT },		{ P_DART, P_EXPERT },
+    { P_LIGHTSABER, P_EXPERT },		{ P_ATTACK_SPELL, P_MASTER },
+    { P_CHAOS_SPELL, P_EXPERT },		{ P_MATTER_SPELL, P_MASTER },
+    { P_BARE_HANDED_COMBAT, P_EXPERT },		{ P_HIGH_HEELS, P_EXPERT },
+    { P_GENERAL_COMBAT, P_MASTER },		{ P_POLYMORPHING, P_EXPERT },
+    { P_DEVICES, P_EXPERT },		{ P_SPIRITUALITY, P_EXPERT },
+    { P_MISSILE_WEAPONS, P_EXPERT },		{ P_ATARU, P_EXPERT },
+    { P_DJEM_SO, P_EXPERT },		{ P_JUYO, P_EXPERT },
+    { P_WEDI, P_EXPERT },		{ P_TWO_WEAPON_COMBAT, P_EXPERT },
+    { P_RIDING, P_MASTER },
+    { P_GUN_CONTROL, P_MASTER },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Yau[] = {
+    { P_DAGGER, P_EXPERT },		{ P_KNIFE, P_EXPERT },
+    { P_AXE, P_EXPERT },		{ P_BROAD_SWORD, P_EXPERT },
+    { P_LONG_SWORD, P_EXPERT },		{ P_TWO_HANDED_SWORD, P_EXPERT },
+    { P_SCIMITAR, P_EXPERT },		{ P_CLUB, P_EXPERT },
+    { P_MACE, P_EXPERT },		{ P_MORNING_STAR, P_EXPERT },
+    { P_FLAIL, P_EXPERT },		{ P_HAMMER, P_EXPERT },
+    { P_QUARTERSTAFF, P_EXPERT },		{ P_POLEARMS, P_EXPERT },
+    { P_SPEAR, P_EXPERT },		{ P_JAVELIN, P_EXPERT },
+    { P_LANCE, P_EXPERT },		{ P_SLING, P_EXPERT },
+    { P_SHURIKEN, P_EXPERT },		{ P_LIGHTSABER, P_EXPERT },
+    { P_DIVINATION_SPELL, P_EXPERT },		{ P_PROTECTION_SPELL, P_EXPERT },
+    { P_OCCULT_SPELL, P_EXPERT },		{ P_BARE_HANDED_COMBAT, P_MASTER },
+    { P_HIGH_HEELS, P_EXPERT },		{ P_GENERAL_COMBAT, P_MASTER },
+    { P_TWO_HANDED_WEAPON, P_EXPERT },		{ P_POLYMORPHING, P_EXPERT },
+    { P_SPIRITUALITY, P_EXPERT },		{ P_PETKEEPING, P_EXPERT },
+    { P_SEXY_FLATS, P_EXPERT },		{ P_SHII_CHO, P_EXPERT },
+    { P_MAKASHI, P_EXPERT },		{ P_SORESU, P_EXPERT },
+    { P_NIMAN, P_EXPERT },		{ P_VAAPAD, P_EXPERT },
+    { P_RIDING, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Qua[] = {
+    { P_KNIFE, P_EXPERT },		{ P_AXE, P_EXPERT },
+    { P_CLUB, P_GRAND_MASTER },		{ P_PADDLE, P_MASTER },
+    { P_MACE, P_MASTER },		{ P_MORNING_STAR, P_MASTER },
+    { P_FLAIL, P_MASTER },		{ P_HAMMER, P_MASTER },
+    { P_QUARTERSTAFF, P_MASTER },		{ P_POLEARMS, P_MASTER },
+    { P_SPEAR, P_EXPERT },		{ P_JAVELIN, P_MASTER },
+    { P_TRIDENT, P_EXPERT },		{ P_LANCE, P_EXPERT },
+    { P_BOW, P_EXPERT },		{ P_SLING, P_GRAND_MASTER },
+    { P_FIREARM, P_EXPERT },		{ P_CROSSBOW, P_EXPERT },
+    { P_DART, P_MASTER },		{ P_SHURIKEN, P_EXPERT },
+    { P_BOOMERANG, P_GRAND_MASTER },		{ P_WHIP, P_MASTER },
+    { P_UNICORN_HORN, P_EXPERT },		{ P_ATTACK_SPELL, P_EXPERT },
+    { P_ENCHANTMENT_SPELL, P_EXPERT },		{ P_PROTECTION_SPELL, P_EXPERT },
+    { P_CHAOS_SPELL, P_EXPERT },		{ P_BARE_HANDED_COMBAT, P_MASTER },
+    { P_GENERAL_COMBAT, P_MASTER },		{ P_BODY_ARMOR, P_EXPERT },
+    { P_TWO_HANDED_WEAPON, P_EXPERT },		{ P_DEVICES, P_EXPERT },
+    { P_MISSILE_WEAPONS, P_MASTER },		{ P_TECHNIQUES, P_MASTER },
+    { P_MAKASHI, P_MASTER },		{ P_DJEM_SO, P_MASTER },
+    { P_JUYO, P_GRAND_MASTER },		{ P_TWO_WEAPON_COMBAT, P_EXPERT },
+    { P_RIDING, P_EXPERT },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Psy[] = {
+    { P_DAGGER, P_EXPERT },		{ P_KNIFE, P_EXPERT },
+    { P_CLUB, P_EXPERT },		{ P_PADDLE, P_EXPERT },
+    { P_QUARTERSTAFF, P_MASTER },		{ P_UNICORN_HORN, P_EXPERT },
+    { P_LIGHTSABER, P_EXPERT },		{ P_ATTACK_SPELL, P_MASTER },
+    { P_HEALING_SPELL, P_EXPERT },		{ P_DIVINATION_SPELL, P_MASTER },
+    { P_ENCHANTMENT_SPELL, P_EXPERT },		{ P_PROTECTION_SPELL, P_EXPERT },
+    { P_BODY_SPELL, P_MASTER },		{ P_OCCULT_SPELL, P_MASTER },
+    { P_MATTER_SPELL, P_EXPERT },		{ P_BARE_HANDED_COMBAT, P_MASTER },
+    { P_HIGH_HEELS, P_EXPERT },		{ P_POLYMORPHING, P_MASTER },
+    { P_DEVICES, P_MASTER },		{ P_SEARCHING, P_EXPERT },
+    { P_SPIRITUALITY, P_MASTER },		{ P_PETKEEPING, P_EXPERT },
+    { P_TECHNIQUES, P_MASTER },		{ P_SEXY_FLATS, P_EXPERT },
+    { P_SHII_CHO, P_EXPERT },		{ P_SORESU, P_MASTER },
+    { P_SHIEN, P_EXPERT },		{ P_NIMAN, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Emp[] = {
+    { P_DAGGER, P_EXPERT },		{ P_KNIFE, P_EXPERT },
+    { P_SHORT_SWORD, P_EXPERT },		{ P_SCIMITAR, P_EXPERT },
+    { P_SABER, P_EXPERT },		{ P_CLUB, P_EXPERT },
+    { P_MACE, P_MASTER },		{ P_FLAIL, P_EXPERT },
+    { P_QUARTERSTAFF, P_EXPERT },		{ P_POLEARMS, P_EXPERT },
+    { P_SPEAR, P_EXPERT },		{ P_FIREARM, P_EXPERT },
+    { P_UNICORN_HORN, P_MASTER },		{ P_HEALING_SPELL, P_GRAND_MASTER },
+    { P_DIVINATION_SPELL, P_MASTER },		{ P_PROTECTION_SPELL, P_MASTER },
+    { P_BODY_SPELL, P_EXPERT },		{ P_ELEMENTAL_SPELL, P_EXPERT },
+    { P_BARE_HANDED_COMBAT, P_EXPERT },		{ P_HIGH_HEELS, P_MASTER },
+    { P_GENERAL_COMBAT, P_EXPERT },		{ P_SHIELD, P_EXPERT },
+    { P_BODY_ARMOR, P_EXPERT },		{ P_POLYMORPHING, P_EXPERT },
+    { P_SPIRITUALITY, P_GRAND_MASTER },		{ P_PETKEEPING, P_GRAND_MASTER },
+    { P_SEXY_FLATS, P_EXPERT },		{ P_SHII_CHO, P_EXPERT },
+    { P_SORESU, P_GRAND_MASTER },		{ P_SHIEN, P_EXPERT },
+    { P_NIMAN, P_MASTER },		{ P_WEDI, P_EXPERT },
+    { P_RIDING, P_MASTER },
+    { P_MEMORIZATION, P_GRAND_MASTER },
+    { P_SQUEAKING, P_MASTER },
+    { P_SYMBIOSIS, P_GRAND_MASTER },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Mam[] = {
+    { P_DAGGER, P_EXPERT },		{ P_KNIFE, P_EXPERT },
+    { P_PICK_AXE, P_EXPERT },		{ P_CLUB, P_EXPERT },
+    { P_PADDLE, P_EXPERT },		{ P_HAMMER, P_EXPERT },
+    { P_POLEARMS, P_EXPERT },		{ P_SLING, P_MASTER },
+    { P_FIREARM, P_EXPERT },		{ P_DART, P_EXPERT },
+    { P_UNICORN_HORN, P_EXPERT },		{ P_LIGHTSABER, P_EXPERT },
+    { P_ATTACK_SPELL, P_EXPERT },		{ P_HEALING_SPELL, P_EXPERT },
+    { P_DIVINATION_SPELL, P_GRAND_MASTER },		{ P_ENCHANTMENT_SPELL, P_MASTER },
+    { P_PROTECTION_SPELL, P_EXPERT },		{ P_BODY_SPELL, P_MASTER },
+    { P_OCCULT_SPELL, P_MASTER },		{ P_ELEMENTAL_SPELL, P_MASTER },
+    { P_CHAOS_SPELL, P_MASTER },		{ P_MATTER_SPELL, P_GRAND_MASTER },
+    { P_BARE_HANDED_COMBAT, P_MASTER },		{ P_HIGH_HEELS, P_EXPERT },
+    { P_GENERAL_COMBAT, P_EXPERT },		{ P_SHIELD, P_EXPERT },
+    { P_POLYMORPHING, P_MASTER },		{ P_DEVICES, P_MASTER },
+    { P_SEARCHING, P_GRAND_MASTER },		{ P_SPIRITUALITY, P_MASTER },
+    { P_TECHNIQUES, P_MASTER },		{ P_IMPLANTS, P_EXPERT },
+    { P_SHII_CHO, P_EXPERT },		{ P_MAKASHI, P_EXPERT },
+    { P_ATARU, P_EXPERT },		{ P_SHIEN, P_EXPERT },
+    { P_NIMAN, P_MASTER },		{ P_VAAPAD, P_EXPERT },
+    { P_WEDI, P_MASTER },
+    { P_MEMORIZATION, P_GRAND_MASTER },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Wei[] = {
+    { P_KNIFE, P_MASTER },		{ P_AXE, P_EXPERT },
+    { P_BROAD_SWORD, P_MASTER },		{ P_TWO_HANDED_SWORD, P_EXPERT },
+    { P_SCIMITAR, P_MASTER },		{ P_PADDLE, P_MASTER },
+    { P_MORNING_STAR, P_EXPERT },		{ P_POLEARMS, P_GRAND_MASTER },
+    { P_JAVELIN, P_EXPERT },		{ P_BOW, P_MASTER },
+    { P_SLING, P_EXPERT },		{ P_FIREARM, P_EXPERT },
+    { P_CROSSBOW, P_MASTER },		{ P_BOOMERANG, P_MASTER },
+    { P_WHIP, P_EXPERT },		{ P_HEALING_SPELL, P_EXPERT },
+    { P_OCCULT_SPELL, P_GRAND_MASTER },		{ P_CHAOS_SPELL, P_MASTER },
+    { P_HIGH_HEELS, P_GRAND_MASTER },		{ P_TWO_HANDED_WEAPON, P_MASTER },
+    { P_POLYMORPHING, P_MASTER },		{ P_MISSILE_WEAPONS, P_EXPERT },
+    { P_SORESU, P_EXPERT },		{ P_DJEM_SO, P_EXPERT },
+    { P_JUYO, P_MASTER },		{ P_MARTIAL_ARTS, P_EXPERT },
+    { P_SQUEAKING, P_MASTER },
+    { P_GUN_CONTROL, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Ast[] = {
+    { P_DAGGER, P_EXPERT },		{ P_KNIFE, P_EXPERT },
+    { P_AXE, P_EXPERT },		{ P_PICK_AXE, P_MASTER },
+    { P_SHORT_SWORD, P_MASTER },		{ P_BROAD_SWORD, P_MASTER },
+    { P_LONG_SWORD, P_MASTER },		{ P_TWO_HANDED_SWORD, P_EXPERT },
+    { P_SCIMITAR, P_MASTER },		{ P_SABER, P_MASTER },
+    { P_CLUB, P_EXPERT },		{ P_PADDLE, P_MASTER },
+    { P_MACE, P_EXPERT },		{ P_MORNING_STAR, P_EXPERT },
+    { P_FLAIL, P_MASTER },		{ P_HAMMER, P_GRAND_MASTER },
+    { P_QUARTERSTAFF, P_EXPERT },		{ P_POLEARMS, P_MASTER },
+    { P_SPEAR, P_EXPERT },		{ P_JAVELIN, P_EXPERT },
+    { P_TRIDENT, P_EXPERT },		{ P_LANCE, P_EXPERT },
+    { P_BOW, P_EXPERT },		{ P_SLING, P_MASTER },
+    { P_FIREARM, P_GRAND_MASTER },		{ P_CROSSBOW, P_EXPERT },
+    { P_DART, P_MASTER },		{ P_SHURIKEN, P_EXPERT },
+    { P_BOOMERANG, P_MASTER },		{ P_WHIP, P_EXPERT },
+    { P_UNICORN_HORN, P_EXPERT },		{ P_LIGHTSABER, P_GRAND_MASTER },
+    { P_BODY_SPELL, P_MASTER },		{ P_BARE_HANDED_COMBAT, P_GRAND_MASTER },
+    { P_HIGH_HEELS, P_MASTER },		{ P_GENERAL_COMBAT, P_GRAND_MASTER },
+    { P_SHIELD, P_MASTER },		{ P_BODY_ARMOR, P_GRAND_MASTER },
+    { P_TWO_HANDED_WEAPON, P_EXPERT },		{ P_POLYMORPHING, P_EXPERT },
+    { P_DEVICES, P_MASTER },		{ P_SEARCHING, P_EXPERT },
+    { P_SPIRITUALITY, P_EXPERT },		{ P_PETKEEPING, P_EXPERT },
+    { P_MISSILE_WEAPONS, P_GRAND_MASTER },		{ P_TECHNIQUES, P_MASTER },
+    { P_SEXY_FLATS, P_EXPERT },		{ P_SHII_CHO, P_MASTER },
+    { P_MAKASHI, P_EXPERT },		{ P_ATARU, P_MASTER },
+    { P_SHIEN, P_MASTER },		{ P_DJEM_SO, P_EXPERT },
+    { P_NIMAN, P_EXPERT },		{ P_JUYO, P_MASTER },
+    { P_VAAPAD, P_EXPERT },		{ P_WEDI, P_MASTER },
+    { P_MARTIAL_ARTS, P_MASTER },		{ P_TWO_WEAPON_COMBAT, P_EXPERT },
+    { P_RIDING, P_GRAND_MASTER },
+    { P_MEMORIZATION, P_MASTER },
+    { P_GUN_CONTROL, P_EXPERT },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Cyb[] = {
+    { P_DAGGER, P_EXPERT },		{ P_KNIFE,  P_EXPERT },
+    { P_SHORT_SWORD, P_GRAND_MASTER },	{ P_BROAD_SWORD, P_EXPERT },
+    { P_LONG_SWORD, P_EXPERT },		{ P_TWO_HANDED_SWORD, P_EXPERT },
+    { P_SCIMITAR, P_EXPERT },		{ P_SABER, P_EXPERT },
+    { P_PADDLE, P_EXPERT },
+    { P_FLAIL, P_EXPERT },		{ P_QUARTERSTAFF, P_EXPERT },
+    { P_POLEARMS, P_EXPERT },		{ P_SPEAR, P_EXPERT },
+    { P_JAVELIN, P_EXPERT },		{ P_LANCE, P_EXPERT },
+    { P_BOW, P_EXPERT },		{ P_SHURIKEN, P_EXPERT },
+    { P_PROTECTION_SPELL, P_EXPERT },      { P_BODY_SPELL, P_EXPERT },
+    { P_HIGH_HEELS, P_EXPERT },	{ P_FIREARM, P_GRAND_MASTER },
+
+    { P_ATTACK_SPELL, P_EXPERT },
+    { P_RIDING, P_EXPERT },
+    { P_GENERAL_COMBAT, P_MASTER },
+    { P_SHIELD, P_EXPERT },
+    { P_BODY_ARMOR, P_EXPERT },
+    { P_TWO_HANDED_WEAPON, P_GRAND_MASTER },
+    { P_POLYMORPHING, P_EXPERT },
+    { P_DEVICES, P_MASTER },
+    { P_SEARCHING, P_EXPERT },
+    { P_SPIRITUALITY, P_EXPERT },
+    { P_PETKEEPING, P_EXPERT },
+    { P_MISSILE_WEAPONS, P_EXPERT },
+    { P_TECHNIQUES, P_EXPERT },
+    { P_SEXY_FLATS, P_MASTER },
+
+    { P_TWO_WEAPON_COMBAT, P_EXPERT },
+    { P_MARTIAL_ARTS, P_MASTER },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Dis[] = {
+    { P_DAGGER, P_MASTER },		{ P_KNIFE, P_MASTER },
+    { P_PICK_AXE, P_EXPERT },		{ P_SHORT_SWORD, P_EXPERT },
+    { P_CLUB, P_EXPERT },		{ P_PADDLE, P_MASTER },
+    { P_POLEARMS, P_EXPERT },		{ P_LANCE, P_EXPERT },
+    { P_SLING, P_EXPERT },		{ P_FIREARM, P_EXPERT },
+    { P_DART, P_MASTER },		{ P_BOOMERANG, P_MASTER },
+    { P_WHIP, P_MASTER },		{ P_UNICORN_HORN, P_GRAND_MASTER },
+    { P_ATTACK_SPELL, P_EXPERT },		{ P_DIVINATION_SPELL, P_EXPERT },
+    { P_PROTECTION_SPELL, P_MASTER },		{ P_BODY_SPELL, P_EXPERT },
+    { P_CHAOS_SPELL, P_EXPERT },		{ P_BARE_HANDED_COMBAT, P_GRAND_MASTER },
+    { P_HIGH_HEELS, P_EXPERT },		{ P_GENERAL_COMBAT, P_MASTER },
+    { P_SHIELD, P_EXPERT },		{ P_BODY_ARMOR, P_EXPERT },
+    { P_POLYMORPHING, P_MASTER },		{ P_DEVICES, P_EXPERT },
+    { P_SEARCHING, P_EXPERT },		{ P_SPIRITUALITY, P_MASTER },
+    { P_PETKEEPING, P_MASTER },		{ P_MISSILE_WEAPONS, P_EXPERT },
+    { P_SEXY_FLATS, P_EXPERT },		{ P_SHII_CHO, P_EXPERT },
+    { P_MAKASHI, P_EXPERT },		{ P_SORESU, P_EXPERT },
+    { P_DJEM_SO, P_EXPERT },		{ P_JUYO, P_EXPERT },
+    { P_WEDI, P_EXPERT },		{ P_TWO_WEAPON_COMBAT, P_EXPERT },
+    { P_RIDING, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Xel[] = {
+    { P_ATTACK_SPELL, P_MASTER },		    { P_ENCHANTMENT_SPELL, P_EXPERT },
+    { P_BODY_SPELL, P_EXPERT },		    { P_OCCULT_SPELL, P_EXPERT },
+    { P_CHAOS_SPELL, P_EXPERT },		    { P_BARE_HANDED_COMBAT, P_GRAND_MASTER },
+    { P_HIGH_HEELS, P_EXPERT },		    { P_GENERAL_COMBAT, P_MASTER },
+    { P_BODY_ARMOR, P_EXPERT },		    { P_POLYMORPHING, P_EXPERT },
+    { P_PETKEEPING, P_EXPERT },		    { P_TECHNIQUES, P_EXPERT },
+    { P_SHII_CHO, P_EXPERT },		    { P_MAKASHI, P_EXPERT },
+    { P_NIMAN, P_EXPERT },		    { P_MARTIAL_ARTS, P_EXPERT },
+    { P_SYMBIOSIS, P_MASTER },
     { P_NONE, 0 }
 };
 
@@ -3775,6 +4783,10 @@ static const struct def_skill Skill_Bin[] = {
 	{ P_LIGHTSABER, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_ATTACK_SPELL, P_EXPERT },      { P_HEALING_SPELL, P_EXPERT },
     { P_DIVINATION_SPELL, P_EXPERT },   { P_ENCHANTMENT_SPELL, P_EXPERT },
@@ -3858,6 +4870,7 @@ static const struct def_skill Skill_Sex[] = {
 	 { P_ENCHANTMENT_SPELL, P_EXPERT },
     { P_HIGH_HEELS, P_GRAND_MASTER },
     { P_SEXY_FLATS, P_GRAND_MASTER },
+    { P_SQUEAKING, P_EXPERT },
 
     { P_POLYMORPHING, P_EXPERT },
     { P_DEVICES, P_EXPERT },
@@ -3906,6 +4919,9 @@ static const struct def_skill Skill_Mys[] = {
     { P_QUARTERSTAFF, P_EXPERT },        { P_POLEARMS, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_SPEAR, P_EXPERT },               { P_JAVELIN, P_EXPERT },
     { P_TRIDENT, P_EXPERT },             { P_LANCE, P_EXPERT },
@@ -3934,6 +4950,7 @@ static const struct def_skill Skill_Mys[] = {
     { P_MISSILE_WEAPONS, P_EXPERT },
     { P_TECHNIQUES, P_EXPERT },
     { P_IMPLANTS, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_OCCULT_SPELL, P_EXPERT },
     { P_ELEMENTAL_SPELL, P_EXPERT },
@@ -3950,6 +4967,97 @@ static const struct def_skill Skill_Mys[] = {
     { P_WEDI, P_EXPERT },
 
     { P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Dem[] = {
+
+    { P_DAGGER, P_EXPERT },             { P_KNIFE,  P_EXPERT },
+    { P_AXE, P_EXPERT },                 { P_PICK_AXE, P_EXPERT },
+    { P_SHORT_SWORD, P_EXPERT },        { P_BROAD_SWORD, P_EXPERT },
+    { P_LONG_SWORD, P_EXPERT },        { P_TWO_HANDED_SWORD, P_EXPERT },
+    { P_SCIMITAR, P_EXPERT },          { P_SABER, P_EXPERT },
+    { P_CLUB, P_EXPERT },    { P_PADDLE, P_EXPERT },
+    { P_MACE, P_EXPERT },                { P_MORNING_STAR, P_EXPERT },
+    { P_FLAIL, P_EXPERT },               { P_HAMMER, P_EXPERT },
+    { P_QUARTERSTAFF, P_EXPERT },        { P_POLEARMS, P_EXPERT },
+    { P_HIGH_HEELS, P_EXPERT },
+    { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
+
+    { P_SPEAR, P_EXPERT },               { P_JAVELIN, P_EXPERT },
+    { P_TRIDENT, P_EXPERT },             { P_LANCE, P_EXPERT },
+    { P_BOW, P_EXPERT },                 { P_SLING, P_EXPERT },
+	{ P_FIREARM, P_EXPERT },
+    { P_CROSSBOW, P_EXPERT },            { P_DART, P_EXPERT },
+    { P_SHURIKEN, P_EXPERT },            { P_BOOMERANG, P_EXPERT },
+    { P_WHIP, P_EXPERT },                { P_UNICORN_HORN, P_EXPERT },
+	{ P_LIGHTSABER, P_EXPERT },
+
+    { P_ATTACK_SPELL, P_EXPERT },      { P_HEALING_SPELL, P_EXPERT },
+    { P_DIVINATION_SPELL, P_EXPERT },   { P_ENCHANTMENT_SPELL, P_EXPERT },
+    { P_PROTECTION_SPELL, P_EXPERT },    { P_BODY_SPELL, P_EXPERT },
+    { P_MATTER_SPELL, P_EXPERT },
+
+    { P_TWO_WEAPON_COMBAT, P_EXPERT },
+    { P_RIDING, P_EXPERT },
+    { P_GENERAL_COMBAT, P_EXPERT },
+    { P_SHIELD, P_EXPERT },
+    { P_BODY_ARMOR, P_EXPERT },
+    { P_TWO_HANDED_WEAPON, P_EXPERT },
+    { P_POLYMORPHING, P_EXPERT },
+    { P_DEVICES, P_EXPERT },
+    { P_SEARCHING, P_EXPERT },
+    { P_SPIRITUALITY, P_EXPERT },
+    { P_PETKEEPING, P_EXPERT },
+    { P_MISSILE_WEAPONS, P_EXPERT },
+    { P_TECHNIQUES, P_EXPERT },
+    { P_IMPLANTS, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
+
+    { P_OCCULT_SPELL, P_EXPERT },
+    { P_ELEMENTAL_SPELL, P_EXPERT },
+    { P_CHAOS_SPELL, P_EXPERT },
+    { P_SHII_CHO, P_EXPERT },
+    { P_MAKASHI, P_EXPERT },
+    { P_SORESU, P_EXPERT },
+    { P_ATARU, P_EXPERT },
+    { P_SHIEN, P_EXPERT },
+    { P_DJEM_SO, P_EXPERT },
+    { P_NIMAN, P_EXPERT },
+    { P_JUYO, P_EXPERT },
+    { P_VAAPAD, P_EXPERT },
+    { P_WEDI, P_EXPERT },
+
+    { P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_MARTIAL_ARTS, P_EXPERT },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Cel[] = {
+
+    { P_ATTACK_SPELL, P_MASTER },		{ P_PROTECTION_SPELL, P_MASTER },
+    { P_HEALING_SPELL, P_GRAND_MASTER },		{ P_BODY_SPELL, P_MASTER },
+    { P_MATTER_SPELL, P_MASTER },		{ P_DIVINATION_SPELL, P_MASTER },
+    { P_OCCULT_SPELL, P_MASTER },		{ P_ENCHANTMENT_SPELL, P_MASTER },
+    { P_ELEMENTAL_SPELL, P_MASTER },		{ P_CHAOS_SPELL, P_MASTER },
+    { P_QUARTERSTAFF, P_MASTER },		{ P_DAGGER, P_EXPERT },
+    { P_KNIFE, P_EXPERT },		{ P_SCIMITAR, P_EXPERT },
+    { P_CLUB, P_EXPERT },		{ P_PADDLE, P_MASTER },
+    { P_MACE, P_EXPERT },		{ P_FLAIL, P_EXPERT },
+    { P_HAMMER, P_EXPERT },		{ P_SPEAR, P_EXPERT },
+    { P_SLING, P_EXPERT },		{ P_BOOMERANG, P_MASTER },
+    { P_WHIP, P_EXPERT },		{ P_BARE_HANDED_COMBAT, P_MASTER },
+    { P_POLYMORPHING, P_EXPERT },		{ P_DEVICES, P_MASTER },
+    { P_SPIRITUALITY, P_EXPERT },		{ P_TECHNIQUES, P_EXPERT },
+    { P_SHII_CHO, P_EXPERT },		{ P_SORESU, P_EXPERT },
+    { P_SHIEN, P_EXPERT },		{ P_NIMAN, P_EXPERT },
+    { P_RIDING, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
+    { P_SYMBIOSIS, P_MASTER },
+
     { P_NONE, 0 }
 };
 
@@ -3972,6 +5080,7 @@ static const struct def_skill Skill_Ble[] = {
     { P_WHIP, P_EXPERT },                { P_UNICORN_HORN, P_EXPERT },
 	{ P_LIGHTSABER, P_EXPERT },
     { P_HIGH_HEELS, P_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_ATTACK_SPELL, P_EXPERT },      { P_HEALING_SPELL, P_GRAND_MASTER },
     { P_DIVINATION_SPELL, P_EXPERT },   { P_ENCHANTMENT_SPELL, P_EXPERT },
@@ -4017,6 +5126,8 @@ static const struct def_skill Skill_Spa[] = {
 	{ P_FIREARM, P_MASTER },
     { P_HIGH_HEELS, P_MASTER },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_SQUEAKING, P_MASTER },
+    { P_GUN_CONTROL, P_MASTER },
 
     { P_WHIP, P_EXPERT },                { P_LIGHTSABER, P_MASTER },
 
@@ -4031,6 +5142,61 @@ static const struct def_skill Skill_Spa[] = {
     { P_TWO_HANDED_WEAPON, P_EXPERT },
     { P_DEVICES, P_MASTER },
     { P_SEARCHING, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
+
+    { P_OCCULT_SPELL, P_EXPERT },
+    { P_ELEMENTAL_SPELL, P_EXPERT },
+    { P_CHAOS_SPELL, P_EXPERT },
+    { P_SHII_CHO, P_MASTER },
+    { P_MAKASHI, P_MASTER },
+    { P_SORESU, P_EXPERT },
+    { P_ATARU, P_EXPERT },
+    { P_SHIEN, P_GRAND_MASTER },
+    { P_DJEM_SO, P_EXPERT },
+    { P_NIMAN, P_MASTER },
+    { P_JUYO, P_EXPERT },
+    { P_VAAPAD, P_GRAND_MASTER },
+    { P_WEDI, P_GRAND_MASTER },
+
+    { P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Wal[] = {
+
+    { P_DAGGER, P_MASTER },             { P_KNIFE,  P_EXPERT },
+    { P_AXE, P_EXPERT },                 { P_PICK_AXE, P_EXPERT },
+    { P_SHORT_SWORD, P_EXPERT },        { P_BROAD_SWORD, P_EXPERT },
+    { P_LONG_SWORD, P_EXPERT },        { P_TWO_HANDED_SWORD, P_EXPERT },
+    { P_SCIMITAR, P_EXPERT },          { P_SABER, P_EXPERT },
+    { P_CLUB, P_EXPERT },    { P_PADDLE, P_EXPERT },
+    { P_MACE, P_EXPERT },                { P_MORNING_STAR, P_EXPERT },
+    { P_FLAIL, P_EXPERT },               { P_HAMMER, P_EXPERT },
+    { P_QUARTERSTAFF, P_EXPERT },        { P_POLEARMS, P_EXPERT },
+
+    { P_SPEAR, P_EXPERT },               { P_JAVELIN, P_EXPERT },
+    { P_TRIDENT, P_EXPERT },             { P_LANCE, P_EXPERT },
+
+	{ P_FIREARM, P_MASTER },
+    { P_HIGH_HEELS, P_MASTER },
+    { P_SEXY_FLATS, P_EXPERT },
+    { P_SQUEAKING, P_MASTER },
+    { P_GUN_CONTROL, P_MASTER },
+
+    { P_WHIP, P_EXPERT },                { P_LIGHTSABER, P_MASTER },
+
+    { P_ATTACK_SPELL, P_EXPERT },      { P_HEALING_SPELL, P_EXPERT },
+    { P_DIVINATION_SPELL, P_EXPERT },   { P_ENCHANTMENT_SPELL, P_EXPERT },
+    { P_PROTECTION_SPELL, P_EXPERT },    { P_BODY_SPELL, P_EXPERT },
+    { P_MATTER_SPELL, P_EXPERT },
+
+    { P_GENERAL_COMBAT, P_EXPERT },
+    { P_SHIELD, P_EXPERT },
+    { P_BODY_ARMOR, P_EXPERT },
+    { P_TWO_HANDED_WEAPON, P_EXPERT },
+    { P_DEVICES, P_MASTER },
+    { P_SEARCHING, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
 
     { P_OCCULT_SPELL, P_EXPERT },
     { P_ELEMENTAL_SPELL, P_EXPERT },
@@ -4068,6 +5234,8 @@ static const struct def_skill Skill_Cam[] = {
 	{ P_FIREARM, P_MASTER },
     { P_HIGH_HEELS, P_MASTER },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_SQUEAKING, P_MASTER },
+    { P_GUN_CONTROL, P_MASTER },
 
     { P_WHIP, P_EXPERT },                { P_LIGHTSABER, P_MASTER },
 
@@ -4082,6 +5250,7 @@ static const struct def_skill Skill_Cam[] = {
     { P_TWO_HANDED_WEAPON, P_EXPERT },
     { P_DEVICES, P_MASTER },
     { P_SEARCHING, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
 
     { P_OCCULT_SPELL, P_EXPERT },
     { P_ELEMENTAL_SPELL, P_EXPERT },
@@ -4119,6 +5288,8 @@ static const struct def_skill Skill_Sco[] = {
 	{ P_FIREARM, P_MASTER },
     { P_HIGH_HEELS, P_MASTER },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_SQUEAKING, P_MASTER },
+    { P_GUN_CONTROL, P_MASTER },
 
     { P_WHIP, P_EXPERT },                { P_LIGHTSABER, P_MASTER },
 
@@ -4133,6 +5304,7 @@ static const struct def_skill Skill_Sco[] = {
     { P_TWO_HANDED_WEAPON, P_EXPERT },
     { P_DEVICES, P_MASTER },
     { P_SEARCHING, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
 
     { P_OCCULT_SPELL, P_EXPERT },
     { P_ELEMENTAL_SPELL, P_EXPERT },
@@ -4180,6 +5352,7 @@ static const struct def_skill Skill_Ele[] = {
     { P_RIDING, P_EXPERT },
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_DEVICES, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_ELEMENTAL_SPELL, P_MASTER },
 
@@ -4207,6 +5380,7 @@ static const struct def_skill Skill_Poi[] = {
     { P_WHIP, P_EXPERT },                { P_UNICORN_HORN, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
 
     { P_ATTACK_SPELL, P_EXPERT },      { P_HEALING_SPELL, P_EXPERT },
     { P_DIVINATION_SPELL, P_EXPERT },   { P_ENCHANTMENT_SPELL, P_EXPERT },
@@ -4219,11 +5393,13 @@ static const struct def_skill Skill_Poi[] = {
     { P_POLYMORPHING, P_EXPERT },
     { P_DEVICES, P_EXPERT },
     { P_MISSILE_WEAPONS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_OCCULT_SPELL, P_EXPERT },
     { P_ELEMENTAL_SPELL, P_MASTER },
     { P_CHAOS_SPELL, P_EXPERT },
     { P_VAAPAD, P_EXPERT },
+    { P_SYMBIOSIS, P_MASTER },
 
     { P_TWO_WEAPON_COMBAT, P_EXPERT }, { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_NONE, 0 }
@@ -4257,6 +5433,7 @@ static const struct def_skill Skill_Aci[] = {
     { P_RIDING, P_EXPERT },
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_DEVICES, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_ELEMENTAL_SPELL, P_MASTER },
 
@@ -4276,6 +5453,7 @@ static const struct def_skill Skill_Con[] = {
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_POLYMORPHING, P_EXPERT },
@@ -4283,6 +5461,7 @@ static const struct def_skill Skill_Con[] = {
     { P_PETKEEPING, P_EXPERT },
     { P_VAAPAD, P_EXPERT },
     { P_WEDI, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_NONE, 0 }
 };
@@ -4299,6 +5478,7 @@ static const struct def_skill Skill_Mur[] = {
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_POLYMORPHING, P_EXPERT },
@@ -4306,6 +5486,7 @@ static const struct def_skill Skill_Mur[] = {
     { P_PETKEEPING, P_EXPERT },
     { P_VAAPAD, P_EXPERT },
     { P_WEDI, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_NONE, 0 }
 };
@@ -4321,6 +5502,7 @@ static const struct def_skill Skill_Sla[] = {
     { P_TWO_WEAPON_COMBAT, P_EXPERT },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_SEXY_FLATS, P_MASTER },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_POLYMORPHING, P_EXPERT },
@@ -4346,6 +5528,7 @@ static const struct def_skill Skill_Abu[] = {
     { P_POLYMORPHING, P_MASTER },
     { P_DEVICES, P_EXPERT },
     { P_PETKEEPING, P_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_OCCULT_SPELL, P_EXPERT },
     { P_CHAOS_SPELL, P_EXPERT },
@@ -4371,6 +5554,8 @@ static const struct def_skill Skill_Dru[] = { /* drunk */
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_SPIRITUALITY, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_NONE, 0 }
 };
@@ -4412,6 +5597,7 @@ static const struct def_skill Skill_Pro[] = {
     { P_SHII_CHO, P_EXPERT },
     { P_NIMAN, P_GRAND_MASTER },
     { P_JUYO, P_GRAND_MASTER },
+    { P_SQUEAKING, P_GRAND_MASTER },
 
     { P_NONE, 0 }
 };
@@ -4422,6 +5608,7 @@ static const struct def_skill Skill_Hus[] = { /* quite restricted - meant to be 
     { P_HIGH_HEELS, P_EXPERT },	{ P_SEXY_FLATS, P_EXPERT },
     { P_BODY_SPELL, P_EXPERT },
     { P_WEDI, P_MASTER },
+    { P_SQUEAKING, P_GRAND_MASTER },
 
     { P_NONE, 0 }
 };
@@ -4464,6 +5651,7 @@ static const struct def_skill Skill_Kur[] = {
     { P_SHII_CHO, P_EXPERT },
     { P_NIMAN, P_GRAND_MASTER },
     { P_JUYO, P_GRAND_MASTER },
+    { P_SQUEAKING, P_GRAND_MASTER },
 
     { P_NONE, 0 }
 };
@@ -4506,6 +5694,8 @@ static const struct def_skill Skill_Act[] = {
     { P_MARTIAL_ARTS, P_MASTER },
     { P_RIDING, P_EXPERT },    { P_TWO_WEAPON_COMBAT, P_EXPERT },
     { P_SEXY_FLATS, P_GRAND_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_SHIELD, P_EXPERT },
@@ -4516,6 +5706,12 @@ static const struct def_skill Skill_Act[] = {
     { P_SHIEN, P_MASTER },
     { P_JUYO, P_GRAND_MASTER },
     { P_WEDI, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
+
+    { P_NONE, 0 }
+};
+
+static const struct def_skill Skill_Soc[] = {
 
     { P_NONE, 0 }
 };
@@ -4544,6 +5740,8 @@ static const struct def_skill Skill_Top[] = {
     { P_NIMAN, P_EXPERT },
     { P_JUYO, P_EXPERT },
     { P_VAAPAD, P_EXPERT },
+    { P_SQUEAKING, P_MASTER },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_TWO_HANDED_WEAPON, P_EXPERT },
@@ -4553,6 +5751,8 @@ static const struct def_skill Skill_Top[] = {
     { P_SPIRITUALITY, P_EXPERT },
     { P_PETKEEPING, P_GRAND_MASTER },
     { P_TECHNIQUES, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_NONE, 0 }
 };
@@ -4581,6 +5781,8 @@ static const struct def_skill Skill_Fai[] = {
     { P_NIMAN, P_EXPERT },
     { P_JUYO, P_EXPERT },
     { P_VAAPAD, P_EXPERT },
+    { P_SQUEAKING, P_MASTER },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_TWO_HANDED_WEAPON, P_EXPERT },
@@ -4590,6 +5792,8 @@ static const struct def_skill Skill_Fai[] = {
     { P_SPIRITUALITY, P_EXPERT },
     { P_PETKEEPING, P_GRAND_MASTER },
     { P_TECHNIQUES, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_NONE, 0 }
 };
@@ -4621,6 +5825,7 @@ static const struct def_skill Skill_Gun[] = {
     { P_MISSILE_WEAPONS, P_GRAND_MASTER },
     { P_TECHNIQUES, P_MASTER },
     { P_IMPLANTS, P_EXPERT },
+    { P_GUN_CONTROL, P_GRAND_MASTER },
 
     { P_NONE, 0 }
 };
@@ -4644,6 +5849,7 @@ static const struct def_skill Skill_Mar[] = {
     { P_SHURIKEN, P_EXPERT },			{ P_BOOMERANG, P_EXPERT },
     { P_WHIP, P_EXPERT },			{ P_UNICORN_HORN, P_EXPERT },
     { P_LIGHTSABER, P_EXPERT },
+    { P_GUN_CONTROL, P_GRAND_MASTER },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_BODY_ARMOR, P_EXPERT },
@@ -4674,6 +5880,7 @@ static const struct def_skill Skill_Gan[] = {
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_RIDING, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_MASTER },
     { P_BODY_ARMOR, P_EXPERT },
@@ -4721,6 +5928,8 @@ static const struct def_skill Skill_Sci[] = {
     { P_JUYO, P_EXPERT },
     { P_VAAPAD, P_EXPERT },
     { P_WEDI, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_NONE, 0 }
 };
@@ -4756,6 +5965,8 @@ static const struct def_skill Skill_Nuc[] = {
     { P_JUYO, P_EXPERT },
     { P_VAAPAD, P_EXPERT },
     { P_WEDI, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SYMBIOSIS, P_MASTER },
 
     { P_NONE, 0 }
 };
@@ -4776,6 +5987,8 @@ static const struct def_skill Skill_For[] = {
     { P_IMPLANTS, P_EXPERT },
     { P_ATARU, P_MASTER },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
     { P_NONE, 0 }
 };
 
@@ -4804,6 +6017,8 @@ static const struct def_skill Skill_Fem[] = {
     { P_JUYO, P_MASTER },
     { P_SEXY_FLATS, P_MASTER },
     { P_WEDI, P_MASTER },
+    { P_MEMORIZATION, P_GRAND_MASTER },
+    { P_SQUEAKING, P_GRAND_MASTER },
 
     { P_NONE, 0 }
 };
@@ -4825,6 +6040,8 @@ static const struct def_skill Skill_G[] = {
     { P_MATTER_SPELL, P_EXPERT },
     { P_HIGH_HEELS, P_MASTER },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_RIDING, P_EXPERT },
 
@@ -4838,6 +6055,7 @@ static const struct def_skill Skill_G[] = {
     { P_PETKEEPING, P_EXPERT },
     { P_MISSILE_WEAPONS, P_EXPERT },
     { P_TECHNIQUES, P_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_OCCULT_SPELL, P_EXPERT },
     { P_CHAOS_SPELL, P_EXPERT },
@@ -4851,6 +6069,7 @@ static const struct def_skill Skill_G[] = {
     { P_JUYO, P_EXPERT },
     { P_VAAPAD, P_EXPERT },
     { P_WEDI, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_NONE, 0 }
@@ -4869,6 +6088,8 @@ static const struct def_skill Skill_Gra[] = {
     { P_DART, P_MASTER },	{ P_SHURIKEN, P_EXPERT },
     { P_LIGHTSABER, P_EXPERT },    { P_WHIP, P_EXPERT },
     { P_BOW, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_ATTACK_SPELL, P_EXPERT },        
     { P_DIVINATION_SPELL, P_EXPERT },
@@ -4889,6 +6110,7 @@ static const struct def_skill Skill_Gra[] = {
     { P_PETKEEPING, P_EXPERT },
     { P_MISSILE_WEAPONS, P_EXPERT },
     { P_TECHNIQUES, P_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_OCCULT_SPELL, P_EXPERT },
     { P_CHAOS_SPELL, P_EXPERT },
@@ -4902,6 +6124,7 @@ static const struct def_skill Skill_Gra[] = {
     { P_JUYO, P_EXPERT },
     { P_VAAPAD, P_EXPERT },
     { P_WEDI, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_TWO_WEAPON_COMBAT, P_EXPERT },
     { P_MARTIAL_ARTS, P_MASTER },
@@ -4921,6 +6144,7 @@ static const struct def_skill Skill_H[] = {
     { P_SHURIKEN, P_EXPERT },		{ P_UNICORN_HORN, P_MASTER },
     { P_HIGH_HEELS, P_MASTER },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
 
     { P_ATTACK_SPELL, P_EXPERT },        { P_HEALING_SPELL, P_GRAND_MASTER },
     { P_DIVINATION_SPELL, P_EXPERT },    { P_ENCHANTMENT_SPELL, P_EXPERT },
@@ -4930,6 +6154,8 @@ static const struct def_skill Skill_H[] = {
 
     { P_DEVICES, P_EXPERT },
     { P_PETKEEPING, P_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_NONE, 0 }
@@ -4962,6 +6188,7 @@ static const struct def_skill Skill_I[] = {
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_DEVICES, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_ELEMENTAL_SPELL, P_MASTER },
 
@@ -4999,6 +6226,7 @@ static const struct def_skill Skill_J[] = {
     { P_JUYO, P_GRAND_MASTER },
     { P_VAAPAD, P_MASTER },
     { P_WEDI, P_GRAND_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_TWO_WEAPON_COMBAT, P_EXPERT }, { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_NONE, 0 }
@@ -5012,6 +6240,7 @@ static const struct def_skill Skill_Fox[] = {
     { P_CROSSBOW, P_MASTER },                { P_KNIFE, P_MASTER },
     { P_DAGGER, P_MASTER },                { P_MARTIAL_ARTS, P_MASTER },
     { P_BOW, P_MASTER },                { P_FIREARM, P_MASTER },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_BODY_ARMOR, P_EXPERT },
@@ -5074,6 +6303,7 @@ static const struct def_skill Skill_Pal[] = {
 	{ P_DIVINATION_SPELL, P_EXPERT },
 
 	{ P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_SHIELD, P_GRAND_MASTER },
@@ -5101,6 +6331,8 @@ static const struct def_skill Skill_Wan[] = {
 
     { P_TWO_WEAPON_COMBAT, P_EXPERT }, { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_HIGH_HEELS, P_MASTER },
+    { P_SQUEAKING, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_POLYMORPHING, P_MASTER },
     { P_DEVICES, P_GRAND_MASTER },
@@ -5110,6 +6342,7 @@ static const struct def_skill Skill_Wan[] = {
     { P_MISSILE_WEAPONS, P_EXPERT },
     { P_TECHNIQUES, P_MASTER },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
 
     { P_OCCULT_SPELL, P_GRAND_MASTER },
     { P_ELEMENTAL_SPELL, P_EXPERT },
@@ -5117,6 +6350,7 @@ static const struct def_skill Skill_Wan[] = {
     { P_MAKASHI, P_MASTER },
     { P_SHIEN, P_MASTER },
     { P_WEDI, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_NONE, 0 }
 };
@@ -5136,6 +6370,7 @@ static const struct def_skill Skill_Elm[] = {
     { P_VAAPAD, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
     { P_WEDI, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
 
     { P_NONE, 0 }
 };
@@ -5161,6 +6396,7 @@ static const struct def_skill Skill_Occ[] = {
     { P_ATARU, P_EXPERT },
     { P_NIMAN, P_EXPERT },
     { P_WEDI, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
 
     { P_NONE, 0 }
 };
@@ -5180,6 +6416,10 @@ static const struct def_skill Skill_Cha[] = {
     { P_ATARU, P_GRAND_MASTER },
     { P_DJEM_SO, P_EXPERT },
     { P_JUYO, P_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
     { P_NONE, 0 }
 };
 
@@ -5226,6 +6466,7 @@ static const struct def_skill Skill_K[] = {
     { P_SHII_CHO, P_EXPERT },
     { P_SEXY_FLATS, P_MASTER },
     { P_WEDI, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_TWO_WEAPON_COMBAT, P_EXPERT }, { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_NONE, 0 }
@@ -5259,6 +6500,7 @@ static const struct def_skill Skill_Jus[] = {
     { P_PETKEEPING, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
     { P_WEDI, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_TWO_WEAPON_COMBAT, P_EXPERT }, { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_NONE, 0 }
@@ -5278,6 +6520,7 @@ static const struct def_skill Skill_Mah[] = {
 	{ P_RIDING, P_EXPERT },		{ P_CLUB, P_EXPERT },
 	{ P_SPEAR, P_EXPERT },
     { P_HIGH_HEELS, P_MASTER },
+    { P_SQUEAKING, P_MASTER },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_TWO_HANDED_WEAPON, P_EXPERT },
@@ -5291,6 +6534,7 @@ static const struct def_skill Skill_Mah[] = {
     { P_NIMAN, P_EXPERT },
     { P_VAAPAD, P_MASTER },
     { P_WEDI, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_OCCULT_SPELL, P_EXPERT },
     { P_ELEMENTAL_SPELL, P_EXPERT },
@@ -5314,6 +6558,7 @@ static const struct def_skill Skill_Dol[] = {
     { P_ATTACK_SPELL, P_EXPERT },      { P_DIVINATION_SPELL, P_EXPERT },
 	{ P_ENCHANTMENT_SPELL, P_EXPERT },
     { P_HIGH_HEELS, P_GRAND_MASTER },
+    { P_SQUEAKING, P_EXPERT },
 
     { P_TWO_HANDED_WEAPON, P_EXPERT },
     { P_POLYMORPHING, P_MASTER },
@@ -5324,6 +6569,8 @@ static const struct def_skill Skill_Dol[] = {
     { P_MAKASHI, P_MASTER },
     { P_NIMAN, P_EXPERT },
     { P_WEDI, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SYMBIOSIS, P_MASTER },
 
     { P_OCCULT_SPELL, P_EXPERT },
     { P_ELEMENTAL_SPELL, P_EXPERT },
@@ -5396,6 +6643,7 @@ static const struct def_skill Skill_Ord[] = { /*master of all weapons*/
     { P_JUYO, P_GRAND_MASTER },
     { P_VAAPAD, P_GRAND_MASTER },
     { P_WEDI, P_GRAND_MASTER },
+    { P_GUN_CONTROL, P_GRAND_MASTER },
 
     { P_GENERAL_COMBAT, P_GRAND_MASTER },
     { P_TWO_HANDED_WEAPON, P_GRAND_MASTER },
@@ -5429,6 +6677,8 @@ static const struct def_skill Skill_Off[] = { /*master of all weapons*/
     { P_SHII_CHO, P_EXPERT },
     { P_SHIEN, P_MASTER },
     { P_JUYO, P_GRAND_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_SHIELD, P_EXPERT },
@@ -5461,6 +6711,7 @@ static const struct def_skill Skill_Mon[] = {
     { P_TECHNIQUES, P_EXPERT },
     { P_SORESU, P_MASTER },
     { P_SEXY_FLATS, P_GRAND_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_SPIRITUALITY, P_EXPERT },
     { P_ELEMENTAL_SPELL, P_EXPERT },
@@ -5486,6 +6737,7 @@ static const struct def_skill Skill_Sai[] = {
     { P_DIVINATION_SPELL, P_EXPERT },	{ P_ENCHANTMENT_SPELL, P_EXPERT },
     { P_PROTECTION_SPELL, P_MASTER },	{ P_BODY_SPELL, P_EXPERT },
     { P_MATTER_SPELL, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_SHIELD, P_EXPERT },
@@ -5523,6 +6775,7 @@ static const struct def_skill Skill_Psi[] = {
     { P_PROTECTION_SPELL, P_EXPERT },	{ P_BODY_SPELL, P_GRAND_MASTER },
     { P_MATTER_SPELL, P_MASTER },
     { P_HIGH_HEELS, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
 
     { P_POLYMORPHING, P_EXPERT },
     { P_DEVICES, P_EXPERT },
@@ -5534,6 +6787,7 @@ static const struct def_skill Skill_Psi[] = {
     { P_DJEM_SO, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
     { P_WEDI, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_OCCULT_SPELL, P_GRAND_MASTER },
     { P_CHAOS_SPELL, P_EXPERT },
@@ -5560,6 +6814,7 @@ static const struct def_skill Skill_Nob[] = {
     { P_ATTACK_SPELL, P_EXPERT },	{ P_HEALING_SPELL, P_EXPERT },
     { P_BODY_SPELL, P_EXPERT },	{ P_ENCHANTMENT_SPELL, P_EXPERT },
     { P_RIDING, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_MASTER },
     { P_SHIELD, P_EXPERT },
@@ -5569,6 +6824,7 @@ static const struct def_skill Skill_Nob[] = {
     { P_SPIRITUALITY, P_EXPERT },
     { P_PETKEEPING, P_EXPERT },
     { P_MISSILE_WEAPONS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_NONE, 0 }
@@ -5592,16 +6848,19 @@ static const struct def_skill Skill_N[] = {
     { P_MATTER_SPELL, P_EXPERT },
     { P_DIVINATION_SPELL, P_EXPERT },
     { P_ENCHANTMENT_SPELL, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_TWO_HANDED_WEAPON, P_EXPERT },
     { P_POLYMORPHING, P_EXPERT },
     { P_DEVICES, P_EXPERT },
     { P_SPIRITUALITY, P_MASTER },
     { P_PETKEEPING, P_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_OCCULT_SPELL, P_EXPERT },
     { P_CHAOS_SPELL, P_EXPERT },
     { P_MAKASHI, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
 /*WAC-  expert of dark arts - attack spells,  skilled in matter
         -for fireball and cone of cold*/
@@ -5630,6 +6889,7 @@ static struct def_skill Skill_P[] = {
     { P_DIVINATION_SPELL, P_EXPERT },   { P_ENCHANTMENT_SPELL, P_EXPERT },
     { P_PROTECTION_SPELL, P_EXPERT },  { P_BODY_SPELL, P_EXPERT },
     { P_MATTER_SPELL, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_SHIELD, P_MASTER },
@@ -5641,6 +6901,7 @@ static struct def_skill Skill_P[] = {
     { P_SORESU, P_GRAND_MASTER },
     { P_SEXY_FLATS, P_EXPERT },
     { P_WEDI, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_BARE_HANDED_COMBAT, P_EXPERT },  /* the monk is added in slash */ 
     { P_NONE, 0 }
@@ -5698,6 +6959,8 @@ static const struct def_skill Skill_Pir[] = {
     { P_TWO_WEAPON_COMBAT, P_EXPERT },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_HIGH_HEELS, P_MASTER },
+    { P_SQUEAKING, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_SHIELD, P_EXPERT },
@@ -5728,6 +6991,7 @@ static const struct def_skill Skill_Div[] = {
     { P_TWO_WEAPON_COMBAT, P_EXPERT },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_RIDING, P_EXPERT },
+    { P_SQUEAKING, P_MASTER },
 
     { P_BODY_ARMOR, P_MASTER },
     { P_TWO_HANDED_WEAPON, P_EXPERT },
@@ -5758,6 +7022,7 @@ static const struct def_skill Skill_Kor[] = {
 
     { P_TWO_WEAPON_COMBAT, P_EXPERT },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_GUN_CONTROL, P_MASTER },
 
     { P_GENERAL_COMBAT, P_MASTER },
     { P_SHIELD, P_EXPERT },
@@ -5829,6 +7094,8 @@ static const struct def_skill Skill_Gof[] = {
     { P_PROTECTION_SPELL, P_EXPERT },  { P_BODY_SPELL, P_EXPERT },
     { P_MATTER_SPELL, P_EXPERT },
     { P_RIDING, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_POLYMORPHING, P_EXPERT },
@@ -5836,6 +7103,7 @@ static const struct def_skill Skill_Gof[] = {
     { P_SPIRITUALITY, P_EXPERT },
     { P_PETKEEPING, P_MASTER },
     { P_MISSILE_WEAPONS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_CHAOS_SPELL, P_EXPERT },
     { P_NIMAN, P_MASTER },
@@ -5928,6 +7196,7 @@ static const struct def_skill Skill_Loc[] = {
     { P_RIDING, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_POLYMORPHING, P_EXPERT },
     { P_DEVICES, P_GRAND_MASTER },
@@ -5995,6 +7264,9 @@ static const struct def_skill Skill_Ran[] = {
     { P_BODY_SPELL, P_EXPERT },
     { P_RIDING, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SQUEAKING, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_DEVICES, P_EXPERT },
@@ -6062,6 +7334,7 @@ static const struct def_skill Skill_Mid[] = {
     { P_RIDING, P_EXPERT },
     { P_TWO_WEAPON_COMBAT, P_EXPERT },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_SHIELD, P_EXPERT },
@@ -6081,6 +7354,7 @@ static const struct def_skill Skill_Rin[] = {
     { P_ENCHANTMENT_SPELL, P_EXPERT },    { P_PROTECTION_SPELL, P_EXPERT },
     { P_BODY_SPELL, P_EXPERT },    { P_MATTER_SPELL, P_EXPERT },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_SHIELD, P_EXPERT },
     { P_POLYMORPHING, P_EXPERT },
@@ -6133,6 +7407,8 @@ static const struct def_skill Skill_Bos[] = {
     { P_SPIRITUALITY, P_EXPERT },
     { P_PETKEEPING, P_EXPERT },
     { P_MISSILE_WEAPONS, P_GRAND_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_SQUEAKING, P_MASTER },
 
     { P_ELEMENTAL_SPELL, P_EXPERT },
 
@@ -6168,6 +7444,7 @@ static const struct def_skill Skill_Mus[] = {
     { P_SPIRITUALITY, P_MASTER },
     { P_PETKEEPING, P_MASTER },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_HIGH_HEELS, P_EXPERT },
     { P_TWO_WEAPON_COMBAT, P_EXPERT },
@@ -6208,6 +7485,39 @@ static const struct def_skill Skill_S[] = {
     { P_NONE, 0 }
 };
 
+static const struct def_skill Skill_Gre[] = {
+    { P_DAGGER, P_EXPERT },		{ P_KNIFE,  P_EXPERT },
+    { P_SHORT_SWORD, P_GRAND_MASTER },	{ P_BROAD_SWORD, P_EXPERT },
+    { P_LONG_SWORD, P_EXPERT },		{ P_TWO_HANDED_SWORD, P_EXPERT },
+    { P_SCIMITAR, P_EXPERT },		{ P_SABER, P_EXPERT },
+    { P_PADDLE, P_EXPERT },
+    { P_FLAIL, P_EXPERT },		{ P_QUARTERSTAFF, P_EXPERT },
+    { P_POLEARMS, P_EXPERT },		{ P_SPEAR, P_EXPERT },
+    { P_JAVELIN, P_EXPERT },		{ P_LANCE, P_EXPERT },
+    { P_BOW, P_EXPERT },		{ P_SHURIKEN, P_EXPERT },
+    { P_PROTECTION_SPELL, P_EXPERT },      { P_BODY_SPELL, P_EXPERT },
+    { P_HIGH_HEELS, P_EXPERT },	{ P_FIREARM, P_GRAND_MASTER },
+
+/* WAC - removed the attack spells, replace with body.  clairvoyance, meditate*/
+    { P_RIDING, P_EXPERT },
+    { P_GENERAL_COMBAT, P_MASTER },
+    { P_SHIELD, P_EXPERT },
+    { P_BODY_ARMOR, P_EXPERT },
+    { P_TWO_HANDED_WEAPON, P_GRAND_MASTER },
+    { P_POLYMORPHING, P_EXPERT },
+    { P_DEVICES, P_MASTER },
+    { P_SEARCHING, P_EXPERT },
+    { P_SPIRITUALITY, P_EXPERT },
+    { P_PETKEEPING, P_EXPERT },
+    { P_MISSILE_WEAPONS, P_EXPERT },
+    { P_TECHNIQUES, P_EXPERT },
+    { P_SEXY_FLATS, P_MASTER },
+
+    { P_TWO_WEAPON_COMBAT, P_EXPERT },
+    { P_MARTIAL_ARTS, P_MASTER },
+    { P_NONE, 0 }
+};
+
 static const struct def_skill Skill_Ama[] = {
     { P_DAGGER, P_EXPERT },		{ P_KNIFE,  P_EXPERT },
 	{ P_AXE,  P_EXPERT },
@@ -6224,6 +7534,7 @@ static const struct def_skill Skill_Ama[] = {
 	{ P_WHIP,  P_EXPERT },
     { P_HIGH_HEELS, P_MASTER },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_SQUEAKING, P_MASTER },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_SHIELD, P_EXPERT },
@@ -6258,6 +7569,9 @@ static const struct def_skill Skill_Drd[] = {
     { P_SPIRITUALITY, P_EXPERT },
     { P_PETKEEPING, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_ELEMENTAL_SPELL, P_MASTER },
 
@@ -6331,6 +7645,7 @@ static const struct def_skill Skill_T[] = {
 /*WAC left alone*/
     { P_RIDING, P_EXPERT },
     { P_SEXY_FLATS, P_MASTER },
+    { P_SQUEAKING, P_MASTER },
 
     { P_GENERAL_COMBAT, P_EXPERT },
     { P_SHIELD, P_EXPERT },
@@ -6468,6 +7783,7 @@ static const struct def_skill Skill_Unt[] = {
     { P_SPIRITUALITY, P_EXPERT },
     { P_PETKEEPING, P_EXPERT },
     { P_TECHNIQUES, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
 
     { P_OCCULT_SPELL, P_EXPERT },
 
@@ -6535,6 +7851,7 @@ static const struct def_skill Skill_Sag[] = {
     { P_SPIRITUALITY, P_EXPERT },
     { P_PETKEEPING, P_EXPERT },
     { P_TECHNIQUES, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
 
     { P_OCCULT_SPELL, P_MASTER },
 
@@ -6560,6 +7877,7 @@ static const struct def_skill Skill_W[] = {
 /*      added matter spell skilled,  as fireball and cone of cold are
         matter spells, but now specialty of F/I Mages*/
     { P_RIDING, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
 
     { P_OCCULT_SPELL, P_EXPERT },
 
@@ -6590,6 +7908,7 @@ static const struct def_skill Skill_Alt[] = {
     { P_OCCULT_SPELL, P_GRAND_MASTER },
     { P_ELEMENTAL_SPELL, P_GRAND_MASTER },
     { P_CHAOS_SPELL, P_GRAND_MASTER },
+    { P_MEMORIZATION, P_GRAND_MASTER },
 
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_NONE, 0 }
@@ -6607,6 +7926,10 @@ static const struct def_skill Skill_Pok[] = {
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_HIGH_HEELS, P_EXPERT },
     { P_SEXY_FLATS, P_EXPERT },
+    { P_MEMORIZATION, P_MASTER },
+    { P_SQUEAKING, P_EXPERT },
+    { P_GUN_CONTROL, P_EXPERT },
+    { P_SYMBIOSIS, P_GRAND_MASTER },
 
     { P_BODY_ARMOR, P_EXPERT },
     { P_POLYMORPHING, P_GRAND_MASTER },
@@ -6677,11 +8000,13 @@ static const struct def_skill Skill_Dea[] = {
     { P_SEARCHING, P_EXPERT },
     { P_SPIRITUALITY, P_EXPERT },
     { P_MISSILE_WEAPONS, P_MASTER },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_FIREARM, P_EXPERT },
     { P_SHII_CHO, P_MASTER },
     { P_DJEM_SO, P_EXPERT },
     { P_NIMAN, P_GRAND_MASTER },
+    { P_SYMBIOSIS, P_EXPERT },
 
     { P_ATTACK_SPELL, P_GRAND_MASTER },	{ P_HEALING_SPELL, P_EXPERT },
     { P_DIVINATION_SPELL, P_EXPERT },  { P_ENCHANTMENT_SPELL, P_MASTER },
@@ -6716,6 +8041,7 @@ static const struct def_skill Skill_Y[] = {
     { P_BODY_SPELL, P_EXPERT },
     { P_RIDING, P_GRAND_MASTER },
     { P_HIGH_HEELS, P_EXPERT },
+    { P_MEMORIZATION, P_EXPERT },
 
     { P_GENERAL_COMBAT, P_MASTER },
     { P_SHIELD, P_EXPERT },
@@ -6901,19 +8227,19 @@ static const char * const hereticgods[] = {
 /* pantheons for priests etc. These contain all the roles pantheons; they need to be aligned so that if we pick a random number and apply that to all three, a consistent role's pantheon is created! It also contains made-up pantheons that don't belong to an actual role. --Amy */
 static const char * const lawfulgods[] = {
 
-"The Lord of the Pit", "Anti-War Movement", "_Eilistraee", "_Suzanne Collins", "Quetzalcoatl", "Leonardo", "Ehud", "Dunlain", "Mitra", "Garl Glittergold", "Yaldabaoth", "Glycocalyx", "_Rhea Oro", "Eddergud", "_Everella Shrine", "Anu", "Buddha", "Ilmater", "McDonalds", "President Kimball", "Jacob Black", "Merlin", "Tane", "_Sakuya", "Apollo", "Orome", "Thomas Alva Edison", "Solonor Thelandira", "James Bond", "Prometheus", "Earth", "Colonel Campbell", "Nintendo", "Claude Speed", "UNIX", "Sulla", "_B'loody Mary", "Jobs", "_Athena", "Air", "Bowditch", "the Light Side", "Barnum", "Lugh", "Erzulie Freda", "Hugh Hefner", "Leo Tolstoi", "Nuada", "Eluvian", "_Queen Serenity", "Shan Lai Ching", "Falis", "Donblas", "Nharlotep", "Votishal", "God the Father", "Magnum", "_Vaire", "Brahma", "Ariel", "Danzai", "the Lord", "A'En", "Democracy", "Bickney", "Mercury", "Classic Rock", "Issek", "_Cassandra", "Moori", "_Amaterasu Omikami", "Nikola Tesla", "Airyaman", "_Lady Ariane", "the Homies", "Manwe Sulimo", "Speedy Gonzales", "Blind Io", "_Olivia", "Seeker", "_Hel", "Tyr", "Larry Koopa", "Talos", "Ptah", "His Majesty", "Balder", "Andromorph", "Seraphimon", "Scorpion", "Dios", "Ceipheid", "_Tsunami", "Ladon", "_Osiris", "_Goddess", "Biron", "_Ishtar", "_Nayru", "Zephyr", "Aslan", "Bahamut", "_Princess Celestia", "_Rainbow Dash", "Ceiling Cat", "SlimKirby", "Superego", "Porphyry", "Nike", "Little Mac", "Noeda", "Dungeon Collapse", "Commissioner Hunter", "upper bull", "Acehack", "Johanna from Orleans", "Kelvin", "Bar", "Deckard Cain", "Pepin the Healer", "Sulla", "Cheibriados", "Fedhas", "Lugonu", "Okawaru", "Vehumet", "Zin", "_the Bitches", "King Somnus", "Gaia", "Khronos", "Brahma", "Pangu", "Atum", "Khepri", "Corak", "Chiyo-chichi", "Truth", "Mr. Black", "_Irina", "Ulfric Stormcloak", "Gaming PC", "Aurum", "Moradin", "Lurtz", "Legolas", "Selvetarm", "Mahal", "Ilneval", "_Vandria", "Saint Cuthbert", "_Breasts", "_Mother", "Eden", "_Balam", "Enki", "_Eurynome", "Nudziarth", "Huginn and Muninn", "Jack", "Shiro", "Tenebrous", "_Paimon", "Dahlver-Nar", "potion of urine", "Tal Rascha", "China", "General Fai", "Terrans", "Kormu", "_Demeter", "Tartarica", "_Minerva", "Static", "Jiraiya", "Nereus", "_Tenderness", "_Softness", "Toesmashing", "Bill Gates", "Albert Einstein", "Dagobert Duck", "Donkey Kong", "Mr. Spock", "the U.N.O.", "the gnome with the wand of death", "bhaak", "Elronnd", "Dudley", "stth", "muad", "Eidolos", "Boko Haram", "_Nicki Minaj", "Full Moon", "Doenerteller Versace", "Grizz", "Zombieman Brigade", "Powdery Snow", "Sol", "_Selene", "Lawful Good", "_Umbrellarina Madeline", "Jonathan Joestar", "Seveso Toxin", "Milahowalpaw", "Kanigyilak", "The Riddler", "Zeon Zum Deikun", "_Laya", "the Great Light", "Asgore Dreemurr", "the Wave Existence", "_Arle Nadja", "Amon Ra", "Fate", "Regunin", "_Mercedes", "_Ewa", "_Kumiromi of Harvest", "Yacatect of Wealth", "_Jure of Healing", "_Morodwyn", "Corellius", "Elderon", "The One Who Sees", "Onn", "Sssracht", "_Shalla", "Ka'Omsh", "Gnarl", "Order", "Fiit-Ssaaar", "Valpurus", "Legifer", "Atavus", "_Dulcis", "_Seges", "Polypiling", "Mr. Maradonna", "_Gina", "_Polyhymnia", "Tariru", "_Madeleine", "The Battlehorse", "Utu", 
+"The Lord of the Pit", "Anti-War Movement", "_Eilistraee", "_Suzanne Collins", "Quetzalcoatl", "Leonardo", "Ehud", "Dunlain", "Mitra", "Garl Glittergold", "Yaldabaoth", "Glycocalyx", "_Rhea Oro", "Eddergud", "_Everella Shrine", "Anu", "Buddha", "Ilmater", "McDonalds", "President Kimball", "Jacob Black", "Merlin", "Tane", "_Sakuya", "Apollo", "Orome", "Thomas Alva Edison", "Solonor Thelandira", "James Bond", "Prometheus", "Earth", "Colonel Campbell", "Nintendo", "Claude Speed", "UNIX", "Sulla", "_B'loody Mary", "Jobs", "_Athena", "Air", "Bowditch", "the Light Side", "Barnum", "Lugh", "Erzulie Freda", "Hugh Hefner", "Leo Tolstoi", "Nuada", "Eluvian", "_Queen Serenity", "Shan Lai Ching", "Falis", "Donblas", "Nharlotep", "Votishal", "God the Father", "Magnum", "_Vaire", "Brahma", "Ariel", "Danzai", "the Lord", "A'En", "Democracy", "Bickney", "Mercury", "Classic Rock", "Issek", "_Cassandra", "Moori", "_Amaterasu Omikami", "Nikola Tesla", "Airyaman", "_Lady Ariane", "the Homies", "Manwe Sulimo", "Speedy Gonzales", "Blind Io", "_Olivia", "Seeker", "_Hel", "Tyr", "Larry Koopa", "Talos", "Ptah", "His Majesty", "Balder", "Andromorph", "Seraphimon", "Scorpion", "Dios", "Ceipheid", "_Tsunami", "Ladon", "_Osiris", "_Goddess", "Biron", "_Ishtar", "_Nayru", "Zephyr", "Aslan", "Bahamut", "_Princess Celestia", "_Rainbow Dash", "Ceiling Cat", "SlimKirby", "Superego", "Porphyry", "Nike", "Little Mac", "Noeda", "Dungeon Collapse", "Commissioner Hunter", "upper bull", "Acehack", "Johanna from Orleans", "Kelvin", "Bar", "Deckard Cain", "Pepin the Healer", "Sulla", "Cheibriados", "Fedhas", "Lugonu", "Okawaru", "Vehumet", "Zin", "_the Bitches", "King Somnus", "Gaia", "Khronos", "Brahma", "Pangu", "Atum", "Khepri", "Corak", "Chiyo-chichi", "Truth", "Mr. Black", "_Irina", "Ulfric Stormcloak", "Gaming PC", "Aurum", "Moradin", "Lurtz", "Legolas", "Selvetarm", "Mahal", "Ilneval", "_Vandria", "Saint Cuthbert", "_Breasts", "_Mother", "Eden", "_Balam", "Enki", "_Eurynome", "Nudziarth", "Huginn and Muninn", "Jack", "Shiro", "Tenebrous", "_Paimon", "Dahlver-Nar", "potion of urine", "Tal Rascha", "China", "General Fai", "Terrans", "Kormu", "_Demeter", "Tartarica", "_Minerva", "Static", "Jiraiya", "Nereus", "_Tenderness", "_Softness", "Toesmashing", "Bill Gates", "Albert Einstein", "Dagobert Duck", "Donkey Kong", "Mr. Spock", "the U.N.O.", "the gnome with the wand of death", "bhaak", "Elronnd", "Dudley", "stth", "muad", "Eidolos", "Boko Haram", "_Nicki Minaj", "Full Moon", "Doenerteller Versace", "Grizz", "Zombieman Brigade", "Powdery Snow", "Sol", "_Selene", "Lawful Good", "_Umbrellarina Madeline", "Jonathan Joestar", "Seveso Toxin", "Milahowalpaw", "Kanigyilak", "The Riddler", "Zeon Zum Deikun", "_Laya", "the Great Light", "Asgore Dreemurr", "the Wave Existence", "_Arle Nadja", "Amon Ra", "Fate", "Regunin", "_Mercedes", "_Ewa", "_Kumiromi of Harvest", "Yacatect of Wealth", "_Jure of Healing", "_Morodwyn", "Corellius", "Elderon", "The One Who Sees", "Onn", "Sssracht", "_Shalla", "Ka'Omsh", "Gnarl", "Order", "Fiit-Ssaaar", "Valpurus", "Legifer", "Atavus", "_Dulcis", "_Seges", "Polypiling", "Mr. Maradonna", "_Gina", "_Polyhymnia", "Tariru", "_Madeleine", "The Battlehorse", "Utu", "_Your Magical Roommate", "Heimskr", "_Margaret", "_Zoe Quinn", "Speaker Walt", "Linus Torvalds", "Wikileaks", "Grime", "Krog", "Cortege", "Macbeth", "Roger Staubach", "Bill Rizer", "_Grolla Seyfarth", "_Marie Curie", "Tax Evasion", "Neil Armstrong", "Diddy the Fail Master", "_Aung San Suu Kyi", "Jim Raynor", "Johnny", "Enki", "Cheep Cheep", "Divert", "Slim Jim", "Arihant", "_Sulis", "Indra", "Erotic Air Current Noises", "Buergerinnen und Buerger", "Arev", 
 
 };
 
 static const char * const neutralgods[] = {
 
-"Goldblight of the Flame", "Global Freedom Council", "_Kiaransali", "_Effie Trinket", "Camaxtli", "Picasso", "Ford", "Savos Aren", "Crom", "Flandal Steelskin", "the void", "Fibrinogen", "_Liebea Luna", "Vhaeraun", "Butch DeLoria", "_Ishtar", "Jahwe", "Grumbar", "Kentucky's Fried Chicken", "Mr. House", "_Bella Swan", "Salazar Slytherin", "Tangaroa", "_Reimu", "Dionysus", "_Yavanna", "Benjamin Franklin", "Aerdrie Faenya", "Chuck Norris", "Thor", "Fire", "Deepthroat", "Microsoft", "Carl CJ Johnson", "the PDP-7", "Cicero", "_Ebony Dark'ness", "Wozniak", "Hermes", "Frost", "Peabody", "the Force", "Bailey", "_Brigit", "Marassa Jumeaux", "G-boy", "Stephen Hawking", "Dagda", "Moon", "_Angel Aphrodite", "Chih Sung-tzu", "_Marfa", "Grome", "Zugguthobal", "Raiden", "_Mother Earth", "Smith", "_Varda Elentari", "Vishnu", "Tyrael", "Milanor", "_the deep blue sea", "Dr. Oujide", "Communism", "Corridor", "_Venus", "Symphonic Metal", "Mog", "Menelaos", "King Kai", "Raijin", "Erwin Schroedinger", "Gandarewa", "Lord Stahngnir", "the Robbers", "Mandos", "Dan Naginati", "_The Lady", "Peyman", "_Osiris", "Pluto", "Odin", "Roy Koopa", "_Meridia", "Thoth", "His Holiness", "_Edda", "Technix", "_Ophanimon", "Sub-Zero", "_the Rose Bride", "_the Lord of Nightmares", "_Washu", "Namanda", "Obelisk", "Doom", "Tieg", "Filaha", "_Farore", "_Raftina", "the Emperor-beyond-the-Sea", "Io", "_the Fausticorn", "_Fluttershy", "Longcat", "Lucahjin", "Ego", "_Fanny Kemble", "Adidas", "Mister Sandman", "Soviet5lo", "Segfault Bug", "Jeweler Jublgrais", "type of ice block", "DNethack", "Queen Katharina", "Celsius", "Torr", "Qual-Kehk", "Griswold the Armorer", "Amenophis", "Beogh", "Elyvilon", "Kikubaaqudgha", "Nemelex", "Trog", "Yredelemnul", "_the Hell Brides", "_Rubiss", "Ahura Mazda", "Demiourgos", "Aeon", "Bulaing", "Kamui", "Vishvakarman", "the Dragon Pharaoh", "Neco Coneco", "Love", "Big Bear", "Max", "_Delphine", "Sony PlayStation", "Argentum", "Dumathoin", "Saruman", "_Eowyn", "Keptolo", "Holashner", "_Luthic", "Corellon", "Helm", "_Feet", "Andromalius", "Berith", "_Cosmos", "Buer", "Amon", "Andrealphus", "Fafnir", "Astaroth", "_Eve", "_Chupoclops", "Naberius", "Orthos", "scroll of bullshit", "_Blood Raven", "USA", "General Townes", "Zerg", "_Sophie", "_Hestia", "Acetica", "Apollo", "Magnet", "_Tsunade", "Neptune", "_Beautifulness", "_Squeakiness", "Shin Kick", "_Britney Spears", "Homer Simpson", "_Xena", "Jack Bauer", "_Your mom", "the Flying Spaghetti Monster", "paxed", "tungtn", "Dion Nicolaas", "the RNG", "Adeon", "speedycat7", "dograt", "The Taliban", "_Taylor Swift", "New Moon", "Fish and Chips", "Panda", "The Revenants", "Large Snowflakes", "_Terra", "Helios", "True Neutral", "_Medium Deborah", "Hirohiko Araki", "Fukoshima Radiation", "_Timalixomol", "Omeatl", "_Poison Ivy", "Degwin Sodo Zabi", "Orakio", "Lutz", "the Absolute GOD of Hyperdeath", "Emperor Cain", "_Celine Jules", "Hersifon", "Unlimited Blade Works", "Caxon", "_Misty", "Lorskel", "Opatos of Earth", "Itzpalt of Element", "Mani of Machine", "Clamgaddin", "_Ayssia", "_Anssaria", "The One Who Kills", "_Istaria", "Issrecht", "_Auroree", "Ne'Ftrr", "_Berwyn", "Balance", "Sssaass", "Loricatus", "_Silva", "Mellis", "_Cleptia", "Sophos", "Monster Polymorphing", "_Ms. Unfortunate Forest", "Gordon Freeman", "_Euterpe", "FIQ", "_Sofia", "The Wild Boar", "Kossuth", 
+"Goldblight of the Flame", "Global Freedom Council", "_Kiaransali", "_Effie Trinket", "Camaxtli", "Picasso", "Ford", "Savos Aren", "Crom", "Flandal Steelskin", "the void", "Fibrinogen", "_Liebea Luna", "Vhaeraun", "Butch DeLoria", "_Ishtar", "Jahwe", "Grumbar", "Kentucky's Fried Chicken", "Mr. House", "_Bella Swan", "Salazar Slytherin", "Tangaroa", "_Reimu", "Dionysus", "_Yavanna", "Benjamin Franklin", "Aerdrie Faenya", "Chuck Norris", "Thor", "Fire", "Deepthroat", "Microsoft", "Carl CJ Johnson", "the PDP-7", "Cicero", "_Ebony Dark'ness", "Wozniak", "Hermes", "Frost", "Peabody", "the Force", "Bailey", "_Brigit", "Marassa Jumeaux", "G-boy", "Stephen Hawking", "Dagda", "Moon", "_Angel Aphrodite", "Chih Sung-tzu", "_Marfa", "Grome", "Zugguthobal", "Raiden", "_Mother Earth", "Smith", "_Varda Elentari", "Vishnu", "Tyrael", "Milanor", "_the deep blue sea", "Dr. Oujide", "Communism", "Corridor", "_Venus", "Symphonic Metal", "Mog", "Menelaos", "King Kai", "Raijin", "Erwin Schroedinger", "Gandarewa", "Lord Stahngnir", "the Robbers", "Mandos", "Dan Naginati", "_The Lady", "Peyman", "_Osiris", "Pluto", "Odin", "Roy Koopa", "_Meridia", "Thoth", "His Holiness", "_Edda", "Technix", "_Ophanimon", "Sub-Zero", "_the Rose Bride", "_the Lord of Nightmares", "_Washu", "Namanda", "Obelisk", "Doom", "Tieg", "Filaha", "_Farore", "_Raftina", "the Emperor-beyond-the-Sea", "Io", "_the Fausticorn", "_Fluttershy", "Longcat", "Lucahjin", "Ego", "_Fanny Kemble", "Adidas", "Mister Sandman", "Soviet5lo", "Segfault Bug", "Jeweler Jublgrais", "type of ice block", "DNethack", "Queen Katharina", "Celsius", "Torr", "Qual-Kehk", "Griswold the Armorer", "Amenophis", "Beogh", "Elyvilon", "Kikubaaqudgha", "Nemelex", "Trog", "Yredelemnul", "_the Hell Brides", "_Rubiss", "Ahura Mazda", "Demiourgos", "Aeon", "Bulaing", "Kamui", "Vishvakarman", "the Dragon Pharaoh", "Neco Coneco", "Love", "Big Bear", "Max", "_Delphine", "Sony PlayStation", "Argentum", "Dumathoin", "Saruman", "_Eowyn", "Keptolo", "Holashner", "_Luthic", "Corellon", "Helm", "_Feet", "Andromalius", "Berith", "_Cosmos", "Buer", "Amon", "Andrealphus", "Fafnir", "Astaroth", "_Eve", "_Chupoclops", "Naberius", "Orthos", "scroll of bullshit", "_Blood Raven", "USA", "General Townes", "Zerg", "_Sophie", "_Hestia", "Acetica", "Apollo", "Magnet", "_Tsunade", "Neptune", "_Beautifulness", "_Squeakiness", "Shin Kick", "_Britney Spears", "Homer Simpson", "_Xena", "Jack Bauer", "_Your mom", "the Flying Spaghetti Monster", "paxed", "tungtn", "Dion Nicolaas", "the RNG", "Adeon", "speedycat7", "dograt", "The Taliban", "_Taylor Swift", "New Moon", "Fish and Chips", "Panda", "The Revenants", "Large Snowflakes", "_Terra", "Helios", "True Neutral", "_Medium Deborah", "Hirohiko Araki", "Fukoshima Radiation", "_Timalixomol", "Omeatl", "_Poison Ivy", "Degwin Sodo Zabi", "Orakio", "Lutz", "the Absolute GOD of Hyperdeath", "Emperor Cain", "_Celine Jules", "Hersifon", "Unlimited Blade Works", "Caxon", "_Misty", "Lorskel", "Opatos of Earth", "Itzpalt of Element", "Mani of Machine", "Clamgaddin", "_Ayssia", "_Anssaria", "The One Who Kills", "_Istaria", "Issrecht", "_Auroree", "Ne'Ftrr", "_Berwyn", "Balance", "Sssaass", "Loricatus", "_Silva", "Mellis", "_Cleptia", "Sophos", "Monster Polymorphing", "_Ms. Unfortunate Forest", "Gordon Freeman", "_Euterpe", "FIQ", "_Sofia", "The Wild Boar", "Kossuth", "_Your Annoying Sister", "_Suffragette", "_Anaconda", "_Brianna Wu", "Great Corner-Hard", "Bjarne Stroustrup", "Guccifer 2.0", "Dog Shit", "Winston", "Tache", "Zoness", "Peyton Manning", "Lance Bean", "Pamela & Carl Arwig", "Georg Simon Ohm", "Murder and Arson", "_Sally Ride", "Bantor the Gay Voice", "Ai Weiwei", "Hierarch Artanis", "Spike", "Enlil", "Blubber", "Oat Camper", "Milwaukee Jon", "Siddha", "_Sequana", "Soma", "Wonderful Rubbing Noises", "Buergerlnnen", "U.GUR", 
 
 };
 
 static const char * const chaoticgods[] = {
 
-"Warpfire Hellspawn", "Human Rights Progression", "_Lolth", "President Snow", "Huhetotl", "Dali", "Ivins", "_Hert the Vampire", "Set", "Urdlen", "_Sophia", "_Hemophilia", "_Elenya Pure", "the black web", "Draco Malfoy", "Anshar", "Allah", "_Tymora", "Burger King", "Caesar", "Edward Cullen", "Lord Voldemort", "Whiro", "_Yukari Yakumo", "Pan", "Tulkas", "_Marilyn Monroe", "Erevan Ilesere", "Jackie Chan", "Arson", "Ash", "The Patriots", "Sony", "Tommy Vercetti", "VMS", "Catilina", "Darth Valer", "Gates", "Poseidon", "Smoke", "Rothchild", "the Dark Side", "Shaco", "Manannan Mac Lir", "Papa Legba", "Arsene Lupin", "H. P. Lovecraft", "Morrigan", "Lycanthus", "_Queen Beryl", "Huan Ti", "Falaris", "Arioch", "Gothuulbe", "Rat God", "the Satan", "Wesson", "_Nessa", "_Shiva", "Gabriel", "Daini", "the Devil", "Team Missile Bomb", "Despotism", "Lockney", "Mars", "Hardcore Punk", "Kos", "_Helen of Troy", "Vegeta", "Susanowo", "Wernher von Braun", "Daevas", "Sven Fanara", "the Motherfuckers", "Lorien", "_Kylie Lum", "Offler", "_Lady Gaga", "Seth", "Orcus", "Loki", "Morton Koopa Jr.", "Clavicus Vile", "Anhur", "The Commons", "Hagen", "Mechatron", "Cherubimon", "Kano", "End of the World", "Shabranigdo", "_Tokimi", "_Myria", "Ra", "Poltergeist", "the Mist", "Asmodeus", "_Din", "Justine", "Tash", "_Tiamat", "_Princess Luna", "_Pinkie Pie", "Basement Cat", "The Dark Id", "Id", "Amos Bronson Alcott", "Puma", "Mike Tyson", "Kerio", "Game Freeze", "Captain Future", "water puddle", "SLASH'EM Extended", "Al-Mutasim", "Fahrenheit", "Atue", "Geglash", "Farnham the Drunk", "Pyrrhus", "Ashenzari", "Dithmenos", "Jiyva", "Makhleb", "Sif Muna", "Xom", "_the Sluts with Syphilis", "Malroth", "Viracocha", "Mbombo", "Unkulunkulu", "Apsu", "Coatlique", "Tepeu", "Sheltem", "Kamineko", "Courage", "Faster-Than-All-Others", "Anton", "General Tullius", "XBox 360", "Antimony", "Abbathor", "Morgoth", "Eol", "Ghaunadaur", "Armok", "Gruumsh", "_Sehanine", "_Mask", "Sexy Butt", "_Marionette", "Ymir", "Dantalion", "_Iris", "Acererak", "Ose", "Ahazu", "_Echidna", "Miska", "Malphas", "Otias", "_Simurgh", "wand of summon sexy girl", "B-a-a-l", "Global Liberation Army", "Rodall 'Demo' Juhziz", "Protoss", "Gabnid", "_Adephagia", "Hydrocloria", "Linus", "Lightning", "Orochimaru", "Proteus", "_Disgustingness", "_Loudness", "Kick in the Nuts", "_Mother Teresa", "George W. Bush", "Super Mario", "the blue Power Ranger", "the universe", "the Invisible Pink Unicorn", "the DevTeam", "_Bluescreenofdeath", "marvin", "Tariru", "mrivan", "stenno", "DeathOnAStick", "The IS", "_Miley Cyrus", "Friday the 13th", "Fugu Globefish Sushi", "Ice Bear", "Cyberdemon MkIII Deluxe", "Blizzard", "_Luna", "_Eos", "Chaotic Evil", "_Crueltrainer Cindy", "Cars", "Mustard Gas", "Emoxivalirex", "Tleselagyila", "Two-Face", "Gihren Zabi", "Dark Force", "_the Profound Darkness", "Chara", "Deus", "_Miki Onimaru", "Mor Havoc", "Heaven's Feel", "_Jylla", "_Kendl", "Kaczynski", "_Ehekatl of Luck", "_Lulwy of Wind", "Eyth of Infidel", "Abbad-Undar", "Ni'Pregh", "_Rofl'th", "The One Who Rages", "Ssraxx", "Ussrachs", "Fnordjar", "Vagrak", "_Urglyn", "Chaos", "Fiit-Yaaar", "Mortifer", "Cruentus", "_Infuscor", "_Scabies", "_Nefas", "Self-Polymorph", "_Ms. Storm", "G-Man", "_Terpsichore", "Demo", "_Wendy", "The Dire Wolf", "Garyx", 
+"Warpfire Hellspawn", "Human Rights Progression", "_Lolth", "President Snow", "Huhetotl", "Dali", "Ivins", "_Hert the Vampire", "Set", "Urdlen", "_Sophia", "_Hemophilia", "_Elenya Pure", "the black web", "Draco Malfoy", "Anshar", "Allah", "_Tymora", "Burger King", "Caesar", "Edward Cullen", "Lord Voldemort", "Whiro", "_Yukari Yakumo", "Pan", "Tulkas", "_Marilyn Monroe", "Erevan Ilesere", "Jackie Chan", "Arson", "Ash", "The Patriots", "Sony", "Tommy Vercetti", "VMS", "Catilina", "Darth Valer", "Gates", "Poseidon", "Smoke", "Rothchild", "the Dark Side", "Shaco", "Manannan Mac Lir", "Papa Legba", "Arsene Lupin", "H. P. Lovecraft", "Morrigan", "Lycanthus", "_Queen Beryl", "Huan Ti", "Falaris", "Arioch", "Gothuulbe", "Rat God", "the Satan", "Wesson", "_Nessa", "_Shiva", "Gabriel", "Daini", "the Devil", "Team Missile Bomb", "Despotism", "Lockney", "Mars", "Hardcore Punk", "Kos", "_Helen of Troy", "Vegeta", "Susanowo", "Wernher von Braun", "Daevas", "Sven Fanara", "the Motherfuckers", "Lorien", "_Kylie Lum", "Offler", "_Lady Gaga", "Seth", "Orcus", "Loki", "Morton Koopa Jr.", "Clavicus Vile", "Anhur", "The Commons", "Hagen", "Mechatron", "Cherubimon", "Kano", "End of the World", "Shabranigdo", "_Tokimi", "_Myria", "Ra", "Poltergeist", "the Mist", "Asmodeus", "_Din", "Justine", "Tash", "_Tiamat", "_Princess Luna", "_Pinkie Pie", "Basement Cat", "The Dark Id", "Id", "Amos Bronson Alcott", "Puma", "Mike Tyson", "Kerio", "Game Freeze", "Captain Future", "water puddle", "SLASH'EM Extended", "Al-Mutasim", "Fahrenheit", "Atue", "Geglash", "Farnham the Drunk", "Pyrrhus", "Ashenzari", "Dithmenos", "Jiyva", "Makhleb", "Sif Muna", "Xom", "_the Sluts with Syphilis", "Malroth", "Viracocha", "Mbombo", "Unkulunkulu", "Apsu", "Coatlique", "Tepeu", "Sheltem", "Kamineko", "Courage", "Faster-Than-All-Others", "Anton", "General Tullius", "XBox 360", "Antimony", "Abbathor", "Morgoth", "Eol", "Ghaunadaur", "Armok", "Gruumsh", "_Sehanine", "_Mask", "Sexy Butt", "_Marionette", "Ymir", "Dantalion", "_Iris", "Acererak", "Ose", "Ahazu", "_Echidna", "Miska", "Malphas", "Otias", "_Simurgh", "wand of summon sexy girl", "B-a-a-l", "Global Liberation Army", "Rodall 'Demo' Juhziz", "Protoss", "Gabnid", "_Adephagia", "Hydrocloria", "Linus", "Lightning", "Orochimaru", "Proteus", "_Disgustingness", "_Loudness", "Kick in the Nuts", "_Mother Teresa", "George W. Bush", "Super Mario", "the blue Power Ranger", "the universe", "the Invisible Pink Unicorn", "the DevTeam", "_Bluescreenofdeath", "marvin", "Tariru", "mrivan", "stenno", "DeathOnAStick", "The IS", "_Miley Cyrus", "Friday the 13th", "Fugu Globefish Sushi", "Ice Bear", "Cyberdemon MkIII Deluxe", "Blizzard", "_Luna", "_Eos", "Chaotic Evil", "_Crueltrainer Cindy", "Cars", "Mustard Gas", "Emoxivalirex", "Tleselagyila", "Two-Face", "Gihren Zabi", "Dark Force", "_the Profound Darkness", "Chara", "Deus", "_Miki Onimaru", "Mor Havoc", "Heaven's Feel", "_Jylla", "_Kendl", "Kaczynski", "_Ehekatl of Luck", "_Lulwy of Wind", "Eyth of Infidel", "Abbad-Undar", "Ni'Pregh", "_Rofl'th", "The One Who Rages", "Ssraxx", "Ussrachs", "Fnordjar", "Vagrak", "_Urglyn", "Chaos", "Fiit-Yaaar", "Mortifer", "Cruentus", "_Infuscor", "_Scabies", "_Nefas", "Self-Polymorph", "_Ms. Storm", "G-Man", "_Terpsichore", "Demo", "_Wendy", "The Dire Wolf", "Garyx", "_Your Insufferable Mother-In-Law", "Cromwell", "Aerschie-Miesie", "_Anita Sarkeesian", "Left Guenter", "Mark Zuckerberg", "Anonymous", "Fag Butt", "Cyrus", "Pillory", "_Titania", "Tom Brady", "Haggle Man", "Iris Sepperin", "Albert Einstein", "Prison Outbreak", "Yuri Gagarin", "Conker the Bad Fur Squirrel", "Vladimir Bukovsky", "_Sarah Kerrigan", "Timmy", "_Ereshkigal", "Boss Bass", "_Jeannine", "Bose Jefferson", "Acharya", "_Damona", "Ishwara", "Sexy Licking Noises", "Buerger*innen", "Khaldi", 
 
 
 };
@@ -6930,6 +8256,8 @@ u_init()
 	struct permonst* shamblern = &mons[PM_NETHACKFOUR_HORROR];
 	struct permonst* shamblerna = &mons[PM_DEVTEAM_HORROR];
 	struct permonst* shamblerl = &mons[PM_DNETHACK_HORROR];
+	struct permonst* shamblerln = &mons[PM_BEGINNER_HORROR];
+	struct permonst* shamblerlo = &mons[PM_NOOB_HORROR];
 	struct permonst* shamblerla = &mons[PM_NETHACKBRASS_HORROR];
 	struct permonst* shamblerx = &mons[PM_INTERHACK_HORROR];
 	struct permonst* shamblerxa = &mons[PM_NHTNG_HORROR];
@@ -6962,6 +8290,8 @@ u_init()
 
 	struct permonst* shamblerplayer = &mons[PM_AK_THIEF_IS_DEAD_];
 	struct permonst* shamblerplayerb = &mons[PM_UN_IN_PROTECT_MODE];
+
+	struct permonst* shamblerplayergl = &mons[PM_PLAYER_GLORKUM];
 
 	struct permonst* shamblerplayerc = &mons[PM_BROWN_MISSINGNO];
 	struct permonst* shamblerplayerd = &mons[PM_RED_MISSINGNO];
@@ -7019,6 +8349,7 @@ u_init()
 	struct permonst* randomfungusb = &mons[PM_COLORLESS_FUNGUS];
 	struct permonst* randomfungusba = &mons[PM_COLORLESS_PATCH];
 	struct permonst* randomfungusbb = &mons[PM_COLORLESS_FORCE_FUNGUS];
+	struct permonst* randomfungusbbe = &mons[PM_COLORLESS_WORT];
 	struct permonst* randomfungusbc = &mons[PM_COLORLESS_FORCE_PATCH];
 	struct permonst* randomfungusbd = &mons[PM_COLORLESS_WARP_FUNGUS];
 	struct permonst* randomfungusbe = &mons[PM_COLORLESS_WARP_PATCH];
@@ -7026,6 +8357,7 @@ u_init()
 	struct permonst* randomfungusd = &mons[PM_NONDESCRIPT_FUNGUS];
 	struct permonst* randomfungusda = &mons[PM_NONDESCRIPT_PATCH];
 	struct permonst* randomfungusdb = &mons[PM_NONDESCRIPT_FORCE_FUNGUS];
+	struct permonst* randomfungusdbx = &mons[PM_NONDESCRIPT_WORT];
 	struct permonst* randomfungusdc = &mons[PM_NONDESCRIPT_FORCE_PATCH];
 	struct permonst* randomfungusdd = &mons[PM_NONDESCRIPT_WARP_FUNGUS];
 	struct permonst* randomfungusde = &mons[PM_NONDESCRIPT_WARP_PATCH];
@@ -7044,6 +8376,7 @@ u_init()
 	struct permonst* rrandomfungusb = &mons[PM_COLORLESS_FUNGUS_X];
 	struct permonst* rrandomfungusc = &mons[PM_COLORLESS_PATCH_X];
 	struct permonst* rrandomfungusd = &mons[PM_COLORLESS_FORCE_FUNGUS_X];
+	struct permonst* rrandomfungusdx = &mons[PM_COLORLESS_WORT_X];
 	struct permonst* rrandomfunguse = &mons[PM_COLORLESS_FORCE_PATCH_X];
 	struct permonst* rrandomfungusf = &mons[PM_COLORLESS_WARP_FUNGUS_X];
 	struct permonst* rrandomfungusg = &mons[PM_COLORLESS_WARP_PATCH_X];
@@ -7101,6 +8434,9 @@ u_init()
 	struct permonst* rrandomdragonc = &mons[PM_ADULT_AMPHITERE_X];
 	struct permonst* rrandombdragonb = &mons[PM_BABY_TATZELWORM_X];
 	struct permonst* rrandombdragonc = &mons[PM_BABY_AMPHITERE_X];
+
+	struct permonst* splicemona = &mons[PM_SPLICED_AMALGAMATION];
+	struct permonst* splicemonb = &mons[PM_SPLICED_BAD_CLONE];
 
 	struct permonst* pokshamblerl = &mons[PM_PUPURIN];
 	struct permonst* pokshamblerla = &mons[PM_SAPUSAUR];
@@ -7259,6 +8595,9 @@ u_init()
 	struct permonst* randxyx = &mons[PM_RANDO];
 	struct permonst* randxyy = &mons[PM_RNGHOST];
 	struct permonst* randxyz = &mons[PM_RANDOMIZER_DRACONIAN];
+	struct permonst* randxyaa = &mons[PM_CENTAUR_RENGER];
+
+	struct permonst* randhybrid = &mons[PM_HYBRIDRAGON];
 
 	static char buf[BUFSZ];
 
@@ -7340,13 +8679,13 @@ u_init()
 	u.weakcheat = 0;	/* increases if a character wearing a stat lock ring grows weak to prevent them from restoring strength points they didn't lose in the first place --Amy */
 	u.stethocheat = 0;
 
-      u.monstertimeout = rnz(10000)+rnz(15000); /*This NEEDS to be set here, because otherwise saving/restoring will set*/
-	while (u.monstertimeout < 10) u.monstertimeout = rnz(10000)+rnz(15000);
+      u.monstertimeout = rnz(12000)+rnz(18000);
+	while (u.monstertimeout < 10) u.monstertimeout = rnz(12000)+rnz(18000);
 
-	if (rn2(3)) u.monstertimeout += rnz(10000)+rnz(15000);
+	if (rn2(3)) u.monstertimeout += rnz(12000)+rnz(18000);
 
-      u.monstertimefinish = rnz(30000)+rnz(60000)+u.monstertimeout; /*a new value, allowing the player to cheat. --Amy*/
-	while (u.monstertimefinish < 20) u.monstertimefinish = rnz(10000)+rnz(20000)+u.monstertimeout;
+      u.monstertimefinish = rnz(36000)+rnz(72000)+u.monstertimeout;
+	while (u.monstertimefinish < 20) u.monstertimefinish = rnz(36000)+rnz(72000)+u.monstertimeout;
 
 	u.ascensiontimelimit = rnz(100) * rnz(1000 + rnd(30000)); /* if you still didn't ascend at this turn count, the game becomes much harder */
 	while (u.ascensiontimelimit < (issoviet ? 500000 : 250000)) u.ascensiontimelimit = rnz(100) * rnz(1000 + rnd(9000));
@@ -7372,6 +8711,8 @@ u_init()
 	u.hanguppenalty = 0;
 
 	u.youaredead = 0;	/* if this is non-zero, returning to the game kills you because you should have died --Amy */
+	u.youarereallydead = 0;	/* if this is non-zero, returning to the game REALLY kills you, even if you have lifesaving */
+	u.datadeletedefer = 0; /* if this is non-zero, returning to the game gives you the data delete effect two times as punishment for trying to circumvent it */
 
 	u.bankcashamount = 0;
 	u.bankcashlimit = 0;
@@ -7383,6 +8724,9 @@ u_init()
 
 	u.smexyberries = 0;	/* for a specific artifact */
 
+	u.artifactaffinity = 0;
+	u.artifinitythreshold = 0;
+
 	u.pokelieresistances = 0;
 	u.pokeliegeneration = 0;
 	u.pokelieflags = 0;
@@ -7390,12 +8734,28 @@ u_init()
 	u.pokelieattacktype = 0;
 	u.pokeliedamagetype = 0;
 
+	/* sokosolver special abilities timeout; these will time out even if you're a different race */
+	u.sokosolveboulder = rnz(1000);
+	u.sokosolveuntrap = rnz(4000);
+
+	/* Duri the Blacksmith (if he exists) has special values with which he's initialized */
+	u.durirepaircost = 1000;
+	u.durienchantcost = 10000;
+	u.duriarticostevil = 15000;
+	u.duriarticostnormal = 50000;
+	u.durirequest = 0;
+	u.duriworking = 0;
+
 	u.manlerx = u.manlery = -1;
 
 	u.temprecursion = 0;
 	u.temprecursiontime = 0;
 	u.oldrecursionrole = -1;
 	u.oldrecursionrace = -1;
+
+	u.demagoguerecursion = 0;
+	u.demagoguerecursiontime = 0;
+	u.demagogueabilitytimer = 10000;
 
 	u.tarmustrokingturn = 0;
 
@@ -7407,6 +8767,10 @@ u_init()
 
 	u.nurseextracost = 1000;	/* cost to buy max HP from nurses, goes up every time the player does so --Amy */
 	u.nursedecontamcost = 1000;	/* cost to buy decontamination from nurses */
+	u.nursesymbiotecost = 10000;	/* cost to buy a new symbiote from nurses */
+	u.nurseshutdowncost = 1000;	/* cost to buy shutdown service from nurses */
+
+	u.shutdowntime = 0;
 
 	u.shaperoomchance = (rnd(15) + 3);	/* chance of irregular rooms */
 
@@ -7420,23 +8784,25 @@ u_init()
 	u.alwayshidden = 0;
 	if (!rn2(500)) u.alwayshidden = rnd(S_WORM_TAIL);
 
-	u.frequentmonster = rnd(S_WORM_TAIL - 1);
-	u.freqmonsterbonus = rne(4);
-	if (!rn2(5)) u.freqmonsterbonus += rne(3);
-	if (!rn2(3)) u.freqmonsterbonus *= 2;
-	if (!rn2(5)) u.freqmonsterbonus *= 2;
-	if (!rn2(8)) u.freqmonsterbonus += rne(4);
-	if (!rn2(12)) u.freqmonsterbonus *= (1 + rne(15));
-	if (!rn2(20)) u.freqmonsterbonus *= 3;
-	if (!rn2(60)) u.freqmonsterbonus *= (1 + rne(12));
-	if (!rn2(200)) u.freqmonsterbonus *= 4;
-	if (!rn2(360)) u.freqmonsterbonus *= (1 + rne(10));
-	if (!rn2(1360)) u.freqmonsterbonus *= (1 + rne(8));
-	if (!rn2(5000)) u.freqmonsterbonus *= 5;
-	if (!rn2(6360)) u.freqmonsterbonus *= (1 + rne(7));
-	if (!rn2(25000)) u.freqmonsterbonus *= 6;
-	if (!rn2(36360)) u.freqmonsterbonus *= (1 + rne(5));
-	if (u.freqmonsterbonus > 100) u.freqmonsterbonus = 100; /* fail safe */
+	if (!rn2(2)) {
+		u.frequentmonster = rnd(S_WORM_TAIL - 1);
+		u.freqmonsterbonus = rne(4);
+		if (!rn2(5)) u.freqmonsterbonus += rne(3);
+		if (!rn2(3)) u.freqmonsterbonus *= 2;
+		if (!rn2(5)) u.freqmonsterbonus *= 2;
+		if (!rn2(8)) u.freqmonsterbonus += rne(4);
+		if (!rn2(12)) u.freqmonsterbonus *= (1 + rne(15));
+		if (!rn2(20)) u.freqmonsterbonus *= 3;
+		if (!rn2(60)) u.freqmonsterbonus *= (1 + rne(12));
+		if (!rn2(200)) u.freqmonsterbonus *= 4;
+		if (!rn2(360)) u.freqmonsterbonus *= (1 + rne(10));
+		if (!rn2(1360)) u.freqmonsterbonus *= (1 + rne(8));
+		if (!rn2(5000)) u.freqmonsterbonus *= 5;
+		if (!rn2(6360)) u.freqmonsterbonus *= (1 + rne(7));
+		if (!rn2(25000)) u.freqmonsterbonus *= 6;
+		if (!rn2(36360)) u.freqmonsterbonus *= (1 + rne(5));
+		if (u.freqmonsterbonus > 100) u.freqmonsterbonus = 100; /* fail safe */
+	}
 
 	if (!rn2(10)) {
 	u.frequentcolor = rnd(15);
@@ -7463,7 +8829,7 @@ u_init()
 
 	register int traitamount = rnd(10); /* pick an # of monster traits that are more common --Amy */
 
-	u.frequenttrait1 = rnd(359); /* same as monstercolor function */
+	u.frequenttrait1 = rnd(376); /* same as monstercolor function */
 	u.freqtraitbonus1 = rne(4);
 	if (!rn2(5)) u.freqtraitbonus1 += rne(3);
 	if (!rn2(3)) u.freqtraitbonus1 *= 2;
@@ -7502,7 +8868,7 @@ u_init()
 
 	if (traitamount >= 2) {
 
-		u.frequenttrait2 = rnd(359);
+		u.frequenttrait2 = rnd(376);
 		u.freqtraitbonus2 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus2 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus2 *= 2;
@@ -7524,7 +8890,7 @@ u_init()
 
 	if (traitamount >= 3) {
 
-		u.frequenttrait3 = rnd(359);
+		u.frequenttrait3 = rnd(376);
 		u.freqtraitbonus3 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus3 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus3 *= 2;
@@ -7546,7 +8912,7 @@ u_init()
 
 	if (traitamount >= 4) {
 
-		u.frequenttrait4 = rnd(359);
+		u.frequenttrait4 = rnd(376);
 		u.freqtraitbonus4 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus4 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus4 *= 2;
@@ -7568,7 +8934,7 @@ u_init()
 
 	if (traitamount >= 5) {
 
-		u.frequenttrait5 = rnd(359);
+		u.frequenttrait5 = rnd(376);
 		u.freqtraitbonus5 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus5 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus5 *= 2;
@@ -7590,7 +8956,7 @@ u_init()
 
 	if (traitamount >= 6) {
 
-		u.frequenttrait6 = rnd(359);
+		u.frequenttrait6 = rnd(376);
 		u.freqtraitbonus6 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus6 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus6 *= 2;
@@ -7612,7 +8978,7 @@ u_init()
 
 	if (traitamount >= 7) {
 
-		u.frequenttrait7 = rnd(359);
+		u.frequenttrait7 = rnd(376);
 		u.freqtraitbonus7 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus7 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus7 *= 2;
@@ -7634,7 +9000,7 @@ u_init()
 
 	if (traitamount >= 8) {
 
-		u.frequenttrait8 = rnd(359);
+		u.frequenttrait8 = rnd(376);
 		u.freqtraitbonus8 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus8 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus8 *= 2;
@@ -7656,7 +9022,7 @@ u_init()
 
 	if (traitamount >= 9) {
 
-		u.frequenttrait9 = rnd(359);
+		u.frequenttrait9 = rnd(376);
 		u.freqtraitbonus9 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus9 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus9 *= 2;
@@ -7678,7 +9044,7 @@ u_init()
 
 	if (traitamount >= 10) {
 
-		u.frequenttrait10 = rnd(359);
+		u.frequenttrait10 = rnd(376);
 		u.freqtraitbonus10 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus10 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus10 *= 2;
@@ -8170,20 +9536,15 @@ u_init()
 		ptr = &mons[u.nospawnspecies10];
 	}
 
-	u.minimalism = 0;
-
-	if (isminimalist) {
-
-		u.minimalism = 1 + rnd(4);
-		if (!rn2(10)) u.minimalism += rnd(5);
-		if (!rn2(100)) u.minimalism += rnz(5);
-	}
+	u.minimalism = 1 + rnd(4);
+	if (!rn2(10)) u.minimalism += rnd(5);
+	if (!rn2(100)) u.minimalism += rnz(5);
 
 	u.femauspices4 = rnd(11);
-	u.femauspices6 = rnd(8);
-	u.femauspices8 = rnd(8);
+	u.femauspices6 = rnd(9);
+	u.femauspices8 = rnd(9);
 	u.femauspices11 = rnd(16);
-	u.femauspices13 = rnd(8);
+	u.femauspices13 = rnd(10);
 	u.femauspices15 = rnd(8);
 	u.femauspices17 = rnd(7);
 	u.femauspices20 = rnd(8);
@@ -8192,9 +9553,334 @@ u_init()
 	u.femauspices28 = rnd(9);
 	u.femauspices30 = rnd(10);
 
+	u.feminizeffect = rnd(22); /* amount of feminism trap effects; keyword: "marlena" */
+
+	u.sjwL1E1 = rnd(235); /* timerun and stuff */
+	u.sjwL2E1 = rnd(235);
+	u.sjwL3E1 = rnd(235);
+	u.sjwL4E1 = rnd(235);
+	u.sjwL5E1 = rnd(235);
+	u.sjwL5E2 = rnd(235);
+	u.sjwL6E1 = rnd(235);
+	u.sjwL6E2 = rnd(235);
+	u.sjwL7E1 = rnd(235);
+	u.sjwL7E2 = rnd(235);
+	u.sjwL8E1 = rnd(235);
+	u.sjwL8E2 = rnd(235);
+	u.sjwL9E1 = rnd(235);
+	u.sjwL9E2 = rnd(235);
+	u.sjwL10E1 = rnd(235);
+	u.sjwL10E2 = rnd(235);
+	u.sjwL10E3 = rnd(235);
+	u.sjwL11E1 = rnd(235);
+	u.sjwL11E2 = rnd(235);
+	u.sjwL11E3 = rnd(235);
+	u.sjwL12E1 = rnd(235);
+	u.sjwL12E2 = rnd(235);
+	u.sjwL12E3 = rnd(235);
+	u.sjwL13E1 = rnd(235);
+	u.sjwL13E2 = rnd(235);
+	u.sjwL13E3 = rnd(235);
+	u.sjwL14E1 = rnd(235);
+	u.sjwL14E2 = rnd(235);
+	u.sjwL14E3 = rnd(235);
+	u.sjwL15E1 = rnd(235);
+	u.sjwL15E2 = rnd(235);
+	u.sjwL15E3 = rnd(235);
+	u.sjwL15E4 = rnd(235);
+	u.sjwL16E1 = rnd(235);
+	u.sjwL16E2 = rnd(235);
+	u.sjwL16E3 = rnd(235);
+	u.sjwL16E4 = rnd(235);
+	u.sjwL17E1 = rnd(235);
+	u.sjwL17E2 = rnd(235);
+	u.sjwL17E3 = rnd(235);
+	u.sjwL17E4 = rnd(235);
+	u.sjwL18E1 = rnd(235);
+	u.sjwL18E2 = rnd(235);
+	u.sjwL18E3 = rnd(235);
+	u.sjwL18E4 = rnd(235);
+	u.sjwL19E1 = rnd(235);
+	u.sjwL19E2 = rnd(235);
+	u.sjwL19E3 = rnd(235);
+	u.sjwL19E4 = rnd(235);
+	u.sjwL20E1 = rnd(235);
+	u.sjwL20E2 = rnd(235);
+	u.sjwL20E3 = rnd(235);
+	u.sjwL20E4 = rnd(235);
+	u.sjwL20E5 = rnd(235);
+	u.sjwL21E1 = rnd(235);
+	u.sjwL21E2 = rnd(235);
+	u.sjwL21E3 = rnd(235);
+	u.sjwL21E4 = rnd(235);
+	u.sjwL21E5 = rnd(235);
+	u.sjwL22E1 = rnd(235);
+	u.sjwL22E2 = rnd(235);
+	u.sjwL22E3 = rnd(235);
+	u.sjwL22E4 = rnd(235);
+	u.sjwL22E5 = rnd(235);
+	u.sjwL23E1 = rnd(235);
+	u.sjwL23E2 = rnd(235);
+	u.sjwL23E3 = rnd(235);
+	u.sjwL23E4 = rnd(235);
+	u.sjwL23E5 = rnd(235);
+	u.sjwL24E1 = rnd(235);
+	u.sjwL24E2 = rnd(235);
+	u.sjwL24E3 = rnd(235);
+	u.sjwL24E4 = rnd(235);
+	u.sjwL24E5 = rnd(235);
+	u.sjwL25E1 = rnd(235);
+	u.sjwL25E2 = rnd(235);
+	u.sjwL25E3 = rnd(235);
+	u.sjwL25E4 = rnd(235);
+	u.sjwL25E5 = rnd(235);
+	u.sjwL25E6 = rnd(235);
+	u.sjwL26E1 = rnd(235);
+	u.sjwL26E2 = rnd(235);
+	u.sjwL26E3 = rnd(235);
+	u.sjwL26E4 = rnd(235);
+	u.sjwL26E5 = rnd(235);
+	u.sjwL26E6 = rnd(235);
+	u.sjwL27E1 = rnd(235);
+	u.sjwL27E2 = rnd(235);
+	u.sjwL27E3 = rnd(235);
+	u.sjwL27E4 = rnd(235);
+	u.sjwL27E5 = rnd(235);
+	u.sjwL27E6 = rnd(235);
+	u.sjwL28E1 = rnd(235);
+	u.sjwL28E2 = rnd(235);
+	u.sjwL28E3 = rnd(235);
+	u.sjwL28E4 = rnd(235);
+	u.sjwL28E5 = rnd(235);
+	u.sjwL28E6 = rnd(235);
+	u.sjwL29E1 = rnd(235);
+	u.sjwL29E2 = rnd(235);
+	u.sjwL29E3 = rnd(235);
+	u.sjwL29E4 = rnd(235);
+	u.sjwL29E5 = rnd(235);
+	u.sjwL29E6 = rnd(235);
+	u.sjwL30E1 = rnd(235);
+	u.sjwL30E2 = rnd(235);
+	u.sjwL30E3 = rnd(235);
+	u.sjwL30E4 = rnd(235);
+	u.sjwL30E5 = rnd(235);
+	u.sjwL30E6 = rnd(235);
+	u.sjwL30E7 = rnd(235);
+	u.sjwL31E1 = rnd(235);
+	u.sjwL31E2 = rnd(235);
+	u.sjwL31E3 = rnd(235);
+	u.sjwL31E4 = rnd(235);
+	u.sjwL31E5 = rnd(235);
+	u.sjwL31E6 = rnd(235);
+	u.sjwL31E7 = rnd(235);
+	u.sjwL32E1 = rnd(235);
+	u.sjwL32E2 = rnd(235);
+	u.sjwL32E3 = rnd(235);
+	u.sjwL32E4 = rnd(235);
+	u.sjwL32E5 = rnd(235);
+	u.sjwL32E6 = rnd(235);
+	u.sjwL32E7 = rnd(235);
+	u.sjwL33E1 = rnd(235);
+	u.sjwL33E2 = rnd(235);
+	u.sjwL33E3 = rnd(235);
+	u.sjwL33E4 = rnd(235);
+	u.sjwL33E5 = rnd(235);
+	u.sjwL33E6 = rnd(235);
+	u.sjwL33E7 = rnd(235);
+	u.sjwL34E1 = rnd(235);
+	u.sjwL34E2 = rnd(235);
+	u.sjwL34E3 = rnd(235);
+	u.sjwL34E4 = rnd(235);
+	u.sjwL34E5 = rnd(235);
+	u.sjwL34E6 = rnd(235);
+	u.sjwL34E7 = rnd(235);
+	u.sjwL35E1 = rnd(235);
+	u.sjwL35E2 = rnd(235);
+	u.sjwL35E3 = rnd(235);
+	u.sjwL35E4 = rnd(235);
+	u.sjwL35E5 = rnd(235);
+	u.sjwL35E6 = rnd(235);
+	u.sjwL35E7 = rnd(235);
+	u.sjwL36E1 = rnd(235);
+	u.sjwL36E2 = rnd(235);
+	u.sjwL36E3 = rnd(235);
+	u.sjwL36E4 = rnd(235);
+	u.sjwL36E5 = rnd(235);
+	u.sjwL36E6 = rnd(235);
+	u.sjwL36E7 = rnd(235);
+	u.sjwL37E1 = rnd(235);
+	u.sjwL37E2 = rnd(235);
+	u.sjwL37E3 = rnd(235);
+	u.sjwL37E4 = rnd(235);
+	u.sjwL37E5 = rnd(235);
+	u.sjwL37E6 = rnd(235);
+	u.sjwL37E7 = rnd(235);
+	u.sjwL38E1 = rnd(235);
+	u.sjwL38E2 = rnd(235);
+	u.sjwL38E3 = rnd(235);
+	u.sjwL38E4 = rnd(235);
+	u.sjwL38E5 = rnd(235);
+	u.sjwL38E6 = rnd(235);
+	u.sjwL38E7 = rnd(235);
+	u.sjwL39E1 = rnd(235);
+	u.sjwL39E2 = rnd(235);
+	u.sjwL39E3 = rnd(235);
+	u.sjwL39E4 = rnd(235);
+	u.sjwL39E5 = rnd(235);
+	u.sjwL39E6 = rnd(235);
+	u.sjwL39E7 = rnd(235);
+	u.sjwL40E1 = rnd(235);
+	u.sjwL40E2 = rnd(235);
+	u.sjwL40E3 = rnd(235);
+	u.sjwL40E4 = rnd(235);
+	u.sjwL40E5 = rnd(235);
+	u.sjwL40E6 = rnd(235);
+	u.sjwL40E7 = rnd(235);
+	u.sjwL41E1 = rnd(235);
+	u.sjwL41E2 = rnd(235);
+	u.sjwL41E3 = rnd(235);
+	u.sjwL41E4 = rnd(235);
+	u.sjwL41E5 = rnd(235);
+	u.sjwL41E6 = rnd(235);
+	u.sjwL41E7 = rnd(235);
+	u.sjwL42E1 = rnd(235);
+	u.sjwL42E2 = rnd(235);
+	u.sjwL42E3 = rnd(235);
+	u.sjwL42E4 = rnd(235);
+	u.sjwL42E5 = rnd(235);
+	u.sjwL42E6 = rnd(235);
+	u.sjwL42E7 = rnd(235);
+	u.sjwL43E1 = rnd(235);
+	u.sjwL43E2 = rnd(235);
+	u.sjwL43E3 = rnd(235);
+	u.sjwL43E4 = rnd(235);
+	u.sjwL43E5 = rnd(235);
+	u.sjwL43E6 = rnd(235);
+	u.sjwL43E7 = rnd(235);
+	u.sjwL44E1 = rnd(235);
+	u.sjwL44E2 = rnd(235);
+	u.sjwL44E3 = rnd(235);
+	u.sjwL44E4 = rnd(235);
+	u.sjwL44E5 = rnd(235);
+	u.sjwL44E6 = rnd(235);
+	u.sjwL44E7 = rnd(235);
+	u.sjwL45E1 = rnd(235);
+	u.sjwL45E2 = rnd(235);
+	u.sjwL45E3 = rnd(235);
+	u.sjwL45E4 = rnd(235);
+	u.sjwL45E5 = rnd(235);
+	u.sjwL45E6 = rnd(235);
+	u.sjwL45E7 = rnd(235);
+	u.sjwL46E1 = rnd(235);
+	u.sjwL46E2 = rnd(235);
+	u.sjwL46E3 = rnd(235);
+	u.sjwL46E4 = rnd(235);
+	u.sjwL46E5 = rnd(235);
+	u.sjwL46E6 = rnd(235);
+	u.sjwL46E7 = rnd(235);
+	u.sjwL47E1 = rnd(235);
+	u.sjwL47E2 = rnd(235);
+	u.sjwL47E3 = rnd(235);
+	u.sjwL47E4 = rnd(235);
+	u.sjwL47E5 = rnd(235);
+	u.sjwL47E6 = rnd(235);
+	u.sjwL47E7 = rnd(235);
+	u.sjwL48E1 = rnd(235);
+	u.sjwL48E2 = rnd(235);
+	u.sjwL48E3 = rnd(235);
+	u.sjwL48E4 = rnd(235);
+	u.sjwL48E5 = rnd(235);
+	u.sjwL48E6 = rnd(235);
+	u.sjwL48E7 = rnd(235);
+	u.sjwL49E1 = rnd(235);
+	u.sjwL49E2 = rnd(235);
+	u.sjwL49E3 = rnd(235);
+	u.sjwL49E4 = rnd(235);
+	u.sjwL49E5 = rnd(235);
+	u.sjwL49E6 = rnd(235);
+	u.sjwL49E7 = rnd(235);
+	u.sjwL50E1 = rnd(235);
+	u.sjwL50E2 = rnd(235);
+	u.sjwL50E3 = rnd(235);
+	u.sjwL50E4 = rnd(235);
+	u.sjwL50E5 = rnd(235);
+	u.sjwL50E6 = rnd(235);
+	u.sjwL50E7 = rnd(235);
+	u.sjwL51E1 = rnd(235);
+	u.sjwL51E2 = rnd(235);
+	u.sjwL51E3 = rnd(235);
+	u.sjwL51E4 = rnd(235);
+	u.sjwL51E5 = rnd(235);
+	u.sjwL51E6 = rnd(235);
+	u.sjwL51E7 = rnd(235);
+	u.sjwL52E1 = rnd(235);
+	u.sjwL52E2 = rnd(235);
+	u.sjwL52E3 = rnd(235);
+	u.sjwL52E4 = rnd(235);
+	u.sjwL52E5 = rnd(235);
+	u.sjwL52E6 = rnd(235);
+	u.sjwL52E7 = rnd(235);
+	u.sjwL53E1 = rnd(235);
+	u.sjwL53E2 = rnd(235);
+	u.sjwL53E3 = rnd(235);
+	u.sjwL53E4 = rnd(235);
+	u.sjwL53E5 = rnd(235);
+	u.sjwL53E6 = rnd(235);
+	u.sjwL53E7 = rnd(235);
+	u.sjwL54E1 = rnd(235);
+	u.sjwL54E2 = rnd(235);
+	u.sjwL54E3 = rnd(235);
+	u.sjwL54E4 = rnd(235);
+	u.sjwL54E5 = rnd(235);
+	u.sjwL54E6 = rnd(235);
+	u.sjwL54E7 = rnd(235);
+	u.sjwL55E1 = rnd(235);
+	u.sjwL55E2 = rnd(235);
+	u.sjwL55E3 = rnd(235);
+	u.sjwL55E4 = rnd(235);
+	u.sjwL55E5 = rnd(235);
+	u.sjwL55E6 = rnd(235);
+	u.sjwL55E7 = rnd(235);
+	u.sjwL56E1 = rnd(235);
+	u.sjwL56E2 = rnd(235);
+	u.sjwL56E3 = rnd(235);
+	u.sjwL56E4 = rnd(235);
+	u.sjwL56E5 = rnd(235);
+	u.sjwL56E6 = rnd(235);
+	u.sjwL56E7 = rnd(235);
+	u.sjwL57E1 = rnd(235);
+	u.sjwL57E2 = rnd(235);
+	u.sjwL57E3 = rnd(235);
+	u.sjwL57E4 = rnd(235);
+	u.sjwL57E5 = rnd(235);
+	u.sjwL57E6 = rnd(235);
+	u.sjwL57E7 = rnd(235);
+	u.sjwL58E1 = rnd(235);
+	u.sjwL58E2 = rnd(235);
+	u.sjwL58E3 = rnd(235);
+	u.sjwL58E4 = rnd(235);
+	u.sjwL58E5 = rnd(235);
+	u.sjwL58E6 = rnd(235);
+	u.sjwL58E7 = rnd(235);
+	u.sjwL59E1 = rnd(235);
+	u.sjwL59E2 = rnd(235);
+	u.sjwL59E3 = rnd(235);
+	u.sjwL59E4 = rnd(235);
+	u.sjwL59E5 = rnd(235);
+	u.sjwL59E6 = rnd(235);
+	u.sjwL59E7 = rnd(235);
+
+	u.dorian4 = rnd(235);
+	u.dorian8 = rnd(235);
+	u.dorian12 = rnd(235);
+	u.dorian16 = rnd(235);
+	u.dorian20 = rnd(235);
+	u.dorian24 = rnd(235);
+	u.dorian28 = rnd(235);
+
 	u.adpartattack = rn2(AD_ENDS);
 	while (u.adpartattack == AD_ENDS || u.adpartattack == AD_WERE) u.adpartattack = rn2(AD_ENDS);
-	u.adrunsattack = rnd(229); /* timerun etc. */
+	u.adrunsattack = rnd(235); /* timerun etc. */
 
 	u.scholarturns = 0;
 
@@ -8261,140 +9947,140 @@ u_init()
 	while ( (u.alwayscurseditem10 == -1) || (u.alwayscurseditem10 == u.unobtainable) || (u.alwayscurseditem10 == u.unobtainable2) || (u.alwayscurseditem10 == u.unobtainable3) || (u.alwayscurseditem10 == u.unobtainable4) || (u.alwayscurseditem10 == u.unobtainable5) || (u.alwayscurseditem10 == u.unobtainable6) || (u.alwayscurseditem10 == u.unobtainable7) || (u.alwayscurseditem10 == u.unobtainable8) || (u.alwayscurseditem10 == u.unobtainable9) || (u.alwayscurseditem10 == u.unobtainable10) || (u.alwayscurseditem10 == GOLD_PIECE) || (u.alwayscurseditem10 == STRANGE_OBJECT) || (u.alwayscurseditem10 == AMULET_OF_YENDOR) || (u.alwayscurseditem10 == CANDELABRUM_OF_INVOCATION) || (u.alwayscurseditem10 == BELL_OF_OPENING) || (u.alwayscurseditem10 == SPE_BOOK_OF_THE_DEAD) || (objects[u.alwayscurseditem10].oc_prob < 1) ) u.alwayscurseditem10 = rn2(NUM_OBJECTS);
 
 	u.veryobtainable = -1;
-	while ( (u.veryobtainable == -1) || (u.veryobtainable == GOLD_PIECE) || (u.veryobtainable == STRANGE_OBJECT) || (u.veryobtainable == AMULET_OF_YENDOR) || (u.veryobtainable == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable == BELL_OF_OPENING) || (u.veryobtainable == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable == SCR_WISHING) || (u.veryobtainable == SCR_ASTRALCENSION) || (u.veryobtainable == TREASURE_CHEST) || (u.veryobtainable == SCR_RAGNAROK) || (u.veryobtainable == SCR_ARTIFACT_CREATION) || (u.veryobtainable == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable == WAN_WISHING) || (u.veryobtainable == u.unobtainable) || (u.veryobtainable == u.unobtainable2) || (u.veryobtainable == u.unobtainable3) || (u.veryobtainable == u.unobtainable4) || (u.veryobtainable == u.unobtainable5) || (u.veryobtainable == u.unobtainable6) || (u.veryobtainable == u.unobtainable7) || (u.veryobtainable == u.unobtainable8) || (u.veryobtainable == u.unobtainable9) || (u.veryobtainable == u.unobtainable10) || (objects[u.veryobtainable].oc_prob < 1) ) u.veryobtainable = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable == -1) || (u.veryobtainable == GOLD_PIECE) || (u.veryobtainable == STRANGE_OBJECT) || (u.veryobtainable == AMULET_OF_YENDOR) || (u.veryobtainable == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable == BELL_OF_OPENING) || (u.veryobtainable == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable == SCR_WISHING) || (u.veryobtainable == SCR_RESURRECTION) || (u.veryobtainable == SCR_WORLD_FALL) || (u.veryobtainable == SCR_ASTRALCENSION) || (u.veryobtainable == TREASURE_CHEST) || (u.veryobtainable == SCR_RAGNAROK) || (u.veryobtainable == SCR_ARTIFACT_CREATION) || (u.veryobtainable == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable == WAN_WISHING) || (u.veryobtainable == u.unobtainable) || (u.veryobtainable == u.unobtainable2) || (u.veryobtainable == u.unobtainable3) || (u.veryobtainable == u.unobtainable4) || (u.veryobtainable == u.unobtainable5) || (u.veryobtainable == u.unobtainable6) || (u.veryobtainable == u.unobtainable7) || (u.veryobtainable == u.unobtainable8) || (u.veryobtainable == u.unobtainable9) || (u.veryobtainable == u.unobtainable10) || (objects[u.veryobtainable].oc_prob < 1) ) u.veryobtainable = rn2(NUM_OBJECTS);
 	u.veryobtainableboost = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost += rnz(100);
 	if (u.veryobtainableboost > 1000) u.veryobtainableboost = 1000; /* sanity check */
 
 	u.veryobtainable2 = -1;
-	while ( (u.veryobtainable2 == -1) || (u.veryobtainable2 == GOLD_PIECE) || (u.veryobtainable2 == STRANGE_OBJECT) || (u.veryobtainable2 == AMULET_OF_YENDOR) || (u.veryobtainable2 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable2 == BELL_OF_OPENING) || (u.veryobtainable2 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable2 == SCR_WISHING) || (u.veryobtainable2 == SCR_ASTRALCENSION) || (u.veryobtainable2 == TREASURE_CHEST) || (u.veryobtainable2 == SCR_RAGNAROK) || (u.veryobtainable2 == SCR_ARTIFACT_CREATION) || (u.veryobtainable2 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable2 == WAN_WISHING) || (u.veryobtainable2 == u.unobtainable) || (u.veryobtainable2 == u.unobtainable2) || (u.veryobtainable2 == u.unobtainable3) || (u.veryobtainable2 == u.unobtainable4) || (u.veryobtainable2 == u.unobtainable5) || (u.veryobtainable2 == u.unobtainable6) || (u.veryobtainable2 == u.unobtainable7) || (u.veryobtainable2 == u.unobtainable8) || (u.veryobtainable2 == u.unobtainable9) || (u.veryobtainable2 == u.unobtainable10) || (objects[u.veryobtainable2].oc_prob < 1) ) u.veryobtainable2 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable2 == -1) || (u.veryobtainable2 == GOLD_PIECE) || (u.veryobtainable2 == STRANGE_OBJECT) || (u.veryobtainable2 == AMULET_OF_YENDOR) || (u.veryobtainable2 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable2 == BELL_OF_OPENING) || (u.veryobtainable2 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable2 == SCR_WISHING) || (u.veryobtainable2 == SCR_RESURRECTION) || (u.veryobtainable2 == SCR_WORLD_FALL) || (u.veryobtainable2 == SCR_ASTRALCENSION) || (u.veryobtainable2 == TREASURE_CHEST) || (u.veryobtainable2 == SCR_RAGNAROK) || (u.veryobtainable2 == SCR_ARTIFACT_CREATION) || (u.veryobtainable2 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable2 == WAN_WISHING) || (u.veryobtainable2 == u.unobtainable) || (u.veryobtainable2 == u.unobtainable2) || (u.veryobtainable2 == u.unobtainable3) || (u.veryobtainable2 == u.unobtainable4) || (u.veryobtainable2 == u.unobtainable5) || (u.veryobtainable2 == u.unobtainable6) || (u.veryobtainable2 == u.unobtainable7) || (u.veryobtainable2 == u.unobtainable8) || (u.veryobtainable2 == u.unobtainable9) || (u.veryobtainable2 == u.unobtainable10) || (objects[u.veryobtainable2].oc_prob < 1) ) u.veryobtainable2 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost2 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost2 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost2 += rnz(100);
 	if (u.veryobtainableboost2 > 1000) u.veryobtainableboost2 = 1000; /* sanity check */
 
 	u.veryobtainable3 = -1;
-	while ( (u.veryobtainable3 == -1) || (u.veryobtainable3 == GOLD_PIECE) || (u.veryobtainable3 == STRANGE_OBJECT) || (u.veryobtainable3 == AMULET_OF_YENDOR) || (u.veryobtainable3 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable3 == BELL_OF_OPENING) || (u.veryobtainable3 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable3 == SCR_WISHING) || (u.veryobtainable3 == SCR_ASTRALCENSION) || (u.veryobtainable3 == TREASURE_CHEST) || (u.veryobtainable3 == SCR_RAGNAROK) || (u.veryobtainable3 == SCR_ARTIFACT_CREATION) || (u.veryobtainable3 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable3 == WAN_WISHING) || (u.veryobtainable3 == u.unobtainable) || (u.veryobtainable3 == u.unobtainable2) || (u.veryobtainable3 == u.unobtainable3) || (u.veryobtainable3 == u.unobtainable4) || (u.veryobtainable3 == u.unobtainable5) || (u.veryobtainable3 == u.unobtainable6) || (u.veryobtainable3 == u.unobtainable7) || (u.veryobtainable3 == u.unobtainable8) || (u.veryobtainable3 == u.unobtainable9) || (u.veryobtainable3 == u.unobtainable10) || (objects[u.veryobtainable3].oc_prob < 1) ) u.veryobtainable3 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable3 == -1) || (u.veryobtainable3 == GOLD_PIECE) || (u.veryobtainable3 == STRANGE_OBJECT) || (u.veryobtainable3 == AMULET_OF_YENDOR) || (u.veryobtainable3 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable3 == BELL_OF_OPENING) || (u.veryobtainable3 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable3 == SCR_WISHING) || (u.veryobtainable3 == SCR_RESURRECTION) || (u.veryobtainable3 == SCR_WORLD_FALL) || (u.veryobtainable3 == SCR_ASTRALCENSION) || (u.veryobtainable3 == TREASURE_CHEST) || (u.veryobtainable3 == SCR_RAGNAROK) || (u.veryobtainable3 == SCR_ARTIFACT_CREATION) || (u.veryobtainable3 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable3 == WAN_WISHING) || (u.veryobtainable3 == u.unobtainable) || (u.veryobtainable3 == u.unobtainable2) || (u.veryobtainable3 == u.unobtainable3) || (u.veryobtainable3 == u.unobtainable4) || (u.veryobtainable3 == u.unobtainable5) || (u.veryobtainable3 == u.unobtainable6) || (u.veryobtainable3 == u.unobtainable7) || (u.veryobtainable3 == u.unobtainable8) || (u.veryobtainable3 == u.unobtainable9) || (u.veryobtainable3 == u.unobtainable10) || (objects[u.veryobtainable3].oc_prob < 1) ) u.veryobtainable3 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost3 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost3 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost3 += rnz(100);
 	if (u.veryobtainableboost3 > 1000) u.veryobtainableboost3 = 1000; /* sanity check */
 
 	u.veryobtainable4 = -1;
-	while ( (u.veryobtainable4 == -1) || (u.veryobtainable4 == GOLD_PIECE) || (u.veryobtainable4 == STRANGE_OBJECT) || (u.veryobtainable4 == AMULET_OF_YENDOR) || (u.veryobtainable4 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable4 == BELL_OF_OPENING) || (u.veryobtainable4 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable4 == SCR_WISHING) || (u.veryobtainable4 == SCR_ASTRALCENSION) || (u.veryobtainable4 == TREASURE_CHEST) || (u.veryobtainable4 == SCR_RAGNAROK) || (u.veryobtainable4 == SCR_ARTIFACT_CREATION) || (u.veryobtainable4 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable4 == WAN_WISHING) || (u.veryobtainable4 == u.unobtainable) || (u.veryobtainable4 == u.unobtainable2) || (u.veryobtainable4 == u.unobtainable3) || (u.veryobtainable4 == u.unobtainable4) || (u.veryobtainable4 == u.unobtainable5) || (u.veryobtainable4 == u.unobtainable6) || (u.veryobtainable4 == u.unobtainable7) || (u.veryobtainable4 == u.unobtainable8) || (u.veryobtainable4 == u.unobtainable9) || (u.veryobtainable4 == u.unobtainable10) || (objects[u.veryobtainable4].oc_prob < 1) ) u.veryobtainable4 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable4 == -1) || (u.veryobtainable4 == GOLD_PIECE) || (u.veryobtainable4 == STRANGE_OBJECT) || (u.veryobtainable4 == AMULET_OF_YENDOR) || (u.veryobtainable4 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable4 == BELL_OF_OPENING) || (u.veryobtainable4 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable4 == SCR_WISHING) || (u.veryobtainable4 == SCR_RESURRECTION) || (u.veryobtainable4 == SCR_WORLD_FALL) || (u.veryobtainable4 == SCR_ASTRALCENSION) || (u.veryobtainable4 == TREASURE_CHEST) || (u.veryobtainable4 == SCR_RAGNAROK) || (u.veryobtainable4 == SCR_ARTIFACT_CREATION) || (u.veryobtainable4 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable4 == WAN_WISHING) || (u.veryobtainable4 == u.unobtainable) || (u.veryobtainable4 == u.unobtainable2) || (u.veryobtainable4 == u.unobtainable3) || (u.veryobtainable4 == u.unobtainable4) || (u.veryobtainable4 == u.unobtainable5) || (u.veryobtainable4 == u.unobtainable6) || (u.veryobtainable4 == u.unobtainable7) || (u.veryobtainable4 == u.unobtainable8) || (u.veryobtainable4 == u.unobtainable9) || (u.veryobtainable4 == u.unobtainable10) || (objects[u.veryobtainable4].oc_prob < 1) ) u.veryobtainable4 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost4 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost4 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost4 += rnz(100);
 	if (u.veryobtainableboost4 > 1000) u.veryobtainableboost4 = 1000; /* sanity check */
 
 	u.veryobtainable5 = -1;
-	while ( (u.veryobtainable5 == -1) || (u.veryobtainable5 == GOLD_PIECE) || (u.veryobtainable5 == STRANGE_OBJECT) || (u.veryobtainable5 == AMULET_OF_YENDOR) || (u.veryobtainable5 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable5 == BELL_OF_OPENING) || (u.veryobtainable5 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable5 == SCR_WISHING) || (u.veryobtainable5 == SCR_ASTRALCENSION) || (u.veryobtainable5 == TREASURE_CHEST) || (u.veryobtainable5 == SCR_RAGNAROK) || (u.veryobtainable5 == SCR_ARTIFACT_CREATION) || (u.veryobtainable5 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable5 == WAN_WISHING) || (u.veryobtainable5 == u.unobtainable) || (u.veryobtainable5 == u.unobtainable2) || (u.veryobtainable5 == u.unobtainable3) || (u.veryobtainable5 == u.unobtainable4) || (u.veryobtainable5 == u.unobtainable5) || (u.veryobtainable5 == u.unobtainable6) || (u.veryobtainable5 == u.unobtainable7) || (u.veryobtainable5 == u.unobtainable8) || (u.veryobtainable5 == u.unobtainable9) || (u.veryobtainable5 == u.unobtainable10) || (objects[u.veryobtainable5].oc_prob < 1) ) u.veryobtainable5 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable5 == -1) || (u.veryobtainable5 == GOLD_PIECE) || (u.veryobtainable5 == STRANGE_OBJECT) || (u.veryobtainable5 == AMULET_OF_YENDOR) || (u.veryobtainable5 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable5 == BELL_OF_OPENING) || (u.veryobtainable5 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable5 == SCR_WISHING) || (u.veryobtainable5 == SCR_RESURRECTION) || (u.veryobtainable5 == SCR_WORLD_FALL) || (u.veryobtainable5 == SCR_ASTRALCENSION) || (u.veryobtainable5 == TREASURE_CHEST) || (u.veryobtainable5 == SCR_RAGNAROK) || (u.veryobtainable5 == SCR_ARTIFACT_CREATION) || (u.veryobtainable5 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable5 == WAN_WISHING) || (u.veryobtainable5 == u.unobtainable) || (u.veryobtainable5 == u.unobtainable2) || (u.veryobtainable5 == u.unobtainable3) || (u.veryobtainable5 == u.unobtainable4) || (u.veryobtainable5 == u.unobtainable5) || (u.veryobtainable5 == u.unobtainable6) || (u.veryobtainable5 == u.unobtainable7) || (u.veryobtainable5 == u.unobtainable8) || (u.veryobtainable5 == u.unobtainable9) || (u.veryobtainable5 == u.unobtainable10) || (objects[u.veryobtainable5].oc_prob < 1) ) u.veryobtainable5 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost5 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost5 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost5 += rnz(100);
 	if (u.veryobtainableboost5 > 1000) u.veryobtainableboost5 = 1000; /* sanity check */
 
 	u.veryobtainable6 = -1;
-	while ( (u.veryobtainable6 == -1) || (u.veryobtainable6 == GOLD_PIECE) || (u.veryobtainable6 == STRANGE_OBJECT) || (u.veryobtainable6 == AMULET_OF_YENDOR) || (u.veryobtainable6 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable6 == BELL_OF_OPENING) || (u.veryobtainable6 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable6 == SCR_WISHING) || (u.veryobtainable6 == SCR_ASTRALCENSION) || (u.veryobtainable6 == TREASURE_CHEST) || (u.veryobtainable6 == SCR_RAGNAROK) || (u.veryobtainable6 == SCR_ARTIFACT_CREATION) || (u.veryobtainable6 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable6 == WAN_WISHING) || (u.veryobtainable6 == u.unobtainable) || (u.veryobtainable6 == u.unobtainable2) || (u.veryobtainable6 == u.unobtainable3) || (u.veryobtainable6 == u.unobtainable4) || (u.veryobtainable6 == u.unobtainable5) || (u.veryobtainable6 == u.unobtainable6) || (u.veryobtainable6 == u.unobtainable7) || (u.veryobtainable6 == u.unobtainable8) || (u.veryobtainable6 == u.unobtainable9) || (u.veryobtainable6 == u.unobtainable10) || (objects[u.veryobtainable6].oc_prob < 1) ) u.veryobtainable6 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable6 == -1) || (u.veryobtainable6 == GOLD_PIECE) || (u.veryobtainable6 == STRANGE_OBJECT) || (u.veryobtainable6 == AMULET_OF_YENDOR) || (u.veryobtainable6 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable6 == BELL_OF_OPENING) || (u.veryobtainable6 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable6 == SCR_WISHING) || (u.veryobtainable6 == SCR_RESURRECTION) || (u.veryobtainable6 == SCR_WORLD_FALL) || (u.veryobtainable6 == SCR_ASTRALCENSION) || (u.veryobtainable6 == TREASURE_CHEST) || (u.veryobtainable6 == SCR_RAGNAROK) || (u.veryobtainable6 == SCR_ARTIFACT_CREATION) || (u.veryobtainable6 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable6 == WAN_WISHING) || (u.veryobtainable6 == u.unobtainable) || (u.veryobtainable6 == u.unobtainable2) || (u.veryobtainable6 == u.unobtainable3) || (u.veryobtainable6 == u.unobtainable4) || (u.veryobtainable6 == u.unobtainable5) || (u.veryobtainable6 == u.unobtainable6) || (u.veryobtainable6 == u.unobtainable7) || (u.veryobtainable6 == u.unobtainable8) || (u.veryobtainable6 == u.unobtainable9) || (u.veryobtainable6 == u.unobtainable10) || (objects[u.veryobtainable6].oc_prob < 1) ) u.veryobtainable6 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost6 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost6 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost6 += rnz(100);
 	if (u.veryobtainableboost6 > 1000) u.veryobtainableboost6 = 1000; /* sanity check */
 
 	u.veryobtainable7 = -1;
-	while ( (u.veryobtainable7 == -1) || (u.veryobtainable7 == GOLD_PIECE) || (u.veryobtainable7 == STRANGE_OBJECT) || (u.veryobtainable7 == AMULET_OF_YENDOR) || (u.veryobtainable7 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable7 == BELL_OF_OPENING) || (u.veryobtainable7 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable7 == SCR_WISHING) || (u.veryobtainable7 == SCR_ASTRALCENSION) || (u.veryobtainable7 == TREASURE_CHEST) || (u.veryobtainable7 == SCR_RAGNAROK) || (u.veryobtainable7 == SCR_ARTIFACT_CREATION) || (u.veryobtainable7 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable7 == WAN_WISHING) || (u.veryobtainable7 == u.unobtainable) || (u.veryobtainable7 == u.unobtainable2) || (u.veryobtainable7 == u.unobtainable3) || (u.veryobtainable7 == u.unobtainable4) || (u.veryobtainable7 == u.unobtainable5) || (u.veryobtainable7 == u.unobtainable6) || (u.veryobtainable7 == u.unobtainable7) || (u.veryobtainable7 == u.unobtainable8) || (u.veryobtainable7 == u.unobtainable9) || (u.veryobtainable7 == u.unobtainable10) || (objects[u.veryobtainable7].oc_prob < 1) ) u.veryobtainable7 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable7 == -1) || (u.veryobtainable7 == GOLD_PIECE) || (u.veryobtainable7 == STRANGE_OBJECT) || (u.veryobtainable7 == AMULET_OF_YENDOR) || (u.veryobtainable7 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable7 == BELL_OF_OPENING) || (u.veryobtainable7 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable7 == SCR_WISHING) || (u.veryobtainable7 == SCR_RESURRECTION) || (u.veryobtainable7 == SCR_WORLD_FALL) || (u.veryobtainable7 == SCR_ASTRALCENSION) || (u.veryobtainable7 == TREASURE_CHEST) || (u.veryobtainable7 == SCR_RAGNAROK) || (u.veryobtainable7 == SCR_ARTIFACT_CREATION) || (u.veryobtainable7 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable7 == WAN_WISHING) || (u.veryobtainable7 == u.unobtainable) || (u.veryobtainable7 == u.unobtainable2) || (u.veryobtainable7 == u.unobtainable3) || (u.veryobtainable7 == u.unobtainable4) || (u.veryobtainable7 == u.unobtainable5) || (u.veryobtainable7 == u.unobtainable6) || (u.veryobtainable7 == u.unobtainable7) || (u.veryobtainable7 == u.unobtainable8) || (u.veryobtainable7 == u.unobtainable9) || (u.veryobtainable7 == u.unobtainable10) || (objects[u.veryobtainable7].oc_prob < 1) ) u.veryobtainable7 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost7 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost7 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost7 += rnz(100);
 	if (u.veryobtainableboost7 > 1000) u.veryobtainableboost7 = 1000; /* sanity check */
 
 	u.veryobtainable8 = -1;
-	while ( (u.veryobtainable8 == -1) || (u.veryobtainable8 == GOLD_PIECE) || (u.veryobtainable8 == STRANGE_OBJECT) || (u.veryobtainable8 == AMULET_OF_YENDOR) || (u.veryobtainable8 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable8 == BELL_OF_OPENING) || (u.veryobtainable8 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable8 == SCR_WISHING) || (u.veryobtainable8 == SCR_ASTRALCENSION) || (u.veryobtainable8 == TREASURE_CHEST) || (u.veryobtainable8 == SCR_RAGNAROK) || (u.veryobtainable8 == SCR_ARTIFACT_CREATION) || (u.veryobtainable8 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable8 == WAN_WISHING) || (u.veryobtainable8 == u.unobtainable) || (u.veryobtainable8 == u.unobtainable2) || (u.veryobtainable8 == u.unobtainable3) || (u.veryobtainable8 == u.unobtainable4) || (u.veryobtainable8 == u.unobtainable5) || (u.veryobtainable8 == u.unobtainable6) || (u.veryobtainable8 == u.unobtainable7) || (u.veryobtainable8 == u.unobtainable8) || (u.veryobtainable8 == u.unobtainable9) || (u.veryobtainable8 == u.unobtainable10) || (objects[u.veryobtainable8].oc_prob < 1) ) u.veryobtainable8 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable8 == -1) || (u.veryobtainable8 == GOLD_PIECE) || (u.veryobtainable8 == STRANGE_OBJECT) || (u.veryobtainable8 == AMULET_OF_YENDOR) || (u.veryobtainable8 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable8 == BELL_OF_OPENING) || (u.veryobtainable8 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable8 == SCR_WISHING) || (u.veryobtainable8 == SCR_RESURRECTION) || (u.veryobtainable8 == SCR_WORLD_FALL) || (u.veryobtainable8 == SCR_ASTRALCENSION) || (u.veryobtainable8 == TREASURE_CHEST) || (u.veryobtainable8 == SCR_RAGNAROK) || (u.veryobtainable8 == SCR_ARTIFACT_CREATION) || (u.veryobtainable8 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable8 == WAN_WISHING) || (u.veryobtainable8 == u.unobtainable) || (u.veryobtainable8 == u.unobtainable2) || (u.veryobtainable8 == u.unobtainable3) || (u.veryobtainable8 == u.unobtainable4) || (u.veryobtainable8 == u.unobtainable5) || (u.veryobtainable8 == u.unobtainable6) || (u.veryobtainable8 == u.unobtainable7) || (u.veryobtainable8 == u.unobtainable8) || (u.veryobtainable8 == u.unobtainable9) || (u.veryobtainable8 == u.unobtainable10) || (objects[u.veryobtainable8].oc_prob < 1) ) u.veryobtainable8 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost8 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost8 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost8 += rnz(100);
 	if (u.veryobtainableboost8 > 1000) u.veryobtainableboost8 = 1000; /* sanity check */
 
 	u.veryobtainable9 = -1;
-	while ( (u.veryobtainable9 == -1) || (u.veryobtainable9 == GOLD_PIECE) || (u.veryobtainable9 == STRANGE_OBJECT) || (u.veryobtainable9 == AMULET_OF_YENDOR) || (u.veryobtainable9 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable9 == BELL_OF_OPENING) || (u.veryobtainable9 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable9 == SCR_WISHING) || (u.veryobtainable9 == SCR_ASTRALCENSION) || (u.veryobtainable9 == TREASURE_CHEST) || (u.veryobtainable9 == SCR_RAGNAROK) || (u.veryobtainable9 == SCR_ARTIFACT_CREATION) || (u.veryobtainable9 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable9 == WAN_WISHING) || (u.veryobtainable9 == u.unobtainable) || (u.veryobtainable9 == u.unobtainable2) || (u.veryobtainable9 == u.unobtainable3) || (u.veryobtainable9 == u.unobtainable4) || (u.veryobtainable9 == u.unobtainable5) || (u.veryobtainable9 == u.unobtainable6) || (u.veryobtainable9 == u.unobtainable7) || (u.veryobtainable9 == u.unobtainable8) || (u.veryobtainable9 == u.unobtainable9) || (u.veryobtainable9 == u.unobtainable10) || (objects[u.veryobtainable9].oc_prob < 1) ) u.veryobtainable9 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable9 == -1) || (u.veryobtainable9 == GOLD_PIECE) || (u.veryobtainable9 == STRANGE_OBJECT) || (u.veryobtainable9 == AMULET_OF_YENDOR) || (u.veryobtainable9 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable9 == BELL_OF_OPENING) || (u.veryobtainable9 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable9 == SCR_WISHING) || (u.veryobtainable9 == SCR_RESURRECTION) || (u.veryobtainable9 == SCR_WORLD_FALL) || (u.veryobtainable9 == SCR_ASTRALCENSION) || (u.veryobtainable9 == TREASURE_CHEST) || (u.veryobtainable9 == SCR_RAGNAROK) || (u.veryobtainable9 == SCR_ARTIFACT_CREATION) || (u.veryobtainable9 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable9 == WAN_WISHING) || (u.veryobtainable9 == u.unobtainable) || (u.veryobtainable9 == u.unobtainable2) || (u.veryobtainable9 == u.unobtainable3) || (u.veryobtainable9 == u.unobtainable4) || (u.veryobtainable9 == u.unobtainable5) || (u.veryobtainable9 == u.unobtainable6) || (u.veryobtainable9 == u.unobtainable7) || (u.veryobtainable9 == u.unobtainable8) || (u.veryobtainable9 == u.unobtainable9) || (u.veryobtainable9 == u.unobtainable10) || (objects[u.veryobtainable9].oc_prob < 1) ) u.veryobtainable9 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost9 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost9 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost9 += rnz(100);
 	if (u.veryobtainableboost9 > 1000) u.veryobtainableboost9 = 1000; /* sanity check */
 
 	u.veryobtainable10 = -1;
-	while ( (u.veryobtainable10 == -1) || (u.veryobtainable10 == GOLD_PIECE) || (u.veryobtainable10 == STRANGE_OBJECT) || (u.veryobtainable10 == AMULET_OF_YENDOR) || (u.veryobtainable10 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable10 == BELL_OF_OPENING) || (u.veryobtainable10 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable10 == SCR_WISHING) || (u.veryobtainable10 == SCR_ASTRALCENSION) || (u.veryobtainable10 == TREASURE_CHEST) || (u.veryobtainable10 == SCR_RAGNAROK) || (u.veryobtainable10 == SCR_ARTIFACT_CREATION) || (u.veryobtainable10 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable10 == WAN_WISHING) || (u.veryobtainable10 == u.unobtainable) || (u.veryobtainable10 == u.unobtainable2) || (u.veryobtainable10 == u.unobtainable3) || (u.veryobtainable10 == u.unobtainable4) || (u.veryobtainable10 == u.unobtainable5) || (u.veryobtainable10 == u.unobtainable6) || (u.veryobtainable10 == u.unobtainable7) || (u.veryobtainable10 == u.unobtainable8) || (u.veryobtainable10 == u.unobtainable9) || (u.veryobtainable10 == u.unobtainable10) || (objects[u.veryobtainable10].oc_prob < 1) ) u.veryobtainable10 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable10 == -1) || (u.veryobtainable10 == GOLD_PIECE) || (u.veryobtainable10 == STRANGE_OBJECT) || (u.veryobtainable10 == AMULET_OF_YENDOR) || (u.veryobtainable10 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable10 == BELL_OF_OPENING) || (u.veryobtainable10 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable10 == SCR_WISHING) || (u.veryobtainable10 == SCR_RESURRECTION) || (u.veryobtainable10 == SCR_WORLD_FALL) || (u.veryobtainable10 == SCR_ASTRALCENSION) || (u.veryobtainable10 == TREASURE_CHEST) || (u.veryobtainable10 == SCR_RAGNAROK) || (u.veryobtainable10 == SCR_ARTIFACT_CREATION) || (u.veryobtainable10 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable10 == WAN_WISHING) || (u.veryobtainable10 == u.unobtainable) || (u.veryobtainable10 == u.unobtainable2) || (u.veryobtainable10 == u.unobtainable3) || (u.veryobtainable10 == u.unobtainable4) || (u.veryobtainable10 == u.unobtainable5) || (u.veryobtainable10 == u.unobtainable6) || (u.veryobtainable10 == u.unobtainable7) || (u.veryobtainable10 == u.unobtainable8) || (u.veryobtainable10 == u.unobtainable9) || (u.veryobtainable10 == u.unobtainable10) || (objects[u.veryobtainable10].oc_prob < 1) ) u.veryobtainable10 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost10 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost10 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost10 += rnz(100);
 	if (u.veryobtainableboost10 > 1000) u.veryobtainableboost10 = 1000; /* sanity check */
 
 	u.veryobtainable11 = -1;
-	while ( (u.veryobtainable11 == -1) || (u.veryobtainable11 == GOLD_PIECE) || (u.veryobtainable11 == STRANGE_OBJECT) || (u.veryobtainable11 == AMULET_OF_YENDOR) || (u.veryobtainable11 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable11 == BELL_OF_OPENING) || (u.veryobtainable11 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable11 == SCR_WISHING) || (u.veryobtainable11 == SCR_ASTRALCENSION) || (u.veryobtainable11 == TREASURE_CHEST) || (u.veryobtainable11 == SCR_RAGNAROK) || (u.veryobtainable11 == SCR_ARTIFACT_CREATION) || (u.veryobtainable11 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable11 == WAN_WISHING) || (u.veryobtainable11 == u.unobtainable) || (u.veryobtainable11 == u.unobtainable2) || (u.veryobtainable11 == u.unobtainable3) || (u.veryobtainable11 == u.unobtainable4) || (u.veryobtainable11 == u.unobtainable5) || (u.veryobtainable11 == u.unobtainable6) || (u.veryobtainable11 == u.unobtainable7) || (u.veryobtainable11 == u.unobtainable8) || (u.veryobtainable11 == u.unobtainable9) || (u.veryobtainable11 == u.unobtainable10) || (objects[u.veryobtainable11].oc_prob < 1) ) u.veryobtainable11 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable11 == -1) || (u.veryobtainable11 == GOLD_PIECE) || (u.veryobtainable11 == STRANGE_OBJECT) || (u.veryobtainable11 == AMULET_OF_YENDOR) || (u.veryobtainable11 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable11 == BELL_OF_OPENING) || (u.veryobtainable11 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable11 == SCR_WISHING) || (u.veryobtainable11 == SCR_RESURRECTION) || (u.veryobtainable11 == SCR_WORLD_FALL) || (u.veryobtainable11 == SCR_ASTRALCENSION) || (u.veryobtainable11 == TREASURE_CHEST) || (u.veryobtainable11 == SCR_RAGNAROK) || (u.veryobtainable11 == SCR_ARTIFACT_CREATION) || (u.veryobtainable11 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable11 == WAN_WISHING) || (u.veryobtainable11 == u.unobtainable) || (u.veryobtainable11 == u.unobtainable2) || (u.veryobtainable11 == u.unobtainable3) || (u.veryobtainable11 == u.unobtainable4) || (u.veryobtainable11 == u.unobtainable5) || (u.veryobtainable11 == u.unobtainable6) || (u.veryobtainable11 == u.unobtainable7) || (u.veryobtainable11 == u.unobtainable8) || (u.veryobtainable11 == u.unobtainable9) || (u.veryobtainable11 == u.unobtainable10) || (objects[u.veryobtainable11].oc_prob < 1) ) u.veryobtainable11 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost11 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost11 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost11 += rnd(100);
 	if (u.veryobtainableboost11 > 1000) u.veryobtainableboost11 = 1000; /* sanity check */
 
 	u.veryobtainable12 = -1;
-	while ( (u.veryobtainable12 == -1) || (u.veryobtainable12 == GOLD_PIECE) || (u.veryobtainable12 == STRANGE_OBJECT) || (u.veryobtainable12 == AMULET_OF_YENDOR) || (u.veryobtainable12 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable12 == BELL_OF_OPENING) || (u.veryobtainable12 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable12 == SCR_WISHING) || (u.veryobtainable12 == SCR_ASTRALCENSION) || (u.veryobtainable12 == TREASURE_CHEST) || (u.veryobtainable12 == SCR_RAGNAROK) || (u.veryobtainable12 == SCR_ARTIFACT_CREATION) || (u.veryobtainable12 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable12 == WAN_WISHING) || (u.veryobtainable12 == u.unobtainable) || (u.veryobtainable12 == u.unobtainable2) || (u.veryobtainable12 == u.unobtainable3) || (u.veryobtainable12 == u.unobtainable4) || (u.veryobtainable12 == u.unobtainable5) || (u.veryobtainable12 == u.unobtainable6) || (u.veryobtainable12 == u.unobtainable7) || (u.veryobtainable12 == u.unobtainable8) || (u.veryobtainable12 == u.unobtainable9) || (u.veryobtainable12 == u.unobtainable10) || (objects[u.veryobtainable12].oc_prob < 1) ) u.veryobtainable12 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable12 == -1) || (u.veryobtainable12 == GOLD_PIECE) || (u.veryobtainable12 == STRANGE_OBJECT) || (u.veryobtainable12 == AMULET_OF_YENDOR) || (u.veryobtainable12 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable12 == BELL_OF_OPENING) || (u.veryobtainable12 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable12 == SCR_WISHING) || (u.veryobtainable12 == SCR_RESURRECTION) || (u.veryobtainable12 == SCR_WORLD_FALL) || (u.veryobtainable12 == SCR_ASTRALCENSION) || (u.veryobtainable12 == TREASURE_CHEST) || (u.veryobtainable12 == SCR_RAGNAROK) || (u.veryobtainable12 == SCR_ARTIFACT_CREATION) || (u.veryobtainable12 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable12 == WAN_WISHING) || (u.veryobtainable12 == u.unobtainable) || (u.veryobtainable12 == u.unobtainable2) || (u.veryobtainable12 == u.unobtainable3) || (u.veryobtainable12 == u.unobtainable4) || (u.veryobtainable12 == u.unobtainable5) || (u.veryobtainable12 == u.unobtainable6) || (u.veryobtainable12 == u.unobtainable7) || (u.veryobtainable12 == u.unobtainable8) || (u.veryobtainable12 == u.unobtainable9) || (u.veryobtainable12 == u.unobtainable10) || (objects[u.veryobtainable12].oc_prob < 1) ) u.veryobtainable12 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost12 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost12 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost12 += rnd(100);
 	if (u.veryobtainableboost12 > 1000) u.veryobtainableboost12 = 1000; /* sanity check */
 
 	u.veryobtainable13 = -1;
-	while ( (u.veryobtainable13 == -1) || (u.veryobtainable13 == GOLD_PIECE) || (u.veryobtainable13 == STRANGE_OBJECT) || (u.veryobtainable13 == AMULET_OF_YENDOR) || (u.veryobtainable13 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable13 == BELL_OF_OPENING) || (u.veryobtainable13 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable13 == SCR_WISHING) || (u.veryobtainable13 == SCR_ASTRALCENSION) || (u.veryobtainable13 == TREASURE_CHEST) || (u.veryobtainable13 == SCR_RAGNAROK) || (u.veryobtainable13 == SCR_ARTIFACT_CREATION) || (u.veryobtainable13 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable13 == WAN_WISHING) || (u.veryobtainable13 == u.unobtainable) || (u.veryobtainable13 == u.unobtainable2) || (u.veryobtainable13 == u.unobtainable3) || (u.veryobtainable13 == u.unobtainable4) || (u.veryobtainable13 == u.unobtainable5) || (u.veryobtainable13 == u.unobtainable6) || (u.veryobtainable13 == u.unobtainable7) || (u.veryobtainable13 == u.unobtainable8) || (u.veryobtainable13 == u.unobtainable9) || (u.veryobtainable13 == u.unobtainable10) || (objects[u.veryobtainable13].oc_prob < 1) ) u.veryobtainable13 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable13 == -1) || (u.veryobtainable13 == GOLD_PIECE) || (u.veryobtainable13 == STRANGE_OBJECT) || (u.veryobtainable13 == AMULET_OF_YENDOR) || (u.veryobtainable13 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable13 == BELL_OF_OPENING) || (u.veryobtainable13 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable13 == SCR_WISHING) || (u.veryobtainable13 == SCR_RESURRECTION) || (u.veryobtainable13 == SCR_WORLD_FALL) || (u.veryobtainable13 == SCR_ASTRALCENSION) || (u.veryobtainable13 == TREASURE_CHEST) || (u.veryobtainable13 == SCR_RAGNAROK) || (u.veryobtainable13 == SCR_ARTIFACT_CREATION) || (u.veryobtainable13 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable13 == WAN_WISHING) || (u.veryobtainable13 == u.unobtainable) || (u.veryobtainable13 == u.unobtainable2) || (u.veryobtainable13 == u.unobtainable3) || (u.veryobtainable13 == u.unobtainable4) || (u.veryobtainable13 == u.unobtainable5) || (u.veryobtainable13 == u.unobtainable6) || (u.veryobtainable13 == u.unobtainable7) || (u.veryobtainable13 == u.unobtainable8) || (u.veryobtainable13 == u.unobtainable9) || (u.veryobtainable13 == u.unobtainable10) || (objects[u.veryobtainable13].oc_prob < 1) ) u.veryobtainable13 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost13 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost13 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost13 += rnd(100);
 	if (u.veryobtainableboost13 > 1000) u.veryobtainableboost13 = 1000; /* sanity check */
 
 	u.veryobtainable14 = -1;
-	while ( (u.veryobtainable14 == -1) || (u.veryobtainable14 == GOLD_PIECE) || (u.veryobtainable14 == STRANGE_OBJECT) || (u.veryobtainable14 == AMULET_OF_YENDOR) || (u.veryobtainable14 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable14 == BELL_OF_OPENING) || (u.veryobtainable14 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable14 == SCR_WISHING) || (u.veryobtainable14 == SCR_ASTRALCENSION) || (u.veryobtainable14 == TREASURE_CHEST) || (u.veryobtainable14 == SCR_RAGNAROK) || (u.veryobtainable14 == SCR_ARTIFACT_CREATION) || (u.veryobtainable14 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable14 == WAN_WISHING) || (u.veryobtainable14 == u.unobtainable) || (u.veryobtainable14 == u.unobtainable2) || (u.veryobtainable14 == u.unobtainable3) || (u.veryobtainable14 == u.unobtainable4) || (u.veryobtainable14 == u.unobtainable5) || (u.veryobtainable14 == u.unobtainable6) || (u.veryobtainable14 == u.unobtainable7) || (u.veryobtainable14 == u.unobtainable8) || (u.veryobtainable14 == u.unobtainable9) || (u.veryobtainable14 == u.unobtainable10) || (objects[u.veryobtainable14].oc_prob < 1) ) u.veryobtainable14 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable14 == -1) || (u.veryobtainable14 == GOLD_PIECE) || (u.veryobtainable14 == STRANGE_OBJECT) || (u.veryobtainable14 == AMULET_OF_YENDOR) || (u.veryobtainable14 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable14 == BELL_OF_OPENING) || (u.veryobtainable14 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable14 == SCR_WISHING) || (u.veryobtainable14 == SCR_RESURRECTION) || (u.veryobtainable14 == SCR_WORLD_FALL) || (u.veryobtainable14 == SCR_ASTRALCENSION) || (u.veryobtainable14 == TREASURE_CHEST) || (u.veryobtainable14 == SCR_RAGNAROK) || (u.veryobtainable14 == SCR_ARTIFACT_CREATION) || (u.veryobtainable14 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable14 == WAN_WISHING) || (u.veryobtainable14 == u.unobtainable) || (u.veryobtainable14 == u.unobtainable2) || (u.veryobtainable14 == u.unobtainable3) || (u.veryobtainable14 == u.unobtainable4) || (u.veryobtainable14 == u.unobtainable5) || (u.veryobtainable14 == u.unobtainable6) || (u.veryobtainable14 == u.unobtainable7) || (u.veryobtainable14 == u.unobtainable8) || (u.veryobtainable14 == u.unobtainable9) || (u.veryobtainable14 == u.unobtainable10) || (objects[u.veryobtainable14].oc_prob < 1) ) u.veryobtainable14 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost14 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost14 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost14 += rnd(100);
 	if (u.veryobtainableboost14 > 1000) u.veryobtainableboost14 = 1000; /* sanity check */
 
 	u.veryobtainable15 = -1;
-	while ( (u.veryobtainable15 == -1) || (u.veryobtainable15 == GOLD_PIECE) || (u.veryobtainable15 == STRANGE_OBJECT) || (u.veryobtainable15 == AMULET_OF_YENDOR) || (u.veryobtainable15 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable15 == BELL_OF_OPENING) || (u.veryobtainable15 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable15 == SCR_WISHING) || (u.veryobtainable15 == SCR_ASTRALCENSION) || (u.veryobtainable15 == TREASURE_CHEST) || (u.veryobtainable15 == SCR_RAGNAROK) || (u.veryobtainable15 == SCR_ARTIFACT_CREATION) || (u.veryobtainable15 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable15 == WAN_WISHING) || (u.veryobtainable15 == u.unobtainable) || (u.veryobtainable15 == u.unobtainable2) || (u.veryobtainable15 == u.unobtainable3) || (u.veryobtainable15 == u.unobtainable4) || (u.veryobtainable15 == u.unobtainable5) || (u.veryobtainable15 == u.unobtainable6) || (u.veryobtainable15 == u.unobtainable7) || (u.veryobtainable15 == u.unobtainable8) || (u.veryobtainable15 == u.unobtainable9) || (u.veryobtainable15 == u.unobtainable10) || (objects[u.veryobtainable15].oc_prob < 1) ) u.veryobtainable15 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable15 == -1) || (u.veryobtainable15 == GOLD_PIECE) || (u.veryobtainable15 == STRANGE_OBJECT) || (u.veryobtainable15 == AMULET_OF_YENDOR) || (u.veryobtainable15 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable15 == BELL_OF_OPENING) || (u.veryobtainable15 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable15 == SCR_WISHING) || (u.veryobtainable15 == SCR_RESURRECTION) || (u.veryobtainable15 == SCR_WORLD_FALL) || (u.veryobtainable15 == SCR_ASTRALCENSION) || (u.veryobtainable15 == TREASURE_CHEST) || (u.veryobtainable15 == SCR_RAGNAROK) || (u.veryobtainable15 == SCR_ARTIFACT_CREATION) || (u.veryobtainable15 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable15 == WAN_WISHING) || (u.veryobtainable15 == u.unobtainable) || (u.veryobtainable15 == u.unobtainable2) || (u.veryobtainable15 == u.unobtainable3) || (u.veryobtainable15 == u.unobtainable4) || (u.veryobtainable15 == u.unobtainable5) || (u.veryobtainable15 == u.unobtainable6) || (u.veryobtainable15 == u.unobtainable7) || (u.veryobtainable15 == u.unobtainable8) || (u.veryobtainable15 == u.unobtainable9) || (u.veryobtainable15 == u.unobtainable10) || (objects[u.veryobtainable15].oc_prob < 1) ) u.veryobtainable15 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost15 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost15 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost15 += rnd(100);
 	if (u.veryobtainableboost15 > 1000) u.veryobtainableboost15 = 1000; /* sanity check */
 
 	u.veryobtainable16 = -1;
-	while ( (u.veryobtainable16 == -1) || (u.veryobtainable16 == GOLD_PIECE) || (u.veryobtainable16 == STRANGE_OBJECT) || (u.veryobtainable16 == AMULET_OF_YENDOR) || (u.veryobtainable16 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable16 == BELL_OF_OPENING) || (u.veryobtainable16 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable16 == SCR_WISHING) || (u.veryobtainable16 == SCR_ASTRALCENSION) || (u.veryobtainable16 == TREASURE_CHEST) || (u.veryobtainable16 == SCR_RAGNAROK) || (u.veryobtainable16 == SCR_ARTIFACT_CREATION) || (u.veryobtainable16 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable16 == WAN_WISHING) || (u.veryobtainable16 == u.unobtainable) || (u.veryobtainable16 == u.unobtainable2) || (u.veryobtainable16 == u.unobtainable3) || (u.veryobtainable16 == u.unobtainable4) || (u.veryobtainable16 == u.unobtainable5) || (u.veryobtainable16 == u.unobtainable6) || (u.veryobtainable16 == u.unobtainable7) || (u.veryobtainable16 == u.unobtainable8) || (u.veryobtainable16 == u.unobtainable9) || (u.veryobtainable16 == u.unobtainable10) || (objects[u.veryobtainable16].oc_prob < 1) ) u.veryobtainable16 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable16 == -1) || (u.veryobtainable16 == GOLD_PIECE) || (u.veryobtainable16 == STRANGE_OBJECT) || (u.veryobtainable16 == AMULET_OF_YENDOR) || (u.veryobtainable16 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable16 == BELL_OF_OPENING) || (u.veryobtainable16 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable16 == SCR_WISHING) || (u.veryobtainable16 == SCR_RESURRECTION) || (u.veryobtainable16 == SCR_WORLD_FALL) || (u.veryobtainable16 == SCR_ASTRALCENSION) || (u.veryobtainable16 == TREASURE_CHEST) || (u.veryobtainable16 == SCR_RAGNAROK) || (u.veryobtainable16 == SCR_ARTIFACT_CREATION) || (u.veryobtainable16 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable16 == WAN_WISHING) || (u.veryobtainable16 == u.unobtainable) || (u.veryobtainable16 == u.unobtainable2) || (u.veryobtainable16 == u.unobtainable3) || (u.veryobtainable16 == u.unobtainable4) || (u.veryobtainable16 == u.unobtainable5) || (u.veryobtainable16 == u.unobtainable6) || (u.veryobtainable16 == u.unobtainable7) || (u.veryobtainable16 == u.unobtainable8) || (u.veryobtainable16 == u.unobtainable9) || (u.veryobtainable16 == u.unobtainable10) || (objects[u.veryobtainable16].oc_prob < 1) ) u.veryobtainable16 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost16 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost16 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost16 += rnd(100);
 	if (u.veryobtainableboost16 > 1000) u.veryobtainableboost16 = 1000; /* sanity check */
 
 	u.veryobtainable17 = -1;
-	while ( (u.veryobtainable17 == -1) || (u.veryobtainable17 == GOLD_PIECE) || (u.veryobtainable17 == STRANGE_OBJECT) || (u.veryobtainable17 == AMULET_OF_YENDOR) || (u.veryobtainable17 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable17 == BELL_OF_OPENING) || (u.veryobtainable17 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable17 == SCR_WISHING) || (u.veryobtainable17 == SCR_ASTRALCENSION) || (u.veryobtainable17 == TREASURE_CHEST) || (u.veryobtainable17 == SCR_RAGNAROK) || (u.veryobtainable17 == SCR_ARTIFACT_CREATION) || (u.veryobtainable17 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable17 == WAN_WISHING) || (u.veryobtainable17 == u.unobtainable) || (u.veryobtainable17 == u.unobtainable2) || (u.veryobtainable17 == u.unobtainable3) || (u.veryobtainable17 == u.unobtainable4) || (u.veryobtainable17 == u.unobtainable5) || (u.veryobtainable17 == u.unobtainable6) || (u.veryobtainable17 == u.unobtainable7) || (u.veryobtainable17 == u.unobtainable8) || (u.veryobtainable17 == u.unobtainable9) || (u.veryobtainable17 == u.unobtainable10) || (objects[u.veryobtainable17].oc_prob < 1) ) u.veryobtainable17 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable17 == -1) || (u.veryobtainable17 == GOLD_PIECE) || (u.veryobtainable17 == STRANGE_OBJECT) || (u.veryobtainable17 == AMULET_OF_YENDOR) || (u.veryobtainable17 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable17 == BELL_OF_OPENING) || (u.veryobtainable17 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable17 == SCR_WISHING) || (u.veryobtainable17 == SCR_RESURRECTION) || (u.veryobtainable17 == SCR_WORLD_FALL) || (u.veryobtainable17 == SCR_ASTRALCENSION) || (u.veryobtainable17 == TREASURE_CHEST) || (u.veryobtainable17 == SCR_RAGNAROK) || (u.veryobtainable17 == SCR_ARTIFACT_CREATION) || (u.veryobtainable17 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable17 == WAN_WISHING) || (u.veryobtainable17 == u.unobtainable) || (u.veryobtainable17 == u.unobtainable2) || (u.veryobtainable17 == u.unobtainable3) || (u.veryobtainable17 == u.unobtainable4) || (u.veryobtainable17 == u.unobtainable5) || (u.veryobtainable17 == u.unobtainable6) || (u.veryobtainable17 == u.unobtainable7) || (u.veryobtainable17 == u.unobtainable8) || (u.veryobtainable17 == u.unobtainable9) || (u.veryobtainable17 == u.unobtainable10) || (objects[u.veryobtainable17].oc_prob < 1) ) u.veryobtainable17 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost17 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost17 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost17 += rnd(100);
 	if (u.veryobtainableboost17 > 1000) u.veryobtainableboost17 = 1000; /* sanity check */
 
 	u.veryobtainable18 = -1;
-	while ( (u.veryobtainable18 == -1) || (u.veryobtainable18 == GOLD_PIECE) || (u.veryobtainable18 == STRANGE_OBJECT) || (u.veryobtainable18 == AMULET_OF_YENDOR) || (u.veryobtainable18 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable18 == BELL_OF_OPENING) || (u.veryobtainable18 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable18 == SCR_WISHING) || (u.veryobtainable18 == SCR_ASTRALCENSION) || (u.veryobtainable18 == TREASURE_CHEST) || (u.veryobtainable18 == SCR_RAGNAROK) || (u.veryobtainable18 == SCR_ARTIFACT_CREATION) || (u.veryobtainable18 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable18 == WAN_WISHING) || (u.veryobtainable18 == u.unobtainable) || (u.veryobtainable18 == u.unobtainable2) || (u.veryobtainable18 == u.unobtainable3) || (u.veryobtainable18 == u.unobtainable4) || (u.veryobtainable18 == u.unobtainable5) || (u.veryobtainable18 == u.unobtainable6) || (u.veryobtainable18 == u.unobtainable7) || (u.veryobtainable18 == u.unobtainable8) || (u.veryobtainable18 == u.unobtainable9) || (u.veryobtainable18 == u.unobtainable10) || (objects[u.veryobtainable18].oc_prob < 1) ) u.veryobtainable18 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable18 == -1) || (u.veryobtainable18 == GOLD_PIECE) || (u.veryobtainable18 == STRANGE_OBJECT) || (u.veryobtainable18 == AMULET_OF_YENDOR) || (u.veryobtainable18 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable18 == BELL_OF_OPENING) || (u.veryobtainable18 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable18 == SCR_WISHING) || (u.veryobtainable18 == SCR_RESURRECTION) || (u.veryobtainable18 == SCR_WORLD_FALL) || (u.veryobtainable18 == SCR_ASTRALCENSION) || (u.veryobtainable18 == TREASURE_CHEST) || (u.veryobtainable18 == SCR_RAGNAROK) || (u.veryobtainable18 == SCR_ARTIFACT_CREATION) || (u.veryobtainable18 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable18 == WAN_WISHING) || (u.veryobtainable18 == u.unobtainable) || (u.veryobtainable18 == u.unobtainable2) || (u.veryobtainable18 == u.unobtainable3) || (u.veryobtainable18 == u.unobtainable4) || (u.veryobtainable18 == u.unobtainable5) || (u.veryobtainable18 == u.unobtainable6) || (u.veryobtainable18 == u.unobtainable7) || (u.veryobtainable18 == u.unobtainable8) || (u.veryobtainable18 == u.unobtainable9) || (u.veryobtainable18 == u.unobtainable10) || (objects[u.veryobtainable18].oc_prob < 1) ) u.veryobtainable18 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost18 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost18 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost18 += rnd(100);
 	if (u.veryobtainableboost18 > 1000) u.veryobtainableboost18 = 1000; /* sanity check */
 
 	u.veryobtainable19 = -1;
-	while ( (u.veryobtainable19 == -1) || (u.veryobtainable19 == GOLD_PIECE) || (u.veryobtainable19 == STRANGE_OBJECT) || (u.veryobtainable19 == AMULET_OF_YENDOR) || (u.veryobtainable19 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable19 == BELL_OF_OPENING) || (u.veryobtainable19 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable19 == SCR_WISHING) || (u.veryobtainable19 == SCR_ASTRALCENSION) || (u.veryobtainable19 == TREASURE_CHEST) || (u.veryobtainable19 == SCR_RAGNAROK) || (u.veryobtainable19 == SCR_ARTIFACT_CREATION) || (u.veryobtainable19 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable19 == WAN_WISHING) || (u.veryobtainable19 == u.unobtainable) || (u.veryobtainable19 == u.unobtainable2) || (u.veryobtainable19 == u.unobtainable3) || (u.veryobtainable19 == u.unobtainable4) || (u.veryobtainable19 == u.unobtainable5) || (u.veryobtainable19 == u.unobtainable6) || (u.veryobtainable19 == u.unobtainable7) || (u.veryobtainable19 == u.unobtainable8) || (u.veryobtainable19 == u.unobtainable9) || (u.veryobtainable19 == u.unobtainable10) || (objects[u.veryobtainable19].oc_prob < 1) ) u.veryobtainable19 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable19 == -1) || (u.veryobtainable19 == GOLD_PIECE) || (u.veryobtainable19 == STRANGE_OBJECT) || (u.veryobtainable19 == AMULET_OF_YENDOR) || (u.veryobtainable19 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable19 == BELL_OF_OPENING) || (u.veryobtainable19 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable19 == SCR_WISHING) || (u.veryobtainable19 == SCR_RESURRECTION) || (u.veryobtainable19 == SCR_WORLD_FALL) || (u.veryobtainable19 == SCR_ASTRALCENSION) || (u.veryobtainable19 == TREASURE_CHEST) || (u.veryobtainable19 == SCR_RAGNAROK) || (u.veryobtainable19 == SCR_ARTIFACT_CREATION) || (u.veryobtainable19 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable19 == WAN_WISHING) || (u.veryobtainable19 == u.unobtainable) || (u.veryobtainable19 == u.unobtainable2) || (u.veryobtainable19 == u.unobtainable3) || (u.veryobtainable19 == u.unobtainable4) || (u.veryobtainable19 == u.unobtainable5) || (u.veryobtainable19 == u.unobtainable6) || (u.veryobtainable19 == u.unobtainable7) || (u.veryobtainable19 == u.unobtainable8) || (u.veryobtainable19 == u.unobtainable9) || (u.veryobtainable19 == u.unobtainable10) || (objects[u.veryobtainable19].oc_prob < 1) ) u.veryobtainable19 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost19 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost19 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost19 += rnd(100);
 	if (u.veryobtainableboost19 > 1000) u.veryobtainableboost19 = 1000; /* sanity check */
 
 	u.veryobtainable20 = -1;
-	while ( (u.veryobtainable20 == -1) || (u.veryobtainable20 == GOLD_PIECE) || (u.veryobtainable20 == STRANGE_OBJECT) || (u.veryobtainable20 == AMULET_OF_YENDOR) || (u.veryobtainable20 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable20 == BELL_OF_OPENING) || (u.veryobtainable20 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable20 == SCR_WISHING) || (u.veryobtainable20 == SCR_ASTRALCENSION) || (u.veryobtainable20 == TREASURE_CHEST) || (u.veryobtainable20 == SCR_RAGNAROK) || (u.veryobtainable20 == SCR_ARTIFACT_CREATION) || (u.veryobtainable20 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable20 == WAN_WISHING) || (u.veryobtainable20 == u.unobtainable) || (u.veryobtainable20 == u.unobtainable2) || (u.veryobtainable20 == u.unobtainable3) || (u.veryobtainable20 == u.unobtainable4) || (u.veryobtainable20 == u.unobtainable5) || (u.veryobtainable20 == u.unobtainable6) || (u.veryobtainable20 == u.unobtainable7) || (u.veryobtainable20 == u.unobtainable8) || (u.veryobtainable20 == u.unobtainable9) || (u.veryobtainable20 == u.unobtainable10) || (objects[u.veryobtainable20].oc_prob < 1) ) u.veryobtainable20 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable20 == -1) || (u.veryobtainable20 == GOLD_PIECE) || (u.veryobtainable20 == STRANGE_OBJECT) || (u.veryobtainable20 == AMULET_OF_YENDOR) || (u.veryobtainable20 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable20 == BELL_OF_OPENING) || (u.veryobtainable20 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable20 == SCR_WISHING) || (u.veryobtainable20 == SCR_RESURRECTION) || (u.veryobtainable20 == SCR_WORLD_FALL) || (u.veryobtainable20 == SCR_ASTRALCENSION) || (u.veryobtainable20 == TREASURE_CHEST) || (u.veryobtainable20 == SCR_RAGNAROK) || (u.veryobtainable20 == SCR_ARTIFACT_CREATION) || (u.veryobtainable20 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable20 == WAN_WISHING) || (u.veryobtainable20 == u.unobtainable) || (u.veryobtainable20 == u.unobtainable2) || (u.veryobtainable20 == u.unobtainable3) || (u.veryobtainable20 == u.unobtainable4) || (u.veryobtainable20 == u.unobtainable5) || (u.veryobtainable20 == u.unobtainable6) || (u.veryobtainable20 == u.unobtainable7) || (u.veryobtainable20 == u.unobtainable8) || (u.veryobtainable20 == u.unobtainable9) || (u.veryobtainable20 == u.unobtainable10) || (objects[u.veryobtainable20].oc_prob < 1) ) u.veryobtainable20 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost20 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost20 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost20 += rnd(100);
@@ -8406,7 +10092,8 @@ u_init()
 		else if (!rn2(2000)) u.veryobtainclass1 = CHAIN_CLASS;
 		else if (!rn2(1000)) u.veryobtainclass1 = VENOM_CLASS;
 		else if (!rn2(1000)) u.veryobtainclass1 = ROCK_CLASS;
-		else switch (rnd(12)) {
+		else if (!rn2(1000)) u.veryobtainclass1 = IMPLANT_CLASS;
+		else switch (rnd(11)) {
 			case 1: u.veryobtainclass1 = WEAPON_CLASS; break;
 			case 2: u.veryobtainclass1 = ARMOR_CLASS; break;
 			case 3: u.veryobtainclass1 = RING_CLASS; break;
@@ -8418,7 +10105,6 @@ u_init()
 			case 9: u.veryobtainclass1 = TOOL_CLASS; break;
 			case 10: u.veryobtainclass1 = FOOD_CLASS; break;
 			case 11: u.veryobtainclass1 = GEM_CLASS; break;
-			case 12: u.veryobtainclass1 = IMPLANT_CLASS; break;
 		}
 		u.veryobtainclass1boost = rnd(100);
 	}
@@ -8429,7 +10115,8 @@ u_init()
 		else if (!rn2(2000)) u.veryobtainclass2 = CHAIN_CLASS;
 		else if (!rn2(1000)) u.veryobtainclass2 = VENOM_CLASS;
 		else if (!rn2(1000)) u.veryobtainclass2 = ROCK_CLASS;
-		else switch (rnd(12)) {
+		else if (!rn2(1000)) u.veryobtainclass2 = IMPLANT_CLASS;
+		else switch (rnd(11)) {
 			case 1: u.veryobtainclass2 = WEAPON_CLASS; break;
 			case 2: u.veryobtainclass2 = ARMOR_CLASS; break;
 			case 3: u.veryobtainclass2 = RING_CLASS; break;
@@ -8441,7 +10128,6 @@ u_init()
 			case 9: u.veryobtainclass2 = TOOL_CLASS; break;
 			case 10: u.veryobtainclass2 = FOOD_CLASS; break;
 			case 11: u.veryobtainclass2 = GEM_CLASS; break;
-			case 12: u.veryobtainclass2 = IMPLANT_CLASS; break;
 		}
 		u.veryobtainclass2boost = rnd(100);
 	}
@@ -8452,7 +10138,8 @@ u_init()
 		else if (!rn2(2000)) u.veryobtainclass3 = CHAIN_CLASS;
 		else if (!rn2(1000)) u.veryobtainclass3 = VENOM_CLASS;
 		else if (!rn2(1000)) u.veryobtainclass3 = ROCK_CLASS;
-		else switch (rnd(12)) {
+		else if (!rn2(1000)) u.veryobtainclass3 = IMPLANT_CLASS;
+		else switch (rnd(11)) {
 			case 1: u.veryobtainclass3 = WEAPON_CLASS; break;
 			case 2: u.veryobtainclass3 = ARMOR_CLASS; break;
 			case 3: u.veryobtainclass3 = RING_CLASS; break;
@@ -8464,21 +10151,43 @@ u_init()
 			case 9: u.veryobtainclass3 = TOOL_CLASS; break;
 			case 10: u.veryobtainclass3 = FOOD_CLASS; break;
 			case 11: u.veryobtainclass3 = GEM_CLASS; break;
-			case 12: u.veryobtainclass3 = IMPLANT_CLASS; break;
 		}
 		u.veryobtainclass3boost = rnd(100);
+	}
+
+	u.spellbookbias1 = -1;
+	u.spellbookbias2 = -1;
+	u.spellbookbias3 = -1;
+
+	if (!rn2(5)) {
+		u.spellbookbias1 = P_FIRST_SPELL + rn2(10);
+		u.spellbookchance1 = rnd(20);
+		if (!rn2(4)) {
+			u.spellbookbias2 = P_FIRST_SPELL + rn2(10);
+			u.spellbookchance2 = rnd(20);
+			if (!rn2(5)) {
+				u.spellbookbias3 = P_FIRST_SPELL + rn2(10);
+				u.spellbookchance3 = rnd(20);
+			}
+		}
 	}
 
 	u.invisotrap = rnd(TRAPNUM-1);
 
 	u.frequenttrap = rnd(TRAPNUM-1);
-	while (u.frequenttrap == MAGIC_PORTAL || u.frequenttrap == ACTIVE_SUPERSCROLLER_TRAP || u.frequenttrap == WISHING_TRAP || u.frequenttrap == DATA_DELETE_TRAP || u.frequenttrap == ELDER_TENTACLING_TRAP || u.frequenttrap == ARTIFACT_JACKPOT_TRAP || u.frequenttrap == GOOD_ARTIFACT_TRAP || u.frequenttrap == BOON_TRAP) u.frequenttrap = rnd(TRAPNUM-1);
+	while (u.frequenttrap == MAGIC_PORTAL || u.frequenttrap == ACTIVE_SUPERSCROLLER_TRAP || u.frequenttrap == WISHING_TRAP || u.frequenttrap == PENTAGRAM_TRAP || u.frequenttrap == THRONE_TRAP || u.frequenttrap == S_PRESSING_TRAP || u.frequenttrap == DATA_DELETE_TRAP || u.frequenttrap == ELDER_TENTACLING_TRAP || u.frequenttrap == ARTIFACT_JACKPOT_TRAP || u.frequenttrap == GOOD_ARTIFACT_TRAP || u.frequenttrap == BOON_TRAP) u.frequenttrap = rnd(TRAPNUM-1);
 	u.freqtrapbonus = rnz(3) * rne(3);
 
 	u.traprandomizing = rnd(1000);
 
 	u.trapxtradiff = 0;
 	if (!rn2(10)) u.trapxtradiff = rno(100);
+
+	u.invistrapchance = 20 + rn2(81);
+	u.xdifftrapchance = rno(50);
+	if (!rn2(5)) u.xdifftrapchance = rno(100);
+	if (u.xdifftrapchance < 1) u.xdifftrapchance = 1;
+	if (u.xdifftrapchance > 100) u.xdifftrapchance = 100;
 
 	if (Race_if(PM_WARPER)) u.youpolyamount = 5;
 	else if (Race_if(PM_DOPPELGANGER)) u.youpolyamount = 10;
@@ -8503,9 +10212,15 @@ u_init()
 
 	u.usanity = 0;
 
-	u.impossibleproperty = randomdisableproperty();
-	u.nonextrinsicproperty = randomdisableproperty();
-	u.nonintrinsicproperty = randomdisableproperty();
+	u.impossibleproperty = -1;
+	u.nonextrinsicproperty = -1;
+	u.nonintrinsicproperty = -1;
+	u.nondoubleproperty = -1;
+
+	if (!rn2(2)) u.impossibleproperty = randomdisableproperty();
+	if (!rn2(2)) u.nonextrinsicproperty = randomdisableproperty();
+	if (!rn2(2)) u.nonintrinsicproperty = randomdisableproperty();
+	if (!rn2(2)) u.nondoubleproperty = randomdisableproperty();
 
 	u.idscrollpenalty = rnd(200); /* if rnd(this) is greater than 100, the scroll isn't ided */
 	if (!rn2(7)) u.idscrollpenalty += rnz(100);
@@ -8622,6 +10337,14 @@ u_init()
 	if (u.foodspawnchance > 90) u.foodspawnchance = 90;
 	if (u.foodspawnchance < 0) u.foodspawnchance = 0;
 
+	u.shopitemreduction = 0;
+	if (rn2(5)) u.shopitemreduction += rnd(80);
+	if (!rn2(5)) u.shopitemreduction += rnd(20);
+	if (!rn2(20)) u.shopitemreduction += rnd(50);
+	if (!rn2(100)) u.shopitemreduction += rnd(100);
+	if (u.shopitemreduction > 90) u.shopitemreduction = 90;
+	if (u.shopitemreduction < 0) u.shopitemreduction = 0;
+
 	u.potionspawnchance = 0;
 	if (!rn2(2)) u.potionspawnchance += rnd(15);
 	if (!rn2(3)) u.potionspawnchance += rnd(15);
@@ -8690,30 +10413,55 @@ u_init()
 	else if (u.monstertimefinish % 3 == 0) u.eeveelution = PM_FLAREON;
 	else u.eeveelution = PM_VAPOREON;
 
-	u.untrainableskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.halfspeedskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.fifthspeedskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.basiclimitskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.skilledlimitskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.expertlimitskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.earlytrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.earlytrainingtimer = rnz(50);
-	u.earlytrainingtimer = rnd(u.earlytrainingtimer);
-	u.earlytrainingtimer = rnz(u.earlytrainingtimer); /* calculations by jonadab */
+	u.untrainableskill = 0;
+	u.halfspeedskill = 0;
+	u.fifthspeedskill = 0;
+	u.basiclimitskill = 0;
+	u.skilledlimitskill = 0;
+	u.expertlimitskill = 0;
+	u.earlytrainingskill = 0;
+	u.earlytrainingtimer = 9999999;
+	u.frtrainingskill = 0;
+	u.frtrainingtimer = 9999999;
+	u.latetrainingskill = 0;
+	u.latetrainingtimer = 9999999;
+	u.lavtrainingskill = 0;
+	u.lavtrainingtimer = 0;
+	u.slowtrainingskill = 0;
+
+	if (!rn2(2)) u.untrainableskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+	if (!rn2(2)) u.halfspeedskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+	if (!rn2(2)) u.fifthspeedskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+	if (!rn2(2)) u.basiclimitskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+	if (!rn2(2)) u.skilledlimitskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+	if (!rn2(2)) u.expertlimitskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+	if (!rn2(2)) {
+		u.earlytrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+		u.earlytrainingtimer = rnz(50);
+		u.earlytrainingtimer = rnd(u.earlytrainingtimer);
+		u.earlytrainingtimer = rnz(u.earlytrainingtimer); /* calculations by jonadab */
+	}
 	u.earlytrainingblown = FALSE;
 
-	u.frtrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.frtrainingtimer = rnz(50);
-	u.frtrainingtimer = rnd(u.frtrainingtimer);
-	u.frtrainingtimer = rnz(u.frtrainingtimer);
-	u.frtrainingtimer *= rnz(20);
+	if (!rn2(3)) {
+		u.frtrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+		u.frtrainingtimer = rnz(50);
+		u.frtrainingtimer = rnd(u.frtrainingtimer);
+		u.frtrainingtimer = rnz(u.frtrainingtimer);
+		u.frtrainingtimer *= rnz(20);
+	}
 	u.frtrainingblown = FALSE;
 
-	u.latetrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.latetrainingtimer = rnz(10000) + rnd(50000);
+	if (!rn2(2)) {
+		u.latetrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+		u.latetrainingtimer = rnz(10000) + rnd(50000);
+	}
 
-	u.lavtrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.lavtrainingtimer = rnz(10000) + rnd(50000);
+	if (!rn2(2)) {
+		u.lavtrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+		u.lavtrainingtimer = rnz(10000) + rnd(50000);
+	}
+	if (!rn2(2)) u.slowtrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
 
 	u.stickycursechance = 0;
 	if (!rn2(10)) {
@@ -8744,6 +10492,8 @@ u_init()
 
 	u.genericcursechance = 0;
 	if (!rn2(10)) u.genericcursechance = rnd(33);
+
+	u.pract_procrastinatetimer = rn1(500000, 500000);
 
 	u.drippingtread = 0;
 	u.drippingtreadtype = 0;
@@ -8792,16 +10542,57 @@ u_init()
 	u.vibratingsquarefind = 0;
 
 	u.wonderlandescape = 0;
+	u.zapemescape = 0;
 
 	u.felidlives = 9;
 
 	u.homosexual = 0;
 
+	u.dungeongrowthhack = 0;
+
+	u.katitrapocc = 0;
+
+	u.cellargravate = 0;
+
+	u.walscholarpass = 0;
+	u.symbiotedmghack = FALSE;
+
+	u.pervertsex = 0;
+	u.pervertpray = 0;
+	u.mushroompoles = 0;
+	u.grenadoninlauncher = 0;
 	u.nataljetrapturns = 0;
+	u.juyofleeing = 1;
+	u.riderhack = 0;
+	u.bodyfluideffect = 0;
+	u.garbagecleaned = 0;
+	u.garbagetrucktime = 0;
+	u.antitelespelltimeout = 0;
+	u.breathenhancetimer = 0;
+	u.mushroompoleused = 0;
+	u.automorefuckthisshit = 0;
 	u.nataljetrapx = 0;
 	u.nataljetrapy = 0;
 	u.riennevaplus = 0;
 	u.stairscumslowing = 0;
+	u.swappositioncount = 0;
+	u.contingencyturns = 0;
+	u.horsehopturns = 0;
+	u.ragnarokspelltimeout = 0;
+	u.freeplaymode = 0;
+	u.howtoenhanceskills = 0;
+
+	u.usymbiote.active = 0;
+	u.usymbiote.mnum = PM_PLAYERMON;
+	u.usymbiote.mhp = 0;
+	u.usymbiote.mhpmax = 0;
+	u.usymbiote.cursed = u.usymbiote.hvycurse = u.usymbiote.prmcurse = u.usymbiote.bbcurse = u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.stckcurse = 0;
+
+	u.stoogedepth = 0;
+	if (!rn2(10)) {
+		u.stoogedepth = 6 + rn2(5);
+		if (!rn2(20)) u.stoogedepth = rnd(100);
+	}
 
 	u.copwantedlevel = 0;
 
@@ -8817,7 +10608,7 @@ u_init()
 	u.outtadepthtrap = 0;
 
 	u.petcollectitems = 1;
-	u.petattackenemies = 1;
+	u.petattackenemies = 2; /* 0 = don't attack anything, 1 = only attack hostiles, 2 = attack everything */
 	u.petcaneat = 1;
 	u.petcanfollow = 1;
 
@@ -8828,8 +10619,9 @@ u_init()
 	u.comboactive = 0;
 
 	u.steedhitchance = 25;
+	u.symbioteaggressivity = 25;
 
-	u.urmaxlvl = 1; /* will go up if an asgardian race player levels up */
+	u.urmaxlvl = 1; /* will go up if an rodneyan race player levels up */
 	u.urmaxlvlB = 1; /* will go up if a cyborg role player levels up */
 	u.urmaxlvlC = 1; /* will go up if a binder role player levels up */
 	u.urmaxlvlD = 1; /* will go up if a bard role player levels up */
@@ -8839,43 +10631,70 @@ u_init()
 	u.urmaxlvlH = 1; /* will go up if a mystic role player levels up */
 	u.urmaxlvlI = 1; /* will go up if a DQ Slime with green slime race levels up */
 	u.urmaxlvlJ = 1; /* will go up if an anachronounbinder role player levels up */
+	u.urmaxlvlK = 1; /* will go up if a SJW role player levels up */
+	u.urmaxlvlL = 1; /* will go up if an asgardian race player levels up */
+	u.urmaxlvlM = 1; /* will go up if an missingno race player levels up */
+	u.urmaxlvlN = 1; /* will go up whenever any player levels up */
 	u.urmaxlvlUP = 1; /* will go up whenever any player levels up */
 	u.xtralevelmult = 1; /* will go up if you level up from EXP points while already XL30 */
 
 	u.uhereticgodinit = 0; /* for heretic race */
-	if (isheretic) u.hereticlgod = lawfulgods[rn2(SIZE(lawfulgods))]; /* for heretic race */
-	if (isheretic && !rn2(3) ) {
-		u.hereticlgod = hereticgods[rn2(SIZE(hereticgods))];
-	}
-	if (isheretic) u.hereticngod = neutralgods[rn2(SIZE(neutralgods))]; /* for heretic race */
-	if (isheretic && !rn2(3) ) {
-		u.hereticngod = hereticgods[rn2(SIZE(hereticgods))];
-	}
-	if (isheretic) u.hereticcgod = chaoticgods[rn2(SIZE(chaoticgods))]; /* for heretic race */
-	if (isheretic && !rn2(3) ) {
-		u.hereticcgod = hereticgods[rn2(SIZE(hereticgods))];
+	if (isheretic) {
+		u.uhereticgodlawful = rn2(SIZE(lawfulgods));
+		u.uhereticgodneutral = rn2(SIZE(neutralgods));
+		u.uhereticgodchaotic = rn2(SIZE(chaoticgods));
+		u.hereticlgod = lawfulgods[u.uhereticgodlawful];
+		u.hereticngod = neutralgods[u.uhereticgodneutral];
+		u.hereticcgod = chaoticgods[u.uhereticgodchaotic];
+
+		if (!rn2(3)) {
+			u.uhereticgodlawful = rn2(SIZE(hereticgods));
+			u.hereticlgod = hereticgods[u.uhereticgodlawful];
+			u.uhereticgodinit += 1;
+
+		}
+		if (!rn2(3)) {
+			u.uhereticgodneutral = rn2(SIZE(hereticgods));
+			u.hereticngod = hereticgods[u.uhereticgodneutral];
+			u.uhereticgodinit += 2;
+
+		}
+		if (!rn2(3)) {
+			u.uhereticgodchaotic = rn2(SIZE(hereticgods));
+			u.hereticcgod = hereticgods[u.uhereticgodchaotic];
+			u.uhereticgodinit += 4;
+
+		}
 	}
 
 	if (!isheretic && (Role_if(PM_GUNNER) || Role_if(PM_ANACHRONIST) || Role_if(PM_PRIEST) || Role_if(PM_MYSTIC) || Role_if(PM_SHAPESHIFTER) || Role_if(PM_ERDRICK) || Role_if(PM_WILD_TALENT) )) {
 
-		randpantheon = rn2(SIZE(lawfulgods));
-		u.hereticlgod = lawfulgods[randpantheon];
-		u.hereticngod = neutralgods[randpantheon];
-		u.hereticcgod = chaoticgods[randpantheon];
+		u.uhereticgodlawful = rn2(SIZE(lawfulgods));
+		u.uhereticgodneutral = u.uhereticgodlawful;
+		u.uhereticgodchaotic = u.uhereticgodlawful;
+		u.hereticlgod = lawfulgods[u.uhereticgodlawful];
+		u.hereticngod = neutralgods[u.uhereticgodneutral];
+		u.hereticcgod = chaoticgods[u.uhereticgodchaotic];
 
 	}
 
 	if (Role_if(PM_FAILED_EXISTENCE) || Role_if(PM_TRANSSYLVANIAN) ) {
-		u.hereticlgod = hereticgods[rn2(SIZE(hereticgods))];
-		u.hereticngod = hereticgods[rn2(SIZE(hereticgods))];
-		u.hereticcgod = hereticgods[rn2(SIZE(hereticgods))];
+		u.uhereticgodlawful = rn2(SIZE(hereticgods));
+		u.uhereticgodneutral = rn2(SIZE(hereticgods));
+		u.uhereticgodchaotic = rn2(SIZE(hereticgods));
+		u.hereticlgod = hereticgods[u.uhereticgodlawful];
+		u.hereticngod = hereticgods[u.uhereticgodneutral];
+		u.hereticcgod = hereticgods[u.uhereticgodchaotic];
 	}
 
 	/* fail safe - this will be essential for the recursion trap that changes the player's role or race --Amy */
 	if (!isheretic && !Role_if(PM_GUNNER) && !Role_if(PM_WILD_TALENT) && !Role_if(PM_ANACHRONIST) && !Role_if(PM_PRIEST) && !Role_if(PM_MYSTIC) && !Role_if(PM_SHAPESHIFTER) && !Role_if(PM_FAILED_EXISTENCE) && !Role_if(PM_TRANSSYLVANIAN) && !Role_if(PM_ERDRICK)) {
-		u.hereticlgod = hereticgods[rn2(SIZE(hereticgods))];
-		u.hereticngod = hereticgods[rn2(SIZE(hereticgods))];
-		u.hereticcgod = hereticgods[rn2(SIZE(hereticgods))];
+		u.uhereticgodlawful = rn2(SIZE(hereticgods));
+		u.uhereticgodneutral = rn2(SIZE(hereticgods));
+		u.uhereticgodchaotic = rn2(SIZE(hereticgods));
+		u.hereticlgod = hereticgods[u.uhereticgodlawful];
+		u.hereticngod = hereticgods[u.uhereticgodneutral];
+		u.hereticcgod = hereticgods[u.uhereticgodchaotic];
 	}
 
 
@@ -8895,15 +10714,16 @@ u_init()
 	 */
 	u.nv_range   =  1;
 	u.xray_range = -1;
+	if (Race_if(PM_ETHEREALOID)) u.xray_range = 3;
 	u.artifactprotection = 0;
 	u.fumbleduration = 0;
 	u.antimagicshell = 0;
 
-	u.nastinator01 = u.nastinator02 = u.nastinator03 = u.nastinator04 = u.nastinator05 = u.nastinator06 = u.nastinator07 = u.nastinator08 = u.nastinator09 = u.nastinator10 = u.nastinator11 = u.nastinator12 = u.nastinator13 = u.nastinator14 = u.nastinator15 = u.nastinator16 = u.nastinator17 = u.nastinator18 = u.nastinator19 = u.nastinator20 = u.nastinator21 = u.nastinator22 = u.nastinator23 = u.nastinator24 = u.nastinator25 = u.nastinator26 = u.nastinator27 = u.nastinator28 = u.nastinator29 = u.nastinator30 = u.nastinator31 = u.nastinator32 = u.nastinator33 = u.nastinator34 = u.nastinator35 = u.nastinator36 = u.nastinator37 = u.nastinator38 = u.nastinator39 = u.nastinator40 = u.nastinator41 = u.nastinator42 = u.nastinator43 = u.nastinator44 = u.nastinator45 = u.nastinator46 = u.nastinator47 = u.nastinator48 = u.nastinator49 = u.nastinator50 = u.nastinator51 = u.nastinator52 = u.nastinator53 = u.nastinator54 = u.nastinator55 = u.nastinator56 = u.nastinator57 = u.nastinator58 = u.nastinator59 = u.nastinator60 = u.nastinator61 = u.nastinator62 = u.nastinator63 = u.nastinator64 = u.nastinator65 = u.nastinator66 = u.nastinator67 = u.nastinator68 = u.nastinator69 = u.nastinator70 = u.nastinator71 = u.nastinator72 = u.nastinator73 = u.nastinator74 = u.nastinator75 = u.nastinator76 = u.nastinator77 = u.nastinator78 = u.nastinator79 = u.nastinator80 = u.nastinator81 = u.nastinator82 = u.nastinator83 = u.nastinator84 = u.nastinator85 = u.nastinator86 = u.nastinator87 = u.nastinator88 = u.nastinator89 = u.nastinator90 = u.nastinator91 = u.nastinator92 = u.nastinator93 = u.nastinator94 = u.nastinator95 = u.nastinator96 = u.nastinator97 = u.nastinator98 = u.nastinator99 = u.nastinator100 = u.nastinator101 = u.nastinator102 = u.nastinator103 = u.nastinator104 = u.nastinator105 = u.nastinator106 = u.nastinator107 = u.nastinator108 = u.nastinator109 = u.nastinator110 = u.nastinator111 = u.nastinator112 = u.nastinator113 = u.nastinator114 = u.nastinator115 = u.nastinator116 = u.nastinator117 = u.nastinator118 = u.nastinator119 = u.nastinator120 = u.nastinator121 = u.nastinator122 = u.nastinator123 = u.nastinator124 = u.nastinator125 = u.nastinator126 = u.nastinator127 = u.nastinator128 = u.nastinator129 = u.nastinator130 = u.nastinator131 = u.nastinator132 = u.nastinator133 = u.nastinator134 = u.nastinator135 = u.nastinator136 = u.nastinator137 = u.nastinator138 = u.nastinator139 = u.nastinator140 = u.nastinator141 = u.nastinator142 = u.nastinator143 = u.nastinator144 = u.nastinator145 = u.nastinator146 = u.nastinator147 = u.nastinator148 = u.nastinator149 = u.nastinator150 = u.nastinator151 = u.nastinator152 = u.nastinator153 = u.nastinator154 = u.nastinator155 = u.nastinator156 = u.nastinator157 = u.nastinator158 = u.nastinator159 = u.nastinator160 = u.nastinator161 = u.nastinator162 = u.nastinator163 = u.nastinator164 = u.nastinator165 = u.nastinator166 = u.nastinator167 = u.nastinator168 = u.nastinator169 = u.nastinator170 = u.nastinator171 = u.nastinator172 = u.nastinator173 = u.nastinator174 = u.nastinator175 = u.nastinator176 = u.nastinator177 = u.nastinator178 = u.nastinator179 = u.nastinator180 = u.nastinator181 = u.nastinator182 = u.nastinator183 = u.nastinator184 = u.nastinator185 = u.nastinator186 = u.nastinator187 = u.nastinator188 = u.nastinator189 = u.nastinator190 = u.nastinator191 = u.nastinator192 = u.nastinator193 = u.nastinator194 = u.nastinator195 = u.nastinator196 = u.nastinator197 = u.nastinator198 = u.nastinator199 = u.nastinator200 = u.nastinator201 = u.nastinator202 = u.nastinator203 = u.nastinator204 = u.nastinator205 = u.nastinator206 = u.nastinator207 = u.nastinator208 = u.nastinator209 = u.nastinator210 = u.nastinator211 = u.nastinator212 = u.nastinator213 = u.nastinator214 = u.nastinator215 = u.nastinator216 = u.nastinator217 = u.nastinator218 = u.nastinator219 = u.nastinator220 = u.nastinator221 = u.nastinator222 = u.nastinator223 = u.nastinator224 = u.nastinator225 = u.nastinator226 = u.nastinator227 = u.nastinator228 = u.nastinator229 = 0;
+	u.nastinator01 = u.nastinator02 = u.nastinator03 = u.nastinator04 = u.nastinator05 = u.nastinator06 = u.nastinator07 = u.nastinator08 = u.nastinator09 = u.nastinator10 = u.nastinator11 = u.nastinator12 = u.nastinator13 = u.nastinator14 = u.nastinator15 = u.nastinator16 = u.nastinator17 = u.nastinator18 = u.nastinator19 = u.nastinator20 = u.nastinator21 = u.nastinator22 = u.nastinator23 = u.nastinator24 = u.nastinator25 = u.nastinator26 = u.nastinator27 = u.nastinator28 = u.nastinator29 = u.nastinator30 = u.nastinator31 = u.nastinator32 = u.nastinator33 = u.nastinator34 = u.nastinator35 = u.nastinator36 = u.nastinator37 = u.nastinator38 = u.nastinator39 = u.nastinator40 = u.nastinator41 = u.nastinator42 = u.nastinator43 = u.nastinator44 = u.nastinator45 = u.nastinator46 = u.nastinator47 = u.nastinator48 = u.nastinator49 = u.nastinator50 = u.nastinator51 = u.nastinator52 = u.nastinator53 = u.nastinator54 = u.nastinator55 = u.nastinator56 = u.nastinator57 = u.nastinator58 = u.nastinator59 = u.nastinator60 = u.nastinator61 = u.nastinator62 = u.nastinator63 = u.nastinator64 = u.nastinator65 = u.nastinator66 = u.nastinator67 = u.nastinator68 = u.nastinator69 = u.nastinator70 = u.nastinator71 = u.nastinator72 = u.nastinator73 = u.nastinator74 = u.nastinator75 = u.nastinator76 = u.nastinator77 = u.nastinator78 = u.nastinator79 = u.nastinator80 = u.nastinator81 = u.nastinator82 = u.nastinator83 = u.nastinator84 = u.nastinator85 = u.nastinator86 = u.nastinator87 = u.nastinator88 = u.nastinator89 = u.nastinator90 = u.nastinator91 = u.nastinator92 = u.nastinator93 = u.nastinator94 = u.nastinator95 = u.nastinator96 = u.nastinator97 = u.nastinator98 = u.nastinator99 = u.nastinator100 = u.nastinator101 = u.nastinator102 = u.nastinator103 = u.nastinator104 = u.nastinator105 = u.nastinator106 = u.nastinator107 = u.nastinator108 = u.nastinator109 = u.nastinator110 = u.nastinator111 = u.nastinator112 = u.nastinator113 = u.nastinator114 = u.nastinator115 = u.nastinator116 = u.nastinator117 = u.nastinator118 = u.nastinator119 = u.nastinator120 = u.nastinator121 = u.nastinator122 = u.nastinator123 = u.nastinator124 = u.nastinator125 = u.nastinator126 = u.nastinator127 = u.nastinator128 = u.nastinator129 = u.nastinator130 = u.nastinator131 = u.nastinator132 = u.nastinator133 = u.nastinator134 = u.nastinator135 = u.nastinator136 = u.nastinator137 = u.nastinator138 = u.nastinator139 = u.nastinator140 = u.nastinator141 = u.nastinator142 = u.nastinator143 = u.nastinator144 = u.nastinator145 = u.nastinator146 = u.nastinator147 = u.nastinator148 = u.nastinator149 = u.nastinator150 = u.nastinator151 = u.nastinator152 = u.nastinator153 = u.nastinator154 = u.nastinator155 = u.nastinator156 = u.nastinator157 = u.nastinator158 = u.nastinator159 = u.nastinator160 = u.nastinator161 = u.nastinator162 = u.nastinator163 = u.nastinator164 = u.nastinator165 = u.nastinator166 = u.nastinator167 = u.nastinator168 = u.nastinator169 = u.nastinator170 = u.nastinator171 = u.nastinator172 = u.nastinator173 = u.nastinator174 = u.nastinator175 = u.nastinator176 = u.nastinator177 = u.nastinator178 = u.nastinator179 = u.nastinator180 = u.nastinator181 = u.nastinator182 = u.nastinator183 = u.nastinator184 = u.nastinator185 = u.nastinator186 = u.nastinator187 = u.nastinator188 = u.nastinator189 = u.nastinator190 = u.nastinator191 = u.nastinator192 = u.nastinator193 = u.nastinator194 = u.nastinator195 = u.nastinator196 = u.nastinator197 = u.nastinator198 = u.nastinator199 = u.nastinator200 = u.nastinator201 = u.nastinator202 = u.nastinator203 = u.nastinator204 = u.nastinator205 = u.nastinator206 = u.nastinator207 = u.nastinator208 = u.nastinator209 = u.nastinator210 = u.nastinator211 = u.nastinator212 = u.nastinator213 = u.nastinator214 = u.nastinator215 = u.nastinator216 = u.nastinator217 = u.nastinator218 = u.nastinator219 = u.nastinator220 = u.nastinator221 = u.nastinator222 = u.nastinator223 = u.nastinator224 = u.nastinator225 = u.nastinator226 = u.nastinator227 = u.nastinator228 = u.nastinator229 = u.nastinator230 = u.nastinator231 = u.nastinator232 = u.nastinator233 = u.nastinator234 = u.nastinator235 = 0;
 
 	if (isnastinator) { /* harder than hard race - starts with uncurable nasty trap effects --Amy */
 
-		switch (rnd(229)) {
+		switch (rnd(235)) {
 
 			case 1: u.nastinator01 = 1; break;
 			case 2: u.nastinator02 = 1; break;
@@ -9134,11 +10954,17 @@ u_init()
 			case 227: u.nastinator227 = 1; break;
 			case 228: u.nastinator228 = 1; break;
 			case 229: u.nastinator229 = 1; break;
+			case 230: u.nastinator230 = 1; break;
+			case 231: u.nastinator231 = 1; break;
+			case 232: u.nastinator232 = 1; break;
+			case 233: u.nastinator233 = 1; break;
+			case 234: u.nastinator234 = 1; break;
+			case 235: u.nastinator235 = 1; break;
 		}
 
 		while ((rnd(7)) < 3) {
 
-			switch (rnd(229)) {
+			switch (rnd(235)) {
 
 				case 1: u.nastinator01 = 1; break;
 				case 2: u.nastinator02 = 1; break;
@@ -9369,6 +11195,12 @@ u_init()
 			case 227: u.nastinator227 = 1; break;
 			case 228: u.nastinator228 = 1; break;
 			case 229: u.nastinator229 = 1; break;
+			case 230: u.nastinator230 = 1; break;
+			case 231: u.nastinator231 = 1; break;
+			case 232: u.nastinator232 = 1; break;
+			case 233: u.nastinator233 = 1; break;
+			case 234: u.nastinator234 = 1; break;
+			case 235: u.nastinator235 = 1; break;
 			}
 
 		}
@@ -9376,7 +11208,7 @@ u_init()
 
 	if (iswindinhabitant) { /* similar to nastinator, but they will be re-initialized sometimes --Amy */
 
-		switch (rnd(229)) {
+		switch (rnd(235)) {
 
 			case 1: u.nastinator01 = 1; break;
 			case 2: u.nastinator02 = 1; break;
@@ -9607,11 +11439,17 @@ u_init()
 			case 227: u.nastinator227 = 1; break;
 			case 228: u.nastinator228 = 1; break;
 			case 229: u.nastinator229 = 1; break;
+			case 230: u.nastinator230 = 1; break;
+			case 231: u.nastinator231 = 1; break;
+			case 232: u.nastinator232 = 1; break;
+			case 233: u.nastinator233 = 1; break;
+			case 234: u.nastinator234 = 1; break;
+			case 235: u.nastinator235 = 1; break;
 		}
 
 		while (!rn2(3)) {
 
-			switch (rnd(229)) {
+			switch (rnd(235)) {
 
 				case 1: u.nastinator01 = 1; break;
 				case 2: u.nastinator02 = 1; break;
@@ -9842,6 +11680,12 @@ u_init()
 			case 227: u.nastinator227 = 1; break;
 			case 228: u.nastinator228 = 1; break;
 			case 229: u.nastinator229 = 1; break;
+			case 230: u.nastinator230 = 1; break;
+			case 231: u.nastinator231 = 1; break;
+			case 232: u.nastinator232 = 1; break;
+			case 233: u.nastinator233 = 1; break;
+			case 234: u.nastinator234 = 1; break;
+			case 235: u.nastinator235 = 1; break;
 			}
 
 		}
@@ -10321,7 +12165,7 @@ u_init()
 
 	case PM_JEDI:
 		ini_inv(Jedi);
-		switch(rnd(8)) {
+		switch(rnd(9)) {
 			case 1: ini_inv(RedSaber); break;
 			case 2: ini_inv(BlueSaber); break;
 			case 3: ini_inv(GreenSaber); break;
@@ -10330,6 +12174,7 @@ u_init()
 			case 6: ini_inv(YellowSaber); break;
 			case 7: ini_inv(RedDoubleSaber); break;
 			case 8: ini_inv(WhiteDoubleSaber); break;
+			case 9: ini_inv(MysterySaber); break;
 			default: break;
 		}
 		if(!rn2(2)) ini_inv(Blindfold);
@@ -10877,8 +12722,8 @@ u_init()
 
 	case PM_PROSTITUTE:
 		ini_inv(Prostitute);
-		skill_init(Skill_Pro);
 		if(!rn2(10)) ini_inv(Condome);
+		skill_init(Skill_Pro);
 		break;
 
 	case PM_HUSSY:
@@ -10925,6 +12770,104 @@ u_init()
 		skill_init(Skill_Kur);
 		break;
 
+	case PM_SOFTWARE_ENGINEER:
+		ini_inv(SoftwareEngineer);
+		skill_init(Skill_Sof);
+
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(200);
+#else
+		u.umoney0 = rnd(200);
+#endif
+
+		break;
+
+	case PM_CRACKER:
+		ini_inv(Cracker);
+		skill_init(Skill_Cra);
+
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(100);
+#else
+		u.umoney0 = rnd(100);
+#endif
+		break;
+
+	case PM_JANITOR:
+		ini_inv(Janitor);
+		skill_init(Skill_Jan);
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(100);
+#else
+		u.umoney0 = rnd(100);
+#endif
+		break;
+
+	case PM_SPACE_MARINE:
+		ini_inv(SpaceMarine);
+		skill_init(Skill_Sma);
+		break;
+
+	case PM_STORMBOY:
+		ini_inv(Stormboy);
+		skill_init(Skill_Sto);
+		break;
+
+	case PM_YAUTJA:
+		ini_inv(Yautja);
+		skill_init(Skill_Yau);
+		break;
+
+	case PM_QUARTERBACK:
+		ini_inv(Quarterback);
+		skill_init(Skill_Qua);
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(300);
+#else
+		u.umoney0 = rnd(300);
+#endif
+		break;
+
+	case PM_PSYKER:
+		ini_inv(Psyker);
+		skill_init(Skill_Psy);
+		break;
+
+	case PM_EMPATH:
+		ini_inv(Empath);
+		skill_init(Skill_Emp);
+		break;
+
+	case PM_MASTERMIND:
+		ini_inv(Mastermind);
+		skill_init(Skill_Mam);
+		break;
+
+	case PM_WEIRDBOY:
+		ini_inv(Weirdboy);
+		skill_init(Skill_Wei);
+		break;
+
+	case PM_ASTRONAUT:
+		ini_inv(Astronaut);
+		skill_init(Skill_Ast);
+		break;
+
+	case PM_CYBERNINJA:
+		ini_inv(Cyberninja);
+		skill_init(Skill_Cyb);
+		break;
+
+	case PM_DISSIDENT:
+		ini_inv(Dissident);
+		skill_init(Skill_Dis);
+		break;
+
+	case PM_XELNAGA:
+		ini_inv(XelNaga);
+		skill_init(Skill_Xel);
+		break;
+
 	case PM_TRANSSYLVANIAN:
 		ini_inv(Transsylvanian);
 		skill_init(Skill_Trs);
@@ -10950,13 +12893,13 @@ u_init()
 
 	case PM_BULLY:
 		ini_inv(Bully);
-		skill_init(Skill_Bul);
 
 		if (rn2(5)) ini_inv(BullyA);
 		if (rn2(2)) ini_inv(BullyB);
 		if (!rn2(20)) ini_inv(Candle);
 		if (!rn2(20)) ini_inv(BullyD);
 		if (!rn2(20)) ini_inv(BullyE);
+		skill_init(Skill_Bul);
 
 		break;
 
@@ -11040,6 +12983,31 @@ u_init()
 		skill_init(Skill_Loc);
 		break;
 
+	case PM_GRENADONIN:
+		ini_inv(Grenadonin);
+		skill_init(Skill_Gre);
+		break;
+
+	case PM_DEMAGOGUE:
+		ini_inv(Demagogue);
+		skill_init(Skill_Dem);
+		break;
+
+	case PM_WALSCHOLAR:
+		ini_inv(Walscholar);
+		skill_init(Skill_Wal);
+		break;
+
+	case PM_SOCIAL_JUSTICE_WARRIOR:
+		ini_inv(SocialJusticeWarrior);
+		skill_init(Skill_Soc);
+		break;
+
+	case PM_CELLAR_CHILD:
+		ini_inv(CellarChild);
+		skill_init(Skill_Cel);
+		break;
+
 	case PM_SAMURAI:
 		Samurai[S_ARROWS].trquan = rn1(20, 26);
 		ini_inv(Samurai);
@@ -11074,6 +13042,69 @@ u_init()
 		else if(!rn2(25)) ini_inv(Magicmarker);
 		skill_init(Skill_T);
 		break;
+
+	case PM_CARTOMANCER:
+		ini_inv(Cartomancer);
+		skill_init(Skill_Car);
+		break;
+
+	case PM_DRAGONMASTER:
+		ini_inv(Dragonmaster);
+		skill_init(Skill_Dra);
+		break;
+
+	case PM_COMBATANT:
+		ini_inv(Combatant);
+		skill_init(Skill_Com);
+		break;
+
+	case PM_FJORDE:
+		ini_inv(Fjorde);
+		skill_init(Skill_Fjo);
+		break;
+
+	case PM_PRACTICANT:
+		ini_inv(Practicant);
+		skill_init(Skill_Pra);
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(100);
+#else
+		u.umoney0 = rnd(100);
+#endif
+		break;
+
+	case PM_EMERA:
+		Emera[EMERA_FLINT].trquan = 50 + rnd(50);
+		ini_inv(Emera);
+		skill_init(Skill_Eme);
+		break;
+
+	case PM_TOSSER:
+		ini_inv(Tosser);
+		skill_init(Skill_Tos);
+		break;
+
+	case PM_AKLYST:
+		ini_inv(Aklyst);
+		skill_init(Skill_Akl);
+		break;
+
+	case PM_MILL_SWALLOWER:
+		MillSwallower[MS_BOLTS].trquan = 20 + rnd(40);
+		ini_inv(MillSwallower);
+		skill_init(Skill_Mil);
+		break;
+
+	case PM_SYMBIANT:
+		ini_inv(Symbiant);
+		skill_init(Skill_Sym);
+		break;
+
+	case PM_GENDERSTARIST:
+		ini_inv(Genderstarist);
+		skill_init(Skill_Gen);
+		break;
+
 	case PM_UNDEAD_SLAYER:
 		switch (rn2(100) / 25) {
 		    case 0:	/* Pistol and silver bullets */
@@ -11158,11 +13189,11 @@ u_init()
 	case PM_OCCULT_MASTER:
 
 		switch (rnd(5)) {                
-		    case 1: OccultMaster[O_BOOK1].trotyp = SPE_FORGOTTEN_SPELL; break;
-		    case 2: OccultMaster[O_BOOK1].trotyp = SPE_BACKFIRE; break;
+		    case 1: OccultMaster[O_BOOK1].trotyp = SPE_PREACHING; break;
+		    case 2: OccultMaster[O_BOOK1].trotyp = SPE_STRANGLING; break;
 		    case 3: OccultMaster[O_BOOK1].trotyp = SPE_MIMICRY; break;
 		    case 4: OccultMaster[O_BOOK1].trotyp = SPE_MANA_BATTERY; break;
-		    case 5: OccultMaster[O_BOOK1].trotyp = SPE_FORBIDDEN_KNOWLEDGE; break;
+		    case 5: OccultMaster[O_BOOK1].trotyp = SPE_RESIST_PARALYSIS; break;
 		    default: break;
 		}
 		switch (rnd(5)) {                
@@ -11258,8 +13289,8 @@ u_init()
 	case PM_CHAOS_SORCEROR:
 
 		switch (rnd(5)) {
-		    case 1: ChaosSorceror[C_BOOK1].trotyp = SPE_MESSAGE; break;
-		    case 2: ChaosSorceror[C_BOOK1].trotyp = SPE_RUMOR; break;
+		    case 1: ChaosSorceror[C_BOOK1].trotyp = SPE_LINE_LOSS; break;
+		    case 2: ChaosSorceror[C_BOOK1].trotyp = SPE_PET_SYRINGE; break;
 		    case 3: ChaosSorceror[C_BOOK1].trotyp = SPE_CURE_RANDOM_STATUS; break;
 		    case 4: ChaosSorceror[C_BOOK1].trotyp = SPE_BERSERK; break;
 		    case 5: ChaosSorceror[C_BOOK1].trotyp = SPE_RESIST_RANDOM_ELEMENT; break;
@@ -11463,6 +13494,26 @@ u_init()
 
 	case PM_MURDERER:
             skill_init(Skill_Mur);
+            break;
+
+	case PM_GRENADONIN:
+            skill_init(Skill_Gre);
+            break;
+
+	case PM_WALSCHOLAR:
+            skill_init(Skill_Wal);
+            break;
+
+	case PM_SOCIAL_JUSTICE_WARRIOR:
+            skill_init(Skill_Soc);
+            break;
+
+	case PM_DEMAGOGUE:
+            skill_init(Skill_Dem);
+            break;
+
+	case PM_CELLAR_CHILD:
+            skill_init(Skill_Cel);
             break;
 
 	case PM_HEALER:
@@ -11718,6 +13769,71 @@ u_init()
 		skill_init(Skill_Kur);
 		break;
 
+	case PM_SOFTWARE_ENGINEER:
+		skill_init(Skill_Sof);
+		break;
+
+	case PM_CRACKER:
+		skill_init(Skill_Cra);
+		break;
+
+	case PM_JANITOR:
+		skill_init(Skill_Jan);
+		break;
+
+	case PM_SPACE_MARINE:
+		skill_init(Skill_Sma);
+		break;
+
+	case PM_STORMBOY:
+		skill_init(Skill_Sto);
+		break;
+
+	case PM_YAUTJA:
+		skill_init(Skill_Yau);
+		break;
+
+	case PM_QUARTERBACK:
+		skill_init(Skill_Qua);
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(300);
+#else
+		u.umoney0 = rnd(300);
+#endif
+		break;
+
+	case PM_PSYKER:
+		skill_init(Skill_Psy);
+		break;
+
+	case PM_EMPATH:
+		skill_init(Skill_Emp);
+		break;
+
+	case PM_MASTERMIND:
+		skill_init(Skill_Mam);
+		break;
+
+	case PM_WEIRDBOY:
+		skill_init(Skill_Wei);
+		break;
+
+	case PM_ASTRONAUT:
+		skill_init(Skill_Ast);
+		break;
+
+	case PM_CYBERNINJA:
+		skill_init(Skill_Cyb);
+		break;
+
+	case PM_DISSIDENT:
+		skill_init(Skill_Dis);
+		break;
+
+	case PM_XELNAGA:
+		skill_init(Skill_Xel);
+		break;
+
 	case PM_TRANSSYLVANIAN:
 		skill_init(Skill_Trs);
 		break;
@@ -11790,6 +13906,50 @@ u_init()
 		skill_init(Skill_Ota);
 		break;
 
+	case PM_CARTOMANCER:
+		skill_init(Skill_Car);
+		break;
+
+	case PM_DRAGONMASTER:
+		skill_init(Skill_Dra);
+		break;
+
+	case PM_COMBATANT:
+		skill_init(Skill_Com);
+		break;
+
+	case PM_FJORDE:
+		skill_init(Skill_Fjo);
+		break;
+
+	case PM_PRACTICANT:
+		skill_init(Skill_Pra);
+		break;
+
+	case PM_EMERA:
+		skill_init(Skill_Eme);
+		break;
+
+	case PM_TOSSER:
+		skill_init(Skill_Tos);
+		break;
+
+	case PM_AKLYST:
+		skill_init(Skill_Akl);
+		break;
+
+	case PM_MILL_SWALLOWER:
+		skill_init(Skill_Mil);
+		break;
+
+	case PM_SYMBIANT:
+		skill_init(Skill_Sym);
+		break;
+
+	case PM_GENDERSTARIST:
+		skill_init(Skill_Gen);
+		break;
+
 	case PM_TOURIST:
 		skill_init(Skill_T);
 		break;
@@ -11841,7 +14001,7 @@ u_init()
 
 	if (!isnullrace) { /* randomizer only */
 
-	switch (rnd(126)) {
+	switch (rnd(157)) {
 	case 1:
 		switch (rnd(5)) {   
 		    case 1: Archeologist[A_BOOK].trotyp = SPE_DETECT_FOOD; break;
@@ -12140,7 +14300,7 @@ u_init()
 
 	case 39:
 		ini_inv(Jedi);
-		switch(rnd(8)) {
+		switch(rnd(9)) {
 			case 1: ini_inv(RedSaber); break;
 			case 2: ini_inv(BlueSaber); break;
 			case 3: ini_inv(GreenSaber); break;
@@ -12149,6 +14309,7 @@ u_init()
 			case 6: ini_inv(YellowSaber); break;
 			case 7: ini_inv(RedDoubleSaber); break;
 			case 8: ini_inv(WhiteDoubleSaber); break;
+			case 9: ini_inv(MysterySaber); break;
 			default: break;
 		}
 		if(!rn2(2)) ini_inv(Blindfold);
@@ -12884,8 +15045,8 @@ u_init()
 
 	case 114:
 		switch (rnd(5)) {
-		    case 1: ChaosSorceror[C_BOOK1].trotyp = SPE_MESSAGE; break;
-		    case 2: ChaosSorceror[C_BOOK1].trotyp = SPE_RUMOR; break;
+		    case 1: ChaosSorceror[C_BOOK1].trotyp = SPE_LINE_LOSS; break;
+		    case 2: ChaosSorceror[C_BOOK1].trotyp = SPE_PET_SYRINGE; break;
 		    case 3: ChaosSorceror[C_BOOK1].trotyp = SPE_CURE_RANDOM_STATUS; break;
 		    case 4: ChaosSorceror[C_BOOK1].trotyp = SPE_BERSERK; break;
 		    case 5: ChaosSorceror[C_BOOK1].trotyp = SPE_RESIST_RANDOM_ELEMENT; break;
@@ -12925,11 +15086,11 @@ u_init()
 
 	case 116:
 		switch (rnd(5)) {                
-		    case 1: OccultMaster[O_BOOK1].trotyp = SPE_FORGOTTEN_SPELL; break;
-		    case 2: OccultMaster[O_BOOK1].trotyp = SPE_BACKFIRE; break;
+		    case 1: OccultMaster[O_BOOK1].trotyp = SPE_PREACHING; break;
+		    case 2: OccultMaster[O_BOOK1].trotyp = SPE_STRANGLING; break;
 		    case 3: OccultMaster[O_BOOK1].trotyp = SPE_MIMICRY; break;
 		    case 4: OccultMaster[O_BOOK1].trotyp = SPE_MANA_BATTERY; break;
-		    case 5: OccultMaster[O_BOOK1].trotyp = SPE_FORBIDDEN_KNOWLEDGE; break;
+		    case 5: OccultMaster[O_BOOK1].trotyp = SPE_RESIST_PARALYSIS; break;
 		    default: break;
 		}
 		switch (rnd(5)) {                
@@ -13162,6 +15323,158 @@ u_init()
 		}
 
 		ini_inv(Acu);
+		break;
+
+	case 127:
+		ini_inv(Grenadonin);
+		break;
+
+	case 128:
+		ini_inv(Demagogue);
+		break;
+
+	case 129:
+		ini_inv(Walscholar);
+		break;
+
+	case 130:
+		ini_inv(SocialJusticeWarrior);
+		break;
+
+	case 131:
+		ini_inv(CellarChild);
+		break;
+
+	case 132:
+		ini_inv(SoftwareEngineer);
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(200);
+#else
+		u.umoney0 = rnd(200);
+#endif
+
+		break;
+
+	case 133:
+		ini_inv(Cracker);
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(100);
+#else
+		u.umoney0 = rnd(100);
+#endif
+		break;
+
+	case 134:
+		ini_inv(Janitor);
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(100);
+#else
+		u.umoney0 = rnd(100);
+#endif
+		break;
+
+	case 135:
+		ini_inv(SpaceMarine);
+		break;
+
+	case 136:
+		ini_inv(Stormboy);
+		break;
+
+	case 137:
+		ini_inv(Yautja);
+		break;
+
+	case 138:
+		ini_inv(Quarterback);
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(300);
+#else
+		u.umoney0 = rnd(300);
+#endif
+		break;
+
+	case 139:
+		ini_inv(Psyker);
+		break;
+
+	case 140:
+		ini_inv(Empath);
+		break;
+
+	case 141:
+		ini_inv(Mastermind);
+		break;
+
+	case 142:
+		ini_inv(Weirdboy);
+		break;
+
+	case 143:
+		ini_inv(Astronaut);
+		break;
+
+	case 144:
+		ini_inv(Cyberninja);
+		break;
+
+	case 145:
+		ini_inv(Dissident);
+		break;
+
+	case 146:
+		ini_inv(XelNaga);
+		break;
+
+	case 147:
+		ini_inv(Cartomancer);
+		break;
+
+	case 148:
+		ini_inv(Dragonmaster);
+		break;
+
+	case 149:
+		ini_inv(Combatant);
+		break;
+
+	case 150:
+		ini_inv(Fjorde);
+		break;
+
+	case 151:
+		ini_inv(Practicant);
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(100);
+#else
+		u.umoney0 = rnd(100);
+#endif
+		break;
+
+	case 152:
+		Emera[EMERA_FLINT].trquan = 50 + rnd(50);
+		ini_inv(Emera);
+		break;
+
+	case 153:
+		ini_inv(Tosser);
+		break;
+
+	case 154:
+		ini_inv(Aklyst);
+		break;
+
+	case 155:
+		MillSwallower[MS_BOLTS].trquan = 20 + rnd(40);
+		ini_inv(MillSwallower);
+		break;
+
+	case 156:
+		ini_inv(Symbiant);
+		break;
+
+	case 157:
+		ini_inv(Genderstarist);
 		break;
 
 	default:	/* impossible */
@@ -13320,7 +15633,7 @@ u_init()
 
 	if (Race_if(PM_BASTARD)) {
 
-	switch (rnd(126)) {
+	switch (rnd(157)) {
 	case 1:
 		switch (rnd(5)) {   
 		    case 1: Archeologist[A_BOOK].trotyp = SPE_DETECT_FOOD; break;
@@ -13619,7 +15932,7 @@ u_init()
 
 	case 39:
 		ini_inv(Jedi);
-		switch(rnd(8)) {
+		switch(rnd(9)) {
 			case 1: ini_inv(RedSaber); break;
 			case 2: ini_inv(BlueSaber); break;
 			case 3: ini_inv(GreenSaber); break;
@@ -13628,6 +15941,7 @@ u_init()
 			case 6: ini_inv(YellowSaber); break;
 			case 7: ini_inv(RedDoubleSaber); break;
 			case 8: ini_inv(WhiteDoubleSaber); break;
+			case 9: ini_inv(MysterySaber); break;
 			default: break;
 		}
 		if(!rn2(2)) ini_inv(Blindfold);
@@ -14363,8 +16677,8 @@ u_init()
 
 	case 114:
 		switch (rnd(5)) {
-		    case 1: ChaosSorceror[C_BOOK1].trotyp = SPE_MESSAGE; break;
-		    case 2: ChaosSorceror[C_BOOK1].trotyp = SPE_RUMOR; break;
+		    case 1: ChaosSorceror[C_BOOK1].trotyp = SPE_LINE_LOSS; break;
+		    case 2: ChaosSorceror[C_BOOK1].trotyp = SPE_PET_SYRINGE; break;
 		    case 3: ChaosSorceror[C_BOOK1].trotyp = SPE_CURE_RANDOM_STATUS; break;
 		    case 4: ChaosSorceror[C_BOOK1].trotyp = SPE_BERSERK; break;
 		    case 5: ChaosSorceror[C_BOOK1].trotyp = SPE_RESIST_RANDOM_ELEMENT; break;
@@ -14404,11 +16718,11 @@ u_init()
 
 	case 116:
 		switch (rnd(5)) {                
-		    case 1: OccultMaster[O_BOOK1].trotyp = SPE_FORGOTTEN_SPELL; break;
-		    case 2: OccultMaster[O_BOOK1].trotyp = SPE_BACKFIRE; break;
+		    case 1: OccultMaster[O_BOOK1].trotyp = SPE_PREACHING; break;
+		    case 2: OccultMaster[O_BOOK1].trotyp = SPE_STRANGLING; break;
 		    case 3: OccultMaster[O_BOOK1].trotyp = SPE_MIMICRY; break;
 		    case 4: OccultMaster[O_BOOK1].trotyp = SPE_MANA_BATTERY; break;
-		    case 5: OccultMaster[O_BOOK1].trotyp = SPE_FORBIDDEN_KNOWLEDGE; break;
+		    case 5: OccultMaster[O_BOOK1].trotyp = SPE_RESIST_PARALYSIS; break;
 		    default: break;
 		}
 		switch (rnd(5)) {                
@@ -14643,6 +16957,153 @@ u_init()
 		ini_inv(Acu);
 		break;
 
+	case 127:
+		ini_inv(Grenadonin);
+		break;
+
+	case 128:
+		ini_inv(Demagogue);
+		break;
+
+	case 129:
+		ini_inv(Walscholar);
+		break;
+
+	case 130:
+		ini_inv(SocialJusticeWarrior);
+		break;
+
+	case 131:
+		ini_inv(CellarChild);
+		break;
+
+	case 132:
+		ini_inv(SoftwareEngineer);
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(200);
+#else
+		u.umoney0 = rnd(200);
+#endif
+
+		break;
+
+	case 133:
+		ini_inv(Cracker);
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(100);
+#else
+		u.umoney0 = rnd(100);
+#endif
+		break;
+
+	case 134:
+		ini_inv(Janitor);
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(100);
+#else
+		u.umoney0 = rnd(100);
+#endif
+		break;
+
+	case 135:
+		ini_inv(SpaceMarine);
+		break;
+
+	case 136:
+		ini_inv(Stormboy);
+		break;
+
+	case 137:
+		ini_inv(Yautja);
+		break;
+
+	case 138:
+		ini_inv(Quarterback);
+		break;
+
+	case 139:
+		ini_inv(Psyker);
+		break;
+
+	case 140:
+		ini_inv(Empath);
+		break;
+
+	case 141:
+		ini_inv(Mastermind);
+		break;
+
+	case 142:
+		ini_inv(Weirdboy);
+		break;
+
+	case 143:
+		ini_inv(Astronaut);
+		break;
+
+	case 144:
+		ini_inv(Cyberninja);
+		break;
+
+	case 145:
+		ini_inv(Dissident);
+		break;
+
+	case 146:
+		ini_inv(XelNaga);
+		break;
+
+	case 147:
+		ini_inv(Cartomancer);
+		break;
+
+	case 148:
+		ini_inv(Dragonmaster);
+		break;
+
+	case 149:
+		ini_inv(Combatant);
+		break;
+
+	case 150:
+		ini_inv(Fjorde);
+		break;
+
+	case 151:
+		ini_inv(Practicant);
+#ifndef GOLDOBJ
+		u.ugold = u.ugold0 = rnd(100);
+#else
+		u.umoney0 = rnd(100);
+#endif
+		break;
+
+	case 152:
+		Emera[EMERA_FLINT].trquan = 50 + rnd(50);
+		ini_inv(Emera);
+		break;
+
+	case 153:
+		ini_inv(Tosser);
+		break;
+
+	case 154:
+		ini_inv(Aklyst);
+		break;
+
+	case 155:
+		MillSwallower[MS_BOLTS].trquan = 20 + rnd(40);
+		ini_inv(MillSwallower);
+		break;
+
+	case 156:
+		ini_inv(Symbiant);
+		break;
+
+	case 157:
+		ini_inv(Genderstarist);
+		break;
+
 	default:	/* impossible */
 		break;
 	}
@@ -14744,6 +17205,21 @@ u_init()
 		ini_inv(WraithItem);
 
 	   break;
+
+	case PM_CUPID:
+
+          ini_inv(CupidItem);		
+		break;
+
+	case PM_GOAULD:
+
+          ini_inv(GoauldItem);		
+		break;
+
+	case PM_KORONST:
+
+          ini_inv(KoronstItem);		
+		break;
 
 	case PM_ALCHEMIST:	/* a racial version of the scientist --Amy */
 
@@ -14851,7 +17327,7 @@ u_init()
 
 	case PM_ANCIENT: /* random technique --Amy */
 
-		switch (rnd(169)) {
+		switch (rnd(173)) {
 
 			case 1: 
 			case 2: 
@@ -15154,6 +17630,18 @@ u_init()
 			case 169: 
 				if (!tech_known(T_DIAMOND_BARRIER)) learntech(T_DIAMOND_BARRIER, FROMOUTSIDE, 1);
 				break;
+			case 170:
+				if (!tech_known(T_ZAP_EM)) learntech(T_ZAP_EM, FROMOUTSIDE, 1);
+				break;
+			case 171:
+				if (!tech_known(T_CARD_TRICK)) learntech(T_CARD_TRICK, FROMOUTSIDE, 1);
+				break;
+			case 172:
+				if (!tech_known(T_SKILLOMORPH)) learntech(T_SKILLOMORPH, FROMOUTSIDE, 1);
+				break;
+			case 173:
+				if (!tech_known(T_TERRAIN_CLEANUP)) learntech(T_TERRAIN_CLEANUP, FROMOUTSIDE, 1);
+				break;
 
 
 			default:
@@ -15229,6 +17717,9 @@ u_init()
 		break;
 	case PM_OGRO:
           ini_inv(OgroItem);
+		break;
+	case PM_NEMESIS:
+          ini_inv(NemesisItem);
 		break;
 	case PM_HERBALIST:	/* a racial version of the healer --Amy */
           ini_inv(HerbalistItem);
@@ -15317,6 +17808,7 @@ u_init()
           ini_inv(AlwaysStartItemE); /* phase door for emergency escapes */
           ini_inv(AlwaysStartItemB); /* standard id to facilitate the identification game */
           ini_inv(AlwaysStartItemD); /* and a curing scroll for those pesky delayed instadeaths */
+          ini_inv(AlwaysStartItemF); /* plus a heal other scroll to heal pets and symbiotes */
 
 	if (flags.lostsoul && !flags.uberlostsoul) { 
           ini_inv(LostSoulItem);  /* In Angband or TOME these would be scrolls of cure hunger instead of food rations. */
@@ -15401,6 +17893,8 @@ u_init()
 	case PM_CAVEMAN: rolebounus = rnd(15); break;
 	case PM_GEEK: rolebounus = rnd(18); break;
 	case PM_TOURIST: rolebounus = rnd(15); break;
+	case PM_PRACTICANT: rolebounus = rnd(15); break;
+	case PM_GENDERSTARIST: rolebounus = rnd(12); break;
 	case PM_SCIENTIST: rolebounus = rnd(15); break;
 	case PM_PIRATE: rolebounus = rnd(22); break;
 	case PM_JEDI: rolebounus = rnd(22); break;
@@ -15459,17 +17953,32 @@ u_init()
 	case PM_ELEMENTAL: racebounus = rnz(12); break;
 	case PM_TURTLE: racebounus = rnz(11); break;
 	case PM_THUNDERLORD: racebounus = rnz(11); break;
+	case PM_CHIQUAI: racebounus = rnz(16); break;
+	case PM_ITAQUE: racebounus = rnz(11); break;
 	case PM_DUNADAN: racebounus = rnz(15); break;
 	case PM_DEVELOPER: racebounus = rnz(15); break;
 	case PM_LOWER_ENT: racebounus = rnz(12); break;
+	case PM_HC_ALIEN: racebounus = rnz(12); break;
 	case PM_MANSTER: racebounus = rnz(12); break;
+	case PM_RETICULAN: racebounus = rnz(15); break;
+	case PM_NEMESIS: racebounus = rnz(15); break;
+	case PM_OUTSIDER: racebounus = rnz(12); break;
 	case PM_WEAPON_BUG: racebounus = rnz(16); break;
 	case PM_BASTARD: racebounus = rnz(7); break;
 	case PM_SOVIET: racebounus = rnd(5); break; /* note the rnd instead of rnz! */
 	case PM_FAWN: racebounus = rnz(8); break;
+	case PM_MAGYAR: racebounus = rnz(5); break;
+	case PM_VIKING: racebounus = rnz(8); break;
 	case PM_YUKI_PLAYA: racebounus = 0; break;
 	case PM_YEEK: racebounus = 0; break;
+	case PM_WOOKIE: racebounus = 0; break;
 	case PM_HUMANOID_DRYAD: racebounus = rnz(8); break;
+	case PM_PLAYER_ZRUTY: racebounus = rnz(15); break;
+	case PM_METAL: racebounus = rnz(6); break;
+	case PM_BACTERIA: racebounus = rnz(16); break;
+	case PM_PLAYER_CERBERUS: racebounus = rnz(16); break;
+	case PM_PLAYER_GOLEM: racebounus = rnz(11); break;
+	case PM_PLAYER_MECHANIC: racebounus = rnz(12); break;
 	default:	racebounus = rnz(10); break;
 
 	}
@@ -15493,7 +18002,7 @@ u_init()
 
 	if (temp > maxbounus) temp = maxbounus; /* prevent value from randomly becoming too high */
 	/*temp = rn1(10,70);*/
-	init_attr(temp);		/* init attribute values */
+	init_attr(temp, FALSE);		/* init attribute values */
 	find_ac();			/* get initial ac value */
 	max_rank_sz();			/* set max str size for class ranks */
 /*
@@ -15502,7 +18011,7 @@ u_init()
 	for(i = 0; i < A_MAX; i++)
 	    if(!rn2(20)) {
 		register int xd = rn2(7) - 2;	/* biased variation */
-		(void) adjattrib(i, xd, 3);
+		(void) adjattrib(i, xd, 3, TRUE);
 		if (ABASE(i) < AMAX(i)) AMAX(i) = ABASE(i);
 	    }
 	/* make sure you can carry all you have - especially for Tourists */
@@ -15510,10 +18019,10 @@ u_init()
 	while (inv_weight() > 0 && ( (weight_cap() < 1000 && rn2(10)) || (weight_cap() > 999 && rn2(2)) ) ) {
 
 		if (ABASE(A_STR) < 18) {
-			if (adjattrib(A_STR, 1, 3)) continue;
+			if (adjattrib(A_STR, 1, 3, TRUE)) continue;
 		}
 		if (ABASE(A_CON) < 18) {
-			if (adjattrib(A_CON, 1, 3)) continue;
+			if (adjattrib(A_CON, 1, 3, TRUE)) continue;
 		}
 		/* only get here when didn't boost strength or constitution */
 		break;
@@ -17389,6 +19898,122 @@ u_init()
 	shamblerl->mflags2 &= ~M2_WERE;				/* no lycanthropes */
 	shamblerl->mflags2 &= ~M2_PNAME;				/* not a proper name */
 
+	shamblerln->mmove = rn2(3)+6;				/* slow to very fast */
+	shamblerln->ac = 10 - rn2(6);				/* any AC */
+	shamblerln->mr = rn2(5)*25;				/* varying amounts of MR */
+	shamblerln->maligntyp = rn2(21)-10;			/* any alignment */
+	/* attacks...?  */
+	for (i = 0; i < rnd(2); i++) {
+		attkptr = &shamblerln->mattk[i];
+		/* restrict it to certain types of attacks */
+		attkptr->aatyp = AT_MULTIPLY;
+		while (attkptr->aatyp == AT_MULTIPLY) {
+			attkptr->aatyp = rn2(AT_MULTIPLY);
+		}
+		if (attkptr->aatyp == AT_BOOM) {
+			attkptr->aatyp = AT_MAGC;
+		}
+		if (attkptr->aatyp == AT_EXPL) {
+			attkptr->aatyp = AT_WEAP;
+		}
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+		attkptr->damn = 2;				/* we're almost sure to get this wrong first time */
+		attkptr->damd = rnd(2);				/* either too high or too low */
+	}
+	shamblerln->msize = rn2(MZ_GIGANTIC+1);			/* any size */
+	shamblerln->cwt = rnd(2000);					/* fortunately moot as it's flagged NOCORPSE */
+	shamblerln->cnutrit = rnd(2000);					/* see above */
+	shamblerln->msound = randmonsound();			/* any but the specials */
+	shamblerln->mresists = 0;
+	for (i = 0; i < rnd(3); i++) {
+		shamblerln->mresists |= (1 << rn2(8));		/* physical resistances... */
+	}
+	for (i = 0; i < rnd(2); i++) {
+		shamblerln->mresists |= (0x100 << rn2(7));	/* 'different' resistances, even clumsy */
+	}
+	shamblerln->mconveys = 0;					/* flagged NOCORPSE */
+	/*
+	 * now time for the random flags.  this will likely produce
+	 * a number of complete trainwreck monsters at first, but
+	 * every so often something will dial up nasty stuff
+	 */
+	shamblerln->mflags1 = 0;
+	for (i = 0; i < rnd(7); i++) {
+		shamblerln->mflags1 |= (1 << rn2(33));		/* trainwreck this way :D */
+	}
+	/*shamblerln->mflags1 &= ~M1_UNSOLID;*/			/* no ghosts */
+	/*shamblerln->mflags1 &= ~M1_WALLWALK;*/			/* no wall-walkers */
+
+	shamblerln->mflags2 = M2_HOSTILE;		/* Don't let the player be one of these yet. */
+	for (i = 0; i < rnd(7); i++) {
+		shamblerln->mflags2 |= (1 << rn2(31));
+	}
+	shamblerln->mflags2 &= ~M2_MERC;				/* no guards */
+	shamblerln->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
+	shamblerln->mflags2 &= ~M2_WERE;				/* no lycanthropes */
+	shamblerln->mflags2 &= ~M2_PNAME;				/* not a proper name */
+
+	shamblerlo->mmove = rn2(3)+6;				/* slow to very fast */
+	shamblerlo->ac = 10 - rn2(6);				/* any AC */
+	shamblerlo->mr = rn2(5)*25;				/* varying amounts of MR */
+	shamblerlo->maligntyp = rn2(21)-10;			/* any alignment */
+	/* attacks...?  */
+	for (i = 0; i < rnd(2); i++) {
+		attkptr = &shamblerlo->mattk[i];
+		/* restrict it to certain types of attacks */
+		attkptr->aatyp = AT_MULTIPLY;
+		while (attkptr->aatyp == AT_MULTIPLY) {
+			attkptr->aatyp = rn2(AT_MULTIPLY);
+		}
+		if (attkptr->aatyp == AT_BOOM) {
+			attkptr->aatyp = AT_MAGC;
+		}
+		if (attkptr->aatyp == AT_EXPL) {
+			attkptr->aatyp = AT_WEAP;
+		}
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+		attkptr->damn = 2;				/* we're almost sure to get this wrong first time */
+		attkptr->damd = rnd(2);				/* either too high or too low */
+	}
+	shamblerlo->msize = rn2(MZ_GIGANTIC+1);			/* any size */
+	shamblerlo->cwt = rnd(2000);					/* fortunately moot as it's flagged NOCORPSE */
+	shamblerlo->cnutrit = rnd(2000);					/* see above */
+	shamblerlo->msound = randmonsound();			/* any but the specials */
+	shamblerlo->mresists = 0;
+	for (i = 0; i < rnd(3); i++) {
+		shamblerlo->mresists |= (1 << rn2(8));		/* physical resistances... */
+	}
+	for (i = 0; i < rnd(2); i++) {
+		shamblerlo->mresists |= (0x100 << rn2(7));	/* 'different' resistances, even clumsy */
+	}
+	shamblerlo->mconveys = 0;					/* flagged NOCORPSE */
+	/*
+	 * now time for the random flags.  this will likely produce
+	 * a number of complete trainwreck monsters at first, but
+	 * every so often something will dial up nasty stuff
+	 */
+	shamblerlo->mflags1 = 0;
+	for (i = 0; i < rnd(7); i++) {
+		shamblerlo->mflags1 |= (1 << rn2(33));		/* trainwreck this way :D */
+	}
+	/*shamblerlo->mflags1 &= ~M1_UNSOLID;*/			/* no ghosts */
+	/*shamblerlo->mflags1 &= ~M1_WALLWALK;*/			/* no wall-walkers */
+
+	shamblerlo->mflags2 = M2_HOSTILE;		/* Don't let the player be one of these yet. */
+	for (i = 0; i < rnd(7); i++) {
+		shamblerlo->mflags2 |= (1 << rn2(31));
+	}
+	shamblerlo->mflags2 &= ~M2_MERC;				/* no guards */
+	shamblerlo->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
+	shamblerlo->mflags2 &= ~M2_WERE;				/* no lycanthropes */
+	shamblerlo->mflags2 &= ~M2_PNAME;				/* not a proper name */
+
 	/* what a horrible night to have a curse */
 	/*shambler->mlevel += rnd(12)-9;*/				/* shuffle level */
 	shamblerla->mmove = rn2(8)+9;				/* slow to very fast */
@@ -18360,6 +20985,63 @@ u_init()
 	shamblerplayer->mflags2 &= ~M2_PNAME;				/* not a proper name */
 	shamblerplayer->mflags2 &= ~M2_NOPOLY;				/* see above */
 
+	/* what a horrible night to have a curse */
+	/*shamblerplayergl->mlevel += rnd(12)-3;*/				/* shuffle level */
+	shamblerplayergl->mmove = rn2(10)+9;				/* slow to very fast */
+	shamblerplayergl->ac = rn2(21)-10;				/* any AC */
+	shamblerplayergl->mr = rn2(11)*10;				/* varying amounts of MR */
+	shamblerplayergl->maligntyp = rn2(21)-10;			/* any alignment */
+	/* attacks...?  */
+	for (i = 0; i < rnd(5); i++) {
+		attkptr = &shamblerplayergl->mattk[i];
+		/* restrict it to certain types of attacks */
+		attkptr->aatyp = AT_MULTIPLY;
+		while (attkptr->aatyp == AT_MULTIPLY) {
+			attkptr->aatyp = rn2(AT_MULTIPLY);
+		}
+		if (attkptr->aatyp == AT_BOOM) {
+			attkptr->aatyp = AT_MAGC;
+		}
+		if (attkptr->aatyp == AT_EXPL) {
+			attkptr->aatyp = AT_WEAP;
+		}
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS) {
+			attkptr->adtyp = randattack();
+		}
+		attkptr->damn = 2;				/* we're almost sure to get this wrong first time */
+		attkptr->damd = rnd(10)+1;				/* either too high or too low */
+	}
+	shamblerplayergl->msize = rn2(MZ_GIGANTIC+1);			/* any size */
+	shamblerplayergl->cwt = rnd(2000);					/* fortunately moot as it's flagged NOCORPSE */
+	shamblerplayergl->cnutrit = rnd(2000);					/* see above */
+	shamblerplayergl->msound = randmonsound();			/* any but the specials */
+	shamblerplayergl->mresists = 0;
+	for (i = 0; i < rnd(6); i++) {
+		shamblerplayergl->mresists |= (1 << rn2(8));		/* physical resistances... */
+	}
+	for (i = 0; i < rnd(5); i++) {
+		shamblerplayergl->mresists |= (0x100 << rn2(7));	/* 'different' resistances, even clumsy */
+	}
+	shamblerplayergl->mconveys = 0;					/* flagged NOCORPSE */
+	/*
+	 * now time for the random flags.  this will likely produce
+	 * a number of complete trainwreck monsters at first, but
+	 * every so often something will dial up nasty stuff
+	 */
+	shamblerplayergl->mflags1 = M1_CARNIVORE|M1_OVIPAROUS;
+	for (i = 0; i < rnd(17); i++) {
+		shamblerplayergl->mflags1 |= (1 << rn2(33));		/* trainwreck this way :D */
+	}
+
+	shamblerplayergl->mflags2 = M2_NOPOLY;
+	for (i = 0; i < rnd(17); i++) {
+		shamblerplayergl->mflags2 |= (1 << rn2(31));
+	}
+	shamblerplayergl->mflags2 &= ~M2_MERC;				/* no guards */
+	shamblerplayergl->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
+	shamblerplayergl->mflags2 &= ~M2_PNAME;				/* not a proper name */
+	shamblerplayergl->mflags2 &= ~M2_WERE;				/* no werefoo */
 
 	/* what a horrible night to have a curse */
 	/*shamblerplayerb->mlevel += rnd(12)-3;*/				/* shuffle level */
@@ -20185,6 +22867,125 @@ u_init()
 	shamblerplayerae->mflags2 &= ~M2_PNAME;				/* not a proper name */
 	shamblerplayerae->mflags2 &= ~M2_NOPOLY;				/* polymorph ok for monsters */
 
+	/* what a horrible night to have a curse */
+	/*shambler->mlevel += rnd(16)-7;*/				/* shuffle level */
+	splicemona->mmove = rn2(9)+9;				/* slow to very fast */
+	splicemona->ac = rn2(18)-7;				/* any AC */
+	splicemona->mr = rn2(5)*25;				/* varying amounts of MR */
+	splicemona->maligntyp = rn2(21)-10;			/* any alignment */
+	/* attacks...?  */
+	for (i = 0; i < rnd(3); i++) {
+		attkptr = &splicemona->mattk[i];
+		/* restrict it to certain types of attacks */
+		attkptr->aatyp = AT_MULTIPLY;
+		while (attkptr->aatyp == AT_MULTIPLY) {
+			attkptr->aatyp = rn2(AT_MULTIPLY);
+		}
+		if (attkptr->aatyp == AT_BOOM) {
+			attkptr->aatyp = AT_MAGC;
+		}
+		if (attkptr->aatyp == AT_EXPL) {
+			attkptr->aatyp = AT_WEAP;
+		}
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+		attkptr->damn = 2;				/* we're almost sure to get this wrong first time */
+		attkptr->damd = rnd(7)+2;				/* either too high or too low */
+	}
+	splicemona->msize = rn2(MZ_GIGANTIC+1);			/* any size */
+	splicemona->cwt = rnd(2000);					/* fortunately moot as it's flagged NOCORPSE */
+	splicemona->cnutrit = rnd(2000);					/* see above */
+	splicemona->msound = randmonsound();			/* any but the specials */
+	splicemona->mresists = 0;
+	for (i = 0; i < rnd(6); i++) {
+		splicemona->mresists |= (1 << rn2(8));		/* physical resistances... */
+	}
+	for (i = 0; i < rnd(5); i++) {
+		splicemona->mresists |= (0x100 << rn2(7));	/* 'different' resistances, even clumsy */
+	}
+	splicemona->mconveys = 0;					/* flagged NOCORPSE */
+	/*
+	 * now time for the random flags.  this will likely produce
+	 * a number of complete trainwreck monsters at first, but
+	 * every so often something will dial up nasty stuff
+	 */
+	splicemona->mflags1 = 0;
+	for (i = 0; i < rnd(17); i++) {
+		splicemona->mflags1 |= (1 << rn2(33));		/* trainwreck this way :D */
+	}
+	/*splicemona->mflags1 &= ~M1_UNSOLID;*/			/* no ghosts */
+	/*splicemona->mflags1 &= ~M1_WALLWALK;*/			/* no wall-walkers */
+
+	splicemona->mflags2 = M2_HOSTILE;		/* Don't let the player be one of these yet. */
+	for (i = 0; i < rnd(17); i++) {
+		splicemona->mflags2 |= (1 << rn2(31));
+	}
+	splicemona->mflags2 &= ~M2_MERC;				/* no guards */
+	splicemona->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
+	splicemona->mflags2 &= ~M2_WERE;				/* no lycanthropes */
+	splicemona->mflags2 &= ~M2_PNAME;				/* not a proper name */
+
+	/* what a horrible night to have a curse */
+	/*shambler->mlevel += rnd(18)-4;*/				/* shuffle level */
+	splicemonb->mmove = rn2(14)+9;				/* slow to very fast */
+	splicemonb->ac = rn2(31)-20;				/* any AC */
+	splicemonb->mr = rn2(5)*25;				/* varying amounts of MR */
+	splicemonb->maligntyp = rn2(21)-10;			/* any alignment */
+	/* attacks...?  */
+	for (i = 0; i < rnd(5); i++) {
+		attkptr = &splicemonb->mattk[i];
+		/* restrict it to certain types of attacks */
+		attkptr->aatyp = AT_MULTIPLY;
+		while (attkptr->aatyp == AT_MULTIPLY) {
+			attkptr->aatyp = rn2(AT_MULTIPLY);
+		}
+		if (attkptr->aatyp == AT_BOOM) {
+			attkptr->aatyp = AT_MAGC;
+		}
+		if (attkptr->aatyp == AT_EXPL) {
+			attkptr->aatyp = AT_WEAP;
+		}
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+		attkptr->damn = 2;				/* we're almost sure to get this wrong first time */
+		attkptr->damd = rnd(15)+2;				/* either too high or too low */
+	}
+	splicemonb->msize = rn2(MZ_GIGANTIC+1);			/* any size */
+	splicemonb->cwt = rnd(2000);					/* fortunately moot as it's flagged NOCORPSE */
+	splicemonb->cnutrit = rnd(2000);					/* see above */
+	splicemonb->msound = randmonsound();			/* any but the specials */
+	splicemonb->mresists = 0;
+	for (i = 0; i < rnd(6); i++) {
+		splicemonb->mresists |= (1 << rn2(8));		/* physical resistances... */
+	}
+	for (i = 0; i < rnd(5); i++) {
+		splicemonb->mresists |= (0x100 << rn2(7));	/* 'different' resistances, even clumsy */
+	}
+	splicemonb->mconveys = 0;					/* flagged NOCORPSE */
+	/*
+	 * now time for the random flags.  this will likely produce
+	 * a number of complete trainwreck monsters at first, but
+	 * every so often something will dial up nasty stuff
+	 */
+	splicemonb->mflags1 = M1_HERBIVORE;
+	for (i = 0; i < rnd(17); i++) {
+		splicemonb->mflags1 |= (1 << rn2(33));		/* trainwreck this way :D */
+	}
+	splicemonb->mflags1 &= ~M1_HIDE;				/* no hiding */
+
+	splicemonb->mflags2 = M2_HOSTILE;		/* Don't let the player be one of these yet. */
+	for (i = 0; i < rnd(17); i++) {
+		splicemonb->mflags2 |= (1 << rn2(31));
+	}
+	splicemonb->mflags2 &= ~M2_MERC;				/* no guards */
+	splicemonb->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
+	splicemonb->mflags2 &= ~M2_WERE;				/* no lycanthropes */
+	splicemonb->mflags2 &= ~M2_PNAME;				/* not a proper name */
+
 	if (!rn2(10)) {
 	attkptr = &deathraylord->mattk[4]; /* Yeenoghu gets finger of death */
 	attkptr->aatyp = AT_MAGC; /* well, at least one out of ten games he does */
@@ -20378,6 +23179,19 @@ u_init()
 
 	}
 
+	randomfungusbbe->mmove = rnd(12);
+	randomfungusbbe->ac = 10-rnd(25);
+	randomfungusbbe->mr = rn2(101);
+	for (i = 0; i < 3; i++) {
+		attkptr = &randomfungusbbe->mattk[i];
+
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+
+	}
+
 	randomfungusbc->mmove = rnd(12);
 	randomfungusbc->ac = 10-rnd(25);
 	randomfungusbc->mr = rn2(101);
@@ -20460,6 +23274,19 @@ u_init()
 	randomfungusdb->mr = rn2(101);
 	for (i = 0; i < 3; i++) {
 		attkptr = &randomfungusdb->mattk[i];
+
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+
+	}
+
+	randomfungusdbx->mmove = rnd(15);
+	randomfungusdbx->ac = 10-rnd(35);
+	randomfungusdbx->mr = rn2(101);
+	for (i = 0; i < 3; i++) {
+		attkptr = &randomfungusdbx->mattk[i];
 
 		attkptr->adtyp = AD_ENDS;
 		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
@@ -20701,6 +23528,23 @@ u_init()
 	sprintf(buf, "%s", generate_garbage_string() );
 	(void) strncpy(u.strandomfungusd, buf, sizeof(buf) );
 	rrandomfungusd->mname = u.strandomfungusd;
+
+	rrandomfungusdx->mmove = rnd(12);
+	rrandomfungusdx->ac = 10-rnd(30);
+	rrandomfungusdx->mr = rn2(101);
+	for (i = 0; i < 3; i++) {
+		attkptr = &rrandomfungusdx->mattk[i];
+
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+
+	}
+
+	sprintf(buf, "%s", generate_garbage_string() );
+	(void) strncpy(u.strandomfungusdx, buf, sizeof(buf) );
+	rrandomfungusdx->mname = u.strandomfungusd;
 
 	rrandomfunguse->mmove = rnd(12);
 	rrandomfunguse->ac = 10-rnd(30);
@@ -21146,6 +23990,26 @@ u_init()
 
 	for (i = 2; i < 3; i++) {
 		attkptr = &randxyz->mattk[i];
+
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+
+	}
+
+	for (i = 1; i < 2; i++) {
+		attkptr = &randhybrid->mattk[i];
+
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = rnd(10);
+		}
+
+	}
+
+	for (i = 0; i < 1; i++) {
+		attkptr = &randxyaa->mattk[i];
 
 		attkptr->adtyp = AD_ENDS;
 		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
@@ -22114,7 +24978,7 @@ u_init()
 	starlitmonster = -1;
 	starlitattempts = 0;
 	while ((starlitmonster == -1) && starlitattempts < 50000 ) {
-		starlitmonster = (NUMMONS + rnd(MISSINGNORANGE));
+		starlitmonster = /*(NUMMONS + rnd(MISSINGNORANGE));*/PM_HUMAN;
 		starlitattempts++;
 	}
 
@@ -22158,7 +25022,7 @@ polyinitredo:
 	if (ptr) {
 		starlitmonster = monsndx(ptr);
 
-		if ( (!attacktype(&mons[starlitmonster], AT_WEAP) && rn2(10)) || (notake(&mons[starlitmonster]) && rn2(4) ) || ((mons[starlitmonster].mlet == S_BAT) && rn2(2)) || ((mons[starlitmonster].mlet == S_EYE) && rn2(2) ) || ((mons[starlitmonster].mmove == 1) && rn2(4) ) || ((mons[starlitmonster].mmove == 2) && rn2(3) ) || ((mons[starlitmonster].mmove == 3) && rn2(2) ) || ((mons[starlitmonster].mmove == 4) && !rn2(3) ) || ( (mons[starlitmonster].mlevel < 10) && ((mons[starlitmonster].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[starlitmonster]) && rn2(2) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(5) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(20) ) || ( uncommon2(&mons[starlitmonster]) && !rn2(4) ) || ( uncommon3(&mons[starlitmonster]) && !rn2(3) ) || ( uncommon5(&mons[starlitmonster]) && !rn2(2) ) || ( uncommon7(&mons[starlitmonster]) && rn2(3) ) || ( uncommon10(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(20) ) ) goto polyinitredo;
+		if ( (!attacktype(&mons[starlitmonster], AT_WEAP) && rn2(10)) || (notake(&mons[starlitmonster]) && rn2(4) ) || ((mons[starlitmonster].mlet == S_BAT) && rn2(2)) || ((mons[starlitmonster].mlet == S_EYE) && rn2(2) ) || ((mons[starlitmonster].mmove == 1) && rn2(4) ) || ((mons[starlitmonster].mmove == 2) && rn2(3) ) || ((mons[starlitmonster].mmove == 3) && rn2(2) ) || ((mons[starlitmonster].mmove == 4) && !rn2(3) ) || ( (mons[starlitmonster].mlevel < 10) && ((mons[starlitmonster].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[starlitmonster]) && rn2(2) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(5) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(20) ) || (is_jonadabmonster(&mons[starlitmonster]) && rn2(20)) || ( uncommon2(&mons[starlitmonster]) && !rn2(4) ) || ( uncommon3(&mons[starlitmonster]) && !rn2(3) ) || ( uncommon5(&mons[starlitmonster]) && !rn2(2) ) || ( uncommon7(&mons[starlitmonster]) && rn2(3) ) || ( uncommon10(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(20) ) ) goto polyinitredo;
 
 		polyinitor->mmove = mons[starlitmonster].mmove;
 		polyinitor->ac = mons[starlitmonster].ac;
@@ -22192,7 +25056,7 @@ polyinitredo:
 	starlitmonster = rn2(NUMMONS);
 	do {
 		starlitmonster = rn2(NUMMONS);
-	} while ( (notake(&mons[starlitmonster]) && rn2(4) ) || ((mons[starlitmonster].mlet == S_BAT) && rn2(2)) || ((mons[starlitmonster].mlet == S_EYE) && rn2(2) ) || ((mons[starlitmonster].mmove == 1) && rn2(4) ) || ((mons[starlitmonster].mmove == 2) && rn2(3) ) || ((mons[starlitmonster].mmove == 3) && rn2(2) ) || ((mons[starlitmonster].mmove == 4) && !rn2(3) ) || ( (mons[starlitmonster].mlevel < 10) && ((mons[starlitmonster].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[starlitmonster]) && rn2(2) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(5) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(20) ) || ( uncommon2(&mons[starlitmonster]) && !rn2(4) ) || ( uncommon3(&mons[starlitmonster]) && !rn2(3) ) || ( uncommon5(&mons[starlitmonster]) && !rn2(2) ) || ( uncommon7(&mons[starlitmonster]) && rn2(3) ) || ( uncommon10(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(20) ) );
+	} while ( (notake(&mons[starlitmonster]) && rn2(4) ) || ((mons[starlitmonster].mlet == S_BAT) && rn2(2)) || ((mons[starlitmonster].mlet == S_EYE) && rn2(2) ) || ((mons[starlitmonster].mmove == 1) && rn2(4) ) || ((mons[starlitmonster].mmove == 2) && rn2(3) ) || ((mons[starlitmonster].mmove == 3) && rn2(2) ) || ((mons[starlitmonster].mmove == 4) && !rn2(3) ) || ( (mons[starlitmonster].mlevel < 10) && ((mons[starlitmonster].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[starlitmonster]) && rn2(2) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(5) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(20) ) || (is_jonadabmonster(&mons[starlitmonster]) && rn2(20)) || ( uncommon2(&mons[starlitmonster]) && !rn2(4) ) || ( uncommon3(&mons[starlitmonster]) && !rn2(3) ) || ( uncommon5(&mons[starlitmonster]) && !rn2(2) ) || ( uncommon7(&mons[starlitmonster]) && rn2(3) ) || ( uncommon10(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(20) ) );
 
 	destabilizer->mmove = mons[starlitmonster].mmove;
 	destabilizer->ac = mons[starlitmonster].ac;
@@ -26268,6 +29132,11 @@ int otyp;
      case PM_CAVEMAN:		skills = Skill_C; break;
      case PM_CONVICT:		skills = Skill_Con; break;
      case PM_MURDERER:		skills = Skill_Mur; break;
+     case PM_DEMAGOGUE:		skills = Skill_Dem; break;
+     case PM_WALSCHOLAR:		skills = Skill_Wal; break;
+     case PM_CELLAR_CHILD:		skills = Skill_Cel; break;
+     case PM_SOCIAL_JUSTICE_WARRIOR:		skills = Skill_Soc; break;
+     case PM_GRENADONIN:		skills = Skill_Gre; break;
      case PM_COURIER:		skills = Skill_Cou; break;
      case PM_SPACEWARS_FIGHTER:		skills = Skill_Spa; break;
      case PM_CAMPERSTRIKER:		skills = Skill_Cam; break;
@@ -26300,6 +29169,21 @@ int otyp;
      case PM_PROSTITUTE:	skills = Skill_Pro; break;
      case PM_KURWA:	skills = Skill_Kur; break;
      case PM_TRANSSYLVANIAN:	skills = Skill_Trs; break;
+     case PM_SOFTWARE_ENGINEER:	skills = Skill_Sof; break;
+     case PM_CRACKER:	skills = Skill_Cra; break;
+     case PM_JANITOR:	skills = Skill_Jan; break;
+     case PM_SPACE_MARINE:	skills = Skill_Sma; break;
+     case PM_STORMBOY:	skills = Skill_Sto; break;
+     case PM_YAUTJA:	skills = Skill_Yau; break;
+     case PM_QUARTERBACK:	skills = Skill_Qua; break;
+     case PM_PSYKER:	skills = Skill_Psy; break;
+     case PM_EMPATH:	skills = Skill_Emp; break;
+     case PM_MASTERMIND:	skills = Skill_Mam; break;
+     case PM_WEIRDBOY:	skills = Skill_Wei; break;
+     case PM_ASTRONAUT:	skills = Skill_Ast; break;
+     case PM_CYBERNINJA:	skills = Skill_Cyb; break;
+     case PM_DISSIDENT:	skills = Skill_Dis; break;
+     case PM_XELNAGA:	skills = Skill_Xel; break;
      case PM_UNBELIEVER:	skills = Skill_Unb; break;
      case PM_TOPMODEL:	skills = Skill_Top; break;
      case PM_FAILED_EXISTENCE:	skills = Skill_Fai; break;
@@ -26369,6 +29253,17 @@ int otyp;
      case PM_NINJA:		skills = Skill_Nin; break;
      case PM_UNDERTAKER:		skills = Skill_Unt; break;
      case PM_GRADUATE:		skills = Skill_Gra; break;
+     case PM_CARTOMANCER:		skills = Skill_Car; break;
+     case PM_DRAGONMASTER:		skills = Skill_Dra; break;
+     case PM_COMBATANT:		skills = Skill_Com; break;
+     case PM_FJORDE:		skills = Skill_Fjo; break;
+     case PM_PRACTICANT:		skills = Skill_Pra; break;
+     case PM_EMERA:		skills = Skill_Eme; break;
+     case PM_TOSSER:		skills = Skill_Tos; break;
+     case PM_AKLYST:		skills = Skill_Akl; break;
+     case PM_MILL_SWALLOWER:		skills = Skill_Mil; break;
+     case PM_SYMBIANT:		skills = Skill_Sym; break;
+     case PM_GENDERSTARIST:		skills = Skill_Gen; break;
 
      default:			skills = 0; break;	/* lint suppression */
     }
@@ -26389,7 +29284,7 @@ register struct trobj *trop;
 	int otyp, i;
 
 	while (trop->trclass) {
-		if (trop->trotyp != UNDEF_TYP && ((trop->trotyp == SCR_PHASE_DOOR || trop->trotyp == SCR_HEALING || trop->trotyp == SCR_EXTRA_HEALING || trop->trotyp == SCR_MANA || trop->trotyp == SCR_GREATER_MANA_RESTORATION || trop->trotyp == SCR_STANDARD_ID || trop->trotyp == SCR_CURE || (trop->trotyp == SCR_IDENTIFY && flags.lostsoul) || (trop->trotyp == TORCH && flags.lostsoul) || (trop->trotyp == FOOD_RATION && flags.lostsoul) || (trop->trotyp == SCR_IDENTIFY && flags.uberlostsoul) || (trop->trotyp == TORCH && flags.uberlostsoul) || (trop->trotyp == FOOD_RATION && flags.uberlostsoul) || (trop->trotyp == POT_FRUIT_JUICE && flags.uberlostsoul) || (trop->trotyp == TALLOW_CANDLE && flags.uberlostsoul) ) || !Race_if(PM_UNDEFINED_CREATURE) ) ) {
+		if (trop->trotyp != UNDEF_TYP && ((trop->trotyp == SCR_PHASE_DOOR || trop->trotyp == SCR_HEALING || trop->trotyp == SCR_EXTRA_HEALING || trop->trotyp == SCR_HEAL_OTHER || trop->trotyp == SCR_MANA || trop->trotyp == SCR_GREATER_MANA_RESTORATION || trop->trotyp == SCR_STANDARD_ID || trop->trotyp == SCR_CURE || (trop->trotyp == SCR_IDENTIFY && flags.lostsoul) || (trop->trotyp == TORCH && flags.lostsoul) || (trop->trotyp == FOOD_RATION && flags.lostsoul) || (trop->trotyp == SCR_IDENTIFY && flags.uberlostsoul) || (trop->trotyp == TORCH && flags.uberlostsoul) || (trop->trotyp == FOOD_RATION && flags.uberlostsoul) || (trop->trotyp == POT_FRUIT_JUICE && flags.uberlostsoul) || (trop->trotyp == TALLOW_CANDLE && flags.uberlostsoul) ) || !Race_if(PM_UNDEFINED_CREATURE) ) ) {
 			otyp = (int)trop->trotyp;
 			if (urace.malenum != PM_HUMAN) {
 			    /* substitute specific items for generic ones */
@@ -26406,8 +29301,8 @@ register struct trobj *trop;
 				otyp = inv_asubs[i].subs_otyp;
 				break;
 			    }
-			obj = mksobj(otyp, TRUE, FALSE);
-			if (Race_if(PM_HAXOR)) objX = mksobj(otyp, TRUE, FALSE);
+			obj = mksobj(otyp, TRUE, FALSE, FALSE);
+			if (Race_if(PM_HAXOR)) objX = mksobj(otyp, TRUE, FALSE, FALSE);
 		} else {	/* UNDEF_TYP */
 			static NEARDATA short nocreate = STRANGE_OBJECT;
 			static NEARDATA short nocreate2 = STRANGE_OBJECT;
@@ -26423,8 +29318,8 @@ register struct trobj *trop;
 		 * one will immediately read it and use the iron ball as a
 		 * weapon.)
 		 */
-			obj = mkobj(trop->trclass, FALSE);
-			if (Race_if(PM_HAXOR)) objX = mkobj(trop->trclass, FALSE);
+			obj = mkobj(trop->trclass, FALSE, FALSE);
+			if (Race_if(PM_HAXOR)) objX = mkobj(trop->trclass, FALSE, FALSE);
 			otyp = obj->otyp;
 			while (otyp == WAN_WISHING
 				|| otyp == WAN_ACQUIREMENT
@@ -26437,6 +29332,7 @@ register struct trobj *trop;
 				|| otyp == SCR_RESURRECTION
 				|| otyp == SCR_ACQUIREMENT
 				|| otyp == SCR_ENTHRONIZATION
+				|| otyp == SCR_MAKE_PENTAGRAM
 				|| otyp == SCR_FOUNTAIN_BUILDING
 				|| otyp == SCR_SINKING
 				|| otyp == SCR_WC
@@ -26483,7 +29379,7 @@ register struct trobj *trop;
 				    restricted_spell_discipline(otyp)))*/
 							) {
 				dealloc_obj(obj);
-				obj = mkobj(trop->trclass, FALSE);
+				obj = mkobj(trop->trclass, FALSE, FALSE);
 				otyp = obj->otyp;
 			} /* re-enabled a lot of stuff. Startscum if you really have to. --Amy */
 
@@ -26500,6 +29396,7 @@ register struct trobj *trop;
 				obj->oclass == TOOL_CLASS || Race_if(PM_UNDEFINED_CREATURE) ) {
 			    if (trop->trquan < 1) trop->trquan = 1; /* fail safe */
 			    obj->quan = (long) trop->trquan;
+			    if (Race_if(PM_UNDEFINED_CREATURE) && !objects[obj->otyp].oc_merge) obj->quan = 1;
 			    trop->trquan = 1;
 			} else if (obj->oclass == GEM_CLASS &&
 				is_graystone(obj) && obj->otyp != FLINT) {
@@ -26522,6 +29419,7 @@ register struct trobj *trop;
 				|| otyp == SCR_RESURRECTION
 				|| otyp == SCR_ACQUIREMENT
 				|| otyp == SCR_ENTHRONIZATION
+				|| otyp == SCR_MAKE_PENTAGRAM
 				|| otyp == SCR_FOUNTAIN_BUILDING
 				|| otyp == SCR_SINKING
 				|| otyp == SCR_WC
@@ -26568,7 +29466,7 @@ register struct trobj *trop;
 				    restricted_spell_discipline(otyp)))*/
 							) {
 				dealloc_obj(objX);
-				objX = mkobj(trop->trclass, FALSE);
+				objX = mkobj(trop->trclass, FALSE, FALSE);
 				otyp = objX->otyp;
 			}
 			}
@@ -26633,6 +29531,7 @@ register struct trobj *trop;
 				obj->oclass == TOOL_CLASS || Race_if(PM_UNDEFINED_CREATURE) ) {
 			    if (trop->trquan < 1) trop->trquan = 1; /* fail safe */
 			    obj->quan = (long) trop->trquan;
+			    if (Race_if(PM_UNDEFINED_CREATURE) && !objects[obj->otyp].oc_merge) obj->quan = 1;
 			    trop->trquan = 1;
 			} else if (obj->oclass == GEM_CLASS &&
 				is_graystone(obj) && obj->otyp != FLINT) {
@@ -26652,6 +29551,7 @@ register struct trobj *trop;
 				objX->oclass == TOOL_CLASS || Race_if(PM_UNDEFINED_CREATURE) ) {
 			    if (trop->trquan < 1) trop->trquan = 1; /* fail safe */
 			    objX->quan = (long) trop->trquan;
+			    if (Race_if(PM_UNDEFINED_CREATURE) && !objects[objX->otyp].oc_merge) objX->quan = 1;
 			    trop->trquan = 1;
 			} else if (objX->oclass == GEM_CLASS &&
 				is_graystone(objX) && objX->otyp != FLINT) {
@@ -26688,6 +29588,9 @@ register struct trobj *trop;
             if (objX->otyp == BEAUTIFUL_SHIRT && !issoviet ) {
                 objX->cursed = TRUE;
             }
+            if (objX->otyp == TOILET_ROLL && !issoviet ) {
+                objX->cursed = TRUE;
+            }
             if (objX->otyp == PETA_COMPLIANT_SHIRT && !issoviet ) {
                 objX->cursed = TRUE;
             }
@@ -26698,6 +29601,18 @@ register struct trobj *trop;
                 objX->cursed = TRUE;
             }
             if (objX->otyp == WOOLEN_SHIRT && !issoviet ) {
+                objX->cursed = TRUE;
+            }
+            if (objX->otyp == METAL_SHIRT && !issoviet ) {
+                objX->cursed = TRUE;
+            }
+            if (objX->otyp == RED_STRING && !issoviet ) {
+                objX->cursed = TRUE;
+            }
+            if (objX->otyp == YOGA_PANTS && !issoviet ) {
+                objX->cursed = TRUE;
+            }
+            if (objX->otyp == GREEN_GOWN && !issoviet ) {
                 objX->cursed = TRUE;
             }
             if (objX->otyp == PRINTED_SHIRT && !issoviet ) {
@@ -26735,6 +29650,50 @@ register struct trobj *trop;
             }
 
 		if ((objX->otyp == SNIPER_RIFLE || objX->otyp == SHOTGUN_SHELL || objX->otyp == ROCK || objX->otyp == CYAN_DRAGON_SCALE_MAIL || objX->otyp == CLOAK_OF_LUCK_NEGATION || objX->otyp == ANTI_CASTER_CLOAK || objX->otyp == SADO_MASO_GLOVES || objX->otyp == STAIRWELL_STOMPING_BOOTS || objX->otyp == HELM_OF_THIRST || objX->otyp == HELM_OF_BAD_ALIGNMENT || objX->otyp == UNDROPPABLE_GLOVES || objX->otyp == GAUNTLETS_OF_TRAP_CREATION || objX->otyp == BOOTS_OF_WEAKNESS || objX->otyp == HEALTHSTONE || objX->otyp == STONE_OF_MAGIC_RESISTANCE || objX->otyp == SHADES_OF_GREY_STONE || objX->otyp == DSTW_STONE || objX->otyp == CONFUSION_STONE || objX->otyp == STONE_OF_INTRINSIC_LOSS || objX->otyp == ALIGNMENT_STONE || objX->otyp == TRAP_CREATION_STONE || objX->otyp == STONE_OF_VULNERABILITY || objX->otyp == STONE_OF_CURSING || objX->otyp == STATUS_STONE || objX->otyp == DEAFNESS_STONE || objX->otyp == AMULET_OF_POISON_WARNING || objX->otyp == RIN_SUSTAIN_ABILITY || objX->otyp == RIN_GAIN_INTELLIGENCE || objX->otyp == SPE_DARKNESS || objX->otyp == SPE_AGGRAVATE_MONSTER || objX->otyp == SPE_STUN_SELF || objX->otyp == FORTUNE_COOKIE || objX->otyp == CORPSE || objX->otyp == TIN_WHISTLE || objX->otyp == MIRROR || objX->otyp == TINNING_KIT || objX->otyp == CAN_OF_GREASE) && Role_if(PM_MURDERER) ) {
+                objX->cursed = TRUE;
+            }
+
+            if (objX->otyp == QUARTERSTAFF && Role_if(PM_CELLAR_CHILD) ) {
+                objX->cursed = TRUE;
+                objX->stckcurse = TRUE;
+            }
+            if (objX->otyp == MAGE_PLATE_MAIL && Role_if(PM_CELLAR_CHILD) ) {
+                objX->cursed = TRUE;
+                objX->hvycurse = TRUE;
+		    objX->enchantment = randnastyenchantment();
+            }
+            if (objX->otyp == ORCISH_SHORT_SWORD && Role_if(PM_GRENADONIN) ) {
+                objX->cursed = TRUE;
+                objX->hvycurse = TRUE;
+            }
+            if (objX->otyp == SHURIKEN && Role_if(PM_GRENADONIN) ) {
+                objX->cursed = TRUE;
+		    objX->greased = 1;
+            }
+            if (objX->otyp == ORCISH_RING_MAIL && Role_if(PM_GRENADONIN) ) {
+                objX->cursed = TRUE;
+                objX->hvycurse = TRUE;
+                objX->enchantment = CONFLICT;
+            }
+            if (objX->otyp == LEATHER_CLOAK && Role_if(PM_GRENADONIN) ) {
+                objX->cursed = TRUE;
+                objX->enchantment = FIRE_RES;
+            }
+            if (objX->otyp == FEDORA && Role_if(PM_GRENADONIN) ) {
+                objX->cursed = TRUE;
+                objX->enchantment = HALF_PHDAM;
+            }
+            if (objX->otyp == LEATHER_GLOVES && Role_if(PM_GRENADONIN) ) {
+                objX->cursed = TRUE;
+                objX->enchantment = WARN_UNDEAD;
+            }
+            if (objX->otyp == AMULET_OF_QUICK_ATTACK && Role_if(PM_GRENADONIN) ) {
+                objX->cursed = TRUE;
+                objX->hvycurse = TRUE;
+                objX->stckcurse = TRUE;
+                objX->prmcurse = TRUE;
+            }
+            if (objX->otyp == DRAGON_EYEPATCH && Role_if(PM_GRENADONIN) ) {
                 objX->cursed = TRUE;
             }
 
@@ -26794,7 +29753,10 @@ register struct trobj *trop;
 			    objX->spe = trop->trspe;
 			if (trop->trbless != UNDEF_BLESS)
 			    objX->blessed = trop->trbless;
-		}
+
+		objX->owt = weight(objX);
+
+		} /* haxor, i.e. objX code */
 
 
 
@@ -26828,6 +29790,9 @@ register struct trobj *trop;
             if (obj->otyp == PETA_COMPLIANT_SHIRT && !issoviet ) {
                 obj->cursed = TRUE;
             }
+            if (obj->otyp == TOILET_ROLL && !issoviet ) {
+                obj->cursed = TRUE;
+            }
             if (obj->otyp == RADIOACTIVE_UNDERGARMENT && !issoviet ) {
                 obj->cursed = TRUE;
             }
@@ -26835,6 +29800,18 @@ register struct trobj *trop;
                 obj->cursed = TRUE;
             }
             if (obj->otyp == WOOLEN_SHIRT && !issoviet ) {
+                obj->cursed = TRUE;
+            }
+            if (obj->otyp == METAL_SHIRT && !issoviet ) {
+                obj->cursed = TRUE;
+            }
+            if (obj->otyp == RED_STRING && !issoviet ) {
+                obj->cursed = TRUE;
+            }
+            if (obj->otyp == YOGA_PANTS && !issoviet ) {
+                obj->cursed = TRUE;
+            }
+            if (obj->otyp == GREEN_GOWN && !issoviet ) {
                 obj->cursed = TRUE;
             }
             if (obj->otyp == PRINTED_SHIRT && !issoviet ) {
@@ -26879,6 +29856,49 @@ register struct trobj *trop;
                 obj->cursed = TRUE;
             }
 
+            if (obj->otyp == QUARTERSTAFF && Role_if(PM_CELLAR_CHILD) ) {
+                obj->cursed = TRUE;
+                obj->stckcurse = TRUE;
+            }
+            if (obj->otyp == MAGE_PLATE_MAIL && Role_if(PM_CELLAR_CHILD) ) {
+                obj->cursed = TRUE;
+                obj->hvycurse = TRUE;
+		    obj->enchantment = randnastyenchantment();
+            }
+            if (obj->otyp == ORCISH_SHORT_SWORD && Role_if(PM_GRENADONIN) ) {
+                obj->cursed = TRUE;
+                obj->hvycurse = TRUE;
+            }
+            if (obj->otyp == SHURIKEN && Role_if(PM_GRENADONIN) ) {
+                obj->cursed = TRUE;
+		    obj->greased = 1;
+            }
+            if (obj->otyp == ORCISH_RING_MAIL && Role_if(PM_GRENADONIN) ) {
+                obj->cursed = TRUE;
+                obj->hvycurse = TRUE;
+                obj->enchantment = CONFLICT;
+            }
+            if (obj->otyp == LEATHER_CLOAK && Role_if(PM_GRENADONIN) ) {
+                obj->cursed = TRUE;
+                obj->enchantment = FIRE_RES;
+            }
+            if (obj->otyp == FEDORA && Role_if(PM_GRENADONIN) ) {
+                obj->cursed = TRUE;
+                obj->enchantment = HALF_PHDAM;
+            }
+            if (obj->otyp == LEATHER_GLOVES && Role_if(PM_GRENADONIN) ) {
+                obj->cursed = TRUE;
+                obj->enchantment = WARN_UNDEAD;
+            }
+            if (obj->otyp == AMULET_OF_QUICK_ATTACK && Role_if(PM_GRENADONIN) ) {
+                obj->cursed = TRUE;
+                obj->hvycurse = TRUE;
+                obj->stckcurse = TRUE;
+                obj->prmcurse = TRUE;
+            }
+            if (obj->otyp == DRAGON_EYEPATCH && Role_if(PM_GRENADONIN) ) {
+                obj->cursed = TRUE;
+            }
             if (obj->otyp == WAN_DEATH && (Role_if(PM_DEATH_EATER) || Race_if(PM_UNGENOMOLD) ) ) {
                 obj->cursed = TRUE;
             }
@@ -26975,6 +29995,10 @@ register struct trobj *trop;
 				setworn(obj, W_AMUL);
 			}
 
+		if(obj->otyp == AMULET_OF_QUICK_ATTACK && (Role_if(PM_GRENADONIN)) ) {
+				setworn(obj, W_AMUL);
+			}
+
 		if(obj->otyp == RIN_SUSTAIN_ABILITY && (Role_if(PM_MURDERER)) ) {
 				setworn(obj, W_RINGL);
 			}
@@ -27000,7 +30024,7 @@ register struct trobj *trop;
 			otyp == TIN_OPENER || otyp == FLINT || otyp == ROCK) {
 		    if (is_ammo(obj) || is_missile(obj)) {
 			if (!uquiver) setuqwep(obj);
-		    } else if (!uwep) setuwep(obj, FALSE);
+		    } else if (!uwep) setuwep(obj, FALSE, TRUE);
 		    else if (!uswapwep) setuswapwep(obj, FALSE);
 		}
 		if (obj->oclass == SPBOOK_CLASS &&
@@ -27024,8 +30048,13 @@ register struct trobj *trop;
 
 }
 
+/* Alter reality: the flag controls which messages you get.
+ * 0 = "The power of Eru flows through you"
+ * 1 = 90% chance of no message, 10% chance of "Suddenly, the reality is altered"
+ */
 void
-alter_reality()
+alter_reality(realityflag)
+int realityflag;
 {
 
 	register int i, temp, racebounus, rolebounus, alignbounus, genderbounus, maxbounus, randpantheon, starlitmonster, starlitattempts;
@@ -27035,6 +30064,8 @@ alter_reality()
 	struct permonst* shamblern = &mons[PM_NETHACKFOUR_HORROR];
 	struct permonst* shamblerna = &mons[PM_DEVTEAM_HORROR];
 	struct permonst* shamblerl = &mons[PM_DNETHACK_HORROR];
+	struct permonst* shamblerln = &mons[PM_BEGINNER_HORROR];
+	struct permonst* shamblerlo = &mons[PM_NOOB_HORROR];
 	struct permonst* shamblerla = &mons[PM_NETHACKBRASS_HORROR];
 	struct permonst* shamblerx = &mons[PM_INTERHACK_HORROR];
 	struct permonst* shamblerxa = &mons[PM_NHTNG_HORROR];
@@ -27067,6 +30098,8 @@ alter_reality()
 
 	struct permonst* shamblerplayer = &mons[PM_AK_THIEF_IS_DEAD_];
 	struct permonst* shamblerplayerb = &mons[PM_UN_IN_PROTECT_MODE];
+
+	struct permonst* shamblerplayergl = &mons[PM_PLAYER_GLORKUM];
 
 	struct permonst* shamblerplayerc = &mons[PM_BROWN_MISSINGNO];
 	struct permonst* shamblerplayerd = &mons[PM_RED_MISSINGNO];
@@ -27124,6 +30157,7 @@ alter_reality()
 	struct permonst* randomfungusb = &mons[PM_COLORLESS_FUNGUS];
 	struct permonst* randomfungusba = &mons[PM_COLORLESS_PATCH];
 	struct permonst* randomfungusbb = &mons[PM_COLORLESS_FORCE_FUNGUS];
+	struct permonst* randomfungusbbx = &mons[PM_COLORLESS_WORT];
 	struct permonst* randomfungusbc = &mons[PM_COLORLESS_FORCE_PATCH];
 	struct permonst* randomfungusbd = &mons[PM_COLORLESS_WARP_FUNGUS];
 	struct permonst* randomfungusbe = &mons[PM_COLORLESS_WARP_PATCH];
@@ -27131,6 +30165,7 @@ alter_reality()
 	struct permonst* randomfungusd = &mons[PM_NONDESCRIPT_FUNGUS];
 	struct permonst* randomfungusda = &mons[PM_NONDESCRIPT_PATCH];
 	struct permonst* randomfungusdb = &mons[PM_NONDESCRIPT_FORCE_FUNGUS];
+	struct permonst* randomfungusdbx = &mons[PM_NONDESCRIPT_WORT];
 	struct permonst* randomfungusdc = &mons[PM_NONDESCRIPT_FORCE_PATCH];
 	struct permonst* randomfungusdd = &mons[PM_NONDESCRIPT_WARP_FUNGUS];
 	struct permonst* randomfungusde = &mons[PM_NONDESCRIPT_WARP_PATCH];
@@ -27148,6 +30183,7 @@ alter_reality()
 	struct permonst* rrandomfungusb = &mons[PM_COLORLESS_FUNGUS_X];
 	struct permonst* rrandomfungusc = &mons[PM_COLORLESS_PATCH_X];
 	struct permonst* rrandomfungusd = &mons[PM_COLORLESS_FORCE_FUNGUS_X];
+	struct permonst* rrandomfungusdx = &mons[PM_COLORLESS_WORT_X];
 	struct permonst* rrandomfunguse = &mons[PM_COLORLESS_FORCE_PATCH_X];
 	struct permonst* rrandomfungusf = &mons[PM_COLORLESS_WARP_FUNGUS_X];
 	struct permonst* rrandomfungusg = &mons[PM_COLORLESS_WARP_PATCH_X];
@@ -27205,6 +30241,9 @@ alter_reality()
 	struct permonst* rrandomdragonc = &mons[PM_ADULT_AMPHITERE_X];
 	struct permonst* rrandombdragonb = &mons[PM_BABY_TATZELWORM_X];
 	struct permonst* rrandombdragonc = &mons[PM_BABY_AMPHITERE_X];
+
+	struct permonst* splicemona = &mons[PM_SPLICED_AMALGAMATION];
+	struct permonst* splicemonb = &mons[PM_SPLICED_BAD_CLONE];
 
 	struct permonst* pokshamblerl = &mons[PM_PUPURIN];
 	struct permonst* pokshamblerla = &mons[PM_SAPUSAUR];
@@ -27363,18 +30402,23 @@ alter_reality()
 	struct permonst* randxyx = &mons[PM_RANDO];
 	struct permonst* randxyy = &mons[PM_RNGHOST];
 	struct permonst* randxyz = &mons[PM_RANDOMIZER_DRACONIAN];
+	struct permonst* randxyaa = &mons[PM_CENTAUR_RENGER];
+
+	struct permonst* randhybrid = &mons[PM_HYBRIDRAGON];
 
 	static char buf[BUFSZ];
 
 	struct attack* attkptr;
 
-      u.monstertimeout = rnz(10000)+rnz(15000); /*This NEEDS to be set here, because otherwise saving/restoring will set*/
-	while (u.monstertimeout < 10) u.monstertimeout = rnz(10000)+rnz(15000);
+	monst_globals_init();
 
-	if (rn2(3)) u.monstertimeout += rnz(10000)+rnz(15000);
+      u.monstertimeout = rnz(12000)+rnz(18000);
+	while (u.monstertimeout < 10) u.monstertimeout = rnz(12000)+rnz(18000);
 
-      u.monstertimefinish = rnz(30000)+rnz(60000)+u.monstertimeout; /*a new value, allowing the player to cheat. --Amy*/
-	while (u.monstertimefinish < 20) u.monstertimefinish = rnz(10000)+rnz(20000)+u.monstertimeout;
+	if (rn2(3)) u.monstertimeout += rnz(12000)+rnz(18000);
+
+      u.monstertimefinish = rnz(36000)+rnz(72000)+u.monstertimeout;
+	while (u.monstertimefinish < 20) u.monstertimefinish = rnz(36000)+rnz(72000)+u.monstertimeout;
 
 	u.ascensiontimelimit = rnz(100) * rnz(1000 + rnd(30000)); /* if you still didn't ascend at this turn count, the game becomes much harder */
 	while (u.ascensiontimelimit < (issoviet ? 500000 : 250000)) u.ascensiontimelimit = rnz(100) * rnz(1000 + rnd(9000));
@@ -27397,23 +30441,28 @@ alter_reality()
 	u.alwayshidden = 0;
 	if (!rn2(500)) u.alwayshidden = rnd(S_WORM_TAIL);
 
-	u.frequentmonster = rnd(S_WORM_TAIL - 1);
-	u.freqmonsterbonus = rne(4);
-	if (!rn2(5)) u.freqmonsterbonus += rne(3);
-	if (!rn2(3)) u.freqmonsterbonus *= 2;
-	if (!rn2(5)) u.freqmonsterbonus *= 2;
-	if (!rn2(8)) u.freqmonsterbonus += rne(4);
-	if (!rn2(12)) u.freqmonsterbonus *= (1 + rne(15));
-	if (!rn2(20)) u.freqmonsterbonus *= 3;
-	if (!rn2(60)) u.freqmonsterbonus *= (1 + rne(12));
-	if (!rn2(200)) u.freqmonsterbonus *= 4;
-	if (!rn2(360)) u.freqmonsterbonus *= (1 + rne(10));
-	if (!rn2(1360)) u.freqmonsterbonus *= (1 + rne(8));
-	if (!rn2(5000)) u.freqmonsterbonus *= 5;
-	if (!rn2(6360)) u.freqmonsterbonus *= (1 + rne(7));
-	if (!rn2(25000)) u.freqmonsterbonus *= 6;
-	if (!rn2(36360)) u.freqmonsterbonus *= (1 + rne(5));
-	if (u.freqmonsterbonus > 100) u.freqmonsterbonus = 100; /* fail safe */
+	u.frequentmonster = 0;
+	u.freqmonsterbonus = 0;
+
+	if (!rn2(2)) {
+		u.frequentmonster = rnd(S_WORM_TAIL - 1);
+		u.freqmonsterbonus = rne(4);
+		if (!rn2(5)) u.freqmonsterbonus += rne(3);
+		if (!rn2(3)) u.freqmonsterbonus *= 2;
+		if (!rn2(5)) u.freqmonsterbonus *= 2;
+		if (!rn2(8)) u.freqmonsterbonus += rne(4);
+		if (!rn2(12)) u.freqmonsterbonus *= (1 + rne(15));
+		if (!rn2(20)) u.freqmonsterbonus *= 3;
+		if (!rn2(60)) u.freqmonsterbonus *= (1 + rne(12));
+		if (!rn2(200)) u.freqmonsterbonus *= 4;
+		if (!rn2(360)) u.freqmonsterbonus *= (1 + rne(10));
+		if (!rn2(1360)) u.freqmonsterbonus *= (1 + rne(8));
+		if (!rn2(5000)) u.freqmonsterbonus *= 5;
+		if (!rn2(6360)) u.freqmonsterbonus *= (1 + rne(7));
+		if (!rn2(25000)) u.freqmonsterbonus *= 6;
+		if (!rn2(36360)) u.freqmonsterbonus *= (1 + rne(5));
+		if (u.freqmonsterbonus > 100) u.freqmonsterbonus = 100; /* fail safe */
+	}
 
 	u.frequentcolor = 0;
 	u.freqcolorbonus = 0;
@@ -27441,7 +30490,7 @@ alter_reality()
 
 	register int traitamount = rnd(10); /* pick an # of monster traits that are more common --Amy */
 
-	u.frequenttrait1 = rnd(359); /* same as monstercolor function */
+	u.frequenttrait1 = rnd(376); /* same as monstercolor function */
 	u.freqtraitbonus1 = rne(4);
 	if (!rn2(5)) u.freqtraitbonus1 += rne(3);
 	if (!rn2(3)) u.freqtraitbonus1 *= 2;
@@ -27480,7 +30529,7 @@ alter_reality()
 
 	if (traitamount >= 2) {
 
-		u.frequenttrait2 = rnd(359);
+		u.frequenttrait2 = rnd(376);
 		u.freqtraitbonus2 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus2 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus2 *= 2;
@@ -27502,7 +30551,7 @@ alter_reality()
 
 	if (traitamount >= 3) {
 
-		u.frequenttrait3 = rnd(359);
+		u.frequenttrait3 = rnd(376);
 		u.freqtraitbonus3 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus3 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus3 *= 2;
@@ -27524,7 +30573,7 @@ alter_reality()
 
 	if (traitamount >= 4) {
 
-		u.frequenttrait4 = rnd(359);
+		u.frequenttrait4 = rnd(376);
 		u.freqtraitbonus4 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus4 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus4 *= 2;
@@ -27546,7 +30595,7 @@ alter_reality()
 
 	if (traitamount >= 5) {
 
-		u.frequenttrait5 = rnd(359);
+		u.frequenttrait5 = rnd(376);
 		u.freqtraitbonus5 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus5 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus5 *= 2;
@@ -27568,7 +30617,7 @@ alter_reality()
 
 	if (traitamount >= 6) {
 
-		u.frequenttrait6 = rnd(359);
+		u.frequenttrait6 = rnd(376);
 		u.freqtraitbonus6 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus6 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus6 *= 2;
@@ -27590,7 +30639,7 @@ alter_reality()
 
 	if (traitamount >= 7) {
 
-		u.frequenttrait7 = rnd(359);
+		u.frequenttrait7 = rnd(376);
 		u.freqtraitbonus7 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus7 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus7 *= 2;
@@ -27612,7 +30661,7 @@ alter_reality()
 
 	if (traitamount >= 8) {
 
-		u.frequenttrait8 = rnd(359);
+		u.frequenttrait8 = rnd(376);
 		u.freqtraitbonus8 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus8 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus8 *= 2;
@@ -27634,7 +30683,7 @@ alter_reality()
 
 	if (traitamount >= 9) {
 
-		u.frequenttrait9 = rnd(359);
+		u.frequenttrait9 = rnd(376);
 		u.freqtraitbonus9 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus9 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus9 *= 2;
@@ -27656,7 +30705,7 @@ alter_reality()
 
 	if (traitamount >= 10) {
 
-		u.frequenttrait10 = rnd(359);
+		u.frequenttrait10 = rnd(376);
 		u.freqtraitbonus10 = rne(4);
 		if (!rn2(5)) u.freqtraitbonus10 += rne(3);
 		if (!rn2(3)) u.freqtraitbonus10 *= 2;
@@ -28148,20 +31197,15 @@ alter_reality()
 		ptr = &mons[u.nospawnspecies10];
 	}
 
-	u.minimalism = 0;
-
-	if (isminimalist) {
-
-		u.minimalism = 1 + rnd(4);
-		if (!rn2(10)) u.minimalism += rnd(5);
-		if (!rn2(100)) u.minimalism += rnz(5);
-	}
+	u.minimalism = 1 + rnd(4);
+	if (!rn2(10)) u.minimalism += rnd(5);
+	if (!rn2(100)) u.minimalism += rnz(5);
 
 	u.femauspices4 = rnd(11);
-	u.femauspices6 = rnd(8);
-	u.femauspices8 = rnd(8);
+	u.femauspices6 = rnd(9);
+	u.femauspices8 = rnd(9);
 	u.femauspices11 = rnd(16);
-	u.femauspices13 = rnd(8);
+	u.femauspices13 = rnd(10);
 	u.femauspices15 = rnd(8);
 	u.femauspices17 = rnd(7);
 	u.femauspices20 = rnd(8);
@@ -28170,9 +31214,334 @@ alter_reality()
 	u.femauspices28 = rnd(9);
 	u.femauspices30 = rnd(10);
 
+	u.feminizeffect = rnd(22); /* amount of feminism trap effects; keyword: "marlena" */
+
+	u.sjwL1E1 = rnd(235); /* timerun and stuff */
+	u.sjwL2E1 = rnd(235);
+	u.sjwL3E1 = rnd(235);
+	u.sjwL4E1 = rnd(235);
+	u.sjwL5E1 = rnd(235);
+	u.sjwL5E2 = rnd(235);
+	u.sjwL6E1 = rnd(235);
+	u.sjwL6E2 = rnd(235);
+	u.sjwL7E1 = rnd(235);
+	u.sjwL7E2 = rnd(235);
+	u.sjwL8E1 = rnd(235);
+	u.sjwL8E2 = rnd(235);
+	u.sjwL9E1 = rnd(235);
+	u.sjwL9E2 = rnd(235);
+	u.sjwL10E1 = rnd(235);
+	u.sjwL10E2 = rnd(235);
+	u.sjwL10E3 = rnd(235);
+	u.sjwL11E1 = rnd(235);
+	u.sjwL11E2 = rnd(235);
+	u.sjwL11E3 = rnd(235);
+	u.sjwL12E1 = rnd(235);
+	u.sjwL12E2 = rnd(235);
+	u.sjwL12E3 = rnd(235);
+	u.sjwL13E1 = rnd(235);
+	u.sjwL13E2 = rnd(235);
+	u.sjwL13E3 = rnd(235);
+	u.sjwL14E1 = rnd(235);
+	u.sjwL14E2 = rnd(235);
+	u.sjwL14E3 = rnd(235);
+	u.sjwL15E1 = rnd(235);
+	u.sjwL15E2 = rnd(235);
+	u.sjwL15E3 = rnd(235);
+	u.sjwL15E4 = rnd(235);
+	u.sjwL16E1 = rnd(235);
+	u.sjwL16E2 = rnd(235);
+	u.sjwL16E3 = rnd(235);
+	u.sjwL16E4 = rnd(235);
+	u.sjwL17E1 = rnd(235);
+	u.sjwL17E2 = rnd(235);
+	u.sjwL17E3 = rnd(235);
+	u.sjwL17E4 = rnd(235);
+	u.sjwL18E1 = rnd(235);
+	u.sjwL18E2 = rnd(235);
+	u.sjwL18E3 = rnd(235);
+	u.sjwL18E4 = rnd(235);
+	u.sjwL19E1 = rnd(235);
+	u.sjwL19E2 = rnd(235);
+	u.sjwL19E3 = rnd(235);
+	u.sjwL19E4 = rnd(235);
+	u.sjwL20E1 = rnd(235);
+	u.sjwL20E2 = rnd(235);
+	u.sjwL20E3 = rnd(235);
+	u.sjwL20E4 = rnd(235);
+	u.sjwL20E5 = rnd(235);
+	u.sjwL21E1 = rnd(235);
+	u.sjwL21E2 = rnd(235);
+	u.sjwL21E3 = rnd(235);
+	u.sjwL21E4 = rnd(235);
+	u.sjwL21E5 = rnd(235);
+	u.sjwL22E1 = rnd(235);
+	u.sjwL22E2 = rnd(235);
+	u.sjwL22E3 = rnd(235);
+	u.sjwL22E4 = rnd(235);
+	u.sjwL22E5 = rnd(235);
+	u.sjwL23E1 = rnd(235);
+	u.sjwL23E2 = rnd(235);
+	u.sjwL23E3 = rnd(235);
+	u.sjwL23E4 = rnd(235);
+	u.sjwL23E5 = rnd(235);
+	u.sjwL24E1 = rnd(235);
+	u.sjwL24E2 = rnd(235);
+	u.sjwL24E3 = rnd(235);
+	u.sjwL24E4 = rnd(235);
+	u.sjwL24E5 = rnd(235);
+	u.sjwL25E1 = rnd(235);
+	u.sjwL25E2 = rnd(235);
+	u.sjwL25E3 = rnd(235);
+	u.sjwL25E4 = rnd(235);
+	u.sjwL25E5 = rnd(235);
+	u.sjwL25E6 = rnd(235);
+	u.sjwL26E1 = rnd(235);
+	u.sjwL26E2 = rnd(235);
+	u.sjwL26E3 = rnd(235);
+	u.sjwL26E4 = rnd(235);
+	u.sjwL26E5 = rnd(235);
+	u.sjwL26E6 = rnd(235);
+	u.sjwL27E1 = rnd(235);
+	u.sjwL27E2 = rnd(235);
+	u.sjwL27E3 = rnd(235);
+	u.sjwL27E4 = rnd(235);
+	u.sjwL27E5 = rnd(235);
+	u.sjwL27E6 = rnd(235);
+	u.sjwL28E1 = rnd(235);
+	u.sjwL28E2 = rnd(235);
+	u.sjwL28E3 = rnd(235);
+	u.sjwL28E4 = rnd(235);
+	u.sjwL28E5 = rnd(235);
+	u.sjwL28E6 = rnd(235);
+	u.sjwL29E1 = rnd(235);
+	u.sjwL29E2 = rnd(235);
+	u.sjwL29E3 = rnd(235);
+	u.sjwL29E4 = rnd(235);
+	u.sjwL29E5 = rnd(235);
+	u.sjwL29E6 = rnd(235);
+	u.sjwL30E1 = rnd(235);
+	u.sjwL30E2 = rnd(235);
+	u.sjwL30E3 = rnd(235);
+	u.sjwL30E4 = rnd(235);
+	u.sjwL30E5 = rnd(235);
+	u.sjwL30E6 = rnd(235);
+	u.sjwL30E7 = rnd(235);
+	u.sjwL31E1 = rnd(235);
+	u.sjwL31E2 = rnd(235);
+	u.sjwL31E3 = rnd(235);
+	u.sjwL31E4 = rnd(235);
+	u.sjwL31E5 = rnd(235);
+	u.sjwL31E6 = rnd(235);
+	u.sjwL31E7 = rnd(235);
+	u.sjwL32E1 = rnd(235);
+	u.sjwL32E2 = rnd(235);
+	u.sjwL32E3 = rnd(235);
+	u.sjwL32E4 = rnd(235);
+	u.sjwL32E5 = rnd(235);
+	u.sjwL32E6 = rnd(235);
+	u.sjwL32E7 = rnd(235);
+	u.sjwL33E1 = rnd(235);
+	u.sjwL33E2 = rnd(235);
+	u.sjwL33E3 = rnd(235);
+	u.sjwL33E4 = rnd(235);
+	u.sjwL33E5 = rnd(235);
+	u.sjwL33E6 = rnd(235);
+	u.sjwL33E7 = rnd(235);
+	u.sjwL34E1 = rnd(235);
+	u.sjwL34E2 = rnd(235);
+	u.sjwL34E3 = rnd(235);
+	u.sjwL34E4 = rnd(235);
+	u.sjwL34E5 = rnd(235);
+	u.sjwL34E6 = rnd(235);
+	u.sjwL34E7 = rnd(235);
+	u.sjwL35E1 = rnd(235);
+	u.sjwL35E2 = rnd(235);
+	u.sjwL35E3 = rnd(235);
+	u.sjwL35E4 = rnd(235);
+	u.sjwL35E5 = rnd(235);
+	u.sjwL35E6 = rnd(235);
+	u.sjwL35E7 = rnd(235);
+	u.sjwL36E1 = rnd(235);
+	u.sjwL36E2 = rnd(235);
+	u.sjwL36E3 = rnd(235);
+	u.sjwL36E4 = rnd(235);
+	u.sjwL36E5 = rnd(235);
+	u.sjwL36E6 = rnd(235);
+	u.sjwL36E7 = rnd(235);
+	u.sjwL37E1 = rnd(235);
+	u.sjwL37E2 = rnd(235);
+	u.sjwL37E3 = rnd(235);
+	u.sjwL37E4 = rnd(235);
+	u.sjwL37E5 = rnd(235);
+	u.sjwL37E6 = rnd(235);
+	u.sjwL37E7 = rnd(235);
+	u.sjwL38E1 = rnd(235);
+	u.sjwL38E2 = rnd(235);
+	u.sjwL38E3 = rnd(235);
+	u.sjwL38E4 = rnd(235);
+	u.sjwL38E5 = rnd(235);
+	u.sjwL38E6 = rnd(235);
+	u.sjwL38E7 = rnd(235);
+	u.sjwL39E1 = rnd(235);
+	u.sjwL39E2 = rnd(235);
+	u.sjwL39E3 = rnd(235);
+	u.sjwL39E4 = rnd(235);
+	u.sjwL39E5 = rnd(235);
+	u.sjwL39E6 = rnd(235);
+	u.sjwL39E7 = rnd(235);
+	u.sjwL40E1 = rnd(235);
+	u.sjwL40E2 = rnd(235);
+	u.sjwL40E3 = rnd(235);
+	u.sjwL40E4 = rnd(235);
+	u.sjwL40E5 = rnd(235);
+	u.sjwL40E6 = rnd(235);
+	u.sjwL40E7 = rnd(235);
+	u.sjwL41E1 = rnd(235);
+	u.sjwL41E2 = rnd(235);
+	u.sjwL41E3 = rnd(235);
+	u.sjwL41E4 = rnd(235);
+	u.sjwL41E5 = rnd(235);
+	u.sjwL41E6 = rnd(235);
+	u.sjwL41E7 = rnd(235);
+	u.sjwL42E1 = rnd(235);
+	u.sjwL42E2 = rnd(235);
+	u.sjwL42E3 = rnd(235);
+	u.sjwL42E4 = rnd(235);
+	u.sjwL42E5 = rnd(235);
+	u.sjwL42E6 = rnd(235);
+	u.sjwL42E7 = rnd(235);
+	u.sjwL43E1 = rnd(235);
+	u.sjwL43E2 = rnd(235);
+	u.sjwL43E3 = rnd(235);
+	u.sjwL43E4 = rnd(235);
+	u.sjwL43E5 = rnd(235);
+	u.sjwL43E6 = rnd(235);
+	u.sjwL43E7 = rnd(235);
+	u.sjwL44E1 = rnd(235);
+	u.sjwL44E2 = rnd(235);
+	u.sjwL44E3 = rnd(235);
+	u.sjwL44E4 = rnd(235);
+	u.sjwL44E5 = rnd(235);
+	u.sjwL44E6 = rnd(235);
+	u.sjwL44E7 = rnd(235);
+	u.sjwL45E1 = rnd(235);
+	u.sjwL45E2 = rnd(235);
+	u.sjwL45E3 = rnd(235);
+	u.sjwL45E4 = rnd(235);
+	u.sjwL45E5 = rnd(235);
+	u.sjwL45E6 = rnd(235);
+	u.sjwL45E7 = rnd(235);
+	u.sjwL46E1 = rnd(235);
+	u.sjwL46E2 = rnd(235);
+	u.sjwL46E3 = rnd(235);
+	u.sjwL46E4 = rnd(235);
+	u.sjwL46E5 = rnd(235);
+	u.sjwL46E6 = rnd(235);
+	u.sjwL46E7 = rnd(235);
+	u.sjwL47E1 = rnd(235);
+	u.sjwL47E2 = rnd(235);
+	u.sjwL47E3 = rnd(235);
+	u.sjwL47E4 = rnd(235);
+	u.sjwL47E5 = rnd(235);
+	u.sjwL47E6 = rnd(235);
+	u.sjwL47E7 = rnd(235);
+	u.sjwL48E1 = rnd(235);
+	u.sjwL48E2 = rnd(235);
+	u.sjwL48E3 = rnd(235);
+	u.sjwL48E4 = rnd(235);
+	u.sjwL48E5 = rnd(235);
+	u.sjwL48E6 = rnd(235);
+	u.sjwL48E7 = rnd(235);
+	u.sjwL49E1 = rnd(235);
+	u.sjwL49E2 = rnd(235);
+	u.sjwL49E3 = rnd(235);
+	u.sjwL49E4 = rnd(235);
+	u.sjwL49E5 = rnd(235);
+	u.sjwL49E6 = rnd(235);
+	u.sjwL49E7 = rnd(235);
+	u.sjwL50E1 = rnd(235);
+	u.sjwL50E2 = rnd(235);
+	u.sjwL50E3 = rnd(235);
+	u.sjwL50E4 = rnd(235);
+	u.sjwL50E5 = rnd(235);
+	u.sjwL50E6 = rnd(235);
+	u.sjwL50E7 = rnd(235);
+	u.sjwL51E1 = rnd(235);
+	u.sjwL51E2 = rnd(235);
+	u.sjwL51E3 = rnd(235);
+	u.sjwL51E4 = rnd(235);
+	u.sjwL51E5 = rnd(235);
+	u.sjwL51E6 = rnd(235);
+	u.sjwL51E7 = rnd(235);
+	u.sjwL52E1 = rnd(235);
+	u.sjwL52E2 = rnd(235);
+	u.sjwL52E3 = rnd(235);
+	u.sjwL52E4 = rnd(235);
+	u.sjwL52E5 = rnd(235);
+	u.sjwL52E6 = rnd(235);
+	u.sjwL52E7 = rnd(235);
+	u.sjwL53E1 = rnd(235);
+	u.sjwL53E2 = rnd(235);
+	u.sjwL53E3 = rnd(235);
+	u.sjwL53E4 = rnd(235);
+	u.sjwL53E5 = rnd(235);
+	u.sjwL53E6 = rnd(235);
+	u.sjwL53E7 = rnd(235);
+	u.sjwL54E1 = rnd(235);
+	u.sjwL54E2 = rnd(235);
+	u.sjwL54E3 = rnd(235);
+	u.sjwL54E4 = rnd(235);
+	u.sjwL54E5 = rnd(235);
+	u.sjwL54E6 = rnd(235);
+	u.sjwL54E7 = rnd(235);
+	u.sjwL55E1 = rnd(235);
+	u.sjwL55E2 = rnd(235);
+	u.sjwL55E3 = rnd(235);
+	u.sjwL55E4 = rnd(235);
+	u.sjwL55E5 = rnd(235);
+	u.sjwL55E6 = rnd(235);
+	u.sjwL55E7 = rnd(235);
+	u.sjwL56E1 = rnd(235);
+	u.sjwL56E2 = rnd(235);
+	u.sjwL56E3 = rnd(235);
+	u.sjwL56E4 = rnd(235);
+	u.sjwL56E5 = rnd(235);
+	u.sjwL56E6 = rnd(235);
+	u.sjwL56E7 = rnd(235);
+	u.sjwL57E1 = rnd(235);
+	u.sjwL57E2 = rnd(235);
+	u.sjwL57E3 = rnd(235);
+	u.sjwL57E4 = rnd(235);
+	u.sjwL57E5 = rnd(235);
+	u.sjwL57E6 = rnd(235);
+	u.sjwL57E7 = rnd(235);
+	u.sjwL58E1 = rnd(235);
+	u.sjwL58E2 = rnd(235);
+	u.sjwL58E3 = rnd(235);
+	u.sjwL58E4 = rnd(235);
+	u.sjwL58E5 = rnd(235);
+	u.sjwL58E6 = rnd(235);
+	u.sjwL58E7 = rnd(235);
+	u.sjwL59E1 = rnd(235);
+	u.sjwL59E2 = rnd(235);
+	u.sjwL59E3 = rnd(235);
+	u.sjwL59E4 = rnd(235);
+	u.sjwL59E5 = rnd(235);
+	u.sjwL59E6 = rnd(235);
+	u.sjwL59E7 = rnd(235);
+
+	u.dorian4 = rnd(235);
+	u.dorian8 = rnd(235);
+	u.dorian12 = rnd(235);
+	u.dorian16 = rnd(235);
+	u.dorian20 = rnd(235);
+	u.dorian24 = rnd(235);
+	u.dorian28 = rnd(235);
+
 	u.adpartattack = rn2(AD_ENDS);
 	while (u.adpartattack == AD_ENDS || u.adpartattack == AD_WERE) u.adpartattack = rn2(AD_ENDS);
-	u.adrunsattack = rnd(229); /* timerun etc. */
+	u.adrunsattack = rnd(235); /* timerun etc. */
 
 	u.unobtainable = -1;
 	while ( (u.unobtainable == -1) || (u.unobtainable == GOLD_PIECE) || (u.unobtainable == STRANGE_OBJECT) || (u.unobtainable == AMULET_OF_YENDOR) || (u.unobtainable == CANDELABRUM_OF_INVOCATION) || (u.unobtainable == BELL_OF_OPENING) || (u.unobtainable == SPE_BOOK_OF_THE_DEAD) || (objects[u.unobtainable].oc_prob < 1) ) u.unobtainable = rn2(NUM_OBJECTS);
@@ -28235,140 +31604,140 @@ alter_reality()
 	while ( (u.alwayscurseditem10 == -1) || (u.alwayscurseditem10 == u.unobtainable) || (u.alwayscurseditem10 == u.unobtainable2) || (u.alwayscurseditem10 == u.unobtainable3) || (u.alwayscurseditem10 == u.unobtainable4) || (u.alwayscurseditem10 == u.unobtainable5) || (u.alwayscurseditem10 == u.unobtainable6) || (u.alwayscurseditem10 == u.unobtainable7) || (u.alwayscurseditem10 == u.unobtainable8) || (u.alwayscurseditem10 == u.unobtainable9) || (u.alwayscurseditem10 == u.unobtainable10) || (u.alwayscurseditem10 == GOLD_PIECE) || (u.alwayscurseditem10 == STRANGE_OBJECT) || (u.alwayscurseditem10 == AMULET_OF_YENDOR) || (u.alwayscurseditem10 == CANDELABRUM_OF_INVOCATION) || (u.alwayscurseditem10 == BELL_OF_OPENING) || (u.alwayscurseditem10 == SPE_BOOK_OF_THE_DEAD) || (objects[u.alwayscurseditem10].oc_prob < 1) ) u.alwayscurseditem10 = rn2(NUM_OBJECTS);
 
 	u.veryobtainable = -1;
-	while ( (u.veryobtainable == -1) || (u.veryobtainable == GOLD_PIECE) || (u.veryobtainable == STRANGE_OBJECT) || (u.veryobtainable == AMULET_OF_YENDOR) || (u.veryobtainable == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable == BELL_OF_OPENING) || (u.veryobtainable == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable == SCR_WISHING) || (u.veryobtainable == SCR_ASTRALCENSION) || (u.veryobtainable == TREASURE_CHEST) || (u.veryobtainable == SCR_RAGNAROK) || (u.veryobtainable == SCR_ARTIFACT_CREATION) || (u.veryobtainable == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable == WAN_WISHING) || (u.veryobtainable == u.unobtainable) || (u.veryobtainable == u.unobtainable2) || (u.veryobtainable == u.unobtainable3) || (u.veryobtainable == u.unobtainable4) || (u.veryobtainable == u.unobtainable5) || (u.veryobtainable == u.unobtainable6) || (u.veryobtainable == u.unobtainable7) || (u.veryobtainable == u.unobtainable8) || (u.veryobtainable == u.unobtainable9) || (u.veryobtainable == u.unobtainable10) || (objects[u.veryobtainable].oc_prob < 1) ) u.veryobtainable = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable == -1) || (u.veryobtainable == GOLD_PIECE) || (u.veryobtainable == STRANGE_OBJECT) || (u.veryobtainable == AMULET_OF_YENDOR) || (u.veryobtainable == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable == BELL_OF_OPENING) || (u.veryobtainable == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable == SCR_WISHING) || (u.veryobtainable == SCR_RESURRECTION) || (u.veryobtainable == SCR_WORLD_FALL) || (u.veryobtainable == SCR_ASTRALCENSION) || (u.veryobtainable == TREASURE_CHEST) || (u.veryobtainable == SCR_RAGNAROK) || (u.veryobtainable == SCR_ARTIFACT_CREATION) || (u.veryobtainable == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable == WAN_WISHING) || (u.veryobtainable == u.unobtainable) || (u.veryobtainable == u.unobtainable2) || (u.veryobtainable == u.unobtainable3) || (u.veryobtainable == u.unobtainable4) || (u.veryobtainable == u.unobtainable5) || (u.veryobtainable == u.unobtainable6) || (u.veryobtainable == u.unobtainable7) || (u.veryobtainable == u.unobtainable8) || (u.veryobtainable == u.unobtainable9) || (u.veryobtainable == u.unobtainable10) || (objects[u.veryobtainable].oc_prob < 1) ) u.veryobtainable = rn2(NUM_OBJECTS);
 	u.veryobtainableboost = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost += rnz(100);
 	if (u.veryobtainableboost > 1000) u.veryobtainableboost = 1000; /* sanity check */
 
 	u.veryobtainable2 = -1;
-	while ( (u.veryobtainable2 == -1) || (u.veryobtainable2 == GOLD_PIECE) || (u.veryobtainable2 == STRANGE_OBJECT) || (u.veryobtainable2 == AMULET_OF_YENDOR) || (u.veryobtainable2 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable2 == BELL_OF_OPENING) || (u.veryobtainable2 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable2 == SCR_WISHING) || (u.veryobtainable2 == SCR_ASTRALCENSION) || (u.veryobtainable2 == TREASURE_CHEST) || (u.veryobtainable2 == SCR_RAGNAROK) || (u.veryobtainable2 == SCR_ARTIFACT_CREATION) || (u.veryobtainable2 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable2 == WAN_WISHING) || (u.veryobtainable2 == u.unobtainable) || (u.veryobtainable2 == u.unobtainable2) || (u.veryobtainable2 == u.unobtainable3) || (u.veryobtainable2 == u.unobtainable4) || (u.veryobtainable2 == u.unobtainable5) || (u.veryobtainable2 == u.unobtainable6) || (u.veryobtainable2 == u.unobtainable7) || (u.veryobtainable2 == u.unobtainable8) || (u.veryobtainable2 == u.unobtainable9) || (u.veryobtainable2 == u.unobtainable10) || (objects[u.veryobtainable2].oc_prob < 1) ) u.veryobtainable2 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable2 == -1) || (u.veryobtainable2 == GOLD_PIECE) || (u.veryobtainable2 == STRANGE_OBJECT) || (u.veryobtainable2 == AMULET_OF_YENDOR) || (u.veryobtainable2 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable2 == BELL_OF_OPENING) || (u.veryobtainable2 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable2 == SCR_WISHING) || (u.veryobtainable2 == SCR_RESURRECTION) || (u.veryobtainable2 == SCR_WORLD_FALL) || (u.veryobtainable2 == SCR_ASTRALCENSION) || (u.veryobtainable2 == TREASURE_CHEST) || (u.veryobtainable2 == SCR_RAGNAROK) || (u.veryobtainable2 == SCR_ARTIFACT_CREATION) || (u.veryobtainable2 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable2 == WAN_WISHING) || (u.veryobtainable2 == u.unobtainable) || (u.veryobtainable2 == u.unobtainable2) || (u.veryobtainable2 == u.unobtainable3) || (u.veryobtainable2 == u.unobtainable4) || (u.veryobtainable2 == u.unobtainable5) || (u.veryobtainable2 == u.unobtainable6) || (u.veryobtainable2 == u.unobtainable7) || (u.veryobtainable2 == u.unobtainable8) || (u.veryobtainable2 == u.unobtainable9) || (u.veryobtainable2 == u.unobtainable10) || (objects[u.veryobtainable2].oc_prob < 1) ) u.veryobtainable2 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost2 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost2 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost2 += rnz(100);
 	if (u.veryobtainableboost2 > 1000) u.veryobtainableboost2 = 1000; /* sanity check */
 
 	u.veryobtainable3 = -1;
-	while ( (u.veryobtainable3 == -1) || (u.veryobtainable3 == GOLD_PIECE) || (u.veryobtainable3 == STRANGE_OBJECT) || (u.veryobtainable3 == AMULET_OF_YENDOR) || (u.veryobtainable3 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable3 == BELL_OF_OPENING) || (u.veryobtainable3 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable3 == SCR_WISHING) || (u.veryobtainable3 == SCR_ASTRALCENSION) || (u.veryobtainable3 == TREASURE_CHEST) || (u.veryobtainable3 == SCR_RAGNAROK) || (u.veryobtainable3 == SCR_ARTIFACT_CREATION) || (u.veryobtainable3 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable3 == WAN_WISHING) || (u.veryobtainable3 == u.unobtainable) || (u.veryobtainable3 == u.unobtainable2) || (u.veryobtainable3 == u.unobtainable3) || (u.veryobtainable3 == u.unobtainable4) || (u.veryobtainable3 == u.unobtainable5) || (u.veryobtainable3 == u.unobtainable6) || (u.veryobtainable3 == u.unobtainable7) || (u.veryobtainable3 == u.unobtainable8) || (u.veryobtainable3 == u.unobtainable9) || (u.veryobtainable3 == u.unobtainable10) || (objects[u.veryobtainable3].oc_prob < 1) ) u.veryobtainable3 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable3 == -1) || (u.veryobtainable3 == GOLD_PIECE) || (u.veryobtainable3 == STRANGE_OBJECT) || (u.veryobtainable3 == AMULET_OF_YENDOR) || (u.veryobtainable3 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable3 == BELL_OF_OPENING) || (u.veryobtainable3 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable3 == SCR_WISHING) || (u.veryobtainable3 == SCR_RESURRECTION) || (u.veryobtainable3 == SCR_WORLD_FALL) || (u.veryobtainable3 == SCR_ASTRALCENSION) || (u.veryobtainable3 == TREASURE_CHEST) || (u.veryobtainable3 == SCR_RAGNAROK) || (u.veryobtainable3 == SCR_ARTIFACT_CREATION) || (u.veryobtainable3 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable3 == WAN_WISHING) || (u.veryobtainable3 == u.unobtainable) || (u.veryobtainable3 == u.unobtainable2) || (u.veryobtainable3 == u.unobtainable3) || (u.veryobtainable3 == u.unobtainable4) || (u.veryobtainable3 == u.unobtainable5) || (u.veryobtainable3 == u.unobtainable6) || (u.veryobtainable3 == u.unobtainable7) || (u.veryobtainable3 == u.unobtainable8) || (u.veryobtainable3 == u.unobtainable9) || (u.veryobtainable3 == u.unobtainable10) || (objects[u.veryobtainable3].oc_prob < 1) ) u.veryobtainable3 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost3 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost3 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost3 += rnz(100);
 	if (u.veryobtainableboost3 > 1000) u.veryobtainableboost3 = 1000; /* sanity check */
 
 	u.veryobtainable4 = -1;
-	while ( (u.veryobtainable4 == -1) || (u.veryobtainable4 == GOLD_PIECE) || (u.veryobtainable4 == STRANGE_OBJECT) || (u.veryobtainable4 == AMULET_OF_YENDOR) || (u.veryobtainable4 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable4 == BELL_OF_OPENING) || (u.veryobtainable4 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable4 == SCR_WISHING) || (u.veryobtainable4 == SCR_ASTRALCENSION) || (u.veryobtainable4 == TREASURE_CHEST) || (u.veryobtainable4 == SCR_RAGNAROK) || (u.veryobtainable4 == SCR_ARTIFACT_CREATION) || (u.veryobtainable4 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable4 == WAN_WISHING) || (u.veryobtainable4 == u.unobtainable) || (u.veryobtainable4 == u.unobtainable2) || (u.veryobtainable4 == u.unobtainable3) || (u.veryobtainable4 == u.unobtainable4) || (u.veryobtainable4 == u.unobtainable5) || (u.veryobtainable4 == u.unobtainable6) || (u.veryobtainable4 == u.unobtainable7) || (u.veryobtainable4 == u.unobtainable8) || (u.veryobtainable4 == u.unobtainable9) || (u.veryobtainable4 == u.unobtainable10) || (objects[u.veryobtainable4].oc_prob < 1) ) u.veryobtainable4 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable4 == -1) || (u.veryobtainable4 == GOLD_PIECE) || (u.veryobtainable4 == STRANGE_OBJECT) || (u.veryobtainable4 == AMULET_OF_YENDOR) || (u.veryobtainable4 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable4 == BELL_OF_OPENING) || (u.veryobtainable4 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable4 == SCR_WISHING) || (u.veryobtainable4 == SCR_RESURRECTION) || (u.veryobtainable4 == SCR_WORLD_FALL) || (u.veryobtainable4 == SCR_ASTRALCENSION) || (u.veryobtainable4 == TREASURE_CHEST) || (u.veryobtainable4 == SCR_RAGNAROK) || (u.veryobtainable4 == SCR_ARTIFACT_CREATION) || (u.veryobtainable4 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable4 == WAN_WISHING) || (u.veryobtainable4 == u.unobtainable) || (u.veryobtainable4 == u.unobtainable2) || (u.veryobtainable4 == u.unobtainable3) || (u.veryobtainable4 == u.unobtainable4) || (u.veryobtainable4 == u.unobtainable5) || (u.veryobtainable4 == u.unobtainable6) || (u.veryobtainable4 == u.unobtainable7) || (u.veryobtainable4 == u.unobtainable8) || (u.veryobtainable4 == u.unobtainable9) || (u.veryobtainable4 == u.unobtainable10) || (objects[u.veryobtainable4].oc_prob < 1) ) u.veryobtainable4 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost4 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost4 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost4 += rnz(100);
 	if (u.veryobtainableboost4 > 1000) u.veryobtainableboost4 = 1000; /* sanity check */
 
 	u.veryobtainable5 = -1;
-	while ( (u.veryobtainable5 == -1) || (u.veryobtainable5 == GOLD_PIECE) || (u.veryobtainable5 == STRANGE_OBJECT) || (u.veryobtainable5 == AMULET_OF_YENDOR) || (u.veryobtainable5 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable5 == BELL_OF_OPENING) || (u.veryobtainable5 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable5 == SCR_WISHING) || (u.veryobtainable5 == SCR_ASTRALCENSION) || (u.veryobtainable5 == TREASURE_CHEST) || (u.veryobtainable5 == SCR_RAGNAROK) || (u.veryobtainable5 == SCR_ARTIFACT_CREATION) || (u.veryobtainable5 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable5 == WAN_WISHING) || (u.veryobtainable5 == u.unobtainable) || (u.veryobtainable5 == u.unobtainable2) || (u.veryobtainable5 == u.unobtainable3) || (u.veryobtainable5 == u.unobtainable4) || (u.veryobtainable5 == u.unobtainable5) || (u.veryobtainable5 == u.unobtainable6) || (u.veryobtainable5 == u.unobtainable7) || (u.veryobtainable5 == u.unobtainable8) || (u.veryobtainable5 == u.unobtainable9) || (u.veryobtainable5 == u.unobtainable10) || (objects[u.veryobtainable5].oc_prob < 1) ) u.veryobtainable5 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable5 == -1) || (u.veryobtainable5 == GOLD_PIECE) || (u.veryobtainable5 == STRANGE_OBJECT) || (u.veryobtainable5 == AMULET_OF_YENDOR) || (u.veryobtainable5 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable5 == BELL_OF_OPENING) || (u.veryobtainable5 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable5 == SCR_WISHING) || (u.veryobtainable5 == SCR_RESURRECTION) || (u.veryobtainable5 == SCR_WORLD_FALL) || (u.veryobtainable5 == SCR_ASTRALCENSION) || (u.veryobtainable5 == TREASURE_CHEST) || (u.veryobtainable5 == SCR_RAGNAROK) || (u.veryobtainable5 == SCR_ARTIFACT_CREATION) || (u.veryobtainable5 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable5 == WAN_WISHING) || (u.veryobtainable5 == u.unobtainable) || (u.veryobtainable5 == u.unobtainable2) || (u.veryobtainable5 == u.unobtainable3) || (u.veryobtainable5 == u.unobtainable4) || (u.veryobtainable5 == u.unobtainable5) || (u.veryobtainable5 == u.unobtainable6) || (u.veryobtainable5 == u.unobtainable7) || (u.veryobtainable5 == u.unobtainable8) || (u.veryobtainable5 == u.unobtainable9) || (u.veryobtainable5 == u.unobtainable10) || (objects[u.veryobtainable5].oc_prob < 1) ) u.veryobtainable5 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost5 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost5 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost5 += rnz(100);
 	if (u.veryobtainableboost5 > 1000) u.veryobtainableboost5 = 1000; /* sanity check */
 
 	u.veryobtainable6 = -1;
-	while ( (u.veryobtainable6 == -1) || (u.veryobtainable6 == GOLD_PIECE) || (u.veryobtainable6 == STRANGE_OBJECT) || (u.veryobtainable6 == AMULET_OF_YENDOR) || (u.veryobtainable6 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable6 == BELL_OF_OPENING) || (u.veryobtainable6 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable6 == SCR_WISHING) || (u.veryobtainable6 == SCR_ASTRALCENSION) || (u.veryobtainable6 == TREASURE_CHEST) || (u.veryobtainable6 == SCR_RAGNAROK) || (u.veryobtainable6 == SCR_ARTIFACT_CREATION) || (u.veryobtainable6 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable6 == WAN_WISHING) || (u.veryobtainable6 == u.unobtainable) || (u.veryobtainable6 == u.unobtainable2) || (u.veryobtainable6 == u.unobtainable3) || (u.veryobtainable6 == u.unobtainable4) || (u.veryobtainable6 == u.unobtainable5) || (u.veryobtainable6 == u.unobtainable6) || (u.veryobtainable6 == u.unobtainable7) || (u.veryobtainable6 == u.unobtainable8) || (u.veryobtainable6 == u.unobtainable9) || (u.veryobtainable6 == u.unobtainable10) || (objects[u.veryobtainable6].oc_prob < 1) ) u.veryobtainable6 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable6 == -1) || (u.veryobtainable6 == GOLD_PIECE) || (u.veryobtainable6 == STRANGE_OBJECT) || (u.veryobtainable6 == AMULET_OF_YENDOR) || (u.veryobtainable6 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable6 == BELL_OF_OPENING) || (u.veryobtainable6 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable6 == SCR_WISHING) || (u.veryobtainable6 == SCR_RESURRECTION) || (u.veryobtainable6 == SCR_WORLD_FALL) || (u.veryobtainable6 == SCR_ASTRALCENSION) || (u.veryobtainable6 == TREASURE_CHEST) || (u.veryobtainable6 == SCR_RAGNAROK) || (u.veryobtainable6 == SCR_ARTIFACT_CREATION) || (u.veryobtainable6 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable6 == WAN_WISHING) || (u.veryobtainable6 == u.unobtainable) || (u.veryobtainable6 == u.unobtainable2) || (u.veryobtainable6 == u.unobtainable3) || (u.veryobtainable6 == u.unobtainable4) || (u.veryobtainable6 == u.unobtainable5) || (u.veryobtainable6 == u.unobtainable6) || (u.veryobtainable6 == u.unobtainable7) || (u.veryobtainable6 == u.unobtainable8) || (u.veryobtainable6 == u.unobtainable9) || (u.veryobtainable6 == u.unobtainable10) || (objects[u.veryobtainable6].oc_prob < 1) ) u.veryobtainable6 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost6 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost6 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost6 += rnz(100);
 	if (u.veryobtainableboost6 > 1000) u.veryobtainableboost6 = 1000; /* sanity check */
 
 	u.veryobtainable7 = -1;
-	while ( (u.veryobtainable7 == -1) || (u.veryobtainable7 == GOLD_PIECE) || (u.veryobtainable7 == STRANGE_OBJECT) || (u.veryobtainable7 == AMULET_OF_YENDOR) || (u.veryobtainable7 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable7 == BELL_OF_OPENING) || (u.veryobtainable7 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable7 == SCR_WISHING) || (u.veryobtainable7 == SCR_ASTRALCENSION) || (u.veryobtainable7 == TREASURE_CHEST) || (u.veryobtainable7 == SCR_RAGNAROK) || (u.veryobtainable7 == SCR_ARTIFACT_CREATION) || (u.veryobtainable7 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable7 == WAN_WISHING) || (u.veryobtainable7 == u.unobtainable) || (u.veryobtainable7 == u.unobtainable2) || (u.veryobtainable7 == u.unobtainable3) || (u.veryobtainable7 == u.unobtainable4) || (u.veryobtainable7 == u.unobtainable5) || (u.veryobtainable7 == u.unobtainable6) || (u.veryobtainable7 == u.unobtainable7) || (u.veryobtainable7 == u.unobtainable8) || (u.veryobtainable7 == u.unobtainable9) || (u.veryobtainable7 == u.unobtainable10) || (objects[u.veryobtainable7].oc_prob < 1) ) u.veryobtainable7 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable7 == -1) || (u.veryobtainable7 == GOLD_PIECE) || (u.veryobtainable7 == STRANGE_OBJECT) || (u.veryobtainable7 == AMULET_OF_YENDOR) || (u.veryobtainable7 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable7 == BELL_OF_OPENING) || (u.veryobtainable7 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable7 == SCR_WISHING) || (u.veryobtainable7 == SCR_RESURRECTION) || (u.veryobtainable7 == SCR_WORLD_FALL) || (u.veryobtainable7 == SCR_ASTRALCENSION) || (u.veryobtainable7 == TREASURE_CHEST) || (u.veryobtainable7 == SCR_RAGNAROK) || (u.veryobtainable7 == SCR_ARTIFACT_CREATION) || (u.veryobtainable7 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable7 == WAN_WISHING) || (u.veryobtainable7 == u.unobtainable) || (u.veryobtainable7 == u.unobtainable2) || (u.veryobtainable7 == u.unobtainable3) || (u.veryobtainable7 == u.unobtainable4) || (u.veryobtainable7 == u.unobtainable5) || (u.veryobtainable7 == u.unobtainable6) || (u.veryobtainable7 == u.unobtainable7) || (u.veryobtainable7 == u.unobtainable8) || (u.veryobtainable7 == u.unobtainable9) || (u.veryobtainable7 == u.unobtainable10) || (objects[u.veryobtainable7].oc_prob < 1) ) u.veryobtainable7 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost7 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost7 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost7 += rnz(100);
 	if (u.veryobtainableboost7 > 1000) u.veryobtainableboost7 = 1000; /* sanity check */
 
 	u.veryobtainable8 = -1;
-	while ( (u.veryobtainable8 == -1) || (u.veryobtainable8 == GOLD_PIECE) || (u.veryobtainable8 == STRANGE_OBJECT) || (u.veryobtainable8 == AMULET_OF_YENDOR) || (u.veryobtainable8 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable8 == BELL_OF_OPENING) || (u.veryobtainable8 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable8 == SCR_WISHING) || (u.veryobtainable8 == SCR_ASTRALCENSION) || (u.veryobtainable8 == TREASURE_CHEST) || (u.veryobtainable8 == SCR_RAGNAROK) || (u.veryobtainable8 == SCR_ARTIFACT_CREATION) || (u.veryobtainable8 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable8 == WAN_WISHING) || (u.veryobtainable8 == u.unobtainable) || (u.veryobtainable8 == u.unobtainable2) || (u.veryobtainable8 == u.unobtainable3) || (u.veryobtainable8 == u.unobtainable4) || (u.veryobtainable8 == u.unobtainable5) || (u.veryobtainable8 == u.unobtainable6) || (u.veryobtainable8 == u.unobtainable7) || (u.veryobtainable8 == u.unobtainable8) || (u.veryobtainable8 == u.unobtainable9) || (u.veryobtainable8 == u.unobtainable10) || (objects[u.veryobtainable8].oc_prob < 1) ) u.veryobtainable8 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable8 == -1) || (u.veryobtainable8 == GOLD_PIECE) || (u.veryobtainable8 == STRANGE_OBJECT) || (u.veryobtainable8 == AMULET_OF_YENDOR) || (u.veryobtainable8 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable8 == BELL_OF_OPENING) || (u.veryobtainable8 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable8 == SCR_WISHING) || (u.veryobtainable8 == SCR_RESURRECTION) || (u.veryobtainable8 == SCR_WORLD_FALL) || (u.veryobtainable8 == SCR_ASTRALCENSION) || (u.veryobtainable8 == TREASURE_CHEST) || (u.veryobtainable8 == SCR_RAGNAROK) || (u.veryobtainable8 == SCR_ARTIFACT_CREATION) || (u.veryobtainable8 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable8 == WAN_WISHING) || (u.veryobtainable8 == u.unobtainable) || (u.veryobtainable8 == u.unobtainable2) || (u.veryobtainable8 == u.unobtainable3) || (u.veryobtainable8 == u.unobtainable4) || (u.veryobtainable8 == u.unobtainable5) || (u.veryobtainable8 == u.unobtainable6) || (u.veryobtainable8 == u.unobtainable7) || (u.veryobtainable8 == u.unobtainable8) || (u.veryobtainable8 == u.unobtainable9) || (u.veryobtainable8 == u.unobtainable10) || (objects[u.veryobtainable8].oc_prob < 1) ) u.veryobtainable8 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost8 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost8 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost8 += rnz(100);
 	if (u.veryobtainableboost8 > 1000) u.veryobtainableboost8 = 1000; /* sanity check */
 
 	u.veryobtainable9 = -1;
-	while ( (u.veryobtainable9 == -1) || (u.veryobtainable9 == GOLD_PIECE) || (u.veryobtainable9 == STRANGE_OBJECT) || (u.veryobtainable9 == AMULET_OF_YENDOR) || (u.veryobtainable9 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable9 == BELL_OF_OPENING) || (u.veryobtainable9 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable9 == SCR_WISHING) || (u.veryobtainable9 == SCR_ASTRALCENSION) || (u.veryobtainable9 == TREASURE_CHEST) || (u.veryobtainable9 == SCR_RAGNAROK) || (u.veryobtainable9 == SCR_ARTIFACT_CREATION) || (u.veryobtainable9 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable9 == WAN_WISHING) || (u.veryobtainable9 == u.unobtainable) || (u.veryobtainable9 == u.unobtainable2) || (u.veryobtainable9 == u.unobtainable3) || (u.veryobtainable9 == u.unobtainable4) || (u.veryobtainable9 == u.unobtainable5) || (u.veryobtainable9 == u.unobtainable6) || (u.veryobtainable9 == u.unobtainable7) || (u.veryobtainable9 == u.unobtainable8) || (u.veryobtainable9 == u.unobtainable9) || (u.veryobtainable9 == u.unobtainable10) || (objects[u.veryobtainable9].oc_prob < 1) ) u.veryobtainable9 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable9 == -1) || (u.veryobtainable9 == GOLD_PIECE) || (u.veryobtainable9 == STRANGE_OBJECT) || (u.veryobtainable9 == AMULET_OF_YENDOR) || (u.veryobtainable9 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable9 == BELL_OF_OPENING) || (u.veryobtainable9 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable9 == SCR_WISHING) || (u.veryobtainable9 == SCR_RESURRECTION) || (u.veryobtainable9 == SCR_WORLD_FALL) || (u.veryobtainable9 == SCR_ASTRALCENSION) || (u.veryobtainable9 == TREASURE_CHEST) || (u.veryobtainable9 == SCR_RAGNAROK) || (u.veryobtainable9 == SCR_ARTIFACT_CREATION) || (u.veryobtainable9 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable9 == WAN_WISHING) || (u.veryobtainable9 == u.unobtainable) || (u.veryobtainable9 == u.unobtainable2) || (u.veryobtainable9 == u.unobtainable3) || (u.veryobtainable9 == u.unobtainable4) || (u.veryobtainable9 == u.unobtainable5) || (u.veryobtainable9 == u.unobtainable6) || (u.veryobtainable9 == u.unobtainable7) || (u.veryobtainable9 == u.unobtainable8) || (u.veryobtainable9 == u.unobtainable9) || (u.veryobtainable9 == u.unobtainable10) || (objects[u.veryobtainable9].oc_prob < 1) ) u.veryobtainable9 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost9 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost9 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost9 += rnz(100);
 	if (u.veryobtainableboost9 > 1000) u.veryobtainableboost9 = 1000; /* sanity check */
 
 	u.veryobtainable10 = -1;
-	while ( (u.veryobtainable10 == -1) || (u.veryobtainable10 == GOLD_PIECE) || (u.veryobtainable10 == STRANGE_OBJECT) || (u.veryobtainable10 == AMULET_OF_YENDOR) || (u.veryobtainable10 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable10 == BELL_OF_OPENING) || (u.veryobtainable10 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable10 == SCR_WISHING) || (u.veryobtainable10 == SCR_ASTRALCENSION) || (u.veryobtainable10 == TREASURE_CHEST) || (u.veryobtainable10 == SCR_RAGNAROK) || (u.veryobtainable10 == SCR_ARTIFACT_CREATION) || (u.veryobtainable10 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable10 == WAN_WISHING) || (u.veryobtainable10 == u.unobtainable) || (u.veryobtainable10 == u.unobtainable2) || (u.veryobtainable10 == u.unobtainable3) || (u.veryobtainable10 == u.unobtainable4) || (u.veryobtainable10 == u.unobtainable5) || (u.veryobtainable10 == u.unobtainable6) || (u.veryobtainable10 == u.unobtainable7) || (u.veryobtainable10 == u.unobtainable8) || (u.veryobtainable10 == u.unobtainable9) || (u.veryobtainable10 == u.unobtainable10) || (objects[u.veryobtainable10].oc_prob < 1) ) u.veryobtainable10 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable10 == -1) || (u.veryobtainable10 == GOLD_PIECE) || (u.veryobtainable10 == STRANGE_OBJECT) || (u.veryobtainable10 == AMULET_OF_YENDOR) || (u.veryobtainable10 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable10 == BELL_OF_OPENING) || (u.veryobtainable10 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable10 == SCR_WISHING) || (u.veryobtainable10 == SCR_RESURRECTION) || (u.veryobtainable10 == SCR_WORLD_FALL) || (u.veryobtainable10 == SCR_ASTRALCENSION) || (u.veryobtainable10 == TREASURE_CHEST) || (u.veryobtainable10 == SCR_RAGNAROK) || (u.veryobtainable10 == SCR_ARTIFACT_CREATION) || (u.veryobtainable10 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable10 == WAN_WISHING) || (u.veryobtainable10 == u.unobtainable) || (u.veryobtainable10 == u.unobtainable2) || (u.veryobtainable10 == u.unobtainable3) || (u.veryobtainable10 == u.unobtainable4) || (u.veryobtainable10 == u.unobtainable5) || (u.veryobtainable10 == u.unobtainable6) || (u.veryobtainable10 == u.unobtainable7) || (u.veryobtainable10 == u.unobtainable8) || (u.veryobtainable10 == u.unobtainable9) || (u.veryobtainable10 == u.unobtainable10) || (objects[u.veryobtainable10].oc_prob < 1) ) u.veryobtainable10 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost10 = (1 + rnz(10));
 	if (!rn2(5)) u.veryobtainableboost10 += rnz(10);
 	if (!rn2(25)) u.veryobtainableboost10 += rnz(100);
 	if (u.veryobtainableboost10 > 1000) u.veryobtainableboost10 = 1000; /* sanity check */
 
 	u.veryobtainable11 = -1;
-	while ( (u.veryobtainable11 == -1) || (u.veryobtainable11 == GOLD_PIECE) || (u.veryobtainable11 == STRANGE_OBJECT) || (u.veryobtainable11 == AMULET_OF_YENDOR) || (u.veryobtainable11 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable11 == BELL_OF_OPENING) || (u.veryobtainable11 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable11 == SCR_WISHING) || (u.veryobtainable11 == SCR_ASTRALCENSION) || (u.veryobtainable11 == TREASURE_CHEST) || (u.veryobtainable11 == SCR_RAGNAROK) || (u.veryobtainable11 == SCR_ARTIFACT_CREATION) || (u.veryobtainable11 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable11 == WAN_WISHING) || (u.veryobtainable11 == u.unobtainable) || (u.veryobtainable11 == u.unobtainable2) || (u.veryobtainable11 == u.unobtainable3) || (u.veryobtainable11 == u.unobtainable4) || (u.veryobtainable11 == u.unobtainable5) || (u.veryobtainable11 == u.unobtainable6) || (u.veryobtainable11 == u.unobtainable7) || (u.veryobtainable11 == u.unobtainable8) || (u.veryobtainable11 == u.unobtainable9) || (u.veryobtainable11 == u.unobtainable10) || (objects[u.veryobtainable11].oc_prob < 1) ) u.veryobtainable11 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable11 == -1) || (u.veryobtainable11 == GOLD_PIECE) || (u.veryobtainable11 == STRANGE_OBJECT) || (u.veryobtainable11 == AMULET_OF_YENDOR) || (u.veryobtainable11 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable11 == BELL_OF_OPENING) || (u.veryobtainable11 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable11 == SCR_WISHING) || (u.veryobtainable11 == SCR_RESURRECTION) || (u.veryobtainable11 == SCR_WORLD_FALL) || (u.veryobtainable11 == SCR_ASTRALCENSION) || (u.veryobtainable11 == TREASURE_CHEST) || (u.veryobtainable11 == SCR_RAGNAROK) || (u.veryobtainable11 == SCR_ARTIFACT_CREATION) || (u.veryobtainable11 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable11 == WAN_WISHING) || (u.veryobtainable11 == u.unobtainable) || (u.veryobtainable11 == u.unobtainable2) || (u.veryobtainable11 == u.unobtainable3) || (u.veryobtainable11 == u.unobtainable4) || (u.veryobtainable11 == u.unobtainable5) || (u.veryobtainable11 == u.unobtainable6) || (u.veryobtainable11 == u.unobtainable7) || (u.veryobtainable11 == u.unobtainable8) || (u.veryobtainable11 == u.unobtainable9) || (u.veryobtainable11 == u.unobtainable10) || (objects[u.veryobtainable11].oc_prob < 1) ) u.veryobtainable11 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost11 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost11 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost11 += rnd(100);
 	if (u.veryobtainableboost11 > 1000) u.veryobtainableboost11 = 1000; /* sanity check */
 
 	u.veryobtainable12 = -1;
-	while ( (u.veryobtainable12 == -1) || (u.veryobtainable12 == GOLD_PIECE) || (u.veryobtainable12 == STRANGE_OBJECT) || (u.veryobtainable12 == AMULET_OF_YENDOR) || (u.veryobtainable12 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable12 == BELL_OF_OPENING) || (u.veryobtainable12 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable12 == SCR_WISHING) || (u.veryobtainable12 == SCR_ASTRALCENSION) || (u.veryobtainable12 == TREASURE_CHEST) || (u.veryobtainable12 == SCR_RAGNAROK) || (u.veryobtainable12 == SCR_ARTIFACT_CREATION) || (u.veryobtainable12 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable12 == WAN_WISHING) || (u.veryobtainable12 == u.unobtainable) || (u.veryobtainable12 == u.unobtainable2) || (u.veryobtainable12 == u.unobtainable3) || (u.veryobtainable12 == u.unobtainable4) || (u.veryobtainable12 == u.unobtainable5) || (u.veryobtainable12 == u.unobtainable6) || (u.veryobtainable12 == u.unobtainable7) || (u.veryobtainable12 == u.unobtainable8) || (u.veryobtainable12 == u.unobtainable9) || (u.veryobtainable12 == u.unobtainable10) || (objects[u.veryobtainable12].oc_prob < 1) ) u.veryobtainable12 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable12 == -1) || (u.veryobtainable12 == GOLD_PIECE) || (u.veryobtainable12 == STRANGE_OBJECT) || (u.veryobtainable12 == AMULET_OF_YENDOR) || (u.veryobtainable12 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable12 == BELL_OF_OPENING) || (u.veryobtainable12 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable12 == SCR_WISHING) || (u.veryobtainable12 == SCR_RESURRECTION) || (u.veryobtainable12 == SCR_WORLD_FALL) || (u.veryobtainable12 == SCR_ASTRALCENSION) || (u.veryobtainable12 == TREASURE_CHEST) || (u.veryobtainable12 == SCR_RAGNAROK) || (u.veryobtainable12 == SCR_ARTIFACT_CREATION) || (u.veryobtainable12 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable12 == WAN_WISHING) || (u.veryobtainable12 == u.unobtainable) || (u.veryobtainable12 == u.unobtainable2) || (u.veryobtainable12 == u.unobtainable3) || (u.veryobtainable12 == u.unobtainable4) || (u.veryobtainable12 == u.unobtainable5) || (u.veryobtainable12 == u.unobtainable6) || (u.veryobtainable12 == u.unobtainable7) || (u.veryobtainable12 == u.unobtainable8) || (u.veryobtainable12 == u.unobtainable9) || (u.veryobtainable12 == u.unobtainable10) || (objects[u.veryobtainable12].oc_prob < 1) ) u.veryobtainable12 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost12 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost12 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost12 += rnd(100);
 	if (u.veryobtainableboost12 > 1000) u.veryobtainableboost12 = 1000; /* sanity check */
 
 	u.veryobtainable13 = -1;
-	while ( (u.veryobtainable13 == -1) || (u.veryobtainable13 == GOLD_PIECE) || (u.veryobtainable13 == STRANGE_OBJECT) || (u.veryobtainable13 == AMULET_OF_YENDOR) || (u.veryobtainable13 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable13 == BELL_OF_OPENING) || (u.veryobtainable13 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable13 == SCR_WISHING) || (u.veryobtainable13 == SCR_ASTRALCENSION) || (u.veryobtainable13 == TREASURE_CHEST) || (u.veryobtainable13 == SCR_RAGNAROK) || (u.veryobtainable13 == SCR_ARTIFACT_CREATION) || (u.veryobtainable13 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable13 == WAN_WISHING) || (u.veryobtainable13 == u.unobtainable) || (u.veryobtainable13 == u.unobtainable2) || (u.veryobtainable13 == u.unobtainable3) || (u.veryobtainable13 == u.unobtainable4) || (u.veryobtainable13 == u.unobtainable5) || (u.veryobtainable13 == u.unobtainable6) || (u.veryobtainable13 == u.unobtainable7) || (u.veryobtainable13 == u.unobtainable8) || (u.veryobtainable13 == u.unobtainable9) || (u.veryobtainable13 == u.unobtainable10) || (objects[u.veryobtainable13].oc_prob < 1) ) u.veryobtainable13 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable13 == -1) || (u.veryobtainable13 == GOLD_PIECE) || (u.veryobtainable13 == STRANGE_OBJECT) || (u.veryobtainable13 == AMULET_OF_YENDOR) || (u.veryobtainable13 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable13 == BELL_OF_OPENING) || (u.veryobtainable13 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable13 == SCR_WISHING) || (u.veryobtainable13 == SCR_RESURRECTION) || (u.veryobtainable13 == SCR_WORLD_FALL) || (u.veryobtainable13 == SCR_ASTRALCENSION) || (u.veryobtainable13 == TREASURE_CHEST) || (u.veryobtainable13 == SCR_RAGNAROK) || (u.veryobtainable13 == SCR_ARTIFACT_CREATION) || (u.veryobtainable13 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable13 == WAN_WISHING) || (u.veryobtainable13 == u.unobtainable) || (u.veryobtainable13 == u.unobtainable2) || (u.veryobtainable13 == u.unobtainable3) || (u.veryobtainable13 == u.unobtainable4) || (u.veryobtainable13 == u.unobtainable5) || (u.veryobtainable13 == u.unobtainable6) || (u.veryobtainable13 == u.unobtainable7) || (u.veryobtainable13 == u.unobtainable8) || (u.veryobtainable13 == u.unobtainable9) || (u.veryobtainable13 == u.unobtainable10) || (objects[u.veryobtainable13].oc_prob < 1) ) u.veryobtainable13 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost13 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost13 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost13 += rnd(100);
 	if (u.veryobtainableboost13 > 1000) u.veryobtainableboost13 = 1000; /* sanity check */
 
 	u.veryobtainable14 = -1;
-	while ( (u.veryobtainable14 == -1) || (u.veryobtainable14 == GOLD_PIECE) || (u.veryobtainable14 == STRANGE_OBJECT) || (u.veryobtainable14 == AMULET_OF_YENDOR) || (u.veryobtainable14 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable14 == BELL_OF_OPENING) || (u.veryobtainable14 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable14 == SCR_WISHING) || (u.veryobtainable14 == SCR_ASTRALCENSION) || (u.veryobtainable14 == TREASURE_CHEST) || (u.veryobtainable14 == SCR_RAGNAROK) || (u.veryobtainable14 == SCR_ARTIFACT_CREATION) || (u.veryobtainable14 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable14 == WAN_WISHING) || (u.veryobtainable14 == u.unobtainable) || (u.veryobtainable14 == u.unobtainable2) || (u.veryobtainable14 == u.unobtainable3) || (u.veryobtainable14 == u.unobtainable4) || (u.veryobtainable14 == u.unobtainable5) || (u.veryobtainable14 == u.unobtainable6) || (u.veryobtainable14 == u.unobtainable7) || (u.veryobtainable14 == u.unobtainable8) || (u.veryobtainable14 == u.unobtainable9) || (u.veryobtainable14 == u.unobtainable10) || (objects[u.veryobtainable14].oc_prob < 1) ) u.veryobtainable14 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable14 == -1) || (u.veryobtainable14 == GOLD_PIECE) || (u.veryobtainable14 == STRANGE_OBJECT) || (u.veryobtainable14 == AMULET_OF_YENDOR) || (u.veryobtainable14 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable14 == BELL_OF_OPENING) || (u.veryobtainable14 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable14 == SCR_WISHING) || (u.veryobtainable14 == SCR_RESURRECTION) || (u.veryobtainable14 == SCR_WORLD_FALL) || (u.veryobtainable14 == SCR_ASTRALCENSION) || (u.veryobtainable14 == TREASURE_CHEST) || (u.veryobtainable14 == SCR_RAGNAROK) || (u.veryobtainable14 == SCR_ARTIFACT_CREATION) || (u.veryobtainable14 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable14 == WAN_WISHING) || (u.veryobtainable14 == u.unobtainable) || (u.veryobtainable14 == u.unobtainable2) || (u.veryobtainable14 == u.unobtainable3) || (u.veryobtainable14 == u.unobtainable4) || (u.veryobtainable14 == u.unobtainable5) || (u.veryobtainable14 == u.unobtainable6) || (u.veryobtainable14 == u.unobtainable7) || (u.veryobtainable14 == u.unobtainable8) || (u.veryobtainable14 == u.unobtainable9) || (u.veryobtainable14 == u.unobtainable10) || (objects[u.veryobtainable14].oc_prob < 1) ) u.veryobtainable14 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost14 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost14 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost14 += rnd(100);
 	if (u.veryobtainableboost14 > 1000) u.veryobtainableboost14 = 1000; /* sanity check */
 
 	u.veryobtainable15 = -1;
-	while ( (u.veryobtainable15 == -1) || (u.veryobtainable15 == GOLD_PIECE) || (u.veryobtainable15 == STRANGE_OBJECT) || (u.veryobtainable15 == AMULET_OF_YENDOR) || (u.veryobtainable15 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable15 == BELL_OF_OPENING) || (u.veryobtainable15 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable15 == SCR_WISHING) || (u.veryobtainable15 == SCR_ASTRALCENSION) || (u.veryobtainable15 == TREASURE_CHEST) || (u.veryobtainable15 == SCR_RAGNAROK) || (u.veryobtainable15 == SCR_ARTIFACT_CREATION) || (u.veryobtainable15 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable15 == WAN_WISHING) || (u.veryobtainable15 == u.unobtainable) || (u.veryobtainable15 == u.unobtainable2) || (u.veryobtainable15 == u.unobtainable3) || (u.veryobtainable15 == u.unobtainable4) || (u.veryobtainable15 == u.unobtainable5) || (u.veryobtainable15 == u.unobtainable6) || (u.veryobtainable15 == u.unobtainable7) || (u.veryobtainable15 == u.unobtainable8) || (u.veryobtainable15 == u.unobtainable9) || (u.veryobtainable15 == u.unobtainable10) || (objects[u.veryobtainable15].oc_prob < 1) ) u.veryobtainable15 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable15 == -1) || (u.veryobtainable15 == GOLD_PIECE) || (u.veryobtainable15 == STRANGE_OBJECT) || (u.veryobtainable15 == AMULET_OF_YENDOR) || (u.veryobtainable15 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable15 == BELL_OF_OPENING) || (u.veryobtainable15 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable15 == SCR_WISHING) || (u.veryobtainable15 == SCR_RESURRECTION) || (u.veryobtainable15 == SCR_WORLD_FALL) || (u.veryobtainable15 == SCR_ASTRALCENSION) || (u.veryobtainable15 == TREASURE_CHEST) || (u.veryobtainable15 == SCR_RAGNAROK) || (u.veryobtainable15 == SCR_ARTIFACT_CREATION) || (u.veryobtainable15 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable15 == WAN_WISHING) || (u.veryobtainable15 == u.unobtainable) || (u.veryobtainable15 == u.unobtainable2) || (u.veryobtainable15 == u.unobtainable3) || (u.veryobtainable15 == u.unobtainable4) || (u.veryobtainable15 == u.unobtainable5) || (u.veryobtainable15 == u.unobtainable6) || (u.veryobtainable15 == u.unobtainable7) || (u.veryobtainable15 == u.unobtainable8) || (u.veryobtainable15 == u.unobtainable9) || (u.veryobtainable15 == u.unobtainable10) || (objects[u.veryobtainable15].oc_prob < 1) ) u.veryobtainable15 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost15 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost15 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost15 += rnd(100);
 	if (u.veryobtainableboost15 > 1000) u.veryobtainableboost15 = 1000; /* sanity check */
 
 	u.veryobtainable16 = -1;
-	while ( (u.veryobtainable16 == -1) || (u.veryobtainable16 == GOLD_PIECE) || (u.veryobtainable16 == STRANGE_OBJECT) || (u.veryobtainable16 == AMULET_OF_YENDOR) || (u.veryobtainable16 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable16 == BELL_OF_OPENING) || (u.veryobtainable16 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable16 == SCR_WISHING) || (u.veryobtainable16 == SCR_ASTRALCENSION) || (u.veryobtainable16 == TREASURE_CHEST) || (u.veryobtainable16 == SCR_RAGNAROK) || (u.veryobtainable16 == SCR_ARTIFACT_CREATION) || (u.veryobtainable16 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable16 == WAN_WISHING) || (u.veryobtainable16 == u.unobtainable) || (u.veryobtainable16 == u.unobtainable2) || (u.veryobtainable16 == u.unobtainable3) || (u.veryobtainable16 == u.unobtainable4) || (u.veryobtainable16 == u.unobtainable5) || (u.veryobtainable16 == u.unobtainable6) || (u.veryobtainable16 == u.unobtainable7) || (u.veryobtainable16 == u.unobtainable8) || (u.veryobtainable16 == u.unobtainable9) || (u.veryobtainable16 == u.unobtainable10) || (objects[u.veryobtainable16].oc_prob < 1) ) u.veryobtainable16 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable16 == -1) || (u.veryobtainable16 == GOLD_PIECE) || (u.veryobtainable16 == STRANGE_OBJECT) || (u.veryobtainable16 == AMULET_OF_YENDOR) || (u.veryobtainable16 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable16 == BELL_OF_OPENING) || (u.veryobtainable16 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable16 == SCR_WISHING) || (u.veryobtainable16 == SCR_RESURRECTION) || (u.veryobtainable16 == SCR_WORLD_FALL) || (u.veryobtainable16 == SCR_ASTRALCENSION) || (u.veryobtainable16 == TREASURE_CHEST) || (u.veryobtainable16 == SCR_RAGNAROK) || (u.veryobtainable16 == SCR_ARTIFACT_CREATION) || (u.veryobtainable16 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable16 == WAN_WISHING) || (u.veryobtainable16 == u.unobtainable) || (u.veryobtainable16 == u.unobtainable2) || (u.veryobtainable16 == u.unobtainable3) || (u.veryobtainable16 == u.unobtainable4) || (u.veryobtainable16 == u.unobtainable5) || (u.veryobtainable16 == u.unobtainable6) || (u.veryobtainable16 == u.unobtainable7) || (u.veryobtainable16 == u.unobtainable8) || (u.veryobtainable16 == u.unobtainable9) || (u.veryobtainable16 == u.unobtainable10) || (objects[u.veryobtainable16].oc_prob < 1) ) u.veryobtainable16 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost16 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost16 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost16 += rnd(100);
 	if (u.veryobtainableboost16 > 1000) u.veryobtainableboost16 = 1000; /* sanity check */
 
 	u.veryobtainable17 = -1;
-	while ( (u.veryobtainable17 == -1) || (u.veryobtainable17 == GOLD_PIECE) || (u.veryobtainable17 == STRANGE_OBJECT) || (u.veryobtainable17 == AMULET_OF_YENDOR) || (u.veryobtainable17 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable17 == BELL_OF_OPENING) || (u.veryobtainable17 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable17 == SCR_WISHING) || (u.veryobtainable17 == SCR_ASTRALCENSION) || (u.veryobtainable17 == TREASURE_CHEST) || (u.veryobtainable17 == SCR_RAGNAROK) || (u.veryobtainable17 == SCR_ARTIFACT_CREATION) || (u.veryobtainable17 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable17 == WAN_WISHING) || (u.veryobtainable17 == u.unobtainable) || (u.veryobtainable17 == u.unobtainable2) || (u.veryobtainable17 == u.unobtainable3) || (u.veryobtainable17 == u.unobtainable4) || (u.veryobtainable17 == u.unobtainable5) || (u.veryobtainable17 == u.unobtainable6) || (u.veryobtainable17 == u.unobtainable7) || (u.veryobtainable17 == u.unobtainable8) || (u.veryobtainable17 == u.unobtainable9) || (u.veryobtainable17 == u.unobtainable10) || (objects[u.veryobtainable17].oc_prob < 1) ) u.veryobtainable17 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable17 == -1) || (u.veryobtainable17 == GOLD_PIECE) || (u.veryobtainable17 == STRANGE_OBJECT) || (u.veryobtainable17 == AMULET_OF_YENDOR) || (u.veryobtainable17 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable17 == BELL_OF_OPENING) || (u.veryobtainable17 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable17 == SCR_WISHING) || (u.veryobtainable17 == SCR_RESURRECTION) || (u.veryobtainable17 == SCR_WORLD_FALL) || (u.veryobtainable17 == SCR_ASTRALCENSION) || (u.veryobtainable17 == TREASURE_CHEST) || (u.veryobtainable17 == SCR_RAGNAROK) || (u.veryobtainable17 == SCR_ARTIFACT_CREATION) || (u.veryobtainable17 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable17 == WAN_WISHING) || (u.veryobtainable17 == u.unobtainable) || (u.veryobtainable17 == u.unobtainable2) || (u.veryobtainable17 == u.unobtainable3) || (u.veryobtainable17 == u.unobtainable4) || (u.veryobtainable17 == u.unobtainable5) || (u.veryobtainable17 == u.unobtainable6) || (u.veryobtainable17 == u.unobtainable7) || (u.veryobtainable17 == u.unobtainable8) || (u.veryobtainable17 == u.unobtainable9) || (u.veryobtainable17 == u.unobtainable10) || (objects[u.veryobtainable17].oc_prob < 1) ) u.veryobtainable17 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost17 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost17 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost17 += rnd(100);
 	if (u.veryobtainableboost17 > 1000) u.veryobtainableboost17 = 1000; /* sanity check */
 
 	u.veryobtainable18 = -1;
-	while ( (u.veryobtainable18 == -1) || (u.veryobtainable18 == GOLD_PIECE) || (u.veryobtainable18 == STRANGE_OBJECT) || (u.veryobtainable18 == AMULET_OF_YENDOR) || (u.veryobtainable18 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable18 == BELL_OF_OPENING) || (u.veryobtainable18 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable18 == SCR_WISHING) || (u.veryobtainable18 == SCR_ASTRALCENSION) || (u.veryobtainable18 == TREASURE_CHEST) || (u.veryobtainable18 == SCR_RAGNAROK) || (u.veryobtainable18 == SCR_ARTIFACT_CREATION) || (u.veryobtainable18 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable18 == WAN_WISHING) || (u.veryobtainable18 == u.unobtainable) || (u.veryobtainable18 == u.unobtainable2) || (u.veryobtainable18 == u.unobtainable3) || (u.veryobtainable18 == u.unobtainable4) || (u.veryobtainable18 == u.unobtainable5) || (u.veryobtainable18 == u.unobtainable6) || (u.veryobtainable18 == u.unobtainable7) || (u.veryobtainable18 == u.unobtainable8) || (u.veryobtainable18 == u.unobtainable9) || (u.veryobtainable18 == u.unobtainable10) || (objects[u.veryobtainable18].oc_prob < 1) ) u.veryobtainable18 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable18 == -1) || (u.veryobtainable18 == GOLD_PIECE) || (u.veryobtainable18 == STRANGE_OBJECT) || (u.veryobtainable18 == AMULET_OF_YENDOR) || (u.veryobtainable18 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable18 == BELL_OF_OPENING) || (u.veryobtainable18 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable18 == SCR_WISHING) || (u.veryobtainable18 == SCR_RESURRECTION) || (u.veryobtainable18 == SCR_WORLD_FALL) || (u.veryobtainable18 == SCR_ASTRALCENSION) || (u.veryobtainable18 == TREASURE_CHEST) || (u.veryobtainable18 == SCR_RAGNAROK) || (u.veryobtainable18 == SCR_ARTIFACT_CREATION) || (u.veryobtainable18 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable18 == WAN_WISHING) || (u.veryobtainable18 == u.unobtainable) || (u.veryobtainable18 == u.unobtainable2) || (u.veryobtainable18 == u.unobtainable3) || (u.veryobtainable18 == u.unobtainable4) || (u.veryobtainable18 == u.unobtainable5) || (u.veryobtainable18 == u.unobtainable6) || (u.veryobtainable18 == u.unobtainable7) || (u.veryobtainable18 == u.unobtainable8) || (u.veryobtainable18 == u.unobtainable9) || (u.veryobtainable18 == u.unobtainable10) || (objects[u.veryobtainable18].oc_prob < 1) ) u.veryobtainable18 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost18 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost18 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost18 += rnd(100);
 	if (u.veryobtainableboost18 > 1000) u.veryobtainableboost18 = 1000; /* sanity check */
 
 	u.veryobtainable19 = -1;
-	while ( (u.veryobtainable19 == -1) || (u.veryobtainable19 == GOLD_PIECE) || (u.veryobtainable19 == STRANGE_OBJECT) || (u.veryobtainable19 == AMULET_OF_YENDOR) || (u.veryobtainable19 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable19 == BELL_OF_OPENING) || (u.veryobtainable19 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable19 == SCR_WISHING) || (u.veryobtainable19 == SCR_ASTRALCENSION) || (u.veryobtainable19 == TREASURE_CHEST) || (u.veryobtainable19 == SCR_RAGNAROK) || (u.veryobtainable19 == SCR_ARTIFACT_CREATION) || (u.veryobtainable19 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable19 == WAN_WISHING) || (u.veryobtainable19 == u.unobtainable) || (u.veryobtainable19 == u.unobtainable2) || (u.veryobtainable19 == u.unobtainable3) || (u.veryobtainable19 == u.unobtainable4) || (u.veryobtainable19 == u.unobtainable5) || (u.veryobtainable19 == u.unobtainable6) || (u.veryobtainable19 == u.unobtainable7) || (u.veryobtainable19 == u.unobtainable8) || (u.veryobtainable19 == u.unobtainable9) || (u.veryobtainable19 == u.unobtainable10) || (objects[u.veryobtainable19].oc_prob < 1) ) u.veryobtainable19 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable19 == -1) || (u.veryobtainable19 == GOLD_PIECE) || (u.veryobtainable19 == STRANGE_OBJECT) || (u.veryobtainable19 == AMULET_OF_YENDOR) || (u.veryobtainable19 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable19 == BELL_OF_OPENING) || (u.veryobtainable19 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable19 == SCR_WISHING) || (u.veryobtainable19 == SCR_RESURRECTION) || (u.veryobtainable19 == SCR_WORLD_FALL) || (u.veryobtainable19 == SCR_ASTRALCENSION) || (u.veryobtainable19 == TREASURE_CHEST) || (u.veryobtainable19 == SCR_RAGNAROK) || (u.veryobtainable19 == SCR_ARTIFACT_CREATION) || (u.veryobtainable19 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable19 == WAN_WISHING) || (u.veryobtainable19 == u.unobtainable) || (u.veryobtainable19 == u.unobtainable2) || (u.veryobtainable19 == u.unobtainable3) || (u.veryobtainable19 == u.unobtainable4) || (u.veryobtainable19 == u.unobtainable5) || (u.veryobtainable19 == u.unobtainable6) || (u.veryobtainable19 == u.unobtainable7) || (u.veryobtainable19 == u.unobtainable8) || (u.veryobtainable19 == u.unobtainable9) || (u.veryobtainable19 == u.unobtainable10) || (objects[u.veryobtainable19].oc_prob < 1) ) u.veryobtainable19 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost19 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost19 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost19 += rnd(100);
 	if (u.veryobtainableboost19 > 1000) u.veryobtainableboost19 = 1000; /* sanity check */
 
 	u.veryobtainable20 = -1;
-	while ( (u.veryobtainable20 == -1) || (u.veryobtainable20 == GOLD_PIECE) || (u.veryobtainable20 == STRANGE_OBJECT) || (u.veryobtainable20 == AMULET_OF_YENDOR) || (u.veryobtainable20 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable20 == BELL_OF_OPENING) || (u.veryobtainable20 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable20 == SCR_WISHING) || (u.veryobtainable20 == SCR_ASTRALCENSION) || (u.veryobtainable20 == TREASURE_CHEST) || (u.veryobtainable20 == SCR_RAGNAROK) || (u.veryobtainable20 == SCR_ARTIFACT_CREATION) || (u.veryobtainable20 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable20 == WAN_WISHING) || (u.veryobtainable20 == u.unobtainable) || (u.veryobtainable20 == u.unobtainable2) || (u.veryobtainable20 == u.unobtainable3) || (u.veryobtainable20 == u.unobtainable4) || (u.veryobtainable20 == u.unobtainable5) || (u.veryobtainable20 == u.unobtainable6) || (u.veryobtainable20 == u.unobtainable7) || (u.veryobtainable20 == u.unobtainable8) || (u.veryobtainable20 == u.unobtainable9) || (u.veryobtainable20 == u.unobtainable10) || (objects[u.veryobtainable20].oc_prob < 1) ) u.veryobtainable20 = rn2(NUM_OBJECTS);
+	while ( (u.veryobtainable20 == -1) || (u.veryobtainable20 == GOLD_PIECE) || (u.veryobtainable20 == STRANGE_OBJECT) || (u.veryobtainable20 == AMULET_OF_YENDOR) || (u.veryobtainable20 == CANDELABRUM_OF_INVOCATION) || (u.veryobtainable20 == BELL_OF_OPENING) || (u.veryobtainable20 == SPE_BOOK_OF_THE_DEAD) || (u.veryobtainable20 == SCR_WISHING) || (u.veryobtainable20 == SCR_RESURRECTION) || (u.veryobtainable20 == SCR_WORLD_FALL) || (u.veryobtainable20 == SCR_ASTRALCENSION) || (u.veryobtainable20 == TREASURE_CHEST) || (u.veryobtainable20 == SCR_RAGNAROK) || (u.veryobtainable20 == SCR_ARTIFACT_CREATION) || (u.veryobtainable20 == SCR_ARTIFACT_JACKPOT) || (u.veryobtainable20 == WAN_WISHING) || (u.veryobtainable20 == u.unobtainable) || (u.veryobtainable20 == u.unobtainable2) || (u.veryobtainable20 == u.unobtainable3) || (u.veryobtainable20 == u.unobtainable4) || (u.veryobtainable20 == u.unobtainable5) || (u.veryobtainable20 == u.unobtainable6) || (u.veryobtainable20 == u.unobtainable7) || (u.veryobtainable20 == u.unobtainable8) || (u.veryobtainable20 == u.unobtainable9) || (u.veryobtainable20 == u.unobtainable10) || (objects[u.veryobtainable20].oc_prob < 1) ) u.veryobtainable20 = rn2(NUM_OBJECTS);
 	u.veryobtainableboost20 = (1 + rnd(10));
 	if (!rn2(5)) u.veryobtainableboost20 += rnd(10);
 	if (!rn2(25)) u.veryobtainableboost20 += rnd(100);
@@ -28380,7 +31749,8 @@ alter_reality()
 		else if (!rn2(2000)) u.veryobtainclass1 = CHAIN_CLASS;
 		else if (!rn2(1000)) u.veryobtainclass1 = VENOM_CLASS;
 		else if (!rn2(1000)) u.veryobtainclass1 = ROCK_CLASS;
-		else switch (rnd(12)) {
+		else if (!rn2(1000)) u.veryobtainclass1 = IMPLANT_CLASS;
+		else switch (rnd(11)) {
 			case 1: u.veryobtainclass1 = WEAPON_CLASS; break;
 			case 2: u.veryobtainclass1 = ARMOR_CLASS; break;
 			case 3: u.veryobtainclass1 = RING_CLASS; break;
@@ -28392,7 +31762,6 @@ alter_reality()
 			case 9: u.veryobtainclass1 = TOOL_CLASS; break;
 			case 10: u.veryobtainclass1 = FOOD_CLASS; break;
 			case 11: u.veryobtainclass1 = GEM_CLASS; break;
-			case 12: u.veryobtainclass1 = IMPLANT_CLASS; break;
 		}
 		u.veryobtainclass1boost = rnd(100);
 	}
@@ -28403,7 +31772,8 @@ alter_reality()
 		else if (!rn2(2000)) u.veryobtainclass2 = CHAIN_CLASS;
 		else if (!rn2(1000)) u.veryobtainclass2 = VENOM_CLASS;
 		else if (!rn2(1000)) u.veryobtainclass2 = ROCK_CLASS;
-		else switch (rnd(12)) {
+		else if (!rn2(1000)) u.veryobtainclass2 = IMPLANT_CLASS;
+		else switch (rnd(11)) {
 			case 1: u.veryobtainclass2 = WEAPON_CLASS; break;
 			case 2: u.veryobtainclass2 = ARMOR_CLASS; break;
 			case 3: u.veryobtainclass2 = RING_CLASS; break;
@@ -28415,7 +31785,6 @@ alter_reality()
 			case 9: u.veryobtainclass2 = TOOL_CLASS; break;
 			case 10: u.veryobtainclass2 = FOOD_CLASS; break;
 			case 11: u.veryobtainclass2 = GEM_CLASS; break;
-			case 12: u.veryobtainclass2 = IMPLANT_CLASS; break;
 		}
 		u.veryobtainclass2boost = rnd(100);
 	}
@@ -28426,7 +31795,8 @@ alter_reality()
 		else if (!rn2(2000)) u.veryobtainclass3 = CHAIN_CLASS;
 		else if (!rn2(1000)) u.veryobtainclass3 = VENOM_CLASS;
 		else if (!rn2(1000)) u.veryobtainclass3 = ROCK_CLASS;
-		else switch (rnd(12)) {
+		else if (!rn2(1000)) u.veryobtainclass3 = IMPLANT_CLASS;
+		else switch (rnd(11)) {
 			case 1: u.veryobtainclass3 = WEAPON_CLASS; break;
 			case 2: u.veryobtainclass3 = ARMOR_CLASS; break;
 			case 3: u.veryobtainclass3 = RING_CLASS; break;
@@ -28438,15 +31808,31 @@ alter_reality()
 			case 9: u.veryobtainclass3 = TOOL_CLASS; break;
 			case 10: u.veryobtainclass3 = FOOD_CLASS; break;
 			case 11: u.veryobtainclass3 = GEM_CLASS; break;
-			case 12: u.veryobtainclass3 = IMPLANT_CLASS; break;
 		}
 		u.veryobtainclass3boost = rnd(100);
+	}
+
+	u.spellbookbias1 = -1;
+	u.spellbookbias2 = -1;
+	u.spellbookbias3 = -1;
+
+	if (!rn2(5)) {
+		u.spellbookbias1 = P_FIRST_SPELL + rn2(10);
+		u.spellbookchance1 = rnd(20);
+		if (!rn2(4)) {
+			u.spellbookbias2 = P_FIRST_SPELL + rn2(10);
+			u.spellbookchance2 = rnd(20);
+			if (!rn2(5)) {
+				u.spellbookbias3 = P_FIRST_SPELL + rn2(10);
+				u.spellbookchance3 = rnd(20);
+			}
+		}
 	}
 
 	u.invisotrap = rnd(TRAPNUM-1);
 
 	u.frequenttrap = rnd(TRAPNUM-1);
-	while (u.frequenttrap == MAGIC_PORTAL || u.frequenttrap == ACTIVE_SUPERSCROLLER_TRAP || u.frequenttrap == WISHING_TRAP || u.frequenttrap == DATA_DELETE_TRAP || u.frequenttrap == ELDER_TENTACLING_TRAP || u.frequenttrap == ARTIFACT_JACKPOT_TRAP || u.frequenttrap == GOOD_ARTIFACT_TRAP || u.frequenttrap == BOON_TRAP) u.frequenttrap = rnd(TRAPNUM-1);
+	while (u.frequenttrap == MAGIC_PORTAL || u.frequenttrap == ACTIVE_SUPERSCROLLER_TRAP || u.frequenttrap == WISHING_TRAP || u.frequenttrap == PENTAGRAM_TRAP || u.frequenttrap == THRONE_TRAP || u.frequenttrap == S_PRESSING_TRAP || u.frequenttrap == DATA_DELETE_TRAP || u.frequenttrap == ELDER_TENTACLING_TRAP || u.frequenttrap == ARTIFACT_JACKPOT_TRAP || u.frequenttrap == GOOD_ARTIFACT_TRAP || u.frequenttrap == BOON_TRAP) u.frequenttrap = rnd(TRAPNUM-1);
 	u.freqtrapbonus = rnz(3) * rne(3);
 
 	u.traprandomizing = rnd(1000);
@@ -28454,9 +31840,21 @@ alter_reality()
 	u.trapxtradiff = 0;
 	if (!rn2(10)) u.trapxtradiff = rno(100);
 
-	u.impossibleproperty = randomdisableproperty();
-	u.nonextrinsicproperty = randomdisableproperty();
-	u.nonintrinsicproperty = randomdisableproperty();
+	u.invistrapchance = 20 + rn2(81);
+	u.xdifftrapchance = rno(50);
+	if (!rn2(5)) u.xdifftrapchance = rno(100);
+	if (u.xdifftrapchance < 1) u.xdifftrapchance = 1;
+	if (u.xdifftrapchance > 100) u.xdifftrapchance = 100;
+
+	u.impossibleproperty = -1;
+	u.nonextrinsicproperty = -1;
+	u.nonintrinsicproperty = -1;
+	u.nondoubleproperty = -1;
+
+	if (!rn2(2)) u.impossibleproperty = randomdisableproperty();
+	if (!rn2(2)) u.nonextrinsicproperty = randomdisableproperty();
+	if (!rn2(2)) u.nonintrinsicproperty = randomdisableproperty();
+	if (!rn2(2)) u.nondoubleproperty = randomdisableproperty();
 
 	u.idscrollpenalty = rnd(200); /* if rnd(this) is greater than 100, the scroll isn't ided */
 	if (!rn2(7)) u.idscrollpenalty += rnz(100);
@@ -28573,6 +31971,14 @@ alter_reality()
 	if (u.foodspawnchance > 90) u.foodspawnchance = 90;
 	if (u.foodspawnchance < 0) u.foodspawnchance = 0;
 
+	u.shopitemreduction = 0;
+	if (rn2(5)) u.shopitemreduction += rnd(80);
+	if (!rn2(5)) u.shopitemreduction += rnd(20);
+	if (!rn2(20)) u.shopitemreduction += rnd(50);
+	if (!rn2(100)) u.shopitemreduction += rnd(100);
+	if (u.shopitemreduction > 90) u.shopitemreduction = 90;
+	if (u.shopitemreduction < 0) u.shopitemreduction = 0;
+
 	u.potionspawnchance = 0;
 	if (!rn2(2)) u.potionspawnchance += rnd(15);
 	if (!rn2(3)) u.potionspawnchance += rnd(15);
@@ -28639,29 +32045,55 @@ alter_reality()
 	else if (u.monstertimefinish % 3 == 0) u.eeveelution = PM_FLAREON;
 	else u.eeveelution = PM_VAPOREON;
 
-	u.untrainableskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.halfspeedskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.fifthspeedskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.basiclimitskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.skilledlimitskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.expertlimitskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.earlytrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.earlytrainingtimer = rnz(50);
-	u.earlytrainingtimer = rnd(u.earlytrainingtimer);
-	u.earlytrainingtimer = rnz(u.earlytrainingtimer); /* calculations by jonadab */
+	u.untrainableskill = 0;
+	u.halfspeedskill = 0;
+	u.fifthspeedskill = 0;
+	u.basiclimitskill = 0;
+	u.skilledlimitskill = 0;
+	u.expertlimitskill = 0;
+	u.earlytrainingskill = 0;
+	u.earlytrainingtimer = 9999999;
+	u.frtrainingskill = 0;
+	u.frtrainingtimer = 9999999;
+	u.latetrainingskill = 0;
+	u.latetrainingtimer = 9999999;
+	u.lavtrainingskill = 0;
+	u.lavtrainingtimer = 0;
+	u.slowtrainingskill = 0;
+
+	if (!rn2(2)) u.untrainableskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+	if (!rn2(2)) u.halfspeedskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+	if (!rn2(2)) u.fifthspeedskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+	if (!rn2(2)) u.basiclimitskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+	if (!rn2(2)) u.skilledlimitskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+	if (!rn2(2)) u.expertlimitskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+
+	if (!rn2(2)) {
+		u.earlytrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+		u.earlytrainingtimer = rnz(50);
+		u.earlytrainingtimer = rnd(u.earlytrainingtimer);
+		u.earlytrainingtimer = rnz(u.earlytrainingtimer); /* calculations by jonadab */
+	}
 	/* don't reset the "blown" variable - if you screw up, it's your fault! --Amy */
 
-	u.frtrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.frtrainingtimer = rnz(50);
-	u.frtrainingtimer = rnd(u.frtrainingtimer);
-	u.frtrainingtimer = rnz(u.frtrainingtimer);
-	u.frtrainingtimer *= rnz(20);
+	if (!rn2(3)) {
+		u.frtrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+		u.frtrainingtimer = rnz(50);
+		u.frtrainingtimer = rnd(u.frtrainingtimer);
+		u.frtrainingtimer = rnz(u.frtrainingtimer);
+		u.frtrainingtimer *= rnz(20);
+	}
 
-	u.latetrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.latetrainingtimer = rnz(10000) + rnd(50000);
+	if (!rn2(2)) {
+		u.latetrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+		u.latetrainingtimer = rnz(10000) + rnd(50000);
+	}
 
-	u.lavtrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
-	u.lavtrainingtimer = rnz(10000) + rnd(50000);
+	if (!rn2(2)) {
+		u.lavtrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
+		u.lavtrainingtimer = rnz(10000) + rnd(50000);
+	}
+	if (!rn2(2)) u.slowtrainingskill = !rn2(3) ? rnd(P_LIGHTSABER) : rn2(2) ? (P_ATTACK_SPELL + rn2(10)) : randomgoodcombatskill();
 
 	u.stickycursechance = 0;
 	if (!rn2(10)) {
@@ -28693,11 +32125,13 @@ alter_reality()
 	u.genericcursechance = 0;
 	if (!rn2(10)) u.genericcursechance = rnd(33);
 
-	u.nastinator01 = u.nastinator02 = u.nastinator03 = u.nastinator04 = u.nastinator05 = u.nastinator06 = u.nastinator07 = u.nastinator08 = u.nastinator09 = u.nastinator10 = u.nastinator11 = u.nastinator12 = u.nastinator13 = u.nastinator14 = u.nastinator15 = u.nastinator16 = u.nastinator17 = u.nastinator18 = u.nastinator19 = u.nastinator20 = u.nastinator21 = u.nastinator22 = u.nastinator23 = u.nastinator24 = u.nastinator25 = u.nastinator26 = u.nastinator27 = u.nastinator28 = u.nastinator29 = u.nastinator30 = u.nastinator31 = u.nastinator32 = u.nastinator33 = u.nastinator34 = u.nastinator35 = u.nastinator36 = u.nastinator37 = u.nastinator38 = u.nastinator39 = u.nastinator40 = u.nastinator41 = u.nastinator42 = u.nastinator43 = u.nastinator44 = u.nastinator45 = u.nastinator46 = u.nastinator47 = u.nastinator48 = u.nastinator49 = u.nastinator50 = u.nastinator51 = u.nastinator52 = u.nastinator53 = u.nastinator54 = u.nastinator55 = u.nastinator56 = u.nastinator57 = u.nastinator58 = u.nastinator59 = u.nastinator60 = u.nastinator61 = u.nastinator62 = u.nastinator63 = u.nastinator64 = u.nastinator65 = u.nastinator66 = u.nastinator67 = u.nastinator68 = u.nastinator69 = u.nastinator70 = u.nastinator71 = u.nastinator72 = u.nastinator73 = u.nastinator74 = u.nastinator75 = u.nastinator76 = u.nastinator77 = u.nastinator78 = u.nastinator79 = u.nastinator80 = u.nastinator81 = u.nastinator82 = u.nastinator83 = u.nastinator84 = u.nastinator85 = u.nastinator86 = u.nastinator87 = u.nastinator88 = u.nastinator89 = u.nastinator90 = u.nastinator91 = u.nastinator92 = u.nastinator93 = u.nastinator94 = u.nastinator95 = u.nastinator96 = u.nastinator97 = u.nastinator98 = u.nastinator99 = u.nastinator100 = u.nastinator101 = u.nastinator102 = u.nastinator103 = u.nastinator104 = u.nastinator105 = u.nastinator106 = u.nastinator107 = u.nastinator108 = u.nastinator109 = u.nastinator110 = u.nastinator111 = u.nastinator112 = u.nastinator113 = u.nastinator114 = u.nastinator115 = u.nastinator116 = u.nastinator117 = u.nastinator118 = u.nastinator119 = u.nastinator120 = u.nastinator121 = u.nastinator122 = u.nastinator123 = u.nastinator124 = u.nastinator125 = u.nastinator126 = u.nastinator127 = u.nastinator128 = u.nastinator129 = u.nastinator130 = u.nastinator131 = u.nastinator132 = u.nastinator133 = u.nastinator134 = u.nastinator135 = u.nastinator136 = u.nastinator137 = u.nastinator138 = u.nastinator139 = u.nastinator140 = u.nastinator141 = u.nastinator142 = u.nastinator143 = u.nastinator144 = u.nastinator145 = u.nastinator146 = u.nastinator147 = u.nastinator148 = u.nastinator149 = u.nastinator150 = u.nastinator151 = u.nastinator152 = u.nastinator153 = u.nastinator154 = u.nastinator155 = u.nastinator156 = u.nastinator157 = u.nastinator158 = u.nastinator159 = u.nastinator160 = u.nastinator161 = u.nastinator162 = u.nastinator163 = u.nastinator164 = u.nastinator165 = u.nastinator166 = u.nastinator167 = u.nastinator168 = u.nastinator169 = u.nastinator170 = u.nastinator171 = u.nastinator172 = u.nastinator173 = u.nastinator174 = u.nastinator175 = u.nastinator176 = u.nastinator177 = u.nastinator178 = u.nastinator179 = u.nastinator180 = u.nastinator181 = u.nastinator182 = u.nastinator183 = u.nastinator184 = u.nastinator185 = u.nastinator186 = u.nastinator187 = u.nastinator188 = u.nastinator189 = u.nastinator190 = u.nastinator191 = u.nastinator192 = u.nastinator193 = u.nastinator194 = u.nastinator195 = u.nastinator196 = u.nastinator197 = u.nastinator198 = u.nastinator199 = u.nastinator200 = u.nastinator201 = u.nastinator202 = u.nastinator203 = u.nastinator204 = u.nastinator205 = u.nastinator206 = u.nastinator207 = u.nastinator208 = u.nastinator209 = u.nastinator210 = u.nastinator211 = u.nastinator212 = u.nastinator213 = u.nastinator214 = u.nastinator215 = u.nastinator216 = u.nastinator217 = u.nastinator218 = u.nastinator219 = u.nastinator220 = u.nastinator221 = u.nastinator222 = u.nastinator223 = u.nastinator224 = u.nastinator225 = u.nastinator226 = u.nastinator227 = u.nastinator228 = u.nastinator229 = 0;
+	u.pract_procrastinatetimer = rn1(500000, 500000);
+
+	u.nastinator01 = u.nastinator02 = u.nastinator03 = u.nastinator04 = u.nastinator05 = u.nastinator06 = u.nastinator07 = u.nastinator08 = u.nastinator09 = u.nastinator10 = u.nastinator11 = u.nastinator12 = u.nastinator13 = u.nastinator14 = u.nastinator15 = u.nastinator16 = u.nastinator17 = u.nastinator18 = u.nastinator19 = u.nastinator20 = u.nastinator21 = u.nastinator22 = u.nastinator23 = u.nastinator24 = u.nastinator25 = u.nastinator26 = u.nastinator27 = u.nastinator28 = u.nastinator29 = u.nastinator30 = u.nastinator31 = u.nastinator32 = u.nastinator33 = u.nastinator34 = u.nastinator35 = u.nastinator36 = u.nastinator37 = u.nastinator38 = u.nastinator39 = u.nastinator40 = u.nastinator41 = u.nastinator42 = u.nastinator43 = u.nastinator44 = u.nastinator45 = u.nastinator46 = u.nastinator47 = u.nastinator48 = u.nastinator49 = u.nastinator50 = u.nastinator51 = u.nastinator52 = u.nastinator53 = u.nastinator54 = u.nastinator55 = u.nastinator56 = u.nastinator57 = u.nastinator58 = u.nastinator59 = u.nastinator60 = u.nastinator61 = u.nastinator62 = u.nastinator63 = u.nastinator64 = u.nastinator65 = u.nastinator66 = u.nastinator67 = u.nastinator68 = u.nastinator69 = u.nastinator70 = u.nastinator71 = u.nastinator72 = u.nastinator73 = u.nastinator74 = u.nastinator75 = u.nastinator76 = u.nastinator77 = u.nastinator78 = u.nastinator79 = u.nastinator80 = u.nastinator81 = u.nastinator82 = u.nastinator83 = u.nastinator84 = u.nastinator85 = u.nastinator86 = u.nastinator87 = u.nastinator88 = u.nastinator89 = u.nastinator90 = u.nastinator91 = u.nastinator92 = u.nastinator93 = u.nastinator94 = u.nastinator95 = u.nastinator96 = u.nastinator97 = u.nastinator98 = u.nastinator99 = u.nastinator100 = u.nastinator101 = u.nastinator102 = u.nastinator103 = u.nastinator104 = u.nastinator105 = u.nastinator106 = u.nastinator107 = u.nastinator108 = u.nastinator109 = u.nastinator110 = u.nastinator111 = u.nastinator112 = u.nastinator113 = u.nastinator114 = u.nastinator115 = u.nastinator116 = u.nastinator117 = u.nastinator118 = u.nastinator119 = u.nastinator120 = u.nastinator121 = u.nastinator122 = u.nastinator123 = u.nastinator124 = u.nastinator125 = u.nastinator126 = u.nastinator127 = u.nastinator128 = u.nastinator129 = u.nastinator130 = u.nastinator131 = u.nastinator132 = u.nastinator133 = u.nastinator134 = u.nastinator135 = u.nastinator136 = u.nastinator137 = u.nastinator138 = u.nastinator139 = u.nastinator140 = u.nastinator141 = u.nastinator142 = u.nastinator143 = u.nastinator144 = u.nastinator145 = u.nastinator146 = u.nastinator147 = u.nastinator148 = u.nastinator149 = u.nastinator150 = u.nastinator151 = u.nastinator152 = u.nastinator153 = u.nastinator154 = u.nastinator155 = u.nastinator156 = u.nastinator157 = u.nastinator158 = u.nastinator159 = u.nastinator160 = u.nastinator161 = u.nastinator162 = u.nastinator163 = u.nastinator164 = u.nastinator165 = u.nastinator166 = u.nastinator167 = u.nastinator168 = u.nastinator169 = u.nastinator170 = u.nastinator171 = u.nastinator172 = u.nastinator173 = u.nastinator174 = u.nastinator175 = u.nastinator176 = u.nastinator177 = u.nastinator178 = u.nastinator179 = u.nastinator180 = u.nastinator181 = u.nastinator182 = u.nastinator183 = u.nastinator184 = u.nastinator185 = u.nastinator186 = u.nastinator187 = u.nastinator188 = u.nastinator189 = u.nastinator190 = u.nastinator191 = u.nastinator192 = u.nastinator193 = u.nastinator194 = u.nastinator195 = u.nastinator196 = u.nastinator197 = u.nastinator198 = u.nastinator199 = u.nastinator200 = u.nastinator201 = u.nastinator202 = u.nastinator203 = u.nastinator204 = u.nastinator205 = u.nastinator206 = u.nastinator207 = u.nastinator208 = u.nastinator209 = u.nastinator210 = u.nastinator211 = u.nastinator212 = u.nastinator213 = u.nastinator214 = u.nastinator215 = u.nastinator216 = u.nastinator217 = u.nastinator218 = u.nastinator219 = u.nastinator220 = u.nastinator221 = u.nastinator222 = u.nastinator223 = u.nastinator224 = u.nastinator225 = u.nastinator226 = u.nastinator227 = u.nastinator228 = u.nastinator229 = u.nastinator230 = u.nastinator231 = u.nastinator232 = u.nastinator233 = u.nastinator234 = u.nastinator235 = 0;
 
 	if (isnastinator) { /* harder than hard race - starts with uncurable nasty trap effects --Amy */
 
-		switch (rnd(229)) {
+		switch (rnd(235)) {
 
 			case 1: u.nastinator01 = 1; break;
 			case 2: u.nastinator02 = 1; break;
@@ -28928,11 +32362,17 @@ alter_reality()
 			case 227: u.nastinator227 = 1; break;
 			case 228: u.nastinator228 = 1; break;
 			case 229: u.nastinator229 = 1; break;
+			case 230: u.nastinator230 = 1; break;
+			case 231: u.nastinator231 = 1; break;
+			case 232: u.nastinator232 = 1; break;
+			case 233: u.nastinator233 = 1; break;
+			case 234: u.nastinator234 = 1; break;
+			case 235: u.nastinator235 = 1; break;
 		}
 
 		while ((rnd(7)) < 3) {
 
-			switch (rnd(229)) {
+			switch (rnd(235)) {
 
 				case 1: u.nastinator01 = 1; break;
 				case 2: u.nastinator02 = 1; break;
@@ -29163,6 +32603,12 @@ alter_reality()
 			case 227: u.nastinator227 = 1; break;
 			case 228: u.nastinator228 = 1; break;
 			case 229: u.nastinator229 = 1; break;
+			case 230: u.nastinator230 = 1; break;
+			case 231: u.nastinator231 = 1; break;
+			case 232: u.nastinator232 = 1; break;
+			case 233: u.nastinator233 = 1; break;
+			case 234: u.nastinator234 = 1; break;
+			case 235: u.nastinator235 = 1; break;
 			}
 
 		}
@@ -29170,7 +32616,7 @@ alter_reality()
 
 	if (iswindinhabitant) { /* similar to nastinator, but they will be re-initialized sometimes --Amy */
 
-		switch (rnd(229)) {
+		switch (rnd(235)) {
 
 			case 1: u.nastinator01 = 1; break;
 			case 2: u.nastinator02 = 1; break;
@@ -29401,11 +32847,17 @@ alter_reality()
 			case 227: u.nastinator227 = 1; break;
 			case 228: u.nastinator228 = 1; break;
 			case 229: u.nastinator229 = 1; break;
+			case 230: u.nastinator230 = 1; break;
+			case 231: u.nastinator231 = 1; break;
+			case 232: u.nastinator232 = 1; break;
+			case 233: u.nastinator233 = 1; break;
+			case 234: u.nastinator234 = 1; break;
+			case 235: u.nastinator235 = 1; break;
 		}
 
 		while (!rn2(3)) {
 
-			switch (rnd(229)) {
+			switch (rnd(235)) {
 
 				case 1: u.nastinator01 = 1; break;
 				case 2: u.nastinator02 = 1; break;
@@ -29636,6 +33088,12 @@ alter_reality()
 			case 227: u.nastinator227 = 1; break;
 			case 228: u.nastinator228 = 1; break;
 			case 229: u.nastinator229 = 1; break;
+			case 230: u.nastinator230 = 1; break;
+			case 231: u.nastinator231 = 1; break;
+			case 232: u.nastinator232 = 1; break;
+			case 233: u.nastinator233 = 1; break;
+			case 234: u.nastinator234 = 1; break;
+			case 235: u.nastinator235 = 1; break;
 			}
 
 		}
@@ -31511,6 +34969,122 @@ alter_reality()
 	shamblerl->mflags2 &= ~M2_WERE;				/* no lycanthropes */
 	shamblerl->mflags2 &= ~M2_PNAME;				/* not a proper name */
 
+	shamblerln->mmove = rn2(3)+6;				/* slow to very fast */
+	shamblerln->ac = 10 - rn2(6);				/* any AC */
+	shamblerln->mr = rn2(5)*25;				/* varying amounts of MR */
+	shamblerln->maligntyp = rn2(21)-10;			/* any alignment */
+	/* attacks...?  */
+	for (i = 0; i < rnd(2); i++) {
+		attkptr = &shamblerln->mattk[i];
+		/* restrict it to certain types of attacks */
+		attkptr->aatyp = AT_MULTIPLY;
+		while (attkptr->aatyp == AT_MULTIPLY) {
+			attkptr->aatyp = rn2(AT_MULTIPLY);
+		}
+		if (attkptr->aatyp == AT_BOOM) {
+			attkptr->aatyp = AT_MAGC;
+		}
+		if (attkptr->aatyp == AT_EXPL) {
+			attkptr->aatyp = AT_WEAP;
+		}
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+		attkptr->damn = 2;				/* we're almost sure to get this wrong first time */
+		attkptr->damd = rnd(2);				/* either too high or too low */
+	}
+	shamblerln->msize = rn2(MZ_GIGANTIC+1);			/* any size */
+	shamblerln->cwt = rnd(2000);					/* fortunately moot as it's flagged NOCORPSE */
+	shamblerln->cnutrit = rnd(2000);					/* see above */
+	shamblerln->msound = randmonsound();			/* any but the specials */
+	shamblerln->mresists = 0;
+	for (i = 0; i < rnd(3); i++) {
+		shamblerln->mresists |= (1 << rn2(8));		/* physical resistances... */
+	}
+	for (i = 0; i < rnd(2); i++) {
+		shamblerln->mresists |= (0x100 << rn2(7));	/* 'different' resistances, even clumsy */
+	}
+	shamblerln->mconveys = 0;					/* flagged NOCORPSE */
+	/*
+	 * now time for the random flags.  this will likely produce
+	 * a number of complete trainwreck monsters at first, but
+	 * every so often something will dial up nasty stuff
+	 */
+	shamblerln->mflags1 = 0;
+	for (i = 0; i < rnd(7); i++) {
+		shamblerln->mflags1 |= (1 << rn2(33));		/* trainwreck this way :D */
+	}
+	/*shamblerln->mflags1 &= ~M1_UNSOLID;*/			/* no ghosts */
+	/*shamblerln->mflags1 &= ~M1_WALLWALK;*/			/* no wall-walkers */
+
+	shamblerln->mflags2 = M2_HOSTILE;		/* Don't let the player be one of these yet. */
+	for (i = 0; i < rnd(7); i++) {
+		shamblerln->mflags2 |= (1 << rn2(31));
+	}
+	shamblerln->mflags2 &= ~M2_MERC;				/* no guards */
+	shamblerln->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
+	shamblerln->mflags2 &= ~M2_WERE;				/* no lycanthropes */
+	shamblerln->mflags2 &= ~M2_PNAME;				/* not a proper name */
+
+	shamblerlo->mmove = rn2(3)+6;				/* slow to very fast */
+	shamblerlo->ac = 10 - rn2(6);				/* any AC */
+	shamblerlo->mr = rn2(5)*25;				/* varying amounts of MR */
+	shamblerlo->maligntyp = rn2(21)-10;			/* any alignment */
+	/* attacks...?  */
+	for (i = 0; i < rnd(2); i++) {
+		attkptr = &shamblerlo->mattk[i];
+		/* restrict it to certain types of attacks */
+		attkptr->aatyp = AT_MULTIPLY;
+		while (attkptr->aatyp == AT_MULTIPLY) {
+			attkptr->aatyp = rn2(AT_MULTIPLY);
+		}
+		if (attkptr->aatyp == AT_BOOM) {
+			attkptr->aatyp = AT_MAGC;
+		}
+		if (attkptr->aatyp == AT_EXPL) {
+			attkptr->aatyp = AT_WEAP;
+		}
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+		attkptr->damn = 2;				/* we're almost sure to get this wrong first time */
+		attkptr->damd = rnd(2);				/* either too high or too low */
+	}
+	shamblerlo->msize = rn2(MZ_GIGANTIC+1);			/* any size */
+	shamblerlo->cwt = rnd(2000);					/* fortunately moot as it's flagged NOCORPSE */
+	shamblerlo->cnutrit = rnd(2000);					/* see above */
+	shamblerlo->msound = randmonsound();			/* any but the specials */
+	shamblerlo->mresists = 0;
+	for (i = 0; i < rnd(3); i++) {
+		shamblerlo->mresists |= (1 << rn2(8));		/* physical resistances... */
+	}
+	for (i = 0; i < rnd(2); i++) {
+		shamblerlo->mresists |= (0x100 << rn2(7));	/* 'different' resistances, even clumsy */
+	}
+	shamblerlo->mconveys = 0;					/* flagged NOCORPSE */
+	/*
+	 * now time for the random flags.  this will likely produce
+	 * a number of complete trainwreck monsters at first, but
+	 * every so often something will dial up nasty stuff
+	 */
+	shamblerlo->mflags1 = 0;
+	for (i = 0; i < rnd(7); i++) {
+		shamblerlo->mflags1 |= (1 << rn2(33));		/* trainwreck this way :D */
+	}
+	/*shamblerlo->mflags1 &= ~M1_UNSOLID;*/			/* no ghosts */
+	/*shamblerlo->mflags1 &= ~M1_WALLWALK;*/			/* no wall-walkers */
+
+	shamblerlo->mflags2 = M2_HOSTILE;		/* Don't let the player be one of these yet. */
+	for (i = 0; i < rnd(7); i++) {
+		shamblerlo->mflags2 |= (1 << rn2(31));
+	}
+	shamblerlo->mflags2 &= ~M2_MERC;				/* no guards */
+	shamblerlo->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
+	shamblerlo->mflags2 &= ~M2_WERE;				/* no lycanthropes */
+	shamblerlo->mflags2 &= ~M2_PNAME;				/* not a proper name */
+
 	/* what a horrible night to have a curse */
 	/*shambler->mlevel += rnd(12)-9;*/				/* shuffle level */
 	shamblerla->mmove = rn2(8)+9;				/* slow to very fast */
@@ -32482,6 +36056,63 @@ alter_reality()
 	shamblerplayer->mflags2 &= ~M2_PNAME;				/* not a proper name */
 	shamblerplayer->mflags2 &= ~M2_NOPOLY;				/* see above */
 
+	/* what a horrible night to have a curse */
+	/*shamblerplayergl->mlevel += rnd(12)-3;*/				/* shuffle level */
+	shamblerplayergl->mmove = rn2(10)+9;				/* slow to very fast */
+	shamblerplayergl->ac = rn2(21)-10;				/* any AC */
+	shamblerplayergl->mr = rn2(11)*10;				/* varying amounts of MR */
+	shamblerplayergl->maligntyp = rn2(21)-10;			/* any alignment */
+	/* attacks...?  */
+	for (i = 0; i < rnd(5); i++) {
+		attkptr = &shamblerplayergl->mattk[i];
+		/* restrict it to certain types of attacks */
+		attkptr->aatyp = AT_MULTIPLY;
+		while (attkptr->aatyp == AT_MULTIPLY) {
+			attkptr->aatyp = rn2(AT_MULTIPLY);
+		}
+		if (attkptr->aatyp == AT_BOOM) {
+			attkptr->aatyp = AT_MAGC;
+		}
+		if (attkptr->aatyp == AT_EXPL) {
+			attkptr->aatyp = AT_WEAP;
+		}
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS) {
+			attkptr->adtyp = randattack();
+		}
+		attkptr->damn = 2;				/* we're almost sure to get this wrong first time */
+		attkptr->damd = rnd(10)+1;				/* either too high or too low */
+	}
+	shamblerplayergl->msize = rn2(MZ_GIGANTIC+1);			/* any size */
+	shamblerplayergl->cwt = rnd(2000);					/* fortunately moot as it's flagged NOCORPSE */
+	shamblerplayergl->cnutrit = rnd(2000);					/* see above */
+	shamblerplayergl->msound = randmonsound();			/* any but the specials */
+	shamblerplayergl->mresists = 0;
+	for (i = 0; i < rnd(6); i++) {
+		shamblerplayergl->mresists |= (1 << rn2(8));		/* physical resistances... */
+	}
+	for (i = 0; i < rnd(5); i++) {
+		shamblerplayergl->mresists |= (0x100 << rn2(7));	/* 'different' resistances, even clumsy */
+	}
+	shamblerplayergl->mconveys = 0;					/* flagged NOCORPSE */
+	/*
+	 * now time for the random flags.  this will likely produce
+	 * a number of complete trainwreck monsters at first, but
+	 * every so often something will dial up nasty stuff
+	 */
+	shamblerplayergl->mflags1 = M1_CARNIVORE|M1_OVIPAROUS;
+	for (i = 0; i < rnd(17); i++) {
+		shamblerplayergl->mflags1 |= (1 << rn2(33));		/* trainwreck this way :D */
+	}
+
+	shamblerplayergl->mflags2 = M2_NOPOLY;
+	for (i = 0; i < rnd(17); i++) {
+		shamblerplayergl->mflags2 |= (1 << rn2(31));
+	}
+	shamblerplayergl->mflags2 &= ~M2_MERC;				/* no guards */
+	shamblerplayergl->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
+	shamblerplayergl->mflags2 &= ~M2_PNAME;				/* not a proper name */
+	shamblerplayergl->mflags2 &= ~M2_WERE;				/* no werefoo */
 
 	/* what a horrible night to have a curse */
 	/*shamblerplayerb->mlevel += rnd(12)-3;*/				/* shuffle level */
@@ -34307,6 +37938,125 @@ alter_reality()
 	shamblerplayerae->mflags2 &= ~M2_PNAME;				/* not a proper name */
 	shamblerplayerae->mflags2 &= ~M2_NOPOLY;				/* polymorph ok for monsters */
 
+	/* what a horrible night to have a curse */
+	/*shambler->mlevel += rnd(16)-7;*/				/* shuffle level */
+	splicemona->mmove = rn2(9)+9;				/* slow to very fast */
+	splicemona->ac = rn2(18)-7;				/* any AC */
+	splicemona->mr = rn2(5)*25;				/* varying amounts of MR */
+	splicemona->maligntyp = rn2(21)-10;			/* any alignment */
+	/* attacks...?  */
+	for (i = 0; i < rnd(3); i++) {
+		attkptr = &splicemona->mattk[i];
+		/* restrict it to certain types of attacks */
+		attkptr->aatyp = AT_MULTIPLY;
+		while (attkptr->aatyp == AT_MULTIPLY) {
+			attkptr->aatyp = rn2(AT_MULTIPLY);
+		}
+		if (attkptr->aatyp == AT_BOOM) {
+			attkptr->aatyp = AT_MAGC;
+		}
+		if (attkptr->aatyp == AT_EXPL) {
+			attkptr->aatyp = AT_WEAP;
+		}
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+		attkptr->damn = 2;				/* we're almost sure to get this wrong first time */
+		attkptr->damd = rnd(7)+2;				/* either too high or too low */
+	}
+	splicemona->msize = rn2(MZ_GIGANTIC+1);			/* any size */
+	splicemona->cwt = rnd(2000);					/* fortunately moot as it's flagged NOCORPSE */
+	splicemona->cnutrit = rnd(2000);					/* see above */
+	splicemona->msound = randmonsound();			/* any but the specials */
+	splicemona->mresists = 0;
+	for (i = 0; i < rnd(6); i++) {
+		splicemona->mresists |= (1 << rn2(8));		/* physical resistances... */
+	}
+	for (i = 0; i < rnd(5); i++) {
+		splicemona->mresists |= (0x100 << rn2(7));	/* 'different' resistances, even clumsy */
+	}
+	splicemona->mconveys = 0;					/* flagged NOCORPSE */
+	/*
+	 * now time for the random flags.  this will likely produce
+	 * a number of complete trainwreck monsters at first, but
+	 * every so often something will dial up nasty stuff
+	 */
+	splicemona->mflags1 = 0;
+	for (i = 0; i < rnd(17); i++) {
+		splicemona->mflags1 |= (1 << rn2(33));		/* trainwreck this way :D */
+	}
+	/*splicemona->mflags1 &= ~M1_UNSOLID;*/			/* no ghosts */
+	/*splicemona->mflags1 &= ~M1_WALLWALK;*/			/* no wall-walkers */
+
+	splicemona->mflags2 = M2_HOSTILE;		/* Don't let the player be one of these yet. */
+	for (i = 0; i < rnd(17); i++) {
+		splicemona->mflags2 |= (1 << rn2(31));
+	}
+	splicemona->mflags2 &= ~M2_MERC;				/* no guards */
+	splicemona->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
+	splicemona->mflags2 &= ~M2_WERE;				/* no lycanthropes */
+	splicemona->mflags2 &= ~M2_PNAME;				/* not a proper name */
+
+	/* what a horrible night to have a curse */
+	/*shambler->mlevel += rnd(18)-4;*/				/* shuffle level */
+	splicemonb->mmove = rn2(14)+9;				/* slow to very fast */
+	splicemonb->ac = rn2(31)-20;				/* any AC */
+	splicemonb->mr = rn2(5)*25;				/* varying amounts of MR */
+	splicemonb->maligntyp = rn2(21)-10;			/* any alignment */
+	/* attacks...?  */
+	for (i = 0; i < rnd(5); i++) {
+		attkptr = &splicemonb->mattk[i];
+		/* restrict it to certain types of attacks */
+		attkptr->aatyp = AT_MULTIPLY;
+		while (attkptr->aatyp == AT_MULTIPLY) {
+			attkptr->aatyp = rn2(AT_MULTIPLY);
+		}
+		if (attkptr->aatyp == AT_BOOM) {
+			attkptr->aatyp = AT_MAGC;
+		}
+		if (attkptr->aatyp == AT_EXPL) {
+			attkptr->aatyp = AT_WEAP;
+		}
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+		attkptr->damn = 2;				/* we're almost sure to get this wrong first time */
+		attkptr->damd = rnd(15)+2;				/* either too high or too low */
+	}
+	splicemonb->msize = rn2(MZ_GIGANTIC+1);			/* any size */
+	splicemonb->cwt = rnd(2000);					/* fortunately moot as it's flagged NOCORPSE */
+	splicemonb->cnutrit = rnd(2000);					/* see above */
+	splicemonb->msound = randmonsound();			/* any but the specials */
+	splicemonb->mresists = 0;
+	for (i = 0; i < rnd(6); i++) {
+		splicemonb->mresists |= (1 << rn2(8));		/* physical resistances... */
+	}
+	for (i = 0; i < rnd(5); i++) {
+		splicemonb->mresists |= (0x100 << rn2(7));	/* 'different' resistances, even clumsy */
+	}
+	splicemonb->mconveys = 0;					/* flagged NOCORPSE */
+	/*
+	 * now time for the random flags.  this will likely produce
+	 * a number of complete trainwreck monsters at first, but
+	 * every so often something will dial up nasty stuff
+	 */
+	splicemonb->mflags1 = M1_HERBIVORE;
+	for (i = 0; i < rnd(17); i++) {
+		splicemonb->mflags1 |= (1 << rn2(33));		/* trainwreck this way :D */
+	}
+	splicemonb->mflags1 &= ~M1_HIDE;				/* no hiding */
+
+	splicemonb->mflags2 = M2_HOSTILE;		/* Don't let the player be one of these yet. */
+	for (i = 0; i < rnd(17); i++) {
+		splicemonb->mflags2 |= (1 << rn2(31));
+	}
+	splicemonb->mflags2 &= ~M2_MERC;				/* no guards */
+	splicemonb->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
+	splicemonb->mflags2 &= ~M2_WERE;				/* no lycanthropes */
+	splicemonb->mflags2 &= ~M2_PNAME;				/* not a proper name */
+
 	if (!rn2(10)) {
 	attkptr = &deathraylord->mattk[4]; /* Yeenoghu gets finger of death */
 	attkptr->aatyp = AT_MAGC; /* well, at least one out of ten games he does */
@@ -34500,6 +38250,19 @@ alter_reality()
 
 	}
 
+	randomfungusbbx->mmove = rnd(12);
+	randomfungusbbx->ac = 10-rnd(25);
+	randomfungusbbx->mr = rn2(101);
+	for (i = 0; i < 3; i++) {
+		attkptr = &randomfungusbbx->mattk[i];
+
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+
+	}
+
 	randomfungusbc->mmove = rnd(12);
 	randomfungusbc->ac = 10-rnd(25);
 	randomfungusbc->mr = rn2(101);
@@ -34582,6 +38345,19 @@ alter_reality()
 	randomfungusdb->mr = rn2(101);
 	for (i = 0; i < 3; i++) {
 		attkptr = &randomfungusdb->mattk[i];
+
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+
+	}
+
+	randomfungusdbx->mmove = rnd(15);
+	randomfungusdbx->ac = 10-rnd(35);
+	randomfungusdbx->mr = rn2(101);
+	for (i = 0; i < 3; i++) {
+		attkptr = &randomfungusdbx->mattk[i];
 
 		attkptr->adtyp = AD_ENDS;
 		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
@@ -34823,6 +38599,23 @@ alter_reality()
 	sprintf(buf, "%s", generate_garbage_string() );
 	(void) strncpy(u.strandomfungusd, buf, sizeof(buf) );
 	rrandomfungusd->mname = u.strandomfungusd;
+
+	rrandomfungusdx->mmove = rnd(12);
+	rrandomfungusdx->ac = 10-rnd(30);
+	rrandomfungusdx->mr = rn2(101);
+	for (i = 0; i < 3; i++) {
+		attkptr = &rrandomfungusdx->mattk[i];
+
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+
+	}
+
+	sprintf(buf, "%s", generate_garbage_string() );
+	(void) strncpy(u.strandomfungusdx, buf, sizeof(buf) );
+	rrandomfungusdx->mname = u.strandomfungusd;
 
 	rrandomfunguse->mmove = rnd(12);
 	rrandomfunguse->ac = 10-rnd(30);
@@ -35268,6 +39061,26 @@ alter_reality()
 
 	for (i = 2; i < 3; i++) {
 		attkptr = &randxyz->mattk[i];
+
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = randattack();
+		}
+
+	}
+
+	for (i = 1; i < 2; i++) {
+		attkptr = &randhybrid->mattk[i];
+
+		attkptr->adtyp = AD_ENDS;
+		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
+			attkptr->adtyp = rnd(10);
+		}
+
+	}
+
+	for (i = 0; i < 1; i++) {
+		attkptr = &randxyaa->mattk[i];
 
 		attkptr->adtyp = AD_ENDS;
 		while (attkptr->adtyp == AD_ENDS || attkptr->adtyp == AD_WERE) {
@@ -36142,7 +39955,7 @@ alter_reality()
 	starlitmonster = -1;
 	starlitattempts = 0;
 	while ((starlitmonster == -1) && starlitattempts < 50000 ) {
-		starlitmonster = (NUMMONS + rnd(MISSINGNORANGE));
+		starlitmonster = /*(NUMMONS + rnd(MISSINGNORANGE));*/PM_HUMAN;
 		starlitattempts++;
 	}
 
@@ -36280,7 +40093,7 @@ polyinitredoX:
 	if (ptr) {
 		starlitmonster = monsndx(ptr);
 
-		if ( (!attacktype(&mons[starlitmonster], AT_WEAP) && rn2(10)) || (notake(&mons[starlitmonster]) && rn2(4) ) || ((mons[starlitmonster].mlet == S_BAT) && rn2(2)) || ((mons[starlitmonster].mlet == S_EYE) && rn2(2) ) || ((mons[starlitmonster].mmove == 1) && rn2(4) ) || ((mons[starlitmonster].mmove == 2) && rn2(3) ) || ((mons[starlitmonster].mmove == 3) && rn2(2) ) || ((mons[starlitmonster].mmove == 4) && !rn2(3) ) || ( (mons[starlitmonster].mlevel < 10) && ((mons[starlitmonster].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[starlitmonster]) && rn2(2) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(5) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(20) ) || ( uncommon2(&mons[starlitmonster]) && !rn2(4) ) || ( uncommon3(&mons[starlitmonster]) && !rn2(3) ) || ( uncommon5(&mons[starlitmonster]) && !rn2(2) ) || ( uncommon7(&mons[starlitmonster]) && rn2(3) ) || ( uncommon10(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(20) ) ) goto polyinitredoX;
+		if ( (!attacktype(&mons[starlitmonster], AT_WEAP) && rn2(10)) || (notake(&mons[starlitmonster]) && rn2(4) ) || ((mons[starlitmonster].mlet == S_BAT) && rn2(2)) || ((mons[starlitmonster].mlet == S_EYE) && rn2(2) ) || ((mons[starlitmonster].mmove == 1) && rn2(4) ) || ((mons[starlitmonster].mmove == 2) && rn2(3) ) || ((mons[starlitmonster].mmove == 3) && rn2(2) ) || ((mons[starlitmonster].mmove == 4) && !rn2(3) ) || ( (mons[starlitmonster].mlevel < 10) && ((mons[starlitmonster].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[starlitmonster]) && rn2(2) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(5) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(20) ) || (is_jonadabmonster(&mons[starlitmonster]) && rn2(20)) || ( uncommon2(&mons[starlitmonster]) && !rn2(4) ) || ( uncommon3(&mons[starlitmonster]) && !rn2(3) ) || ( uncommon5(&mons[starlitmonster]) && !rn2(2) ) || ( uncommon7(&mons[starlitmonster]) && rn2(3) ) || ( uncommon10(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(20) ) ) goto polyinitredoX;
 
 		polyinitor->mmove = mons[starlitmonster].mmove;
 		polyinitor->ac = mons[starlitmonster].ac;
@@ -36314,7 +40127,7 @@ polyinitredoX:
 	starlitmonster = rn2(NUMMONS);
 	do {
 		starlitmonster = rn2(NUMMONS);
-	} while ( (notake(&mons[starlitmonster]) && rn2(4) ) || ((mons[starlitmonster].mlet == S_BAT) && rn2(2)) || ((mons[starlitmonster].mlet == S_EYE) && rn2(2) ) || ((mons[starlitmonster].mmove == 1) && rn2(4) ) || ((mons[starlitmonster].mmove == 2) && rn2(3) ) || ((mons[starlitmonster].mmove == 3) && rn2(2) ) || ((mons[starlitmonster].mmove == 4) && !rn2(3) ) || ( (mons[starlitmonster].mlevel < 10) && ((mons[starlitmonster].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[starlitmonster]) && rn2(2) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(5) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(20) ) || ( uncommon2(&mons[starlitmonster]) && !rn2(4) ) || ( uncommon3(&mons[starlitmonster]) && !rn2(3) ) || ( uncommon5(&mons[starlitmonster]) && !rn2(2) ) || ( uncommon7(&mons[starlitmonster]) && rn2(3) ) || ( uncommon10(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(20) ) );
+	} while ( (notake(&mons[starlitmonster]) && rn2(4) ) || ((mons[starlitmonster].mlet == S_BAT) && rn2(2)) || ((mons[starlitmonster].mlet == S_EYE) && rn2(2) ) || ((mons[starlitmonster].mmove == 1) && rn2(4) ) || ((mons[starlitmonster].mmove == 2) && rn2(3) ) || ((mons[starlitmonster].mmove == 3) && rn2(2) ) || ((mons[starlitmonster].mmove == 4) && !rn2(3) ) || ( (mons[starlitmonster].mlevel < 10) && ((mons[starlitmonster].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[starlitmonster]) && rn2(2) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(5) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(20) ) || (is_jonadabmonster(&mons[starlitmonster]) && rn2(20)) || ( uncommon2(&mons[starlitmonster]) && !rn2(4) ) || ( uncommon3(&mons[starlitmonster]) && !rn2(3) ) || ( uncommon5(&mons[starlitmonster]) && !rn2(2) ) || ( uncommon7(&mons[starlitmonster]) && rn2(3) ) || ( uncommon10(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(20) ) );
 
 	destabilizer->mmove = mons[starlitmonster].mmove;
 	destabilizer->ac = mons[starlitmonster].ac;
@@ -40358,8 +44171,20 @@ polyinitredoX:
 	randfwean->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
 	randfwean->mflags2 &= ~M2_WERE;				/* no lycanthropes */
 
-	pline(Hallucination ? "You invoke the power of Eru Iluvator... err, Sauron. Whatever it's called." : "The power of Eru Iluvator flows through you!");
-	pline(Hallucination ? "Somehow, that did all of jack diddly." : "The world changes!");
+	u.cnd_alterrealityamount++;
+
+	if (realityflag == 0) {
+
+		pline(FunnyHallu ? "You invoke the power of Eru Iluvator... err, Sauron. Whatever it's called." : "The power of Eru Iluvator flows through you!");
+		pline(FunnyHallu ? "Somehow, that did all of jack diddly." : "The world changes!");
+	}
+
+	if (realityflag == 1 && !rn2(10)) {
+		pline("Suddenly, the reality is altered!");
+	}
+
+	/* in case the player is a race that has randomized stats in monster form... --Amy */
+	init_uasmon();
 
 	return;
 
@@ -40387,7 +44212,7 @@ polyinitredoY:
 	if (ptr) {
 		starlitmonster = monsndx(ptr);
 
-		if ( (!attacktype(&mons[starlitmonster], AT_WEAP) && rn2(10)) || (notake(&mons[starlitmonster]) && rn2(4) ) || ((mons[starlitmonster].mlet == S_BAT) && rn2(2)) || ((mons[starlitmonster].mlet == S_EYE) && rn2(2) ) || ((mons[starlitmonster].mmove == 1) && rn2(4) ) || ((mons[starlitmonster].mmove == 2) && rn2(3) ) || ((mons[starlitmonster].mmove == 3) && rn2(2) ) || ((mons[starlitmonster].mmove == 4) && !rn2(3) ) || ( (mons[starlitmonster].mlevel < 10) && ((mons[starlitmonster].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[starlitmonster]) && rn2(2) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(5) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(20) ) || ( uncommon2(&mons[starlitmonster]) && !rn2(4) ) || ( uncommon3(&mons[starlitmonster]) && !rn2(3) ) || ( uncommon5(&mons[starlitmonster]) && !rn2(2) ) || ( uncommon7(&mons[starlitmonster]) && rn2(3) ) || ( uncommon10(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(20) ) ) goto polyinitredoY;
+		if ( (!attacktype(&mons[starlitmonster], AT_WEAP) && rn2(10)) || (notake(&mons[starlitmonster]) && rn2(4) ) || ((mons[starlitmonster].mlet == S_BAT) && rn2(2)) || ((mons[starlitmonster].mlet == S_EYE) && rn2(2) ) || ((mons[starlitmonster].mmove == 1) && rn2(4) ) || ((mons[starlitmonster].mmove == 2) && rn2(3) ) || ((mons[starlitmonster].mmove == 3) && rn2(2) ) || ((mons[starlitmonster].mmove == 4) && !rn2(3) ) || ( (mons[starlitmonster].mlevel < 10) && ((mons[starlitmonster].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[starlitmonster]) && rn2(2) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(5) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(20) ) || (is_jonadabmonster(&mons[starlitmonster]) && rn2(20)) || ( uncommon2(&mons[starlitmonster]) && !rn2(4) ) || ( uncommon3(&mons[starlitmonster]) && !rn2(3) ) || ( uncommon5(&mons[starlitmonster]) && !rn2(2) ) || ( uncommon7(&mons[starlitmonster]) && rn2(3) ) || ( uncommon10(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(20) ) ) goto polyinitredoY;
 
 		polyinitor->mmove = mons[starlitmonster].mmove;
 		polyinitor->ac = mons[starlitmonster].ac;
@@ -40421,7 +44246,7 @@ polyinitredoY:
 	starlitmonster = rn2(NUMMONS);
 	do {
 		starlitmonster = rn2(NUMMONS);
-	} while ( (notake(&mons[starlitmonster]) && rn2(4) ) || ((mons[starlitmonster].mlet == S_BAT) && rn2(2)) || ((mons[starlitmonster].mlet == S_EYE) && rn2(2) ) || ((mons[starlitmonster].mmove == 1) && rn2(4) ) || ((mons[starlitmonster].mmove == 2) && rn2(3) ) || ((mons[starlitmonster].mmove == 3) && rn2(2) ) || ((mons[starlitmonster].mmove == 4) && !rn2(3) ) || ( (mons[starlitmonster].mlevel < 10) && ((mons[starlitmonster].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[starlitmonster]) && rn2(2) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(5) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(20) ) || ( uncommon2(&mons[starlitmonster]) && !rn2(4) ) || ( uncommon3(&mons[starlitmonster]) && !rn2(3) ) || ( uncommon5(&mons[starlitmonster]) && !rn2(2) ) || ( uncommon7(&mons[starlitmonster]) && rn2(3) ) || ( uncommon10(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(20) ) );
+	} while ( (notake(&mons[starlitmonster]) && rn2(4) ) || ((mons[starlitmonster].mlet == S_BAT) && rn2(2)) || ((mons[starlitmonster].mlet == S_EYE) && rn2(2) ) || ((mons[starlitmonster].mmove == 1) && rn2(4) ) || ((mons[starlitmonster].mmove == 2) && rn2(3) ) || ((mons[starlitmonster].mmove == 3) && rn2(2) ) || ((mons[starlitmonster].mmove == 4) && !rn2(3) ) || ( (mons[starlitmonster].mlevel < 10) && ((mons[starlitmonster].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[starlitmonster]) && rn2(2) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(5) ) || ( is_nonmoving(&mons[starlitmonster]) && rn2(20) ) || (is_jonadabmonster(&mons[starlitmonster]) && rn2(20)) || ( uncommon2(&mons[starlitmonster]) && !rn2(4) ) || ( uncommon3(&mons[starlitmonster]) && !rn2(3) ) || ( uncommon5(&mons[starlitmonster]) && !rn2(2) ) || ( uncommon7(&mons[starlitmonster]) && rn2(3) ) || ( uncommon10(&mons[starlitmonster]) && rn2(5) ) || ( is_eel(&mons[starlitmonster]) && rn2(20) ) );
 
 	destabilizer->mmove = mons[starlitmonster].mmove;
 	destabilizer->ac = mons[starlitmonster].ac;
@@ -40450,6 +44275,63 @@ polyinitredoY:
 
 	destabilizer->mflags3 |= 0x40000000L;
 	destabilizer->mflags3 |= 0x80000000L;
+
+}
+
+/* Called from allmain.c; re-initializes god names if you save and load --Amy */
+void
+reinitgods()
+{
+	int tempvar = u.uhereticgodinit;
+
+	if (isheretic) {
+		u.hereticlgod = lawfulgods[u.uhereticgodlawful];
+		u.hereticngod = neutralgods[u.uhereticgodneutral];
+		u.hereticcgod = chaoticgods[u.uhereticgodchaotic];
+
+		if (tempvar >= 4) {
+			u.hereticcgod = hereticgods[u.uhereticgodchaotic];
+			tempvar -= 4;
+		} else {
+			u.hereticcgod = chaoticgods[u.uhereticgodchaotic];
+		}
+
+		if (tempvar >= 2) {
+			u.hereticngod = hereticgods[u.uhereticgodneutral];
+			tempvar -= 2;
+		} else {
+			u.hereticngod = neutralgods[u.uhereticgodneutral];
+		}
+
+		if (tempvar >= 1) {
+			u.hereticlgod = hereticgods[u.uhereticgodlawful];
+			tempvar -= 1;
+		} else {
+			u.hereticlgod = lawfulgods[u.uhereticgodlawful];
+		}
+
+	}
+
+	if (!isheretic && (Role_if(PM_GUNNER) || Role_if(PM_ANACHRONIST) || Role_if(PM_PRIEST) || Role_if(PM_MYSTIC) || Role_if(PM_SHAPESHIFTER) || Role_if(PM_ERDRICK) || Role_if(PM_WILD_TALENT) )) {
+
+		u.hereticlgod = lawfulgods[u.uhereticgodlawful];
+		u.hereticngod = neutralgods[u.uhereticgodneutral];
+		u.hereticcgod = chaoticgods[u.uhereticgodchaotic];
+
+	}
+
+	if (Role_if(PM_FAILED_EXISTENCE) || Role_if(PM_TRANSSYLVANIAN) ) {
+		u.hereticlgod = hereticgods[u.uhereticgodlawful];
+		u.hereticngod = hereticgods[u.uhereticgodneutral];
+		u.hereticcgod = hereticgods[u.uhereticgodchaotic];
+	}
+
+	/* fail safe - this will be essential for the recursion trap that changes the player's role or race --Amy */
+	if (!isheretic && !Role_if(PM_GUNNER) && !Role_if(PM_WILD_TALENT) && !Role_if(PM_ANACHRONIST) && !Role_if(PM_PRIEST) && !Role_if(PM_MYSTIC) && !Role_if(PM_SHAPESHIFTER) && !Role_if(PM_FAILED_EXISTENCE) && !Role_if(PM_TRANSSYLVANIAN) && !Role_if(PM_ERDRICK)) {
+		u.hereticlgod = hereticgods[u.uhereticgodlawful];
+		u.hereticngod = hereticgods[u.uhereticgodneutral];
+		u.hereticcgod = hereticgods[u.uhereticgodchaotic];
+	}
 
 }
 

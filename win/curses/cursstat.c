@@ -599,6 +599,11 @@ draw_horizontal(int x, int y, int hp, int hpmax)
 		if (flags.hybridaggravator) wprintw(win, "G");
 		if (flags.hybridevilvariant) wprintw(win, "T");
 		if (flags.hybridlevelscaler) wprintw(win, "s");
+		if (flags.hybridhallucinator) wprintw(win, "h");
+		if (flags.hybridbossrusher) wprintw(win, "b");
+		if (flags.hybriddorian) wprintw(win, "d");
+		if (flags.hybridtechless) wprintw(win, "t");
+		if (flags.hybridblait) wprintw(win, "l");
 	}
 
     if (flags.showscore)
@@ -680,6 +685,15 @@ linetwo:
         /* use waddch, we don't want to highlight the '/' */
         waddch(win, '/');
         print_statdiff("", &prevexp, u.uexp, STAT_OTHER);
+    }
+
+    if (flags.showsymbiotehp && uinsymbiosis) {
+	  wprintw(win, " SH:%d(%d)", u.usymbiote.mhp, u.usymbiote.mhpmax);
+	  if (u.usymbiote.cursed) {
+		wprintw(win, "%s", u.usymbiote.stckcurse ? "S" : "C");
+		wprintw(win, "%d", (u.usymbiote.evilcurse || u.usymbiote.bbcurse || u.usymbiote.morgcurse) ? 4 : u.usymbiote.prmcurse ? 3 : u.usymbiote.hvycurse ? 2 : 1);
+		if (u.shutdowntime) wprintw(win, "sd");
+	  }
     }
 
 #ifdef SHOW_WEIGHT
@@ -1046,10 +1060,11 @@ curses_add_statuses(WINDOW *win, boolean align_right,
     statprob("Glib",    IsGlib);
     statprob("Legs",    Wounded_legs);
     statprob("Choke",    Strangled);
+    statprob("Bleed",    PlayerBleeds);
     statprob("Vomit",    Vomiting);
     statprob("Elbereth",    sengr_at("Elbereth", u.ux, u.uy));
-    statprob("Fear",    Feared && !Race_if(PM_TUMBLRER));
-    statprob("Triggered",    Feared && Race_if(PM_TUMBLRER));
+    statprob("Fear",    Feared && !Race_if(PM_TUMBLRER) && !Role_if(PM_SOCIAL_JUSTICE_WARRIOR));
+    statprob("Triggered",    Feared && (Race_if(PM_TUMBLRER) || Role_if(PM_SOCIAL_JUSTICE_WARRIOR)));
     statprob("Numb",    Numbed);
     statprob("Paralyzed",    multi < 0);
     statprob("Vibration",    (isok(u.ux, u.uy) && invocation_pos(u.ux, u.uy)));

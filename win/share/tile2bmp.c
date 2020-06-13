@@ -168,6 +168,7 @@ char *argv[];
 	}
 #endif
 
+	monst_globals_init();
 	tilecount = 0;
 	xoffset = yoffset = 0;
 	initflag = 0;
@@ -225,7 +226,7 @@ char *argv[];
 	}
 
 	if (tilecount<1) {
-	    fprintf(stderr,"No tiles created! (check line end character sequence for your OS).\n");
+	    fprintf(stderr,"%s","No tiles created! (check line end character sequence for your OS).\n");
 	    fclose(fp);
 	    unlink(bmpname);
 		exit(EXIT_FAILURE);
@@ -361,7 +362,7 @@ pixel (*pixels)[MAX_TILE_X];
 		break;
 	  }
 	  if (cur_color >= colorsinmap)
-		fprintf(stderr, "color not in colormap!\n");
+		fprintf(stderr,"%s", "color not in colormap!\n");
 	  y = (maxbmp_y - 1) - (cur_y + yoffset);
 #if BITCOUNT==4
 	  x = (cur_x / 2) + xoffset;

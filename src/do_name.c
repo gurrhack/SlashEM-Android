@@ -260,7 +260,7 @@ do_mname()
 			|| mtmp->m_ap_type == M_AP_FURNITURE
 			|| mtmp->m_ap_type == M_AP_OBJECT
 			|| mtmp->minvisreal
-			|| (mtmp->minvis && !See_invisible)))) {
+			|| (mtmp->minvis && (!See_invisible || (!StrongSee_invisible && !mtmp->seeinvisble) ) )))) {
 		pline("I see no monster there.");
 		return(0);
 	}
@@ -599,6 +599,9 @@ static const char * const ghostnames[] = {
 	"Aosdict", "Ziratha", "Volt", "Kritixilithos", "Rikersan", "K2",
 	"Leeroy", "Hypnotist", "Anerag", "Icerose", "Madotsuki",
 	"PeterQ", "PavelB", "FlamingGuacamole", "Dracopent", "AntiGulp",
+	"Metanite", "Andrio", "Greyberyl", "Pellsson", "Recluse", "Malena",
+	"Pinkbeast", "Mickmane", "Porkman", "Micromoog", "Malor", "Merlek",
+	"Musicdemon",
 
 };
 
@@ -685,6 +688,7 @@ boolean called;
 	boolean do_hallu, do_invis, do_it, do_saddle;
 	boolean name_at_start, has_adjectives;
 	char *bp;
+	int egotypeamount = 0;
 
 	if (program_state.gameover)
 	    suppress |= SUPPRESS_HALLUCINATION;
@@ -693,12 +697,16 @@ boolean called;
 
 	do_hallu = Hallucination && !(suppress & SUPPRESS_HALLUCINATION);
 	do_invis = mtmp->minvis && !(suppress & SUPPRESS_INVISIBLE);
+
 	do_it = (!canspotmon(mtmp) || (!sensemon(mtmp) && ((is_hider(mtmp->data) || mtmp->egotype_hide || mtmp->egotype_mimic) && (mtmp->mundetected || mtmp->m_ap_type == M_AP_FURNITURE || mtmp->m_ap_type == M_AP_OBJECT)) )) &&
 	    article != ARTICLE_YOUR &&
 	    !program_state.gameover &&
 	    mtmp != u.usteed &&
 	    !(u.uswallow && mtmp == u.ustuck) &&
 	    !(suppress & SUPPRESS_IT);
+
+stupidsegfault:
+
 	do_saddle = !(suppress & SUPPRESS_SADDLE);
 
 	buf[0] = 0;
@@ -707,6 +715,12 @@ boolean called;
 	if (do_it) {
 	    strcpy(buf, "it");
 	    return buf;
+	}
+
+	if (Role_if(PM_GENDERSTARIST)) {
+		if (is_neuter(mtmp->data)) strcat(buf, "male or female or neuter ");
+		else if (mtmp->female) strcat(buf, "female ");
+		else strcat(buf, "male ");
 	}
 
 	/* priests and minions: don't even use this function */
@@ -749,6 +763,10 @@ boolean called;
 	    }
 	    strcat(buf, shkname(mtmp));
 	    if (mdat == &mons[PM_SHOPKEEPER] && !do_invis)
+		return buf;
+	    if (mdat == &mons[PM_MASTER_SHOPKEEPER] && !do_invis)
+		return buf;
+	    if (mdat == &mons[PM_ELITE_SHOPKEEPER] && !do_invis)
 		return buf;
 	    strcat(buf, " the ");
 	    if (do_invis)
@@ -847,147 +865,166 @@ boolean called;
 		 * of the English grammar, but it's intentional to mark words that belong to a single egotype, because
 		 * a monster may have several egotypes at the same time. --Amy */
 
-	    if (mtmp->egotype_thief) sprintf(eos(buf), " Thief");
-	    if (mtmp->egotype_wallwalk) sprintf(eos(buf), " Phazer");
-	    if (mtmp->egotype_disenchant) sprintf(eos(buf), " Disenchanter");
-	    if (mtmp->egotype_rust) sprintf(eos(buf), " Ruster");
-	    if (mtmp->egotype_corrosion) sprintf(eos(buf), " Corroder");
-	    if (mtmp->egotype_decay) sprintf(eos(buf), " Decayer");
-	    if (mtmp->egotype_wither) sprintf(eos(buf), " Witherer");
-	    if (mtmp->egotype_grab) sprintf(eos(buf), " Grabber");
-	    if (mtmp->egotype_flying) sprintf(eos(buf), " Flyer");
-	    if (mtmp->egotype_hide) sprintf(eos(buf), " Hider");
-	    if (mtmp->egotype_regeneration) sprintf(eos(buf), " Regenerator");
-	    if (mtmp->egotype_undead) sprintf(eos(buf), " Undead");
-	    if (mtmp->egotype_domestic) sprintf(eos(buf), " Pet-type");
-	    if (mtmp->egotype_covetous) sprintf(eos(buf), " Covenant");
-	    if (mtmp->egotype_avoider) sprintf(eos(buf), " Avoider");
-	    if (mtmp->egotype_petty) sprintf(eos(buf), " Pettymonster");
-	    if (mtmp->egotype_pokemon) sprintf(eos(buf), " Pokemon");
-	    if (mtmp->egotype_slows) sprintf(eos(buf), " Slower");
-	    if (mtmp->egotype_vampire) sprintf(eos(buf), " Vampire");
-	    if (mtmp->egotype_teleportself) sprintf(eos(buf), " Teleporter");
-	    if (mtmp->egotype_teleportyou) sprintf(eos(buf), " Warper");
-	    if (mtmp->egotype_wrap) sprintf(eos(buf), " Wrapper");
-	    if (mtmp->egotype_disease) sprintf(eos(buf), " Inficator");
-	    if (mtmp->egotype_slime) sprintf(eos(buf), " Slimer");
-	    if (mtmp->egotype_engrave) sprintf(eos(buf), " Rubber");
-	    if (mtmp->egotype_dark) sprintf(eos(buf), " Endarker");
-	    if (mtmp->egotype_luck) sprintf(eos(buf), " Luck-sucker");
-	    if (mtmp->egotype_push) sprintf(eos(buf), " Pusher");
-	    if (mtmp->egotype_arcane) sprintf(eos(buf), " Shaman");
-	    if (mtmp->egotype_clerical) sprintf(eos(buf), " Cleric");
+		/* we can't make the buffer arbitrarily large, so there needs to be a sanity check for the # of egotypes that
+		 * gets displayed, otherwise we get segfaults when a player casts mutation a gazillion times. */
+		egotypeamount = 0;
 
-	    if (mtmp->egotype_armorer) sprintf(eos(buf), " Armorer");
-	    if (mtmp->egotype_tank) sprintf(eos(buf), " Tank");
-	    if (mtmp->egotype_speedster) sprintf(eos(buf), " Speedster");
-	    if (mtmp->egotype_racer) sprintf(eos(buf), " Racer");
+	    if (mtmp->egotype_thief && (++egotypeamount < 21) ) sprintf(eos(buf), " Thief");
+	    if (mtmp->egotype_wallwalk && (++egotypeamount < 21) ) sprintf(eos(buf), " Phazer");
+	    if (mtmp->egotype_disenchant && (++egotypeamount < 21) ) sprintf(eos(buf), " Disenchanter");
+	    if (mtmp->egotype_rust && (++egotypeamount < 21) ) sprintf(eos(buf), " Ruster");
+	    if (mtmp->egotype_corrosion && (++egotypeamount < 21) ) sprintf(eos(buf), " Corroder");
+	    if (mtmp->egotype_decay && (++egotypeamount < 21) ) sprintf(eos(buf), " Decayer");
+	    if (mtmp->egotype_wither && (++egotypeamount < 21) ) sprintf(eos(buf), " Witherer");
+	    if (mtmp->egotype_grab && (++egotypeamount < 21) ) sprintf(eos(buf), " Grabber");
+	    if (mtmp->egotype_flying && (++egotypeamount < 21) ) sprintf(eos(buf), " Flyer");
+	    if (mtmp->egotype_hide && (++egotypeamount < 21) ) sprintf(eos(buf), " Hider");
+	    if (mtmp->egotype_regeneration && (++egotypeamount < 21) ) sprintf(eos(buf), " Regenerator");
+	    if (mtmp->egotype_undead && (++egotypeamount < 21) ) sprintf(eos(buf), " Undead");
+	    if (mtmp->egotype_domestic && (++egotypeamount < 21) ) sprintf(eos(buf), " Pet-type");
+	    if (mtmp->egotype_covetous && (++egotypeamount < 21) ) sprintf(eos(buf), " Covenant");
+	    if (mtmp->egotype_avoider && (++egotypeamount < 21) ) sprintf(eos(buf), " Avoider");
+	    if (mtmp->egotype_petty && (++egotypeamount < 21) ) sprintf(eos(buf), " Pettymonster");
+	    if (mtmp->egotype_pokemon && (++egotypeamount < 21) ) sprintf(eos(buf), " Pokemon");
+	    if (mtmp->egotype_slows && (++egotypeamount < 21) ) sprintf(eos(buf), " Slower");
+	    if (mtmp->egotype_vampire && (++egotypeamount < 21) ) sprintf(eos(buf), " Vampire");
+	    if (mtmp->egotype_teleportself && (++egotypeamount < 21) ) sprintf(eos(buf), " Teleporter");
+	    if (mtmp->egotype_teleportyou && (++egotypeamount < 21) ) sprintf(eos(buf), " Warper");
+	    if (mtmp->egotype_wrap && (++egotypeamount < 21) ) sprintf(eos(buf), " Wrapper");
+	    if (mtmp->egotype_disease && (++egotypeamount < 21) ) sprintf(eos(buf), " Inficator");
+	    if (mtmp->egotype_slime && (++egotypeamount < 21) ) sprintf(eos(buf), " Slimer");
+	    if (mtmp->egotype_engrave && (++egotypeamount < 21) ) sprintf(eos(buf), " Rubber");
+	    if (mtmp->egotype_dark && (++egotypeamount < 21) ) sprintf(eos(buf), " Endarker");
+	    if (mtmp->egotype_luck && (++egotypeamount < 21) ) sprintf(eos(buf), " Luck-sucker");
+	    if (mtmp->egotype_push && (++egotypeamount < 21) ) sprintf(eos(buf), " Pusher");
+	    if (mtmp->egotype_arcane && (++egotypeamount < 21) ) sprintf(eos(buf), " Shaman");
+	    if (mtmp->egotype_clerical && (++egotypeamount < 21) ) sprintf(eos(buf), " Cleric");
 
-	    if (mtmp->egotype_randomizer) sprintf(eos(buf), " Randomizer");
-	    if (mtmp->egotype_blaster) sprintf(eos(buf), " Blaster");
-	    if (mtmp->egotype_multiplicator) sprintf(eos(buf), " Multiplicator");
+	    if (mtmp->egotype_armorer && (++egotypeamount < 21) ) sprintf(eos(buf), " Armorer");
+	    if (mtmp->egotype_tank && (++egotypeamount < 21) ) sprintf(eos(buf), " Tank");
+	    if (mtmp->egotype_speedster && (++egotypeamount < 21) ) sprintf(eos(buf), " Speedster");
+	    if (mtmp->egotype_racer && (++egotypeamount < 21) ) sprintf(eos(buf), " Racer");
 
-	    if (mtmp->egotype_gator) sprintf(eos(buf), " Gator");
+	    if (mtmp->egotype_randomizer && (++egotypeamount < 21) ) sprintf(eos(buf), " Randomizer");
+	    if (mtmp->egotype_blaster && (++egotypeamount < 21) ) sprintf(eos(buf), " Blaster");
+	    if (mtmp->egotype_multiplicator && (++egotypeamount < 21) ) sprintf(eos(buf), " Multiplicator");
 
-	    if (mtmp->egotype_reflecting) sprintf(eos(buf), " Reflector");
-	    if (mtmp->egotype_hugger) sprintf(eos(buf), " Hugger");
-	    if (mtmp->egotype_mimic) sprintf(eos(buf), " Mimic");
-	    if (mtmp->egotype_permamimic) sprintf(eos(buf), " Permamimic");
+	    if (mtmp->egotype_gator && (++egotypeamount < 21) ) sprintf(eos(buf), " Gator");
 
-	    if (mtmp->egotype_poisoner) sprintf(eos(buf), " Poisoner");
-	    if (mtmp->egotype_elementalist) sprintf(eos(buf), " Elementalist");
-	    if (mtmp->egotype_resistor) sprintf(eos(buf), " Resistor");
-	    if (mtmp->egotype_acidspiller) sprintf(eos(buf), " Acidspiller");
-	    if (mtmp->egotype_watcher) sprintf(eos(buf), " Watcher");
-	    if (mtmp->egotype_metallivore) sprintf(eos(buf), " Metallivore");
-	    if (mtmp->egotype_lithivore) sprintf(eos(buf), " Lithivore");
-	    if (mtmp->egotype_organivore) sprintf(eos(buf), " Organivore");
-	    if (mtmp->egotype_breather) sprintf(eos(buf), " Breather");
-	    if (mtmp->egotype_beamer) sprintf(eos(buf), " Beamer");
-	    if (mtmp->egotype_troll) sprintf(eos(buf), " Resurrector");
+	    if (mtmp->egotype_reflecting && (++egotypeamount < 21) ) sprintf(eos(buf), " Reflector");
+	    if (mtmp->egotype_hugger && (++egotypeamount < 21) ) sprintf(eos(buf), " Hugger");
+	    if (mtmp->egotype_mimic && (++egotypeamount < 21) ) sprintf(eos(buf), " Mimic");
+	    if (mtmp->egotype_permamimic && (++egotypeamount < 21) ) sprintf(eos(buf), " Permamimic");
 
-	    if (mtmp->egotype_faker) sprintf(eos(buf), " Faker");
-	    if (mtmp->egotype_farter) sprintf(eos(buf), " Farter");
-	    if (mtmp->egotype_timer) sprintf(eos(buf), " Timer");
-	    if (mtmp->egotype_thirster) sprintf(eos(buf), " Thirster");
-	    if (mtmp->egotype_watersplasher) sprintf(eos(buf), " Watersplasher");
-	    if (mtmp->egotype_cancellator) sprintf(eos(buf), " Cancellator");
-	    if (mtmp->egotype_banisher) sprintf(eos(buf), " Banisher");
-	    if (mtmp->egotype_shredder) sprintf(eos(buf), " Shredder");
-	    if (mtmp->egotype_abductor) sprintf(eos(buf), " Abductor");
-	    if (mtmp->egotype_incrementor) sprintf(eos(buf), " Incrementor");
-	    if (mtmp->egotype_mirrorimage) sprintf(eos(buf), " Mirror-image");
-	    if (mtmp->egotype_curser) sprintf(eos(buf), " Curser");
-	    if (mtmp->egotype_horner) sprintf(eos(buf), " Horner");
-	    if (mtmp->egotype_lasher) sprintf(eos(buf), " Lasher");
-	    if (mtmp->egotype_cullen) sprintf(eos(buf), " Cullen");
-	    if (mtmp->egotype_webber) sprintf(eos(buf), " Webber");
-	    if (mtmp->egotype_itemporter) sprintf(eos(buf), " Itemporter");
-	    if (mtmp->egotype_schizo) sprintf(eos(buf), " Schizo");
-	    if (mtmp->egotype_nexus) sprintf(eos(buf), " Nexus");
-	    if (mtmp->egotype_sounder) sprintf(eos(buf), " Sounder");
-	    if (mtmp->egotype_gravitator) sprintf(eos(buf), " Gravitator");
-	    if (mtmp->egotype_inert) sprintf(eos(buf), " Inert");
-	    if (mtmp->egotype_antimage) sprintf(eos(buf), " Antimage");
-	    if (mtmp->egotype_plasmon) sprintf(eos(buf), " Plasmon");
-	    if (mtmp->egotype_weaponizer) sprintf(eos(buf), " Weaponizer");
-	    if (mtmp->egotype_engulfer) sprintf(eos(buf), " Engulfer");
-	    if (mtmp->egotype_bomber) sprintf(eos(buf), " Bomber");
-	    if (mtmp->egotype_exploder) sprintf(eos(buf), " Exploder");
-	    if (mtmp->egotype_unskillor) sprintf(eos(buf), " Unskillor");
-	    if (mtmp->egotype_blinker) sprintf(eos(buf), " Blinker");
-	    if (mtmp->egotype_psychic) sprintf(eos(buf), " Psychic");
-	    if (mtmp->egotype_abomination) sprintf(eos(buf), " Abomination");
-	    if (mtmp->egotype_gazer) sprintf(eos(buf), " Gazer");
-	    if (mtmp->egotype_seducer) sprintf(eos(buf), " Seducer");
-	    if (mtmp->egotype_flickerer) sprintf(eos(buf), " Flickerer");
-	    if (mtmp->egotype_hitter) sprintf(eos(buf), " Hitter");
-	    if (mtmp->egotype_piercer) sprintf(eos(buf), " Piercer");
-	    if (mtmp->egotype_petshielder) sprintf(eos(buf), " Petshielder");
-	    if (mtmp->egotype_displacer) sprintf(eos(buf), " Displacer");
-	    if (mtmp->egotype_lifesaver) sprintf(eos(buf), " Lifesaver");
-	    if (mtmp->egotype_venomizer) sprintf(eos(buf), " Venomizer");
-	    if (mtmp->egotype_dreameater) sprintf(eos(buf), " Dream-eater");
-	    if (mtmp->egotype_nastinator) sprintf(eos(buf), " Nastinator");
-	    if (mtmp->egotype_baddie) sprintf(eos(buf), " Baddie");
-	    if (mtmp->egotype_sludgepuddle) sprintf(eos(buf), " Sludgepuddle");
-	    if (mtmp->egotype_vulnerator) sprintf(eos(buf), " Vulnerator");
-	    if (mtmp->egotype_marysue) sprintf(eos(buf), " Mary-Sue");
-	    if (mtmp->egotype_shader) sprintf(eos(buf), " Shader");
-	    if (mtmp->egotype_amnesiac) sprintf(eos(buf), " Amnesiac");
-	    if (mtmp->egotype_trapmaster) sprintf(eos(buf), " Trapmaster");
-	    if (mtmp->egotype_midiplayer) sprintf(eos(buf), " Midi-Player");
-	    if (mtmp->egotype_rngabuser) sprintf(eos(buf), " RNG-abuser");
-	    if (mtmp->egotype_mastercaster) sprintf(eos(buf), " Mastercaster");
-	    if (mtmp->egotype_aligner) sprintf(eos(buf), " Aligner");
-	    if (mtmp->egotype_sinner) sprintf(eos(buf), " Sinner");
-	    if (mtmp->egotype_aggravator) sprintf(eos(buf), " Aggravator");
-	    if (mtmp->egotype_minator) sprintf(eos(buf), " Minator");
-	    if (mtmp->egotype_contaminator) sprintf(eos(buf), " Contaminator");
-	    if (mtmp->egotype_radiator) sprintf(eos(buf), " Radiator");
-	    if (mtmp->egotype_weeper) sprintf(eos(buf), " Weeper");
-	    if (mtmp->egotype_reactor) sprintf(eos(buf), " Reactor");
-	    if (mtmp->egotype_destructor) sprintf(eos(buf), " Destructor");
-	    if (mtmp->egotype_trembler) sprintf(eos(buf), " Trembler");
-	    if (mtmp->egotype_worldender) sprintf(eos(buf), " World-ender");
-	    if (mtmp->egotype_damager) sprintf(eos(buf), " Damager");
-	    if (mtmp->egotype_antitype) sprintf(eos(buf), " Antitype");
-	    if (mtmp->egotype_painlord) sprintf(eos(buf), " Painlord");
-	    if (mtmp->egotype_empmaster) sprintf(eos(buf), " EMP-Master");
-	    if (mtmp->egotype_spellsucker) sprintf(eos(buf), " Spellsucker");
-	    if (mtmp->egotype_eviltrainer) sprintf(eos(buf), " EvilTrainer");
-	    if (mtmp->egotype_statdamager) sprintf(eos(buf), " StatDamager");
-	    if (mtmp->egotype_damagedisher) sprintf(eos(buf), " Damage-Disher");
-	    if (mtmp->egotype_thiefguildmember) sprintf(eos(buf), " ThiefGuildMember");
-	    if (mtmp->egotype_rogue) sprintf(eos(buf), " Rogue");
-	    if (mtmp->egotype_steed) sprintf(eos(buf), " Steed");
-	    if (mtmp->egotype_champion) sprintf(eos(buf), " Champion");
-	    if (mtmp->egotype_boss) sprintf(eos(buf), " Boss");
-	    if (mtmp->egotype_atomizer) sprintf(eos(buf), " Atomizer");
-	    if (mtmp->egotype_perfumespreader) sprintf(eos(buf), " Perfume-Spreader");
-	    if (mtmp->egotype_converter) sprintf(eos(buf), " Converter");
-	    if (mtmp->egotype_wouwouer) sprintf(eos(buf), " Wouwouer");
-	    if (mtmp->egotype_allivore) sprintf(eos(buf), " Allivore");
+	    if (mtmp->egotype_poisoner && (++egotypeamount < 21) ) sprintf(eos(buf), " Poisoner");
+	    if (mtmp->egotype_elementalist && (++egotypeamount < 21) ) sprintf(eos(buf), " Elementalist");
+	    if (mtmp->egotype_resistor && (++egotypeamount < 21) ) sprintf(eos(buf), " Resistor");
+	    if (mtmp->egotype_acidspiller && (++egotypeamount < 21) ) sprintf(eos(buf), " Acidspiller");
+	    if (mtmp->egotype_watcher && (++egotypeamount < 21) ) sprintf(eos(buf), " Watcher");
+	    if (mtmp->egotype_metallivore && (++egotypeamount < 21) ) sprintf(eos(buf), " Metallivore");
+	    if (mtmp->egotype_lithivore && (++egotypeamount < 21) ) sprintf(eos(buf), " Lithivore");
+	    if (mtmp->egotype_organivore && (++egotypeamount < 21) ) sprintf(eos(buf), " Organivore");
+	    if (mtmp->egotype_breather && (++egotypeamount < 21) ) sprintf(eos(buf), " Breather");
+	    if (mtmp->egotype_beamer && (++egotypeamount < 21) ) sprintf(eos(buf), " Beamer");
+	    if (mtmp->egotype_troll && (++egotypeamount < 21) ) sprintf(eos(buf), " Resurrector");
+
+	    if (mtmp->egotype_faker && (++egotypeamount < 21) ) sprintf(eos(buf), " Faker");
+	    if (mtmp->egotype_farter && (++egotypeamount < 21) ) sprintf(eos(buf), " Farter");
+	    if (mtmp->egotype_timer && (++egotypeamount < 21) ) sprintf(eos(buf), " Timer");
+	    if (mtmp->egotype_thirster && (++egotypeamount < 21) ) sprintf(eos(buf), " Thirster");
+	    if (mtmp->egotype_watersplasher && (++egotypeamount < 21) ) sprintf(eos(buf), " Watersplasher");
+	    if (mtmp->egotype_cancellator && (++egotypeamount < 21) ) sprintf(eos(buf), " Cancellator");
+	    if (mtmp->egotype_banisher && (++egotypeamount < 21) ) sprintf(eos(buf), " Banisher");
+	    if (mtmp->egotype_shredder && (++egotypeamount < 21) ) sprintf(eos(buf), " Shredder");
+	    if (mtmp->egotype_abductor && (++egotypeamount < 21) ) sprintf(eos(buf), " Abductor");
+	    if (mtmp->egotype_incrementor && (++egotypeamount < 21) ) sprintf(eos(buf), " Incrementor");
+	    if (mtmp->egotype_mirrorimage && (++egotypeamount < 21) ) sprintf(eos(buf), " Mirror-image");
+	    if (mtmp->egotype_curser && (++egotypeamount < 21) ) sprintf(eos(buf), " Curser");
+	    if (mtmp->egotype_horner && (++egotypeamount < 21) ) sprintf(eos(buf), " Horner");
+	    if (mtmp->egotype_lasher && (++egotypeamount < 21) ) sprintf(eos(buf), " Lasher");
+	    if (mtmp->egotype_cullen && (++egotypeamount < 21) ) sprintf(eos(buf), " Cullen");
+	    if (mtmp->egotype_webber && (++egotypeamount < 21) ) sprintf(eos(buf), " Webber");
+	    if (mtmp->egotype_itemporter && (++egotypeamount < 21) ) sprintf(eos(buf), " Itemporter");
+	    if (mtmp->egotype_schizo && (++egotypeamount < 21) ) sprintf(eos(buf), " Schizo");
+	    if (mtmp->egotype_nexus && (++egotypeamount < 21) ) sprintf(eos(buf), " Nexus");
+	    if (mtmp->egotype_sounder && (++egotypeamount < 21) ) sprintf(eos(buf), " Sounder");
+	    if (mtmp->egotype_gravitator && (++egotypeamount < 21) ) sprintf(eos(buf), " Gravitator");
+	    if (mtmp->egotype_inert && (++egotypeamount < 21) ) sprintf(eos(buf), " Inert");
+	    if (mtmp->egotype_antimage && (++egotypeamount < 21) ) sprintf(eos(buf), " Antimage");
+	    if (mtmp->egotype_plasmon && (++egotypeamount < 21) ) sprintf(eos(buf), " Plasmon");
+	    if (mtmp->egotype_weaponizer && (++egotypeamount < 21) ) sprintf(eos(buf), " Weaponizer");
+	    if (mtmp->egotype_engulfer && (++egotypeamount < 21) ) sprintf(eos(buf), " Engulfer");
+	    if (mtmp->egotype_bomber && (++egotypeamount < 21) ) sprintf(eos(buf), " Bomber");
+	    if (mtmp->egotype_exploder && (++egotypeamount < 21) ) sprintf(eos(buf), " Exploder");
+	    if (mtmp->egotype_unskillor && (++egotypeamount < 21) ) sprintf(eos(buf), " Unskillor");
+	    if (mtmp->egotype_blinker && (++egotypeamount < 21) ) sprintf(eos(buf), " Blinker");
+	    if (mtmp->egotype_psychic && (++egotypeamount < 21) ) sprintf(eos(buf), " Psychic");
+	    if (mtmp->egotype_abomination && (++egotypeamount < 21) ) sprintf(eos(buf), " Abomination");
+	    if (mtmp->egotype_gazer && (++egotypeamount < 21) ) sprintf(eos(buf), " Gazer");
+	    if (mtmp->egotype_seducer && (++egotypeamount < 21) ) sprintf(eos(buf), " Seducer");
+	    if (mtmp->egotype_flickerer && (++egotypeamount < 21) ) sprintf(eos(buf), " Flickerer");
+	    if (mtmp->egotype_hitter && (++egotypeamount < 21) ) sprintf(eos(buf), " Hitter");
+	    if (mtmp->egotype_piercer && (++egotypeamount < 21) ) sprintf(eos(buf), " Piercer");
+	    if (mtmp->egotype_petshielder && (++egotypeamount < 21) ) sprintf(eos(buf), " Petshielder");
+	    if (mtmp->egotype_displacer && (++egotypeamount < 21) ) sprintf(eos(buf), " Displacer");
+	    if (mtmp->egotype_lifesaver && (++egotypeamount < 21) ) sprintf(eos(buf), " Lifesaver");
+	    if (mtmp->egotype_venomizer && (++egotypeamount < 21) ) sprintf(eos(buf), " Venomizer");
+	    if (mtmp->egotype_dreameater && (++egotypeamount < 21) ) sprintf(eos(buf), " Dream-eater");
+	    if (mtmp->egotype_nastinator && (++egotypeamount < 21) ) sprintf(eos(buf), " Nastinator");
+	    if (mtmp->egotype_baddie && (++egotypeamount < 21) ) sprintf(eos(buf), " Baddie");
+	    if (mtmp->egotype_sludgepuddle && (++egotypeamount < 21) ) sprintf(eos(buf), " Sludgepuddle");
+	    if (mtmp->egotype_vulnerator && (++egotypeamount < 21) ) sprintf(eos(buf), " Vulnerator");
+	    if (mtmp->egotype_marysue && (++egotypeamount < 21) ) sprintf(eos(buf), " Mary-Sue");
+	    if (mtmp->egotype_shader && (++egotypeamount < 21) ) sprintf(eos(buf), " Shader");
+	    if (mtmp->egotype_amnesiac && (++egotypeamount < 21) ) sprintf(eos(buf), " Amnesiac");
+	    if (mtmp->egotype_trapmaster && (++egotypeamount < 21) ) sprintf(eos(buf), " Trapmaster");
+	    if (mtmp->egotype_midiplayer && (++egotypeamount < 21) ) sprintf(eos(buf), " Midi-Player");
+	    if (mtmp->egotype_rngabuser && (++egotypeamount < 21) ) sprintf(eos(buf), " RNG-abuser");
+	    if (mtmp->egotype_mastercaster && (++egotypeamount < 21) ) sprintf(eos(buf), " Mastercaster");
+	    if (mtmp->egotype_aligner && (++egotypeamount < 21) ) sprintf(eos(buf), " Aligner");
+	    if (mtmp->egotype_sinner && (++egotypeamount < 21) ) sprintf(eos(buf), " Sinner");
+	    if (mtmp->egotype_aggravator && (++egotypeamount < 21) ) sprintf(eos(buf), " Aggravator");
+	    if (mtmp->egotype_minator && (++egotypeamount < 21) ) sprintf(eos(buf), " Minator");
+	    if (mtmp->egotype_contaminator && (++egotypeamount < 21) ) sprintf(eos(buf), " Contaminator");
+	    if (mtmp->egotype_radiator && (++egotypeamount < 21) ) sprintf(eos(buf), " Radiator");
+	    if (mtmp->egotype_weeper && (++egotypeamount < 21) ) sprintf(eos(buf), " Weeper");
+	    if (mtmp->egotype_reactor && (++egotypeamount < 21) ) sprintf(eos(buf), " Reactor");
+	    if (mtmp->egotype_destructor && (++egotypeamount < 21) ) sprintf(eos(buf), " Destructor");
+	    if (mtmp->egotype_trembler && (++egotypeamount < 21) ) sprintf(eos(buf), " Trembler");
+	    if (mtmp->egotype_worldender && (++egotypeamount < 21) ) sprintf(eos(buf), " World-ender");
+	    if (mtmp->egotype_damager && (++egotypeamount < 21) ) sprintf(eos(buf), " Damager");
+	    if (mtmp->egotype_antitype && (++egotypeamount < 21) ) sprintf(eos(buf), " Antitype");
+	    if (mtmp->egotype_painlord && (++egotypeamount < 21) ) sprintf(eos(buf), " Painlord");
+	    if (mtmp->egotype_empmaster && (++egotypeamount < 21) ) sprintf(eos(buf), " EMP-Master");
+	    if (mtmp->egotype_spellsucker && (++egotypeamount < 21) ) sprintf(eos(buf), " Spellsucker");
+	    if (mtmp->egotype_eviltrainer && (++egotypeamount < 21) ) sprintf(eos(buf), " EvilTrainer");
+	    if (mtmp->egotype_statdamager && (++egotypeamount < 21) ) sprintf(eos(buf), " StatDamager");
+	    if (mtmp->egotype_damagedisher && (++egotypeamount < 21) ) sprintf(eos(buf), " Damage-Disher");
+	    if (mtmp->egotype_thiefguildmember && (++egotypeamount < 21) ) sprintf(eos(buf), " ThiefGuildMember");
+	    if (mtmp->egotype_rogue && (++egotypeamount < 21) ) sprintf(eos(buf), " Rogue");
+	    if (mtmp->egotype_steed && (++egotypeamount < 21) ) sprintf(eos(buf), " Steed");
+	    if (mtmp->egotype_champion && (++egotypeamount < 21) ) sprintf(eos(buf), " Champion");
+	    if (mtmp->egotype_boss && (++egotypeamount < 21) ) sprintf(eos(buf), " Boss");
+	    if (mtmp->egotype_atomizer && (++egotypeamount < 21) ) sprintf(eos(buf), " Atomizer");
+	    if (mtmp->egotype_perfumespreader && (++egotypeamount < 21) ) sprintf(eos(buf), " Perfume-Spreader");
+	    if (mtmp->egotype_converter && (++egotypeamount < 21) ) sprintf(eos(buf), " Converter");
+	    if (mtmp->egotype_wouwouer && (++egotypeamount < 21) ) sprintf(eos(buf), " Wouwouer");
+	    if (mtmp->egotype_allivore && (++egotypeamount < 21) ) sprintf(eos(buf), " Allivore");
+	    if (mtmp->egotype_nastycurser && (++egotypeamount < 21) ) sprintf(eos(buf), " Nastycurser");
+	    if (mtmp->egotype_sanitizer && (++egotypeamount < 21) ) sprintf(eos(buf), " Sanitizer");
+	    if (mtmp->egotype_laserpwnzor && (++egotypeamount < 21) ) sprintf(eos(buf), " LaserPwnz0r");
+	    if (mtmp->egotype_badowner && (++egotypeamount < 21) ) sprintf(eos(buf), " Bad0wn3r");
+	    if (mtmp->egotype_bleeder && (++egotypeamount < 21) ) sprintf(eos(buf), " Bleeder");
+	    if (mtmp->egotype_shanker && (++egotypeamount < 21) ) sprintf(eos(buf), " Shanker");
+	    if (mtmp->egotype_terrorizer && (++egotypeamount < 21) ) sprintf(eos(buf), " Terrorizer");
+	    if (mtmp->egotype_feminizer && (++egotypeamount < 21) ) sprintf(eos(buf), " Feminizer");
+	    if (mtmp->egotype_levitator && (++egotypeamount < 21) ) sprintf(eos(buf), " Levitator");
+	    if (mtmp->egotype_illusionator && (++egotypeamount < 21) ) sprintf(eos(buf), " Illusionator");
+	    if (mtmp->egotype_stealer && (++egotypeamount < 21) ) sprintf(eos(buf), " Stealer");
+	    if (mtmp->egotype_stoner && (++egotypeamount < 21) ) sprintf(eos(buf), " Stoner");
+	    if (mtmp->egotype_maecke && (++egotypeamount < 21) ) sprintf(eos(buf), " Maecke");
+	    if (mtmp->egotype_flamer && (++egotypeamount < 21) ) sprintf(eos(buf), " Flamer");
+	    if (egotypeamount > 20) sprintf(eos(buf), " (%d egotypes)", egotypeamount);
 
 	}
 
@@ -5102,6 +5139,317 @@ static const char * const bogusmons[] = {
 	"Minecraft Master",
 	"World Trade Center Architect",
 	"The Battlehorse", "The Wild Boar", "The Dire Wolf", /* big mean animals */
+	"Isolated Modder",
+	"Autistic Programmer",
+	"Whiny Crybaby",
+	"Balance Analphabet",
+	"Dumplog Scanner",
+	"Ragefitter",
+	"Accusing Lux",
+	"Repository Deleter",
+	"Self-Appointed Coding God",
+	"Your Magical Roommate", "Your Annoying Sister", "Your Insufferable Mother-In-Law", /* special */
+	"Assumption Spreader",
+	"Big Lips",
+	"Loud Agitator",
+	"Tally Heretic",
+	"Mass Rallier",
+	"Mob Mobilizer",
+	"Politic Revolutionizer",
+	"State Usurper",
+	"King of Fake News",
+	"Heimskr", "Suffragette", "Cromwell", /* annoying NPCs in certain video games */
+	"Colorfucker",
+	"Realism Lover",
+	"Dark Day Worshipper",
+	"Opinion Decrier",
+	"Creative Name Inventor",
+	"Good Godparent",
+	"Bullying Enabler",
+	"Cataclysm Squatter",
+	"Meme Machine",
+	"Margaret", "Anaconda", "Aerschie-Miesie", /* Amy's nicknames in Half-Life, AHL and Counter-Strike */
+	"Safe Zone Kid",
+	"Low Gatekeeper",
+	"Cesspool Dweller",
+	"Intolerant Fanatic",
+	"Echo Chamber Sounder",
+	"Banhammer Wielder",
+	"Party Line Ensurer",
+	"Miss-Leader",
+	"Major Minoritist",
+	"Zoe Quinn", "Brianna Wu", "Anita Sarkeesian", /* feminists */
+	"Alpha Mission Team",
+	"Sector Beta Sweeper",
+	"Order Acceptor",
+	"Diamond Waller",
+	"Distress Disposer",
+	"Teacher's Favorite",
+	"Treebark Protector",
+	"Superior Hider",
+	"Bane of Robbers",
+	"Speaker Walt", "Great Corner-Hard", "Left Guenter", /* superschool people */
+
+	"Summer Intern",
+	"Q/A Tester",
+	"Web Designer",
+	"Help Desk Jockey",
+	"Junior Programmer",
+	"Sysadmin",
+	"Lead Programmer",
+	"VP Engineering",
+	"High Programmer",
+	"Linus Torvalds", "Bjarne Stroustrup", "Mark Zuckerberg", /* famous software engineers */
+	"Savescummer",
+	"File Sharer",
+	"W@r3z d00d",
+	"Script Kiddie",
+	"H@x0r",
+	"1337 H@x0r",
+	"Decker",
+	"Virusneaker",
+	"Phreaker",
+	"Wikileaks", "Guccifer 2.0", "Anonymous", /* h@cking */
+	"Toilet Scrubber",
+	"Mop Boy",
+	"Housekeeper",
+	"Custodian",
+	"Maintenance Man",
+	"Sanitation Freak",
+	"Superintendent",
+	"Property Manager",
+	"Landlord",
+	"Grime", "Dog Shit", "Fag Butt", /* various forms of garbage - the latter is an actual term for "cigarette", you can stop whining about political correctness */
+	"Private",
+	"Corporal",
+	"Space Sergeant",
+	"Space Cadet",
+	"Space Lieutenant",
+	"Space Captain",
+	"Space Major",
+	"Space Colonel",
+	"Space General",
+	"Krog", "Winston", "Cyrus", /* Clan EIT; Cyrus is also the ZAPM lead dev */
+	"Yoof",
+	"Cannon Fodder",
+	"Meatshield",
+	"Warbuddy",
+	"Skarboy",
+	"Mob Kaptain",
+	"Nob",
+	"Meganob",
+	"Warboss",
+	"Cortege", "Tache", "Pillory", /* from Pokemon Vietnamese Crystal */
+	"Unblooded",
+	"Blooded",
+	"Honored One",
+	"Master Hunter",
+	"Vanguard",
+	"Elite",
+	"Clan Leader",
+	"Elder",
+	"Adjudicator",
+	"Macbeth", "Zoness", "Titania", /* Star Fox 64 */
+	"Towel Boy",
+	"Bench Warmer",
+	"Starter",
+	"Jock",
+	"Star Player",
+	"Team Captain",
+	"MVP",
+	"Pro Bowler",
+	"Hall Of Famer",
+	"Roger Staubach", "Peyton Manning", "Tom Brady", /* famous quarterbacks */
+	"Odd Ball",
+	"Weirdo",
+	"Mind Reader",
+	"Spoon Bender",
+	"Freakazoid",
+	"Telepath",
+	"Spyion",
+	"Master Psyker",
+	"Farseer",
+	"Bill Rizer", "Lance Bean", "Haggle Man", /* classic NES games */
+	"Enlightened One",
+	"Mind Mirror",
+	"Thought Catcher",
+	"Subconscious Link",
+	"Psionic Vein",
+	"Brainwave Warper",
+	"Neuroconductor",
+	"Mind Overlord",
+	"Fate Weaver",
+	"Grolla Seyfarth", "Pamela & Carl Arwig", "Iris Sepperin", /* erka_es, and the "Carl Arwig" is an inside joke */
+	"Far Herald",
+	"Space Brother",
+	"Cult Idol",
+	"First Contact",
+	"Federation Envoy",
+	"Galactic Senator",
+	"Coadunator",
+	"Uplifter",
+	"Terraformer",
+	"Marie Curie", "Georg Simon Ohm", "Albert Einstein", /* famous scientists */
+	"Crazy One",
+	"Very Mad Orc",
+	"Frazzler",
+	"Humming Head",
+	"Brain Warper",
+	"Walking Psi Bomb",
+	"One Orc Storm",
+	"Warptide",
+	"Warp Unleasher",
+	"Tax Evasion", "Murder and Arson", "Prison Outbreak", /* crimes, listed in order of severity from minor to major :P */
+	"Rocket Tester",
+	"Vostok Martyr",
+	"Deimos Stevedore",      "Moon Walker",
+	"Leonov Engineer",
+	"Marauder Pilot",
+	"Von Braun Staff",
+	"LongShot Navigator",
+	"Tie Fighter Ace",
+	"Nostromo Survivor",
+	"Neil Armstrong", "Sally Ride", "Yuri Gagarin", /* famous astronauts */
+	"Eavesdropper",
+	"Looming Shadow",
+	"Infiltrator",
+	"Sabotager",
+	"Terrorist",
+	"Corporate Spy",
+	"Black Hand",
+	"Cyber Assassin",
+	"Unseen Master",
+	"Diddy the Fail Master", "Bantor the Gay Voice", "Conker the Bad Fur Squirrel", /* Diddy Kong Failing :P */
+	"Mars Castaway",   "Moon Base Staff",
+	"Orbital Watch",
+	"Land Agent",
+	"Covert Eye",
+	"Arms Dealer",
+	"Belt Capo",
+	"Planet Conqueror",
+	"System Kingpin",
+	"Sector Crimelord",
+	"Aung San Suu Kyi", "Ai Weiwei", "Vladimir Bukovsky", /* famous dissidents */
+	"Outworlder",   "Void Explorer",
+	"Genesis Witness",
+	"Chaos Shaper",
+	"Nebulae Catcher",
+	"Star Assembler",
+	"Planet Shifter",
+	"Galaxy Designer",
+	"DNA Programmer",
+	"Species Creator",
+	"Jim Raynor", "Hierarch Artanis", "Sarah Kerrigan", /* starcraft */
+	"Learner",
+	"Shuffler",
+	"Player",
+	"Reader",
+	"Strategist",
+	"Deck Stacker",
+	"Card Collector",
+	"Deck Stacker",
+	"King of Games", "Queen of Games",
+	"Johnny", "Spike", "Timmy", /* Card player archetypes */
+	"Servant of Scales",
+	"Page of Wings",
+	"Page of Claws",
+	"Page of Scales",
+	"Knight of the Skies",
+	"Knight of Talons",
+	"Knight of Scales",
+	"Knight of Power",
+	"Knight of Breath",
+	"Enki", "Enlil", "Ereshkigal", /* Sumerian */
+	"Fishtank Dipper",
+	"Nibble Arouser",
+	"Pondseeker",
+	"Submarine Crew",
+	"Flood Lover",
+	"Player's Competitor",
+	"Deep Biter",
+	"Monsterfish Fighter",
+	"First Place Challenger",
+	"Cheep Cheep", "Blubber", "Boss Bass", /* Super Mario */
+	"Oppressed Lab Worker",
+	"Will-less Slave",
+	"One Who Fears Assistants",
+	"Beach Drama Experiencer",
+	"Despotism Endurer",
+	"Annoyed Ramming Support",
+	"Rebel Leader",
+	"System Overthrower",
+	"Accomplished Diploma Student",
+	"Divert", "Oat Camper", "Jeannine", /* assistants */
+	"Sexhater",
+	"Relationship Avoider",
+	"Me-Neither-Shouter",
+	"Privileged Potato",
+	"Butt Resoler",
+	"Terrible Dad",
+	"Projection Of All That Is Wrong",
+	"Militant Emera",
+	"Exshooter",
+	"Slim Jim", "Milwaukee Jon", "Bose Jefferson", /* Road Rash */
+	"Javazon Wannabe",
+	"Peeker",
+	"Graystabber",
+	"Stack Increaser",
+	"Uncommon Flinger",
+	"Wood Chooser",
+	"Javelin Forger",
+	"Bigstacker",
+	"Torpedo Launcher",
+	"Arihant", "Siddha", "Acharya", /* Jain */
+	"Club Carrier",
+	"Bola Thrower",
+	"Range Applier",
+	"Melee Detonator",
+	"Iron Maul",
+	"Sounding Clasher",
+	"Two-Square Melee Master",
+	"Nun-Chuck",
+	"World Whacker",
+	"Sulis", "Sequana", "Damona", /* celtic */
+	"Trash Eater",
+	"Garbage Can Searcher",
+	"Waste Collector",
+	"Refuse Picker",
+	"True Grimer",
+	"Reusable Plastic Bag",
+	"Bottle Trader",
+	"Truckloader",
+	"Ocean Cleaner",
+	"Indra", "Soma", "Ishwara", /* rigvedic */
+	"Moldhome",
+	"Piggybacker",
+	"Stationary Seeker",
+	"Symbiote Powerer",
+	"Master of Greater Powers",
+	"Sym-Breather",
+	"Elite Symbiant",
+	"Master Jelly Farmer",
+	"Supreme Symbiosis Teacher",
+	"Erotic Air Current Noises", "Wonderful Rubbing Noises", "Sexy Licking Noises", /* Amyism :D */
+	"Asterisk User",
+	"Language Faker",
+	"Speech Policer",
+	"Aggressive Advocate",
+	"Bank Suer",
+	"Placation Striker",
+	"Inside Squeezer",
+	"Truth Minister",
+	"Inclusive Spacer",
+	"Buergerinnen und Buerger", "Buergerlnnen", "Buerger*innen", /* some weird language that pretends to be German; on some fonts "I" and "l" look the same, therefore the neutral god is spelled like that on purpose :P */
+	"Fighter Lad",
+	"Puncher",
+	"Weaponless Adventurer",
+	"Spell-Abstainer",
+	"Trained Muscle",
+	"Lack Compensator",
+	"Specialized Minmaxer",
+	"Almost Supreme Master",
+	"Combat Boss",
+	"Arev", "U.GUR", "Khaldi", /* armenian */
 
 };
 
@@ -5180,7 +5528,7 @@ const char *
 hcolor(colorpref)
 const char *colorpref;
 {
-	return (Hallucination || !colorpref) ?
+	return (Hallucination || isblait || !colorpref) ?
 		hcolors[rn2(SIZE(hcolors))] : colorpref;
 }
 

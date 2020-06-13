@@ -18,6 +18,7 @@ STATIC_DCL int use_camera(struct obj *);
 STATIC_DCL int use_towel(struct obj *);
 STATIC_DCL boolean its_dead(int,int,int *);
 STATIC_DCL int use_stethoscope(struct obj *);
+STATIC_DCL int use_symbiote(struct obj *);
 STATIC_DCL void use_whistle(struct obj *);
 STATIC_DCL void use_magic_whistle(struct obj *);
 STATIC_DCL void use_dark_magic_whistle(struct obj *);
@@ -58,7 +59,7 @@ use_camera(obj)
 	register struct monst *mtmp;
 
 	if(Underwater) {
-		pline(Hallucination ? "You see tons of little fishes, jellyfish, seaweed and submarines..." : "Using your camera underwater would void the warranty.");
+		pline(FunnyHallu ? "You see tons of little fishes, jellyfish, seaweed and submarines..." : "Using your camera underwater would void the warranty.");
 		return(0);
 	}
 	if(!getdir((char *)0)) return(0);
@@ -133,7 +134,7 @@ use_towel(obj)
 		You("have no free %s!", body_part(HAND));
 		return 0;
 	} else if (obj->owornmask) {
-		You(Hallucination ? "cannot get that sticky thing off!" : "cannot use it while you're wearing it!");
+		You(FunnyHallu ? "cannot get that sticky thing off!" : "cannot use it while you're wearing it!");
 		return 0;
 	} else if (obj->cursed) {
 		long old;
@@ -235,7 +236,7 @@ int rx, ry, *resp;
 	if (!can_reach_floor()) return FALSE;
 
 	/* additional stethoscope messages from jyoung@apanix.apana.org.au */
-	if (Hallucination && sobj_at(CORPSE, rx, ry)) {
+	if (FunnyHallu && sobj_at(CORPSE, rx, ry)) {
 	    /* (a corpse doesn't retain the monster's sex,
 	       so we're forced to use generic pronoun here) */
 	    You_hear("a voice say, \"It's dead, Jim.\"");
@@ -283,6 +284,212 @@ int rx, ry, *resp;
 
 static const char hollow_str[] = "a hollow sound.  This must be a secret %s!";
 
+STATIC_OVL int
+use_symbiote(obj)
+	register struct obj *obj;
+{
+	struct monst *mtmp;
+	int rx, ry, res;
+	int symchecks = 1;
+	int symdiff = 50;
+
+	if (obj->oartifact == ART_XOM_S_SCROLLINATOR) {
+
+		if (uinsymbiosis) {
+			u.shutdowntime = 0;
+			u.usymbiote.active = 0;
+			u.usymbiote.mnum = PM_PLAYERMON;
+			u.usymbiote.mhp = 0;
+			u.usymbiote.mhpmax = 0;
+			u.usymbiote.cursed = u.usymbiote.hvycurse = u.usymbiote.prmcurse = u.usymbiote.bbcurse = u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.stckcurse = 0;
+			if (flags.showsymbiotehp) flags.botl = TRUE;
+			u.cnd_symbiotesdied++;
+			Your("old symbiote was erased!");
+		}
+		getrandomsymbiote(FALSE);
+		useup(obj);
+		return 1;
+	}
+
+	if (!getdir((char *)0)) return 0;
+
+	if (u.uswallow) {
+		if (FunnyHallu) pline("What? With all that slime around you? Forget it!");
+		else pline_The("monster that engulfs you is preventing the symbiosis from working.");
+		return 1;
+	}
+	if (u.usteed && u.dz > 0) {
+		pline(FunnyHallu ? "Trying to turn your car into a symbiote isn't very fruitful." : "Trying to turn your steed into a symbiote isn't very fruitful.");
+		return 1;
+	}
+	if (!u.dx && !u.dy && !u.dz) {
+		pline(FunnyHallu ? "Your body seems to turn inward on itself, but relaxes again." : "You can't turn yourself into a symbiote!");
+		return 1;
+	}
+	rx = u.ux + u.dx; ry = u.uy + u.dy;
+	if (!isok(rx,ry)) {
+		pline(FunnyHallu ? "A wild MISSINGNO appeared! Too bad you don't have a pokeball to catch it though..." : "Grabbing a glitched symbiote from out of bounds doesn't seem to work.");
+		return 1;
+	}
+	if ((mtmp = m_at(rx,ry)) != 0) {
+		if (!(PlayerCannotUseSkills)) {
+			switch (P_SKILL(P_SYMBIOSIS)) {
+				default: break;
+				case P_BASIC: if (!rn2(3)) symchecks++; symdiff = 40; break;
+				case P_SKILLED: if (!rn2(3)) symchecks += rno(2); symdiff = 30; break;
+				case P_EXPERT: if (!rn2(3)) symchecks += rnd(2); symdiff = 20; break;
+				case P_MASTER: if (!rn2(2)) symchecks += rnd(2); symdiff = 10; break;
+				case P_GRAND_MASTER: if (!rn2(2)) symchecks += rnd(3); symdiff = 0; break;
+				case P_SUPREME_MASTER: symchecks += rnd(3); symdiff = 0; break;
+			}
+		}
+
+		/* normally the monster must be nonmoving, but for goauld (invented by Demo) it's the other way around --Amy */
+		if ((!(stationary(mtmp->data) || mtmp->data->mmove == 0 || mtmp->data->mlet == S_TURRET)) && !Race_if(PM_GOAULD)) {
+			pline(FunnyHallu ? "It moves around too much and you can't seem to catch it!" : "Only stationary monsters can be turned into symbiotes!");
+			return 1;
+
+		}
+		if (((stationary(mtmp->data) || mtmp->data->mmove == 0 || mtmp->data->mlet == S_TURRET)) && Race_if(PM_GOAULD)) {
+			pline(FunnyHallu ? "It doesn't move at all and so doesn't want to enter you!" : "Only non-stationary monsters can be turned into symbiotes!");
+			return 1;
+
+		}
+		if (mtmp->mfrenzied) {
+			pline(FunnyHallu ? "Suddenly the monster rakes its claws over your skin and reveals that you're indeed noble because you're bleeding blue blood." : "Frenzied monsters will never turn into symbiotes.");
+			return 1;
+
+		}
+		if (cannot_be_tamed(mtmp->data) || (mtmp->cham == CHAM_ZRUTINATOR) || mtmp->isshk || mtmp->isgd || mtmp->ispriest || mtmp->isminion || mtmp->isgyp || (mtmp->oldmonnm != monsndx(mtmp->data)) ) {
+			pline(FunnyHallu ? "This particular monster can't be turned into a symbiote for cookie reasons." : "This particular monster can't be turned into a symbiote.");
+			return 1;
+
+		if (mtmp->data->mlevel > 29 || (mtmp->data->mlevel > (u.ulevel + 10))) {
+			pline(FunnyHallu ? "The damn monster is fighting back!" : "This monster's level is too high for symbiosis!");
+			return 1;
+		}
+
+		/* Amy note: the oldmonnm part may be misleading, but I don't want the player to be able to scan monsters for
+		 * being a polymorph result just because they have a symbiote item. And I also don't want to allow you to
+		 * simply wait until that chameleon turns into a stationary level 90 ubermonster and get a free pass,
+		 * so I had to ban polymorphed monsters from being made into symbiotes. */
+		}
+
+		/* At this point we've established that the monster is a valid form for symbiosis. */
+
+		if (uinsymbiosis && u.usymbiote.cursed) {
+			pline(FunnyHallu ? "Apparently Morgoth himself decided to curse you with some ancient hex." : "Since your current symbiote is cursed, you cannot get a new one.");
+			return 1;
+		}
+
+		while (symchecks > 0) {
+			symchecks--;
+			int resistrounds = 1;
+			if (!mindless(mtmp->data)) resistrounds++;
+			if (humanoid(mtmp->data)) resistrounds++;
+
+			/* Amy note: for tame monsters it simply works, every time, and also gives a special boost */
+			if (!mtmp->mtame && resist(mtmp, TOOL_CLASS, 0, 0) && (!Role_if(PM_SYMBIANT) || resist(mtmp, TOOL_CLASS, 0, 0) ) ) continue;
+			if (!mtmp->mtame && resistrounds >= 2 && resist(mtmp, TOOL_CLASS, 0, 0) && ((!Role_if(PM_SYMBIANT) || resist(mtmp, TOOL_CLASS, 0, 0) ) ) ) continue;
+			if (!mtmp->mtame && resistrounds >= 3 && resist(mtmp, TOOL_CLASS, 0, 0) && ((!Role_if(PM_SYMBIANT) || resist(mtmp, TOOL_CLASS, 0, 0) ) ) )  continue;
+			if (!mtmp->mtame && mtmp->m_lev > u.ulevel && (rn2(100) < (mtmp->m_lev - u.ulevel) ) ) continue;
+
+			/* it shouldn't be guaranteed just because the monster has no MR, except if you're very skilled --Amy */
+			if (!mtmp->mtame && symdiff > rn2(100)) continue;
+			if (!mtmp->mtame && humanoid(mtmp->data) && symdiff > rn2(100)) continue;
+
+			/* we caught it! */
+			symchecks = 0;
+
+			if (touch_petrifies(mtmp->data) && (!Stone_resistance || (!IntStone_resistance && !rn2(20))) ) {
+				if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))
+					display_nhwindow(WIN_MESSAGE, FALSE);
+				else {
+					char kbuf[BUFSZ];
+					pline("Incorporating a petrifying creature is a fatal mistake.");
+					sprintf(kbuf, "picking the wrong symbiote");
+					instapetrify(kbuf);
+				}
+
+			}
+
+			if (slime_on_touch(mtmp->data) && !Slimed && !flaming(youmonst.data) && !Unchanging && !slime_on_touch(youmonst.data)) {
+				You("don't feel very well.");
+				make_slimed(100);
+				killer_format = KILLED_BY_AN;
+				delayed_killer = "slimed by picking the wrong symbiote";
+
+			}
+
+			if (mtmp->mtame) {
+				use_skill(P_SQUEAKING,1);
+				use_skill(P_PETKEEPING,1);
+			}
+
+			turnmonintosymbiote(mtmp, (obj->oartifact == ART_HOLDEN_MIDDLE_POST));
+
+			if (uinsymbiosis) {
+				if (obj->cursed) u.usymbiote.cursed = TRUE;
+				if (obj->hvycurse) u.usymbiote.hvycurse = TRUE;
+				if (obj->prmcurse) u.usymbiote.prmcurse = TRUE;
+				if (obj->bbrcurse) u.usymbiote.bbcurse = TRUE;
+				if (obj->morgcurse) u.usymbiote.morgcurse = TRUE;
+				if (obj->evilcurse) u.usymbiote.evilcurse = TRUE;
+				if (obj->stckcurse) u.usymbiote.stckcurse = TRUE;
+				if (obj->blessed) {
+					u.usymbiote.mhpmax *= 3;
+					u.usymbiote.mhpmax /= 2;
+					if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500; /* cap value */
+				}
+				if (obj->oartifact == ART_HEALTHY_PARASITE) {
+					u.usymbiote.mhpmax *= 3;
+					if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500; /* cap value */
+				}
+			}
+			if (obj->oartifact == ART_SCIENTIFIC_SYMBIONT_KIT && rn2(5)) {
+				pline("You use some material from the kit.");
+			} else {
+				useup(obj);
+			}
+			return 1;
+		}
+
+		int frenzychance = 33;
+
+		if (!(PlayerCannotUseSkills)) {
+			switch (P_SKILL(P_SYMBIOSIS)) {
+				default: break;
+				case P_BASIC: frenzychance = 30; break;
+				case P_SKILLED: frenzychance = 25; break;
+				case P_EXPERT: frenzychance = 20; break;
+				case P_MASTER: frenzychance = 15; break;
+				case P_GRAND_MASTER: frenzychance = 10; break;
+				case P_SUPREME_MASTER: frenzychance = 7; break;
+			}
+		}
+		if (frenzychance > rn2(100)) {
+			mtmp->mtame = FALSE;
+			mtmp->mpeaceful = FALSE;
+			mtmp->mfrenzied = TRUE;
+		}
+
+		pline(FunnyHallu ? "The stupid pokeball is apparently made of plastic because the monster easily broke out!" : "Your symbiosis attempt failed.");
+		if (mtmp->mfrenzied) pline(FunnyHallu ? "And in fact the monster now wants to EAT you! Quick, run back to Professor Oak so he can save you!" : "Now the monster is frenzied and you cannot use symbiosis on it anymore.");
+
+		/* it's stupid if you can just try indefinitely... --Amy
+		 * but artifacts should be guaranteed to work eventually, rather than being destroyed */
+		if (obj && !rn2(10) && !obj->oartifact) {
+			useup(obj);
+			pline("Sadly, your symbiote token has become unusable due to your failed attempt...");
+		}
+
+		return 1;
+
+	}
+	pline(FunnyHallu ? "Knock-knock - hmmmm, seems there's nobody home..." : "There is no monster at that location!");
+	return 1;
+}
+
 /* Strictly speaking it makes no sense for usage of a stethoscope to
    not take any time; however, unless it did, the stethoscope would be
    almost useless.  As a compromise, one use per turn is free, another
@@ -299,25 +506,43 @@ use_stethoscope(obj)
 	boolean interference = (u.uswallow && is_whirly(u.ustuck->data) &&
 				!rn2(Role_if(PM_HEALER) ? 10 : Race_if(PM_HERBALIST) ? 10 : 3));
 
-	if (!rn2((obj->oartifact == ART_FISSILITY) ? 10 : 100)) {
+	if ((!rn2(20) || !obj->blessed) && !rn2((obj->oartifact == ART_FISSILITY) ? 50 : 500)) {
 	    useup(obj);
 	    pline("Your stethoscope breaks!");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
-		return 0;
+		return 2;
 		}
 
-	if (isfriday && !rn2((obj->oartifact == ART_FISSILITY) ? 10 : 100)) {
+	if ((!rn2(20) || !obj->blessed) && isfriday && !rn2((obj->oartifact == ART_FISSILITY) ? 50 : 500)) {
 	    useup(obj);
 	    pline("Your stethoscope breaks!");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
-		return 0;
+		return 2;
 		}
+
+	if (!rn2(isfriday ? 30 : 100)) {
+		if (obj->blessed) unbless(obj);
+		else curse(obj);
+		pline("Your stethoscope seems less effective.");
+		if (PlayerHearsSoundEffects) pline(issoviet ? "Vse, chto vy vladeyete budet razocharovalsya v zabveniye, kha-kha-kha!" : "Klatsch!");
+
+	}
 
 	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER)) {	/* should also check for no ears and/or deaf */
-		You("have no hands!");	/* not `body_part(HAND)' */
+		You("have no hands, so you can't use the stethoscope!");	/* not `body_part(HAND)' */
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
-		return 0;
-	} else if (!freehandX()) {
+		if (yn("Attempt it anyway?") == 'y') {
+			if (rn2(3) && !polyskillchance()) {
+				playerbleed(rnd(2 + (level_difficulty() * 10)));
+				pline("Great. Now your %s is squirting everywhere.", body_part(BLOOD));
+				if (!rn2(20)) badeffect();
+				return 1;
+			}
+
+		}
+		else return 0;
+	}
+	if (!freehandX()) {
 		You("have no free %s.", body_part(HAND));
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return 0;
@@ -391,7 +616,7 @@ use_stethoscope(obj)
 		}
 		return res;
 	}
-	if ((Stunned && !rn2(issoviet ? 1 : Stun_resist ? 8 : 2)) || (Confusion && !rn2(issoviet ? 2 : Conf_resist ? 40 : 8))) confdir();
+	if ((Stunned && !rn2(issoviet ? 1 : StrongStun_resist ? 20 : Stun_resist ? 8 : 2)) || (Confusion && !rn2(issoviet ? 2 : StrongConf_resist ? 200 : Conf_resist ? 40 : 8))) confdir();
 	if (!u.dx && !u.dy) {
 		ustatusline();
 		return res;
@@ -409,7 +634,7 @@ use_stethoscope(obj)
 	    pline("Your stethoscope breaks, and you scream in terror!");
 		wake_nearby();
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
-		return 0;
+		return 2;
 		}
 
 		if (evilfriday && dmgtype(mtmp->data, AD_RUST)) {
@@ -434,7 +659,7 @@ use_stethoscope(obj)
 	if (memory_is_invisible(rx, ry)) {
 		unmap_object(rx, ry);
 		newsym(rx, ry);
-		Hallucination ? pline("No one there! Oh no, where have they gone?") : pline_The("invisible monster must have moved.");
+		FunnyHallu ? pline("No one there! Oh no, where have they gone?") : pline_The("invisible monster must have moved.");
 	}
 	lev = &levl[rx][ry];
 	switch(lev->typ) {
@@ -454,7 +679,7 @@ use_stethoscope(obj)
 	}
 
 	if (!its_dead(rx, ry, &res))
-	    You(Hallucination ? "hear something special." : "hear nothing special.");	/* not You_hear()  */
+	    You(FunnyHallu ? "hear something special." : "hear nothing special.");	/* not You_hear()  */
 	return res;
 }
 
@@ -517,17 +742,17 @@ struct obj *obj;
 	register struct monst *mtmp, *nextmon;
 
 	if(obj->cursed && !rn2(2)) {
-		You(Hallucination ? "produce a grating, annoying sound." : "produce a high-pitched humming noise.");
+		You(FunnyHallu ? "produce a grating, annoying sound." : "produce a high-pitched humming noise.");
 		if (PlayerHearsSoundEffects) pline(issoviet ? "Potomu chto vy ne mozhete igrat' der'mo." : "Dueueueueue!");
 		wake_nearby();
 	} else if (!rn2(obj->blessed ? 200 : 50)) {
-		You(Hallucination ? "produce a grating, annoying sound." : "produce a high-pitched humming noise.");
+		You(FunnyHallu ? "produce a grating, annoying sound." : "produce a high-pitched humming noise.");
 		if (PlayerHearsSoundEffects) pline(issoviet ? "Potomu chto vy ne mozhete igrat' der'mo." : "Dueueueueue!");
 		wake_nearby();
 
 	} else {
 		int pet_cnt = 0;
-		You(whistle_str, Hallucination ? "normal" : "strange");
+		You(whistle_str, FunnyHallu ? "normal" : "strange");
 		if (PlayerHearsSoundEffects) pline(issoviet ? "Dazhe vy mozhete sdelat' chto-to pravil'no, v redkikh sluchayakh, eto kazhetsya." : "dueueueueue");
 		for(mtmp = fmon; mtmp; mtmp = nextmon) {
 		    nextmon = mtmp->nmon; /* trap might kill mon */
@@ -555,15 +780,15 @@ struct obj *obj;
 	register struct monst *mtmp, *nextmon;
 
 	if(obj->cursed && !rn2(2)) {
-		You(Hallucination ? "produce something that sounds like an elegy." : "produce a terrible whistling sound.");
+		You(FunnyHallu ? "produce something that sounds like an elegy." : "produce a terrible whistling sound.");
 		if (PlayerHearsSoundEffects) pline(issoviet ? "Odin dolzhen kamen' vy do smerti dlya etogo." : "Kwaaaaaaaa!");
 		badeffect();
 	} else if (!rn2(obj->blessed ? 200 : 50)) {
-		You(Hallucination ? "produce something that sounds like an elegy." : "produce a terrible whistling sound.");
+		You(FunnyHallu ? "produce something that sounds like an elegy." : "produce a terrible whistling sound.");
 		if (PlayerHearsSoundEffects) pline(issoviet ? "Odin dolzhen kamen' vy do smerti dlya etogo." : "Kwaaaaaaaa!");
 		badeffect();
 	} else {
-		You(whistle_str, Hallucination ? "soothing" : "terrifying");
+		You(whistle_str, FunnyHallu ? "soothing" : "terrifying");
 		if (PlayerHearsSoundEffects) pline(issoviet ? "Vy pomnite, chto v kommunizm, igrayet muzyka zapreshchena?" : "Traaaaaaaa!");
 		for(mtmp = fmon; mtmp; mtmp = nextmon) {
 		    nextmon = mtmp->nmon; /* trap might kill mon */
@@ -655,7 +880,7 @@ struct obj *obj;
 	int spotmon;
 
 	if(!obj->leashmon && number_leashed() >= MAXLEASHED) {
-		You(Hallucination ? "futilely try to leash that bitch but it slips away!" : "cannot leash any more pets.");
+		You(FunnyHallu ? "futilely try to leash that bitch but it slips away!" : "cannot leash any more pets.");
 		return;
 	}
 
@@ -667,7 +892,7 @@ struct obj *obj;
 		    spotmon = 1;
 		    goto got_target;
 		}
-		pline(Hallucination ? "Wow, now is that a string-tanga or a leather belt? Hard to see with those colors..." : "Leash yourself?  Very funny...");
+		pline(FunnyHallu ? "Wow, now is that a string-tanga or a leather belt? Hard to see with those colors..." : "Leash yourself?  Very funny...");
 		return;
 	}
 
@@ -722,11 +947,11 @@ struct obj *obj;
 		return;
 	}
 	if(obj->leashmon != (int)mtmp->m_id) {
-		pline(Hallucination ? "It's not working! If you only knew why..." : "This leash is not attached to that creature.");
+		pline(FunnyHallu ? "It's not working! If you only knew why..." : "This leash is not attached to that creature.");
 		return;
 	} else {
 		if(obj->cursed) {
-			Hallucination ? pline("You pull and you pull, yet it just won't snap?!") : pline_The("leash would not come off!");
+			FunnyHallu ? pline("You pull and you pull, yet it just won't snap?!") : pline_The("leash would not come off!");
 			obj->bknown = TRUE;
 			return;
 		}
@@ -738,7 +963,7 @@ struct obj *obj;
 		if ((mtmp->data == &mons[PM_SUCCUBUS]) ||
 				(mtmp->data == &mons[PM_INCUBUS]))
 		{
-		    Hallucination ? pline("%s is suddenly getting all emo!", Monnam(mtmp)) : pline("%s is infuriated!", Monnam(mtmp));
+		    FunnyHallu ? pline("%s is suddenly getting all emo!", Monnam(mtmp)) : pline("%s is infuriated!", Monnam(mtmp));
 		    mtmp->mtame = 0;
 		    mtmp->mpeaceful = 0;
 		}
@@ -877,14 +1102,14 @@ struct obj *obj;
 	if(!getdir((char *)0)) return 0;
 	if(obj->cursed && !rn2(2)) {
 		if (vis)
-			Hallucination ? pline("Trippy messy rainbow colors... wow!") : pline_The("mirror fogs up and doesn't reflect!");
+			FunnyHallu ? pline("Trippy messy rainbow colors... wow!") : pline_The("mirror fogs up and doesn't reflect!");
 		return 1;
 	}
 	if(!u.dx && !u.dy && !u.dz) {
 		if(vis && !Invisible) {
 		    if (u.umonnum == PM_FLOATING_EYE) {
-			if (!Free_action || !rn2(20)) {
-			pline(Hallucination ?
+			if (!Free_action || !rn2(StrongFree_action ? 100 : 20)) {
+			pline(FunnyHallu ?
 			      "Yow!  The mirror stares back!" :
 			      "Yikes!  You've frozen yourself!");
 			nomul(-rnd((MAXULEV+6) - u.ulevel), "gazing into a mirror", TRUE);
@@ -899,9 +1124,9 @@ struct obj *obj;
 			You(look_str, hcolor((char *)0));
 		    else if (Sick)
 			You(look_str, "peaked");
-		    else if (u.uhs >= WEAK && !RngeAnorexia && !Role_if(PM_TOPMODEL) && !(uarmc && uarmc->oartifact == ART_INA_S_SORROW) && !(uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") ))  )
+		    else if (u.uhs >= WEAK && !have_anorexia() )
 			You(look_str, "undernourished");
-		    else if (u.uhs >= WEAK && (Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") ))) )
+		    else if (u.uhs >= WEAK && have_anorexia() )
 			You(look_str, "beautiful and skinny");
 		    else You("look as %s as ever.",
 				ACURR(A_CHA) > 14 ?
@@ -923,7 +1148,7 @@ struct obj *obj;
 	}
 	if(Underwater) {
 		if (!obj->oinvis)
-		You(Hallucination ?
+		You(FunnyHallu ?
 		    "give the fish a chance to fix their makeup." :
 		    "reflect the murky water.");
 		return 1;
@@ -1037,7 +1262,13 @@ struct obj **optr;
 	    for(i = -bd; i <= bd; i++) for(j = -bd; j <= bd; j++) {
 		if (!isok(u.ux + i, u.uy + j)) continue;
 		if ((bimmel = m_at(u.ux + i, u.uy + j)) != 0 && bimmel->data->mlet == S_XAN)
-		    if (!resist(bimmel, RING_CLASS, 0, TELL) || ((rnd(30 - ACURR(A_CHA))) < 4) ) (void) tamedog(bimmel, (struct obj *) 0, FALSE);
+			if (!rn2(5) && bimmel && !(bimmel->mtame)) {
+				bimmel->mpeaceful = FALSE;
+				bimmel->mfrenzied = TRUE;
+
+			} else if (bimmel && !(bimmel->mtame) && !(bimmel->mfrenzied)) {
+				if (!resist(bimmel, RING_CLASS, 0, TELL) || ((rnd(30 - ACURR(A_CHA))) < 4) ) (void) tamedog(bimmel, (struct obj *) 0, FALSE);
+			}
 	    }
 
 	}
@@ -1046,11 +1277,11 @@ struct obj **optr;
 #ifdef	AMIGA
 	    amii_speaker( obj, "AhDhGqEqDhEhAqDqFhGw", AMII_MUFFLED_VOLUME );
 #endif
-	    pline(Hallucination ? "Sounds like a christmas song..." : "But the sound is muffled.");
+	    pline(FunnyHallu ? "Sounds like a christmas song..." : "But the sound is muffled.");
 
 	} else if (invoking && ordinary) {
 	    /* needs to be recharged... */
-	    pline(Hallucination ? "Where is the button? You can't seem to find it..." : "But it makes no sound.");
+	    pline(FunnyHallu ? "Where is the button? You can't seem to find it..." : "But it makes no sound.");
 	    learno = TRUE;	/* help player figure out why */
 
 	} else if (ordinary) {
@@ -1116,7 +1347,7 @@ struct obj **optr;
 
 		mm.x = u.ux;
 		mm.y = u.uy;
-		mkundead(&mm, FALSE, NO_MINVENT);
+		mkundead(&mm, FALSE, NO_MINVENT, TRUE);
 		wakem = TRUE;
 		badeffect();
 		aggravate();
@@ -1201,7 +1432,7 @@ register struct obj *obj;
 	}
 
 	if(Underwater) {
-		You(Hallucination ? "don't even know what this thing is good for." : "cannot make fire under water.");
+		You(FunnyHallu ? "don't even know what this thing is good for." : "cannot make fire under water.");
 		return;
 	}
 	if(obj->lamplit) {
@@ -1265,7 +1496,7 @@ struct obj **optr;
 		return;
 	}
 	if(Underwater) {
-		pline(Hallucination ? "This gearing seems to be made for use on dry land!" : "Sorry, fire and water don't mix.");
+		pline(FunnyHallu ? "This gearing seems to be made for use on dry land!" : "Sorry, fire and water don't mix.");
 		return;
 	}
 
@@ -1423,13 +1654,17 @@ struct obj *obj;
 	char buf[BUFSZ];
 	char qbuf[QBUFSZ];
 
+	boolean vaapadcheck = FALSE;
+
+	if (!PlayerCannotUseSkills && P_SKILL(P_VAAPAD) >= P_EXPERT) vaapadcheck = TRUE;
+
 	if (Race_if(PM_SATRE) && !is_lightsaber(obj)) {
 		pline("As a satre, you are unable to use a light source.");
 		return;
 	}
 
 	if(Underwater) {
-		pline(Hallucination ? "You fumble around with that thing but it won't work." : "This is not a diving lamp.");
+		pline(FunnyHallu ? "You fumble around with that thing but it won't work." : "This is not a diving lamp.");
 		return;
 	}
 	if(obj->lamplit) {
@@ -1438,8 +1673,44 @@ struct obj *obj;
 		    pline("%s lamp is now off.", Shk_Your(buf, obj));
 		} else if(is_lightsaber(obj)) {
 		    if (obj->otyp == RED_DOUBLE_LIGHTSABER || obj->otyp == WHITE_DOUBLE_LIGHTSABER) {
+
 			/* Do we want to activate dual bladed mode? */
-			if (!obj->altmode && (!obj->cursed || rn2(4))) {
+			if (vaapadcheck) {
+
+				if (!obj->altmode) {
+					if (yn("Turn the double lightsaber off? (If you say no, you activate the second blade)") != 'n') {
+						obj->altmode = FALSE;
+						lightsaber_deactivate(obj, TRUE);
+						return;
+					} else {
+						if (obj->cursed && !rn2(4)) {
+							obj->altmode = FALSE;
+							lightsaber_deactivate(obj, TRUE);
+							return;
+						}
+						You("ignite the second blade of %s.", yname(obj));
+						obj->altmode = TRUE;
+						return;
+					}
+				} else {
+					if (yn("Turn only one blade of the double lightsaber off? (If you say no, you turn it off completely)") != 'n') {
+						if (obj->cursed && !rn2(4)) {
+							obj->altmode = FALSE;
+							lightsaber_deactivate(obj, TRUE);
+							return;
+						}
+						You("turn off the second blade of %s.", yname(obj));
+						obj->altmode = FALSE;
+						return;
+					} else {
+						obj->altmode = FALSE;
+						lightsaber_deactivate(obj, TRUE);
+						return;
+					}
+
+				}
+
+			} else if (!obj->altmode && (!obj->cursed || rn2(4))) {
 			    You("ignite the second blade of %s.", yname(obj));
 			    obj->altmode = TRUE;
 			    return;
@@ -1500,6 +1771,17 @@ struct obj *obj;
 		    
 		    if (!Blind) makeknown(obj->otyp);
 		    You("ignite %s.", yname(obj));
+
+			if ((obj->otyp == RED_DOUBLE_LIGHTSABER || obj->otyp == WHITE_DOUBLE_LIGHTSABER) && vaapadcheck) {
+				if (yn("Use only one of the two blades? (If you say no, you ignite both)") != 'n') {
+					; /* do nothing */
+				} else {
+					You("ignite the second blade of %s.", yname(obj));
+					obj->altmode = TRUE;
+				}
+
+			}
+
 		    unweapon = FALSE;
 		} else {	/* candle(s) */
 		    sprintf(qbuf, "Light all of %s?", the(xname(obj)));
@@ -1540,7 +1822,7 @@ struct obj *obj;
 	return 0;
     }
     if (Underwater) {
-	pline(Hallucination ? "The crappy tool doesn't seem to do what you want it to do!" : "Sorry, fire and water don't mix.");
+	pline(FunnyHallu ? "The crappy tool doesn't seem to do what you want it to do!" : "Sorry, fire and water don't mix.");
 	return 0;
     }
     if (obj->quan > 1L) {
@@ -1577,7 +1859,7 @@ light_cocktail(obj)
 	}
 
 	if(Underwater) {
-		You(Hallucination ? "fumble around with the fuse but nothing happens." : "can't light this underwater!");
+		You(FunnyHallu ? "fumble around with the fuse but nothing happens." : "can't light this underwater!");
 		return;
 	}
 
@@ -1651,7 +1933,7 @@ dorub()
 		use_stone(obj);
 		return 1;
 	    } else {
-		pline(Hallucination ? "You rub it over your hand... better stop before you hurt yourself." : "Sorry, I don't know how to use that.");
+		pline(FunnyHallu ? "You rub it over your hand... better stop before you hurt yourself." : "Sorry, I don't know how to use that.");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return 0;
 	    }
@@ -1712,7 +1994,7 @@ int magic; /* 0=Physical, otherwise skill level */
 		You_cant("jump; you have no legs!");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return 0;
-	} else if (!magic && !Jumping) {
+	} else if (!magic && !Jumping && !(u.horsehopturns && u.usteed) ) {
 		You_cant("jump very far.");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return 0;
@@ -1726,7 +2008,7 @@ int magic; /* 0=Physical, otherwise skill level */
 			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 			return 1;
 		} else {
-		pline(Hallucination ? "It's all wobbly here, like a ship on a stormy sea!" : "You've got to be kidding!");
+		pline(FunnyHallu ? "It's all wobbly here, like a ship on a stormy sea!" : "You've got to be kidding!");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return 0;
 		}
@@ -1737,7 +2019,7 @@ int magic; /* 0=Physical, otherwise skill level */
 			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 			return 1;
 		} else {
-		pline(Hallucination ? "You try to jump but that weird liquid stuff around you resists your attempts." : "This calls for swimming, not jumping!");
+		pline(FunnyHallu ? "You try to jump but that weird liquid stuff around you resists your attempts." : "This calls for swimming, not jumping!");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return 0;
 		}
@@ -1809,16 +2091,16 @@ int magic; /* 0=Physical, otherwise skill level */
 		/* The Knight jumping restriction still applies when riding a
 		 * horse.  After all, what shape is the knight piece in chess?
 		 */
-		pline(Hallucination ? "The referee suggests you to try another move!" : "Illegal move!");
+		pline(FunnyHallu ? "The referee suggests you to try another move!" : "Illegal move!");
 		return 0;
-	} else if (distu(cc.x, cc.y) > (magic ? 6+magic*3 : 9)) {
-		pline(Hallucination ? "Now that would be a world-class jump." : "Too far!");
+	} else if (distu(cc.x, cc.y) > (magic ? (6 + magic * 3 + (StrongJumping ? 3 : 0) ) : StrongJumping ? 12 : 9)) {
+		pline(FunnyHallu ? "Now that would be a world-class jump." : "Too far!");
 		return 0;
 	} else if (!cansee(cc.x, cc.y)) {
-		You(Hallucination ? "are too afraid of grues that might lurk over there!" : "cannot see where to land!");
+		You(FunnyHallu ? "are too afraid of grues that might lurk over there!" : "cannot see where to land!");
 		return 0;
 	} else if (!isok(cc.x, cc.y)) {
-		You(Hallucination ? "see a cactus over there! Better not jump into it..." : "cannot jump there!");
+		You(FunnyHallu ? "see a cactus over there! Better not jump into it..." : "cannot jump there!");
 		return 0;
 	} else {
 	    coord uc;
@@ -1874,10 +2156,20 @@ int magic; /* 0=Physical, otherwise skill level */
 	    (void) walk_path(&uc, &cc, hurtle_step, (void *)&range);
 
 	    /* This used to give sokoban penalties but you can't actually bypass anything so the penalty is removed --Amy */
+	    /* In Soviet Russia, you're even penalized for cheating if you didn't actually cheat at all. Communism dictates
+	     * that we have to make extra sure, so we check for certain arbitrary actions that may have been considered
+	     * cheating decades ago and reduce luck for those who perform them. Why modernize anything when you can continue
+	     * using the ancient methods? */
+
+		if (issoviet && In_sokoban(&u.uz)) {
+			change_luck(-1);
+			pline("Teper' vy teryayete ochko udachi KHAR KHAR. Eto deystviye ne pomoglo vam reshit' golovolomki, no my takiye elitnyye.");
+			if (evilfriday) u.ugangr++;
+		}
 
 	    teleds(cc.x, cc.y, TRUE);
 
-	if ( (sobj_at(ORCISH_SHORT_SWORD,cc.x,cc.y) || sobj_at(SHORT_SWORD,cc.x,cc.y) || sobj_at(SILVER_SHORT_SWORD,cc.x,cc.y) || sobj_at(DWARVISH_SHORT_SWORD,cc.x,cc.y)  || sobj_at(ELVEN_SHORT_SWORD,cc.x,cc.y) || sobj_at(HIGH_ELVEN_WARSWORD,cc.x,cc.y)  || sobj_at(DARK_ELVEN_SHORT_SWORD,cc.x,cc.y)  || sobj_at(DROVEN_SHORT_SWORD,cc.x,cc.y)  || sobj_at(VIBROBLADE,cc.x,cc.y)  || sobj_at(INKA_BLADE,cc.x,cc.y)  || sobj_at(ETERNIUM_BLADE,cc.x,cc.y)  || sobj_at(BROADSWORD,cc.x,cc.y)  || sobj_at(RUNESWORD,cc.x,cc.y)   || sobj_at(SUGUHANOKEN,cc.x,cc.y)   || sobj_at(GREAT_HOUCHOU,cc.x,cc.y)   || sobj_at(BLACK_AESTIVALIS,cc.x,cc.y)  || sobj_at(PAPER_SWORD,cc.x,cc.y)  || sobj_at(MEATSWORD,cc.x,cc.y)  || sobj_at(WHITE_FLOWER_SWORD,cc.x,cc.y) || sobj_at(ELVEN_BROADSWORD,cc.x,cc.y)  || sobj_at(LONG_SWORD,cc.x,cc.y)  || sobj_at(SILVER_LONG_SWORD,cc.x,cc.y)  || sobj_at(CRYSTAL_SWORD,cc.x,cc.y)  || sobj_at(KATANA,cc.x,cc.y)  || sobj_at(OSBANE_KATANA,cc.x,cc.y)  || sobj_at(ICKY_BLADE,cc.x,cc.y)  || sobj_at(GRANITE_IMPALER,cc.x,cc.y)  || sobj_at(ELECTRIC_SWORD,cc.x,cc.y)  || sobj_at(TWO_HANDED_SWORD,cc.x,cc.y)  || sobj_at(TSURUGI,cc.x,cc.y)   || sobj_at(CHAINSWORD,cc.x,cc.y)   || sobj_at(BASTERD_SWORD,cc.x,cc.y) || sobj_at(BIDENHANDER,cc.x,cc.y) || sobj_at(ORGANOBLADE,cc.x,cc.y) || sobj_at(COLOSSUS_BLADE,cc.x,cc.y) || sobj_at(DROVEN_GREATSWORD,cc.x,cc.y)  || sobj_at(SCIMITAR,cc.x,cc.y)  || sobj_at(BENT_SABLE,cc.x,cc.y)  || sobj_at(RAPIER,cc.x,cc.y)   || sobj_at(PLATINUM_SABER,cc.x,cc.y)  || sobj_at(WILD_BLADE,cc.x,cc.y)  || sobj_at(LEATHER_SABER,cc.x,cc.y)  || sobj_at(ARCANE_RAPIER,cc.x,cc.y) || sobj_at(INKUTLASS,cc.x,cc.y)  || sobj_at(HOE_SABLE,cc.x,cc.y)  || sobj_at(YATAGAN,cc.x,cc.y)  || sobj_at(SILVER_SABER,cc.x,cc.y)  || sobj_at(GOLDEN_SABER,cc.x,cc.y)  || sobj_at(IRON_SABER,cc.x,cc.y) ) && flags.iwbtg ) {
+	if ( (sobj_at(ORCISH_SHORT_SWORD,cc.x,cc.y) || sobj_at(SHORT_SWORD,cc.x,cc.y) || sobj_at(SILVER_SHORT_SWORD,cc.x,cc.y) || sobj_at(DWARVISH_SHORT_SWORD,cc.x,cc.y)  || sobj_at(ELVEN_SHORT_SWORD,cc.x,cc.y) || sobj_at(HIGH_ELVEN_WARSWORD,cc.x,cc.y)  || sobj_at(DARK_ELVEN_SHORT_SWORD,cc.x,cc.y)  || sobj_at(DROVEN_SHORT_SWORD,cc.x,cc.y)  || sobj_at(VIBROBLADE,cc.x,cc.y)  || sobj_at(INKA_BLADE,cc.x,cc.y)  || sobj_at(SAND_SWORD,cc.x,cc.y)  || sobj_at(SHORT_BLADE,cc.x,cc.y)  || sobj_at(ETERNIUM_BLADE,cc.x,cc.y)  || sobj_at(BROADSWORD,cc.x,cc.y)  || sobj_at(RUNESWORD,cc.x,cc.y)   || sobj_at(SUGUHANOKEN,cc.x,cc.y)   || sobj_at(GREAT_HOUCHOU,cc.x,cc.y)   || sobj_at(BLACK_AESTIVALIS,cc.x,cc.y)  || sobj_at(VOLCANIC_BROADSWORD,cc.x,cc.y)  || sobj_at(ELEGANT_BROADSWORD,cc.x,cc.y)  || sobj_at(PAPER_SWORD,cc.x,cc.y)  || sobj_at(MEATSWORD,cc.x,cc.y)  || sobj_at(WHITE_FLOWER_SWORD,cc.x,cc.y) || sobj_at(ELVEN_BROADSWORD,cc.x,cc.y)  || sobj_at(LONG_SWORD,cc.x,cc.y)  || sobj_at(SILVER_LONG_SWORD,cc.x,cc.y)  || sobj_at(CRYSTAL_SWORD,cc.x,cc.y)  || sobj_at(MAIN_SWORD,cc.x,cc.y)  || sobj_at(KATANA,cc.x,cc.y)  || sobj_at(OSBANE_KATANA,cc.x,cc.y)  || sobj_at(AUTOMATIC_KATANA,cc.x,cc.y)  || sobj_at(HEAVY_LONG_SWORD,cc.x,cc.y)  || sobj_at(ICKY_BLADE,cc.x,cc.y)  || sobj_at(GRANITE_IMPALER,cc.x,cc.y)  || sobj_at(FLAME_MOUNTAIN,cc.x,cc.y)  || sobj_at(ELECTRIC_SWORD,cc.x,cc.y)  || sobj_at(TWO_HANDED_SWORD,cc.x,cc.y)  || sobj_at(TSURUGI,cc.x,cc.y)   || sobj_at(CHAINSWORD,cc.x,cc.y)   || sobj_at(BASTERD_SWORD,cc.x,cc.y) || sobj_at(BIDENHANDER,cc.x,cc.y) || sobj_at(ORGANOBLADE,cc.x,cc.y) || sobj_at(ROMAN_SWORD,cc.x,cc.y) || sobj_at(SHADOWBLADE,cc.x,cc.y) || sobj_at(ETHER_SAW,cc.x,cc.y) || sobj_at(COLOSSUS_BLADE,cc.x,cc.y) || sobj_at(DROVEN_GREATSWORD,cc.x,cc.y)  || sobj_at(SCIMITAR,cc.x,cc.y)  || sobj_at(BENT_SABLE,cc.x,cc.y)  || sobj_at(RAPIER,cc.x,cc.y)   || sobj_at(PLATINUM_SABER,cc.x,cc.y)  || sobj_at(WILD_BLADE,cc.x,cc.y)  || sobj_at(LEATHER_SABER,cc.x,cc.y)  || sobj_at(ARCANE_RAPIER,cc.x,cc.y) || sobj_at(INKUTLASS,cc.x,cc.y)  || sobj_at(HOE_SABLE,cc.x,cc.y)  || sobj_at(MYTHICAL_SABLE,cc.x,cc.y)  || sobj_at(DESERT_SWORD,cc.x,cc.y)  || sobj_at(CHROME_BLADE,cc.x,cc.y)  || sobj_at(YATAGAN,cc.x,cc.y)  || sobj_at(SILVER_SABER,cc.x,cc.y)  || sobj_at(GOLDEN_SABER,cc.x,cc.y)  || sobj_at(CRYPTIC_SABER,cc.x,cc.y)  || sobj_at(ETERNIUM_SABER,cc.x,cc.y)  || sobj_at(IRON_SABER,cc.x,cc.y) ) && flags.iwbtg ) {
 
 		u.youaredead = 1;
 		killer = "a sharp-edged sword";		/* the thing that killed you */
@@ -1919,7 +2211,8 @@ register struct obj *obj;
 	 * moves, we've got to deal with decaying corpses...
 	 */
 	if (obj->spe <= 0) {
-		You(Hallucination ? "can't seem to generate anything. Weird..." : "seem to be out of tins.");
+		You(FunnyHallu ? "can't seem to generate anything. Weird..." : "seem to be out of tins.");
+		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return;
 	}
 	if (!(corpse = getobj((const char *)tinnables, "tin"))) return;
@@ -1932,7 +2225,7 @@ register struct obj *obj;
 		return;
 	}
 	if (touch_petrifies(&mons[corpse->corpsenm])
-		&& !Stone_resistance && (!uarmg || FingerlessGloves) ) {
+		&& (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && (!uarmg || FingerlessGloves) ) {
 	    char kbuf[BUFSZ];
 
 	    if (poly_when_stoned(youmonst.data))
@@ -1957,7 +2250,7 @@ register struct obj *obj;
 		return;
 	}
 	if (mons[corpse->corpsenm].cnutrit == 0) {
-		pline(Hallucination ? "Huh... those bits are going everywhere but into the tin..." : "That's too insubstantial to tin.");
+		pline(FunnyHallu ? "Huh... those bits are going everywhere but into the tin..." : "That's too insubstantial to tin.");
 		return;
 	}
 
@@ -1976,7 +2269,7 @@ register struct obj *obj;
 
 	if (nochargechange >= rnd(10)) consume_obj_charge(obj, TRUE);
 
-	if ((can = mksobj(TIN, FALSE, FALSE)) != 0) {
+	if ((can = mksobj(TIN, FALSE, FALSE, FALSE)) != 0) {
 	    static const char you_buy_it[] = "You tin it, you bought it!";
 
 	    can->corpsenm = corpse->corpsenm;
@@ -1984,13 +2277,13 @@ register struct obj *obj;
 	    can->blessed = obj->blessed;
 
 		/* evil patch idea by hackedhead: eroded tinning kits are less reliable */
-		if ( (obj->oeroded == 3 || (obj->oeroded2 == 3 && !(objects[(obj)->otyp].oc_material == COMPOST) ) ) && !rn2(2) ) {
+		if ( (obj->oeroded == 3 || (obj->oeroded2 == 3 && !(objects[(obj)->otyp].oc_material == MT_COMPOST) ) ) && !rn2(2) ) {
 			can->cursed = 1; can->blessed = 0;
 		}
-		else if ( (obj->oeroded == 2 || (obj->oeroded2 == 2 && !(objects[(obj)->otyp].oc_material == COMPOST) ) ) && !rn2(5) ) {
+		else if ( (obj->oeroded == 2 || (obj->oeroded2 == 2 && !(objects[(obj)->otyp].oc_material == MT_COMPOST) ) ) && !rn2(5) ) {
 			can->cursed = 1; can->blessed = 0;
 		}
-		else if ( (obj->oeroded == 1 || (obj->oeroded2 == 1 && !(objects[(obj)->otyp].oc_material == COMPOST) ) ) && !rn2(10) ) {
+		else if ( (obj->oeroded == 1 || (obj->oeroded2 == 1 && !(objects[(obj)->otyp].oc_material == MT_COMPOST) ) ) && !rn2(10) ) {
 			can->cursed = 1; can->blessed = 0;
 		}
 	    if (obj && obj->oartifact == ART_YASDORIAN_S_TROPHY_GETTER) {
@@ -2048,7 +2341,8 @@ register struct obj *obj;
 	 * moves, we've got to deal with decaying corpses...
 	 */
 	if (obj->spe <= 0) {
-		You(Hallucination ? "can't seem to generate anything. Weird..." : "seem to be out of tins.");
+		You(FunnyHallu ? "can't seem to generate anything. Weird..." : "seem to be out of tins.");
+		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return;
 	}
 	if (!(corpse = getobj((const char *)tinnables, "tin"))) return;
@@ -2061,7 +2355,7 @@ register struct obj *obj;
 		return;
 	}
 	if (touch_petrifies(&mons[corpse->corpsenm])
-		&& !Stone_resistance && (!uarmg || FingerlessGloves) ) {
+		&& (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && (!uarmg || FingerlessGloves) ) {
 	    char kbuf[BUFSZ];
 
 	    if (poly_when_stoned(youmonst.data))
@@ -2086,7 +2380,7 @@ register struct obj *obj;
 		return;
 	}
 	if (mons[corpse->corpsenm].cnutrit == 0) {
-		pline(Hallucination ? "Huh... those bits are going everywhere but into the tin..." : "That's too insubstantial to tin.");
+		pline(FunnyHallu ? "Huh... those bits are going everywhere but into the tin..." : "That's too insubstantial to tin.");
 		return;
 	}
 
@@ -2105,7 +2399,7 @@ register struct obj *obj;
 
 	if (nochargechange >= rnd(10)) consume_obj_charge(obj, TRUE);
 
-	if ((can = mksobj(TIN, FALSE, FALSE)) != 0) {
+	if ((can = mksobj(TIN, FALSE, FALSE, FALSE)) != 0) {
 	    static const char you_buy_it[] = "You tin it, you bought it!";
 
 	    can->corpsenm = NON_PM;
@@ -2113,13 +2407,13 @@ register struct obj *obj;
 	    can->blessed = obj->blessed;
 
 		/* evil patch idea by hackedhead: eroded tinning kits are less reliable */
-		if ( (obj->oeroded == 3 || (obj->oeroded2 == 3 && !(objects[(obj)->otyp].oc_material == COMPOST) ) ) && !rn2(2) ) {
+		if ( (obj->oeroded == 3 || (obj->oeroded2 == 3 && !(objects[(obj)->otyp].oc_material == MT_COMPOST) ) ) && !rn2(2) ) {
 			can->cursed = 1; can->blessed = 0;
 		}
-		else if ( (obj->oeroded == 2 || (obj->oeroded2 == 2 && !(objects[(obj)->otyp].oc_material == COMPOST) ) ) && !rn2(5) ) {
+		else if ( (obj->oeroded == 2 || (obj->oeroded2 == 2 && !(objects[(obj)->otyp].oc_material == MT_COMPOST) ) ) && !rn2(5) ) {
 			can->cursed = 1; can->blessed = 0;
 		}
-		else if ( (obj->oeroded == 1 || (obj->oeroded2 == 1 && !(objects[(obj)->otyp].oc_material == COMPOST) ) ) && !rn2(10) ) {
+		else if ( (obj->oeroded == 1 || (obj->oeroded2 == 1 && !(objects[(obj)->otyp].oc_material == MT_COMPOST) ) ) && !rn2(10) ) {
 			can->cursed = 1; can->blessed = 0;
 		}
 
@@ -2152,6 +2446,35 @@ register struct obj *obj;
 		adjalign(5);
 		u.alignlim += 1;
 		pline("Your alignment has increased, and is now %d. Your current maximum alignment is %d.", u.ualign.record, u.alignlim);
+	    }
+	    if (obj && obj->oartifact == ART_FERTILIZATOR && Role_if(PM_MILL_SWALLOWER)) {
+			struct obj *uammo;
+			int fertilammotyp = FLINT;
+			switch (rnd(10)) {
+				case 1: fertilammotyp = SALT_CHUNK; break;
+				case 2: fertilammotyp = SILVER_SLINGSTONE; break;
+				case 3: fertilammotyp = SMALL_PIECE_OF_UNREFINED_MITHR; break;
+				case 4: fertilammotyp = TALC; break;
+				case 5: fertilammotyp = GRAPHITE; break;
+				case 6: fertilammotyp = VOLCANIC_GLASS_FRAGMENT; break;
+				case 7: fertilammotyp = FLINT; break;
+				case 8: fertilammotyp = LEAD_CLUMP; break;
+				case 9: fertilammotyp = BONE_FRAGMENT; break;
+				case 10: fertilammotyp = SLING_AMMO; break;
+				default : fertilammotyp = FLINT; break;
+			}
+
+			uammo = mksobj(fertilammotyp, TRUE, FALSE, FALSE);
+			if (uammo) {
+				uammo->quan = rn1(15, 15);
+				if (uammo->quan < 1) uammo->quan = 1;
+				uammo->known = uammo->dknown = uammo->bknown = uammo->rknown = 1;
+				uammo->owt = weight(uammo);
+				dropy(uammo);
+				stackobj(uammo);
+				You("created some sling ammo.");
+			}
+
 	    }
 
 	} else impossible("Tinning failed.");
@@ -2195,12 +2518,12 @@ struct obj *obj;
 degradeagain:
 	    if (obj->spe < 1) {
 	    useup(obj);
-	    pline(Hallucination ? "Suddenly, you hold some fine powder in your hands. Maybe you can smoke that for the extra kick?" : "The horn suddenly turns to dust.");
+	    pline(FunnyHallu ? "Suddenly, you hold some fine powder in your hands. Maybe you can smoke that for the extra kick?" : "The horn suddenly turns to dust.");
 	    if (PlayerHearsSoundEffects) pline(issoviet ? "Podelom tebe, ty vechnyy neudachnik." : "Krrrrrtsch!");
 		return 1;
 	    } else {
 		obj->spe -= 1;
-		pline(Hallucination ? "The tool is glowing in a wide array of colors!" : "Your unicorn horn seems less effective.");
+		pline(FunnyHallu ? "The tool is glowing in a wide array of colors!" : "Your unicorn horn seems less effective.");
 		if (PlayerHearsSoundEffects) pline(issoviet ? "Vse, chto vy vladeyete budet razocharovalsya v zabveniye, kha-kha-kha!" : "Klatsch!");
 		if (!rn2(3)) goto degradeagain;
 		if(obj->blessed && !rn2(10) )
@@ -2213,12 +2536,12 @@ degradeagain:
 	if (obj && obj->oartifact && (rnd(8) > nochargechange) && !rn2(Race_if(PM_HUMANOID_CENTAUR) ? 100 : 10000)) {
 	    if (obj->spe < 1) {
 	    useup(obj);
-	    pline(Hallucination ? "Suddenly, you hold some fine powder in your hands. Maybe you can smoke that for the extra kick?" : "The horn suddenly turns to dust.");
+	    pline(FunnyHallu ? "Suddenly, you hold some fine powder in your hands. Maybe you can smoke that for the extra kick?" : "The horn suddenly turns to dust.");
 	    if (PlayerHearsSoundEffects) pline(issoviet ? "Podelom tebe, ty vechnyy neudachnik." : "Krrrrrtsch!");
 		return 1;
 	    } else {
 		obj->spe -= 1;
-		pline(Hallucination ? "The tool is glowing in a wide array of colors!" : "Your unicorn horn seems less effective.");
+		pline(FunnyHallu ? "The tool is glowing in a wide array of colors!" : "Your unicorn horn seems less effective.");
 		if (PlayerHearsSoundEffects) pline(issoviet ? "Vse, chto vy vladeyete budet razocharovalsya v zabveniye, kha-kha-kha!" : "Klatsch!");
 		if(obj->blessed && !rn2(10) )
 			unbless(obj);
@@ -2231,7 +2554,7 @@ degradeagain:
 	if (obj && obj->cursed) {
 	    long lcount = (long) rnd(100);
 
-	    switch (rn2(11)) {
+	    if (!obsidianprotection()) switch (rn2(11)) {
 	    case 0: make_sick(Sick ? Sick/2L + 1L : (long)rn1(ACURR(A_CON),20),
 			xname(obj), TRUE, SICK_NONVOMITABLE);
 		    break;
@@ -2239,7 +2562,7 @@ degradeagain:
 		    break;
 	    case 2: if (!Confusion)
 			You("suddenly feel %s.",
-			    Hallucination ? "trippy" : "confused");
+			    FunnyHallu ? "trippy" : "confused");
 		    make_confused(HConfusion + lcount, TRUE);
 		    break;
 	    case 3: make_stunned(HStun + lcount, TRUE);
@@ -2250,7 +2573,7 @@ degradeagain:
 		    break;
 	    case 6: make_burned(HBurned + lcount, TRUE);
 		    break;
-	    case 7: (void) adjattrib(rn2(A_MAX), -1, FALSE);
+	    case 7: (void) adjattrib(rn2(A_MAX), -1, FALSE, TRUE);
 		    break;
 	    case 8: (void) make_hallucinated(HHallucination + lcount, TRUE, 0L);
 		    break;
@@ -2259,6 +2582,7 @@ degradeagain:
 	    case 10: make_dimmed(HDimmed + lcount, TRUE);
 		    break;
 	    }
+	    badeffect(); /* otherwise it would be too easy to get confusion on demand --Amy */
 	    return 0;
 	}
 
@@ -2315,7 +2639,7 @@ degradeagain:
 
 fixthings:
 	if (trouble_count == 0) {
-	    if (!(nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_HEALENERATION)) {
+	    if (!(powerfulimplants() && uimplant && uimplant->oartifact == ART_HEALENERATION)) {
 			pline("%s", nothing_happens);
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
 				pline("Oh wait, actually something bad happens...");
@@ -2449,7 +2773,7 @@ fixthings:
 		  (did_prop + did_attr) == (trouble_count + unfixable_trbl) ?
 		  "great" : "better");
 	else if (did_atno)
-	    pline(Hallucination ? "Bummer! It just beeps loudly!" : "Damn! It didn't work!");
+	    pline(FunnyHallu ? "Bummer! It just beeps loudly!" : "Damn! It didn't work!");
 	else if (!did_prop)
 	    pline("Nothing seems to happen.");
 
@@ -2460,6 +2784,9 @@ fixthings:
 	}
 
 	flags.botl = (did_attr || did_prop || did_atno);
+
+	if (did_attr || did_prop) u.cnd_unihorncount++;
+
 #undef PROP_COUNT
 #undef ATTR_COUNT
 #undef prop2trbl
@@ -2724,6 +3051,8 @@ struct obj *obj;
 		pline("%s empty.", Tobjnam(obj, "are"));
 	    else
 		pline("%s to be empty.", Tobjnam(obj, "seem"));
+
+	    if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 	}
 	update_inventory();
 }
@@ -2817,7 +3146,7 @@ set_whetstone()
 		}
 	    reset_whetstone();
 	} else {
-	    if (Hallucination)
+	    if (FunnyHallu)
 		pline("%s %s must be faulty!",
 		    is_plural(ows) ? "These" : "This", xname(ows));
 	    else pline("%s", Blind ? "Pheww!  This is hard work!" :
@@ -2861,9 +3190,9 @@ struct obj *stone, *obj;
 	    && !IS_SINK(levl[u.ux][u.uy].typ) && !IS_TOILET(levl[u.ux][u.uy].typ)
 	    ) {
 	    if (carrying(POT_WATER) && objects[POT_WATER].oc_name_known) {
-		pline(Hallucination ? "You'd probably just spill it everywhere." : "Better not waste bottled water for that.");
+		pline(FunnyHallu ? "You'd probably just spill it everywhere." : "Better not waste bottled water for that.");
 	    } else
-		You(Hallucination ? "try to rub, but the stone just seems to get duller and duller?!" : "need some water when you use that.");
+		You(FunnyHallu ? "try to rub, but the stone just seems to get duller and duller?!" : "need some water when you use that.");
 	} else
 	if (Levitation && !Lev_at_will && !u.uinwater) {
 	    You("can't reach the water.");
@@ -2970,7 +3299,7 @@ struct obj *tstone;
 	    !obj_resists(obj, 80, 100)) {
 	if (Blind)
 	    You_feel("something shatter.");
-	else if (Hallucination)
+	else if (FunnyHallu)
 	    pline("Oh, wow, look at the pretty shards.");
 	else
 	    pline("A sharp crack shatters %s%s.",
@@ -3007,11 +3336,17 @@ struct obj *tstone;
 		    (Role_if(PM_ARCHEOLOGIST) || Role_if(PM_GOLDMINER) || Race_if(PM_GNOME))))) {
 	    makeknown(TOUCHSTONE);
 	    makeknown(obj->otyp);
+	    if (!rn2(10)) {
+			if (tstone->blessed) tstone->blessed = 0;
+			else curse(tstone);
+			pline("Your touchstone seems less effective.");
+			if (PlayerHearsSoundEffects) pline(issoviet ? "Vse, chto vy vladeyete budet razocharovalsya v zabveniye, kha-kha-kha!" : "Klatsch!");
+	    }
 	    prinv((char *)0, obj, 0L);
 	    return;
 	} else {
 	    /* either a ring or the touchstone was not effective */
-	    if (objects[obj->otyp].oc_material == GLASS) {
+	    if (objects[obj->otyp].oc_material == MT_GLASS) {
 		do_scratch = TRUE;
 		break;
 	    }
@@ -3019,48 +3354,49 @@ struct obj *tstone;
 	streak_color = c_obj_colors[objects[obj->otyp].oc_color];
 	break;		/* gem or ring */
 
+	/* Amy grepping target: "materialeffect" */
     default:
 	switch (objects[obj->otyp].oc_material) {
-	case CLOTH:
+	case MT_CLOTH:
 	    pline("%s a little more polished now.", Tobjnam(tstone, "look"));
 	    return;
-	case SILK:
+	case MT_SILK:
 	    pline("%s a little softer now.", Tobjnam(tstone, "look"));
 	    return;
-	case COMPOST:
+	case MT_COMPOST:
 	    pline("%s a little dirtier now.", Tobjnam(tstone, "look"));
 	    return;
-	case ETHER:
+	case MT_ETHER:
 	    pline("%s seems contaminated.", Tobjnam(tstone, "look"));
 	    return;
-	case SECREE:
+	case MT_SECREE:
 	    pline("%s has gunk on it now.", Tobjnam(tstone, "look"));
 	    return;
-	case LIQUID:
+	case MT_LIQUID:
 	    if (!obj->known)		/* note: not "whetstone" */
 		You("must think this is a wetstone, do you?");
 	    else
 		pline("%s a little wetter now.", Tobjnam(tstone, "are"));
 	    return;
-	case WAX:
+	case MT_WAX:
 	    streak_color = "waxy";
 	    break;		/* okay even if not touchstone */
-	case WOOD:
+	case MT_WOOD:
 	    streak_color = "wooden";
 	    break;		/* okay even if not touchstone */
-	case GOLD:
+	case MT_GOLD:
 	    do_scratch = TRUE;	/* scratching and streaks */
 	    streak_color = "golden";
 	    break;
-	case SILVER:
+	case MT_SILVER:
 	    do_scratch = TRUE;	/* scratching and streaks */
 	    streak_color = "silvery";
 	    break;
-	case TAR:
+	case MT_TAR:
 	    do_scratch = TRUE;	/* scratching and streaks */
 	    streak_color = "inky black";
 	    break;
-	case VIVA:
+	case MT_VIVA:
 	    do_scratch = TRUE;	/* scratching and streaks */
 	    streak_color = "radiating";
 	    break;
@@ -3240,13 +3576,13 @@ struct obj *obj;
     }
     if (!getdir((char *)0)) return res;
 
-    if ((Stunned && !rn2(issoviet ? 1 : Stun_resist ? 8 : 2)) || (Confusion && !rn2(issoviet ? 2 : Conf_resist ? 40 : 8))) confdir();
+    if ((Stunned && !rn2(issoviet ? 1 : StrongStun_resist ? 20 : Stun_resist ? 8 : 2)) || (Confusion && !rn2(issoviet ? 2 : StrongConf_resist ? 200 : Conf_resist ? 40 : 8))) confdir();
     rx = u.ux + u.dx;
     ry = u.uy + u.dy;
 
 	if(!isok(rx, ry)) { /* gotta fix that unneccessary segfault for once and for all! --Amy */
 
-	pline(Hallucination ? "You get a great rebound effect!" : "Your whip hits an invisible barrier.");
+	pline(FunnyHallu ? "You get a great rebound effect!" : "Your whip hits an invisible barrier.");
 	return(1);
 	}
 
@@ -3284,13 +3620,13 @@ struct obj *obj;
 	    /* Have a shot at snaring something on the floor */
 	    otmp = level.objects[u.ux][u.uy];
 	    if (otmp && otmp->otyp == CORPSE && otmp->corpsenm == PM_HORSE) {
-		pline(Hallucination ? "Crack! Some messy stuff flies around." : "Why beat a dead horse?");
+		pline(FunnyHallu ? "Crack! Some messy stuff flies around." : "Why beat a dead horse?");
 		return 1;
 	    }
 	    if (otmp && proficient) {
 		You("wrap your bullwhip around %s on the %s.",
 		    an(singular(otmp, xname)), surface(u.ux, u.uy));
-		if (rnl(6 - proficient) || pickup_object(otmp, Race_if(PM_LEVITATOR) ? otmp->quan : 1L, TRUE) < 1)
+		if (rnl(6 - proficient) || pickup_object(otmp, Race_if(PM_LEVITATOR) ? otmp->quan : 1L, TRUE, FALSE) < 1)
 		    pline("%s", msg_slipsfree);
 		return 1;
 	    }
@@ -3362,7 +3698,7 @@ struct obj *obj;
     } else if (mtmp) {
 	if (!canspotmon(mtmp) &&
 		!memory_is_invisible(rx, ry)) {
-	   pline(Hallucination ? "Oh no, it hit some invisible barrier... or wait... that barrier must be a monster! Help!" : "A monster is there that you couldn't see.");
+	   pline(FunnyHallu ? "Oh no, it hit some invisible barrier... or wait... that barrier must be a monster! Help!" : "A monster is there that you couldn't see.");
 	   map_invisible(rx, ry);
 	}
 	otmp = MON_WEP(mtmp);	/* can be null */
@@ -3427,7 +3763,7 @@ struct obj *obj;
 		    You("snatch %s %s!", s_suffix(mon_nam(mtmp)), onambuf);
 		    if (otmp->otyp == CORPSE &&
 			    touch_petrifies(&mons[otmp->corpsenm]) &&
-			    (!uarmg || FingerlessGloves) && !Stone_resistance &&
+			    (!uarmg || FingerlessGloves) && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) &&
 			    !(poly_when_stoned(youmonst.data) &&
 				polymon(PM_STONE_GOLEM))) {
 			char kbuf[BUFSZ];
@@ -3529,7 +3865,20 @@ use_pole (obj)
 	max_range = 8;
 #endif
 
+	typ = weapon_type(obj);
+	if (typ == P_FLAIL || (typ == P_CLUB && !Role_if(PM_AKLYST)) || typ == P_MORNING_STAR) {
+		if (PlayerCannotUseSkills || P_SKILL(typ) <= P_BASIC) max_range = 4;
+		else if (P_SKILL(typ) <= P_SKILLED) max_range = 5;
+		else max_range = 8;
+	}
+
 	if (obj->otyp == NOOB_POLLAX || obj->otyp == GREAT_POLLAX) max_range += 5;
+	if (obj->otyp == YITH_TENTACLE) max_range += 2;
+	if (obj->otyp == POLE_LANTERN) {
+		max_range += 10;
+		min_range += 5;
+	}
+	if (obj->oartifact == ART_PAYBACK_TIME) max_range += 8;
 	if (obj->oartifact == ART_ETHER_PENETRATOR) max_range += 5;
 	if (obj->oartifact == ART_FUURKER) max_range += 6;
 	if (obj->otyp == WOODEN_BAR) max_range += 7;
@@ -3541,23 +3890,24 @@ use_pole (obj)
 	}
 
 	if (distu(cc.x, cc.y) > max_range) {
-	    pline(Hallucination ? "Your stick's not long enough, it seems!" : "Too far!");
+	    pline(FunnyHallu ? "Your stick's not long enough, it seems!" : "Too far!");
 	    return (res);
 	} else if (distu(cc.x, cc.y) < min_range) {
-	    pline(Hallucination ? "Your stick's too long, it seems!" : "Too close!");
+	    pline(FunnyHallu ? "Your stick's too long, it seems!" : "Too close!");
 	    return (res);
-	} else if (!cansee(cc.x, cc.y) &&
-		   ((mtmp = m_at(cc.x, cc.y)) == (struct monst *)0 ||
-		    !canseemon(mtmp))) {
+	} else if (!cansee(cc.x, cc.y) && obj->otyp != DARK_BAR &&
+		   ((mtmp = m_at(cc.x, cc.y)) == (struct monst *)0 || !canseemon(mtmp))) {
 	    You(cant_see_spot);
 	    return (res);
-	} else if (!couldsee(cc.x, cc.y)) { /* Eyes of the Overworld */
+	} else if (!couldsee(cc.x, cc.y) && !(obj->oartifact == ART_WEAKITE_THRUST) ) { /* Eyes of the Overworld */
 	    You(cant_reach);
 	    return res;
 	}
 
 	/* So you did successfully apply your pole. If you try to camp on an Elbereth, it should be scuffed now --Amy */
 	u_wipe_engr(rnd(5));
+
+	if (u.mushroompoles) u.mushroompoleused = TRUE;
 
 	/* What is there? */
 	mtmp = m_at(cc.x, cc.y);
@@ -3592,7 +3942,7 @@ use_pole (obj)
 		    /* Snag an existing object */
 		    if ((otmp = level.objects[cc.x][cc.y]) != (struct obj *)0) {
 			You("snag an object from the %s!", surface(cc.x, cc.y));
-			pickup_object(otmp, Race_if(PM_LEVITATOR) ? otmp->quan : 1, FALSE);
+			pickup_object(otmp, Race_if(PM_LEVITATOR) ? otmp->quan : 1, FALSE, FALSE);
 			/* If pickup fails, leave it alone */
 			newsym(cc.x, cc.y);
 			return 1;
@@ -3601,12 +3951,12 @@ use_pole (obj)
 		case 4:
 		    /* Snag some garbage */
 		    if (fishing && flags.boot_count < 1 &&
-			    (otmp = mksobj(LOW_BOOTS, TRUE, FALSE)) !=
+			    (otmp = mksobj(LOW_BOOTS, TRUE, FALSE, FALSE)) !=
 			    (struct obj *)0) {
 			flags.boot_count++;
 			You("snag some garbage from the %s!",
 				surface(cc.x, cc.y));
-			if (pickup_object(otmp, 1, FALSE) <= 0) {
+			if (pickup_object(otmp, 1, FALSE, FALSE) <= 0) {
 			    obj_extract_self(otmp);
 			    place_object(otmp, u.ux, u.uy);
 			    newsym(u.ux, u.uy);
@@ -3626,12 +3976,12 @@ use_pole (obj)
 		    break;
 		case 5:
 		    /* Catch your dinner */
-		    if (fishing && flags.cram_count < 50 && (otmp = mksobj(CRAM_RATION, TRUE, FALSE)) !=
+		    if (fishing && flags.cram_count < 50 && (otmp = mksobj(CRAM_RATION, TRUE, FALSE, FALSE)) !=
 			    (struct obj *)0) {
 			flags.cram_count++; /* I swear I implemented that once already, but apparently the change got eaten,
 							just like that annoying polearms code... --Amy */
 			You("catch tonight's dinner!");
-			if (pickup_object(otmp, 1, FALSE) <= 0) {
+			if (pickup_object(otmp, 1, FALSE, FALSE) <= 0) {
 			    obj_extract_self(otmp);
 			    place_object(otmp, u.ux, u.uy);
 			    newsym(u.ux, u.uy);
@@ -3650,25 +4000,60 @@ use_pole (obj)
 	/* The effect didn't apply.  Attack the monster there. */
 	if (mtmp) {
 
-	    if ((!rn2(isfriday ? 500 : 1000) && !obj->oartifact) || (!rn2(isfriday ? 125 : 250) && obj->otyp == WOODEN_BAR) || (!rn2(isfriday ? 5000 : 10000) && obj->oartifact)) {
-		if (obj->spe < 1) {
+		if (obj->oartifact == ART_DESTRUCTION_BALL && !rn2(3)) {
+			if (obj->spe > -20) {
+				obj->spe--;
+				pline("Your ball sustains damage.");
+			} else {
+				uwepgone();              /* set unweapon */
+				pline(FunnyHallu ? "You lost your stick!" : "Your weapon shatters into pieces!");
+				if (PlayerHearsSoundEffects) pline(issoviet ? "Pochemu u vas takoy malen'kiy polovogo chlena v lyubom sluchaye?" : "Krrrrrrrtsch!");
+				useup(obj);
+				return (1);
+
+			}
+		}
+		if (obj->oartifact == ART_DONNNNNNNNNNNNG && !rn2(3)) {
+			if (obj->spe > -20) {
+				obj->spe--;
+				pline("Your weapon sustains damage.");
+			} else {
+				uwepgone();              /* set unweapon */
+				pline(FunnyHallu ? "You lost your stick!" : "Your weapon shatters into pieces!");
+				if (PlayerHearsSoundEffects) pline(issoviet ? "Pochemu u vas takoy malen'kiy polovogo chlena v lyubom sluchaye?" : "Krrrrrrrtsch!");
+				useup(obj);
+				return (1);
+
+			}
+		}
+
+	    if ((!rn2(isfriday ? 500 : 1000) && !obj->oartifact) || (!rn2(isfriday ? 125 : 250) && obj->otyp == WOODEN_BAR && (!obj->oartifact || !rn2(10))) || (!rn2(isfriday ? 125 : 250) && (obj->otyp == AKLYS || obj->otyp == BLOW_AKLYS) && (!obj->oartifact || !rn2(10))) || (!rn2(isfriday ? 5000 : 10000) && obj->oartifact)) {
+		if (obj->oartifact == ART_NOBREAK && obj->spe < 1) {
+			if (obj->spe > -20) obj->spe--;
+			pline(FunnyHallu ? "Your stick seems shorter now!" : "Your weapon seems less effective.");
+			if (PlayerHearsSoundEffects) pline(issoviet ? "Vse, chto vy vladeyete budet razocharovalsya v zabveniye, kha-kha-kha!" : "Klatsch!");
+		} else if (obj->spe < 1) {
 			uwepgone();              /* set unweapon */
-			pline(Hallucination ? "You lost your stick!" : "Your weapon shatters into pieces!");
+			pline(FunnyHallu ? "You lost your stick!" : "Your weapon shatters into pieces!");
 			if (PlayerHearsSoundEffects) pline(issoviet ? "Pochemu u vas takoy malen'kiy polovogo chlena v lyubom sluchaye?" : "Krrrrrrrtsch!");
 			useup(obj);
 			return (1);
 		} else {
 			obj->spe -= rnd(obj->spe);
-			pline(Hallucination ? "Your stick seems shorter now!" : "Your weapon seems less effective.");
+			pline(FunnyHallu ? "Your stick seems shorter now!" : "Your weapon seems less effective.");
 			if (PlayerHearsSoundEffects) pline(issoviet ? "Vse, chto vy vladeyete budet razocharovalsya v zabveniye, kha-kha-kha!" : "Klatsch!");
 		}
 	    }
 
-	    if ((!rn2(isfriday ? 500 : 1000) && !obj->oartifact) || (!rn2(isfriday ? 125 : 250) && obj->otyp == WOODEN_BAR) || (!rn2(isfriday ? 5000 : 10000) && obj->oartifact)) {
+	    if ((!rn2(isfriday ? 500 : 1000) && !obj->oartifact) || (!rn2(isfriday ? 125 : 250) && obj->otyp == WOODEN_BAR && (!obj->oartifact || !rn2(10))) || (!rn2(isfriday ? 125 : 250) && (obj->otyp == AKLYS || obj->otyp == BLOW_AKLYS) && (!obj->oartifact || !rn2(10))) || (!rn2(isfriday ? 5000 : 10000) && obj->oartifact)) {
 
-		if (obj->oeroded >= 3 || obj->oeroded2 >= 3) {
+		if (obj->oartifact == ART_NOBREAK && (obj->oeroded >= 3 || obj->oeroded2 >= 3)) {
+			if (obj->spe > -20) obj->spe--;
+			pline(FunnyHallu ? "Your stick seems shorter now!" : "Your weapon seems less effective.");
+			if (PlayerHearsSoundEffects) pline(issoviet ? "Vse, chto vy vladeyete budet razocharovalsya v zabveniye, kha-kha-kha!" : "Klatsch!");
+		} else if (obj->oeroded >= 3 || obj->oeroded2 >= 3) {
 			uwepgone();              /* set unweapon */
-			pline(Hallucination ? "You lost your stick!" : "Your weapon shatters into pieces!");
+			pline(FunnyHallu ? "You lost your stick!" : "Your weapon shatters into pieces!");
 			if (PlayerHearsSoundEffects) pline(issoviet ? "Pochemu u vas takoy malen'kiy polovogo chlena v lyubom sluchaye?" : "Krrrrrrrtsch!");
 			useup(obj);
 			return (1);
@@ -3678,16 +4063,16 @@ use_pole (obj)
 
 	    }
 
-	    if ((!rn2(isfriday ? 50 : 100) || (!rn2(isfriday ? 12 : 25) && obj->otyp == WOODEN_BAR)) && !mtmp->mpeaceful && !mtmp->mtame && !mtmp->mfrenzied && !(amorphous(mtmp->data) || notake(mtmp->data) || nolimbs(mtmp->data) ) ) {
+	    if ((!rn2(isfriday ? 50 : 100) || (!rn2(isfriday ? 12 : 25) && obj->otyp == WOODEN_BAR) || (!rn2(isfriday ? 12 : 25) && (obj->otyp == AKLYS || obj->otyp == BLOW_AKLYS))) && !mtmp->mpeaceful && !mtmp->mtame && !mtmp->mfrenzied && !(amorphous(mtmp->data) || notake(mtmp->data) || nolimbs(mtmp->data) ) ) {
 		mtmp->mfrenzied = 1;
 		pline("%s is frenzied!", Monnam(mtmp));
 	    }
 
-	    if ((!rn2(isfriday ? 50 : 100) || (!rn2(isfriday ? 12 : 25) && obj->otyp == WOODEN_BAR)) && !mtmp->mpeaceful && !mtmp->mtame && !(amorphous(mtmp->data) || notake(mtmp->data) || nolimbs(mtmp->data) ) ) {
+	    if ((!rn2(isfriday ? 50 : 100) || (!rn2(isfriday ? 12 : 25) && obj->otyp == WOODEN_BAR) || (!rn2(isfriday ? 12 : 25) && (obj->otyp == AKLYS || obj->otyp == BLOW_AKLYS))) && !mtmp->mpeaceful && !mtmp->mtame && !(amorphous(mtmp->data) || notake(mtmp->data) || nolimbs(mtmp->data) ) ) {
 		mon_adjust_speed(mtmp, 1, (struct obj *)0);
 	    }
 
-	    if ((!rn2(isfriday ? 100 : 200) || (!rn2(isfriday ? 12 : 25) && obj->otyp == WOODEN_BAR)) && attacktype(mtmp->data, AT_WEAP)) {
+	    if ((!rn2(isfriday ? 100 : 200) || (!rn2(isfriday ? 12 : 25) && obj->otyp == WOODEN_BAR) || (!rn2(isfriday ? 12 : 25) && (obj->otyp == AKLYS || obj->otyp == BLOW_AKLYS))) && attacktype(mtmp->data, AT_WEAP)) {
 		pline("%s laughs fiendishly, and snatches your weapon!", Monnam(mtmp));
 		setnotworn(obj);
 		freeinv(obj);
@@ -3695,14 +4080,15 @@ use_pole (obj)
 		return (1);
 	    }
 
-	    if ((!rn2(isfriday ? 125 : 250) || (!rn2(10) && mtmp->data == &mons[PM_GREUVENENE] ) || (!rn2(isfriday ? 25 : 50) && obj->otyp == WOODEN_BAR)) && humanoid(mtmp->data) && (avoid_player(mtmp->data) || mtmp->egotype_avoider) ) {
+	    if ((!rn2(isfriday ? 125 : 250) || (!rn2(10) && mtmp->data == &mons[PM_GREUVENENE] ) || (!rn2(isfriday ? 25 : 50) && obj->otyp == WOODEN_BAR) || (!rn2(isfriday ? 25 : 50) && (obj->otyp == AKLYS || obj->otyp == BLOW_AKLYS))) && humanoid(mtmp->data) && (avoid_player(mtmp->data) || mtmp->egotype_avoider) ) {
 			int aggroamount = rnd(6);
 			if (isfriday) aggroamount *= 2;
 			u.aggravation = 1;
 			u.heavyaggravation = 1;
 			reset_rndmonst(NON_PM);
 			while (aggroamount) {
-				makemon((struct permonst *)0, u.ux, u.uy, MM_ANGRY);
+				u.cnd_aggravateamount++;
+				makemon((struct permonst *)0, u.ux, u.uy, MM_ANGRY|MM_FRENZIED);
 				aggroamount--;
 				if (aggroamount < 0) aggroamount = 0;
 			}
@@ -3717,7 +4103,7 @@ use_pole (obj)
 
 	    bhitpos = cc;
 	    check_caitiff(mtmp);
-	    (void) thitmonst(mtmp, uwep, 1);
+	    (void) thitmonst(mtmp, uwep, 1, TRUE);
 	    /* check the monster's HP because thitmonst() doesn't return
 	     * an indication of whether it hit.  Not perfect (what if it's a
 	     * non-silver weapon on a shade?)
@@ -3780,6 +4166,7 @@ use_pole (obj)
 			badeffect();
 		}
 	}
+	u.mushroompoleused = 0;
 	return (1);
 }
 
@@ -3795,7 +4182,7 @@ struct obj *obj;
 		several = TRUE;
 		obj = splitobj(obj, 1L);
 	}
-	if (Hallucination)
+	if (FunnyHallu)
 		You("give yourself a facial.");
 	else
 		pline("You immerse your %s in %s%s.", body_part(FACE),
@@ -3855,7 +4242,7 @@ use_grapple (obj)
 	else if (P_SKILL(typ) == P_SKILLED) max_range = 5;
 	else max_range = 8;
 	if (distu(cc.x, cc.y) > max_range) {
-		pline(Hallucination ? "Seems like you can't reach it!" : "Too far!");
+		pline(FunnyHallu ? "Seems like you can't reach it!" : "Too far!");
 		return (res);
 	} else if (!cansee(cc.x, cc.y)) {
 		You(cant_see_spot);
@@ -3904,7 +4291,7 @@ use_grapple (obj)
 	case 1:	/* Object */
 	    if ((otmp = level.objects[cc.x][cc.y]) != 0) {
 		You("snag an object from the %s!", surface(cc.x, cc.y));
-		(void) pickup_object(otmp, Race_if(PM_LEVITATOR) ? otmp->quan : 1L, FALSE);
+		(void) pickup_object(otmp, Race_if(PM_LEVITATOR) ? otmp->quan : 1L, FALSE, FALSE);
 		/* If pickup fails, leave it alone */
 		newsym(cc.x, cc.y);
 		return (1);
@@ -3920,7 +4307,7 @@ use_grapple (obj)
 		return (1);
 	    } else if ((!bigmonst(mtmp->data) && !strongmonst(mtmp->data)) ||
 		       rn2(4)) {
-		(void) thitmonst(mtmp, uwep, 1);
+		(void) thitmonst(mtmp, uwep, 1, TRUE);
 		return (1);
 	    }
 	    /* FALL THROUGH */
@@ -3967,13 +4354,24 @@ do_break_wand(obj)
 
     if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER)) {
 	You_cant("break %s without hands!", the_wand);
-	return 0;
-    } else if (ACURR(A_STR) < 10) {
+	if (yn("Attempt it anyway?") == 'y') {
+		if (rn2(3) && !polyskillchance()) {
+			badeffect();
+			pline("Hmm, that seems to have been a magical discharge!");
+			if (FunnyHallu) pline("Maybe the weather forecast would have warned you of that if you had actually bothered to read it today?");
+			if (!rn2(20)) badeffect();
+			return 1;
+		}
+	}
+	else return 0;
+    }
+    if (ACURR(A_STR) < 10) {
 	You("don't have the strength to break %s!", the_wand);
 	return 0;
     }
     pline("Raising %s high above your %s, you break it in two!",
 	  the_wand, body_part(HEAD));
+    u.cnd_wandbreakcount++;
     return wand_explode(obj, TRUE);
 }
 
@@ -4006,6 +4404,9 @@ wand_explode(obj, hero_broke)
     int expltype = EXPL_MAGICAL;
     char buf[BUFSZ];
 
+    int devicetrain = 0;
+    if (hero_broke && obj && obj->spe > 0) devicetrain = obj->spe;
+
     /* [ALI] Do this first so that wand is removed from bill. Otherwise,
      * the freeinv() below also hides it from setpaid() which causes problems.
      */
@@ -4028,6 +4429,8 @@ wand_explode(obj, hero_broke)
     obj->oy = u.uy;
     dmg = obj->spe * 4;
     affects_objects = FALSE;
+
+	if (issoviet) pline("Kabum, ty byl glup, i teper' tvoya palochka vzorvalas', i ty vzyal na sebya der'mo. Obsluzhivayet vas pravil'no, chtoby byt' takoy zatormozhennost'yu.");
 
     switch (obj->otyp) {
     case WAN_WISHING:
@@ -4087,14 +4490,18 @@ wand_explode(obj, hero_broke)
 	dmg *= 2;
     case WAN_MAGIC_MISSILE:
     wanexpl:
+	u.explodewandhack = 1;
 	explode(u.ux, u.uy, ZT_MAGIC_MISSILE, dmg, WAND_CLASS, expltype);
+	u.explodewandhack = 0;
 	makeknown(obj->otyp);	/* explode described the effect */
 	goto discard_broken_wand;
     case WAN_ACID:
     case WAN_SLUDGE:
 	expltype = EXPL_NOXIOUS;
 	dmg *= 2;
+	u.explodewandhack = 1;
 	explode(u.ux, u.uy, ZT_MAGIC_MISSILE, dmg, WAND_CLASS, expltype);
+	u.explodewandhack = 0;
 	makeknown(obj->otyp);	/* explode described the effect */
 	goto discard_broken_wand;
 /*WAC for wands of fireball- no double damage
@@ -4106,7 +4513,9 @@ wand_explode(obj, hero_broke)
 	dmg *= 2;
     case WAN_FIREBALL:
 	expltype = EXPL_FIERY;
+	  u.explodewandhack = 1;
         explode(u.ux, u.uy, ZT_FIRE, dmg, WAND_CLASS, expltype);
+	  u.explodewandhack = 0;
 	if (obj->dknown && !objects[obj->otyp].oc_name_known &&
 		!objects[obj->otyp].oc_uname)
         docall(obj);
@@ -4138,7 +4547,7 @@ wand_explode(obj, hero_broke)
     case WAN_TELEPORTATION:
 		/* WAC make tele trap if you broke a wand of teleport */
 		/* But make sure the spot is valid! */
-	    if ((obj->spe > 2) && rn2(obj->spe - 2) && !level.flags.noteleport &&
+	    if ((obj->spe > 2) && rn2(obj->spe - 2) && !level.flags.noteleport && !u.antitelespelltimeout &&
 		    !u.uswallow && !On_stairs(u.ux, u.uy) && (!IS_FURNITURE(levl[u.ux][u.uy].typ) &&
 		    !IS_ROCK(levl[u.ux][u.uy].typ) &&
 		    !closed_door(u.ux, u.uy) && !t_at(u.ux, u.uy))) {
@@ -4159,11 +4568,11 @@ wand_explode(obj, hero_broke)
 	break;
     case WAN_BANISHMENT:
 
-	    if ((obj->spe > 2) && rn2(obj->spe - 2) && !level.flags.noteleport &&
+	    if ((obj->spe > 2) && rn2(obj->spe - 2) && !level.flags.noteleport && !u.antitelespelltimeout &&
 		    !u.uswallow && !On_stairs(u.ux, u.uy) && (!IS_FURNITURE(levl[u.ux][u.uy].typ) &&
 		    !IS_ROCK(levl[u.ux][u.uy].typ) &&
 		    !Is_knox(&u.uz) && !Is_blackmarket(&u.uz) && !Is_aligned_quest(&u.uz) &&
-		    !In_endgame(&u.uz) && !In_sokoban(&u.uz) &&
+		    !In_endgame(&u.uz) && !In_sokoban_real(&u.uz) &&
 		    !closed_door(u.ux, u.uy) && !t_at(u.ux, u.uy))) {
 
 			struct trap *ttmp;
@@ -4193,9 +4602,13 @@ wand_explode(obj, hero_broke)
 	break;
     }
 
+    u.explodewandhack = 1;
+
     /* magical explosion and its visual effect occur before specific effects */
     explode(obj->ox, obj->oy, ZT_MAGIC_MISSILE, dmg ? rnd(dmg) : 0, WAND_CLASS,
 	    EXPL_MAGICAL);
+
+    u.explodewandhack = 0;
 
     /* this makes it hit us last, so that we can see the action first */
     for (i = 0; i <= 8; i++) {
@@ -4276,6 +4689,9 @@ wand_explode(obj, hero_broke)
     if (obj)
 	delobj(obj);
     nomul(0, 0, FALSE);
+
+    /* did the player break it? if so, train devices skill depending on the # of charges */
+    if (devicetrain) use_skill(P_DEVICES, devicetrain);
     return 1;
 }
 
@@ -4313,8 +4729,8 @@ void use_floppies(struct obj *obj)
 	};
 	int x;
 
-	if (!Role_if(PM_GEEK) && !Role_if(PM_GRADUATE) ) {
-		pline(Hallucination ? "Is this some old Atari or Commodore machine? It's not starting, it seems..." : "If only you knew what the heck this is ... ");
+	if (!Role_if(PM_GEEK) && !Role_if(PM_GRADUATE) && !Role_if(PM_CRACKER) && !Role_if(PM_SOFTWARE_ENGINEER) ) {
+		pline(FunnyHallu ? "Is this some old Atari or Commodore machine? It's not starting, it seems..." : "If only you knew what the heck this is ... ");
 		return;
 	}
 
@@ -4374,6 +4790,7 @@ potion_charge_cost(struct obj *pot)
 	case POT_TRAINING: cost += 8; break;
 	case POT_EXTREME_POWER: cost += 2; break;
 	case POT_WONDER: cost += 10; break;
+	case POT_CURE_INSANITY: cost += 10; break;
 	case POT_TERCES_DLU: cost += 10; break;
 	case POT_HEROISM: cost += 18; break;
 	case POT_ULTIMATE_TSUYOSHI_SPECIAL: cost += 18; break;
@@ -4421,7 +4838,7 @@ use_chemistry_set(struct obj *chemset)
 		strcpy(potbuf,"potion of ");
 	}
 	strcat(potbuf,namebuf);
-	new_obj = readobjnam(potbuf, (struct obj *)0, TRUE);
+	new_obj = readobjnam(potbuf, (struct obj *)0, TRUE, FALSE);
 
 	if (!new_obj || new_obj->oclass != POTION_CLASS) {
 		goto blast_him;
@@ -4483,13 +4900,23 @@ blast_him:
 		pline("You seem to have made a mistake!");
 		pline("The bottle explodes!");
 		losehp(rnd(chemset->cursed ? 25 : 10),"alchemic blast",KILLED_BY_AN);
+		if (Has_contents(new_obj))
+			delete_contents(new_obj);
 		obfree(new_obj,(struct obj *) 0);
+		if (practicantterror) {
+			pline("%s booms: 'Quit trying to create bombs, maggot. 200 zorkmids.'", noroelaname());
+			fineforpracticant(200, 0, 0);
+		}
 		return;
 	}
 
 	if (!(objects[new_obj->otyp].oc_name_known)) makeknown(new_obj->otyp);
 	hold_another_object(new_obj,"Oops! Where did you put that potion?",(const char *) 0,(const char *) 0);
 	You("have done it!");
+	if (practicantterror && new_obj->otyp == POT_CYANIDE) {
+		pline("%s thunders: 'You dare manufacturing such highly toxic substances??? 5000 zorkmids. Don't even think about actually using that type of poison!'", noroelaname());
+		fineforpracticant(5000, 0, 0);
+	}
 	use_skill(P_DEVICES,1);
 	if (Race_if(PM_FAWN)) {
 		use_skill(P_DEVICES,1);
@@ -4498,6 +4925,7 @@ blast_him:
 		use_skill(P_DEVICES,1);
 		use_skill(P_DEVICES,1);
 	}
+	u.cnd_chemistrycount++;
 }
 
 
@@ -4511,7 +4939,7 @@ doapply()
 	char class_list[MAXOCLASSES+2];
 	boolean noartispeak = FALSE; /* if item was vaporized, don't call arti_speaks because segfaults despite fail safe */
 
-	if (u.powerfailure || (isselfhybrid && (moves % 3 == 0) ) ) {
+	if (u.powerfailure || (isselfhybrid && (moves % 3 == 0 && moves % 11 != 0) ) ) {
 		pline("Your power's down, and therefore you cannot apply anything.");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return 0;
@@ -4529,7 +4957,7 @@ doapply()
 	obj = getobj(class_list, "use or apply");
 	if(!obj) return 0;
 
-	if (CurseuseEffect || u.uprops[CURSEUSE_EFFECT].extrinsic || have_curseusestone()) curse(obj);
+	if (CurseAsYouUse && obj && obj->otyp != CANDELABRUM_OF_INVOCATION && obj->otyp != SPE_BOOK_OF_THE_DEAD && obj->otyp != BELL_OF_OPENING) curse(obj);
 
 	if (InterruptEffect || u.uprops[INTERRUPT_EFFECT].extrinsic || have_interruptionstone()) {
 		nomul(-(rnd(5)), "applying a tool", TRUE);
@@ -4550,6 +4978,19 @@ doapply()
 
 	if (obj->oclass == WAND_CLASS)
 	    return do_break_wand(obj);
+
+	/* Mushroom can use every weapon as a polearm, including bows, arrows etc., can be turned on via #monster --Amy */
+	if (Race_if(PM_PLAYER_MUSHROOM) && obj->oclass == WEAPON_CLASS && u.mushroompoles) {
+
+		if (uwep && uwep == obj) res = use_pole(obj);
+		else {
+			pline("You must wield this item first if you want to apply it!"); 
+			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+			wield_tool(obj, "swing");
+		}
+
+		goto mushroompolecheck;
+	}
 
 	switch(obj->otyp){
 	case BLINDFOLD:
@@ -4577,6 +5018,17 @@ doapply()
 		res = use_cream_pie(obj);
 		break;
 	case BULLWHIP:
+	case INKA_SHACKLE:
+	case BULLETPROOF_CHAINWHIP:
+	case STEEL_WHIP:
+	case ETHER_WHIP:
+	case SEXPLAY_WHIP:
+	case CHAINWHIP:
+	case MITHRIL_WHIP:
+	case FLAME_WHIP:
+	case ROSE_WHIP:
+	case RAZOR_WHIP:
+	case SECRET_WHIP:
 		if (uwep && uwep == obj) res = use_whip(obj);
 		else {pline("You must wield this item first if you want to apply it!"); 
 			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
@@ -4642,10 +5094,42 @@ doapply()
 	case SECRET_KEY:
 		(void) pick_lock(&obj);
 		break;
+	case TELEPHONE:
+		if (obj && obj->spe > 0) {
+			obj->spe--;
+			You("dial a number...");
+			if (PlayerHearsSoundEffects) pline(issoviet ? "Vy nabrali nepravil'nyy nomer, slabak!" : "BeepbeepBeepbeepbeepbeepBeepbeepbeep!");
+
+			if (obj->oartifact == ART_MOLOCH_S_PERSONAL_PHONE) {
+				int pm;
+				pm = !rn2(5) ? dprince(rn2((int)A_LAWFUL+2) - 1) : dlord(rn2((int)A_LAWFUL+2) - 1);
+				if (pm && (pm != NON_PM)) {
+					(void) makemon(&mons[pm], u.ux, u.uy, MM_ANGRY|MM_FRENZIED);
+					pline("An angry demon was summoned!");
+				}
+
+			} else {
+
+				int summondemon = ndemon(A_CHAOTIC);
+				if (summondemon == NON_PM) {
+					pline("But no one picks up your call.");
+				} else {
+					pline("%s", Blind ? "You hear an evil chuckle!" : "A miasma of stinking vapors coalesces around you!");
+					make_pet_minion(summondemon, A_CHAOTIC);
+					godvoice(A_CHAOTIC, "My minion shall serve thee!");
+				}
+			}
+
+		} else pline("You try to call someone, but there's no prepaid balance on this phone and therefore it fails.");
+		break;
 	case PICK_AXE:
 	case CONGLOMERATE_PICK:
+	case MYSTERY_PICK:
 	case BRONZE_PICK:
+	case BRICK_PICK:
+	case NANO_PICK:
 	case SOFT_MATTOCK:
+	case ETERNIUM_MATTOCK:
 	case DWARVISH_MATTOCK: /* KMH, balance patch -- the mattock is a pick, too */
 		if (uwep && uwep == obj) res = use_pick_axe(obj);
 		else {pline("You must wield this item first if you want to apply it!"); 
@@ -4806,12 +5290,13 @@ doapply()
 	case STETHOSCOPE:
 	case UNSTABLE_STETHOSCOPE:
 		res = use_stethoscope(obj);
+		if (res >= 2) noartispeak = TRUE;
 		break;
 	case MIRROR:
 		res = use_mirror(obj);
 		break;
 	case SPOON:
-		pline(Hallucination ? "Seems like exactly the thing needed to kill everything in one hit." : "It's a finely crafted antique spoon; what do you want to do with it?");
+		pline(FunnyHallu ? "Seems like exactly the thing needed to kill everything in one hit." : "It's a finely crafted antique spoon; what do you want to do with it?");
 		break;
 	case BELL:
 	case BELL_OF_OPENING:
@@ -4836,13 +5321,25 @@ doapply()
 		break;
 	case GREEN_LIGHTSABER:
   	case BLUE_LIGHTSABER:
+  	case MYSTERY_LIGHTSABER:
 	case VIOLET_LIGHTSABER:
 	case WHITE_LIGHTSABER:
 	case YELLOW_LIGHTSABER:
 	case RED_LIGHTSABER:
 	case LASER_SWATTER:
+	case NANO_HAMMER:
+	case LIGHTWHIP:
 	case RED_DOUBLE_LIGHTSABER:
 	case WHITE_DOUBLE_LIGHTSABER:
+
+		if (obj && obj->oartifact == ART_COLONEL_PROUDSTER && !obj->lamplit && obj->age == 0 && u.ugold >= 10000) {
+			if (yn("Recharge the lightsaber for 10000 zorkmids?") == 'y') {
+				u.ugold -= 10000;
+				obj->age += 750;
+				Your("lightsaber was recharged.");
+			}
+		}
+
 		if (!(uswapwep == obj && u.twoweap))
 		  if (uwep != obj && !wield_tool(obj, (const char *)0)) break;
 		/* Fall through - activate via use_lamp */
@@ -4937,7 +5434,18 @@ doapply()
 	case FIGURINE:
 		use_figurine(&obj);
 		break;
+	case ENERGY_SAP:
+		energysap(obj);
+		noartispeak = TRUE;
+		break;
 	case UNICORN_HORN:
+		if (use_unicorn_horn(obj)) noartispeak = TRUE;
+		break;
+	case DARK_HORN:
+		if (Race_if(PM_PLAYER_NIBELUNG) && rn2(5)) break;
+		pline("That felt evil and sinister!");
+		if (PlayerHearsSoundEffects) pline(issoviet ? "Konechno, Sovetskiy sdelal eto tak, chto vy ne mozhete uvidet' bol'shinstvo monstrov pryamo seychas. Kha-kha-kha ..." : "Diedaedodiedaerr!");
+		litroomlite(FALSE);
 		if (use_unicorn_horn(obj)) noartispeak = TRUE;
 		break;
 	case WOODEN_FLUTE:
@@ -4948,6 +5456,9 @@ doapply()
 	case PIANO:
 	case FROST_HORN:
 	case TEMPEST_HORN:
+	case ETHER_HORN:
+	case SHADOW_HORN:
+	case CHROME_HORN:
 	case FIRE_HORN:
 	case WOODEN_HARP:
 	case MAGIC_HARP:
@@ -4959,6 +5470,7 @@ doapply()
 	case PAN_PIPE_OF_THE_SEWERS:
 	case PAN_PIPE:*/
 		res = do_play_instrument(obj);
+		if (res == 2) noartispeak = TRUE; /* it broke */
 		break;
 	case MEDICAL_KIT:        
 		if (Role_if(PM_HEALER) || Race_if(PM_HERBALIST) ) can_use = TRUE;
@@ -5071,14 +5583,14 @@ doapply()
 
 			if (nochargechange >= rnd(10)) consume_obj_charge(obj, TRUE);
 		    if (!rn2(13)) {
-			otmp = mkobj(POTION_CLASS, FALSE);
+			otmp = mkobj(POTION_CLASS, FALSE, FALSE);
 			/* KMH, balance patch -- rewritten */
 			while ((otmp->otyp == POT_SICKNESS) || (otmp->otyp == POT_POISON) ||
 					objects[otmp->otyp].oc_magic)
 			    otmp->otyp = rnd_class(POT_BOOZE, POT_WATER);
 			what = "A potion";
 		    } else {
-			otmp = mkobj(FOOD_CLASS, FALSE);
+			otmp = mkobj(FOOD_CLASS, FALSE, FALSE);
 			if (otmp->otyp == FOOD_RATION && !rn2(7))
 			    otmp->otyp = LUMP_OF_ROYAL_JELLY;
 			what = "Some food";
@@ -5128,6 +5640,9 @@ doapply()
 	case LOADBOULDER:
 	case TALC:
 	case GRAPHITE:
+	case BONE_FRAGMENT:
+	case LEAD_CLUMP:
+	case SLING_AMMO:
 	case VOLCANIC_GLASS_FRAGMENT:
 	case STARLIGHTSTONE:
 	case STONE_OF_MAGIC_RESISTANCE:
@@ -5251,6 +5766,9 @@ doapply()
 	case TECHOUT_STONE:
 	case STAT_DECAY_STONE:
 	case MOVEMORK_STONE:
+	case SANE_TREBLE_STONE:
+	case STATCREASE_STONE:
+	case SIMEOUT_STONE:
 
 	case METABOLIC_STONE:
 	case STONE_OF_NO_RETURN:
@@ -5294,6 +5812,9 @@ doapply()
 	case SPELL_MEMORY_STONE:
 	case SOUND_EFFECT_STONE:
 	case TIME_USE_STONE:
+	case BAD_PART_STONE:
+	case COMPLETELY_BAD_PART_STONE:
+	case EVIL_VARIANT_STONE:
 
 	case LOOTCUT_STONE:
 	case MONSTER_SPEED_STONE:
@@ -5376,14 +5897,56 @@ doapply()
 		use_stone(obj);
 		break;
 	case ASSAULT_RIFLE:
+	case KALASHNIKOV:
 		/* Switch between WP_MODE_SINGLE, WP_MODE_BURST and WP_MODE_AUTO */
+		/* Amy edit: with enough firearm or gun control skill, you can select the mode */
 
-		if (obj->altmode == WP_MODE_AUTO) {
-			obj->altmode = WP_MODE_BURST;
-		} else if (obj->altmode == WP_MODE_BURST) {
-			obj->altmode = WP_MODE_SINGLE;
+		if (!PlayerCannotUseSkills && (P_SKILL(P_FIREARM) >= P_EXPERT || P_SKILL(P_GUN_CONTROL) >= P_EXPERT)) {
+
+			winid tmpwin;
+			anything any;
+			menu_item *selected;
+			int n;
+
+			any.a_void = 0;         /* zero out all bits */
+			tmpwin = create_nhwindow(NHW_MENU);
+			start_menu(tmpwin);
+			any.a_int = 1;
+			add_menu(tmpwin, NO_GLYPH, &any , 'a', 0, ATR_NONE, "Automatic", MENU_UNSELECTED);
+			any.a_int = 2;
+			add_menu(tmpwin, NO_GLYPH, &any , 'b', 0, ATR_NONE, "Burst Fire", MENU_UNSELECTED);
+			any.a_int = 3;
+			add_menu(tmpwin, NO_GLYPH, &any , 's', 0, ATR_NONE, "Single Shot", MENU_UNSELECTED);
+
+			end_menu(tmpwin, "Select a fire mode");
+			n = select_menu(tmpwin, PICK_ONE, &selected);
+			destroy_nhwindow(tmpwin);
+
+			if (n > 0) {
+				switch (selected[0].item.a_int) {
+					case 1:
+						obj->altmode = WP_MODE_AUTO;
+						break;
+					case 2:
+						obj->altmode = WP_MODE_BURST;
+						break;
+					case 3:
+						obj->altmode = WP_MODE_SINGLE;
+						break;
+
+				}
+
+			}
+
 		} else {
-			obj->altmode = WP_MODE_AUTO;
+
+			if (obj->altmode == WP_MODE_AUTO) {
+				obj->altmode = WP_MODE_BURST;
+			} else if (obj->altmode == WP_MODE_BURST) {
+				obj->altmode = WP_MODE_SINGLE;
+			} else {
+				obj->altmode = WP_MODE_AUTO;
+			}
 		}
 		
 		You("switch %s to %s mode.", yname(obj), 
@@ -5394,7 +5957,7 @@ doapply()
 		break;	
 	case AUTO_SHOTGUN:
 	case DEMON_CROSSBOW:
-	case SUBMACHINE_GUN:		
+	case SUBMACHINE_GUN:
 		if (obj->altmode == WP_MODE_AUTO) obj-> altmode = WP_MODE_SINGLE;
 		else obj->altmode = WP_MODE_AUTO;
 		You("switch %s to %s mode.", yname(obj), 
@@ -5406,10 +5969,14 @@ doapply()
 		if (!obj->oarmed) {
 			You("arm %s.", yname(obj));
 			arm_bomb(obj, TRUE);
-		} else pline(Hallucination ? "Oh, CRAP! You hear the ticking of a bomb! Throw it away, NOW!" : "It's already armed!");
+		} else pline(FunnyHallu ? "Oh, CRAP! You hear the ticking of a bomb! Throw it away, NOW!" : "It's already armed!");
 		break;
 	case STICK_OF_DYNAMITE:
 		light_cocktail(obj);
+		if (practicantterror) {
+			pline("%s thunders: 'High explosives??? Are you out of your mind? In expectation of the damage to property that you'll likely cause, I decided that you pay 5000 zorkmids as compensation and 1000 stones to allow me to rebuild everything that you've destroyed.'", noroelaname());
+			fineforpracticant(5000, 1000, 0);
+		}
 		break;
 
 	case HITCHHIKER_S_GUIDE_TO_THE_GALA:
@@ -5426,8 +5993,8 @@ doapply()
 		if (obj->oartifact == ART_BURNED_MOTH_RELAY) {	
 			pline("There's a little badly burned moth in that relay!");
 			makeknown(RELAY);
-			if (Role_if(PM_GEEK) || Role_if(PM_GRADUATE)) {
-				You_feel("remembered of %s.",Hallucination ? "when the net was flat" : "the old times");
+			if (Role_if(PM_GEEK) || Role_if(PM_GRADUATE) || Role_if(PM_CRACKER) || Role_if(PM_SOFTWARE_ENGINEER)) {
+				You_feel("remembered of %s.",FunnyHallu ? "when the net was flat" : "the old times");
 				break;
 			}
 		}	/* fall through */
@@ -5436,7 +6003,7 @@ doapply()
 	case DIODE:
 	case TRANSISTOR:
 	case IC:
-		pline(Hallucination ? "Hmm... is this stuff edible?" : "You don't understand anything about electronics !!!");
+		pline(FunnyHallu ? "Hmm... is this stuff edible?" : "You don't understand anything about electronics !!!");
 		break;
 
 	case MATERIAL_KIT:
@@ -5455,9 +6022,43 @@ materialchoice:
 				pline("The material of that item cannot be changed!");
 				return(1);
 			} else {
+				if (obj->oartifact == ART_MATERIAL_RAIN) {
+					pline("Some items have had their base material changed.");
+					randommaterials();
+				}
 				objects[otmpC->otyp].oc_material = (obj->shirtmessage % (LASTMATERIAL + 1));
+
+				if (obj->oartifact == ART_NEW_OVERCAST) {
+					while (rn2(25)) {
+						int objtomodify;
+						objtomodify = -1;
+	/* we roll until we get an item that can be randomly generated and is not a gold piece or other weird thing --Amy */
+						while ( (objtomodify == -1) || (objtomodify == GOLD_PIECE) || (objtomodify == STRANGE_OBJECT) || (objtomodify == AMULET_OF_YENDOR) || (objtomodify == CANDELABRUM_OF_INVOCATION) || (objtomodify == BELL_OF_OPENING) || (objtomodify == SPE_BOOK_OF_THE_DEAD) || (objects[objtomodify].oc_prob < 1) ) objtomodify = rn2(NUM_OBJECTS);
+						objects[objtomodify].oc_material = (obj->shirtmessage % (LASTMATERIAL + 1));
+					}
+					pline("The material has been applied to several random items.");
+				}
+
 				if (obj->oartifact == ART_GAROK_S_HAMMER_KIT && rn2(5)) {
 					pline("You use some material from the kit.");
+				} else if (obj->oartifact == ART_DICEROLLER_S_KIT) {
+					pline("You use some material from the kit.");
+
+					if (!rn2(5)) {
+						if (obj->unpaid) {
+							struct monst *shkp = shop_keeper(*u.ushops);
+							if (shkp) {
+								You("use it, you pay for it!");
+								bill_dummy_object(obj);
+							}
+						}
+						delobj(obj);
+						noartispeak = TRUE;
+					} else {
+						obj->shirtmessage = rnd(1000000);
+						pline("You use the material kit... and now it contains a different material.");
+					}
+
 				} else {
 					if (obj->unpaid) {
 						struct monst *shkp = shop_keeper(*u.ushops);
@@ -5471,11 +6072,18 @@ materialchoice:
 
 					noartispeak = TRUE;
 				}
+
 				pline("Success! The item's material got changed.");
 			}
 
 		}
 
+		break;
+
+	case SYMBIOTE:
+
+		res = use_symbiote(obj);
+		noartispeak = TRUE;
 		break;
 
 	case INTELLIGENCE_PACK:
@@ -5490,7 +6098,7 @@ materialchoice:
 
 		delobj(obj);
 		noartispeak = TRUE;
-		(void) adjattrib(A_INT, 1, FALSE);
+		(void) adjattrib(A_INT, 1, FALSE, TRUE);
 		if (Race_if(PM_SUSTAINER) && ABASE(A_WIS) < AMAX(A_WIS)) {
 			ABASE(A_WIS) += 1;
 			AMAX(A_WIS) += 1;
@@ -5499,10 +6107,10 @@ materialchoice:
 		}
 
 		if (obj->oartifact == ART_SUCK_THE_MIND_FLAYER) {
-			(void) adjattrib(A_INT, 1, FALSE);
-			(void) adjattrib(A_INT, 1, FALSE);
-			(void) adjattrib(A_INT, 1, FALSE);
-			(void) adjattrib(A_INT, 1, FALSE);
+			(void) adjattrib(A_INT, 1, FALSE, TRUE);
+			(void) adjattrib(A_INT, 1, FALSE, TRUE);
+			(void) adjattrib(A_INT, 1, FALSE, TRUE);
+			(void) adjattrib(A_INT, 1, FALSE, TRUE);
 			if (Race_if(PM_SUSTAINER) && ABASE(A_WIS) < AMAX(A_WIS)) {
 				ABASE(A_WIS) += 1;
 				AMAX(A_WIS) += 1;
@@ -5598,6 +6206,7 @@ chargingchoice:
 		if (obj->cursed && rn2(2)) {
 
 			delobj(obj);
+			noartispeak = TRUE;
 			break; /* do not call delobj twice or the game will destabilize! */
 
 		}
@@ -5854,6 +6463,12 @@ chargingchoice:
 		TechoutBug = 0L;
 		StatDecay = 0L;
 		Movemork = 0L;
+		BadPartBug = 0L;
+		CompletelyBadPartBug = 0L;
+		EvilVariantActive = 0L;
+		SanityTrebleEffect = 0L;
+		StatDecreaseBug = 0L;
+		SimeoutBug = 0L;
 
 		break;
 	case GOD_O_METER:
@@ -5865,6 +6480,7 @@ chargingchoice:
 			else u.ublesscnt += rn2(10);
 			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 			noartispeak = TRUE;
+			u.cnd_applycount++;
 			return 0;
 			}
 
@@ -5893,7 +6509,7 @@ chargingchoice:
 	default:
 		/* KMH, balance patch -- polearms can strike at a distance */
 
-		if (is_pole(obj)) {
+		if (is_applypole(obj)) {
 			if (uwep && uwep == obj) res = use_pole(obj);
 			else {pline("You must wield this item first if you want to apply it!"); 
 				if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
@@ -5912,6 +6528,11 @@ chargingchoice:
 		nomul(0, 0, FALSE);
 		return 0;
 	}
+
+mushroompolecheck:
+
+	u.cnd_applycount++;
+
 	nomul(0, 0, FALSE);
 	if (!obj) return res;
 	if (noartispeak) return res;
@@ -5930,6 +6551,7 @@ unfixable_trouble_count(is_horn)
 
 	if (Stoned) unfixable_trbl++;
 	if (Strangled) unfixable_trbl++;
+	if (PlayerBleeds) unfixable_trbl++;
 	if (Wounded_legs
 		    && !u.usteed
 				) unfixable_trbl++;

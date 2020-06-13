@@ -311,7 +311,7 @@ dig()
 	bonus = 10 + rn2(5) + abon() + uwep->spe - greatest_erosionX(uwep) + u.udaminc + RngeBloodlust + (Drunken_boxing && Confusion);
 	if (uarms && uarms->oartifact == ART_TEH_BASH_R) bonus += 2;
 	if (uarmh && uarmh->oartifact == ART_HELMET_OF_DIGGING) bonus += 5;
-	if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "digger gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "kopatel'skiye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "kazici qo'lqop") )) bonus += 5;
+	if (uarmg && itemhasappearance(uarmg, APP_DIGGER_GLOVES)) bonus += 5;
 	if (!PlayerCannotUseSkills) {
 		switch (P_SKILL(P_WEDI)) {
 
@@ -327,6 +327,7 @@ dig()
 
 	if (Race_if(PM_DWARF) || Role_if(PM_MIDGET) )
 	    bonus *= 2;
+	if (Race_if(PM_IRAHA)) bonus *= rnd(3);
 	if (isfriday && bonus > 1) bonus /= 2;
 
 	if (is_lightsaber(uwep))
@@ -405,19 +406,24 @@ dig()
 			}
 			if (IS_TREE(lev->typ)) {
 			    digtxt = "You cut down the tree.";
+			    u.cnd_treechopamount++;
+			    if (u.ualign.type == A_CHAOTIC) adjalign(1);
 			    lev->typ = ROOM;
-			    if (!rn2(5)) (void) rnd_treefruit_at(dpx, dpy);
+			    if (!rn2(5) && !(lev->looted & TREE_LOOTED) ) (void) rnd_treefruit_at(dpx, dpy);
 				if (uwep && is_lightsaber(uwep) && uwep->lamplit) {
 					use_skill(P_WEDI, 1);
 				}
 			} else if (IS_WATERTUNNEL(lev->typ)) {
 			    digtxt = "You smash the solid part of the tunnel apart.  Now it's a moat!";
+			    u.cnd_diggingamount++;
 			    lev->typ = MOAT;
 				if (uwep && is_lightsaber(uwep) && uwep->lamplit) {
 					use_skill(P_WEDI, 1);
 				}
 			} else if (uwep && IS_IRONBAR(lev->typ) && is_antibar(uwep) ) {
+
 			    digtxt = "You smash the bars to the ground.";
+			    u.cnd_barbashamount++;
 
 			    if (In_sokoban(&u.uz))
 				{change_luck(-1);
@@ -435,10 +441,24 @@ dig()
 		 * Soviet, but seriously, fuck that shit, I'm not gonna bother coding that just for an obscure special mode
 		 * that 99.9% of players won't use anyway because they don't understand russian. --Amy */
 			    }
-				(void)wither_dmg(uwep, xname(uwep), rn2(4), TRUE, &youmonst); /* sorry --Amy */
-		if (!rn2(5)) mkobj_at(CHAIN_CLASS, dpx, dpy, FALSE); /* maybe make a chain from the bars --Amy */
+				if (uwep->obrittle == 3 || uwep->obrittle2 == 3) {
+					Your("weapon was destroyed!");
+					useupall(uwep);
+				} else {
+
+					if (!rn2(2)) uwep->obrittle++;
+					else uwep->obrittle2++;
+					Your("weapon has taken damage from smashing the bars!");
+				}
+				/* it's intentional that the weapon cannot resist, because otherwise you could take one that
+				 * is highly resistant to erosion or even immune to being destroyed and simply smash all bars
+				 * in the entire dungeon, which isn't what we want --Amy */
+
+				if (!rn2(5)) mkobj_at(CHAIN_CLASS, dpx, dpy, FALSE, FALSE); /* maybe make a chain from the bars --Amy */
+
 			} else {
 			    digtxt = "You succeed in cutting away some rock.";
+			    u.cnd_diggingamount++;
 			    lev->typ = CORR;
 				if (uwep && is_lightsaber(uwep) && uwep->lamplit) {
 					use_skill(P_WEDI, 1);
@@ -463,6 +483,7 @@ dig()
 			    lev->doormask = D_NODOOR;
 			}
 			digtxt = "You make an opening in the wall.";
+			u.cnd_diggingamount++;
 
 			if (uwep && is_lightsaber(uwep) && uwep->lamplit) {
 				use_skill(P_WEDI, 1);
@@ -672,6 +693,7 @@ int ttyp;
 
 	    if(madeby_u) {
 		You("dig a pit in the %s.", surface_type);
+		u.cnd_diggingamount++;
 		if (shopdoor) pay_for_damage("ruin", FALSE);
 	    } else if (!madeby_obj && canseemon(madeby))
 		pline("%s digs a pit in the %s.", Monnam(madeby), surface_type);
@@ -699,9 +721,10 @@ int ttyp;
 	    }
 	} else {	/* was TRAPDOOR now a HOLE*/
 
-	    if(madeby_u)
+	    if(madeby_u) {
 		You("dig a hole through the %s.", surface_type);
-	    else if(!madeby_obj && canseemon(madeby))
+		u.cnd_diggingamount++;
+	    } else if(!madeby_obj && canseemon(madeby))
 		pline("%s digs a hole through the %s.",
 		      Monnam(madeby), surface_type);
 	    else if(cansee(x, y) && flags.verbose)
@@ -877,7 +900,7 @@ boolean pit_only;
 		if (!Levitation && !Flying && typ != STYXRIVER && typ != URINELAKE && typ != SHIFTINGSAND) {
 		    if (typ == LAVAPOOL)
 			(void) lava_effects();
-		    else if (!Wwalking && !Swimming)
+		    else if (!Wwalking && !Race_if(PM_KORONST) && !Swimming)
 			(void) drown();
 		}
 		return TRUE;
@@ -951,7 +974,7 @@ dig_up_grave()
 		adjalign(-10);
 	    You("disturb the honorable dead!");
 	}
-	if ((u.ualign.type == A_LAWFUL) && (u.ualign.record > -10)) {
+	if ((u.ualign.type == A_LAWFUL)) {
 	    adjalign(-sgn(u.ualign.type)*2);
 	    You("have violated the sanctity of this grave!");
 	}
@@ -964,7 +987,7 @@ dig_up_grave()
 	    	otmp->age -= 100;		/* this is an *OLD* corpse */;
 	    break;
 	case 2:
-	    if (!Blind) pline(Hallucination ? "Dude!  The living dead!" :
+	    if (!Blind) pline(FunnyHallu ? "Dude!  The living dead!" :
  			"The grave's owner is very upset!");
 
 		if (Aggravate_monster) {
@@ -978,7 +1001,7 @@ dig_up_grave()
 
 	    break;
 	case 3:
-	    if (!Blind) pline(Hallucination ? "I want my mummy!" :
+	    if (!Blind) pline(FunnyHallu ? "I want my mummy!" :
  			"You've disturbed a tomb!");
 
 		if (Aggravate_monster) {
@@ -1118,7 +1141,9 @@ struct obj *obj;
 		else if (obj->otyp == HOMING_TORPEDO) pline("The torpedo strikes right into your vital organs!");
 		else if (obj->otyp == RADIOACTIVE_DAGGER) pline("You irradiate yourself with your dagger!");
 		else if (obj->otyp == IMPACT_STAFF) pline("Dock! You hit yourself with your staff!");
+		else if (obj->otyp == BLOCK_HEELED_SANDAL) pline("Mmmmmmmm, the massive block heel hits your %s so wonderfully painfully!", body_part(HEAD));
 		else if (obj->otyp == INKA_BOOT) pline("You come right as the lovely, soft boot heel hits you.");
+		else if (obj->otyp == PROSTITUTE_SHOE) pline("You have an orgasm as you hit yourself with the incredibly female prostitute shoe.");
 		else if (obj->otyp == SOFT_LADY_SHOE) pline("You feel wonderful intense pain as the incredibly soft lady shoe hits you.");
 		else if (obj->otyp == STEEL_WHIP) {
 			if (flags.female) You_feel("like a submissive girl as you whip yourself!");
@@ -1134,7 +1159,7 @@ struct obj *obj;
 		flags.botl=1;
 		return(1);
 	} else if(u.dz == 0) {
-		if ((Stunned && !rn2(issoviet ? 1 : Stun_resist ? 8 : 2)) || (Confusion && !rn2(issoviet ? 2 : Conf_resist ? 40 : 8))) confdir();
+		if ((Stunned && !rn2(issoviet ? 1 : StrongStun_resist ? 20 : Stun_resist ? 8 : 2)) || (Confusion && !rn2(issoviet ? 2 : StrongConf_resist ? 200 : Conf_resist ? 40 : 8))) confdir();
 		rx = u.ux + u.dx;
 		ry = u.uy + u.dy;
 		if(!isok(rx, ry)) {
@@ -1179,7 +1204,7 @@ struct obj *obj;
 			}
 			else {
 			    You("swing your %s through thin air.", aobjnam(obj, (char *)0));
-				if (Hallucination) pline("It creates erotic air current noises.");
+				if (FunnyHallu) pline("It creates erotic air current noises.");
 			}
 		} else {
 			static const char * const d_action[7][2] = {
@@ -1224,7 +1249,7 @@ struct obj *obj;
 	} else if (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz)) {
 		/* it must be air -- water checked above */
 		You("swing your %s through thin air.", aobjnam(obj, (char *)0));
-		if (Hallucination) pline("It creates erotic air current noises.");
+		if (FunnyHallu) pline("It creates erotic air current noises.");
 	} else if (!can_reach_floor()) {
 		You_cant("reach the %s.", surface(u.ux,u.uy));
 	} else if (is_waterypool(u.ux, u.uy) || is_lava(u.ux, u.uy)) {
@@ -1353,6 +1378,9 @@ register struct monst *mtmp;
 	}
 
 	if (IS_WALL(here->typ)) {
+
+	    u.cnd_monsterdigamount++;
+
 	    /* KMH -- Okay on arboreal levels (room walls are still stone) */
 	    if (flags.soundok && flags.verbose && !rn2(5)) {
 	    /* KMH -- Okay on arboreal levels (room walls are still stone) */
@@ -1376,15 +1404,17 @@ register struct monst *mtmp;
 	    }
 	} else if (IS_TREE(here->typ)) {
 	    here->typ = ROOM;
-	    if (!rn2(50) && pile && pile < 5) /* it shouldn't be that easy to get tree fruits... --Amy */
+	    if (!rn2(50) && !(here->looted & TREE_LOOTED) && pile && pile < 5) /* it shouldn't be that easy to get tree fruits... --Amy */
 		(void) rnd_treefruit_at(mtmp->mx, mtmp->my);
 	} else if (IS_WATERTUNNEL(here->typ)) {
+	    u.cnd_monsterdigamount++;
 	    here->typ = MOAT;
 	} else {
+	    u.cnd_monsterdigamount++;
 	    here->typ = CORR;
 	    if (!rn2(7) && pile && pile < 5) /* if you dig out rock yourself, you don't get boulders or rock either! --Amy */
 	    (void) mksobj_at((pile == 1) ? BOULDER : ROCK,
-			     mtmp->mx, mtmp->my, TRUE, FALSE);
+			     mtmp->mx, mtmp->my, TRUE, FALSE, FALSE);
 	}
 	newsym(mtmp->mx, mtmp->my);
 	if (!sobj_at(BOULDER, mtmp->mx, mtmp->my))
@@ -1450,6 +1480,7 @@ nextiteration:
 	zx = u.ux + u.dx;
 	zy = u.uy + u.dy;
 	digdepth = rn1(18, 8);
+	if (Race_if(PM_IRAHA)) digdepth *= 2;
 	tmp_at(DISP_BEAM, cmap_to_glyph(S_digbeam));
 	while (--digdepth >= 0) {
 	    if (!isok(zx,zy)) break;
@@ -1656,7 +1687,7 @@ boolean bigrange;
 		    pline("It falls on your %s!", body_part(HEAD));
 		    losehp(rnd((uarmh && is_metallic(uarmh) && !is_etheritem(uarmh)) ? 2 : 6),
 			   "falling rock", KILLED_BY_AN);
-		    otmp = mksobj_at(ROCK, u.ux, u.uy, FALSE, FALSE);
+		    otmp = mksobj_at(ROCK, u.ux, u.uy, FALSE, FALSE, FALSE);
 		    if (otmp) {
 
 			if(!rn2(8)) {
@@ -1687,6 +1718,7 @@ boolean bigrange;
 	zx = u.ux + u.dx;
 	zy = u.uy + u.dy;
 	digdepth = bigrange ? rn1(18, 8) : 1;
+	if (Race_if(PM_IRAHA)) digdepth *= 2;
 	tmp_at(DISP_BEAM, cmap_to_glyph(S_digbeam));
 	while (--digdepth >= 0) {
 	    if (!isok(zx,zy)) break;
@@ -2066,7 +2098,7 @@ bury_you()
 		  surface(u.ux, u.uy));
 
 	u.uburied = TRUE;
-	if(!Strangled && !Breathless) Strangled = 6;
+	if(!Strangled && !Breathless) Strangled = 11;
 	under_ground(1);
     }
 }

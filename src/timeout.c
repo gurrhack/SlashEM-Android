@@ -51,14 +51,14 @@ STATIC_OVL void
 phasing_dialogue()
 {
     if (Phasing == 15) {
-        if (!Hallucination) {
+        if (!FunnyHallu) {
             Your("body is beginning to feel more solid.");
         } else {
             You_feel("more distant from the spirit world.");
         }
         stop_occupation();
     } else if (Phasing == 1) {
-        if (!Hallucination) {
+        if (!FunnyHallu) {
             Your("body is solid again.");
         } else {
             You_feel("totally separated from the spirit world.");
@@ -102,17 +102,27 @@ vomiting_dialogue()
 
 static NEARDATA const char * const choke_texts[] = {
 	"You find it hard to breathe.",
+	"You find it hard to breathe.",
+	"You're gasping for air.",
 	"You're gasping for air.",
 	"You can no longer breathe.",
+	"You can no longer breathe.",
 	"You're turning %s.",
+	"You're turning %s.",
+	"You're about to suffocate.",
 	"You suffocate."
 };
 
 static NEARDATA const char * const choke_texts2[] = {
 	"Your %s is becoming constricted.",
+	"Your %s is becoming constricted.",
+	"Your blood is having trouble reaching your brain.",
 	"Your blood is having trouble reaching your brain.",
 	"The pressure on your %s increases.",
+	"The pressure on your %s increases.",
 	"Your consciousness is fading.",
+	"Your consciousness is fading.",
+	"You're about to suffocate.",
 	"You suffocate."
 };
 
@@ -161,9 +171,13 @@ slime_dialogue()
 		    if (!Blind)	/* [what if you're already green?] */
 			pline(str, hcolor(NH_GREEN));
 			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
-		} else
+		} else {
 		    pline(str, an(Hallucination ? rndmonnam() : "green slime"));
 			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+
+			/* make it more obvious for the player how much time they have left --Amy */
+			if (i == 0L && Slimed > 1) pline("You have %ld turns to live.", Slimed);
+		}
 	    } else
 		pline("%s", str);
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
@@ -215,13 +229,13 @@ nh_timeout()
 	if (flags.friday13) baseluck -= 1;
 
 	/* get extra uses out of the (now limited) #youpoly command after a while --Amy */
-	if (Race_if(PM_WARPER) && moves % 10000 == 0) u.youpolyamount++;
-	if (Race_if(PM_DOPPELGANGER) && moves % 5000 == 0) u.youpolyamount++;
-	if (Role_if(PM_SHAPESHIFTER) && moves % 5000 == 0) u.youpolyamount++;
-	if (Race_if(PM_HEMI_DOPPELGANGER) && moves % 4000 == 0) u.youpolyamount++;
-	if (Race_if(PM_DEATHMOLD) && moves % 3000 == 0) u.youpolyamount++;
-	if (Race_if(PM_UNGENOMOLD) && moves % 2000 == 0) u.youpolyamount++;
-	if (Race_if(PM_MOULD) && moves % 1000 == 0) u.youpolyamount++;
+	if (Race_if(PM_WARPER) && !rn2(10000)) u.youpolyamount++;
+	if (Race_if(PM_DOPPELGANGER) && !rn2(5000)) u.youpolyamount++;
+	if (Role_if(PM_SHAPESHIFTER) && !rn2(5000)) u.youpolyamount++;
+	if (Race_if(PM_HEMI_DOPPELGANGER) && !rn2(4000)) u.youpolyamount++;
+	if (Race_if(PM_DEATHMOLD) && !rn2(3000)) u.youpolyamount++;
+	if (Race_if(PM_UNGENOMOLD) && !rn2(2000)) u.youpolyamount++;
+	if (Race_if(PM_MOULD) && !rn2(1000)) u.youpolyamount++;
 
 	if (MCReduction && MCReduction % 5000 == 0) pline("Your magic cancellation seems to work a bit better again.");
 
@@ -229,8 +243,60 @@ nh_timeout()
 	if (u.negativeprotection < 0) u.negativeprotection = 0; /* fail safe */
 	if (u.tremblingamount && !rn2(1000)) u.tremblingamount--;
 	if (u.tremblingamount < 0) u.tremblingamount = 0; /* fail safe */
-	if (u.usanity && !isevilvariant && !rn2(isfriday ? 2500 : 1000)) {
+
+	if (SimeoutBug || u.uprops[SIMEOUT_BUG].extrinsic || have_simeoutstone()) {
+		if (!rn2(2500)) {
+			u.usanity += (YouGetLotsOfSanity ? rnd(20) : 1);
+			if (flags.showsanity) flags.botl = 1;
+		}
+	} else if (u.usanity && !isevilvariant && !rn2(isfriday ? 2500 : 1000)) {
 		u.usanity--;
+
+		/* mineral helps against sanity --Amy */
+		if (uwep && objects[uwep->otyp].oc_material == MT_MINERAL) {
+			u.usanity--;
+		}
+		if (u.twoweap && uswapwep && objects[uswapwep->otyp].oc_material == MT_MINERAL) {
+			u.usanity--;
+		}
+		if (uarm && objects[uarm->otyp].oc_material == MT_MINERAL) {
+			u.usanity--;
+		}
+		if (uarmc && objects[uarmc->otyp].oc_material == MT_MINERAL) {
+			u.usanity--;
+		}
+		if (uarmh && objects[uarmh->otyp].oc_material == MT_MINERAL) {
+			u.usanity--;
+		}
+		if (uarms && objects[uarms->otyp].oc_material == MT_MINERAL) {
+			u.usanity--;
+		}
+		if (uarmg && objects[uarmg->otyp].oc_material == MT_MINERAL) {
+			u.usanity--;
+		}
+		if (uarmf && objects[uarmf->otyp].oc_material == MT_MINERAL) {
+			u.usanity--;
+		}
+		if (uarmu && objects[uarmu->otyp].oc_material == MT_MINERAL) {
+			u.usanity--;
+		}
+		if (uamul && objects[uamul->otyp].oc_material == MT_MINERAL) {
+			u.usanity--;
+		}
+		if (uimplant && objects[uimplant->otyp].oc_material == MT_MINERAL) {
+			u.usanity--;
+		}
+		if (uleft && objects[uleft->otyp].oc_material == MT_MINERAL) {
+			u.usanity--;
+		}
+		if (uright && objects[uright->otyp].oc_material == MT_MINERAL) {
+			u.usanity--;
+		}
+		if (ublindf && objects[ublindf->otyp].oc_material == MT_MINERAL) {
+			u.usanity--;
+		}
+		if (u.usanity < 0) u.usanity = 0;
+
 		if (flags.showsanity) flags.botl = 1;
 	}
 	if (u.usanity < 0) u.usanity = 0; /* fail safe */
@@ -248,10 +314,116 @@ nh_timeout()
 		}
 	}
 
+	if (PlayerBleeds) {
+		int bleedingdamage = 1;
+		if (PlayerBleeds > 4) bleedingdamage = rnd(PlayerBleeds / 5);
+		losehp(bleedingdamage, (PlayerBleeds > 100) ? "a hemorrhage" : (PlayerBleeds > 50) ? "profuse bleedout" : "bleedout", KILLED_BY);
+		if (!rn2(10)) pline((PlayerBleeds > 100) ? "You're squirting blood everywhere!" : (PlayerBleeds > 50) ? "You're bleeding severely!" : "You're bleeding!");
+		if (bleedingdamage > 1) {
+
+			/* bad luck makes your wounds heal more slowly --Amy */
+			int bleedreductionchance = 100;
+			if (Luck < 0) bleedreductionchance += (Luck * 5); /* because "Luck" is negative! */
+			if (isfriday && bleedreductionchance > 1) bleedreductionchance /= 2;
+
+			/* being a bleeder (or hemophage = racial bleeder) means you have hemophilia... */
+			if ((Role_if(PM_BLEEDER) || Race_if(PM_HEMOPHAGE)) && rn2(3)) bleedreductionchance = 0;
+
+			if (RngeHemophilia && rn2(3)) bleedreductionchance = 0;
+
+			if (bleedreductionchance > rn2(100)) {
+
+				PlayerBleeds -= (bleedingdamage - 1);
+				if (StrongDiminishedBleeding) {
+					PlayerBleeds /= 2;
+				} else if (DiminishedBleeding) {
+					if (!rn2(2) && PlayerBleeds > 1) PlayerBleeds -= rnd(PlayerBleeds / 2);
+				}
+			}
+		}
+		if (!PlayerBleeds) pline("Your bleeding stops.");
+
+		if (PlayerBleeds < 0) PlayerBleeds = 0; /* fail safe */
+	}
+
+	if (u.garbagetrucktime) {
+		u.garbagetrucktime--;
+		if (u.garbagetrucktime < 0) u.garbagetrucktime = 0; /* fail safe */
+		if (!u.garbagetrucktime) {
+			u.garbagecleaned = 0;
+			adjalign(50);
+			pline_The("garbage truck arrived, and allowed you to empty your trash bin. Well done!");
+		}
+	}
+
+	if (u.contingencyturns) {
+		u.contingencyturns--;
+		if (!u.contingencyturns) pline("The effect of contingency ends.");
+		if (u.contingencyturns < 0) u.contingencyturns = 0; /* fail safe */
+	}
+
+	if (u.breathenhancetimer) {
+		u.breathenhancetimer--;
+		if (!u.breathenhancetimer) pline("Your breath is normal again.");
+		if (u.breathenhancetimer < 0) u.breathenhancetimer = 0; /* fail safe */
+	}
+
+	if (u.bodyfluideffect) {
+		u.bodyfluideffect--;
+		if (!u.bodyfluideffect) pline("Your acidic skin disappears.");
+		if (u.bodyfluideffect < 0) u.bodyfluideffect = 0; /* fail safe */
+	}
+
+	if (u.antitelespelltimeout) {
+		u.antitelespelltimeout--;
+		if (!u.antitelespelltimeout) pline("The anti-teleportation field dissipates.");
+		if (u.antitelespelltimeout < 0) u.antitelespelltimeout = 0; /* fail safe */
+	}
+
+	if (u.horsehopturns) {
+		u.horsehopturns--;
+		if (!u.horsehopturns) pline("You can no longer horse hop.");
+		if (u.horsehopturns < 0) u.horsehopturns = 0; /* fail safe */
+	}
+
+	if (u.ragnarokspelltimeout) {
+		u.ragnarokspelltimeout--;
+		if (u.ragnarokspelltimeout < 0) u.ragnarokspelltimeout = 0; /* fail safe */
+	}
+
+	if (u.sokosolveboulder) {
+		u.sokosolveboulder--;
+		if (!u.sokosolveboulder && issokosolver) pline("You're capable of using #monster to create a boulder.");
+		if (u.sokosolveboulder < 0) u.sokosolveboulder = 0; /* fail safe */
+	}
+
+	if (u.walscholarpass) {
+		u.walscholarpass--;
+		if (!u.walscholarpass) pline("You can no longer pass through grave walls.");
+		if (u.walscholarpass < 0) u.walscholarpass = 0; /* fail safe */
+	}
+
+	if (u.cellargravate) {
+		u.cellargravate--;
+		if (u.cellargravate < 0) u.cellargravate = 0; /* fail safe */
+	}
+
+	if (u.sokosolveuntrap) {
+		u.sokosolveuntrap--;
+		if (!u.sokosolveuntrap && issokosolver) pline("You're capable of using #monster to remove adjacent traps.");
+		if (u.sokosolveuntrap < 0) u.sokosolveuntrap = 0; /* fail safe */
+	}
+
 	if (u.inertia && rn2(10)) {
 		u.inertia--;
 		if (!u.inertia) You_feel("less slow.");
 		if (u.inertia < 0) u.inertia = 0; /* fail safe */
+	}
+
+	if (u.duriworking) {
+		u.duriworking--;
+		if (u.duriworking < 0) u.duriworking = 0; /* fail safe */
+		if (!u.duriworking) pline("Duri should be finished with your artifact by now.");
 	}
 
 	if (u.powerfailure) {
@@ -260,10 +432,22 @@ nh_timeout()
 		if (!u.powerfailure) pline("Your power comes back online.");
 	}
 
+	if (u.demagogueabilitytimer) {
+		u.demagogueabilitytimer--;
+		if (u.demagogueabilitytimer < 0) u.demagogueabilitytimer = 0; /* fail safe */
+		if (!u.demagogueabilitytimer && isdemagogue) pline("You're capable of using #monster to temporarily change your role.");
+	}
+
 	if (u.hussyperfume) {
 		u.hussyperfume--;
 		if (u.hussyperfume < 0) u.hussyperfume = 0; /* fail safe */
 		if (!u.hussyperfume) pline("You are capable of spreading the perfume again.");
+	}
+
+	if (u.irahapoison) {
+		u.irahapoison--;
+		if (u.irahapoison < 0) u.irahapoison = 0; /* fail safe */
+		if (!u.irahapoison) pline("You are capable of poisoning your weapon again.");
 	}
 
 	if (u.acutraining) {
@@ -323,6 +507,25 @@ nh_timeout()
 		}
 	}
 
+	if (u.demagoguerecursiontime) {
+
+		if (u.demagoguerecursiontime < 0) u.demagoguerecursiontime = 1; /* fail safe */
+		if (In_endgame(&u.uz)) u.demagoguerecursiontime = 1; /* can't use it to ascend as something else --Amy */
+
+		u.demagoguerecursiontime--;
+		if (!u.demagoguerecursiontime) {
+			u.demagoguerecursion = 0;
+			if (u.oldrecursionrole != -1) {
+				urole = roles[u.oldrecursionrole];
+				flags.initrole = u.oldrecursionrole;
+			}
+			u.oldrecursionrole = -1;
+			pline("You appear to be a %s %s again.", urace.noun, (flags.female && urole.name.f) ? urole.name.f : urole.name.m);
+			init_uasmon();
+		}
+
+	}
+
 	if (u.fumbleduration) u.fumbleduration--;
 	if (u.fumbleduration < 0) u.fumbleduration = 0; /* fail safe */
 	if (u.antimagicshell) {
@@ -331,7 +534,17 @@ nh_timeout()
 	}
 	if (u.antimagicshell < 0) u.antimagicshell = 0; /* fail safe */
 
-	if (u.legscratching > 1 && !FemaleTrapJeanetta && !Role_if(PM_BLEEDER) && !Race_if(PM_HEMOPHAGE) && !BloodLossProblem && !have_bloodlossstone() && !u.uprops[BLOOD_LOSS].extrinsic && moves % 1000 == 0) u.legscratching--; /* always time out once per 1000 turns --Amy */
+	if (u.soviettemporary) {
+		u.soviettemporary--;
+	}
+	if (u.soviettemporary < 0) u.soviettemporary = 0; /* fail safe */
+
+	if (u.evilvartemporary) {
+		u.evilvartemporary--;
+	}
+	if (u.evilvartemporary < 0) u.evilvartemporary = 0; /* fail safe */
+
+	if (u.legscratching > 1 && !FemtrapActiveJeanetta && !Role_if(PM_BLEEDER) && !Race_if(PM_HEMOPHAGE) && !BloodLossProblem && !have_bloodlossstone() && !u.uprops[BLOOD_LOSS].extrinsic && !rn2(1000)) u.legscratching--; /* always time out once per 1000 turns --Amy */
 
 	if (!rn2(1000) && (Role_if(PM_ACTIVISTOR) || Race_if(PM_PEACEMAKER) ) && ( !( uarmu && (uarmu->otyp == RUFFLED_SHIRT || uarmu->otyp == VICTORIAN_UNDERWEAR)) || !rn2(10)) ) {
 		You_hear("maniacal laughter!");
@@ -411,7 +624,7 @@ nh_timeout()
 
 	}
 
-	if (uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "explosive boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "vzryvnyye sapogi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "portlovchi chizilmasin") ) && !rn2(10000) ) {
+	if (uarmf && itemhasappearance(uarmf, APP_EXPLOSIVE_BOOTS) && !rn2(10000) ) {
 	      useup(uarmf);
 		pline("KAABLAMM!!! Your explosive boots suddenly detonate!");
 		explode(u.ux, u.uy, ZT_SPELL(ZT_FIRE), rnz(u.ulevel * 5), 0, EXPL_FIERY);
@@ -426,27 +639,27 @@ nh_timeout()
 		losehp(rnd(u.ulevel), "dynamite amulet explosion", KILLED_BY_AN);
 	}
 
-	if (uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "castlevania boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "zamok vaney sapogi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "qal'a vania chizilmasin") ) && !rn2(1000) ) {
+	if (uarmf && itemhasappearance(uarmf, APP_CASTLEVANIA_BOOTS) && !rn2(1000) && !(Race_if(PM_PLAYER_NIBELUNG) && rn2(5)) ) {
 		pline("You hear a dark orchestral melody, and all the lights go out...");
 		litroomlite(FALSE);
 	}
 
-	if (RngeCastlevania && !rn2(1000)) {
+	if (RngeCastlevania && !rn2(1000) && !(Race_if(PM_PLAYER_NIBELUNG) && rn2(5)) ) {
 		pline("You hear a dark orchestral melody, and all the lights go out...");
 		litroomlite(FALSE);
 	}
 
-	if (uarmh && (uarmh->oartifact == ART_DARK_NADIR) && !rn2(200) ) {
+	if (uarmh && (uarmh->oartifact == ART_DARK_NADIR) && !rn2(200) && !(Race_if(PM_PLAYER_NIBELUNG) && rn2(5)) ) {
 		pline("Darkness surrounds you.");
 		litroomlite(FALSE);
 	}
 
-	if (uarmh && (uarmh->oartifact == ART_RUTH_S_DARK_FORCE) && !rn2(200) ) {
+	if (uarmh && (uarmh->oartifact == ART_RUTH_S_DARK_FORCE) && !rn2(200) && !(Race_if(PM_PLAYER_NIBELUNG) && rn2(5)) ) {
 		pline("Darkness surrounds you.");
 		litroomlite(FALSE);
 	}
 
-	if (uarmh && (uarmh->oartifact == ART_NADJA_S_DARKNESS_GENERATOR) && !rn2(200) ) {
+	if (uarmh && (uarmh->oartifact == ART_NADJA_S_DARKNESS_GENERATOR) && !rn2(200) && !(Race_if(PM_PLAYER_NIBELUNG) && rn2(5)) ) {
 		pline("Darkness surrounds you.");
 		litroomlite(FALSE);
 	}
@@ -458,19 +671,21 @@ nh_timeout()
 	    for (t = ftrap; t != 0; t = t->ntrap) {
 		if (t && !rn2(1000) && !t->tseen && (t->trapdiff < rnd(150)) && !t->hiddentrap) {
 			t->tseen = 1;
+			u.cnd_traprevealcount++;
 			map_trap(t, TRUE);
 		}
 	    }
 
 	}
 
-	if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "radio helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "translyatsii shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "uzatuvchi zarbdan") ) ) {
+	if (uarmh && itemhasappearance(uarmh, APP_RADIO_HELMET) ) {
 
 	    struct trap *t;
 
 	    for (t = ftrap; t != 0; t = t->ntrap) {
 		if (t && !rn2(10000) && !t->tseen && (t->trapdiff < rnd(150)) && !t->hiddentrap) {
 			t->tseen = 1;
+			u.cnd_traprevealcount++;
 			map_trap(t, TRUE);
 		}
 	    }
@@ -484,6 +699,7 @@ nh_timeout()
 	    for (t = ftrap; t != 0; t = t->ntrap) {
 		if (t && !rn2(10000) && !t->tseen && (t->trapdiff < rnd(150)) && !t->hiddentrap) {
 			t->tseen = 1;
+			u.cnd_traprevealcount++;
 			map_trap(t, TRUE);
 		}
 	    }
@@ -497,6 +713,7 @@ nh_timeout()
 	    for (t = ftrap; t != 0; t = t->ntrap) {
 		if (t && !rn2(10000) && !t->tseen && (t->trapdiff < rnd(150)) && !t->hiddentrap) {
 			t->tseen = 1;
+			u.cnd_traprevealcount++;
 			map_trap(t, TRUE);
 		}
 	    }
@@ -510,6 +727,7 @@ nh_timeout()
 	    for (t = ftrap; t != 0; t = t->ntrap) {
 		if (t && !rn2(10000) && !t->tseen && (t->trapdiff < rnd(150)) && !t->hiddentrap) {
 			t->tseen = 1;
+			u.cnd_traprevealcount++;
 			map_trap(t, TRUE);
 		}
 	    }
@@ -523,6 +741,7 @@ nh_timeout()
 	    for (t = ftrap; t != 0; t = t->ntrap) {
 		if (t && !rn2(10000) && !t->tseen && (t->trapdiff < rnd(150)) && !t->hiddentrap) {
 			t->tseen = 1;
+			u.cnd_traprevealcount++;
 			map_trap(t, TRUE);
 		}
 	    }
@@ -537,10 +756,11 @@ nh_timeout()
 			nomul(-(rnd(10) ), "prone from wiping out with their stilettos", TRUE);
 			nomovemsg = "You get back up and curse at your stiletto heels for making you wipe out.";
 
-		    if (!rn2(10) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) {
+		    if (!rn2(uarmh ? 50 : 10) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) {
 
 			if (rn2(50)) {
-				adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+				adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+				if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 			} else {
 				You_feel("dizzy!");
 				forget(1 + rn2(5));
@@ -548,7 +768,7 @@ nh_timeout()
 		    }
 
 		}
-		if (PlayerInConeHeels && !rn2(500) && !(uarmf && OBJ_DESCR(objects[uarmf->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmf->otyp]), "feelgood heels") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "chuvstvennyye kabluki") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "his-tuyg'ulari baland")) ) ) {
+		if (PlayerInConeHeels && !rn2(500) && !(uarmf && itemhasappearance(uarmf, APP_FEELGOOD_HEELS) ) ) {
 			/* This is the one that will make players 'female dog' at me. Because it's evil. --Amy */
 
 			register struct obj *otmpi, *otmpii;
@@ -609,13 +829,14 @@ nh_timeout()
 
 	}
 
-	if (u.umoved && (uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "irregular boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "neregulyarnyye sapogi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "tartibsizlik chizilmasin") ) ) && !rn2(100) && !(uarmf && !rn2(10) && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "blue sneakers") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "siniye krossovki") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "ko'k shippak") ) ) && (!(uarmf && uarmf->oartifact == ART_ELEVECULT) || !rn2(4)) && ((rnd(7) > P_SKILL(P_HIGH_HEELS)) || (PlayerCannotUseSkills) ) ) {
+	if (u.umoved && (uarmf && itemhasappearance(uarmf, APP_IRREGULAR_BOOTS) ) && !rn2(100) && !(uarmf && !rn2(10) && itemhasappearance(uarmf, APP_BLUE_SNEAKERS) ) && (!(uarmf && uarmf->oartifact == ART_ELEVECULT) || !rn2(4)) && ((rnd(7) > P_SKILL(P_HIGH_HEELS)) || (PlayerCannotUseSkills) ) ) {
 			    slip_or_trip();
 
-			    if (!rn2(1000) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) {
+			    if (!rn2(uarmh ? 5000 : 1000) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) {
 
 				if (rn2(50)) {
-					adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+					adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+					if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 				} else {
 					You_feel("dizzy!");
 					forget(1 + rn2(5));
@@ -635,13 +856,14 @@ nh_timeout()
 
 	}
 
-	if (u.umoved && RngeIrregularity && !rn2(100) && !(uarmf && !rn2(10) && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "blue sneakers") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "siniye krossovki") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "ko'k shippak") ) ) && (!(uarmf && uarmf->oartifact == ART_ELEVECULT) || !rn2(4)) && ((rnd(7) > P_SKILL(P_HIGH_HEELS)) || (PlayerCannotUseSkills) ) ) {
+	if (u.umoved && RngeIrregularity && !rn2(100) && !(uarmf && !rn2(10) && itemhasappearance(uarmf, APP_BLUE_SNEAKERS) ) && (!(uarmf && uarmf->oartifact == ART_ELEVECULT) || !rn2(4)) && ((rnd(7) > P_SKILL(P_HIGH_HEELS)) || (PlayerCannotUseSkills) ) ) {
 			    slip_or_trip();
 
-			    if (!rn2(1000) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) {
+			    if (!rn2(uarmh ? 5000 : 1000) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) {
 
 				if (rn2(50)) {
-					adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+					adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+					if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 				} else {
 					You_feel("dizzy!");
 					forget(1 + rn2(5));
@@ -661,13 +883,14 @@ nh_timeout()
 
 	}
 
-	if (u.umoved && (uarmh && uarmh->oartifact == ART_ELESSAR_ELENDIL) && !rn2(100) && !(uarmf && !rn2(10) && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "blue sneakers") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "siniye krossovki") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "ko'k shippak") ) ) ) {
+	if (u.umoved && (uarmh && uarmh->oartifact == ART_ELESSAR_ELENDIL) && !rn2(100) && !(uarmf && !rn2(10) && itemhasappearance(uarmf, APP_BLUE_SNEAKERS) ) ) {
 			    slip_or_trip();
 
-			    if (!rn2(1000) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) {
+			    if (!rn2(uarmh ? 5000 : 1000) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) {
 
 				if (rn2(50)) {
-					adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+					adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+					if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 				} else {
 					You_feel("dizzy!");
 					forget(1 + rn2(5));
@@ -687,13 +910,14 @@ nh_timeout()
 
 	}
 
-	if (u.umoved && evilfriday && !rn2(20) && (rnd(10) > ACURR(A_DEX)) && !(uarmf && !rn2(10) && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "blue sneakers") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "siniye krossovki") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "ko'k shippak") ) ) ) {
+	if (u.umoved && evilfriday && !rn2(20) && (rnd(10) > ACURR(A_DEX)) && !(uarmf && !rn2(10) && itemhasappearance(uarmf, APP_BLUE_SNEAKERS) ) ) {
 			    slip_or_trip();
 
-			    if (!rn2(1000) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) {
+			    if (!rn2(uarmh ? 5000 : 1000) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) {
 
 				if (rn2(50)) {
-					adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+					adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+					if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 				} else {
 					You_feel("dizzy!");
 					forget(1 + rn2(5));
@@ -713,13 +937,14 @@ nh_timeout()
 
 	}
 
-	if (u.umoved && (uarmf && uarmf->oartifact == ART_UNEVEN_STILTS) && !rn2(100) && !(uarmf && !rn2(10) && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "blue sneakers") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "siniye krossovki") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "ko'k shippak") ) ) && (!(uarmf && uarmf->oartifact == ART_ELEVECULT) || !rn2(4)) && ((rnd(7) > P_SKILL(P_HIGH_HEELS)) || (PlayerCannotUseSkills) ) ) {
+	if (u.umoved && (uarmf && uarmf->oartifact == ART_UNEVEN_STILTS) && !rn2(100) && !(uarmf && !rn2(10) && itemhasappearance(uarmf, APP_BLUE_SNEAKERS) ) && (!(uarmf && uarmf->oartifact == ART_ELEVECULT) || !rn2(4)) && ((rnd(7) > P_SKILL(P_HIGH_HEELS)) || (PlayerCannotUseSkills) ) ) {
 			    slip_or_trip();
 
-			    if (!rn2(1000) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) {
+			    if (!rn2(uarmh ? 5000 : 1000) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) {
 
 				if (rn2(50)) {
-					adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+					adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+					if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 				} else {
 					You_feel("dizzy!");
 					forget(1 + rn2(5));
@@ -739,7 +964,7 @@ nh_timeout()
 
 	}
 
-	if (uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "persian boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "persidskiye sapogi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "fors chizilmasin") ) && !rn2(1000) ) {
+	if (uarmf && itemhasappearance(uarmf, APP_PERSIAN_BOOTS) && !rn2(1000) ) {
 
 		pline("Your persian boots demand a sacrifice for allowing you to wear them.");
 		pline("You allow them to scratch over the full length of your shins with their zippers.");
@@ -754,7 +979,7 @@ nh_timeout()
 
 	}
 
-	if (uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "velcro boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "lipuchki sapogi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "cirt chizilmasin") ) && !rn2(1000) ) {
+	if (uarmf && itemhasappearance(uarmf, APP_VELCRO_BOOTS) && !rn2(1000) ) {
 	    set_wounded_legs(LEFT_SIDE, HWounded_legs + rnz(50) );
 	    set_wounded_legs(RIGHT_SIDE, HWounded_legs + rnz(50) );
 		pline("Your velcro boots decide to scratch up and down your shins with their lash, opening terrible wounds.");
@@ -777,6 +1002,8 @@ nh_timeout()
 	if (!rn2(200) && uarmu && uarmu->oartifact == ART_TRAP_DUNGEON_OF_SHAMBHALA) badeffect();
 
 	if (!rn2(200) && have_badeffectstone() ) badeffect();
+
+	if (!rn2(200) && uarmf && uarmf->oartifact == ART_ELENA_S_CHALLENGE ) badeffect();
 
 	if (!rn2(100) && u.uprops[RANDOM_RUMORS].extrinsic) {
 		const char *line;
@@ -973,7 +1200,7 @@ nh_timeout()
 				pline("Your stiletto heel suddenly kicks one of your sensitive body parts!" );
 
 				losehp(rnd(10)+ rnd( (monster_difficulty() * 4) + 1),"sentient stiletto footwear",KILLED_BY_AN);
-				if (!rn2(250)) pushplayer();
+				if (!rn2(250)) pushplayer(TRUE);
 
 				break;
 
@@ -1069,7 +1296,7 @@ nh_timeout()
 							    /* used up AMULET_OF_LIFE_SAVING; still
 							       subject to dying from brainlessness */
 							    wore_amulet = 0;
-							} else {
+							} else if (wizard) {
 							    /* explicitly chose not to die;
 							       arbitrarily boost intelligence */
 							    ABASE(A_INT) = ATTRMIN(A_INT) + 2;
@@ -1079,6 +1306,7 @@ nh_timeout()
 						    }
 
 							u.youaredead = 1;
+							u.youarereallydead = 1;
 						    if (lifesaved)
 							pline("Unfortunately your brain is still gone.");
 						    else
@@ -1086,14 +1314,17 @@ nh_timeout()
 						    killer = "brainlessness";
 						    killer_format = KILLED_BY;
 						    done(DIED);
-							u.youaredead = 0;
+						    if (wizard) {
+							    u.youaredead = 0;
+							    u.youarereallydead = 0;
+						    }
 						    lifesaved++;
 						}
 					    }
 					}
 					/* adjattrib gives dunce cap message when appropriate */
-					if (!rn2(10)) (void) adjattrib(A_INT, -rnd(2), FALSE);
-					else if (!rn2(2)) (void) adjattrib(A_INT, -1, FALSE);
+					if (!rn2(10)) (void) adjattrib(A_INT, -rnd(2), FALSE, TRUE);
+					else if (!rn2(2)) (void) adjattrib(A_INT, -1, FALSE, TRUE);
 					if (!rn2(issoviet ? 2 : 3)) forget_levels(rnd(issoviet ? 25 : 10));	/* lose memory of 25% of levels */
 					if (!rn2(issoviet ? 3 : 5)) forget_objects(rnd(issoviet ? 25 : 10));	/* lose memory of 25% of objects */
 					exercise(A_WIS, FALSE);
@@ -1127,7 +1358,7 @@ nh_timeout()
 		    for (otmpi = invent; otmpi; otmpi = otmpii) {
 		      otmpii = otmpi->nobj;
 
-			if (!rn2(10000) && (otmpi->otyp != AMULET_OF_ITEM_TELEPORTATION) && !(otmpi->oartifact == ART_SCHWUEU) && (otmpi->otyp != ITEM_TELEPORTING_STONE) && !(otmpi->oartifact == ART_SARAH_S_GRANNY_WEAR) && !(objects[otmpi->otyp].oc_material == BONE && rn2(10)) && !stack_too_big(otmpi) ) {
+			if (!rn2(10000) && (otmpi->otyp != AMULET_OF_ITEM_TELEPORTATION) && !(otmpi->oartifact == ART_SCHWUEU) && (otmpi->otyp != ITEM_TELEPORTING_STONE) && !(otmpi->oartifact == ART_SARAH_S_GRANNY_WEAR) && !(objects[otmpi->otyp].oc_material == MT_BONE && rn2(10)) && !stack_too_big(otmpi) ) {
 
 				if (otmpi->owornmask & W_ARMOR) {
 				    if (otmpi == uskin) {
@@ -1168,6 +1399,7 @@ nh_timeout()
 
 				dropx(otmpi);
 			      if (otmpi && otmpi->where == OBJ_FLOOR) rloco(otmpi);
+				u.cnd_itemportcount++;
 			}
 		    }
 		}
@@ -1180,7 +1412,7 @@ nh_timeout()
 		    for (otmpi = invent; otmpi; otmpi = otmpii) {
 		      otmpii = otmpi->nobj;
 
-			if (!rn2(10000) && (otmpi->otyp != AMULET_OF_ITEM_TELEPORTATION) && !(otmpi->oartifact == ART_SCHWUEU) && (otmpi->otyp != ITEM_TELEPORTING_STONE) && !(otmpi->oartifact == ART_SARAH_S_GRANNY_WEAR) && !(objects[otmpi->otyp].oc_material == BONE && rn2(10)) && !stack_too_big(otmpi) ) {
+			if (!rn2(10000) && (otmpi->otyp != AMULET_OF_ITEM_TELEPORTATION) && !(otmpi->oartifact == ART_SCHWUEU) && (otmpi->otyp != ITEM_TELEPORTING_STONE) && !(otmpi->oartifact == ART_SARAH_S_GRANNY_WEAR) && !(objects[otmpi->otyp].oc_material == MT_BONE && rn2(10)) && !stack_too_big(otmpi) ) {
 
 				if (otmpi->owornmask & W_ARMOR) {
 				    if (otmpi == uskin) {
@@ -1221,6 +1453,7 @@ nh_timeout()
 
 				dropx(otmpi);
 			      if (otmpi && otmpi->where == OBJ_FLOOR) rloco(otmpi);
+				u.cnd_itemportcount++;
 			}
 		    }
 		}
@@ -1233,7 +1466,7 @@ nh_timeout()
 		    for (otmpi = invent; otmpi; otmpi = otmpii) {
 		      otmpii = otmpi->nobj;
 
-			if (!rn2(10000) && (otmpi->otyp != AMULET_OF_ITEM_TELEPORTATION) && !(otmpi->oartifact == ART_SCHWUEU) && (otmpi->otyp != ITEM_TELEPORTING_STONE) && !(otmpi->oartifact == ART_SARAH_S_GRANNY_WEAR) && !(objects[otmpi->otyp].oc_material == BONE && rn2(10)) && !stack_too_big(otmpi) ) {
+			if (!rn2(10000) && (otmpi->otyp != AMULET_OF_ITEM_TELEPORTATION) && !(otmpi->oartifact == ART_SCHWUEU) && (otmpi->otyp != ITEM_TELEPORTING_STONE) && !(otmpi->oartifact == ART_SARAH_S_GRANNY_WEAR) && !(objects[otmpi->otyp].oc_material == MT_BONE && rn2(10)) && !stack_too_big(otmpi) ) {
 
 				if (otmpi->owornmask & W_ARMOR) {
 				    if (otmpi == uskin) {
@@ -1274,6 +1507,61 @@ nh_timeout()
 
 				dropx(otmpi);
 			      if (otmpi && otmpi->where == OBJ_FLOOR) rloco(otmpi);
+				u.cnd_itemportcount++;
+			}
+		    }
+		}
+
+	}
+
+	if (Race_if(PM_PLAYER_DYNAMO)) {
+
+		if (invent) {
+		    for (otmpi = invent; otmpi; otmpi = otmpii) {
+		      otmpii = otmpi->nobj;
+
+			if (!rn2(10000) && (otmpi->otyp != AMULET_OF_ITEM_TELEPORTATION) && !(otmpi->oartifact == ART_SCHWUEU) && (otmpi->otyp != ITEM_TELEPORTING_STONE) && !(otmpi->oartifact == ART_SARAH_S_GRANNY_WEAR) && !(objects[otmpi->otyp].oc_material == MT_BONE && rn2(10)) && !stack_too_big(otmpi) ) {
+
+				if (otmpi->owornmask & W_ARMOR) {
+				    if (otmpi == uskin) {
+					skinback(TRUE);		/* uarm = uskin; uskin = 0; */
+				    }
+				    if (otmpi == uarm) (void) Armor_off();
+				    else if (otmpi == uarmc) (void) Cloak_off();
+				    else if (otmpi == uarmf) (void) Boots_off();
+				    else if (otmpi == uarmg) (void) Gloves_off();
+				    else if (otmpi == uarmh) (void) Helmet_off();
+				    else if (otmpi == uarms) (void) Shield_off();
+				    else if (otmpi == uarmu) (void) Shirt_off();
+				    /* catchall -- should never happen */
+				    else setworn((struct obj *)0, otmpi ->owornmask & W_ARMOR);
+				} else if (otmpi ->owornmask & W_AMUL) {
+				    Amulet_off();
+				} else if (otmpi ->owornmask & W_IMPLANT) {
+				    Implant_off();
+				} else if (otmpi ->owornmask & W_RING) {
+				    Ring_gone(otmpi);
+				} else if (otmpi ->owornmask & W_TOOL) {
+				    Blindf_off(otmpi);
+				} else if (otmpi ->owornmask & (W_WEP|W_SWAPWEP|W_QUIVER)) {
+				    if (otmpi == uwep)
+					uwepgone();
+				    if (otmpi == uswapwep)
+					uswapwepgone();
+				    if (otmpi == uquiver)
+					uqwepgone();
+				}
+
+				if (otmpi->owornmask & (W_BALL|W_CHAIN)) {
+				    unpunish();
+				} else if (otmpi->owornmask) {
+				/* catchall */
+				    setnotworn(otmpi);
+				}
+
+				dropx(otmpi);
+			      if (otmpi && otmpi->where == OBJ_FLOOR) rloco(otmpi);
+				u.cnd_itemportcount++;
 			}
 		    }
 		}
@@ -1286,7 +1574,7 @@ nh_timeout()
 		    for (otmpi = invent; otmpi; otmpi = otmpii) {
 		      otmpii = otmpi->nobj;
 
-			if (!rn2(10000) && (otmpi->otyp != AMULET_OF_ITEM_TELEPORTATION) && !(otmpi->oartifact == ART_SCHWUEU) && (otmpi->otyp != ITEM_TELEPORTING_STONE) && !(otmpi->oartifact == ART_SARAH_S_GRANNY_WEAR) && !(objects[otmpi->otyp].oc_material == BONE && rn2(10)) && !stack_too_big(otmpi) ) {
+			if (!rn2(10000) && (otmpi->otyp != AMULET_OF_ITEM_TELEPORTATION) && !(otmpi->oartifact == ART_SCHWUEU) && (otmpi->otyp != ITEM_TELEPORTING_STONE) && !(otmpi->oartifact == ART_SARAH_S_GRANNY_WEAR) && !(objects[otmpi->otyp].oc_material == MT_BONE && rn2(10)) && !stack_too_big(otmpi) ) {
 
 				if (otmpi->owornmask & W_ARMOR) {
 				    if (otmpi == uskin) {
@@ -1327,6 +1615,7 @@ nh_timeout()
 
 				dropx(otmpi);
 			      if (otmpi && otmpi->where == OBJ_FLOOR) rloco(otmpi);
+				u.cnd_itemportcount++;
 			}
 		    }
 		}
@@ -1339,7 +1628,7 @@ nh_timeout()
 		    for (otmpi = invent; otmpi; otmpi = otmpii) {
 		      otmpii = otmpi->nobj;
 
-			if (!rn2(10000) && (otmpi->otyp != AMULET_OF_ITEM_TELEPORTATION) && !(otmpi->oartifact == ART_SCHWUEU) && (otmpi->otyp != ITEM_TELEPORTING_STONE) && !(otmpi->oartifact == ART_SARAH_S_GRANNY_WEAR) && !(objects[otmpi->otyp].oc_material == BONE && rn2(10)) && !stack_too_big(otmpi) ) {
+			if (!rn2(10000) && (otmpi->otyp != AMULET_OF_ITEM_TELEPORTATION) && !(otmpi->oartifact == ART_SCHWUEU) && (otmpi->otyp != ITEM_TELEPORTING_STONE) && !(otmpi->oartifact == ART_SARAH_S_GRANNY_WEAR) && !(objects[otmpi->otyp].oc_material == MT_BONE && rn2(10)) && !stack_too_big(otmpi) ) {
 
 				if (otmpi->owornmask & W_ARMOR) {
 				    if (otmpi == uskin) {
@@ -1380,6 +1669,7 @@ nh_timeout()
 
 				dropx(otmpi);
 			      if (otmpi && otmpi->where == OBJ_FLOOR) rloco(otmpi);
+				u.cnd_itemportcount++;
 			}
 		    }
 		}
@@ -1393,19 +1683,21 @@ nh_timeout()
 	    for (t = ftrap; t != 0; t = t->ntrap) {
 		if (t && !rn2(1000) && !t->tseen && (t->trapdiff < rnd(150)) && !t->hiddentrap) {
 			t->tseen = 1;
+			u.cnd_traprevealcount++;
 			map_trap(t, TRUE);
 		}
 	    }
 
 	}
 
-	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && (goodimplanteffect(uimplant) == TRAP_REVEALING) ) {
+	if (powerfulimplants() && uimplant && (goodimplanteffect(uimplant) == TRAP_REVEALING) ) {
 
 	    struct trap *t;
 
 	    for (t = ftrap; t != 0; t = t->ntrap) {
 		if (t && !rn2(1000) && !t->tseen && (t->trapdiff < rnd(150)) && !t->hiddentrap) {
 			t->tseen = 1;
+			u.cnd_traprevealcount++;
 			map_trap(t, TRUE);
 		}
 	    }
@@ -1419,6 +1711,7 @@ nh_timeout()
 	    for (t = ftrap; t != 0; t = t->ntrap) {
 		if (t && !rn2(1000) && !t->tseen && (t->trapdiff < rnd(150)) && !t->hiddentrap) {
 			t->tseen = 1;
+			u.cnd_traprevealcount++;
 			map_trap(t, TRUE);
 		}
 	    }
@@ -1432,6 +1725,7 @@ nh_timeout()
 	    for (t = ftrap; t != 0; t = t->ntrap) {
 		if (t && !rn2(1000) && !t->tseen && (t->trapdiff < rnd(150)) && !t->hiddentrap) {
 			t->tseen = 1;
+			u.cnd_traprevealcount++;
 			map_trap(t, TRUE);
 		}
 	    }
@@ -1439,6 +1733,19 @@ nh_timeout()
 	}
 
 	if (!rn2(1000) && Race_if(PM_WEAPON_TRAPPER)) { /* Harder than hard race that gets random nasty trap effects. --Amy */
+
+		nastytrapdur = (Role_if(PM_GRADUATE) ? 6 : Role_if(PM_GEEK) ? 12 : 24);
+		if (!nastytrapdur) nastytrapdur = 24; /* fail safe */
+		blackngdur = (Role_if(PM_GRADUATE) ? 2000 : Role_if(PM_GEEK) ? 1000 : 500);
+		if (!blackngdur ) blackngdur = 500; /* fail safe */
+
+		if (!rn2(100)) pline("You have a bad feeling in your %s.",body_part(STOMACH) );
+
+		randomnastytrapeffect(rnz(nastytrapdur * (monster_difficulty() + 1)), blackngdur - (monster_difficulty() * 3));
+
+	}
+
+	if (!rn2(5000) && Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) {
 
 		nastytrapdur = (Role_if(PM_GRADUATE) ? 6 : Role_if(PM_GEEK) ? 12 : 24);
 		if (!nastytrapdur) nastytrapdur = 24; /* fail safe */
@@ -1568,6 +1875,32 @@ nh_timeout()
 
 	}
 
+	if (!rn2(1000) && uarmg && uarmg->oartifact == ART_AA_S_CRASHING_TRAGEDY) {
+
+		nastytrapdur = (Role_if(PM_GRADUATE) ? 6 : Role_if(PM_GEEK) ? 12 : 24);
+		if (!nastytrapdur) nastytrapdur = 24; /* fail safe */
+		blackngdur = (Role_if(PM_GRADUATE) ? 2000 : Role_if(PM_GEEK) ? 1000 : 500);
+		if (!blackngdur ) blackngdur = 500; /* fail safe */
+
+		if (!rn2(100)) pline("You have a bad feeling in your %s.",body_part(STOMACH) );
+
+		randomnastytrapeffect(rnz(nastytrapdur * (monster_difficulty() + 1)), blackngdur - (monster_difficulty() * 3));
+
+	}
+
+	if (!rn2(1000) && uamul && uamul->oartifact == ART_SATAN_S_FINAL_TRICK) {
+
+		nastytrapdur = (Role_if(PM_GRADUATE) ? 6 : Role_if(PM_GEEK) ? 12 : 24);
+		if (!nastytrapdur) nastytrapdur = 24; /* fail safe */
+		blackngdur = (Role_if(PM_GRADUATE) ? 2000 : Role_if(PM_GEEK) ? 1000 : 500);
+		if (!blackngdur ) blackngdur = 500; /* fail safe */
+
+		if (!rn2(100)) pline("You have a bad feeling in your %s.",body_part(STOMACH) );
+
+		randomnastytrapeffect(rnz(nastytrapdur * (monster_difficulty() + 1)), blackngdur - (monster_difficulty() * 3));
+
+	}
+
 	if (!rn2(1000) && have_nastystone() ) {
 
 		nastytrapdur = (Role_if(PM_GRADUATE) ? 6 : Role_if(PM_GEEK) ? 12 : 24);
@@ -1581,7 +1914,20 @@ nh_timeout()
 
 	}
 
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "mantle of coat") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "mantiya pal'to") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "ko'ylagi mantiya") ) && !rn2(5000) ) {
+	if (!rn2(1000) && uarmf && uarmf->oartifact == ART_ELENA_S_CHALLENGE ) {
+
+		nastytrapdur = (Role_if(PM_GRADUATE) ? 6 : Role_if(PM_GEEK) ? 12 : 24);
+		if (!nastytrapdur) nastytrapdur = 24; /* fail safe */
+		blackngdur = (Role_if(PM_GRADUATE) ? 2000 : Role_if(PM_GEEK) ? 1000 : 500);
+		if (!blackngdur ) blackngdur = 500; /* fail safe */
+
+		if (!rn2(100)) pline("You have a bad feeling in your %s.",body_part(STOMACH) );
+
+		randomnastytrapeffect(rnz(nastytrapdur * (monster_difficulty() + 1)), blackngdur - (monster_difficulty() * 3));
+
+	}
+
+	if (uarmc && itemhasappearance(uarmc, APP_MANTLE_OF_COAT) && !rn2(5000) ) {
 
 		randomnastytrapeffect(200, 1000);
 
@@ -1637,6 +1983,10 @@ nh_timeout()
 		You("are losing blood!");
 		losehp(rnz(u.legscratching), "bleeding out", KILLED_BY);
 	}
+	if (!rn2(500) && uarmc && uarmc->oartifact == ART_TERRIFYING_LOSS) {
+		You("are losing blood!");
+		losehp(rnz(u.legscratching), "bleeding out", KILLED_BY);
+	}
 	if (!rn2(500) && uwep && uwep->oartifact == ART_SCALPEL_OF_THE_BLOODLETTER) {
 		You("are losing blood!");
 		losehp(rnz(u.legscratching), "bleeding out", KILLED_BY);
@@ -1646,15 +1996,7 @@ nh_timeout()
 		losehp(rnz(u.legscratching), "bleeding out", KILLED_BY);
 	}
 
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "deadly cloak") && !rn2(1000) ) {
-		pline("Your deadly cloak saps your life!");
-		losehp(rnd(u.ulevel), "a deadly cloak", KILLED_BY);
-	}
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "smertel'noy plashch") && !rn2(1000) ) {
-		pline("Your deadly cloak saps your life!");
-		losehp(rnd(u.ulevel), "a deadly cloak", KILLED_BY);
-	}
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "o'ldiradigan plash") && !rn2(1000) ) {
+	if (uarmc && itemhasappearance(uarmc, APP_DEADLY_CLOAK) && !rn2(1000) ) {
 		pline("Your deadly cloak saps your life!");
 		losehp(rnd(u.ulevel), "a deadly cloak", KILLED_BY);
 	}
@@ -1663,7 +2005,7 @@ nh_timeout()
 		losehp(rnd(u.ulevel), "occasional damage", KILLED_BY);
 	}
 
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jarring cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "sotryaseniye plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "g'azablantiradigan plash") ) && !rn2(1000) ) {
+	if (uarmc && itemhasappearance(uarmc, APP_JARRING_CLOAK) && !rn2(1000) ) {
 		wake_nearby();
 		aggravate();
 		pline("Your cloak emits a grating, annoying sound.");
@@ -1829,6 +2171,30 @@ nh_timeout()
 		u.uenmax -= 1;
 		losehp(rnz(u.legscratching), "severe bleedout", KILLED_BY);
 	}
+	if (!rn2(2500) && uarmf && uarmf->oartifact == ART_AMYBSOD_S_VAMPIRIC_SNEAKER) {
+		You("are losing lots of blood!");
+		u.uhp -= 1;
+		u.uhpmax -= 1;
+		u.uen -= 1;
+		u.uenmax -= 1;
+		losehp(rnz(u.legscratching), "severe bleedout", KILLED_BY);
+	}
+	if (!rn2(2500) && uarmf && uarmf->oartifact == ART_AMYBSOD_S_NEW_FOOTWEAR) {
+		You("are losing lots of blood!");
+		u.uhp -= 1;
+		u.uhpmax -= 1;
+		u.uen -= 1;
+		u.uenmax -= 1;
+		losehp(rnz(u.legscratching), "severe bleedout", KILLED_BY);
+	}
+	if (!rn2(2500) && uarmc && uarmc->oartifact == ART_TERRIFYING_LOSS) {
+		You("are losing lots of blood!");
+		u.uhp -= 1;
+		u.uhpmax -= 1;
+		u.uen -= 1;
+		u.uenmax -= 1;
+		losehp(rnz(u.legscratching), "severe bleedout", KILLED_BY);
+	}
 
 	/* stone of magic resistance is teh uber, and means that if you wish for MR you'll never pick something else.
 	 * So I decided to be mean (like always :P) and make it so that the stone curses itself after a while. --Amy */
@@ -1874,9 +2240,20 @@ nh_timeout()
 		pline("Your scratching wounds are bleeding %s worse than before!", rn2(2) ? "even" : "much");
 		u.legscratching++;
 	}
+	if (!rn2(7500) && uarmf && uarmf->oartifact == ART_AMYBSOD_S_VAMPIRIC_SNEAKER ) {
+		pline("Your scratching wounds are bleeding %s worse than before!", rn2(2) ? "even" : "much");
+		u.legscratching++;
+	}
+	if (!rn2(7500) && uarmf && uarmf->oartifact == ART_AMYBSOD_S_NEW_FOOTWEAR ) {
+		pline("Your scratching wounds are bleeding %s worse than before!", rn2(2) ? "even" : "much");
+		u.legscratching++;
+	}
+	if (!rn2(7500) && uarmc && uarmc->oartifact == ART_TERRIFYING_LOSS ) {
+		pline("Your scratching wounds are bleeding %s worse than before!", rn2(2) ? "even" : "much");
+		u.legscratching++;
+	}
 
-	if (u.uluck != baseluck &&
-		moves % (((u.uhave.amulet && u.amuletcompletelyimbued) || u.ugangr) ? 300 : 600) == 0) {
+	if (u.uluck != baseluck && !rn2(((u.uhave.amulet && !u.freeplaymode && u.amuletcompletelyimbued) || u.ugangr) ? 300 : 600) ) {
 	/* Cursed luckstones stop bad luck from timing out; blessed luckstones
 	 * stop good luck from timing out; normal luckstones stop both;
 	 * neither is stopped if you don't have a luckstone.
@@ -1902,7 +2279,7 @@ nh_timeout()
 	if(Strangled) choke_dialogue();
 	if (Sick && (moves % 7 == 0) ) {
 		pline(Role_if(PM_PIRATE) ? "Ye still feel poxy." : Role_if(PM_KORSAIR) ? "Ye still feel poxy." : (uwep && uwep->oartifact == ART_ARRRRRR_MATEY) ? "Ye still feel poxy." : "You still feel deathly sick.");
-		if (Sickopathy) pline("You have %d turns to live.", Sick);
+		if (Sickopathy) pline("You have %ld turns to live.", Sick);
 	}
 	if(u.mtimedone && !--u.mtimedone) {
 		if (!Race_if(PM_UNGENOMOLD) && u.polyformed) rehumanize();
@@ -1995,6 +2372,30 @@ nh_timeout()
 		 case FEMTRAP_MARLENA:
 
 			pline("The dungeon is less green now.");
+
+		 break;
+
+		 case FEMTRAP_SARAH:
+
+			pline("Apparently the farting gas is depleted.");
+
+		 break;
+
+		 case FEMTRAP_CLAUDIA:
+
+			pline("Your sexy butt cheek wood confusion ends.");
+
+		 break;
+
+		 case FEMTRAP_LUDGERA:
+
+			pline("At last the disgusting toilet noises ceased.");
+
+		 break;
+
+		 case FEMTRAP_KATI:
+
+			pline("You vow to never clean a girl's shoes again.");
 
 		 break;
 
@@ -2371,9 +2772,23 @@ nh_timeout()
 			if (!Technicality)
 				pline("Your techniques are weaker again.");
 			break;
+		case SCENT_VIEW:
+			if (!ScentView)
+				pline("Your %s returns to normal.", body_part(NOSE));
+			break;
+		case DIMINISHED_BLEEDING:
+			if (!DiminishedBleeding)
+				pline("Your %s coagulation factor is no longer active.", body_part(BLOOD));
+			break;
+		case PLAYERBLEEDING:
+			if (!PlayerBleeds)
+				pline("Your bleeding stops.");
+			stop_occupation();
+			flags.botl = TRUE;
+			break;
 		case BLACK_NG_WALLS:
 
-			pline(Hallucination ? "Rien ne va plus... You seem to remember this slogan being printed on all official Pokemon games' box covers. It's like 'Rien ne va plus' is the official Pokemon slogan!" : "Rien ne va plus...");
+			pline(FunnyHallu ? "Rien ne va plus... You seem to remember this slogan being printed on all official Pokemon games' box covers. It's like 'Rien ne va plus' is the official Pokemon slogan!" : "Rien ne va plus...");
 			/* Of course it's actually the Roulette slogan. --Amy */
 
 			if (Upolyd) losehp(u.mhmax, "failing to defeat Blacky in time", KILLED_BY);
@@ -2389,15 +2804,16 @@ nh_timeout()
 		case FUMBLING:
 			/* call this only when a move took place.  */
 			/* otherwise handle fumbling msgs locally. */
-			if (u.umoved && !Levitation && !(uarmf && !rn2(10) && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "blue sneakers") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "siniye krossovki") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "ko'k shippak") ) ) && (!(uarmf && uarmf->oartifact == ART_ELEVECULT) || !rn2(4)) && (!PlayerInHighHeels || (PlayerCannotUseSkills) || (rnd(7) > P_SKILL(P_HIGH_HEELS) ) ) ) {
+			if (u.umoved && !Levitation && !(uarmf && !rn2(10) && itemhasappearance(uarmf, APP_BLUE_SNEAKERS)) && (!(uarmf && uarmf->oartifact == ART_ELEVECULT) || !rn2(4)) && (!PlayerInHighHeels || (PlayerCannotUseSkills) || (rnd(7) > P_SKILL(P_HIGH_HEELS) ) ) ) {
 			    slip_or_trip();
 
 			/* based on the evil patch idea by jonadab: stupidity or amnesia from falling on your head --Amy */
 
-			    if (!rn2(1000) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) {
+			    if (!rn2(uarmh ? 5000 : 1000) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) {
 
 				if (rn2(50)) {
-					adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+					adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+					if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 				} else {
 					You_feel("dizzy!");
 					forget(1 + rn2(5));
@@ -2621,6 +3037,12 @@ nh_timeout()
 		case DEAC_TECHNICALITY:
 			pline("You are no longer prevented from having technicality.");
 			break;
+		case DEAC_SCENT_VIEW:
+			pline("You are no longer prevented from having scent view.");
+			break;
+		case DEAC_DIMINISHED_BLEEDING:
+			pline("You are no longer prevented from having diminished bleeding.");
+			break;
 
 		}
 	}
@@ -2697,7 +3119,7 @@ unpoly_obj(arg, timeout)
 
 	(void) stop_timer(UNPOLY_OBJ, (void *) obj);
 
-	obj = poly_obj(obj, oldobj);
+	obj = poly_obj(obj, oldobj, FALSE);
 
 	if (obj->otyp == WAN_CANCELLATION || Is_mbag(obj)) {
 	    otmp = obj;
@@ -2989,7 +3411,7 @@ long timeout;
 			    if (x == u.ux && y == u.uy) {
 				if (underwater && (Flying || Levitation))
 				    pline_The("water boils beneath you.");
-				else if (underwater && Wwalking)
+				else if (underwater && (Wwalking || Race_if(PM_KORONST)))
 				    pline_The("water erupts around you.");
 				else pline("A bomb explodes under your %s!",
 				  makeplural(body_part(FOOT)));
@@ -2998,8 +3420,8 @@ long timeout;
 				    "see a plume of water shoot up." :
 				    "see a bomb explode.");
 			}
-			if (underwater && (Flying || Levitation || Wwalking)) {
-			    if (Wwalking && x == u.ux && y == u.uy) {
+			if (underwater && (Flying || Levitation || Wwalking || Race_if(PM_KORONST))) {
+			    if ((Wwalking || Race_if(PM_KORONST)) && x == u.ux && y == u.uy) {
 				struct trap trap;
 				trap.ntrap = NULL;
 				trap.tx = x;
@@ -3101,6 +3523,9 @@ long timeout;
 		    if (!enexto(&cc, x, y, &mons[mnum]) ||
 			 !(mon = makemon(&mons[mnum], cc.x, cc.y, NO_MINVENT)))
 			break;
+
+			if (mon) u.cnd_eggcount++;
+
 		    /* tame if your own egg hatches while you're on the
 		       same dungeon level, or any dragon egg which hatches
 		       while it's in your inventory */
@@ -3280,6 +3705,8 @@ slip_or_trip()
 	boolean on_foot = TRUE;
 	if (u.usteed) on_foot = FALSE;
 
+	u.cnd_fumbled++;
+
 	if (otmp && on_foot && !u.uinwater && is_waterypool(u.ux, u.uy)) otmp = 0;
 
 	if (otmp && on_foot) {		/* trip over something in particular */
@@ -3290,12 +3717,12 @@ slip_or_trip()
 		name; if not, look for rocks to trip over; trip over
 		anonymous "something" if there aren't any rocks.
 	     */
-	    pronoun = otmp->quan == 1L ? "it" : Hallucination ? "they" : "them";
+	    pronoun = otmp->quan == 1L ? "it" : FunnyHallu ? "they" : "them";
 	    what = !otmp->nexthere ? pronoun :
 		  (otmp->dknown || !Blind) ? doname(otmp) :
 		  ((otmp = sobj_at(ROCK, u.ux, u.uy)) == 0 ? something :
 		  (otmp->quan == 1L ? "a rock" : "some rocks"));
-	    if (Hallucination) {
+	    if (FunnyHallu) {
 		what = strcpy(buf, what);
 		buf[0] = highc(buf[0]);
 		pline("Egads!  %s bite%s your %s!",
@@ -3313,11 +3740,11 @@ slip_or_trip()
 	    if (on_foot) {
 		switch (rn2(4)) {
 		  case 1:
-			You("trip over your own %s.", Hallucination ?
+			You("trip over your own %s.", FunnyHallu ?
 				"elbow" : makeplural(body_part(FOOT)));
 			break;
 		  case 2:
-			You("slip %s.", Hallucination ?
+			You("slip %s.", FunnyHallu ?
 				"on a banana peel" : "and nearly fall");
 			break;
 		  case 3:
@@ -3374,7 +3801,7 @@ struct obj *obj;
 	switch (obj->where) {
 	    case OBJ_INVENT:
 		Your("lantern is getting dim.");
-		if (Hallucination)
+		if (FunnyHallu)
 		    pline("Batteries have not been invented yet.");
 		break;
 	    case OBJ_FLOOR:
@@ -3655,7 +4082,7 @@ long timeout;
 				}
 
 				/* post message */
-				pline(Hallucination ?
+				pline(FunnyHallu ?
 					(many ? "They shriek!" :
 						"It shrieks!") :
 					Blind ? "" :
@@ -3697,11 +4124,14 @@ long timeout;
 	    	}
 	    case GREEN_LIGHTSABER: 
 	    case BLUE_LIGHTSABER:
+	    case MYSTERY_LIGHTSABER:
 	    case VIOLET_LIGHTSABER:
 	    case WHITE_LIGHTSABER:
 	    case YELLOW_LIGHTSABER:
 	    case RED_LIGHTSABER:
 	    case LASER_SWATTER:
+	    case NANO_HAMMER:
+	    case LIGHTWHIP:
 	        /* Callback is checked every 5 turns - 
 	        	lightsaber automatically deactivates if not wielded */
 	        if ((obj->cursed && !rn2(50)) ||
@@ -3863,7 +4293,10 @@ begin_burn(obj, already_lit)
 		}
 	    case RED_LIGHTSABER:
 	    case LASER_SWATTER:
+	    case NANO_HAMMER:
+	    case LIGHTWHIP:
 	    case BLUE_LIGHTSABER:
+	    case MYSTERY_LIGHTSABER:
 	    case VIOLET_LIGHTSABER:
 	    case WHITE_LIGHTSABER:
 	    case YELLOW_LIGHTSABER:

@@ -41,7 +41,7 @@ struct monst {
 	struct monst *nmon;
 	struct permonst *data;
 	unsigned m_id;
-	/*short*/long mnum;		/* permanent monster index number */
+	/*short*/int mnum;		/* permanent monster index number */
 	short movement;		/* movement points (derived from permonst definition and added effects */
 	uchar m_lev;		/* adjusted difficulty level of monster */
 	aligntyp malign;	/* alignment of this monster, relative to the
@@ -113,7 +113,23 @@ struct monst {
 #define CHAM_OFFDIVER	36	/* joke mon */
 #define CHAM_SLUMBER_HULK	37	/* randomized monster */
 #define CHAM_IVEL_WUXTINA	38	/* evil variant */
-#define CHAM_GIANT_CHAMELEON		39	/* animal */
+#define CHAM_EARLY_LEON		39	/* only select forms of level 5 or lower */
+#define CHAM_CHAMECHAUN		40	/* animal */
+#define CHAM_METAL_DOPPELGANGER	41	/* demi-human */
+#define CHAM_GHELEON		42	/* animal */
+#define CHAM_ZRUTINATOR		43	/* evil variant */
+#define CHAM_METAMORPHOSE		44	/* random */
+#define CHAM_GREEN_SLAAD		45	/* humanoid */
+#define CHAM_CHANGELING		46	/* animal */
+#define CHAM_CHANGELING_MUMMY		47	/* animal */
+#define CHAM_CHANGELING_ZOMBIE		48	/* animal */
+#define CHAM_COCKAMELEON		49	/* animal */
+#define CHAM_CHARMONIE		50	/* animal */
+#define CHAM_EDOTO		51	/* animal */
+#define CHAM_PURPLE_R		52	/* rust monster */
+#define CHAM_VAMPSHIFTER		53	/* vampire */
+#define CHAM_UNGENOCIDABLE_VAMPSHIFTER		54	/* vampire */
+#define CHAM_GIANT_CHAMELEON		55	/* animal */
 #define CHAM_MAX_INDX		CHAM_GIANT_CHAMELEON
 	Bitfield(mundetected,1);	/* not seen in present hiding place */
 				/* implies one of M1_CONCEAL or M1_HIDE,
@@ -340,6 +356,35 @@ struct monst {
 
 	Bitfield(egotype_allivore,1); /* eats every item it comes across */
 
+	Bitfield(egotype_nastycurser,1); /* AD_NACU */
+	Bitfield(egotype_sanitizer,1); /* AD_SANI */
+
+	Bitfield(egotype_laserpwnzor,1); /* ultra-mega-hyper-dyper laser cannon */
+
+	Bitfield(egotype_badowner,1); /* AD_RBAD */
+	Bitfield(egotype_bleeder,1); /* AD_BLEE */
+	Bitfield(egotype_shanker,1); /* AD_SHAN */
+	Bitfield(egotype_terrorizer,1); /* AD_TERR */
+	Bitfield(egotype_feminizer,1); /* AD_FEMI */
+	Bitfield(egotype_levitator,1); /* AD_LEVI */
+	Bitfield(egotype_illusionator,1); /* AD_ILLU */
+	Bitfield(egotype_stealer,1); /* AD_SAMU */
+	Bitfield(egotype_stoner,1); /* AD_STON, by Mickmane */
+	Bitfield(egotype_maecke,1); /* AD_MAGC */
+	Bitfield(egotype_flamer,1); /* AD_FLAM */
+
+	Bitfield(nurse_extrahealth,1); /* to control which services a nurse will offer */
+	Bitfield(nurse_decontaminate,1);
+	Bitfield(nurse_healing,1);
+	Bitfield(nurse_curesickness,1);
+	Bitfield(nurse_curesliming,1);
+	Bitfield(nurse_curesanity,1);
+	Bitfield(nurse_medicalsupplies,1);
+	Bitfield(nurse_purchasedrugs,1);
+	Bitfield(nurse_obtainsymbiote,1);
+	Bitfield(nurse_fixsymbiote,1);
+	Bitfield(nurse_shutdownsymbiote,1);
+
 	Bitfield(butthurt,6);
 	Bitfield(fartbonus,6); /* actually, max should be 9 */
 	Bitfield(crapbonus,6);
@@ -349,6 +394,24 @@ struct monst {
 	Bitfield(wastame,1);	/* for re-taming technique */
 
 	Bitfield(sagesvisible,1);	/* for seeing the monster via sages helmet */
+	Bitfield(internetvisible,1);	/* 1 in 9 chance to be visible to internet access */
+	Bitfield(stunnovisible,1);	/* 3 in 4 chance to be visible to stunnopathy */
+	Bitfield(selfhybridvisible,1);	/* 1 in 2 chance to be visible for self-hybridization */
+	Bitfield(warningvisible,2);	/* 1 in 4 chance to be visible to warning (1 in 2 if double warning) */
+	Bitfield(telepatvisible,2);	/* 1 in 6 chance to be visible to telepathy (1 in 3 if double telepathy) */
+	/* these bigger bitfields mean: 1 = single source is enough, 2 = only see monster if two sources */
+	Bitfield(seeinvisble,1);	/* 2 in 3 chance that single see invisible is enough */
+	Bitfield(infravisble,1);	/* 2 in 3 chance that single infravision is enough */
+	Bitfield(willbebanished,1);	/* got hit by a banishment attack and will be banished on its next turn */
+	Bitfield(spressingseen,1);	/* saw you create a s-pressing trap and can thus no longer trigger it */
+	Bitfield(scentvisible,1);	/* 2 in 3 chance to be visible to scent view */
+	Bitfield(echolocatevisible,1);	/* 4 in 5 chance to be visible to echolocation */
+	int hominglazer;	/* normally zero; very specific monsters can use this to charge up a cannon */
+	int ogrethief;	/* normally zero; used for the huge ogre thief */
+	int bleedout;	/* normally zero; monster bleeds out (takes continuous damage) if nonzero */
+	int healblock;	/* normally zero; monster cannot heal over time if nonzero */
+	int inertia;	/* normally zero; monster moves at half speed */
+	int terraintrans;	/* for dimm coin: determines which terrain is created when the monster moves */
 
 	struct obj *mw;
 	long misc_worn_check;

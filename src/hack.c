@@ -13,6 +13,7 @@ STATIC_DCL int still_chewing(XCHAR_P,XCHAR_P);
 STATIC_DCL void dosinkfall(void);
 STATIC_DCL boolean findtravelpath(BOOLEAN_P);
 STATIC_DCL boolean monstinroom(struct permonst *,int);
+STATIC_DCL boolean anymonstinroom(int);
 
 STATIC_DCL void move_update(BOOLEAN_P);
 STATIC_PTR void set_litX(int,int,void *);
@@ -149,7 +150,7 @@ boolean showmsg, update;
 		     return TRUE;
 		  }
 	       } else {
-		  otmp = mksobj(herb, TRUE, FALSE);
+		  otmp = mksobj(herb, TRUE, FALSE, FALSE);
 		  if (otmp) {
 			  otmp->quan = 1;
 			  otmp->owt = weight(otmp); 
@@ -235,6 +236,13 @@ boolean showmsg, update;
    if (IS_TREE(lev->typ) && !(lev->looted & TREE_LOOTED) && may_dig(x,y)) {
       coord pos;
       int dir, dofs = rn2(8);
+
+	/* Amy edit: this shouldn't be a 100% chance, after all kicking isn't either */
+	if (rn2(3)) {
+		levl[x][y].looted |= TREE_LOOTED;
+		return FALSE;
+	}
+
       for (dir = 0; dir < 8; dir++) {
 	 dtoxy(&pos, (dir + dofs) % 8);
 	 pos.x += x;
@@ -323,13 +331,13 @@ xchar x,y;
 }
 
 void
-dgn_growths(showmsg, update)
+dgn_growths(showmsg, update, treesnstuff)
 boolean showmsg; /* show messages */
 boolean update;  /* do newsym() */
 {
-   int herbnum = rn2(SIZE(herb_info));
-   int randomx, randomy;
-   int i, j, count, randchance=0;
+	int herbnum = rn2(SIZE(herb_info));
+	int randomx, randomy;
+	int i, j, count, randchance=0;
 	/*register struct monst *mtmp;*/
 
 	/* note by Amy: disabled herb growth and water currents. GDB says that the dreaded savegame error is happening
@@ -338,19 +346,21 @@ boolean update;  /* do newsym() */
 	 * function is being called during saving for every single level that exists, I wouldn't be at all surprised if
 	 * that's somehow related. At the very least I'm taking out the minliquid() call below, and that means we don't need
 	 * the mtmp anymore either. If it's still somehow crashing then we'll need to look into the GDB output which will
-	 * hopefully tell us where exactly in newsym() it's choking... */
+	 * hopefully tell us where exactly in newsym() it's choking...
+	 * another note: on levels that the character isn't currently on, only regrow walls, don't drop fruit */
 
 	/* update: *sigh* apparently the newsym() is really the culprit and I could just have used the update variable! */
 
-   if (!rn2(100)) (void) seed_tree(-1,-1);
-   /*if (herb_info[herbnum].in_water)
-     (void) grow_water_herbs(herb_info[herbnum].herb, -1,-1);
-   else
-     (void) grow_herbs(herb_info[herbnum].herb, -1,-1, showmsg, update);*/
-   if (!rn2(isfriday ? 100 : 30))
-     (void) drop_ripe_treefruit(-1,-1, showmsg, update);
-   /*(void) water_current(-1,-1, rn2(8), 
-			Is_waterlevel(&u.uz) ? 200 : 25, showmsg, update);*/
+	if (!rn2(100)) (void) seed_tree(-1,-1);
+	/*if (herb_info[herbnum].in_water)
+		(void) grow_water_herbs(herb_info[herbnum].herb, -1,-1);
+		else
+		(void) grow_herbs(herb_info[herbnum].herb, -1,-1, showmsg, update);*/
+
+	if (treesnstuff && !rn2(isfriday ? 100 : 30)) (void) drop_ripe_treefruit(-1,-1, showmsg, update);
+
+	/*(void) water_current(-1,-1, rn2(8), Is_waterlevel(&u.uz) ? 200 : 25, showmsg, update);*/
+
 trap_of_walls:
 
 	/* evil patch idea by Amy: occasionally, corridors and room squares will "grow" back into solid rock or walls.
@@ -363,7 +373,7 @@ trap_of_walls:
 	 * Relax! There's a simple reason - after a while, umber hulks and similar monsters might dig out entire levels,
 	 * and in vanilla there's absolutely no way to restore them to their previous condition. Not so here,
 	 * where the dungeon will gradually "repair" itself, so to speak. Scrolls of lockout can further that repair.*/
-   if (!rn2(iswarper ? 5 : 10) || (!(u.monstertimefinish % 517) && !rn2(iswarper ? 5 : 10) ) || (!(u.monstertimefinish % 3517) && !rn2(iswarper ? 2 : 5) ) || !(u.monstertimefinish % 23517) ) {
+   if (!rn2(iswarper ? 5 : 10) ) {
 	randomx = rn1(COLNO-3,2);
 	randomy = rn2(ROWNO);
 
@@ -427,7 +437,7 @@ trap_of_walls:
 				if (levl[randomx][randomy].typ != DOOR) levl[randomx][randomy].typ = STONE;
 				else levl[randomx][randomy].typ = CROSSWALL;
 				if (!(levl[randomx][randomy].wall_info & W_EASYGROWTH)) levl[randomx][randomy].wall_info |= W_HARDGROWTH;
-				block_point(randomx,randomy);
+				blockorunblock_point(randomx,randomy);
 				del_engr_at(randomx, randomy);
 
 				/*if ((mtmp = m_at(randomx, randomy)) != 0) {
@@ -448,11 +458,12 @@ trap_of_walls:
 	 * but it is. Apparently, calling this function during saving fucks up the "uwep" or "uswapwep" structures,
 	 * even though the safety checks should make sure that it works right. Oh well, have to make the function get called
 	 * only during regular play then, even though that is really stupid. */
-   if (update) {
 
-	   if ((u.uprops[WALL_TRAP_EFFECT].extrinsic || WallTrapping || have_wallstone() || (uarmg && uarmg->oartifact == ART_STOUT_IMMURRING) || (uarmc && uarmc->oartifact == ART_MOST_CHARISMATIC_PRESIDENT) || (uwep && uwep->oartifact == ART_CUDGEL_OF_CUTHBERT) || (u.twoweap && uswapwep && uswapwep->oartifact == ART_CUDGEL_OF_CUTHBERT) || (uwep && uwep->oartifact == ART_ONE_THROUGH_FOUR_SCEPTER) || (u.twoweap && uswapwep && uswapwep->oartifact == ART_ONE_THROUGH_FOUR_SCEPTER) ) && rn2(100)) goto trap_of_walls;
+	if (update) {
 
-   }
+		if ((u.uprops[WALL_TRAP_EFFECT].extrinsic || WallTrapping || have_wallstone() || (uarmg && uarmg->oartifact == ART_STOUT_IMMURRING) || (uarmc && uarmc->oartifact == ART_MOST_CHARISMATIC_PRESIDENT) || (uwep && uwep->oartifact == ART_CUDGEL_OF_CUTHBERT) || (u.twoweap && uswapwep && uswapwep->oartifact == ART_CUDGEL_OF_CUTHBERT) || (uwep && uwep->oartifact == ART_ONE_THROUGH_FOUR_SCEPTER) || (u.twoweap && uswapwep && uswapwep->oartifact == ART_ONE_THROUGH_FOUR_SCEPTER) ) && rn2(100)) goto trap_of_walls;
+
+	}
 
 }
 
@@ -464,7 +475,7 @@ int mvs;
    if (mvs < 0) mvs = 0;
    else if (mvs > LARGEST_INT) mvs = LARGEST_INT;
    while (mvs-- > 0)
-     dgn_growths(FALSE, FALSE);
+     dgn_growths(FALSE, FALSE, FALSE);
 }
 #endif /* DUNGEON_GROWTH */
 
@@ -520,7 +531,8 @@ moverock()
 	rx = u.ux + 2 * u.dx;	/* boulder destination position */
 	ry = u.uy + 2 * u.dy;
 	nomul(0, 0, FALSE);
-	if (Levitation || Is_airlevel(&u.uz)) {
+	/* if you combine levitator and sokosolver the game shouldn't be unwinnable --Amy */
+	if ((Levitation || Is_airlevel(&u.uz)) && !Race_if(PM_LEVITATOR) ) {
 		if (Blind) feel_location(sx,sy);
 	    You("don't have enough leverage to push %s.", the(xname(otmp)));
 	    /* Give them a chance to climb over it? */
@@ -717,7 +729,7 @@ moverock()
 		 if (Blind) feel_location(sx,sy);
 	cannot_push:
 	    if (throws_rocks(youmonst.data)) {
-		if (u.usteed && !(nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) && (PlayerCannotUseSkills || P_SKILL(P_RIDING) < P_BASIC) ) {
+		if (u.usteed && !(uwep && uwep->oartifact == ART_SORTIE_A_GAUCHE) && !(powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) && (PlayerCannotUseSkills || P_SKILL(P_RIDING) < P_BASIC) ) {
 		    You("aren't skilled enough to %s %s from %s.",
 			(flags.pickup && !In_sokoban(&u.uz))
 			    ? "pick up" : "push aside",
@@ -801,7 +813,7 @@ still_chewing(x,y)
 	You("start chewing %s %s.",
 	    (boulder || IS_TREE(lev->typ)) ? "on a" : "a hole in the",
 	    boulder ? "boulder" :
-	    IS_TREE(lev->typ) ? "tree" : IS_ROCK(lev->typ) ? "rock" : "door");
+	    IS_TREE(lev->typ) ? "tree" : IS_WATERTUNNEL(lev->typ) ? "rock above the water" : IS_ROCK(lev->typ) ? "rock" : "door");
 	watch_dig((struct monst *)0, x, y, FALSE);
 	return 1;
     } else if ((digging.effort += (30 + u.udaminc)) <= 100)  {
@@ -838,6 +850,9 @@ still_chewing(x,y)
 	    return 1;
 	}
 
+    } else if (IS_WATERTUNNEL(lev->typ)) {
+	digtxt = "chew away the rock above the water.";
+	lev->typ = MOAT;
     } else if (IS_WALL(lev->typ)) {
 	if (*in_rooms(x, y, SHOPBASE)) {
 	    add_damage(x, y, 10L * ACURRSTR);
@@ -1043,15 +1058,16 @@ int mode;
     if (IS_ROCK(tmpr->typ) || tmpr->typ == IRONBARS || (SpellColorPlatinum && (glyph_to_cmap(glyph_at(x,y)) == S_bars) ) || tmpr->typ == WOODENTABLE || tmpr->typ == WATERTUNNEL) {
 	if (Blind && mode == DO_MOVE) feel_location(x,y);
 	if (tmpr->typ == IRONBARS || (SpellColorPlatinum && (glyph_to_cmap(glyph_at(x,y)) == S_bars) ) ) {
-	    if (!(Passes_walls || passes_bars(youmonst.data) || (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant && uimplant->oartifact == ART_SIGNIFICANT_RNG_JITTER) )) {
+	    if (!(Passes_walls || passes_bars(youmonst.data) || (powerfulimplants() && uimplant && uimplant && uimplant->oartifact == ART_SIGNIFICANT_RNG_JITTER) )) {
 		if (mode == DO_MOVE) {
 			if (Hyperbluewalls || u.uprops[HYPERBLUEWALL_BUG].extrinsic || have_hyperbluestone() || (uarms && uarms->oartifact == ART_DOLORES__VIRGINITY) ) {
 				You("crash into a set of iron bars! Ouch!");
 
 				losehp(rnd(10), "walking into iron bars", KILLED_BY);
-				if (!rn2(10)) {
+				if (!rn2(Role_if(PM_COURIER) ? 1000 : uarmh ? 50 : 10)) {
 					if (rn2(50)) {
-						adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+						adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+						if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 					} else {
 						You_feel("dizzy!");
 						forget(1 + rn2(5));
@@ -1084,7 +1100,7 @@ int mode;
 
 	} else if (tmpr->typ == MOUNTAIN) {
 		if (mode != DO_MOVE) return FALSE;
-		if (mode == DO_MOVE && !Passes_walls && !(nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant && uimplant->oartifact == ART_SIGNIFICANT_RNG_JITTER)) {
+		if (mode == DO_MOVE && !Passes_walls && !(powerfulimplants() && uimplant && uimplant && uimplant->oartifact == ART_SIGNIFICANT_RNG_JITTER)) {
 			if (!(u.usteed) && rn2(100)) {
 				TimerunBug += 1; /* ugly hack --Amy */
 				Norep("You try to scale the mountain. This may take many attempts to succeed.");
@@ -1102,15 +1118,16 @@ int mode;
 	} else if (tmpr->typ == FARMLAND) {
 		if (mode != DO_MOVE && !Levitation && !Flying && !(u.usteed && u.usteed->data->mlet == S_QUADRUPED) && !(Upolyd && youmonst.data->mlet == S_QUADRUPED)) return FALSE;
 
-		if (mode == DO_MOVE && !Levitation && !Flying && !(u.usteed && u.usteed->data->mlet == S_QUADRUPED) && !(Upolyd && youmonst.data->mlet == S_QUADRUPED) && !(nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant && uimplant->oartifact == ART_SIGNIFICANT_RNG_JITTER) ) {
+		if (mode == DO_MOVE && !Levitation && !Flying && !(u.usteed && u.usteed->data->mlet == S_QUADRUPED) && !(Upolyd && youmonst.data->mlet == S_QUADRUPED) && !(powerfulimplants() && uimplant && uimplant && uimplant->oartifact == ART_SIGNIFICANT_RNG_JITTER) ) {
 
 			if (Hyperbluewalls || u.uprops[HYPERBLUEWALL_BUG].extrinsic || have_hyperbluestone() || (uarms && uarms->oartifact == ART_DOLORES__VIRGINITY)) {
 				You("crash into a farmland! Ouch!");
 
 				losehp(rnd(10), "walking into a farmland", KILLED_BY);
-				if (!rn2(10)) {
+				if (!rn2(Role_if(PM_COURIER) ? 1000 : uarmh ? 50 : 10)) {
 					if (rn2(50)) {
-						adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+						adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+						if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 					} else {
 						You_feel("dizzy!");
 						forget(1 + rn2(5));
@@ -1118,7 +1135,7 @@ int mode;
 				}
 			} else {
 				You("cannot cross the farmland!");
-				if (Hallucination) pline("Nature preservation and all that.");
+				if (FunnyHallu) pline("Nature preservation and all that.");
 				/* Even passwall does not help here, this is intentional. --Amy */
 			}
 
@@ -1133,9 +1150,10 @@ int mode;
 				You("crash into a tunnel! Ouch!");
 
 				losehp(rnd(10), "walking into a tunnel", KILLED_BY);
-				if (!rn2(10)) {
+				if (!rn2(Role_if(PM_COURIER) ? 1000 : uarmh ? 50 : 10)) {
 					if (rn2(50)) {
-						adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+						adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+						if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 					} else {
 						You_feel("dizzy!");
 						forget(1 + rn2(5));
@@ -1152,7 +1170,13 @@ int mode;
 
 	} else if (tmpr->typ == GRAVEWALL) {
 		/* Once again, passwall intentionally does not help --Amy */
+
+		if (u.walscholarpass) goto walscholardone; /* can pass through */
+
 		if (mode != DO_MOVE) return FALSE;
+
+		if (Role_if(PM_WALSCHOLAR) && (yn("Do you really want to dig into the grave wall? Doing so would be sinful for a Walscholar.") != 'y') ) return FALSE;
+
 		if (rn2(5) && !(uwep && uwep->oartifact == ART_CERULEAN_SMASH) ) {
 			Norep("You dig into the grave wall.");
 			TimerunBug += 1; /* ugly hack --Amy */
@@ -1160,7 +1184,18 @@ int mode;
 		} else {
 			You("dig out the grave wall.");
 			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+			u.cnd_gravewallamount++;
+
+			if (Role_if(PM_WALSCHOLAR)) {
+				You_feel("like a miserably hussy.");
+				if (FunnyHallu) pline("Maybe you should buy a bottle of drum stint reluctance perfume.");
+				u.ualign.sins++;
+				u.alignlim--;
+				adjalign(-10);
+			}
+
 			tmpr->typ = CORR;
+			blockorunblock_point(ux+dx,uy+dy);
 			if (!rn2(20) && isok(ux+dx, uy+dy)) {
 				maketrap(ux+dx, uy+dy, randomtrap(), 100 );
 			} else if (!rn2(20) && isok(ux+dx, uy+dy)) {
@@ -1168,19 +1203,49 @@ int mode;
 				makemon((struct permonst *)0, ux+dx, uy+dy, MM_ADJACENTOK);
 				return FALSE;
 			}
+
+			if (Role_if(PM_HUSSY)) {
+				You("feel like a proper hussy.");
+				adjalign(rnd(5));
+				if (!rn2(10)) {
+					pline("There was some gold hidden in the grave wall!");
+					u.ugold += rnz(10);
+				}
+				if (!rn2(1000) && isok(ux+dx, uy+dy)) {
+					(void) mksobj_at(DIAMOND, ux+dx, uy+dy, TRUE, TRUE, FALSE);
+					pline("Wow, this was one of the special grave walls where Hans Walt had hidden a diamond!");
+				}
+			}
+
+			if (!Role_if(PM_WALSCHOLAR)) {
+				more_experienced(Role_if(PM_HUSSY) ? 50 : 5, 0);
+				newexplevel();
+			}
+
 		}
+
+walscholardone:
+		;
+
 	} else if (tmpr->typ == WATERTUNNEL) {
 		if (mode != DO_MOVE) return FALSE;
 
-		if (mode == DO_MOVE && !Passes_walls && (Flying || Levitation)) {
+		if ( ( ( (tunnels(youmonst.data) && !needspick(youmonst.data)) || (uarmf && uarmf->oartifact == ART_STONEWALL_CHECKERBOARD_DIS) || (Race_if(PM_SCURRIER) && !Upolyd) || u.geolysis) ) && flags.eatingwalls && (Flying || Levitation) ) {
+		/* can eat the stupid things */
+			if (mode == DO_MOVE && still_chewing(x,y)) return FALSE;
+		}
+
+		/* if you just ate it, you shouldn't crash into a no-longer-existing rock part above the tunnel */
+		if (mode == DO_MOVE && !Passes_walls && (Flying || Levitation) && (levl[x][y].typ == WATERTUNNEL) ) {
 
 			if (Hyperbluewalls || u.uprops[HYPERBLUEWALL_BUG].extrinsic || have_hyperbluestone() || (uarms && uarms->oartifact == ART_DOLORES__VIRGINITY)) {
 				You("crash into a water tunnel! Ouch!");
 
 				losehp(rnd(10), "walking into a water tunnel", KILLED_BY);
-				if (!rn2(10)) {
+				if (!rn2(Role_if(PM_COURIER) ? 1000 : uarmh ? 50 : 10)) {
 					if (rn2(50)) {
-						adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+						adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+						if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 					} else {
 						You_feel("dizzy!");
 						forget(1 + rn2(5));
@@ -1198,11 +1263,16 @@ int mode;
 	} else if ( ( ( (tunnels(youmonst.data) && !needspick(youmonst.data)) || (uarmf && uarmf->oartifact == ART_STONEWALL_CHECKERBOARD_DIS) || (Race_if(PM_SCURRIER) && !Upolyd) || u.geolysis) ) && flags.eatingwalls ) {
 	    /* Eat the rock. */
 	    if (mode == DO_MOVE && still_chewing(x,y)) return FALSE;
-	} else if (flags.autodig && !flags.run && !flags.nopick &&
+
+	/* autodig: note by Amy, this needs to interact with all nasty traps that would fire when you apply something.
+	 * For simplicity of coding, I decided to make autodig do nothing if you have such a trap active :P */
+	} else if (flags.autodig && !(u.powerfailure || CurseAsYouUse || InterruptEffect || u.uprops[INTERRUPT_EFFECT].extrinsic || have_interruptionstone() || (isselfhybrid && (moves % 3 == 0 && moves % 11 != 0) ) ) && !(Hyperbluewalls || u.uprops[HYPERBLUEWALL_BUG].extrinsic || have_hyperbluestone() || (uarms && uarms->oartifact == ART_DOLORES__VIRGINITY)) && !flags.run && !flags.nopick &&
 		   uwep && is_pick(uwep)) {
 	/* MRKR: Automatic digging when wielding the appropriate tool */
-	    if (mode == DO_MOVE)
+	    if (mode == DO_MOVE) {
+		if (!touch_artifact(uwep, &youmonst)) return FALSE;
 		(void) use_pick_axe2(uwep);
+	    }
 	    return FALSE;
 	} else {
 	    if (mode == DO_MOVE) {
@@ -1218,9 +1288,10 @@ int mode;
 					You("crash into a tree! Ouch!");
 
 					losehp(rnd(10), "walking into a tree", KILLED_BY);
-					if (!rn2(10)) {
+					if (!rn2(Role_if(PM_COURIER) ? 1000 : uarmh ? 50 : 10)) {
 						if (rn2(50)) {
-							adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+							adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+							if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 						} else {
 							You_feel("dizzy!");
 							forget(1 + rn2(5));
@@ -1234,9 +1305,10 @@ int mode;
 					You("crash into a wall! Ouch!");
 
 					losehp(rnd(10), "walking into a wall", KILLED_BY);
-					if (!rn2(10)) {
+					if (!rn2(Role_if(PM_COURIER) ? 1000 : uarmh ? 50 : 10)) {
 						if (rn2(50)) {
-							adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+						adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+						if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 						} else {
 							You_feel("dizzy!");
 							forget(1 + rn2(5));
@@ -1288,9 +1360,10 @@ int mode;
 				You("crash into a door! Ouch!");
 
 				losehp(rnd(10), "walking into a door", KILLED_BY);
-				if (!rn2(10)) {
+				if (!rn2(Role_if(PM_COURIER) ? 1000 : uarmh ? 50 : 10)) {
 					if (rn2(50)) {
-						adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+						adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+						if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 					} else {
 						You_feel("dizzy!");
 						forget(1 + rn2(5));
@@ -1320,9 +1393,10 @@ int mode;
 					You("crash into a door! Ouch!");
 
 					losehp(rnd(10), "walking into a door", KILLED_BY);
-					if (!rn2(10)) {
+					if (!rn2(Role_if(PM_COURIER) ? 1000 : uarmh ? 50 : 10)) {
 						if (rn2(50)) {
-							adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+							adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+							if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 						} else {
 							You_feel("dizzy!");
 							forget(1 + rn2(5));
@@ -1346,12 +1420,12 @@ int mode;
 	    }
 	} else {
 	testdiag:
-	    if (dx && dy && !Passes_walls
+	    if ((dx && dy && !Passes_walls
 		&& ((tmpr->doormask & ~D_BROKEN)
 #ifdef REINCARNATION
 		    || Is_rogue_level(&u.uz)
 #endif
-		    || block_door(x,y))) {
+		    || block_door(x,y))) && !can_ooze(&youmonst)) {
 		/* Diagonal moves into a door are not allowed. */
 		if (Blind && mode == DO_MOVE)
 		    feel_location(x,y);
@@ -1368,7 +1442,7 @@ int mode;
 		You("cannot pass that way.");
 	    return FALSE;
 	}
-	if ( (bigmonst(youmonst.data) && !Race_if(PM_TRANSFORMER) ) || (!Upolyd && Race_if(PM_HUMANOID_CENTAUR) ) || (!Upolyd && Race_if(PM_CHIROPTERAN) ) || (!Upolyd && Race_if(PM_THUNDERLORD) ) ) {
+	if ( (bigmonst(youmonst.data) && !Race_if(PM_TRANSFORMER) ) || (!Upolyd && Race_if(PM_HUMANOID_CENTAUR) ) || (!Upolyd && Race_if(PM_ETHEREALOID) ) || (!Upolyd && Race_if(PM_PLAYER_CERBERUS) ) || (!Upolyd && Race_if(PM_CHIROPTERAN) ) || (!Upolyd && Race_if(PM_THUNDERLORD) ) || (!Upolyd && Race_if(PM_PLAYER_JABBERWOCK) ) ) {
 	    if (mode == DO_MOVE)
 		Your("body is too large to fit through.");
 	    return FALSE;
@@ -1396,7 +1470,7 @@ int mode;
     ust = &levl[ux][uy];
 
     /* Now see if other things block our way . . */
-    if (dx && dy && !Passes_walls
+    if (dx && dy && !Passes_walls && !can_ooze(&youmonst)
 		     && (IS_DOOR(ust->typ) && ((ust->doormask & ~D_BROKEN)
 #ifdef REINCARNATION
 			     || Is_rogue_level(&u.uz)
@@ -1427,8 +1501,8 @@ int mode;
 		    !(tunnels(youmonst.data) && !needspick(youmonst.data)) &&
 		    !(Race_if(PM_SCURRIER) && !Upolyd) &&
 		    !(uarmf && uarmf->oartifact == ART_STONEWALL_CHECKERBOARD_DIS) &&
-		    !carrying(PICK_AXE) && !carrying(CONGLOMERATE_PICK) &&
-		    !carrying(BRONZE_PICK) && !carrying(DWARVISH_MATTOCK) &&
+		    !carrying(PICK_AXE) && !carrying(CONGLOMERATE_PICK) && !carrying(MYSTERY_PICK) &&
+		    !carrying(BRONZE_PICK) && !carrying(NANO_PICK) && !carrying(BRICK_PICK) && !carrying(DWARVISH_MATTOCK) &&
 		    !((obj = carrying(WAN_DIGGING)) &&
 		      !objects[obj->otyp].oc_name_known))
 		    return FALSE;
@@ -1607,6 +1681,12 @@ ask_about_trap(int x, int y)
 
 	if (KnowledgeBug || u.uprops[KNOWLEDGE_BUG].extrinsic || have_trapknowledgestone()) return FALSE;
 
+	/* hallu means you cannot tell traps apart, and we used to make it so that you never get any confirmation;
+	 * it's much more fair if you always get one though --Amy
+	 * what we definitely cannot do is make it give the confirmation depending on what trap it is, because that would
+	 * be leaking info */
+	if (Hallucination && (traphere && traphere->tseen) && !(Confusion && !Conf_resist) && !(Stunned && !Stun_resist)) return TRUE;
+
 	if (/* is_pool(x, y) || is_lava(x, y) || */ (traphere && traphere->tseen) && !(Confusion && !Conf_resist) && !(Stunned && !Stun_resist) && !Hallucination)  {
 
 		/* who the heck included this? Maybe the player doesn't really want to use the portal at all! --Amy */
@@ -1620,6 +1700,10 @@ ask_about_trap(int x, int y)
 			return TRUE;
 		if (Role_if(PM_FAILED_EXISTENCE) && Is_qlocate(&u.uz))
 			return TRUE;
+
+		if (traphere->ttyp == S_PRESSING_TRAP) {
+			return FALSE;
+		}
 
 		if (Levitation || Flying) {
 			if (!In_sokoban(&u.uz) && traphere->ttyp == PIT) {
@@ -1664,7 +1748,7 @@ ask_about_trap(int x, int y)
 			if (traphere->ttyp == SQKY_BOARD) {
 				return FALSE;
 			}
-			if (traphere->ttyp == SHIT_TRAP && !(uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "hugging boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "obnimat'sya sapogi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "havola etdi chizilmasin") ) ) ) {
+			if (traphere->ttyp == SHIT_TRAP && !(uarmf && itemhasappearance(uarmf, APP_HUGGING_BOOTS) ) ) {
 				return FALSE;
 			}
 		}
@@ -1835,6 +1919,7 @@ domove()
 	boolean cause_delay = FALSE;	/* dragging ball will skip a move */
 	const char *predicament;
 	boolean displacer = FALSE;	/* defender attempts to displace you */
+	boolean peacedisplacer = FALSE;
 
 	u_wipe_engr(rnd(5));
 
@@ -1857,7 +1942,7 @@ domove()
 	    forcenomul(0, 0);
 	    return;
 	}
-	if (Race_if(PM_ELONA_SNAIL) && uarmf && !PlayerInHighHeels) {
+	if (Race_if(PM_ELONA_SNAIL) && !flags.forcefight && uarmf && !PlayerInHighHeels) {
 	    pline("In order to move, snails need to be bare-footed or wearing high heels!");
 	    forcenomul(0, 0);
 	    return;
@@ -1869,7 +1954,7 @@ domove()
 		u.uy = y = u.ustuck->my;
 		mtmp = u.ustuck;
 	} else {
-		if (Is_airlevel(&u.uz) && rn2(2) && /* was rn2(4) - let's make it a bit easier --Amy */
+		if (Is_airlevel(&u.uz) && !flags.forcefight && rn2(2) && /* was rn2(4) - let's make it a bit easier --Amy */
 			!Levitation && !Flying) {
 		    switch(rn2(3)) {
 		    case 0:
@@ -1904,12 +1989,14 @@ domove()
 		    static int skates4 = 0;
 		    if (!skates4) skates4 = find_skates4();
 		    if ((uarmf && uarmf->otyp == skates)
-			    || (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_WHITE_WHALE_HATH_COME)
+			    || (powerfulimplants() && uimplant && uimplant->oartifact == ART_WHITE_WHALE_HATH_COME)
 			    || (uarmf && uarmf->otyp == skates2)
 			    || (uarmf && uarmf->otyp == skates3)
 			    || (uarmf && uarmf->otyp == skates4)
+			    || (uwep && uwep->oartifact == ART_GLACIERDALE)
 			    || (uarmf && uarmf->oartifact == ART_BRIDGE_SHITTE)
 			    || (uarmf && uarmf->oartifact == ART_MERLOT_FUTURE)
+			    || (uarmf && uarmf->oartifact == ART_IMPOSSIBLE_CATWALK)
 			    || resists_cold(&youmonst) || Flying
 			    || is_floater(youmonst.data) || is_clinger(youmonst.data)
 			    || is_whirly(youmonst.data))
@@ -1926,7 +2013,7 @@ domove()
 		x = u.ux + u.dx;
 		y = u.uy + u.dy;
 		/* Check if your steed can move */
-		if (u.usteed && (!u.usteed->mcanmove || u.usteed->msleeping)) {
+		if (u.usteed && !flags.forcefight && (!u.usteed->mcanmove || u.usteed->msleeping)) {
 		    Your("steed doesn't respond!");
 		    forcenomul(0, 0);
 		    return;
@@ -1935,10 +2022,10 @@ domove()
 	/* In Soviet Russia, stunning is a crippling status effect that will fuck you up. You're not supposed to stand
 	 * any chance while stunned, because seriously, players having a chance? That's a no-go! --Amy */
 
-		if ((Stunned && !rn2(issoviet ? 1 : Stun_resist ? 8 : 2)) || (Confusion && !rn2(issoviet ? 2 : Conf_resist ? 40 : 8) || ((uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "thinking helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "myslyashchiy shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "fikr dubulg'a") )) && !rn2(8) ) )
+		if ((Stunned && !rn2(issoviet ? 1 : StrongStun_resist ? 20 : Stun_resist ? 8 : 2)) || (Confusion && !rn2(issoviet ? 2 : StrongConf_resist ? 200 : Conf_resist ? 40 : 8) || ((uarmh && itemhasappearance(uarmh, APP_THINKING_HELMET)) && !rn2(8) ) )
 			/* toned down so it's less crippling --Amy
 			 * nerf for extremely fast steeds: they cause you to sometimes walk randomly */
-			|| (u.usteed && (u.usteed->mconf || (u.usteed->data->mmove > 36 && rnd(u.usteed->data->mmove) > 36) ) )
+			|| (u.usteed && ((u.usteed->mconf && confsteeddir()) || (u.usteed->data->mmove > 36 && rnd(u.usteed->data->mmove) > 36) ) )
 		   ) {
 			register int tries = 0;
 
@@ -2044,7 +2131,9 @@ domove()
 	bhitpos.y = y;
 	tmpr = &levl[x][y];
 	/* attack monster */
+
 	if(mtmp) {
+
 	    forcenomul(0, 0);
 	    /* only attack if we know it's there */
 	    /* or if we used the 'F' command to fight blindly */
@@ -2059,7 +2148,7 @@ domove()
 	     * if the monster is unseen and the player doesn't remember an
 	     * invisible monster--then, we fall through to attack() and
 	     * attack_check(), which still wastes a turn, but prints a
-	     * different message and makes the player remember the monster.		     */
+	     * different message and makes the player remember the monster. */
 	    if(flags.nopick &&
 		  (canspotmon(mtmp) || memory_is_invisible(x, y))){
 		if(mtmp->m_ap_type && !Protection_from_shape_changers
@@ -2071,7 +2160,10 @@ domove()
 		    You("move right into %s.", mon_nam(mtmp));
 		return;
 	    }
-	    if(flags.forcefight || !mtmp->mundetected || sensemon(mtmp) ||
+
+	    /* If there is ANYthing that might be a remembered monster,
+	     * the player should goddamn ATTACK IT and NOT waste a turn. GRRRR. --Amy */
+	    if(flags.forcefight || memory_is_invisible(x, y) || mon_warning(mtmp) || !mtmp->mundetected || sensemon(mtmp) ||
 		    ((hides_under(mtmp->data) || mtmp->data->mlet == S_EEL) &&
 			!is_safepet(mtmp))){
 		gethungry();
@@ -2090,17 +2182,26 @@ domove()
 		/* new displacer beast thingie -- by [Tom] */
 		/* sometimes, instead of attacking, you displace it. */
 		/* Good joke, huh? */
-		if ( (mtmp->data == &mons[PM_DISPLACER_BEAST] || mtmp->data == &mons[PM_WUXTINA] || mtmp->data == &mons[PM_IVEL_WUXTINA] || mtmp->data == &mons[PM_FLUTTERBUG] || mtmp->data == &mons[PM_ORTHOS] || mtmp->data == &mons[PM_SHIMMERING_DRACONIAN] || mtmp->data == &mons[PM_JUMPING_CHAMPION] || mtmp->data->mlet == S_GRUE || mtmp->data == &mons[PM_QUANTUM_MOLD] || mtmp->data == &mons[PM_QUANTUM_GROWTH] || mtmp->data == &mons[PM_QUANTUM_FUNGUS] || mtmp->data == &mons[PM_QUANTUM_PATCH] || mtmp->data == &mons[PM_QUANTUM_STALK] || mtmp->data == &mons[PM_QUANTUM_MUSHROOM] || mtmp->data == &mons[PM_QUANTUM_SPORE] || mtmp->data == &mons[PM_QUANTUM_COLONY] || mtmp->data == &mons[PM_QUANTUM_FORCE_FUNGUS] || mtmp->data == &mons[PM_QUANTUM_FORCE_PATCH] || mtmp->data == &mons[PM_QUANTUM_WARP_FUNGUS] || mtmp->data == &mons[PM_QUANTUM_WARP_PATCH] || mtmp->egotype_displacer) && !rn2(2))
+		if ( (mtmp->data == &mons[PM_DISPLACER_BEAST] || mtmp->data == &mons[PM_POLYMORPH_CODE] || mtmp->data == &mons[PM_FIRST_WRAITHWORM] || mtmp->data == &mons[PM_WRAITHWORM] || mtmp->data == &mons[PM_LILAC_FEMMY] || mtmp->data == &mons[PM_SHARAB_KAMEREL] || mtmp->data == &mons[PM_WUXTINA] || mtmp->data == &mons[PM_IVEL_WUXTINA] || mtmp->data == &mons[PM_FLUTTERBUG] || mtmp->data == &mons[PM_ORTHOS] || mtmp->data == &mons[PM_SHIMMERING_DRACONIAN] || mtmp->data == &mons[PM_JUMPING_CHAMPION] || mtmp->data->mlet == S_GRUE || mtmp->data == &mons[PM_QUANTUM_MOLD] || mtmp->data == &mons[PM_QUANTUM_GROWTH] || mtmp->data == &mons[PM_QUANTUM_FUNGUS] || mtmp->data == &mons[PM_QUANTUM_PATCH] || mtmp->data == &mons[PM_QUANTUM_STALK] || mtmp->data == &mons[PM_QUANTUM_MUSHROOM] || mtmp->data == &mons[PM_QUANTUM_SPORE] || mtmp->data == &mons[PM_QUANTUM_COLONY] || mtmp->data == &mons[PM_QUANTUM_FORCE_FUNGUS] || mtmp->data == &mons[PM_QUANTUM_WORT] || mtmp->data == &mons[PM_QUANTUM_FORCE_PATCH] || mtmp->data == &mons[PM_QUANTUM_WARP_FUNGUS] || mtmp->data == &mons[PM_QUANTUM_WARP_PATCH] || mtmp->egotype_displacer) && !rn2(2))
 		    displacer = TRUE; /* grues can also displace the player to make them more annoying --Amy */
-		else if (tech_inuse(T_EDDY_WIND)) displacer = TRUE;
+		else if (tech_inuse(T_EDDY_WIND)) peacedisplacer = TRUE;
+		else if (u.swappositioncount) peacedisplacer = TRUE;
+		else if (uwep && uwep->oartifact == ART_DIZZY_METAL_STORM) peacedisplacer = TRUE;
 		/* Displacement allows the player to displace peaceful things --Amy */
-		else if (Displaced && !mtmp->isshk && !mtmp->ispriest && mtmp->mpeaceful) displacer = TRUE;
+		else if (Displaced && !mtmp->isshk && !mtmp->ispriest && mtmp->mpeaceful) peacedisplacer = TRUE;
 		else
 		/* try to attack; note that it might evade */
 		/* also, we don't attack tame when _safepet_ */
+
 		if(attack(mtmp)) return;
 
 		if (tech_inuse(T_EDDY_WIND) && flags.forcefight) {
+			if(attack(mtmp)) return;
+		}
+		if (u.swappositioncount && flags.forcefight) {
+			if(attack(mtmp)) return;
+		}
+		if (uwep && uwep->oartifact == ART_DIZZY_METAL_STORM && flags.forcefight) {
 			if(attack(mtmp)) return;
 		}
 	    }
@@ -2132,14 +2233,16 @@ domove()
 	    newsym(x, y);
 	}
 	/* not attacking an animal, so we try to move */
-	if (!displacer || tech_inuse(T_EDDY_WIND)) {
+	if (!displacer) {
+
+	if (peacedisplacer) goto peacedisplace;
 
 	if (u.usteed && !u.usteed->mcanmove && (u.dx || u.dy)) {
 		pline("%s won't move!", upstart(y_monnam(u.usteed)));
 		forcenomul(0, 0);
 		return;
 	} else
-	if( is_nonmoving(youmonst.data) && !Race_if(PM_MISSINGNO) ) {
+	if( is_nonmoving(youmonst.data) && !Race_if(PM_MISSINGNO) && !(uactivesymbiosis && Upolyd && (u.umonnum == u.usymbiote.mnum)) ) {
 	/* This catches the moveamt code in hack.c, preventing you from moving as a red mold
 	 * even if you do get some movement points. It's mainly meant to prevent you from being unable to do anything
 	 * until you get knocked out of red mold form, so you can at least sit around and maybe throw some daggers. --Amy */
@@ -2174,12 +2277,12 @@ domove()
 			    Norep("%s is still in a pit.",
 				  upstart(y_monnam(u.usteed)));
 			else
-			Norep( (Hallucination && !rn2(5)) ?
+			Norep( (FunnyHallu && !rn2(5)) ?
 				"You've fallen, and you can't get up." :
 				"You are still in a pit." );
 		    }
 
-			if (FemaleTrapNatalje) {
+			if (FemtrapActiveNatalje) {
 				u.nataljetrapturns = moves;
 				u.nataljetrapx = u.ux;
 				u.nataljetrapy = u.uy;
@@ -2196,7 +2299,7 @@ domove()
 			      }
 				if (Stoned) fix_petrification();
 
-				if (!rn2(10) || !(uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "profiled boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "profilirovannyye sapogi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "profilli chizilmasin") ) ) ) {
+				if (!rn2(10) || !(uarmf && itemhasappearance(uarmf, APP_PROFILED_BOOTS) ) ) {
 
 				if (uarmf && !rn2(5)) (void)rust_dmg(uarmf, xname(uarmf), 0, TRUE, &youmonst);
 				if (uarmf && !rn2(5)) (void)rust_dmg(uarmf, xname(uarmf), 1, TRUE, &youmonst);
@@ -2222,7 +2325,7 @@ domove()
 
 				}
 
-				if (uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "profiled boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "profilirovannyye sapogi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "profilli chizilmasin") ) ) {
+				if (uarmf && itemhasappearance(uarmf, APP_PROFILED_BOOTS) ) {
 				    if (!(HFast & INTRINSIC)) {
 					if (!Fast)
 					    You("speed up.");
@@ -2234,14 +2337,14 @@ domove()
 
 				} else if (!rn2(20)) u_slow_down();
 
-				if ( !rn2(100) || (!Free_action && !rn2(10)))	{
+				if ( !rn2(StrongFree_action ? 1000 : 100) || (!Free_action && !rn2(10)))	{
 					You("inhale the intense smell of shit! The world spins and goes dark.");
 					nomovemsg = "You are conscious again.";	/* default: "you can move again" */
 					nomul(-rnd(10), "unconscious from smelling dog shit", TRUE);
 					exercise(A_DEX, FALSE);
 				}
 
-			      if (uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "profiled boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "profilirovannyye sapogi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "profilli chizilmasin") ) ) num /= 4;
+			      if (uarmf && itemhasappearance(uarmf, APP_PROFILED_BOOTS) ) num /= 4;
 			      if (num) losehp(num, "heap of shit", KILLED_BY_AN);
 
 			}
@@ -2252,7 +2355,7 @@ domove()
 
 		} else if (u.utraptype == TT_LAVA) { /* WHO THE HELL MADE THIS INTO A NOREP GAAAAAAH --Amy */
 
-			if (FemaleTrapNatalje) {
+			if (FemtrapActiveNatalje) {
 				u.nataljetrapturns = moves;
 				u.nataljetrapx = u.ux;
 				u.nataljetrapy = u.uy;
@@ -2285,7 +2388,7 @@ domove()
 			return;
 		    }
 
-			if (FemaleTrapNatalje) {
+			if (FemtrapActiveNatalje) {
 				u.nataljetrapturns = moves;
 				u.nataljetrapx = u.ux;
 				u.nataljetrapy = u.uy;
@@ -2309,7 +2412,7 @@ domove()
 		    }
 		} else if (u.utraptype == TT_GLUE) {
 
-			if (FemaleTrapNatalje) {
+			if (FemtrapActiveNatalje) {
 				u.nataljetrapturns = moves;
 				u.nataljetrapx = u.ux;
 				u.nataljetrapy = u.uy;
@@ -2333,7 +2436,7 @@ domove()
 		    }
 		} else if (u.utraptype == TT_INFLOOR) {
 
-			if (FemaleTrapNatalje) {
+			if (FemtrapActiveNatalje) {
 				u.nataljetrapturns = moves;
 				u.nataljetrapx = u.ux;
 				u.nataljetrapy = u.uy;
@@ -2359,7 +2462,7 @@ domove()
 		    }
 		} else {
 
-			if (FemaleTrapNatalje) {
+			if (FemtrapActiveNatalje) {
 				u.nataljetrapturns = moves;
 				u.nataljetrapx = u.ux;
 				u.nataljetrapy = u.uy;
@@ -2402,13 +2505,15 @@ domove()
 
 	}
 
+peacedisplace:
+
 	/* warn player before walking into known traps */
 	if (ask_about_trap(x, y)) {
 		char qbuf[BUFSZ];
 		trap = t_at(x, y);
 		sprintf(qbuf,"Do you really want to %s into that %s?", 
 				locomotion(youmonst.data, "step"),
-				defsyms[trap_to_defsym(trap->ttyp)].explanation);
+				Hallucination ? "trap" : defsyms[trap_to_defsym(trap->ttyp)].explanation);
 		if (yn(qbuf) != 'y') {
 			forcenomul(0, 0);
 			flags.move = 0;
@@ -2633,7 +2738,7 @@ domove()
 	    use_skill(P_SEXY_FLATS, 1);
 	}
 
-	if (displacer) {
+	if (displacer || peacedisplacer) {
 	    char pnambuf[BUFSZ];
 
 	    u.utrap = 0;			/* A lucky escape */
@@ -2641,6 +2746,9 @@ domove()
 	    strcpy(pnambuf, mon_nam(mtmp));
 	    remove_monster(x, y);
 	    place_monster(mtmp, u.ux0, u.uy0);
+
+	    if (u.swappositioncount) u.swappositioncount = 0;
+
 	    /* check for displacing it into pools and traps */
 	    switch (minliquid(mtmp) ? 2 : mintrap(mtmp)) {
 		case 0:
@@ -2749,7 +2857,7 @@ domove()
 		    forcenomul(0, 0);
 	}
 
-	if (hides_under(youmonst.data) || (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "secret helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "sekret shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "yashirin dubulg'a") ) ) || (uarmc && uarmc->oartifact == ART_JANA_S_EXTREME_HIDE_AND_SE) )
+	if (hides_under(youmonst.data) || (uarmh && itemhasappearance(uarmh, APP_SECRET_HELMET) ) || (uarmc && uarmc->oartifact == ART_JANA_S_EXTREME_HIDE_AND_SE) )
 	    u.uundetected = OBJ_AT(u.ux, u.uy);
 	else if (youmonst.data->mlet == S_EEL)
 	    u.uundetected = is_waterypool(u.ux, u.uy) && !Is_waterlevel(&u.uz);
@@ -2816,7 +2924,7 @@ invocation_message()
 	    struct obj *otmp = carrying(CANDELABRUM_OF_INVOCATION);
 
 	    nomul(0, 0, FALSE);		/* stop running or travelling */
-	    if (Hallucination) {
+	    if (FunnyHallu) {
 		pline("You're picking up good vibrations!");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 	    } else {
@@ -2880,7 +2988,7 @@ struct monst *mon;
  
 	/* Able to detect wounds? */ 
 	if (!(canseemon(mon) || (u.ustuck == mon && u.uswallow && !Blind)) 
-		 || (!Race_if(PM_HERBALIST) && !Role_if(PM_HEALER) && !Role_if(PM_SCIENTIST) && !Race_if(PM_ALCHEMIST) && !Role_if(PM_NECROMANCER) && !Role_if(PM_UNDERTAKER) ) ) 
+		 || (!Race_if(PM_HERBALIST) && !Role_if(PM_HEALER) && !Role_if(PM_SCIENTIST) && !Role_if(PM_EMPATH) && !Race_if(PM_ALCHEMIST) && !Role_if(PM_NECROMANCER) && !Role_if(PM_UNDERTAKER) ) ) 
 		/* 5lo: Expanded for more roles */ 
 	    return (char *)0; 
 	if (mon->mhp == mon->mhpmax || mon->mhp < 1) 
@@ -2920,7 +3028,7 @@ boolean pick;
 
 	/* strong winds over the Grand Canyon. Please don't ask me how they can continue working underwater. :-) --Amy */
 
-		pline(Hallucination ? "This whirl is like the eye of a hurricane, but it tickles!" : "There are scathing winds here! Your skin is scraped off!");
+		pline(FunnyHallu ? "This whirl is like the eye of a hurricane, but it tickles!" : "There are scathing winds here! Your skin is scraped off!");
 		losehp(rnz(u.legscratching), "scathing winds", KILLED_BY);
 
 		You("tumble...");
@@ -2933,7 +3041,7 @@ boolean pick;
 
 	/* every trap on the Grand Canyon level also has a lesser wind effect. --Amy */
 
-		pline(Hallucination ? "A twister... or is that a tornado?" : "You are enclosed in a whirlwind!");
+		pline(FunnyHallu ? "A twister... or is that a tornado?" : "You are enclosed in a whirlwind!");
 		losehp(rnd(u.legscratching + 2), "whirlwinds", KILLED_BY);
 
 	}
@@ -2956,14 +3064,14 @@ boolean pick;
 		}
 		else if (Is_waterlevel(&u.uz))
 			goto stillinwater;
-		else if (Levitation)
+		else if (Levitation && !is_crystalwater(u.ux,u.uy))
 			You("pop out of the water like a cork!");
 		/* KMH, balance patch -- new intrinsic */
-		else if (Flying)
+		else if (Flying && !is_crystalwater(u.ux,u.uy))
 			You("fly out of the water.");
-		else if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "flier cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "plashch letchika") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "uchuvchi plash") ))
+		else if (uarmc && itemhasappearance(uarmc, APP_FLIER_CLOAK) && !is_crystalwater(u.ux,u.uy))
 			You("fly out of the water.");
-		else if (Wwalking)
+		else if ((Wwalking || Race_if(PM_KORONST)) && !is_crystalwater(u.ux,u.uy))
 			You("slowly rise above the surface.");
 /*              else if (Swimming)
 			You("paddle up to the surface.");*/
@@ -2977,7 +3085,7 @@ boolean pick;
 		}
 	}
 stillinwater:;
-	if (!Levitation && !u.ustuck && !Flying && !(uarmc && OBJ_DESCR(objects[uarmc->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "flier cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "plashch letchika") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "uchuvchi plash") )) ) {
+	if (!Levitation && !u.ustuck && !Flying && !(uarmc && itemhasappearance(uarmc, APP_FLIER_CLOAK)) ) {
 	    /* limit recursive calls through teleds() */
 	    if ((is_drowningpool(u.ux, u.uy) && !(is_crystalwater(u.ux,u.uy))) || is_lava(u.ux, u.uy)) {
 		if (u.usteed && !is_flyer(u.usteed->data) && (!u.usteed->egotype_flying) &&
@@ -2991,7 +3099,7 @@ stillinwater:;
 		} else
 		if (is_lava(u.ux, u.uy)) {
 		    if (lava_effects()) return;
-		} else if (!Wwalking && drown())
+		} else if (!Wwalking && !Race_if(PM_KORONST) && drown())
 		    return;
 	    }
 	}
@@ -3004,7 +3112,10 @@ stillinwater:;
 		pit = (trap && (trap->ttyp == PIT || trap->ttyp == SPIKED_PIT || trap->ttyp == GIANT_CHASM || trap->ttyp == SHIT_PIT || trap->ttyp == MANA_PIT || trap->ttyp == ANOXIC_PIT || trap->ttyp == ACID_PIT));
 		if (trap && pit)
 			dotrap(trap, 0);	/* fall into pit */
-		if (pick) (void) pickup(1);
+		/* somehow, being engulfed can sometimes result in "you can't take out blablabla" messages when you very
+		 * obviously just wanted to attack the engulfer, but I can't seem to be able to reproduce it... yet it's
+		 * incredibly annoying whenever it happens; I hope this is the correct line of code to change --Amy */
+		if (pick && !u.uswallow) (void) pickup(1);
 		if (trap && !pit)
 			dotrap(trap, 0);	/* fall into arrow trap, etc. */
 	}
@@ -3023,10 +3134,16 @@ stillinwater:;
 				x_monnam(mtmp, ARTICLE_A, "falling", 0, TRUE));
 			else {
 			    int dmg;
+			    int molev;
 			    You("are hit by %s!",
 				x_monnam(mtmp, ARTICLE_A, "falling", 0, TRUE));
-			    dmg = d(4,6);
+			    /* Amy edit: make it depend on the monster's level */
+			    molev = mtmp->data->mlevel;
+			    if (molev > 5) molev -= ((molev - 4) * 2 / 3);
+			    if (molev < 1) molev = 1;
+			    dmg = d(molev,6);
 			    if(Half_physical_damage && rn2(2) ) dmg = (dmg+1) / 2;
+			    if(StrongHalf_physical_damage && rn2(2) ) dmg = (dmg+1) / 2;
 			    mdamageu(mtmp, dmg);
 			}
 			break;
@@ -3039,9 +3156,19 @@ stillinwater:;
 				    Blind && !sensemon(mtmp) ?
 				    something : a_monnam(mtmp));
 				mtmp->mpeaceful = 0;
-			} else
-			    pline("%s attacks you by surprise!",
-					Amonnam(mtmp));
+			} else if (mtmp->data == &mons[PM_DROPCLONK_BEAR] || mtmp->data == &mons[PM_DROPTREE_BEAR]) {
+				int dmg;
+				You("are hit by %s!",
+				x_monnam(mtmp, ARTICLE_A, "falling", 0, TRUE));
+				dmg = d(10, 10);
+				if(Half_physical_damage && rn2(2) ) dmg = (dmg+1) / 2;
+				if(StrongHalf_physical_damage && rn2(2) ) dmg = (dmg+1) / 2;
+				if (uarmh) dmg = (dmg+1) / 2;
+				mdamageu(mtmp, dmg);
+
+			} else {
+				pline("%s attacks you by surprise!", Amonnam(mtmp));
+			}
 			break;
 		}
 		mnexto(mtmp); /* have to move the monster */
@@ -3058,6 +3185,18 @@ int roomno;
 	for(mtmp = fmon; mtmp; mtmp = mtmp->nmon)
 		if(!DEADMONSTER(mtmp) && mtmp->data == mdat &&
 		   index(in_rooms(mtmp->mx, mtmp->my, 0), roomno + ROOMOFFSET))
+			return(TRUE);
+	return(FALSE);
+}
+
+STATIC_OVL boolean
+anymonstinroom(roomno)
+int roomno;
+{
+	register struct monst *mtmp;
+
+	for(mtmp = fmon; mtmp; mtmp = mtmp->nmon)
+		if(!DEADMONSTER(mtmp) && index(in_rooms(mtmp->mx, mtmp->my, 0), roomno + ROOMOFFSET))
 			return(TRUE);
 	return(FALSE);
 }
@@ -3296,41 +3435,44 @@ register boolean newlev;
 		 * There's no reason to get rid of them if you enter a room, and it's OK to get a message every time, too. */
 	    switch (rt) {
 
-		/* "Special Room monster change. Entering a special room will no longer awaken all monsters inside of the room, making the behavior the same as Vanilla Nethack and Slash'EM. Removed wake_nearby, gets really annoying" In Soviet Russia, players want to be able to mindlessly slaughter all the denizens of special rooms, because they're somehow unable to handle a game posing an actual challenge. They don't view it as too easy if they can hack up one monster after the other without the remaining ones even reacting or doing anything. But of course we all know that this is not the way it's supposed to be, so for all the other races the monsters will wake up. --Amy */
+		/* "Special Room monster change. Entering a special room will no longer awaken all monsters inside of the room, making the behavior the same as Vanilla Nethack and Slash'EM. Removed wake_nearby, gets really annoying" In Soviet Russia, players want to be able to mindlessly slaughter all the denizens of special rooms, because they're somehow unable to handle a game posing an actual challenge. They don't view it as too easy if they can hack up one monster after the other without the remaining ones even reacting or doing anything. But of course we all know that this is not the way it's supposed to be, so for all the other races the monsters will wake up. --Amy
+		 * edit: do the wake_nearby only if there are monsters in the room, because they're the reason why we're
+		 * doing it at all: to make sure that you can't simply kill the sleeping monsters. If there's no monsters
+		 * in the room anyway, we have no need to wake up monsters somewhere else on the level! */
 
 		case ZOO:
-		    pline(Hallucination ? "Welcome to our Theme Park!" : "Welcome to David's treasure zoo!");
-		    if (!issoviet) wake_nearby();
+		    pline(FunnyHallu ? "Welcome to our Theme Park!" : "Welcome to David's treasure zoo!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case SWAMP:
 		    pline("It %s rather %s down here.",
 			  Blind ? "feels" : "looks",
 			  Blind ? "humid" : "muddy");
-		    if (!issoviet) wake_nearby();
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case COURT:
-		    You(Hallucination ? "enter the Queen's chambers!" : "enter an opulent throne room!");
-		    if (!issoviet) wake_nearby();
+		    You(FunnyHallu ? "enter the Queen's chambers!" : "enter an opulent throne room!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case REALZOO:
-		    You(Hallucination ? "feel that some extinct species might still live here!" : "enter a smelly zoo!");
-		    if (!issoviet) wake_nearby();
+		    You(FunnyHallu ? "feel that some extinct species might still live here!" : "enter a smelly zoo!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case GIANTCOURT:
-		    You(Hallucination ? "enter a real huge hall!" : "enter a giant throne room!");
-		    if (!issoviet) wake_nearby();
+		    You(FunnyHallu ? "enter a real huge hall!" : "enter a giant throne room!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case DRAGONLAIR:
-		    You(Hallucination ? "enter a fairy lair!" : "enter a dragon lair...");
-		    if (!issoviet) wake_nearby();
+		    You(FunnyHallu ? "enter a fairy lair!" : "enter a dragon lair...");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case BADFOODSHOP:
-		    You(Hallucination ? "enter some sort of market! Perhaps you can buy some weed here?" : "enter an abandoned store...");
-		    if (!issoviet) wake_nearby();
+		    You(FunnyHallu ? "enter some sort of market! Perhaps you can buy some weed here?" : "enter an abandoned store...");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case LEPREHALL:
-		    You(Hallucination ? "encounter a Stonehenge replica!" : "enter a leprechaun hall!");
-		    if (!issoviet) wake_nearby();
+		    You(FunnyHallu ? "encounter a Stonehenge replica!" : "enter a leprechaun hall!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case MORGUE:
 		    if(midnight()) {
@@ -3338,79 +3480,79 @@ register boolean newlev;
 			pline("%s away!  %s away!", run, run);
 		    } else
 			{ You("have an uncanny feeling..."); }
-		    if (!issoviet) wake_nearby();
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case BEEHIVE:
-		    You(Hallucination ? "enter a tracker jacker nest! RUN AWAY!!!" : "enter a giant beehive!");
-		    if (!issoviet) wake_nearby();
+		    You(FunnyHallu ? "enter a tracker jacker nest! RUN AWAY!!!" : "enter a giant beehive!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case LEMUREPIT:
-		    You(Hallucination ? "enter the Devil's Lair!" : "enter a pit of screaming lemures!");
-		    if (!issoviet) wake_nearby();
+		    You(FunnyHallu ? "enter the Devil's Lair!" : "enter a pit of screaming lemures!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case MIGOHIVE:
-		    You(Hallucination ? "enter some futuristic alien structure!" : "enter a strange hive!");
-		    if (!issoviet) wake_nearby();
+		    You(FunnyHallu ? "enter some futuristic alien structure!" : "enter a strange hive!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case FUNGUSFARM:
-		    You(Hallucination ? "enter a sticky, slimy room..." : "enter a room full of fungi!");
-		    if (!issoviet) wake_nearby();
+		    You(FunnyHallu ? "enter a sticky, slimy room..." : "enter a room full of fungi!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case COCKNEST:
-		    You(Hallucination ? "sense the well-known smell of weed as you enter this room!" : "enter a disgusting nest!");
-		    if (!issoviet) wake_nearby();
+		    You(FunnyHallu ? "sense the well-known smell of weed as you enter this room!" : "enter a disgusting nest!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case ANTHOLE:
-		    You(Hallucination ? "enter a room filled with bugs!" : "enter an anthole!");
-		    if (!issoviet) wake_nearby();
+		    You(FunnyHallu ? "enter a room filled with bugs!" : "enter an anthole!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
             case CLINIC:
-                You(Hallucination ? "feel reminded of 'Emergency Room' as you enter this area!" : "enter a modern hospital.");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "feel reminded of 'Emergency Room' as you enter this area!" : "enter a modern hospital.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
             case ANGELHALL:
-                You(Hallucination ? "see the gods as you enter! WOW! So that's what they look like..." : "enter a radiating hall of Angels!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "see the gods as you enter! WOW! So that's what they look like..." : "enter a radiating hall of Angels!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case TERRORHALL:
-                You(Hallucination ? "feel like you just got detected by a tripwire!" : "enter a terrifying hall.");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "feel like you just got detected by a tripwire!" : "enter a terrifying hall.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case TENSHALL:
-                You(Hallucination ? "have died. Do you want your possessions identified? [ynq] (n) _" : "enter a killer room! This is actually an ADOM tension room.");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "have died. Do you want your possessions identified? [ynq] (n) _" : "enter a killer room! This is actually an ADOM tension room.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case ELEMHALL:
-                You(Hallucination ? "get a vision of Mother Nature as you enter!" : "enter a room full of elementals!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "get a vision of Mother Nature as you enter!" : "enter a room full of elementals!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case NYMPHHALL:
-                You(Hallucination ? "see a picture on the wall of this room. It shows the most beautiful woman you ever saw..." : "enter a beautiful garden!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "see a picture on the wall of this room. It shows the most beautiful woman you ever saw..." : "enter a beautiful garden!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
             case ARMORY:
-                You(Hallucination ? "enter some old weapon storage chamber! Let's see what weapons are left!" : "enter a dilapidated armory.");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "enter some old weapon storage chamber! Let's see what weapons are left!" : "enter a dilapidated armory.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case COINHALL:
-                You(Hallucination ? "enter a room full of treasure, and it's all going to be yours! YEAH!" : "enter a room filled with money!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "enter a room full of treasure, and it's all going to be yours! YEAH!" : "enter a room filled with money!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case TROLLHALL:
-                You(Hallucination ? "feel that this room smells like a public toilet!" : "enter a room full of stinking trolls...");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "feel that this room smells like a public toilet!" : "enter a room full of stinking trolls...");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case HUMANHALL:
-                You(Hallucination ? "encounter a party room! Let's invite some hot girls!" : "encounter a living room!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "encounter a party room! Let's invite some hot girls!" : "encounter a living room!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case SPIDERHALL:
-                You(Hallucination ? "notice spiders of all forms and sizes in this room sitting everywhere!" : "stumble into a nest of spiders...");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "notice spiders of all forms and sizes in this room sitting everywhere!" : "stumble into a nest of spiders...");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case GOLEMHALL:
-                You(Hallucination ? "encounter some warmeches!" : "enter a room full of golems!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "encounter some warmeches!" : "enter a room full of golems!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case TRAPROOM:
                 if (wizard) You("enter a trapped room!");
@@ -3428,164 +3570,169 @@ register boolean newlev;
                 if (wizard) You("enter a nasty central!");
                 break;
 	      case INSIDEROOM:
-                You(Hallucination ? "enter a normal-looking room." : "enter a weird-looking room...");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "enter a normal-looking room." : "enter a weird-looking room...");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case RIVERROOM:
-                You(Hallucination ? "encounter an underground mountain! Wait, what? This makes no sense!" : "encounter an underground river!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "encounter an underground mountain! Wait, what? This makes no sense!" : "encounter an underground river!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case GRUEROOM:
-                pline(Hallucination ? "It is radiant bright. You are likely to be eaten by the sun." : "It is pitch black. You are likely to be eaten by a grue.");
+                pline(FunnyHallu ? "It is radiant bright. You are likely to be eaten by the sun." : "It is pitch black. You are likely to be eaten by a grue.");
 	    do_clear_areaX(u.ux,u.uy,		/* extra darkness --Amy */
 		15, set_litX, (void *)((char *)0));
 		/* IMHO grue rooms may remove light every time you enter them. --Amy */
-		    if (!issoviet) wake_nearby();
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case CRYPTROOM:
-                You(Hallucination ? "forgot to bring your light source and can't see anything in this room." : "enter the dark crypts!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "forgot to bring your light source and can't see anything in this room." : "enter the dark crypts!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case TROUBLEZONE:
-                You(Hallucination ? "got tons of trouble, baby!" : "enter the trouble zone!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "got tons of trouble, baby!" : "enter the trouble zone!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case WEAPONCHAMBER:
-                You(Hallucination ? "see people with long pointy sticks who want to impale you!" : "enter a weapons chamber!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "see people with long pointy sticks who want to impale you!" : "enter a weapons chamber!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case HELLPIT:
-                pline(Hallucination ? "Gee, this looks exactly like the realms of Oblivion!" : "You enter the fiery pits of Hell!");
-		    if (!issoviet) wake_nearby();
+                pline(FunnyHallu ? "Gee, this looks exactly like the realms of Oblivion!" : "You enter the fiery pits of Hell!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case FEMINISMROOM:
-                You(Hallucination ? "enter a room full of girls in sexy bikinis and high-heeled leather boots! WOW!" : "enter a feminist meeting room!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "enter a room full of girls in sexy bikinis and high-heeled leather boots! WOW!" : "enter a feminist meeting room!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case MEADOWROOM:
-                You(Hallucination ? "stumble into a ranch! Where's the cowboys and horses?" : "encounter a cattle meadow!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "stumble into a ranch! Where's the cowboys and horses?" : "encounter a cattle meadow!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case COOLINGCHAMBER:
-                You(Hallucination ? "entered the radiator area!" : "freeze as you enter the cooling chamber.");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "entered the radiator area!" : "freeze as you enter the cooling chamber.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case VOIDROOM:
-                pline(Hallucination ? "Your body warps strangely and you cease to exist... Do you want your possessions identified? [ynq] (n) _" : "You entered the Void!");
-		    if (!issoviet) wake_nearby();
+                pline(FunnyHallu ? "Your body warps strangely and you cease to exist... Do you want your possessions identified? [ynq] (n) _" : "You entered the Void!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case HAMLETROOM:
-                pline(Hallucination ? "This room looks not dangerous at all." : "You've stumbled over a tiny hamlet!");
+                pline(FunnyHallu ? "This room looks not dangerous at all." : "You've stumbled over a tiny hamlet!");
 			if (Role_if(PM_SPACEWARS_FIGHTER) || Role_if(PM_CAMPERSTRIKER)) {
-	            	pline(Hallucination ? "You feel that you've seen this before... it reminds you of the Woodstock Festival!" : "It looks familiar... didn't your adventures usually start in a similar place?");
+	            	pline(FunnyHallu ? "You feel that you've seen this before... it reminds you of the Woodstock Festival!" : "It looks familiar... didn't your adventures usually start in a similar place?");
 
 			}
-		    if (!issoviet) wake_nearby();
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case KOPSTATION:
-                pline(Hallucination ? "As you enter the heavily guarded army base, bullets start flying in your direction! TAKE COVER!" : "You've entered the local police station!");
-		    if (!issoviet) wake_nearby();
+                pline(FunnyHallu ? "As you enter the heavily guarded army base, bullets start flying in your direction! TAKE COVER!" : "You've entered the local police station!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case BOSSROOM:
-                You(Hallucination ? "were fated to die here. DIE!" : "feel that you will meet your fate here.");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "were fated to die here. DIE!" : "feel that you will meet your fate here.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case RNGCENTER:
-                You(Hallucination ? "enter a room that looks like it was designed by God Himself!" : "enter the Random Number Generator central!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "enter a room that looks like it was designed by God Himself!" : "enter the Random Number Generator central!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case WIZARDSDORM:
-                You(Hallucination ? "disturbed some old wizened fool that lives here, and now you have to kill that stupid git!" : "entered a wizard's dormitory!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "disturbed some old wizened fool that lives here, and now you have to kill that stupid git!" : "entered a wizard's dormitory!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case DOOMEDBARRACKS:
-                You(Hallucination ? "realize that the game has turned into DoomRL! Quick, ready your kalashnikov and BFG!" : "enter an alien barracks!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "realize that the game has turned into DoomRL! Quick, ready your kalashnikov and BFG!" : "enter an alien barracks!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case SLEEPINGROOM:
-                pline(Hallucination ? "I heard you were sleeping there." : "You stumble into a sleeping room!");
-		    if (!issoviet) wake_nearby();
+                pline(FunnyHallu ? "I heard you were sleeping there." : "You stumble into a sleeping room!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case DIVERPARADISE:
-                You(Hallucination ? "enter a huge swimming pool, and the entrance is free! YEAH! Now you can splash around in the water and have many hours of pure FUN!" : "encounter the diver's paradise!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "enter a huge swimming pool, and the entrance is free! YEAH! Now you can splash around in the water and have many hours of pure FUN!" : "encounter the diver's paradise!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case MENAGERIE:
-                You(Hallucination ? "enter a zoo filled with prehistoric animals! Err... I really hope they're peaceful!" : "enter a menagerie!");
-		    if (!issoviet) wake_nearby();
+                You(FunnyHallu ? "enter a zoo filled with prehistoric animals! Err... I really hope they're peaceful!" : "enter a menagerie!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case EMPTYDESERT:
-                pline(Hallucination ? "This looks like the Shifting Sand Land from Super Mario 64!" : "The air in this room is hot and arid.");
+                pline(FunnyHallu ? "This looks like the Shifting Sand Land from Super Mario 64!" : "The air in this room is hot and arid.");
                 break;
 	      case RARITYROOM:
-                pline(Hallucination ? "It's the dungeon master's rarity collection! Quick, steal it before he turns up!" : "You enter a room filled with rare creatures!");
-		    if (!issoviet) wake_nearby();
+                pline(FunnyHallu ? "It's the dungeon master's rarity collection! Quick, steal it before he turns up!" : "You enter a room filled with rare creatures!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case EXHIBITROOM:
-                pline(Hallucination ? "Oh, look at all the zoo exhibits! Can I feed them? Can I pet them? Mind if I incinerate them?" : "You encounter an exhibit of strange creatures!");
-		    if (!issoviet) wake_nearby();
+                pline(FunnyHallu ? "Oh, look at all the zoo exhibits! Can I feed them? Can I pet them? Mind if I incinerate them?" : "You encounter an exhibit of strange creatures!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case PRISONCHAMBER:
-                pline(Hallucination ? "Go directly to jail. Do not pass go. Do not collect 200 zorkmids." : "You enter a prison!");
-			if (Hallucination) pline("Do you want your possessions identified? [ynq] (n) _");
-		    if (!issoviet) wake_nearby();
+                pline(FunnyHallu ? "Go directly to jail. Do not pass go. Do not collect 200 zorkmids." : "You enter a prison!");
+			if (FunnyHallu) pline("Do you want your possessions identified? [ynq] (n) _");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case NUCLEARCHAMBER:
-                pline(Hallucination ? "It's where the government is researching weaponized uranium! If you can steal their technology, you can nuke the entire dungeon and ascend prematurely!" : "You encounter a nuclear power plant!");
-		    if (!issoviet) wake_nearby();
+                pline(FunnyHallu ? "It's where the government is researching weaponized uranium! If you can steal their technology, you can nuke the entire dungeon and ascend prematurely!" : "You encounter a nuclear power plant!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case LEVELSEVENTYROOM: /* no message but still wake_nearby --Amy */
                 if (wizard) You("enter a level 70 room!");
-		    if (!issoviet) wake_nearby();
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 	      case VARIANTROOM:
-                pline(Hallucination ? "The game suddenly turned into dnethack. The elder priest tentacles to tentacle you! Your cloak of magic resistance disintegrates!" : "You encounter a room from another variant!");
-		    if (!issoviet) wake_nearby();
+                pline(FunnyHallu ? "The game suddenly turned into dnethack. The elder priest tentacles to tentacle you! Your cloak of magic resistance disintegrates!" : "You encounter a room from another variant!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
+                break;
+	      case ROBBERCAVE:
+                pline(FunnyHallu ? "Oh my god, Amy's fanfics have come true!" : "You enter the robbers' hideout!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
+                break;
+	      case SANITATIONCENTRAL:
+                pline(FunnyHallu ? "Muahahahahaha, you feel like focusing your gaze on a great race of yith because who needs sanity anyway?" : "Something seems to focus on your mind as you enter this room.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
                 break;
 
 		case BARRACKS:
-		    if(monstinroom(&mons[PM_SOLDIER], roomno) ||
-			monstinroom(&mons[PM_SERGEANT], roomno) ||
-			monstinroom(&mons[PM_LIEUTENANT], roomno) ||
-			monstinroom(&mons[PM_CAPTAIN], roomno) ||
-			monstinroom(&mons[PM_GENERAL], roomno))
+		    if(anymonstinroom(roomno)) {
 			You("enter a military barracks!");
-		    else
-			{ You("enter an abandoned barracks."); }
-		    if (!issoviet) wake_nearby();
+		    } else {
+			You("enter an abandoned barracks.");
+		    }
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case DELPHI:
 		    if(monstinroom(&mons[PM_ORACLE], roomno))
 			verbalize("%s, %s, welcome to Delphi!", Hello((struct monst *) 0), playeraliasname);
-		    if (!issoviet) wake_nearby();
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case DOUGROOM:
 		    You_feel("42.");
-		    if (!issoviet) wake_nearby();
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case EVILROOM:
-			pline(Hallucination ? "Eek, you've stumbled into a SJW meeting!" : "The feel of this room is giving you the creeps.");
-		    if (!issoviet) wake_nearby();
+			pline(FunnyHallu ? "Eek, you've stumbled into a SJW meeting!" : "The feel of this room is giving you the creeps.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case RELIGIONCENTER:
-			pline(Hallucination ? "Ugh, an overwhelming cancerous stench floods your nostrils as you enter this room!" : "This room smells like rotten holy water.");
-		    if (!issoviet) wake_nearby();
+			pline(FunnyHallu ? "Ugh, an overwhelming cancerous stench floods your nostrils as you enter this room!" : "This room smells like rotten holy water.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case CURSEDMUMMYROOM:
-			pline(Hallucination ? "You entered the Pharao's chambers!" : "Things that should be dead are walking this room.");
-		    if (!issoviet) wake_nearby();
+			pline(FunnyHallu ? "You entered the Pharao's chambers!" : "Things that should be dead are walking this room.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case ARDUOUSMOUNTAIN:
-			pline(Hallucination ? "You encounter an underground mountain. Wait, why the hell is there a mountain in the dungeon???" : "You encounter an underground mountain.");
-		    if (!issoviet) wake_nearby();
+			pline(FunnyHallu ? "You encounter an underground mountain. Wait, why the hell is there a mountain in the dungeon???" : "You encounter an underground mountain.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case LEVELFFROOM:
-			pline(Hallucination ? "Hey, this room looks just like your own living room!" : "This room looks familiar, but somehow different too.");
-		    if (!issoviet) wake_nearby();
+			pline(FunnyHallu ? "Hey, this room looks just like your own living room!" : "This room looks familiar, but somehow different too.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case VERMINROOM:
-			pline(Hallucination ? "Oh great, you entered a room full of shit." : "The air in this room is rank with mildew.");
-		    if (!issoviet) wake_nearby();
+			pline(FunnyHallu ? "Oh great, you entered a room full of shit." : "The air in this room is rank with mildew.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case CHAOSROOM:
 			if (wizard) pline("You enter a chaos room!");
@@ -3597,33 +3744,33 @@ register boolean newlev;
 			if (wizard) pline("You enter a mixed pool!");
 		    break;
 		case MIRASPA:
-			pline(Hallucination ? "Whoa, this room totally smells of ammonia!" : "As you enter the room, you can hear Mira inviting you for a swim.");
-		    if (!issoviet) wake_nearby();
+			pline(FunnyHallu ? "Whoa, this room totally smells of ammonia!" : "As you enter the room, you can hear Mira inviting you for a swim.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case MACHINEROOM:
-			pline(Hallucination ? "It's the inside of the Space Shuttle!" : "You enter a machinery room.");
-		    if (!issoviet) wake_nearby();
+			pline(FunnyHallu ? "It's the inside of the Space Shuttle!" : "You enter a machinery room.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case SHOWERROOM:
-			pline(Hallucination ? "Wow! You seem to have found the Niagara Falls!" : "You enter the shower.");
+			pline(FunnyHallu ? "Wow! You seem to have found the Niagara Falls!" : "You enter the shower.");
 		    break;
 		case GREENCROSSROOM:
-			pline(Hallucination ? "Entering this room feels like being put in headlock by your wonderful fleecy roommate!" : "This room has a very peaceful atmosphere.");
+			pline(FunnyHallu ? "Entering this room feels like being put in headlock by your wonderful fleecy roommate!" : "This room has a very peaceful atmosphere.");
 		    break;
 		case RUINEDCHURCH:
-			pline(Hallucination ? "You enter Satan's chamber! Quick, ask him what is inferior to SLEX!" : "You enter a desecrated church.");
-		    if (!issoviet) wake_nearby();
+			pline(FunnyHallu ? "You enter Satan's chamber! Quick, ask him what is inferior to SLEX!" : "You enter a desecrated church.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case GAMECORNER:
-			pline(Hallucination ? "You've entered the local Game Stop store! The storeclerk says: 'Hello sir or miss, what can I do for you? I have GTA 5, the newest Call of Duty and of course also the latest Pokemon generation games available!'" : "You encounter a game corner!");
-		    if (!issoviet) wake_nearby();
+			pline(FunnyHallu ? "You've entered the local Game Stop store! The storeclerk says: 'Hello sir or miss, what can I do for you? I have GTA 5, the newest Call of Duty and of course also the latest Pokemon generation games available!'" : "You encounter a game corner!");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case ILLUSIONROOM:
-			pline(Hallucination ? "This room is an illusion and a trap devisut by Satan. Go ahead dauntlessly! Make rapid progres!" : "Somehow, this room doesn't seem to be what it looks like.");
-		    if (!issoviet) wake_nearby();
+			pline(FunnyHallu ? "This room is an illusion and a trap devisut by Satan. Go ahead dauntlessly! Make rapid progres!" : "Somehow, this room doesn't seem to be what it looks like.");
+		    if (!issoviet && anymonstinroom(roomno)) wake_nearby();
 		    break;
 		case CENTRALTEDIUM:
-			pline(Hallucination ? "It's the Straight Road! In order to get through this room, you need to stay on the road at all times and be fast or the Straight Road will weaken and ultimately be destroyed!" : "You encounter a highway to the left.");
+			pline(FunnyHallu ? "It's the Straight Road! In order to get through this room, you need to stay on the road at all times and be fast or the Straight Road will weaken and ultimately be destroyed!" : "You encounter a highway to the left.");
 		    break;
 		case TEMPLE:
 		    intemple(roomno + ROOMOFFSET);
@@ -3695,6 +3842,12 @@ register boolean newlev;
                         break;
                       case HELLPIT:
                         level.flags.has_hellpit = 0;
+                        break;
+                      case ROBBERCAVE:
+                        level.flags.has_robbercave = 0;
+                        break;
+                      case SANITATIONCENTRAL:
+                        level.flags.has_sanitationcentral = 0;
                         break;
                       case FEMINISMROOM:
                         level.flags.has_feminismroom = 0;
@@ -3879,22 +4032,22 @@ dopickup()
 	    }
 	}
 	if((is_waterypool(u.ux, u.uy) || is_watertunnel(u.ux, u.uy) || is_moorland(u.ux, u.uy) || is_urinelake(u.ux, u.uy)) && !(is_crystalwater(u.ux, u.uy)) ) {
-	    if (Wwalking || is_floater(youmonst.data) || is_clinger(youmonst.data)
-			|| (Flying && !Breathless && !Swimming)) {
+	    if (Wwalking || Race_if(PM_KORONST) || is_floater(youmonst.data) || is_clinger(youmonst.data)
+			|| (Flying && !StrongFlying && !Breathless && !Swimming)) {
 		You("cannot dive into the water to pick things up.");
 		return(0);
-	    } else if (!Underwater && !Swimming) {
+	    } else if (!Underwater && !Swimming && !StrongFlying) {
 		You_cant("even see the bottom, let alone pick up %s.",
 				something);
 		return(0);
 	    }
 	}
 	if (is_lava(u.ux, u.uy)) {
-	    if (Wwalking || is_floater(youmonst.data) || is_clinger(youmonst.data)
-			|| (Flying && !Breathless)) {
+	    if (Wwalking || Race_if(PM_KORONST) || is_floater(youmonst.data) || is_clinger(youmonst.data)
+			|| (Flying && !StrongFlying && !Breathless)) {
 		You_cant("reach the bottom to pick things up.");
 		return(0);
-	    } else if (!likes_lava(youmonst.data) && !(uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "hot boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "goryachiye botinki") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "issiq chizilmasin") ) ) && !(uwep && uwep->oartifact == ART_EVERYTHING_MUST_BURN) && !(uamul && uamul->otyp == AMULET_OF_D_TYPE_EQUIPMENT) && !Race_if(PM_PLAYER_SALAMANDER) && !(uwep && uwep->oartifact == ART_MANUELA_S_PRACTICANT_TERRO) && !(nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_RUBBER_SHOALS) && !(uarm && uarm->oartifact == ART_LAURA_CROFT_S_BATTLEWEAR) && !(uarm && uarm->oartifact == ART_D_TYPE_EQUIPMENT) ) {
+	    } else if (!likes_lava(youmonst.data) && !Race_if(PM_HYPOTHERMIC) && !(uarmf && itemhasappearance(uarmf, APP_HOT_BOOTS) ) && !(uwep && uwep->oartifact == ART_EVERYTHING_MUST_BURN) && !(uamul && uamul->otyp == AMULET_OF_D_TYPE_EQUIPMENT) && !Race_if(PM_PLAYER_SALAMANDER) && !(uwep && uwep->oartifact == ART_MANUELA_S_PRACTICANT_TERRO) && !(powerfulimplants() && uimplant && uimplant->oartifact == ART_RUBBER_SHOALS) && !(uarm && uarm->oartifact == ART_LAURA_CROFT_S_BATTLEWEAR) && !(uarmc && uarmc->oartifact == ART_SCOOBA_COOBA) && !(uarm && uarm->oartifact == ART_D_TYPE_EQUIPMENT) && !(uarmf && uarmf->oartifact == ART_JOHANNA_S_RED_CHARM) ) {
 		You("would burn to a crisp trying to pick things up.");
 		return(0);
 	    }
@@ -3904,7 +4057,7 @@ dopickup()
 		return(0);
 	}
 	if (!can_reach_floor()) {
-		if (u.usteed && !(nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) && (PlayerCannotUseSkills || P_SKILL(P_RIDING) < P_BASIC) )
+		if (u.usteed && !(uwep && uwep->oartifact == ART_SORTIE_A_GAUCHE) && !(powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) && (PlayerCannotUseSkills || P_SKILL(P_RIDING) < P_BASIC) )
 		    You("aren't skilled enough to reach from %s.",
 			y_monnam(u.usteed));
 		else
@@ -3961,7 +4114,7 @@ lookaround()
 	if((mtmp = m_at(x,y)) &&
 		    mtmp->m_ap_type != M_AP_FURNITURE &&
 		    mtmp->m_ap_type != M_AP_OBJECT &&
-		    (!mtmp->minvis || See_invisible) && !mtmp->minvisreal && !mtmp->mundetected) {
+		    (!mtmp->minvis || (See_invisible && (StrongSee_invisible || mtmp->seeinvisble) ) ) && !mtmp->minvisreal && !mtmp->mundetected) {
 	    if((flags.run != 1 && !mtmp->mtame)
 					|| (x == u.ux+u.dx && y == u.uy+u.dy))
 		goto stop;
@@ -4127,7 +4280,26 @@ nomul(nval, txt, discountpossible)
 {
 	if (uarmc && uarmc->oartifact == ART_LIGHTSPEED_TRAVEL && nval == 0) return;
 
-	if (uarmf && nval == 0 && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "turbo boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "turbo sapogi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "qidiruvi va turbo chizilmasin") ) ) return;
+	if (uarmf && nval == 0 && itemhasappearance(uarmf, APP_TURBO_BOOTS) ) return;
+
+	if (u.katitrapocc && nval == 0) {
+		pline("Something tries to interrupt your attempt to clean the Kati shoes! If you stop now, the sexy girl will hate you!");
+		if (yn("Really stop cleaning them?") == 'y') {
+		      register struct monst *mtmp2;
+
+			for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
+
+				if (!mtmp2->mtame) {
+					mtmp2->mpeaceful = 0;
+					mtmp2->mfrenzied = 1;
+					mtmp2->mhp = mtmp2->mhpmax;
+				}
+			}
+			pline("The beautiful girl in the sexy Kati shoes is very sad that you didn't finish cleaning her lovely boots, and urges everyone in her vicinity to bludgeon you.");
+
+		} else return;
+
+	}
 
 	if(multi < nval) return;	/* This is a bug fix by ab@unido */
 	u.uinvulnerable = FALSE;	/* Kludge to avoid ctrl-C bug -dlc */
@@ -4147,13 +4319,14 @@ nomul(nval, txt, discountpossible)
 		nval /= 100;
 	}
 
-	if (discountpossible && (nval < -2) && !rn2(10) && uarmf && OBJ_DESCR(objects[uarmf->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmf->otyp]), "plof heels") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "ploskiye kabluki") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "buzilgan yurish ovozi to'piqlari")) ) {
+	if (discountpossible && (nval < -2) && !rn2(10) && uarmf && itemhasappearance(uarmf, APP_PLOF_HEELS) ) {
 		nval /= 5;
 		if (nval > -2) nval = -2;
 	}
 
 	/* Discount action will halve paralysis duration, but some paralysis sources ignore it --Amy */
 	if (Discount_action && discountpossible && (nval < -1)) nval /= 2;
+	if (StrongDiscount_action && discountpossible && (nval < -1)) nval /= 2;
 	multi = nval;
 	if (multi < 0) flags.botl = 1;
 	if (txt && txt[0])
@@ -4261,64 +4434,130 @@ boolean tellplayer;
 		amount /= 5;
 		if (amount < 1) amount = 1;
 	}
+	if (StrongCont_resist) {
+		amount /= 2;
+		if (amount < 1 && rn2(2)) amount = 1;
+		if (amount < 1) {
+			if (tellplayer) pline("Somehow, the contamination doesn't affect you.");
+			return;
+		}
+	}
 
 	if (isfriday && !rn2(5)) amount *= 2;
 
 	/* Platinum is supposed to be a material that shields you against contamination --Amy */
-	if (uwep && objects[uwep->otyp].oc_material == PLATINUM && !rn2(10)) {
+	if (uwep && objects[uwep->otyp].oc_material == MT_PLATINUM && !rn2(10)) {
 		if (tellplayer) pline("Your platinum weapon prevents you from being contaminated!");
 		return;
 	}
-	if (u.twoweap && uswapwep && objects[uswapwep->otyp].oc_material == PLATINUM && !rn2(10)) {
+	if (u.twoweap && uswapwep && objects[uswapwep->otyp].oc_material == MT_PLATINUM && !rn2(10)) {
 		if (tellplayer) pline("Your platinum off-hand weapon prevents you from being contaminated!");
 		return;
 	}
-	if (uarm && objects[uarm->otyp].oc_material == PLATINUM && !rn2(10)) {
+	if (uarm && objects[uarm->otyp].oc_material == MT_PLATINUM && !rn2(10)) {
 		if (tellplayer) pline("Your platinum armor prevents you from being contaminated!");
 		return;
 	}
-	if (uarmc && objects[uarmc->otyp].oc_material == PLATINUM && !rn2(10)) {
+	if (uarmc && objects[uarmc->otyp].oc_material == MT_PLATINUM && !rn2(10)) {
 		if (tellplayer) pline("Your platinum cloak prevents you from being contaminated!");
 		return;
 	}
-	if (uarmh && objects[uarmh->otyp].oc_material == PLATINUM && !rn2(10)) {
+	if (uarmh && objects[uarmh->otyp].oc_material == MT_PLATINUM && !rn2(10)) {
 		if (tellplayer) pline("Your platinum helmet prevents you from being contaminated!");
 		return;
 	}
-	if (uarms && objects[uarms->otyp].oc_material == PLATINUM && !rn2(10)) {
+	if (uarms && objects[uarms->otyp].oc_material == MT_PLATINUM && !rn2(10)) {
 		if (tellplayer) pline("Your platinum shield prevents you from being contaminated!");
 		return;
 	}
-	if (uarmg && objects[uarmg->otyp].oc_material == PLATINUM && !rn2(10)) {
+	if (uarmg && objects[uarmg->otyp].oc_material == MT_PLATINUM && !rn2(10)) {
 		if (tellplayer) pline("Your platinum pair of gauntlets prevents you from being contaminated!");
 		return;
 	}
-	if (uarmf && objects[uarmf->otyp].oc_material == PLATINUM && !rn2(10)) {
+	if (uarmf && objects[uarmf->otyp].oc_material == MT_PLATINUM && !rn2(10)) {
 		if (tellplayer) pline("Your platinum pair of boots prevents you from being contaminated!");
 		return;
 	}
-	if (uarmu && objects[uarmu->otyp].oc_material == PLATINUM && !rn2(10)) {
+	if (uarmu && objects[uarmu->otyp].oc_material == MT_PLATINUM && !rn2(10)) {
 		if (tellplayer) pline("Your platinum shirt prevents you from being contaminated!");
 		return;
 	}
-	if (uamul && objects[uamul->otyp].oc_material == PLATINUM && !rn2(10)) {
+	if (uamul && objects[uamul->otyp].oc_material == MT_PLATINUM && !rn2(10)) {
 		if (tellplayer) pline("Your platinum amulet prevents you from being contaminated!");
 		return;
 	}
-	if (uimplant && objects[uimplant->otyp].oc_material == PLATINUM && !rn2(10)) {
+	if (uimplant && objects[uimplant->otyp].oc_material == MT_PLATINUM && !rn2(10)) {
 		if (tellplayer) pline("Your platinum implant prevents you from being contaminated!");
 		return;
 	}
-	if (uleft && objects[uleft->otyp].oc_material == PLATINUM && !rn2(10)) {
+	if (uleft && objects[uleft->otyp].oc_material == MT_PLATINUM && !rn2(10)) {
 		if (tellplayer) pline("Your platinum left ring prevents you from being contaminated!");
 		return;
 	}
-	if (uright && objects[uright->otyp].oc_material == PLATINUM && !rn2(10)) {
+	if (uright && objects[uright->otyp].oc_material == MT_PLATINUM && !rn2(10)) {
 		if (tellplayer) pline("Your platinum right ring prevents you from being contaminated!");
 		return;
 	}
-	if (ublindf && objects[ublindf->otyp].oc_material == PLATINUM && !rn2(10)) {
+	if (ublindf && objects[ublindf->otyp].oc_material == MT_PLATINUM && !rn2(10)) {
 		if (tellplayer) pline("Your platinum blindfold prevents you from being contaminated!");
+		return;
+	}
+
+	/* lead shields against contamination even more --Amy */
+	if (uwep && objects[uwep->otyp].oc_material == MT_LEAD && !rn2(5)) {
+		if (tellplayer) pline("Your lead weapon prevents you from being contaminated!");
+		return;
+	}
+	if (u.twoweap && uswapwep && objects[uswapwep->otyp].oc_material == MT_LEAD && !rn2(5)) {
+		if (tellplayer) pline("Your lead off-hand weapon prevents you from being contaminated!");
+		return;
+	}
+	if (uarm && objects[uarm->otyp].oc_material == MT_LEAD && !rn2(5)) {
+		if (tellplayer) pline("Your lead armor prevents you from being contaminated!");
+		return;
+	}
+	if (uarmc && objects[uarmc->otyp].oc_material == MT_LEAD && !rn2(5)) {
+		if (tellplayer) pline("Your lead cloak prevents you from being contaminated!");
+		return;
+	}
+	if (uarmh && objects[uarmh->otyp].oc_material == MT_LEAD && !rn2(5)) {
+		if (tellplayer) pline("Your lead helmet prevents you from being contaminated!");
+		return;
+	}
+	if (uarms && objects[uarms->otyp].oc_material == MT_LEAD && !rn2(5)) {
+		if (tellplayer) pline("Your lead shield prevents you from being contaminated!");
+		return;
+	}
+	if (uarmg && objects[uarmg->otyp].oc_material == MT_LEAD && !rn2(5)) {
+		if (tellplayer) pline("Your lead pair of gauntlets prevents you from being contaminated!");
+		return;
+	}
+	if (uarmf && objects[uarmf->otyp].oc_material == MT_LEAD && !rn2(5)) {
+		if (tellplayer) pline("Your lead pair of boots prevents you from being contaminated!");
+		return;
+	}
+	if (uarmu && objects[uarmu->otyp].oc_material == MT_LEAD && !rn2(5)) {
+		if (tellplayer) pline("Your lead shirt prevents you from being contaminated!");
+		return;
+	}
+	if (uamul && objects[uamul->otyp].oc_material == MT_LEAD && !rn2(5)) {
+		if (tellplayer) pline("Your lead amulet prevents you from being contaminated!");
+		return;
+	}
+	if (uimplant && objects[uimplant->otyp].oc_material == MT_LEAD && !rn2(5)) {
+		if (tellplayer) pline("Your lead implant prevents you from being contaminated!");
+		return;
+	}
+	if (uleft && objects[uleft->otyp].oc_material == MT_LEAD && !rn2(5)) {
+		if (tellplayer) pline("Your lead left ring prevents you from being contaminated!");
+		return;
+	}
+	if (uright && objects[uright->otyp].oc_material == MT_LEAD && !rn2(5)) {
+		if (tellplayer) pline("Your lead right ring prevents you from being contaminated!");
+		return;
+	}
+	if (ublindf && objects[ublindf->otyp].oc_material == MT_LEAD && !rn2(5)) {
+		if (tellplayer) pline("Your lead blindfold prevents you from being contaminated!");
 		return;
 	}
 
@@ -4326,12 +4565,12 @@ boolean tellplayer;
 
 	u.contamination += amount;
 
-	if (u.contamination >= 100 && u.contamination < 200 && precheckamount < 100) pline(Hallucination ? "Your body itches comfortably." : "You are now afflicted with minor contamination.");
-	if (u.contamination >= 200 && u.contamination < 400 && precheckamount < 200) pline(Hallucination ? "The itching on your body increases." : "You are now afflicted with light contamination.");
-	if (u.contamination >= 400 && u.contamination < 600 && precheckamount < 400) pline(Hallucination ? "You seem to be developing ulcers." : "You are now afflicted with contamination.");
-	if (u.contamination >= 600 && u.contamination < 800 && precheckamount < 600) pline(Hallucination ? "You feel like your digestive tract started to digest itself." : "You are now afflicted with severe contamination.");
-	if (u.contamination >= 800 && u.contamination < 1000 && precheckamount < 800) pline(Hallucination ? "You feel that your body is consuming itself from within." : "You are now afflicted with lethal contamination.");
-	if (u.contamination >= 1000 && precheckamount < 1000) pline(Hallucination ? "You feel terminally ill. Something tells you that you only have three days to live." : "You are now afflicted with fatal contamination. Seek medical attention immediately.");
+	if (u.contamination >= 100 && u.contamination < 200 && precheckamount < 100) pline(FunnyHallu ? "Your body itches comfortably." : "You are now afflicted with minor contamination.");
+	if (u.contamination >= 200 && u.contamination < 400 && precheckamount < 200) pline(FunnyHallu ? "The itching on your body increases." : "You are now afflicted with light contamination.");
+	if (u.contamination >= 400 && u.contamination < 600 && precheckamount < 400) pline(FunnyHallu ? "You seem to be developing ulcers." : "You are now afflicted with contamination.");
+	if (u.contamination >= 600 && u.contamination < 800 && precheckamount < 600) pline(FunnyHallu ? "You feel like your digestive tract started to digest itself." : "You are now afflicted with severe contamination.");
+	if (u.contamination >= 800 && u.contamination < 1000 && precheckamount < 800) pline(FunnyHallu ? "You feel that your body is consuming itself from within." : "You are now afflicted with lethal contamination.");
+	if (u.contamination >= 1000 && precheckamount < 1000) pline(FunnyHallu ? "You feel terminally ill. Something tells you that you only have three days to live." : "You are now afflicted with fatal contamination. Seek medical attention immediately.");
 
 	/* if you got told that you were contaminated, and wisdom is low, give a warning --Amy */
 	if (tellplayer) {
@@ -4356,13 +4595,13 @@ register int amount;
 	u.contamination -= amount;
 	if (u.contamination < 0) u.contamination = 0;
 
-	if (u.contamination == 0 && precheckamount >= 1) pline(Hallucination ? "Your body feels completely normal again." : "Your contamination has faded away completely.");
-	if (u.contamination < 100 && u.contamination >= 1 && precheckamount >= 100) pline(Hallucination ? "Your body no longer itches." : "You are only very slightly contaminated now.");
-	if (u.contamination < 200 && u.contamination >= 100 && precheckamount >= 200) pline(Hallucination ? "The itching on your body decreases." : "Your contamination decreased to a low level.");
-	if (u.contamination < 400 && u.contamination >= 200 && precheckamount >= 400) pline(Hallucination ? "Your ulcers disappear." : "You are only lightly contaminated now.");
-	if (u.contamination < 600 && u.contamination >= 400 && precheckamount >= 600) pline(Hallucination ? "Your digestive tract seems okay now." : "Your contamination is no longer severe.");
-	if (u.contamination < 800 && u.contamination >= 600 && precheckamount >= 800) pline(Hallucination ? "Your body no longer tries to consume itself." : "You are only severely contaminated now.");
-	if (u.contamination < 1000 && u.contamination >= 800 && precheckamount >= 1000) pline(Hallucination ? "Your terminal illness has passed and you may actually survive." : "You are only lethally contaminated now.");
+	if (u.contamination == 0 && precheckamount >= 1) pline(FunnyHallu ? "Your body feels completely normal again." : "Your contamination has faded away completely.");
+	if (u.contamination < 100 && u.contamination >= 1 && precheckamount >= 100) pline(FunnyHallu ? "Your body no longer itches." : "You are only very slightly contaminated now.");
+	if (u.contamination < 200 && u.contamination >= 100 && precheckamount >= 200) pline(FunnyHallu ? "The itching on your body decreases." : "Your contamination decreased to a low level.");
+	if (u.contamination < 400 && u.contamination >= 200 && precheckamount >= 400) pline(FunnyHallu ? "Your ulcers disappear." : "You are only lightly contaminated now.");
+	if (u.contamination < 600 && u.contamination >= 400 && precheckamount >= 600) pline(FunnyHallu ? "Your digestive tract seems okay now." : "Your contamination is no longer severe.");
+	if (u.contamination < 800 && u.contamination >= 600 && precheckamount >= 800) pline(FunnyHallu ? "Your body no longer tries to consume itself." : "You are only severely contaminated now.");
+	if (u.contamination < 1000 && u.contamination >= 800 && precheckamount >= 1000) pline(FunnyHallu ? "Your terminal illness has passed and you may actually survive." : "You are only lethally contaminated now.");
 
 }
 
@@ -4400,11 +4639,11 @@ int k_format; /* WAC k_format is an int */
 
 	/* let's allow the player to deflect some damage if he's lucky (higher chance with good constitution). --Amy */
 	if (rn2(ABASE(A_CON))) {
-	if (!rn2(3) && n >= 1) {n = n / 2; if (n < 1) n = 1;}
-	if (!rn2(10) && rn2(ABASE(A_CON)) && n >= 1 && GushLevel >= 10) {n = n / 3; if (n < 1) n = 1;}
-	if (!rn2(15) && rn2(ABASE(A_CON)) && rn2(ABASE(A_CON)) && n >= 1 && GushLevel >= 14) {n = n / 4; if (n < 1) n = 1;}
-	if (!rn2(20) && rn2(ABASE(A_CON)) && rn2(ABASE(A_CON)) && rn2(ABASE(A_CON)) && n >= 1 && GushLevel >= 20) {n = n / 5; if (n < 1) n = 1;}
-	if (!rn2(50) && rn2(ABASE(A_CON)) && rn2(ABASE(A_CON)) && rn2(ABASE(A_CON)) && rn2(ABASE(A_CON)) && n >= 1 && GushLevel >= 30) {n = n / 10; if (n < 1) n = 1;}
+	if (!rn2(3) && n >= 1) {n++; n = n / 2; if (n < 1) n = 1;}
+	if (!rn2(10) && rn2(ABASE(A_CON)) && n >= 1 && GushLevel >= 10) {n++; n = n / 3; if (n < 1) n = 1;}
+	if (!rn2(15) && rn2(ABASE(A_CON)) && rn2(ABASE(A_CON)) && n >= 1 && GushLevel >= 14) {n++; n = n / 4; if (n < 1) n = 1;}
+	if (!rn2(20) && rn2(ABASE(A_CON)) && rn2(ABASE(A_CON)) && rn2(ABASE(A_CON)) && n >= 1 && GushLevel >= 20) {n++; n = n / 5; if (n < 1) n = 1;}
+	if (!rn2(50) && rn2(ABASE(A_CON)) && rn2(ABASE(A_CON)) && rn2(ABASE(A_CON)) && rn2(ABASE(A_CON)) && n >= 1 && GushLevel >= 30) {n++; n = n / 10; if (n < 1) n = 1;}
 	}
 
 	if (PlayerInConeHeels && n > 0) {
@@ -4417,12 +4656,59 @@ int k_format; /* WAC k_format is an int */
 			case P_GRAND_MASTER: dmgreductor = 80; break;
 			case P_SUPREME_MASTER: dmgreductor = 77; break;
 		}
+		n++;
 		n *= dmgreductor;
 		n /= 100;
 		if (n < 1) n = 1;
 	}
 
-	if (n > 0 && uarmf && OBJ_DESCR(objects[uarmf->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmf->otyp]), "marji shoes") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "obuv' marzhi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "oz maryam poyafzallari")) ) {
+	if (n > 0 && StrongDetect_monsters) {
+		n++;
+		n *= 9;
+		n /= 10;
+		if (n < 1) n = 1;
+	}
+
+	if (Race_if(PM_ITAQUE) && n > 0) {
+		n++;
+		n *= (100 - u.ulevel);
+		n /= 100;
+		if (n < 1) n = 1;
+	}
+
+	if (Race_if(PM_CARTHAGE) && u.usteed && (mcalcmove(u.usteed) < 12) && n > 0) {
+		n++;
+		n *= 4;
+		n /= 5;
+		if (n < 1) n = 1;
+	}
+
+	if (is_sand(u.ux,u.uy) && n > 0) {
+		n++;
+		n *= 4;
+		n /= 5;
+		if (n < 1) n = 1;
+	}
+
+	if (Race_if(PM_VIKING) && n > 0) {
+		n *= 5;
+		n /= 4;
+	}
+
+	if (Race_if(PM_SPARD) && n > 0) {
+		n *= 5;
+		n /= 4;
+	}
+
+	if (Race_if(PM_MAYMES) && uwep && weapon_type(uwep) == P_FIREARM && n > 0) {
+		n++;
+		n *= 4;
+		n /= 5;
+		if (n < 1) n = 1;
+	}
+
+	if (n > 0 && uarmf && itemhasappearance(uarmf, APP_MARJI_SHOES) ) {
+		n++;
 		n *= 9;
 		n /= 10;
 		if (n < 1) n = 1;
@@ -4437,9 +4723,12 @@ int k_format; /* WAC k_format is an int */
 	if (n && Race_if(PM_YUKI_PLAYA)) n += rnd(5);
 	if (Role_if(PM_BLEEDER)) n = n * 2; /* bleeders are harder than hard mode */
 	if (have_cursedmagicresstone()) n = n * 2;
-	if (HardModeEffect || u.uprops[HARD_MODE_EFFECT].extrinsic || have_hardmodestone()) n = n * 2;
+	if (Race_if(PM_METAL)) n *= rnd(10);
+	if (HardModeEffect || u.uprops[HARD_MODE_EFFECT].extrinsic || have_hardmodestone() || (uimplant && uimplant->oartifact == ART_IME_SPEW)) n = n * 2;
 	if (uamul && uamul->otyp == AMULET_OF_VULNERABILITY) n *= rnd(4);
 	if (RngeFrailness) n = n * 2;
+
+	if (Race_if(PM_SHELL) && !Upolyd && n > 1) n /= 2;
 
 	if (isfriday && !rn2(50)) n += rnd(n);
 
@@ -4451,10 +4740,36 @@ int k_format; /* WAC k_format is an int */
 		 * via u.uhp < 1
 		 */
 	}        
+	else if (u.metalguard) {
+		    u.metalguard = 0;
+		    n = 0;
+		    Your("metal guard prevents the damage!");
+	}
 
-
-
-	if (u.disruptionshield && u.uen >= n) {
+	if (uactivesymbiosis && !u.symbiotedmghack && (rn2(100) < u.symbioteaggressivity) && !(u.usymbiote.mhpmax >= 5 && u.usymbiote.mhp <= (u.usymbiote.mhpmax / 5) && rn2(5))) {
+		if (tech_inuse(T_POWERBIOSIS) && n > 1) n /= 2;
+		if (tech_inuse(T_IMPLANTED_SYMBIOSIS) && uimplant && objects[uimplant->otyp].oc_charged && uimplant->spe > 0) {
+			int imbiophases = uimplant->spe;
+			while ((imbiophases > 0) && n > 1) {
+				imbiophases--;
+				n *= 10;
+				n /= 11;
+			}
+		}
+		u.usymbiote.mhp -= n;
+		Your("%s symbiote takes the damage for you.", mons[u.usymbiote.mnum].mname);
+		if (u.usymbiote.mhp <= 0) {
+			u.usymbiote.active = 0;
+			u.usymbiote.mnum = PM_PLAYERMON;
+			u.usymbiote.mhp = 0;
+			u.usymbiote.mhpmax = 0;
+			u.usymbiote.cursed = u.usymbiote.hvycurse = u.usymbiote.prmcurse = u.usymbiote.bbcurse = u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.stckcurse = 0;
+			u.cnd_symbiotesdied++;
+			if (FunnyHallu) pline("Ack! You feel like you quaffed aqua pura by mistake, and feel like something inside you has been flushed away!");
+			else Your("symbiote dies from protecting you, and you feel very sad...");
+		}
+		if (flags.showsymbiotehp) flags.botl = TRUE;
+	} else if (u.disruptionshield && u.uen >= n) {
 		u.uen -= n;
 		pline("Your mana shield takes the damage for you!");
 		flags.botl = 1;
@@ -4510,6 +4825,39 @@ int k_format; /* WAC k_format is an int */
 		if (u.ascensiontimelimit < 1) u.ascensiontimelimit = 1;
 	}
 
+	if (Race_if(PM_CELTIC) && !rn2(100)) {
+		if (u.berserktime) {
+			if (!obsidianprotection()) switch (rn2(11)) {
+			case 0:
+				make_sick(Sick ? Sick/2L + 1L : (long)rn1(ACURR(A_CON),20), "celtic sickness", TRUE, SICK_NONVOMITABLE);
+				break;
+			case 1: make_blinded(Blinded + 25, TRUE);
+				break;
+			case 2: if (!Confusion)
+				You("suddenly feel %s.", FunnyHallu ? "trippy" : "confused");
+				make_confused(HConfusion + 25, TRUE);
+				break;
+			case 3: make_stunned(HStun + 25, TRUE);
+				break;
+			case 4: make_numbed(HNumbed + 25, TRUE);
+				break;
+			case 5: make_frozen(HFrozen + 25, TRUE);
+				break;
+			case 6: make_burned(HBurned + 25, TRUE);
+				break;
+			case 7: (void) adjattrib(rn2(A_MAX), -1, FALSE, TRUE);
+				break;
+			case 8: (void) make_hallucinated(HHallucination + 25, TRUE, 0L);
+				break;
+			case 9: make_feared(HFeared + 25, TRUE);
+				break;
+			case 10: make_dimmed(HDimmed + 25, TRUE);
+				break;
+			}
+
+		} else u.berserktime = 25;
+	}
+
 }
 
 int
@@ -4520,7 +4868,7 @@ weight_cap()
 	carrcap = 50*(ACURRSTR + ACURR(A_CON)) + 50 + 50*(u.ulevel);
 	if (Upolyd) {
 		/* consistent with can_carry() in mon.c */
-		if (youmonst.data->mlet == S_NYMPH)
+		if (youmonst.data->mlet == S_NYMPH || youmonst.data == &mons[PM_GOLDEN_KNIGHT] || youmonst.data == &mons[PM_URCAGUARY])
 			carrcap = MAX_CARR_CAP;
 		else if (!youmonst.data->cwt)
 			carrcap = ((carrcap * (long)youmonst.data->msize) / MZ_HUMAN) + 50*(u.ulevel);
@@ -4548,6 +4896,8 @@ weight_cap()
 	if (uarmg && uarmg->oartifact == ART_HANDBOXED) carrcap += 1000;
 	if (uwep && uwep->oartifact == ART_GIRLFUL_BONKING) carrcap -= 500;
 	if (u.twoweap && uswapwep && uswapwep->oartifact == ART_GIRLFUL_BONKING) carrcap -= 500;
+	if (uleft && uleft->oartifact == ART_CORGON_S_RING) carrcap += 100;
+	if (uright && uright->oartifact == ART_CORGON_S_RING) carrcap += 100;
 
 	if (!PlayerCannotUseSkills && uarm && (uarm->otyp >= ROBE && uarm->otyp <= ROBE_OF_WEAKNESS)) {
 
@@ -4566,6 +4916,7 @@ weight_cap()
 	if (Race_if(PM_HAXOR)) carrcap *= 2;
 	if (Race_if(PM_HUMANOID_CENTAUR)) carrcap /= 2;
 	if (Race_if(PM_CHIROPTERAN)) carrcap += 2000;
+	if (Race_if(PM_PLAYER_SHEEP) && u.ulevel >= 20) carrcap += 2000;
 
 	if (carrcap < 500) carrcap = 500;
 
@@ -4619,6 +4970,48 @@ inv_weight()
 		otmp = otmp->nobj;
 	}
 	if (IncreasedGravity) wt += IncreasedGravity;
+	if (u.graundweight) wt += u.graundweight;
+	if (uarmh && itemhasappearance(uarmh, APP_LEAD_HELMET)) wt += 50;
+	if (uarmf && itemhasappearance(uarmf, APP_LEAD_BOOTS)) wt += 100;
+	if (uarmf && itemhasappearance(uarmf, APP_WEIGHT_ATTACHMENT_BOOTS)) wt += 500;
+
+	/* Symbiotes can have a weight. If you're a symbiant, the weight is considerably lower; everyone else will get
+	 * a skill-dependant amount of weight added. At master and above, the weight no longer gets a multiplier --Amy */
+	if (uinsymbiosis) {
+
+		if (Role_if(PM_SYMBIANT)) {
+			if (mons[u.usymbiote.mnum].msize >= MZ_GIGANTIC) wt += 100;
+			else if (mons[u.usymbiote.mnum].msize >= MZ_HUGE) wt += 30;
+			else if (mons[u.usymbiote.mnum].msize >= MZ_LARGE) wt += 10;
+			if ((int) mons[u.usymbiote.mnum].cwt > 99) wt += ((int) mons[u.usymbiote.mnum].cwt / 100);
+		} else {
+
+			int symweight = 50; /* base weight even for weightless one */
+
+			if (mons[u.usymbiote.mnum].msize >= MZ_GIGANTIC) symweight += 1000;
+			else if (mons[u.usymbiote.mnum].msize >= MZ_HUGE) symweight += 300;
+			else if (mons[u.usymbiote.mnum].msize >= MZ_LARGE) symweight += 100;
+			if ((int) mons[u.usymbiote.mnum].cwt > 9) symweight += ((int) mons[u.usymbiote.mnum].cwt / 10);
+
+			/* goauld is special: they don't get a multiplier */
+			if (Race_if(PM_GOAULD)) ;
+			else if (!(PlayerCannotUseSkills)) {
+				switch (P_SKILL(P_SYMBIOSIS)) {
+					default: symweight *= 5; break;
+					case P_BASIC: symweight *= 4; break;
+					case P_SKILLED: symweight *= 3; break;
+					case P_EXPERT: symweight *= 2; break;
+					case P_MASTER: break;
+					case P_GRAND_MASTER: break;
+					case P_SUPREME_MASTER: break;
+				}
+			} else symweight *= 5;
+
+			if (symweight < 0) symweight = 0; /* fail safe */
+			wt += symweight;
+
+		}
+	}
 
 	wc = weight_cap();
 	return (wt - wc);
@@ -4719,4 +5112,13 @@ void * val;
 	    levl[x][y].lit = 0;
 	    snuff_light_source(x, y);
 	}
+}
+
+/* will zorkmids be renamed to buckazoids? */
+boolean
+zapmrename()
+{
+	if (In_ZAPM(&u.uz) || Role_if(PM_SOFTWARE_ENGINEER) || Role_if(PM_CRACKER) || Role_if(PM_JANITOR) || Role_if(PM_SPACE_MARINE) || Role_if(PM_STORMBOY) || Role_if(PM_YAUTJA) || Role_if(PM_QUARTERBACK) || Role_if(PM_PSYKER) || Role_if(PM_EMPATH) || Role_if(PM_MASTERMIND) || Role_if(PM_WEIRDBOY) || Role_if(PM_ASTRONAUT) || Role_if(PM_CYBERNINJA) || Role_if(PM_DISSIDENT) || Race_if(PM_RETICULAN) || Race_if(PM_OUTSIDER) || Role_if(PM_XELNAGA)) return TRUE;
+
+	return FALSE;
 }

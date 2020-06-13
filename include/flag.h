@@ -64,6 +64,7 @@ struct flag {
 	boolean  help;		/* look in data file for info about stuff */
     boolean  hitpointbar; /* colourful hit point status bar */
 	boolean  ignintr;	/* ignore interrupts */
+	boolean  inertiaconfirm;	/* controls whether inertia control has y/n or yes/no */
 #ifdef INSURANCE
 	boolean  ins_chkpt;	/* checkpoint as appropriate */
 #endif
@@ -100,6 +101,7 @@ struct flag {
 #ifdef MAC
 	boolean  page_wait;	/* put up a --More-- after a page of messages */
 #endif
+	boolean  paranoidquit;	/* whether #quit requires a full "yes" confirmation */
 	boolean  perm_invent;	/* keep full inventories up until dismissed */
 	boolean  pickup;	/* whether you pickup or move and look */
 	boolean  pickup_thrown;		/* auto-pickup items you threw */
@@ -116,12 +118,14 @@ struct flag {
 #ifdef SHOW_WEIGHT
 	boolean  showweight;    /* show weight on status line */
 #endif
+	boolean  showsymbiotehp;	/* show symbiote's health on status line */
 	boolean  showmc;	/* shows MC on bottom status line */
 	boolean  showmovement;	/* shows movement speed on bottom status line */
 	boolean  showlongstats;	/* don't abbreviate status on bottom line */
 	boolean  showsanity;	/* shows sanity on bottom status line */
 
 	boolean  silent;	/* whether the bell rings or not */
+	boolean  simpledescs;	/* make item descriptions more simple so that they take up less space */
 	boolean  sortpack;	/* sorted inventory */
 	boolean  soundok;	/* ok to tell about sounds heard */
 	boolean  sparkle;	/* show "resisting" special FX (Scott Bigham) */
@@ -151,6 +155,7 @@ struct flag {
 	boolean supergmmode;
 	boolean wonderland;
 	boolean elmstreet;
+	boolean zapem;
 
 	boolean askforalias; /* set this in the options file if you want to be asked what your char's name is */
 
@@ -232,6 +237,18 @@ struct flag {
 	boolean hybriderosator;
 	boolean hybridroommate;
 	boolean hybridextravator;
+	boolean hybridhallucinator;
+	boolean hybridbossrusher;
+	boolean hybriddorian;
+	boolean hybridtechless;
+	boolean hybridblait;
+	boolean hybridgrouper;
+	boolean hybridscriptor;
+	boolean hybridunbalancor;
+	boolean hybridbeacher;
+	boolean hybridstairseeker;
+	boolean hybridmatrayser;
+	boolean hybridfeminizer;
 
 	boolean hybridcancel;	/* to make sure players don't get hybrid races if they explicitly don't want any */
 	boolean randomhybrids;	/* turn it off if you don't want random hybrid races */
@@ -268,6 +285,7 @@ struct instance_flags {
     boolean  classic_status;    /* What kind of horizontal statusbar to use */
     boolean  cursesgraphics;    /* Use portable curses extended characters */
 #endif
+	boolean  debug_fuzzer;	/* fuzz testing */
 	boolean  DECgraphics;	/* use DEC VT-xxx extended character set */
 	boolean  echo;		/* 1 to echo characters */
 	boolean  IBMgraphics;	/* use IBM extended character set */
@@ -284,6 +302,7 @@ struct instance_flags {
 				  * on some non-move commands */
 	boolean numpadmessage; /* because Elronnd is so weird and keeps inputting invalid commands, so we have to
 					    * make it possible to disable the message you're getting */
+	boolean memorizationknown;	/* for players who don't want messages about memorization skill */
 	boolean winggraphics;	/* wing yellow graphics */
 	boolean bones;
 	boolean use_menu_glyphs;
@@ -423,6 +442,7 @@ struct instance_flags {
 #define MAX_ALTKEYHANDLER 25
 	char	 altkeyhandler[MAX_ALTKEYHANDLER];
 #endif
+	uchar	sortloot;
 #ifdef ANDROID
 	boolean  automenu; /* Automatically show menues */
 #endif

@@ -22,9 +22,12 @@ static boolean cancelled_don = FALSE;
 #define incrnknow(spell)        spl_book[spell].sp_know = ((spl_book[spell].sp_know < 1) ? KEEN \
 				 : ((spl_book[spell].sp_know + KEEN) > MAX_KNOW) ? MAX_KNOW \
 				 : spl_book[spell].sp_know + KEEN)
+#define boostknow(spell,boost)  spl_book[spell].sp_know = ((spl_book[spell].sp_know + boost > MAX_KNOW) ? MAX_KNOW \
+				 : spl_book[spell].sp_know + boost)
 
 static NEARDATA const char see_yourself[] = "see yourself";
 static NEARDATA const char unknown_type[] = "Unknown type of %s (%d)";
+static NEARDATA const char unknown_type_long[] = "Unknown type of %s (%ld)";
 static NEARDATA const char c_armor[]  = "armor",
 			   c_suit[]   = "suit",
 			   c_shirt[]  = "shirt",
@@ -129,6 +132,9 @@ Boots_on()
 	case SOFT_SNEAKERS:
 	case LEATHER_PEEP_TOES:
 	case COMBAT_STILETTOS:
+	case ITALIAN_HEELS:
+	case LADY_BOOTS:
+	case STILETTO_SANDALS:
 	case JUMPING_BOOTS:
 	case FLYING_BOOTS:
 	case KICKING_BOOTS:
@@ -153,10 +159,10 @@ Boots_on()
 	case SYNTHETIC_SANDALS:
 		break;
 	case BOOTS_OF_MOLASSES:
-		pline(Hallucination ? "Icy legs, how cool!" : "These boots feel a little cold...");
+		pline(FunnyHallu ? "Icy legs, how cool!" : "These boots feel a little cold...");
 		break;
 	case ZIPPER_BOOTS:
-		pline(Hallucination ? "Lovely fleecy caressing feelings stream into your legs!" : "While putting on this pair of boots, their zippers try to scratch your legs!");
+		pline(FunnyHallu ? "Lovely fleecy caressing feelings stream into your legs!" : "While putting on this pair of boots, their zippers try to scratch your legs!");
 		losehp(rnd(20), "foolishly putting on a zipper boot", KILLED_BY);
 		break;
 	case HIPPIE_HEELS:
@@ -231,6 +237,23 @@ Boots_on()
 	case DUMMY_BOOTS_J:
 	case DUMMY_BOOTS_K:
 	case DUMMY_BOOTS_L:
+	case DUMMY_BOOTS_M:
+	case DUMMY_BOOTS_N:
+	case DUMMY_BOOTS_O:
+	case DUMMY_BOOTS_P:
+	case DUMMY_BOOTS_Q:
+	case DUMMY_BOOTS_R:
+	case DUMMY_BOOTS_S:
+	case DUMMY_BOOTS_T:
+	case DUMMY_BOOTS_U:
+	case DUMMY_BOOTS_V:
+	case DUMMY_BOOTS_W:
+	case DUMMY_BOOTS_X:
+	case DUMMY_BOOTS_Y:
+	case DUMMY_BOOTS_Z:
+	case DUMMY_BOOTS_AA:
+	case DUMMY_BOOTS_AB:
+	case DUMMY_BOOTS_AC:
 		if (!uarmf->cursed) curse(uarmf);
 		break;
 
@@ -280,10 +303,10 @@ Boots_on()
 			spoteffects(FALSE);
 		}
 		break;
-	default: impossible(unknown_type, c_boots, uarmf->otyp);
+	default: impossible(unknown_type_long, c_boots, uarmf->otyp);
     }
 
-    if (uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "velcro boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "lipuchki sapogi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "cirt chizilmasin") ) ) {
+    if (uarmf && itemhasappearance(uarmf, APP_VELCRO_BOOTS) ) {
 	      if (!uarmf->cursed) {
 			curse(uarmf);
 			pline("The velcro boots constrict your %s, and you can't take them off again!", makeplural(body_part(FOOT)) );
@@ -310,6 +333,13 @@ Boots_on()
 		}
     }
 
+    if (uarmf && uarmf->oartifact == ART_PRADA_S_DEVIL_WEAR) {
+		if (!uarmf->cursed) {
+			curse(uarmf);
+			pline("The devils curse your boots.");
+		}
+    }
+
     if (uarmf && uarmf->oartifact == ART_RITA_S_TENDER_STILETTOS) {
 		if (!uarmf->cursed) curse(uarmf);
 		if (uarmf->spe > -10) uarmf->spe = -10;
@@ -323,6 +353,13 @@ Boots_on()
     if (uarmf && uarmf->oartifact == ART_RNG_S_BEAUTY && uarmf->spe == 0) {
 		if (!rn2(2)) uarmf->spe = rnd(7);
 		else uarmf->spe = -(rnd(7));
+    }
+
+    if (uarmf && uarmf->oartifact == ART_ELENA_S_CHALLENGE) {
+		if (!uarmf->cursed) {
+			curse(uarmf);
+			pline("You decided to enact Elena's Challenge, which means that all men need to endure being kicked by you in an attempt to 'conquer' you. In order to prevent you from simply ending the challenge prematurely, your block-heeled combat boots just welded themselves to your %s.", makeplural(body_part(FOOT)));
+		}
     }
 
     if (uarmf && uarmf->oartifact == ART_ELLA_S_BLOODLUST) {
@@ -496,7 +533,7 @@ Boots_off()
 		}
 		break;
 	case ZIPPER_BOOTS:
-		pline(Hallucination ? "You get the feeling that something soft just slid along the full length of your legs!" : "While taking off this pair of boots, you scratch open your legs at their zippers!");
+		pline(FunnyHallu ? "You get the feeling that something soft just slid along the full length of your legs!" : "While taking off this pair of boots, you scratch open your legs at their zippers!");
 		losehp(rnd(20), "foolishly taking off a zipper boot", KILLED_BY);
 		    set_wounded_legs(LEFT_SIDE, HWounded_legs + rn1(35, 41));
 		    set_wounded_legs(RIGHT_SIDE, HWounded_legs + rn1(35, 41));
@@ -512,6 +549,9 @@ Boots_off()
 	case SOFT_SNEAKERS:
 	case LEATHER_PEEP_TOES:
 	case COMBAT_STILETTOS:
+	case ITALIAN_HEELS:
+	case LADY_BOOTS:
+	case STILETTO_SANDALS:
 	case HIGH_BOOTS:
 	case CRYSTAL_BOOTS:
 	case JUMPING_BOOTS:
@@ -531,6 +571,23 @@ Boots_off()
 	case DUMMY_BOOTS_J:
 	case DUMMY_BOOTS_K:
 	case DUMMY_BOOTS_L:
+	case DUMMY_BOOTS_M:
+	case DUMMY_BOOTS_N:
+	case DUMMY_BOOTS_O:
+	case DUMMY_BOOTS_P:
+	case DUMMY_BOOTS_Q:
+	case DUMMY_BOOTS_R:
+	case DUMMY_BOOTS_S:
+	case DUMMY_BOOTS_T:
+	case DUMMY_BOOTS_U:
+	case DUMMY_BOOTS_V:
+	case DUMMY_BOOTS_W:
+	case DUMMY_BOOTS_X:
+	case DUMMY_BOOTS_Y:
+	case DUMMY_BOOTS_Z:
+	case DUMMY_BOOTS_AA:
+	case DUMMY_BOOTS_AB:
+	case DUMMY_BOOTS_AC:
 	case DISCONNECTED_BOOTS:
 	case BOSS_BOOTS:
 	case SENTIENT_HIGH_HEELED_SHOES:
@@ -643,6 +700,8 @@ Cloak_on()
 	case LEATHER_CLOAK:
 	case CLOAK_OF_WARMTH:
 	case CLOAK_OF_LEECH:
+	case CLOAK_OF_COAGULATION:
+	case CLOAK_OF_SCENT:
 	case FILLER_CLOAK:
 	case CLOAK_OF_GROUNDING:
 	case CLOAK_OF_QUENCHING:
@@ -651,6 +710,7 @@ Cloak_on()
 	case MISSING_CLOAK:
 	case TROLL_HIDE:
 	case PLASTEEL_CLOAK:
+	case LORICATED_CLOAK:
 	/* KMH, balance patch -- removed */
 	/* but re-inserted by Amy */
 	case CLOAK_OF_DRAIN_RESISTANCE:              
@@ -710,6 +770,8 @@ Cloak_on()
 	case CLOAK_OF_PRACTICE:
 	case CLOAK_OF_ELEMENTALISM:
 	case PSIONIC_CLOAK:
+	case SECOND_SKIN:
+	case CLOAK_OF_FLIGHT:
 	case CLOAK_OF_MAP_AMNESIA:
 	case CLOAK_OF_TRANSFORMATION:
 	case CLOAK_OF_DISCOUNT_ACTION:
@@ -751,8 +813,8 @@ Cloak_on()
 		}
 		break;
 	case POISONOUS_CLOAK:
-		if (Poison_resistance)
-			pline(Hallucination ? "Very tight, like a latex shirt!" : "This cloak feels a little itchy.");
+		if (Poison_resistance && (StrongPoison_resistance || rn2(10)) )
+			pline(FunnyHallu ? "Very tight, like a latex shirt!" : "This cloak feels a little itchy.");
 		else {
 		    makeknown(uarmc->otyp);
 		    poisoned("cloak",A_STR,"poisonous cloak",3);
@@ -765,10 +827,10 @@ Cloak_on()
 		    makeknown(uarmc->otyp);
 		if (nonliving(youmonst.data) || is_demon(youmonst.data) || Death_resistance) {
 		    You("seem no deader than before.");
-		} else if (!Antimagic && rn2(50) > 12) {
+		} else if ((!Antimagic || !rn2(StrongAntimagic ? 20 : 5)) && rn2(50) > 12) {
 		    if (Hallucination) {
 			You("have an out of body experience.");
-		    } else if (!rnd(50)) {
+		    } else if (!rnd(50) && !Antimagic) {
 			u.youaredead = 1;
 			killer_format = KILLED_BY_AN;
 			killer = "cloak of death";
@@ -828,6 +890,7 @@ Cloak_on()
 	case CYAN_SPELL_CLOAK:
 	case ELONGATION_CLOAK:
 	case UNFAIR_ATTACK_CLOAK:
+	case CLOAK_OF_BAD_PART:
 
 	case HEAVY_STATUS_CLOAK:
 	case CLOAK_OF_LUCK_NEGATION:
@@ -858,6 +921,22 @@ Cloak_on()
 	case DUMMY_CLOAK_T:
 	case DUMMY_CLOAK_U:
 	case DUMMY_CLOAK_V:
+	case DUMMY_CLOAK_W:
+	case DUMMY_CLOAK_X:
+	case DUMMY_CLOAK_Y:
+	case DUMMY_CLOAK_Z:
+	case DUMMY_CLOAK_AA:
+	case DUMMY_CLOAK_AB:
+	case DUMMY_CLOAK_AC:
+	case DUMMY_CLOAK_AD:
+	case DUMMY_CLOAK_AE:
+	case DUMMY_CLOAK_AF:
+	case DUMMY_CLOAK_AG:
+	case DUMMY_CLOAK_AH:
+	case DUMMY_CLOAK_AI:
+	case DUMMY_CLOAK_AJ:
+	case DUMMY_CLOAK_AK:
+	case DUMMY_CLOAK_AL:
 
 		if (!uarmc->cursed) curse(uarmc);
 		break;
@@ -881,29 +960,32 @@ Cloak_on()
 	case CLOAK_OF_POLYMORPH:
 		{
 			register struct obj *polycloak;
-			if (uarmc) polycloak = poly_obj(uarmc, STRANGE_OBJECT);
+			if (uarmc) polycloak = poly_obj(uarmc, STRANGE_OBJECT, FALSE);
 			if (polycloak && is_hazy(polycloak)) {
 				stop_timer(UNPOLY_OBJ, (void *) polycloak);
 				polycloak->oldtyp = STRANGE_OBJECT;
 			}
 			if (uarmc) (void) Cloak_off();
-			You_feel("a little %s.", Hallucination ? "normal" : "strange");
+			You_feel("a little %s.", FunnyHallu ? "normal" : "strange");
 			if (!Unchanging) polyself(FALSE);
 			return 0;
 			break;
 		}
 	case CLOAK_OF_WATER_SQUIRTING:
 		pline("A gush of water squirts all over your body!");
-		water_damage(invent, FALSE, FALSE);
+		if ((!StrongSwimming || !rn2(10)) && (!StrongMagical_breathing || !rn2(10))) {
+			water_damage(invent, FALSE, FALSE);
+		}
 		break;
 	case CLOAK_OF_PARALYSIS:
 		pline("You're paralyzed!");
 		if (PlayerHearsSoundEffects) pline(issoviet ? "Teper' vy ne mozhete dvigat'sya. Nadeyus', chto-to ubivayet vas, prezhde chem vash paralich zakonchitsya." : "Klltsch-tsch-tsch-tsch-tsch!");
-		if (Free_action) nomul(-rnd(10), "putting on a cloak of paralysis", TRUE);
+		if (StrongFree_action) nomul(-rnd(5), "putting on a cloak of paralysis", TRUE);
+		else if (Free_action) nomul(-rnd(10), "putting on a cloak of paralysis", TRUE);
 		else nomul(-rnd(20), "putting on a cloak of paralysis", TRUE);
 		break;
 	case CLOAK_OF_SICKNESS:
-		if (Sick_resistance || !rn2(10) ) { /* small chance to not get infected even if not resistant --Amy */
+		if (IntSick_resistance || (ExtSick_resistance && rn2(20)) || !rn2(10) ) { /* small chance to not get infected even if not resistant --Amy */
 			You_feel("a slight illness.");
 		} else {
 			make_sick(Sick ? Sick/2L + 1L : (long)rn1(ACURR(A_CON), 40),
@@ -914,15 +996,14 @@ Cloak_on()
 	case CLOAK_OF_SLIMING:
 		if (!Slimed && !flaming(youmonst.data) && !Unchanging && !slime_on_touch(youmonst.data) ) {
 			You("don't feel very well.");
-			Slimed = Race_if(PM_EROSATOR) ? 25L : 100L;
-			flags.botl = 1;
+			make_slimed(100);
 			killer_format = KILLED_BY_AN;
-			delayed_killer = "cloak of sliming";
+			delayed_killer = "slimed by a cloak of sliming";
 		}
 		break;
 	case CLOAK_OF_STARVING:
 		if (u.uhunger > 0) u.uhunger = -1;
-		else u.uhunger -= rnd(Full_nutrient ? 500 : 1000);
+		else u.uhunger -= rnd(StrongFull_nutrient ? 250 : Full_nutrient ? 500 : 1000);
 		break;
 	case CLOAK_OF_CURSE:
 		attrcurse(); attrcurse(); attrcurse(); attrcurse(); attrcurse();
@@ -934,6 +1015,7 @@ Cloak_on()
 				if (otmpE && !rn2(10)) (void) drain_item(otmpE);
 			}
 			pline("Your equipment seems less effective.");
+			u.cnd_disenchantamount++;
 			if (PlayerHearsSoundEffects) pline(issoviet ? "Vse, chto vy vladeyete budet razocharovalsya v zabveniye, kha-kha-kha!" : "Klatsch!");
 		}
 		break;
@@ -946,12 +1028,13 @@ Cloak_on()
 		}
 		break;
 	case CLOAK_OF_STONE:
-		if (!Stoned && !Stone_resistance && !(poly_when_stoned(youmonst.data) &&
+		if (!Stoned && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && !(poly_when_stoned(youmonst.data) &&
 				 polymon(PM_STONE_GOLEM)) ) {
 			pline("You start turning to stone!");
 			if (Hallucination && rn2(10)) pline("But you are already stoned.");
 			else {
 				Stoned = Race_if(PM_EROSATOR) ? 3 : 7;
+				u.cnd_stoningcount++;
 				delayed_killer = "cloak of stone";
 			}
 		}
@@ -963,6 +1046,7 @@ Cloak_on()
 		}
 		break;
 	case CLOAK_OF_UNLIGHT:
+		if (Race_if(PM_PLAYER_NIBELUNG) && rn2(5)) break;
 		pline("Darkness surrounds you.");
 		litroomlite(FALSE);
 		break;
@@ -991,12 +1075,12 @@ Cloak_on()
 		}
 		break;
 	case CLOAK_OF_ATTRIBUTE_LOSS:
-		adjattrib(A_STR, -1, FALSE);
-		adjattrib(A_DEX, -1, FALSE);
-		adjattrib(A_CON, -1, FALSE);
-		adjattrib(A_INT, -1, FALSE);
-		adjattrib(A_WIS, -1, FALSE);
-		adjattrib(A_CHA, -1, FALSE);
+		adjattrib(A_STR, -1, FALSE, TRUE);
+		adjattrib(A_DEX, -1, FALSE, TRUE);
+		adjattrib(A_CON, -1, FALSE, TRUE);
+		adjattrib(A_INT, -1, FALSE, TRUE);
+		adjattrib(A_WIS, -1, FALSE, TRUE);
+		adjattrib(A_CHA, -1, FALSE, TRUE);
 		break;
 	case CLOAK_OF_TOTTER:
 		pline("You completely lose your sense of direction.");
@@ -1012,10 +1096,10 @@ Cloak_on()
 		EAcid_resistance |= WORN_CLOAK;
   		break;
 #endif
-	default: impossible(unknown_type, c_cloak, uarmc->otyp);
+	default: impossible(unknown_type_long, c_cloak, uarmc->otyp);
     }
 
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "straitjacket cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "smiritel'naya rubashka plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "tor kamzul plash") ) ) {
+	if (uarmc && itemhasappearance(uarmc, APP_STRAITJACKET_CLOAK) ) {
 		if (!uarmc->hvycurse) {
 			curse(uarmc);
 			uarmc->hvycurse = 1;
@@ -1023,22 +1107,48 @@ Cloak_on()
 		}
 	}
 
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "ignorant cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "nevezhestvennyye plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "johil plash") ) ) {
+	if (uarmc && itemhasappearance(uarmc, APP_IGNORANT_CLOAK) ) {
 		if (!uarmc->cursed) {
 			curse(uarmc);
 		}
 		You_feel("ignorant.");
 	}
 
-	if ( (Role_if(PM_GEEK) || Role_if(PM_GRADUATE)) && uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "geek cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "komp'yutershchik plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "qani plash") ) ) {
+	if ( (Role_if(PM_GEEK) || Role_if(PM_GRADUATE) || Role_if(PM_CRACKER) || Role_if(PM_SOFTWARE_ENGINEER)) && uarmc && itemhasappearance(uarmc, APP_GEEK_CLOAK) ) {
 		int i;
 		for (i = 0; i < MAXSPELL; i++)  {
 			if (spellid(i) == SPE_ALTER_REALITY) break;
 			else if (spellid(i) == NO_SPELL) {
 				spl_book[i].sp_id = SPE_ALTER_REALITY;
 				spl_book[i].sp_lev = objects[SPE_ALTER_REALITY].oc_level;
+				spl_book[i].sp_memorize = TRUE;
 				incrnknow(i);
 				pline("You gain the power of Eru Illuvator!");
+
+				if (!PlayerCannotUseSkills && P_SKILL(P_MEMORIZATION) >= P_BASIC) {
+
+					char nervbuf[QBUFSZ];
+					char thisisannoying = 0;
+
+					sprintf(nervbuf, "Do you want to use the memorization skill to get even more power?");
+					thisisannoying = yn_function(nervbuf, ynqchars, 'y');
+					if (thisisannoying != 'n') {
+
+						int memoboost = 0;
+						switch (P_SKILL(P_MEMORIZATION)) {
+							case P_BASIC: memoboost = 2; break;
+							case P_SKILLED: memoboost = 4; break;
+							case P_EXPERT: memoboost = 6; break;
+							case P_MASTER: memoboost = 8; break;
+							case P_GRAND_MASTER: memoboost = 10; break;
+							case P_SUPREME_MASTER: memoboost = 12; break;
+						}
+					    	boostknow(i, memoboost * 1000);
+						spl_book[i].sp_memorize = TRUE;
+					} else spl_book[i].sp_memorize = FALSE;
+
+				}
+
 				break;
 			}
 		}
@@ -1207,11 +1317,14 @@ Cloak_off()
 	case ALCHEMY_SMOCK:
 	case LEO_NEMAEUS_HIDE:
 	case PLASTEEL_CLOAK:
+	case LORICATED_CLOAK:
 	case LEATHER_CLOAK:
 	case CLOAK_OF_WARMTH:
 	case CLOAK_OF_GROUNDING:
 	case CLOAK_OF_QUENCHING:
 	case CLOAK_OF_LEECH:
+	case CLOAK_OF_COAGULATION:
+	case CLOAK_OF_SCENT:
 	case FILLER_CLOAK:
 
 	case LETHE_CLOAK:
@@ -1261,6 +1374,22 @@ Cloak_off()
 	case DUMMY_CLOAK_T:
 	case DUMMY_CLOAK_U:
 	case DUMMY_CLOAK_V:
+	case DUMMY_CLOAK_W:
+	case DUMMY_CLOAK_X:
+	case DUMMY_CLOAK_Y:
+	case DUMMY_CLOAK_Z:
+	case DUMMY_CLOAK_AA:
+	case DUMMY_CLOAK_AB:
+	case DUMMY_CLOAK_AC:
+	case DUMMY_CLOAK_AD:
+	case DUMMY_CLOAK_AE:
+	case DUMMY_CLOAK_AF:
+	case DUMMY_CLOAK_AG:
+	case DUMMY_CLOAK_AH:
+	case DUMMY_CLOAK_AI:
+	case DUMMY_CLOAK_AJ:
+	case DUMMY_CLOAK_AK:
+	case DUMMY_CLOAK_AL:
 	case ANTI_DISQUIET_CLOAK:
 	case HUGGING_GOWN:
 	case COCLOAK:
@@ -1294,6 +1423,8 @@ Cloak_off()
 	case CLOAK_OF_PRACTICE:
 	case CLOAK_OF_ELEMENTALISM:
 	case PSIONIC_CLOAK:
+	case SECOND_SKIN:
+	case CLOAK_OF_FLIGHT:
 	case CLOAK_OF_DISCOUNT_ACTION:
 	case CLOAK_OF_TECHNICALITY:
 	case CLOAK_OF_FULL_NUTRITION:
@@ -1356,6 +1487,7 @@ Cloak_off()
 	case CYAN_SPELL_CLOAK:
 	case ELONGATION_CLOAK:
 	case UNFAIR_ATTACK_CLOAK:
+	case CLOAK_OF_BAD_PART:
 
 	/* KMH, balance patch -- removed */
 	/* but re-inserted by Amy */
@@ -1456,6 +1588,7 @@ Helmet_on()
 	case RANDOMIZED_HELMET:
 	case CRYSTAL_HELM:
 	case DENTED_POT:
+	case BASINET:
 	case ELVEN_LEATHER_HELM:
 	case ELVEN_HELM:
 	case WAR_HAT:
@@ -1469,6 +1602,10 @@ Helmet_on()
 	case HELM_OF_SPEED:
 	case HELM_OF_TELEPORTATION:
 	case HELM_OF_TELEPORT_CONTROL:
+	case HELM_OF_OPAQUE_THOUGHTS:
+	case SCENTY_HELMET:
+	case OILSKIN_COIF:
+	case HELM_OF_ANTI_MAGIC:
 	case HELMET_OF_UNDEAD_WARNING:
 	case HELM_OF_TELEPATHY:
 	case HELM_OF_DISCOVERY:
@@ -1522,6 +1659,17 @@ Helmet_on()
 	case HELM_OF_LAWFUL:
 	case HELM_OF_NEUTRAL:
 	case HELM_OF_CHAOTIC:
+
+		if (Race_if(PM_CHIQUAI) && rn2(5)) { /* do nothing, not even autocurse */
+			break;
+		}
+		if (Race_if(PM_MACTHEIST) && rn2(4)) {
+			break;
+		}
+		if (Race_if(PM_GERTEUT) && rn2(4)) {
+			break;
+		}
+
 		if (uarmh->otyp == HELM_OF_OPPOSITE_ALIGNMENT) {
 			if (u.ualign.type == A_NEUTRAL)
 			    u.ualign.type = rn2(2) ? A_CHAOTIC : A_LAWFUL;
@@ -1642,9 +1790,19 @@ Helmet_on()
 	case DUMMY_HELMET_I:
 	case DUMMY_HELMET_J:
 	case DUMMY_HELMET_K:
+	case DUMMY_HELMET_L:
+	case DUMMY_HELMET_M:
+	case DUMMY_HELMET_N:
+	case DUMMY_HELMET_O:
+	case DUMMY_HELMET_P:
+	case DUMMY_HELMET_Q:
+	case DUMMY_HELMET_R:
+	case DUMMY_HELMET_S:
+	case DUMMY_HELMET_T:
+	case DUMMY_HELMET_U:
 		if (!uarmh->cursed) curse(uarmh);
 		break;
-	default: impossible(unknown_type, c_helmet, uarmh->otyp);
+	default: impossible(unknown_type_long, c_helmet, uarmh->otyp);
     }
 
     if (uarmh && uarmh->oartifact == ART_NYPHERISBANE) {
@@ -1663,7 +1821,7 @@ Helmet_on()
 			      Tobjnam(uarmh, "glow"), hcolor(NH_BLACK));
 			curse(uarmh);
 		}
-		litroomlite(FALSE);
+		if (!(Race_if(PM_PLAYER_NIBELUNG) && rn2(5)) ) litroomlite(FALSE);
     }
 
     if (uarmh && uarmh->oartifact == ART_RUTH_S_DARK_FORCE) {
@@ -1675,7 +1833,7 @@ Helmet_on()
 			      Tobjnam(uarmh, "glow"), hcolor(NH_BLACK));
 			curse(uarmh);
 		}
-		litroomlite(FALSE);
+		if (!(Race_if(PM_PLAYER_NIBELUNG) && rn2(5)) ) litroomlite(FALSE);
     }
 
     if (uarmh && uarmh->oartifact == ART_NADJA_S_DARKNESS_GENERATOR) {
@@ -1687,7 +1845,7 @@ Helmet_on()
 			      Tobjnam(uarmh, "glow"), hcolor(NH_BLACK));
 			curse(uarmh);
 		}
-		litroomlite(FALSE);
+		if (!(Race_if(PM_PLAYER_NIBELUNG) && rn2(5)) ) litroomlite(FALSE);
     }
 
     if (uarmh && uarmh->oartifact == ART_FORMFILLER) {
@@ -1714,7 +1872,7 @@ Helmet_on()
 		else uarmh->spe = -(rnd(5));
     }
 
-	if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "less helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "men'she shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "kam dubulg'a") )) {
+	if (uarmh && itemhasappearance(uarmh, APP_LESS_HELMET)) {
 		if (uarmh->spe > 0) uarmh->spe--;
 	}
 
@@ -1736,6 +1894,18 @@ Helmet_on()
 int
 Helmet_off()
 {
+    if (uarmh && uarmh->oartifact == ART_JAMILA_S_BELIEF) {
+		u.ualign.sins++;
+		u.alignlim--;
+		adjalign(-200);
+		pline("Taking off your headgear is a terribly bad idea, and the gods will certainly not be pleased!");
+		if (HardcoreAlienMode) {
+			u.ualign.sins += 4;
+			u.alignlim -= 4;
+			adjalign(-1000);
+		}
+    }
+
     takeoff_mask &= ~W_ARMH;
 
     switch(uarmh->otyp) {
@@ -1777,6 +1947,7 @@ Helmet_off()
 	case CRYSTAL_HELM:
 	case HELM_OF_STEEL:
 	case DENTED_POT:
+	case BASINET:
 	case ELVEN_LEATHER_HELM:
 	case ELVEN_HELM:
 	case WAR_HAT:
@@ -1849,11 +2020,25 @@ Helmet_off()
 	case DUMMY_HELMET_I:
 	case DUMMY_HELMET_J:
 	case DUMMY_HELMET_K:
+	case DUMMY_HELMET_L:
+	case DUMMY_HELMET_M:
+	case DUMMY_HELMET_N:
+	case DUMMY_HELMET_O:
+	case DUMMY_HELMET_P:
+	case DUMMY_HELMET_Q:
+	case DUMMY_HELMET_R:
+	case DUMMY_HELMET_S:
+	case DUMMY_HELMET_T:
+	case DUMMY_HELMET_U:
 	/* KMH, balance patch -- removed */ /* but re-inserted by Amy */
 	case FIRE_HELMET:
 	case HELM_OF_SPEED:
 	case HELM_OF_TELEPORTATION:
 	case HELM_OF_TELEPORT_CONTROL:
+	case HELM_OF_OPAQUE_THOUGHTS:
+	case SCENTY_HELMET:
+	case OILSKIN_COIF:
+	case HELM_OF_ANTI_MAGIC:
 	case HELMET_OF_UNDEAD_WARNING:
 	case HELM_OF_DISCOVERY:
 	case UNWANTED_HELMET:
@@ -1904,10 +2089,12 @@ Helmet_off()
 		    u.ublessed = 0;
 		    flags.botl = 1;
 	    }
+	    u.ualign.type = u.ualignbase[A_CURRENT];
+	    flags.botl = 1;
 
 	    break;
 
-	default: impossible(unknown_type, c_helmet, uarmh->otyp);
+	default: impossible(unknown_type_long, c_helmet, uarmh->otyp);
     }
     setworn((struct obj *)0, W_ARMH);
     cancelled_don = FALSE;
@@ -1923,6 +2110,7 @@ Gloves_on()
 
     switch(uarmg->otyp) {
 	case PLASTEEL_GLOVES:
+	case ROCKET_GAUNTLETS:
 	case LEATHER_GLOVES:
 	case GAUNTLETS_OF_STEEL:
 	case GAUNTLETS_OF_TYPING:
@@ -1934,6 +2122,7 @@ Gloves_on()
 	case GAUNTLETS_OF_SAFEGUARD:
 	case GAUNTLETS_OF_PLUGSUIT:
 	case COMMANDER_GLOVES:
+	case ROGUES_GLOVES:
 	case FIELD_GLOVES:
 	case GAUNTLETS:
 	case ELVEN_GAUNTLETS:
@@ -2001,6 +2190,9 @@ Gloves_on()
 	case DUMMY_GLOVES_G:
 	case DUMMY_GLOVES_H:
 	case DUMMY_GLOVES_I:
+	case DUMMY_GLOVES_J:
+	case DUMMY_GLOVES_K:
+	case DUMMY_GLOVES_L:
 		if (!uarmg->cursed) curse(uarmg);
 		break;
 
@@ -2011,7 +2203,7 @@ Gloves_on()
 
 	case GAUNTLETS_OF_SWIMMING:
 		if (u.uinwater) {
-		   pline(Hallucination ? "Suddenly, you're floating! Whee!" : "Hey! You can swim!");
+		   pline(FunnyHallu ? "Suddenly, you're floating! Whee!" : "Hey! You can swim!");
 		   spoteffects(TRUE);
 		}
 		break;
@@ -2025,10 +2217,10 @@ Gloves_on()
 	case GAUNTLETS_OF_DEXTERITY:
 		makeknown(uarmg->otyp);
 		break;
-	default: impossible(unknown_type, c_gloves, uarmg->otyp);
+	default: impossible(unknown_type_long, c_gloves, uarmg->otyp);
     }
 
-    if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "spanish gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "ispanskiy perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "ispaniya qo'lqop") ) ) {
+    if (uarmg && itemhasappearance(uarmg, APP_SPANISH_GLOVES) ) {
 	      if (!uarmg->cursed) {
 			curse(uarmg);
 			pline("Whoops - your %s are squeezed by these gloves!", makeplural(body_part(HAND)) );
@@ -2036,7 +2228,7 @@ Gloves_on()
 
     }
 
-	if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "inverse gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "obratnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "teskari qo'lqop") )) {
+	if (uarmg && itemhasappearance(uarmg, APP_INVERSE_GLOVES)) {
 
 		if (uarmg->spe) uarmg->spe = -uarmg->spe;
 		if (uarmg->spe < 0) {
@@ -2046,7 +2238,7 @@ Gloves_on()
 
 	}
 
-	if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmg->otyp]), "gameble gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "geymperskiye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "o'yinchoq qo'lqoplari")) ) {
+	if (uarmg && itemhasappearance(uarmg, APP_GAMEBLE_GLOVES)) {
 
 		if (rn2(2)) {
 			pline("Your gloves feel warm.");
@@ -2190,6 +2382,7 @@ Gloves_off()
 
     switch(uarmg->otyp) {
 	case PLASTEEL_GLOVES:
+	case ROCKET_GAUNTLETS:
 	case LEATHER_GLOVES:
 	case OILSKIN_GLOVES:
 	case GAUNTLETS_OF_STEEL:
@@ -2235,6 +2428,7 @@ Gloves_off()
 	case GAUNTLETS_OF_THE_FORCE:
 	case GAUNTLETS_OF_SAFEGUARD:
 	case GAUNTLETS_OF_PLUGSUIT:
+	case ROGUES_GLOVES:
 	case COMMANDER_GLOVES:
 	case FIELD_GLOVES:
 	case DUMMY_GLOVES_A:
@@ -2246,6 +2440,9 @@ Gloves_off()
 	case DUMMY_GLOVES_G:
 	case DUMMY_GLOVES_H:
 	case DUMMY_GLOVES_I:
+	case DUMMY_GLOVES_J:
+	case DUMMY_GLOVES_K:
+	case DUMMY_GLOVES_L:
 	case GAUNTLETS:
 	case ELVEN_GAUNTLETS:
 	case UNKNOWN_GAUNTLETS:
@@ -2281,7 +2478,7 @@ Gloves_off()
 	case GAUNTLETS_OF_DEXTERITY:
 		makeknown(uarmg->otyp);
 	    break;
-	default: impossible(unknown_type, c_gloves, uarmg->otyp);
+	default: impossible(unknown_type_long, c_gloves, uarmg->otyp);
     }
     setworn((struct obj *)0, W_ARMG);
     cancelled_don = FALSE;
@@ -2333,14 +2530,18 @@ Shield_on()
 	case ORCISH_GUARD_SHIELD:
 	case SHIELD:
 	case SILVER_SHIELD:
+	case ANCIENT_SHIELD:
 	case MIRROR_SHIELD:
 	case RAPIRAPI:
+	case HIDE_SHIELD:
 	case PAPER_SHIELD:
 	case ICKY_SHIELD:
 	case HEAVY_SHIELD:
 	case BARRIER_SHIELD:
 	case TROLL_SHIELD:
 	case TARRIER:
+	case CHROME_SHIELD:
+	case ANTISHADOW_SHIELD:
 	case DIFFICULT_SHIELD:
 	case SPECIAL_SHIELD:
 	case MAGICAL_SHIELD:
@@ -2371,6 +2572,11 @@ Shield_on()
 	case RUBY_DRAGON_SCALE_SHIELD:
 	case GREEN_DRAGON_SCALE_SHIELD:
 	case GOLDEN_DRAGON_SCALE_SHIELD:
+	case FEMINISM_DRAGON_SCALE_SHIELD:
+	case CANCEL_DRAGON_SCALE_SHIELD:
+	case NEGATIVE_DRAGON_SCALE_SHIELD:
+	case CORONA_DRAGON_SCALE_SHIELD:
+	case HEROIC_DRAGON_SCALE_SHIELD:
 	case STONE_DRAGON_SCALE_SHIELD:
 	case CYAN_DRAGON_SCALE_SHIELD:
 	case PSYCHIC_DRAGON_SCALE_SHIELD:
@@ -2508,13 +2714,17 @@ Shield_off()
 	case ORCISH_GUARD_SHIELD:
 	case SHIELD:
 	case SILVER_SHIELD:
+	case ANCIENT_SHIELD:
 	case MIRROR_SHIELD:
 	case RAPIRAPI:
+	case HIDE_SHIELD:
 	case PAPER_SHIELD:
 	case ICKY_SHIELD:
 	case HEAVY_SHIELD:
 	case BARRIER_SHIELD:
 	case TROLL_SHIELD:
+	case CHROME_SHIELD:
+	case ANTISHADOW_SHIELD:
 	case TARRIER:
 	case DIFFICULT_SHIELD:
 	case SPECIAL_SHIELD:
@@ -2546,6 +2756,11 @@ Shield_off()
 	case RUBY_DRAGON_SCALE_SHIELD:
 	case GREEN_DRAGON_SCALE_SHIELD:
 	case GOLDEN_DRAGON_SCALE_SHIELD:
+	case FEMINISM_DRAGON_SCALE_SHIELD:
+	case CANCEL_DRAGON_SCALE_SHIELD:
+	case NEGATIVE_DRAGON_SCALE_SHIELD:
+	case CORONA_DRAGON_SCALE_SHIELD:
+	case HEROIC_DRAGON_SCALE_SHIELD:
 	case STONE_DRAGON_SCALE_SHIELD:
 	case CYAN_DRAGON_SCALE_SHIELD:
 	case PSYCHIC_DRAGON_SCALE_SHIELD:
@@ -2714,6 +2929,36 @@ Armor_on()
 		change_sex();
 	}
 
+	if (uarm && uarm->oartifact == ART_INCREDIBLY_SEXY_SQUEAKING && uarm->spe > -5) {
+		uarm->spe -= 5;
+
+		int attempts = 0;
+		register struct permonst *ptrZ;
+		register struct monst *bossmon;
+sexysqueaking:
+		do {
+
+			ptrZ = rndmonst();
+			attempts++;
+			if (!rn2(2000)) reset_rndmonst(NON_PM);
+
+		} while ( (!ptrZ || (ptrZ && !(ptrZ->msound == MS_FART_NORMAL))) && attempts < 50000);
+
+		if (ptrZ && ptrZ->msound == MS_FART_NORMAL) {
+			bossmon = makemon(ptrZ, u.ux, u.uy, NO_MM_FLAGS);
+		}
+		else if (rn2(50)) {
+			attempts = 0;
+			goto sexysqueaking;
+		}
+
+		if (bossmon) {
+			tamedog(bossmon, (struct obj *) 0, TRUE);
+			pline("Someone sexy is waiting for you nearby...");
+		}
+
+	}
+
 	if (uarm && uarm->oartifact == ART_ARMOR_OF_ISILDUR && uarm->spe < 1) uarm->spe = rnd(10);
 
 	if (uarm && (AutocursingEquipment || u.uprops[AUTOCURSE_EQUIP].extrinsic || have_autocursestone())) curse(uarm);
@@ -2775,6 +3020,11 @@ Amulet_on()
 		pline("Your form feels unstable!");
     }
 
+    if (uamul && uamul->oartifact == ART_AUTOMATICALLY_METAL && !is_metallic(uamul)) {
+		pline_The("amulet automatically becomes metal.");
+		objects[uamul->otyp].oc_material = MT_METAL;
+    }
+
     switch(uamul->otyp) {
 	case AMULET_OF_ESP:
 #if 0	/* OBSOLETE */
@@ -2819,8 +3069,11 @@ Amulet_on()
 	case AMULET_OF_INCREASED_FREQUENCY:
 	case AMULET_OF_SPELL_METAL:
 	case AMULET_OF_TECHOUT:
+	case AMULET_OF_BAD_PART:
+	case AMULET_OF_EVIL_VARIANT:
 
 	case AMULET_OF_HOSTILITY:
+	case AMULET_OF_SANITY_TREBLE:
 	case AMULET_OF_EVIL_CRAFTING:
 	case AMULET_OF_EDIBILITY:
 	case AMULET_OF_WAKING:
@@ -2848,6 +3101,13 @@ Amulet_on()
 
 		if (Unchanging) break;
 		change_sex();
+
+		if (practicantterror) {
+			pline("%s thunders: 'That type of surgery is dangerous! You've practiced it without adhering to standard safety precautions, meaning there's now a fine of 20000 zorkmids and I'll also collect any money you gain from now on to teach you a lesson!'", noroelaname());
+			fineforpracticant(20000, 0, 0);
+			BankTrapEffect |= FROMOUTSIDE;
+		}
+
 		/* Don't use same message as polymorph */
 		if (orig_sex != poly_gender()) {
 		    makeknown(AMULET_OF_CHANGE);
@@ -2889,17 +3149,18 @@ Amulet_on()
 		}
 
 		pline("It constricts your throat!");
-		Strangled = 6;
+		Strangled = 11;
 		break;
 
 	case AMULET_OF_STONE:
 		makeknown(AMULET_OF_STONE);
-		if (!Stoned && !Stone_resistance && !(poly_when_stoned(youmonst.data) &&
+		if (!Stoned && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && !(poly_when_stoned(youmonst.data) &&
 				 polymon(PM_STONE_GOLEM)) ) {
 			pline("You start turning to stone!");
 			if (Hallucination && rn2(10)) pline("But you are already stoned.");
 			else {
 				Stoned = Race_if(PM_EROSATOR) ? 3 : 7;
+				u.cnd_stoningcount++;
 				stop_occupation();
 				delayed_killer = "amulet of stone";
 			}
@@ -2960,6 +3221,11 @@ Amulet_on()
 		pline("Mortal creatures cannot master such a powerful amulet, and are therefore afflicted by a dark, evil curse!");
     }
 
+    if (uamul && uamul->oartifact == ART_WALT_VERSUS_ANNA) {
+		curse(uamul);
+		pline("Now you have to fight on Walt's side, and to make sure you cannot run off, the amulet cursed itself!");
+    }
+
     if (uamul && uamul->oartifact == ART_NAZGUL_S_REVENGE) {
 		curse(uamul);
 		uamul->hvycurse = 1;
@@ -2985,7 +3251,7 @@ Amulet_off()
     long oldprop = u.uprops[objects[otyp].oc_oprop].extrinsic & ~WORN_AMUL;
     takeoff_mask &= ~W_AMUL;
 
-	if (uamul && !(Race_if(PM_INKA)) && objects[(uamul)->otyp].oc_material == INKA) {
+	if (uamul && !(Race_if(PM_INKA)) && objects[(uamul)->otyp].oc_material == MT_INKA) {
 		pline("The inka amulet tries to resist being taken off, and severely strangulates you before you can finally slip it from your %s!", body_part(NECK));
 		if (Upolyd) losehp( (u.mhmax / 2) + 2, "inka amulet", KILLED_BY_AN);
 		else losehp( (u.uhpmax / 2) + 2, "inka amulet", KILLED_BY_AN);
@@ -3080,472 +3346,76 @@ Implant_on()
 		if (!uimplant->cursed) curse(uimplant);
     }
 
+    if (uimplant && uimplant->oartifact == ART_CORONATION_CULMINATION) {
+	if (!u.coronationculmination) {
+
+		You("are crowned!");
+		u.coronationculmination = TRUE;
+		u.weapon_slots++;
+
+		struct obj *durifact;
+
+		boolean havegifts = u.ugifts;
+		if (!havegifts) u.ugifts++;
+
+		durifact = mk_artifact((struct obj *)0, !rn2(3) ? A_CHAOTIC : rn2(2) ? A_NEUTRAL : A_LAWFUL, TRUE);
+		if (durifact) {
+
+			if (P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_ISRESTRICTED) {
+			    unrestrict_weapon_skill(get_obj_skill(durifact, TRUE));
+			} else if (P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_UNSKILLED) {
+				unrestrict_weapon_skill(get_obj_skill(durifact, TRUE));
+				P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_BASIC;
+			} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_BASIC) {
+				P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_SKILLED;
+			} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_SKILLED) {
+				P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_EXPERT;
+			} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_EXPERT) {
+				P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_MASTER;
+			} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_MASTER) {
+				P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_GRAND_MASTER;
+			} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_GRAND_MASTER) {
+				P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_SUPREME_MASTER;
+			}
+
+			if (Race_if(PM_RUSMOT)) {
+				if (P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_ISRESTRICTED) {
+				    unrestrict_weapon_skill(get_obj_skill(durifact, TRUE));
+				} else if (P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_UNSKILLED) {
+					unrestrict_weapon_skill(get_obj_skill(durifact, TRUE));
+					P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_BASIC;
+				} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_BASIC) {
+					P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_SKILLED;
+				} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_SKILLED) {
+					P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_EXPERT;
+				} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_EXPERT) {
+					P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_MASTER;
+				} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_MASTER) {
+					P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_GRAND_MASTER;
+				} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_GRAND_MASTER) {
+					P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_SUPREME_MASTER;
+				}
+			}
+
+			dropy(durifact);
+			discover_artifact(durifact->oartifact);
+			pline("An object appeared at your %s!", makeplural(body_part(FOOT)));
+		}
+		if (!havegifts) u.ugifts--;
+
+	}
+    }
+
+    if (uimplant && uimplant->oartifact == ART_RNG_S_EXTRAVAGANZA && uimplant->spe == 0) {
+		if (!rn2(2)) uimplant->spe = rnd(9);
+		else uimplant->spe = -(rnd(9));
+    }
+
     if (uimplant && uimplant->oartifact == ART_SLEX_WANTS_YOU_TO_DIE_A_PA) {
 		u.uhpmax++;
 		flags.botl = TRUE;
 
-			switch (rnd(229)) {
-
-				case 1: 
-				    SpeedBug |= FROMOUTSIDE; break;
-				case 2: 
-				    MenuBug |= FROMOUTSIDE; break;
-				case 3: 
-				    RMBLoss |= FROMOUTSIDE; break;
-				case 4: 
-				    DisplayLoss |= FROMOUTSIDE; break;
-				case 5: 
-				    SpellLoss |= FROMOUTSIDE; break;
-				case 6: 
-				    YellowSpells |= FROMOUTSIDE; break;
-				case 7: 
-				    AutoDestruct |= FROMOUTSIDE; break;
-				case 8: 
-				    MemoryLoss |= FROMOUTSIDE; break;
-				case 9: 
-				    InventoryLoss |= FROMOUTSIDE; break;
-				case 10: 
-				    BlackNgWalls |= FROMOUTSIDE; break;
-				case 11: 
-				    Superscroller |= FROMOUTSIDE; break;
-				case 12: 
-				    FreeHandLoss |= FROMOUTSIDE; break;
-				case 13: 
-				    Unidentify |= FROMOUTSIDE; break;
-				case 14: 
-				    Thirst |= FROMOUTSIDE; break;
-				case 15: 
-				    LuckLoss |= FROMOUTSIDE; break;
-				case 16: 
-				    ShadesOfGrey |= FROMOUTSIDE; break;
-				case 17: 
-				    FaintActive |= FROMOUTSIDE; break;
-				case 18: 
-				    Itemcursing |= FROMOUTSIDE; break;
-				case 19: 
-				    DifficultyIncreased |= FROMOUTSIDE; break;
-				case 20: 
-				    Deafness |= FROMOUTSIDE; break;
-				case 21: 
-				    CasterProblem |= FROMOUTSIDE; break;
-				case 22: 
-				    WeaknessProblem |= FROMOUTSIDE; break;
-				case 23: 
-				    RotThirteen |= FROMOUTSIDE; break;
-				case 24: 
-				    BishopGridbug |= FROMOUTSIDE; break;
-				case 25: 
-				    ConfusionProblem |= FROMOUTSIDE; break;
-				case 26: 
-				    NoDropProblem |= FROMOUTSIDE; break;
-				case 27: 
-				    DSTWProblem |= FROMOUTSIDE; break;
-				case 28: 
-				    StatusTrapProblem |= FROMOUTSIDE; break;
-				case 29: 
-				    AlignmentProblem |= FROMOUTSIDE; break;
-				case 30: 
-				    StairsProblem |= FROMOUTSIDE; break;
-				case 31: 
-				    UninformationProblem |= FROMOUTSIDE; break;
-				case 32: 
-				    IntrinsicLossProblem |= FROMOUTSIDE; break;
-				case 33: 
-				    BloodLossProblem |= FROMOUTSIDE; break;
-				case 34: 
-				    BadEffectProblem |= FROMOUTSIDE; break;
-				case 35: 
-				    TrapCreationProblem |= FROMOUTSIDE; break;
-				case 36: 
-				    AutomaticVulnerabilitiy |= FROMOUTSIDE; break;
-				case 37: 
-				    TeleportingItems |= FROMOUTSIDE; break;
-				case 38: 
-				    NastinessProblem |= FROMOUTSIDE; break;
-				case 39: 
-				    RecurringAmnesia |= FROMOUTSIDE; break;
-				case 40: 
-				    BigscriptEffect |= FROMOUTSIDE; break;
-				case 41: 
-				    BankTrapEffect |= FROMOUTSIDE; break;
-				case 42: 
-				    MapTrapEffect |= FROMOUTSIDE; break;
-				case 43: 
-				    TechTrapEffect |= FROMOUTSIDE; break;
-				case 44: 
-				    RecurringDisenchant |= FROMOUTSIDE; break;
-				case 45: 
-				    verisiertEffect |= FROMOUTSIDE; break;
-				case 46: 
-				    ChaosTerrain |= FROMOUTSIDE; break;
-				case 47: 
-				    Muteness |= FROMOUTSIDE; break;
-				case 48: 
-				    EngravingDoesntWork |= FROMOUTSIDE; break;
-				case 49: 
-				    MagicDeviceEffect |= FROMOUTSIDE; break;
-				case 50: 
-				    BookTrapEffect |= FROMOUTSIDE; break;
-				case 51: 
-				    LevelTrapEffect |= FROMOUTSIDE; break;
-				case 52: 
-				    QuizTrapEffect |= FROMOUTSIDE; break;
-				case 53: 
-				    CaptchaProblem |= FROMOUTSIDE; break;
-				case 54: 
-				    FarlookProblem |= FROMOUTSIDE; break;
-				case 55: 
-				    RespawnProblem |= FROMOUTSIDE; break;
-				case 56: 
-				    FastMetabolismEffect |= FROMOUTSIDE; break;
-				case 57: 
-				    NoReturnEffect |= FROMOUTSIDE; break;
-				case 58: 
-				    AlwaysEgotypeMonsters |= FROMOUTSIDE; break;
-				case 59: 
-				    TimeGoesByFaster |= FROMOUTSIDE; break;
-				case 60: 
-				    FoodIsAlwaysRotten |= FROMOUTSIDE; break;
-				case 61: 
-				    AllSkillsUnskilled |= FROMOUTSIDE; break;
-				case 62: 
-				    AllStatsAreLower |= FROMOUTSIDE; break;
-				case 63: 
-				    PlayerCannotTrainSkills |= FROMOUTSIDE; break;
-				case 64: 
-				    PlayerCannotExerciseStats |= FROMOUTSIDE; break;
-				case 65: 
-				    TurnLimitation |= FROMOUTSIDE; break;
-				case 66: 
-				    WeakSight |= FROMOUTSIDE; break;
-				case 67: 
-				    RandomMessages |= FROMOUTSIDE; break;
-				case 68: 
-				    Desecration |= FROMOUTSIDE; break;
-				case 69: 
-				    StarvationEffect |= FROMOUTSIDE; break;
-				case 70: 
-				    NoDropsEffect |= FROMOUTSIDE; break;
-				case 71: 
-				    LowEffects |= FROMOUTSIDE; break;
-				case 72: 
-				    InvisibleTrapsEffect |= FROMOUTSIDE; break;
-				case 73: 
-				    GhostWorld |= FROMOUTSIDE; break;
-				case 74: 
-				    Dehydration |= FROMOUTSIDE; break;
-				case 75: 
-				    HateTrapEffect |= FROMOUTSIDE; break;
-				case 76: 
-				    TotterTrapEffect |= FROMOUTSIDE; break;
-				case 77: 
-				    Nonintrinsics |= FROMOUTSIDE; break;
-				case 78: 
-				    Dropcurses |= FROMOUTSIDE; break;
-				case 79: 
-				    Nakedness |= FROMOUTSIDE; break;
-				case 80: 
-				    Antileveling |= FROMOUTSIDE; break;
-				case 81: 
-				    ItemStealingEffect |= FROMOUTSIDE; break;
-				case 82: 
-				    Rebellions |= FROMOUTSIDE; break;
-				case 83: 
-				    CrapEffect |= FROMOUTSIDE; break;
-				case 84: 
-				    ProjectilesMisfire |= FROMOUTSIDE; break;
-				case 85: 
-				    WallTrapping |= FROMOUTSIDE; break;
-				case 86: 
-				    DisconnectedStairs |= FROMOUTSIDE; break;
-				case 87: 
-				    InterfaceScrewed |= FROMOUTSIDE; break;
-				case 88: 
-				    Bossfights |= FROMOUTSIDE; break;
-				case 89: 
-				    EntireLevelMode |= FROMOUTSIDE; break;
-				case 90: 
-				    BonesLevelChange |= FROMOUTSIDE; break;
-				case 91: 
-				    AutocursingEquipment |= FROMOUTSIDE; break;
-				case 92: 
-				    HighlevelStatus |= FROMOUTSIDE; break;
-				case 93: 
-				    SpellForgetting |= FROMOUTSIDE; break;
-				case 94: 
-				    SoundEffectBug |= FROMOUTSIDE; break;
-				case 95: 
-				    TimerunBug |= FROMOUTSIDE; break;
-				case 96:
-				    LootcutBug |= FROMOUTSIDE; break;
-				case 97:
-				    MonsterSpeedBug |= FROMOUTSIDE; break;
-				case 98:
-				    ScalingBug |= FROMOUTSIDE; break;
-				case 99:
-				    EnmityBug |= FROMOUTSIDE; break;
-				case 100:
-				    WhiteSpells |= FROMOUTSIDE; break;
-				case 101:
-				    CompleteGraySpells |= FROMOUTSIDE; break;
-				case 102:
-				    QuasarVision |= FROMOUTSIDE; break;
-				case 103:
-				    MommaBugEffect |= FROMOUTSIDE; break;
-				case 104:
-				    HorrorBugEffect |= FROMOUTSIDE; break;
-				case 105:
-				    ArtificerBug |= FROMOUTSIDE; break;
-				case 106:
-				    WereformBug |= FROMOUTSIDE; break;
-				case 107:
-				    NonprayerBug |= FROMOUTSIDE; break;
-				case 108:
-				    EvilPatchEffect |= FROMOUTSIDE; break;
-				case 109:
-				    HardModeEffect |= FROMOUTSIDE; break;
-				case 110:
-				    SecretAttackBug |= FROMOUTSIDE; break;
-				case 111:
-				    EaterBugEffect |= FROMOUTSIDE; break;
-				case 112:
-				    CovetousnessBug |= FROMOUTSIDE; break;
-				case 113:
-				    NotSeenBug |= FROMOUTSIDE; break;
-				case 114:
-				    DarkModeBug |= FROMOUTSIDE; break;
-				case 115:
-				    AntisearchEffect |= FROMOUTSIDE; break;
-				case 116:
-				    HomicideEffect |= FROMOUTSIDE; break;
-				case 117:
-				    NastynationBug |= FROMOUTSIDE; break;
-				case 118:
-				    WakeupCallBug |= FROMOUTSIDE; break;
-				case 119:
-				    GrayoutBug |= FROMOUTSIDE; break;
-				case 120:
-				    GrayCenterBug |= FROMOUTSIDE; break;
-				case 121:
-				    CheckerboardBug |= FROMOUTSIDE; break;
-				case 122:
-				    ClockwiseSpinBug |= FROMOUTSIDE; break;
-				case 123:
-				    CounterclockwiseSpin |= FROMOUTSIDE; break;
-				case 124:
-				    LagBugEffect |= FROMOUTSIDE; break;
-				case 125:
-				    BlesscurseEffect |= FROMOUTSIDE; break;
-				case 126:
-				    DeLightBug |= FROMOUTSIDE; break;
-				case 127:
-				    DischargeBug |= FROMOUTSIDE; break;
-				case 128:
-				    TrashingBugEffect |= FROMOUTSIDE; break;
-				case 129:
-				    FilteringBug |= FROMOUTSIDE; break;
-				case 130:
-				    DeformattingBug |= FROMOUTSIDE; break;
-				case 131:
-				    FlickerStripBug |= FROMOUTSIDE; break;
-				case 132:
-				    UndressingEffect |= FROMOUTSIDE; break;
-				case 133:
-				    Hyperbluewalls |= FROMOUTSIDE; break;
-				case 134:
-				    NoliteBug |= FROMOUTSIDE; break;
-				case 135:
-				    ParanoiaBugEffect |= FROMOUTSIDE; break;
-				case 136:
-				    FleecescriptBug |= FROMOUTSIDE; break;
-				case 137:
-				    InterruptEffect |= FROMOUTSIDE; break;
-				case 138:
-				    DustbinBug |= FROMOUTSIDE; break;
-				case 139:
-				    ManaBatteryBug |= FROMOUTSIDE; break;
-				case 140:
-				    Monsterfingers |= FROMOUTSIDE; break;
-				case 141:
-				    MiscastBug |= FROMOUTSIDE; break;
-				case 142:
-				    MessageSuppression |= FROMOUTSIDE; break;
-				case 143:
-				    StuckAnnouncement |= FROMOUTSIDE; break;
-				case 144:
-				    BloodthirstyEffect |= FROMOUTSIDE; break;
-				case 145:
-				    MaximumDamageBug |= FROMOUTSIDE; break;
-				case 146:
-				    LatencyBugEffect |= FROMOUTSIDE; break;
-				case 147:
-				    StarlitBug |= FROMOUTSIDE; break;
-				case 148:
-				    KnowledgeBug |= FROMOUTSIDE; break;
-				case 149:
-				    HighscoreBug |= FROMOUTSIDE; break;
-				case 150:
-				    PinkSpells |= FROMOUTSIDE; break;
-				case 151:
-				    GreenSpells |= FROMOUTSIDE; break;
-				case 152:
-				    EvencoreEffect |= FROMOUTSIDE; break;
-				case 153:
-				    UnderlayerBug |= FROMOUTSIDE; break;
-				case 154:
-				    DamageMeterBug |= FROMOUTSIDE; break;
-				case 155:
-				    ArbitraryWeightBug |= FROMOUTSIDE; break;
-				case 156:
-				    FuckedInfoBug |= FROMOUTSIDE; break;
-				case 157:
-				    BlackSpells |= FROMOUTSIDE; break;
-				case 158:
-				    CyanSpells |= FROMOUTSIDE; break;
-				case 159:
-				    HeapEffectBug |= FROMOUTSIDE; break;
-				case 160:
-				    BlueSpells |= FROMOUTSIDE; break;
-				case 161:
-				    TronEffect |= FROMOUTSIDE; break;
-				case 162:
-				    RedSpells |= FROMOUTSIDE; break;
-				case 163:
-				    TooHeavyEffect |= FROMOUTSIDE; break;
-				case 164:
-				    ElongationBug |= FROMOUTSIDE; break;
-				case 165:
-				    WrapoverEffect |= FROMOUTSIDE; break;
-				case 166:
-				    DestructionEffect |= FROMOUTSIDE; break;
-				case 167:
-				    MeleePrefixBug |= FROMOUTSIDE; break;
-				case 168:
-				    AutomoreBug |= FROMOUTSIDE; break;
-				case 169:
-				    UnfairAttackBug |= FROMOUTSIDE; break;
-				case 170:
-				    OrangeSpells |= FROMOUTSIDE; break;
-				case 171:
-				    VioletSpells |= FROMOUTSIDE; break;
-				case 172:
-				    LongingEffect |= FROMOUTSIDE; break;
-				case 173:
-				    CursedParts |= FROMOUTSIDE; break;
-				case 174:
-				    Quaversal |= FROMOUTSIDE; break;
-				case 175:
-				    AppearanceShuffling |= FROMOUTSIDE; break;
-				case 176:
-				    BrownSpells |= FROMOUTSIDE; break;
-				case 177:
-				    Choicelessness |= FROMOUTSIDE; break;
-				case 178:
-				    Goldspells |= FROMOUTSIDE; break;
-				case 179:
-				    Deprovement |= FROMOUTSIDE; break;
-				case 180:
-				    InitializationFail |= FROMOUTSIDE; break;
-				case 181:
-				    GushlushEffect |= FROMOUTSIDE; break;
-				case 182:
-				    SoiltypeEffect |= FROMOUTSIDE; break;
-				case 183:
-				    DangerousTerrains |= FROMOUTSIDE; break;
-				case 184:
-				    FalloutEffect |= FROMOUTSIDE; break;
-				case 185:
-				    MojibakeEffect |= FROMOUTSIDE; break;
-				case 186:
-				    GravationEffect |= FROMOUTSIDE; break;
-				case 187:
-				    UncalledEffect |= FROMOUTSIDE; break;
-				case 188:
-				    ExplodingDiceEffect |= FROMOUTSIDE; break;
-				case 189:
-				    PermacurseEffect |= FROMOUTSIDE; break;
-				case 190:
-				    ShroudedIdentity |= FROMOUTSIDE; break;
-				case 191:
-				    FeelerGauges |= FROMOUTSIDE; break;
-				case 192:
-				    LongScrewup |= FROMOUTSIDE; break;
-				case 193:
-				    WingYellowChange |= FROMOUTSIDE; break;
-				case 194:
-				    LifeSavingBug |= FROMOUTSIDE; break;
-				case 195:
-				    CurseuseEffect |= FROMOUTSIDE; break;
-				case 196:
-				    CutNutritionEffect |= FROMOUTSIDE; break;
-				case 197:
-				    SkillLossEffect |= FROMOUTSIDE; break;
-				case 198:
-				    AutopilotEffect |= FROMOUTSIDE; break;
-				case 199:
-				    MysteriousForceActive |= FROMOUTSIDE; break;
-				case 200:
-				    MonsterGlyphChange |= FROMOUTSIDE; break;
-				case 201:
-				    ChangingDirectives |= FROMOUTSIDE; break;
-				case 202:
-				    ContainerKaboom |= FROMOUTSIDE; break;
-				case 203:
-				    StealDegrading |= FROMOUTSIDE; break;
-				case 204:
-				    LeftInventoryBug |= FROMOUTSIDE; break;
-				case 205:
-				    FluctuatingSpeed |= FROMOUTSIDE; break;
-				case 206:
-				    TarmuStrokingNora |= FROMOUTSIDE; break;
-				case 207:
-				    FailureEffects |= FROMOUTSIDE; break;
-				case 208:
-				    BrightCyanSpells |= FROMOUTSIDE; break;
-				case 209:
-				    FrequentationSpawns |= FROMOUTSIDE; break;
-				case 210:
-				    PetAIScrewed |= FROMOUTSIDE; break;
-				case 211:
-				    SatanEffect |= FROMOUTSIDE; break;
-				case 212:
-				    RememberanceEffect |= FROMOUTSIDE; break;
-				case 213:
-				    PokelieEffect |= FROMOUTSIDE; break;
-				case 214:
-				    AlwaysAutopickup |= FROMOUTSIDE; break;
-				case 215:
-				    DywypiProblem |= FROMOUTSIDE; break;
-				case 216:
-				    SilverSpells |= FROMOUTSIDE; break;
-				case 217:
-				    MetalSpells |= FROMOUTSIDE; break;
-				case 218:
-				    PlatinumSpells |= FROMOUTSIDE; break;
-				case 219:
-				    ManlerEffect |= FROMOUTSIDE; break;
-				case 220:
-				    DoorningEffect |= FROMOUTSIDE; break;
-				case 221:
-				    NownsibleEffect |= FROMOUTSIDE; break;
-				case 222:
-				    ElmStreetEffect |= FROMOUTSIDE; break;
-				case 223:
-				    MonnoiseEffect |= FROMOUTSIDE; break;
-				case 224:
-				    RangCallEffect |= FROMOUTSIDE; break;
-				case 225:
-				    RecurringSpellLoss |= FROMOUTSIDE; break;
-				case 226:
-				    AntitrainingEffect |= FROMOUTSIDE; break;
-				case 227:
-				    TechoutBug |= FROMOUTSIDE; break;
-				case 228:
-				    StatDecay |= FROMOUTSIDE; break;
-				case 229:
-				    Movemork |= FROMOUTSIDE; break;
-			}
-
+		getnastytrapintrinsic();
     }
 
 	if (uimplant && (AutocursingEquipment || u.uprops[AUTOCURSE_EQUIP].extrinsic || have_autocursestone())) curse(uimplant);
@@ -3554,6 +3424,8 @@ Implant_on()
 
     if (uimplant->otyp >= IMPLANT_OF_QUICKENING && uimplant->otyp <= IMPLANT_OF_BLITZEN) curse(uimplant);
     if (uimplant->otyp >= IMPLANT_OF_BUTCHERY && uimplant->otyp <= IMPLANT_OF_FREEDOM) curse(uimplant);
+    if (uimplant->otyp >= IMPLANT_OF_TOTAL_NONSENSE && uimplant->otyp <= IMPLANT_OF_GALVANIZATION) curse(uimplant);
+    if (uimplant->otyp >= IMPLANT_OF_YOUR_MOMMA && uimplant->otyp <= IMPLANT_OF_ENFORCING) curse(uimplant);
 
     if (!PlayerCannotUseSkills) {
 	bucidchance = 0;
@@ -3575,6 +3447,12 @@ Implant_on()
 	}
 
     }
+
+	/* all implants with an enchantment will autoidentify it upon wearing, even if you can't benefit from it --Amy */
+    if (uimplant && objects[uimplant->otyp].oc_charged) {
+	uimplant->known = TRUE;
+    }
+
 
 }
 
@@ -3599,7 +3477,7 @@ register struct obj *obj;
     long oldprop = u.uprops[objects[obj->otyp].oc_oprop].extrinsic;
     int old_attrib, which;
 
-    if (obj == uwep) setuwep((struct obj *) 0, TRUE);
+    if (obj == uwep) setuwep((struct obj *) 0, TRUE, TRUE);
     if (obj == uswapwep) setuswapwep((struct obj *) 0, TRUE);
     if (obj == uquiver) setuqwep((struct obj *) 0);
 
@@ -3673,6 +3551,8 @@ register struct obj *obj;
 	case RIN_LAGGING:
 	case RIN_BLESSCURSING:
 	case RIN_ILLITERACY:
+	case RIN_STAT_DECREASE:
+	case RIN_SANITY_TIMEOUT:
 
 	case RIN_WIMPINESS:
 	case RIN_USING_HAZARD:
@@ -3681,6 +3561,14 @@ register struct obj *obj;
 	case RIN_POSSESSION_IDENTIFICATION:
 	case RIN_DAYSHIFT:
 	case RIN_DECONSTRUCTION:
+
+		if (!obj->cursed) curse(obj);
+
+		break;
+
+	case RIN_ILLNESS:
+
+		make_sick(Sick ? Sick/2L + 1L : (long)rn1(ACURR(A_CON),20), "a ring of illness", TRUE, SICK_NONVOMITABLE);
 
 		if (!obj->cursed) curse(obj);
 
@@ -3806,6 +3694,46 @@ register struct obj *obj;
 		pline("A terrible aura of darkness and eternal damnation surrounds your ring.");
     }
 
+    if (obj->oartifact == ART_VERSION_CONTROL) {
+		if (!obj->cursed) {
+			curse(obj);
+			pline("BEEEEP! The ring becomes cursed.");
+		}
+
+		if (flags.hybridevilvariant) {
+			pline("Currently you are playing in evilvariant mode.");
+			if (yn("Turn off evilvariant mode?") == 'y') {
+				flags.hybridevilvariant = FALSE;
+				flags.hybridization--;
+				pline("You no longer have the evilvariant hybrid race.");
+			}
+		} else {
+			pline("Currently you aren't playing in evilvariant mode.");
+			if (yn("Turn on evilvariant mode?") == 'y') {
+				flags.hybridevilvariant = TRUE;
+				flags.hybridization++;
+				pline("You now have the evilvariant hybrid race.");
+			}
+		}
+
+		if (flags.hybridsoviet) {
+			pline("Currently you are playing in soviet mode.");
+			if (yn("Turn off soviet mode?") == 'y') {
+				flags.hybridsoviet = FALSE;
+				flags.hybridization--;
+				pline("You no longer have the soviet hybrid race.");
+			}
+		} else {
+			pline("Currently you aren't playing in soviet mode.");
+			if (yn("Turn on soviet mode?") == 'y') {
+				flags.hybridsoviet = TRUE;
+				flags.hybridization++;
+				pline("You now have the soviet hybrid race.");
+			}
+		}
+
+    }
+
     if (obj->oartifact == ART_FIRE_NIGHT) {
 		if (!tech_known(T_BEAUTY_CHARM) && u.ugold >= 10000) {
 		    	learntech(T_BEAUTY_CHARM, FROMOUTSIDE, 1);
@@ -3897,6 +3825,15 @@ boolean gone;
 		break;
 	case RIN_LIGHT:
 		vision_full_recalc = 1;
+		break;
+	case RIN_ILLNESS:
+		if (Sick) You("are no longer ill.");
+		if (Slimed) {
+		    pline_The("slime disappears!");
+		    Slimed = 0;
+		 /* flags.botl = 1; -- healup() handles this */
+		}
+		healup(0, 0, TRUE, FALSE);
 		break;
 	case RIN_SLEEPING:
 		if (!ESleeping && !(HSleeping & INTRINSIC) && !Race_if(PM_KOBOLT))
@@ -4020,7 +3957,7 @@ register struct obj *otmp;
 	long already_blind = Blind, changed = FALSE;
 
 	if (otmp == uwep)
-	    setuwep((struct obj *) 0, TRUE);
+	    setuwep((struct obj *) 0, TRUE, TRUE);
 	if (otmp == uswapwep)
 	    setuswapwep((struct obj *) 0, TRUE);
 	if (otmp == uquiver)
@@ -4171,8 +4108,33 @@ dotakeoff()
 	register struct obj *otmp = (struct obj *)0;
 	int armorpieces = 0;
 
+	if (HardcoreAlienMode) {
+		int i, j, bd = 1;
+		struct monst *mtmp;
+		for (i = -bd; i <= bd; i++) for(j = -bd; j <= bd; j++) {
+			if (!isok(u.ux + i, u.uy + j)) continue;
+			if ((mtmp = m_at(u.ux + i, u.uy + j)) != 0) {
+				if (canspotmon(mtmp)) {
+					pline("Not now! They're looking!");
+					if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+					return 0;
+				} else {
+					pline("Someone watched you change clothes...");
+					if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+					u.ugangr++;
+					adjalign(-50);
+					change_luck(-1);
+					prayer_done();
+					return 1;
+
+				}
+			}
+		}
+
+	}
+
 	boolean updowninversion = 0;
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "up-down cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "plashch s verkhnim plashchem") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "up-pastga plash") )) updowninversion = 1;
+	if (uarmc && itemhasappearance(uarmc, APP_UP_DOWN_CLOAK)) updowninversion = 1;
 
 #define MOREARM(x) if (x) { armorpieces++; otmp = x; }
 	MOREARM(uarmh);
@@ -4304,7 +4266,8 @@ armoroff(otmp)
 register struct obj *otmp;
 {
 	register int delay = -objects[otmp->otyp].oc_delay;
-
+	if (HardcoreAlienMode) delay--;
+	
 	if(cursed(otmp)) return(0);
 	if(delay) {
 		nomul(delay, "disrobing", TRUE);
@@ -4410,8 +4373,14 @@ boolean noisy;
 	    is_shirt(otmp) ? c_shirt :
 	    is_suit(otmp) ? c_suit : 0;
 
-	if (Race_if(PM_OCTOPODE) && (is_boots(otmp) || is_gloves(otmp) || is_shield(otmp) || is_shield(otmp) || is_helmet(otmp) || is_suit(otmp) || is_shirt(otmp))) {
+	if (Race_if(PM_OCTOPODE) && (is_boots(otmp) || is_gloves(otmp) || is_shield(otmp) || is_cloak(otmp) || is_helmet(otmp) || is_suit(otmp) || is_shirt(otmp))) {
 		if (noisy) pline("Octopodes are completely unable to wear any armor pieces.");
+		return 0;
+	}
+
+	if (Race_if(PM_ETHEREALOID) && !Upolyd && (is_boots(otmp) || is_gloves(otmp) || is_shield(otmp) || is_cloak(otmp) || is_helmet(otmp) || is_suit(otmp) || is_shirt(otmp))) {
+		if (noisy) pline("Too bad! As an etherealoid, you cannot wear armor.");
+		/* but can still polymorph, put on something, and then poly back and still be wearing the item --Amy */
 		return 0;
 	}
 
@@ -4468,7 +4437,7 @@ boolean noisy;
 		if (yn("The uncommon size of your dufflepud feet means that wearing boots of any kind will be awkward, causing you to move at half speed. Really wear them?") != 'y') return 0;
 	}
 
-    if (which && (cantweararm(youmonst.data) || (Race_if(PM_CHIROPTERAN) && !Upolyd) ) && !Race_if(PM_TRANSFORMER)  &&
+    if (which && (cantweararm(youmonst.data) || (Race_if(PM_CHIROPTERAN) && !Upolyd) || (Race_if(PM_PLAYER_MUSHROOM) && !Upolyd) ) && !Race_if(PM_TRANSFORMER)  &&
 	    /* same exception for cloaks as used in m_dowear() */
 	    (which != c_cloak || youmonst.data->msize != MZ_SMALL) &&
 	    (racial_exception(&youmonst, otmp) < 1)) {
@@ -4644,6 +4613,31 @@ dowear()
 	int delay;
 	long mask = 0;
 
+	if (HardcoreAlienMode) {
+		int i, j, bd = 1;
+		struct monst *mtmp;
+		for (i = -bd; i <= bd; i++) for(j = -bd; j <= bd; j++) {
+			if (!isok(u.ux + i, u.uy + j)) continue;
+			if ((mtmp = m_at(u.ux + i, u.uy + j)) != 0) {
+				if (canspotmon(mtmp)) {
+					pline("Not now! They're looking!");
+					if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+					return 0;
+				} else {
+					pline("Someone watched you change clothes...");
+					if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+					u.ugangr++;
+					adjalign(-50);
+					change_luck(-1);
+					prayer_done();
+					return 1;
+
+				}
+			}
+		}
+
+	}
+
 	/* cantweararm checks for suits of armor */
 	/* verysmall or nohands checks for shields, gloves, etc... */
 	if (!Race_if(PM_TRANSFORMER) && !Race_if(PM_HUMAN_WRAITH) && (verysmall(youmonst.data) || nohands(youmonst.data))) {
@@ -4704,13 +4698,14 @@ dowear()
 
 	otmp->known = TRUE;
 	if(otmp == uwep)
-		setuwep((struct obj *)0, TRUE);
+		setuwep((struct obj *)0, TRUE, TRUE);
 	if (otmp == uswapwep)
 		setuswapwep((struct obj *) 0, TRUE);
 	if (otmp == uquiver)
 		setuqwep((struct obj *) 0);
 	setworn(otmp, mask);
 	delay = -objects[otmp->otyp].oc_delay;
+	if (HardcoreAlienMode) delay--;
 	if(delay){
 		nomul(delay, "dressing up", TRUE);
 		if(is_boots(otmp)) afternmv = Boots_on;
@@ -4753,7 +4748,7 @@ doputon()
 		return(0);
 	}
 	if(otmp == uwep)
-		setuwep((struct obj *)0, TRUE);
+		setuwep((struct obj *)0, TRUE, TRUE);
 	if(otmp == uswapwep)
 		setuswapwep((struct obj *) 0, TRUE);
 	if(otmp == uquiver)
@@ -4888,8 +4883,9 @@ doputon()
 #ifdef OVL0
 
 /* Limits of uac (conveniently equal to the limits of an schar ;) */
-#define UAC_MIN (-128)
-#define UAC_LIM 127
+#define UAC_MIN /*(-128)*/(-9999999)
+#define UAC_LIM /*127*/9999999
+/* Amy edit: why the hell is that an schar, I decided that limitations are stupid and should be removed */
 
 void
 find_ac()
@@ -4903,7 +4899,15 @@ find_ac()
 	if(uarms) uac -= ARM_BONUS(uarms);
 	if(uarmg) uac -= ARM_BONUS(uarmg);
 	if(uarmu) uac -= ARM_BONUS(uarmu);
-	if(uimplant) uac -= ARM_BONUS(uimplant);
+
+	/* implants are mainly meant for those who lack hands --Amy */
+	if(uimplant) uac -= ( (powerfulimplants() || ARM_BONUS(uimplant) < 1) ? ARM_BONUS_IMPLANT(uimplant) : (ARM_BONUS_IMPLANT(uimplant) / 2));
+
+	if (uimplant && powerfulimplants() && uimplant->oartifact == ART_DEINE_MUDDA && uimplant->spe > 0) uac -= (uimplant->spe * 4);
+
+	/* are you restricted? if yes, the implant may be actively bad for you */
+	if (uimplant && P_RESTRICTED(P_IMPLANTS) && !powerfulimplants()) uac += 2;
+
 	if(uleft && uleft->otyp == RIN_PROTECTION) uac -= uleft->spe;
 	if(uright && uright->otyp == RIN_PROTECTION) uac -= uright->spe;
 	if (HProtection & INTRINSIC) uac -= u.ublessed;
@@ -4938,8 +4942,10 @@ find_ac()
 	if ((Race_if(PM_HUMAN_WEREWOLF) || Race_if(PM_AK_THIEF_IS_DEAD_) || Role_if(PM_LUNATIC)) && !uarm) uac -= (u.ulevel / 4) + 1;
 
 	if (Race_if(PM_HUMAN_WRAITH)) uac -= u.ulevel;
+	if (Race_if(PM_ETHEREALOID)) uac -= u.ulevel;
 	if (Race_if(PM_TURTLE)) uac -= u.ulevel;
 	if (Race_if(PM_LOWER_ENT)) uac -= u.ulevel;
+	if (Race_if(PM_KUTAR)) uac -= (u.ulevel / 3);
 
 	/* Harlow - make sure it doesn't wrap around ;) */
 	uac = (uac < UAC_MIN ? UAC_MIN : (uac > UAC_LIM ? UAC_LIM : uac));
@@ -4957,42 +4963,66 @@ find_ac()
 
 	if ((Race_if(PM_DWARF) || Role_if(PM_MIDGET)) && uarm && uarm->otyp == DWARVISH_MITHRIL_COAT) uac -= 1;
 	if ((Race_if(PM_DROW) || Role_if(PM_TWELPH)) && uarm && uarm->otyp == DARK_ELVEN_MITHRIL_COAT) uac -= 1;
-	if ((Race_if(PM_ELF) || Role_if(PM_ELPH)) && uarm && uarm->otyp == ELVEN_MITHRIL_COAT) uac -= 1;
-	if ((Race_if(PM_ELF) || Role_if(PM_ELPH)) && uarm && uarm->otyp == ELVEN_TOGA) uac -= 1;
+	if ((Race_if(PM_ELF) || Race_if(PM_PLAYER_MYRKALFR) || Role_if(PM_ELPH)) && uarm && uarm->otyp == ELVEN_MITHRIL_COAT) uac -= 1;
+	if ((Race_if(PM_ELF) || Race_if(PM_PLAYER_MYRKALFR) || Role_if(PM_ELPH)) && uarm && uarm->otyp == ELVEN_TOGA) uac -= 1;
 	if ((Race_if(PM_GNOME) || Role_if(PM_GOLDMINER)) && uarm && uarm->otyp == GNOMISH_SUIT) uac -= 2;
 	if (Race_if(PM_ORC) && uarm && (uarm->otyp == ORCISH_CHAIN_MAIL || uarm->otyp == ORCISH_RING_MAIL) ) uac -= 1;
 
 	if (Race_if(PM_ORC) && uarmc && uarmc->otyp == ORCISH_CLOAK ) uac -= 1;
 	if ((Race_if(PM_DWARF) || Role_if(PM_MIDGET)) && uarmc && uarmc->otyp == DWARVISH_CLOAK ) uac -= 1;
-	if ((Race_if(PM_ELF) || Role_if(PM_ELPH)) && uarmc && uarmc->otyp == ELVEN_CLOAK) uac -= 1;
-	if ((Race_if(PM_ELF) || Role_if(PM_ELPH)) && uarmg && uarmg->otyp == ELVEN_GAUNTLETS) uac -= 1;
+	if ((Race_if(PM_ELF) || Race_if(PM_PLAYER_MYRKALFR) || Role_if(PM_ELPH)) && uarmc && uarmc->otyp == ELVEN_CLOAK) uac -= 1;
+	if ((Race_if(PM_ELF) || Race_if(PM_PLAYER_MYRKALFR) || Role_if(PM_ELPH)) && uarmg && uarmg->otyp == ELVEN_GAUNTLETS) uac -= 1;
 
-	if (Race_if(PM_INKA) && uarmg && objects[(uarmg)->otyp].oc_material == INKA) uac -= 6;
-	if (Race_if(PM_INKA) && uarmc && objects[(uarmc)->otyp].oc_material == INKA) uac -= 6;
-	if (Race_if(PM_INKA) && uarmu && objects[(uarmu)->otyp].oc_material == INKA) uac -= 6;
-	if (Race_if(PM_INKA) && uarm && objects[(uarm)->otyp].oc_material == INKA) uac -= 6;
-	if (Race_if(PM_INKA) && uarms && objects[(uarms)->otyp].oc_material == INKA) uac -= 6;
-	if (Race_if(PM_INKA) && uarmh && objects[(uarmh)->otyp].oc_material == INKA) uac -= 6;
-	if (Race_if(PM_INKA) && uarmf && objects[(uarmf)->otyp].oc_material == INKA) uac -= 6;
-	if (Race_if(PM_INKA) && uleft && objects[(uleft)->otyp].oc_material == INKA) uac -= 6;
-	if (Race_if(PM_INKA) && uright && objects[(uright)->otyp].oc_material == INKA) uac -= 6;
-	if (Race_if(PM_INKA) && uamul && objects[(uamul)->otyp].oc_material == INKA) uac -= 6;
-	if (Race_if(PM_INKA) && uimplant && objects[(uimplant)->otyp].oc_material == INKA) uac -= 6;
+	if (Race_if(PM_INKA) && uarmg && objects[(uarmg)->otyp].oc_material == MT_INKA) uac -= 6;
+	if (Race_if(PM_INKA) && uarmc && objects[(uarmc)->otyp].oc_material == MT_INKA) uac -= 6;
+	if (Race_if(PM_INKA) && uarmu && objects[(uarmu)->otyp].oc_material == MT_INKA) uac -= 6;
+	if (Race_if(PM_INKA) && uarm && objects[(uarm)->otyp].oc_material == MT_INKA) uac -= 6;
+	if (Race_if(PM_INKA) && uarms && objects[(uarms)->otyp].oc_material == MT_INKA) uac -= 6;
+	if (Race_if(PM_INKA) && uarmh && objects[(uarmh)->otyp].oc_material == MT_INKA) uac -= 6;
+	if (Race_if(PM_INKA) && uarmf && objects[(uarmf)->otyp].oc_material == MT_INKA) uac -= 6;
+	if (Race_if(PM_INKA) && uleft && objects[(uleft)->otyp].oc_material == MT_INKA) uac -= 6;
+	if (Race_if(PM_INKA) && uright && objects[(uright)->otyp].oc_material == MT_INKA) uac -= 6;
+	if (Race_if(PM_INKA) && uamul && objects[(uamul)->otyp].oc_material == MT_INKA) uac -= 6;
+	if (Race_if(PM_INKA) && uimplant && objects[(uimplant)->otyp].oc_material == MT_INKA) uac -= 6;
 
-	if ((Race_if(PM_ELF) || Role_if(PM_ELPH)) && uarmh && uarmh->otyp == ELVEN_LEATHER_HELM) uac -= 1;
-	if ((Race_if(PM_ELF) || Role_if(PM_ELPH)) && uarmh && uarmh->otyp == ELVEN_HELM) uac -= 1;
-	if ((Race_if(PM_ELF) || Role_if(PM_ELPH)) && uarmh && uarmh->otyp == HIGH_ELVEN_HELM) uac -= 1;
+	if ((Race_if(PM_ELF) || Race_if(PM_PLAYER_MYRKALFR) || Role_if(PM_ELPH)) && uarmh && uarmh->otyp == ELVEN_LEATHER_HELM) uac -= 1;
+	if ((Race_if(PM_ELF) || Race_if(PM_PLAYER_MYRKALFR) || Role_if(PM_ELPH)) && uarmh && uarmh->otyp == ELVEN_HELM) uac -= 1;
+	if ((Race_if(PM_ELF) || Race_if(PM_PLAYER_MYRKALFR) || Role_if(PM_ELPH)) && uarmh && uarmh->otyp == HIGH_ELVEN_HELM) uac -= 1;
 	if ((Race_if(PM_GNOME) || Role_if(PM_GOLDMINER)) && uarmh && uarmh->otyp == GNOMISH_HELM) uac -= 2;
 	if (Race_if(PM_ORC) && uarmh && uarmh->otyp == ORCISH_HELM) uac -= 1;
 	if ((Race_if(PM_DWARF) || Role_if(PM_MIDGET)) && uarmh && uarmh->otyp == DWARVISH_IRON_HELM) uac -= 1;
 
-	if ((Race_if(PM_ELF) || Role_if(PM_ELPH)) && uarms && uarms->otyp == ELVEN_SHIELD) uac -= 1;
+	if ((Race_if(PM_ELF) || Race_if(PM_PLAYER_MYRKALFR) || Role_if(PM_ELPH)) && uarms && uarms->otyp == ELVEN_SHIELD) uac -= 1;
 	if (Race_if(PM_ORC) && uarms && (uarms->otyp == ORCISH_SHIELD || uarms->otyp == ORCISH_GUARD_SHIELD || uarms->otyp == URUK_HAI_SHIELD) ) uac -= 1;
 	if ((Race_if(PM_DWARF) || Role_if(PM_MIDGET)) && uarms && uarms->otyp == DWARVISH_ROUNDSHIELD) uac -= 1;
 
 	if ((Race_if(PM_GNOME) || Role_if(PM_GOLDMINER)) && uarmf && uarmf->otyp == GNOMISH_BOOTS) uac -= 2;
 
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "slowing gown") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "zamedlennoye plat'ye") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "sekinlashuvi libos") )) uac -= 3;
+	if (Race_if(PM_MAYMES) && uarmc && uarmc->otyp == CLOAK_OF_PROTECTION) uac -= 2;
+	if (Race_if(PM_MAYMES) && uarm && uarm->otyp == ROBE_OF_PROTECTION) uac -= 2;
+	if (Race_if(PM_MAYMES) && uleft && uleft->otyp == RIN_PROTECTION) uac -= 2;
+	if (Race_if(PM_MAYMES) && uright && uright->otyp == RIN_PROTECTION) uac -= 2;
+	if (Race_if(PM_FRO)) uac -= 2;
+
+	if (Race_if(PM_BOVER)) {
+		if (uarm && is_metallic(uarm)) uac += 2;
+		if (uarmu && is_metallic(uarmu)) uac += 2;
+		if (uarmc && is_metallic(uarmc)) uac += 2;
+		if (uarmf && is_metallic(uarmf)) uac += 2;
+		if (uarmg && is_metallic(uarmg)) uac += 2;
+		if (uarmh && is_metallic(uarmh)) uac += 2;
+		if (uarms && is_metallic(uarms)) uac += 2;
+
+		if (uarm && is_lithic(uarm)) uac -= 1;
+		if (uarmu && is_lithic(uarmu)) uac -= 1;
+		if (uarmc && is_lithic(uarmc)) uac -= 1;
+		if (uarmf && is_lithic(uarmf)) uac -= 1;
+		if (uarmg && is_lithic(uarmg)) uac -= 1;
+		if (uarmh && is_lithic(uarmh)) uac -= 1;
+		if (uarms && is_lithic(uarms)) uac -= 1;
+	}
+
+	if (uarmc && itemhasappearance(uarmc, APP_SLOWING_GOWN)) uac -= 3;
 
 	if (u.artifactprotection) uac -= 2;
 	if (have_mothrelay() ) uac -= 2;
@@ -5079,7 +5109,7 @@ find_ac()
 
 		/* Implants are meant to be used by races without hands, or players who polymorph into forms without hands.
 		 * They get a bunch of additional benefits from a worn implant --Amy */
-		if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER)) {
+		if (powerfulimplants()) {
 			uac -= 5;
 			switch (P_SKILL(P_IMPLANTS)) {
 				case P_BASIC: uac -= 1; break;
@@ -5090,13 +5120,13 @@ find_ac()
 				case P_SUPREME_MASTER: uac -= 6; break;
 
 			}
-			if (!uarms) uac++;
-			if (!uarm) uac++;
-			if (!uarmc) uac++;
-			if (!uarmu) uac++;
-			if (!uarmh) uac++;
-			if (!uarmg) uac++;
-			if (!uarmf) uac++;
+			if (!uarms) uac--;
+			if (!uarm) uac--;
+			if (!uarmc) uac--;
+			if (!uarmu) uac--;
+			if (!uarmh) uac--;
+			if (!uarmg) uac--;
+			if (!uarmf) uac--;
 
 		}
 
@@ -5133,12 +5163,14 @@ find_ac()
 
 	}
 
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "mantle of coat") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "mantiya pal'to") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "ko'ylagi mantiya")) ) {
+	if (uarmc && itemhasappearance(uarmc, APP_MANTLE_OF_COAT)) {
 		uac -= 5;
 	}
 
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "dnethack cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "podzemeliy i vnezemnyye plashch vzlomat'") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "hamzindon va dunyo bo'lmagan doirasi so'yish plash") )) uac += 5;
+	if (uarmc && itemhasappearance(uarmc, APP_DNETHACK_CLOAK)) uac += 5;
+	if (Race_if(PM_INHERITOR)) uac += 5;
 	if (RngeDnethack) uac += 5;
+	if (uarmf && uarmf->oartifact == ART_DORA_S_SCRATCHY_HEELS) uac += 5;
 
 	if (uarm && uarm->oartifact == ART_PROTECTION_WITH_A_PRICE) uac -= 5;
 	if (uarm && uarm->oartifact == ART_GRANDMASTER_S_ROBE) uac -= 5;
@@ -5175,6 +5207,7 @@ find_ac()
 	if (uarmf && uarmf->oartifact == ART_PORCELAIN_ELEPHANT) uac -= 5;
 	if (uarmc && uarmc->oartifact == ART_SEXY_STROKING_UNITS) uac -= 5;
 	if (uarm && uarm->oartifact == ART_ANASTASIA_S_SOFT_CLOTHES) uac -= 10;
+	if (uarm && uarm->oartifact == ART_ROCKET_IMPULSE) uac -= 10;
 	if (uarm && uarm->oartifact == ART_THA_WALL) uac -= 9;
 	if (uarmc && uarmc->oartifact == ART_LAURA_S_SWIMSUIT) uac += 5;
 	if (uwep && uwep->oartifact == ART_ELOPLUS_STAT) uac -= 1;
@@ -5188,10 +5221,20 @@ find_ac()
 	if (uamul && uamul->oartifact == ART_WOUUU) uac -= 5;
 	if (uarmc && uarmc->oartifact == ART_HIGH_KING_OF_SKIRIM) uac -= 5;
 	if (uarmg && uarmg->oartifact == ART_MARY_INSCRIPTION) uac -= 5;
-	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_HENRIETTA_S_TENACIOUSNESS) uac -= 10;
-	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_LAUGHING_AT_MIDNIGHT) uac -= 5;
-	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_ARABELLA_S_SEXY_CHARM) uac -= 20;
-	if (Role_if(PM_OTAKU) && uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "fourchan cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "chetyrekhchasovoy plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "to'rtburchak plash"))) uac -= 1;
+	if (uarm && uarm->oartifact == ART_REQUIRED_POWER_PLANT_GEAR) uac -= 5;
+	if (uarm && uarm->oartifact == ART_STABLE_EXOSKELETON) uac -= 10;
+	if (HardcoreAlienMode) uac -= 1;
+	if (powerfulimplants() && uimplant && uimplant->oartifact == ART_HENRIETTA_S_TENACIOUSNESS) uac -= 10;
+	if (powerfulimplants() && uimplant && uimplant->oartifact == ART_LAUGHING_AT_MIDNIGHT) uac -= 5;
+	if (powerfulimplants() && uimplant && uimplant->oartifact == ART_ARABELLA_S_SEXY_CHARM) uac -= 20;
+	if (Role_if(PM_OTAKU) && uarmc && itemhasappearance(uarmc, APP_FOURCHAN_CLOAK)) uac -= 1;
+	if (uarmf && uarmf->oartifact == ART_KATI_S_IRRESISTIBLE_STILET) uac -= 2;
+	if (uarmc && uarmc->oartifact == ART_FOOKING_TANK) uac -= 10;
+	if (uarmg && uarmg->oartifact == ART_AA_S_CRASHING_TRAGEDY) uac -= 5;
+	if (uarmf && uarmf->oartifact == ART_INERT_GREAVES) uac -= 4;
+	if (uarmf && uarmf->oartifact == ART_UNFELLABLE_TREE && u.burrowed) uac -= 20;
+	if (Race_if(PM_DUTHOL) && PlayerInBlockHeels) uac -= 5;
+	if (Race_if(PM_HYPOTHERMIC) && uarmc) uac -= 3;
 
 	if (uamul && uamul->oartifact == ART_MOSH_PIT_SCRAMBLE) {
 		if ((!uarm || is_metallic(uarm)) && (!uarmc || is_metallic(uarmc)) && (!uarmu || is_metallic(uarmu)) && (!uarms || is_metallic(uarms)) && (!uarmg || is_metallic(uarmg)) && (!uarmf || is_metallic(uarmf)) && (!uarmh || is_metallic(uarmh)) ) {
@@ -5226,58 +5269,79 @@ find_ac()
 		if (uarms) uac -= 5;
 	}
 
-	if (uarmc && objects[(uarmc)->otyp].oc_material == VIVA) {
+	if (uarmc && objects[(uarmc)->otyp].oc_material == MT_VIVA) {
 		uac -= (uarmc->oeroded * 2);
 		uac -= (uarmc->oeroded2 * 2);
 	}
-	if (uarm && objects[(uarm)->otyp].oc_material == VIVA) {
+	if (uarm && objects[(uarm)->otyp].oc_material == MT_VIVA) {
 		uac -= (uarm->oeroded * 2);
 		uac -= (uarm->oeroded2 * 2);
 	}
-	if (uarmu && objects[(uarmu)->otyp].oc_material == VIVA) {
+	if (uarmu && objects[(uarmu)->otyp].oc_material == MT_VIVA) {
 		uac -= (uarmu->oeroded * 2);
 		uac -= (uarmu->oeroded2 * 2);
 	}
-	if (uarms && objects[(uarms)->otyp].oc_material == VIVA) {
+	if (uarms && objects[(uarms)->otyp].oc_material == MT_VIVA) {
 		uac -= (uarms->oeroded * 2);
 		uac -= (uarms->oeroded2 * 2);
 	}
-	if (uarmh && objects[(uarmh)->otyp].oc_material == VIVA) {
+	if (uarmh && objects[(uarmh)->otyp].oc_material == MT_VIVA) {
 		uac -= (uarmh->oeroded * 2);
 		uac -= (uarmh->oeroded2 * 2);
 	}
-	if (uarmf && objects[(uarmf)->otyp].oc_material == VIVA) {
+	if (uarmf && objects[(uarmf)->otyp].oc_material == MT_VIVA) {
 		uac -= (uarmf->oeroded * 2);
 		uac -= (uarmf->oeroded2 * 2);
 	}
-	if (uarmg && objects[(uarmg)->otyp].oc_material == VIVA) {
+	if (uarmg && objects[(uarmg)->otyp].oc_material == MT_VIVA) {
 		uac -= (uarmg->oeroded * 2);
 		uac -= (uarmg->oeroded2 * 2);
 	}
-	if (uamul && objects[(uamul)->otyp].oc_material == VIVA) {
+	if (uamul && objects[(uamul)->otyp].oc_material == MT_VIVA) {
 		uac -= 3;
 		uac -= (uamul->oeroded * 2);
 		uac -= (uamul->oeroded2 * 2);
 	}
-	if (uimplant && objects[(uimplant)->otyp].oc_material == VIVA) {
+	if (uimplant && objects[(uimplant)->otyp].oc_material == MT_VIVA) {
 		uac -= 3;
 		uac -= (uimplant->oeroded * 2);
 		uac -= (uimplant->oeroded2 * 2);
 	}
-	if (uleft && objects[(uleft)->otyp].oc_material == VIVA) {
+	if (uleft && objects[(uleft)->otyp].oc_material == MT_VIVA) {
 		uac -= 2;
 		uac -= (uleft->oeroded);
 		uac -= (uleft->oeroded2);
 	}
-	if (uright && objects[(uright)->otyp].oc_material == VIVA) {
+	if (uright && objects[(uright)->otyp].oc_material == MT_VIVA) {
 		uac -= 2;
 		uac -= (uright->oeroded);
 		uac -= (uright->oeroded2);
 	}
-	if (ublindf && objects[(ublindf)->otyp].oc_material == VIVA) {
+	if (ublindf && objects[(ublindf)->otyp].oc_material == MT_VIVA) {
 		uac -= 4;
 		uac -= (ublindf->oeroded * 3);
 		uac -= (ublindf->oeroded2 * 3);
+	}
+	if (uarmc && objects[(uarmc)->otyp].oc_material == MT_CERAMIC) {
+		uac -= 2;
+	}
+	if (uarm && objects[(uarm)->otyp].oc_material == MT_CERAMIC) {
+		uac -= 2;
+	}
+	if (uarmu && objects[(uarmu)->otyp].oc_material == MT_CERAMIC) {
+		uac -= 2;
+	}
+	if (uarms && objects[(uarms)->otyp].oc_material == MT_CERAMIC) {
+		uac -= 2;
+	}
+	if (uarmh && objects[(uarmh)->otyp].oc_material == MT_CERAMIC) {
+		uac -= 2;
+	}
+	if (uarmf && objects[(uarmf)->otyp].oc_material == MT_CERAMIC) {
+		uac -= 2;
+	}
+	if (uarmg && objects[(uarmg)->otyp].oc_material == MT_CERAMIC) {
+		uac -= 2;
 	}
 
 	if (u.negativeprotection) uac += u.negativeprotection;
@@ -5309,6 +5373,13 @@ find_ac()
 	/* Harlow - make sure it doesn't wrap around ;) */
 	uac = (uac < UAC_MIN ? UAC_MIN : (uac > UAC_LIM ? UAC_LIM : uac));
 
+	if (Race_if(PM_ITAQUE)) {
+		int difference = (-(uac - 10));
+		difference = difference / 10;
+		if (difference > 0) uac -= difference;
+
+	}
+
 	if (u.berserktime) {
 		int difference = (-(uac - 10));
 		difference = difference / 5;
@@ -5317,12 +5388,81 @@ find_ac()
 		
 	}
 
+	if (Race_if(PM_SERB)) {
+		int difference = (-(uac - 10));
+		difference *= 4;
+		difference /= 5;
+		if (difference > 0) uac = 10 - difference;
+		else uac = 10;
+	}
+
+	if (Race_if(PM_RUSMOT)) {
+		int difference = (-(uac - 10));
+		difference *= 4;
+		difference /= 5;
+		if (difference > 0) uac = 10 - difference;
+		else uac = 10;
+	}
+
 	if (Dimmed) {
 		int difference = (-(uac - 10));
 		difference = difference / 2;
 		if (difference > 0) uac = 10 - difference;
 		else uac = 10;
 		
+	}
+
+	/* heavy two-handed weapons should have a disadvantage to make up for the fact that they deal great damage and
+	 * don't suffer from low to-hit like dual-wielded one-handed weapons do. These are basically all two-handers that
+	 * are meant to be used in melee, so e.g. bows are unaffected but also polearms because those are already balanced
+	 * by the fact that their damage is only mediocre and they're not effective without riding.
+	 * Additionally, quarterstaff and unicorn horn are exempt because they don't get big damage bonuses and shouldn't
+	 * be made completely pointless just because I'm trying to balance the heavy hitters.
+	 * And double lightsabers are exempt because it's already enough of a hassle to manage power for them. --Amy */
+	if (uwep && is_heavyweapon(uwep)) {
+
+		int heavyreduction = 80;
+
+		if (!PlayerCannotUseSkills) {
+			switch (P_SKILL(P_TWO_HANDED_WEAPON)) {
+				case P_BASIC: heavyreduction = 83; break;
+				case P_SKILLED: heavyreduction = 86; break;
+				case P_EXPERT: heavyreduction = 89; break;
+				case P_MASTER: heavyreduction = 92; break;
+				case P_GRAND_MASTER: heavyreduction = 95; break;
+				case P_SUPREME_MASTER: heavyreduction = 98; break;
+				default: heavyreduction = 80; break;
+			}
+		}
+
+		int difference = (-(uac - 10));
+		difference *= heavyreduction;
+		difference /= 100;
+		if (difference > 0) uac = 10 - difference;
+		else uac = 10;
+
+	}
+
+	if (Race_if(PM_PLAYER_ASURA)) {
+
+		int worncount = 0;
+		if (uarm) worncount++;
+		if (uarmc) worncount++;
+		if (uarmu) worncount++;
+		if (uarms) worncount++;
+		if (uarmh) worncount++;
+		if (uarmf) worncount++;
+		if (uarmg) worncount++;
+
+		if (worncount > 0) {
+			int difference = (-(uac - 10));
+			difference = difference * (20 - worncount);
+			difference /= 20;
+			if (difference > 0) uac = 10 - difference;
+			else uac = 10;
+
+		}
+
 	}
 
 	if (uarm && uarm->oartifact == ART_IMPRACTICAL_COMBAT_WEAR) {
@@ -5402,7 +5542,7 @@ glibr()
 			otherwep ? "other " : "", thiswep,
 			xfl ? "also " : "",
 			makeplural(body_part(HAND)));
-		setuwep((struct obj *)0, FALSE);
+		setuwep((struct obj *)0, FALSE, TRUE);
 		if ( (otmp->otyp != LOADSTONE && otmp->otyp != HEALTHSTONE && otmp->otyp != LUCKSTONE && otmp->otyp != MANASTONE && otmp->otyp != SLEEPSTONE && otmp->otyp != LOADBOULDER && otmp->otyp != STARLIGHTSTONE && otmp->otyp != STONE_OF_MAGIC_RESISTANCE && !is_nastygraystone(otmp) ) || !otmp->cursed)
 			dropx(otmp);
 	}
@@ -5491,7 +5631,7 @@ register struct obj *otmp;
 	*buf = '\0';			/* lint suppresion */
 
 	boolean updowninversion = 0;
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "up-down cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "plashch s verkhnim plashchem") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "up-pastga plash") )) updowninversion = 1;
+	if (uarmc && itemhasappearance(uarmc, APP_UP_DOWN_CLOAK)) updowninversion = 1;
 
 	/* implant check */
 	if (otmp == uimplant) {
@@ -5543,7 +5683,7 @@ register struct obj *otmp;
 		pline_The("ring is stuck.");
 		return 0;
 	    }
-	    if (objects[(otmp)->otyp].oc_material == INKA && !(Race_if(PM_INKA))  && !(youmonst.data->msound == MS_FART_QUIET || youmonst.data->msound == MS_FART_NORMAL || youmonst.data->msound == MS_FART_LOUD) ) {
+	    if (objects[(otmp)->otyp].oc_material == MT_INKA && !(Race_if(PM_INKA))  && !(youmonst.data->msound == MS_FART_QUIET || youmonst.data->msound == MS_FART_NORMAL || youmonst.data->msound == MS_FART_LOUD) ) {
 		pline("Inka rings cannot be taken off. You need to chat to a farting monster to have it removed.");
 		return 0;
 	    }
@@ -5651,7 +5791,7 @@ do_takeoff()
 
 	if (taking_off == W_WEP) {
 	  if(!cursed(uwep)) {
-	    setuwep((struct obj *) 0, TRUE);
+	    setuwep((struct obj *) 0, TRUE, TRUE);
 	    You("are empty %s.", body_part(HANDED));
 	    u.twoweap = FALSE;
 	  }
@@ -5803,6 +5943,31 @@ doddoremarm()
 {
     int result = 0;
 
+	if (HardcoreAlienMode) {
+		int i, j, bd = 1;
+		struct monst *mtmp;
+		for (i = -bd; i <= bd; i++) for(j = -bd; j <= bd; j++) {
+			if (!isok(u.ux + i, u.uy + j)) continue;
+			if ((mtmp = m_at(u.ux + i, u.uy + j)) != 0) {
+				if (canspotmon(mtmp)) {
+					pline("Not now! They're looking!");
+					if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+					return 0;
+				} else {
+					pline("Someone watched you change clothes...");
+					if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+					u.ugangr++;
+					adjalign(-50);
+					change_luck(-1);
+					prayer_done();
+					return 1;
+
+				}
+			}
+		}
+
+	}
+
     if (taking_off || takeoff_mask) {
 	You("continue %s.", disrobing);
 	set_occupation(take_off, disrobing, 0);
@@ -5814,7 +5979,7 @@ doddoremarm()
     }
 
     add_valid_menu_class(0); /* reset */
-    if (flags.menu_style != MENU_TRADITIONAL ||
+    if ((flags.menu_style != MENU_TRADITIONAL && !InventoryDoesNotGo) ||
 	    (result = ggetobj("take off", select_off, 0, FALSE, (unsigned *)0)) < -1)
 	result = menu_remarm(result);
 
@@ -5844,7 +6009,7 @@ int retry;
 
     if (retry) {
 	all_worn_categories = (retry == -2);
-    } else if (flags.menu_style == MENU_FULL) {
+    } else if (flags.menu_style == MENU_FULL && !InventoryDoesNotGo) {
 	all_worn_categories = FALSE;
 	n = query_category("What type of things do you want to take off?",
 			   invent, WORN_TYPES|ALL_TYPES, &pick_list, PICK_ANY);
@@ -5856,7 +6021,7 @@ int retry;
 		add_valid_menu_class(pick_list[i].item.a_int);
 	}
 	free((void *) pick_list);
-    } else if (flags.menu_style == MENU_COMBINATION) {
+    } else if (flags.menu_style == MENU_COMBINATION && !InventoryDoesNotGo) {
 	all_worn_categories = FALSE;
 	if (ggetobj("take off", select_off, 0, TRUE, (unsigned *)0) == -2)
 	    all_worn_categories = TRUE;

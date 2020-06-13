@@ -25,7 +25,7 @@ STATIC_DCL boolean allow_cat_no_uchain(struct obj *);
 STATIC_DCL int autopick(struct obj*, int, menu_item **);
 STATIC_DCL int count_categories(struct obj *,int);
 STATIC_DCL long carry_count(struct obj *,struct obj *,long,BOOLEAN_P,int *,int *);
-STATIC_DCL int lift_object(struct obj *,struct obj *,long *,BOOLEAN_P);
+STATIC_DCL int lift_object(struct obj *,struct obj *,long *,BOOLEAN_P,BOOLEAN_P);
 STATIC_PTR int in_container_(struct obj *,BOOLEAN_P);
 STATIC_PTR int in_container(struct obj *);
 STATIC_PTR int ck_bag(struct obj *);
@@ -77,6 +77,13 @@ boolean here;		/* flag for type of obj list linkage */
 	 * we're only called after multiple classes of objects have been
 	 * detected, hence multiple objects must be present.
 	 */
+
+	if (InventoryDoesNotGo && !program_state.gameover) {
+		pline("Not enough memory to create inventory window");
+ 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+		return;
+	}	
+
 	if (!otmp) {
 	    impossible("simple_look(null)");
 	} else if (!(here ? otmp->nexthere : otmp->nobj)) {
@@ -471,7 +478,7 @@ int what;		/* should be a long */
 	if (!u.uswallow) {
 		objchain = level.objects[u.ux][u.uy];
 		traverse_how = BY_NEXTHERE;
-	} else {pline(Hallucination ? "There's something embedded here, but you can't dislodge it..." : "You can't take items out of a monster's interior!"); 
+	} else {pline(FunnyHallu ? "There's something embedded here, but you can't dislodge it..." : "You can't take items out of a monster's interior!"); 
 			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 	return (0); /* otherwise the player could snatch worn amulets of life saving or similar stuff! --Amy */
 
@@ -490,7 +497,7 @@ int what;		/* should be a long */
 	    goto menu_pickup;
 	}
 
-	if (flags.menu_style != MENU_TRADITIONAL || iflags.menu_requested) {
+	if ((flags.menu_style != MENU_TRADITIONAL && !InventoryDoesNotGo) || iflags.menu_requested) {
 
 	    /* use menus exclusively */
 	    if (count) {	/* looking for N of something */
@@ -512,7 +519,7 @@ menu_pickup:
 	    n_tried = n;
 	    for (n_picked = i = 0 ; i < n; i++) {
 		res = pickup_object(pick_list[i].item.a_obj,pick_list[i].count,
-					FALSE);
+					FALSE, FALSE);
 		if (res < 0) break;	/* can't continue */
 		n_picked += res;
 	    }
@@ -540,7 +547,7 @@ menu_pickup:
 		obj = objchain;
 		lcount = min(obj->quan, (long)count);
 		n_tried++;
-		if (pickup_object(obj, lcount, FALSE) > 0)
+		if (pickup_object(obj, lcount, FALSE, FALSE) > 0)
 		    n_picked++;	/* picked something */
 		goto end_query;
 
@@ -604,7 +611,7 @@ menu_pickup:
 		if (lcount == -1L) lcount = obj->quan;
 
 		n_tried++;
-		if ((res = pickup_object(obj, lcount, FALSE)) < 0) break;
+		if ((res = pickup_object(obj, lcount, FALSE, FALSE)) < 0) break;
 		n_picked += res;
 	    }
 end_query:
@@ -679,10 +686,10 @@ menu_item **pick_list;	/* list of objects and counts to pick up */
 		else {
 
 #ifndef AUTOPICKUP_EXCEPTIONS
-	    if (!*otypes || index(otypes, curr->oclass) ||
+	    if (/*!*otypes || */index(otypes, curr->oclass) ||
 		(flags.pickup_thrown && curr->was_thrown && !(curr->cursed && curr->bknown && !flags.pickup_cursed && !Hallucination && !(PlayerUninformation) ) ) )
 #else
-	    if ((!*otypes || index(otypes, curr->oclass) ||
+	    if ((/*!*otypes || */index(otypes, curr->oclass) ||
 		(flags.pickup_thrown && curr->was_thrown && !(curr->cursed && curr->bknown && !flags.pickup_cursed && !Hallucination && !(PlayerUninformation) ) ) ||
 		is_autopickup_exception(curr, TRUE)) &&
 		!is_autopickup_exception(curr, FALSE))
@@ -703,10 +710,10 @@ menu_item **pick_list;	/* list of objects and counts to pick up */
 			} else {
 
 #ifndef AUTOPICKUP_EXCEPTIONS
-				if (!*otypes || index(otypes, curr->oclass) ||
+				if (/*!*otypes || */index(otypes, curr->oclass) ||
 					(flags.pickup_thrown && curr->was_thrown && !(curr->cursed && curr->bknown && !flags.pickup_cursed && !Hallucination && !(PlayerUninformation) ) ) ) {
 #else
-				if ((!*otypes || index(otypes, curr->oclass) ||
+				if ((/*!*otypes || */index(otypes, curr->oclass) ||
 					(flags.pickup_thrown && curr->was_thrown && !(curr->cursed && curr->bknown && !flags.pickup_cursed && !Hallucination && !(PlayerUninformation) ) ) ||
 					is_autopickup_exception(curr, TRUE)) && !is_autopickup_exception(curr, FALSE)) {
 #endif
@@ -748,9 +755,11 @@ menu_item **pick_list;		/* return list of items picked */
 int how;			/* type of query */
 boolean (*allow)(OBJ_P);/* allow function */
 {
+	int i, j;
 	int n;
 	winid win;
 	struct obj *curr, *last;
+	struct obj **oarray;
 	char *pack;
 	anything any;
 	boolean printed_type_name;
@@ -780,6 +789,31 @@ boolean (*allow)(OBJ_P);/* allow function */
 	    return 1;
 	}
 
+	/* Make a temporary array to store the objects sorted */
+	oarray = (struct obj **)alloc(n*sizeof(struct obj*));
+
+	/* Add objects to the array */
+	i = 0;
+	for (curr = olist; curr; curr = FOLLOW(curr, qflags)) {
+	  if ((*allow)(curr)) {
+	    if ((iflags.sortloot == 'f' ||
+	        (iflags.sortloot == 'l' && !(qflags & USE_INVLET))) && !(Hallucination || PlayerUninformation))
+	      {
+	        /* Insert object at correct index */
+	        for (j = i; j; j--)
+	          {
+	            if (strcmpi(cxname2(curr), cxname2(oarray[j-1]))>0) break;
+	            oarray[j] = oarray[j-1];
+	          }
+	        oarray[j] = curr;
+	        i++;
+	      } else {
+	        /* Just add it to the array */
+	        oarray[i++] = curr;
+	      }
+	  }
+	}
+
 	win = create_nhwindow(NHW_MENU);
 	start_menu(win);
 	any.a_obj = (struct obj *) 0;
@@ -793,7 +827,10 @@ boolean (*allow)(OBJ_P);/* allow function */
 	pack = flags.inv_order;
 	do {
 	    printed_type_name = FALSE;
-	    for (curr = olist; curr; curr = FOLLOW(curr, qflags)) {
+	    /*for (curr = olist; curr; curr = FOLLOW(curr, qflags)) {*/
+	    for (i = 0; i < n; i++) {
+		curr = oarray[i];
+
 		if ((qflags & FEEL_COCKATRICE) && (curr->otyp == CORPSE || curr->otyp == EGG) &&
 		     will_feel_cockatrice(curr, FALSE)) {
 			destroy_nhwindow(win);	/* stop the menu and revert */
@@ -821,6 +858,7 @@ boolean (*allow)(OBJ_P);/* allow function */
 	    pack++;
 	} while (qflags & INVORDER_SORT && *pack);
 
+	free(oarray);
 	end_menu(win, qstr);
 	n = select_menu(win, how, pick_list);
 	destroy_nhwindow(win);
@@ -1214,10 +1252,11 @@ int *wt_before, *wt_after;
 /* determine whether character is able and player is willing to carry `obj' */
 STATIC_OVL
 int 
-lift_object(obj, container, cnt_p, telekinesis)
+lift_object(obj, container, cnt_p, telekinesis, alwaysflag)
 struct obj *obj, *container;	/* object to pick up, bag it's coming out of */
 long *cnt_p;
 boolean telekinesis;
+boolean alwaysflag;
 {
     int result, old_wt, new_wt, prev_encumbr, next_encumbr;
 
@@ -1226,7 +1265,7 @@ boolean telekinesis;
 			body_part(HAND), xname(obj));
 	return -1;
     }
-    if (obj->otyp == LOADSTONE || obj->otyp == LOADBOULDER || obj->otyp == STARLIGHTSTONE ||
+    if (obj->otyp == LOADSTONE || obj->otyp == LOADBOULDER || obj->otyp == STARLIGHTSTONE || alwaysflag ||
 	    (obj->otyp == BOULDER && throws_rocks(youmonst.data)) || (obj->oartifact && arti_is_evil(obj)) )
 	return 1;		/* lift regardless of current situation */
 
@@ -1314,10 +1353,11 @@ unsigned padlength;
  * up, 1 if otherwise.
  */
 int
-pickup_object(obj, count, telekinesis)
+pickup_object(obj, count, telekinesis, alwaysflag)
 struct obj *obj;
 long count;
 boolean telekinesis;	/* not picking it up directly by hand */
+boolean alwaysflag;	/* force the item to be picked up even if it burdens you --Amy */
 {
 	int res, nearload;
 #ifndef GOLDOBJ
@@ -1386,7 +1426,7 @@ boolean telekinesis;	/* not picking it up directly by hand */
 #endif
 	} else if (obj->otyp == CORPSE) {
 	    if ( (touch_petrifies(&mons[obj->corpsenm])) && (!uarmg || FingerlessGloves)
-				&& !Stone_resistance && !telekinesis) {
+				&& (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && !telekinesis) {
 		if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))
 		    display_nhwindow(WIN_MESSAGE, FALSE);
 		else {
@@ -1406,8 +1446,8 @@ boolean telekinesis;	/* not picking it up directly by hand */
 		return -1;
 	    }
 	} else if (obj->otyp == EGG) {
-	    if ( (touch_petrifies(&mons[obj->corpsenm])) && (!uarmg || FingerlessGloves)
-				&& !Stone_resistance && !telekinesis) {
+	    if ( (touch_petrifies(&mons[obj->corpsenm])) && obj->corpsenm != PM_PLAYERMON && (!uarmg || FingerlessGloves)
+				&& (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && !telekinesis) {
 		if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))
 		    display_nhwindow(WIN_MESSAGE, FALSE);
 		else {
@@ -1449,6 +1489,9 @@ boolean telekinesis;	/* not picking it up directly by hand */
 
 	}
 
+	if (Role_if(PM_YAUTJA) && obj && obj->otyp == CHEMISTRY_SET) obj->known = TRUE;
+	if (Role_if(PM_CRACKER) && obj && obj->oclass == SCROLL_CLASS) obj->bknown = TRUE;
+
 	if (obj && obj->oclass == WAND_CLASS && (ManaBatteryBug || u.uprops[MANA_BATTERY_BUG].extrinsic || have_batterystone()) && obj->spe >= 0) {
 
 		if (obj->spe == 0) obj->spe = -1;
@@ -1472,7 +1515,7 @@ boolean telekinesis;	/* not picking it up directly by hand */
 		obj->blessed = 1;
 	}
 
-	if ((res = lift_object(obj, (struct obj *)0, &count, telekinesis)) <= 0)
+	if ((res = lift_object(obj, (struct obj *)0, &count, telekinesis, alwaysflag)) <= 0)
 	    return res;
 
 #ifdef GOLDOBJ
@@ -1604,7 +1647,7 @@ able_to_loot(x, y)
 int x, y;
 {
 	if (!can_reach_floor()) {
-		if (u.usteed && !(nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) && (PlayerCannotUseSkills || P_SKILL(P_RIDING) < P_BASIC) )
+		if (u.usteed && !(uwep && uwep->oartifact == ART_SORTIE_A_GAUCHE) && !(powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) && (PlayerCannotUseSkills || P_SKILL(P_RIDING) < P_BASIC) )
 			rider_cant_reach(); /* not skilled enough to reach */
 		else
 			You("cannot reach the %s.", surface(x, y));
@@ -1621,7 +1664,7 @@ int x, y;
 		pline("Without limbs, you cannot loot anything.");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return FALSE;
-	} else if (!freehandX()) {
+	} else if (!freehandX() && !(Role_if(PM_CELLAR_CHILD) && uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) ) {
 		pline("Without a free %s, you cannot loot anything.",
 			body_part(HAND));
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
@@ -1713,6 +1756,7 @@ lootcont:
 		    pline("It develops a huge set of teeth and bites you!");
 		    tmp = rnd(10);
 		    if (Half_physical_damage && rn2(2) ) tmp = (tmp+1) / 2;
+		    if (StrongHalf_physical_damage && rn2(2) ) tmp = (tmp+1) / 2;
 		    losehp(tmp, "carnivorous bag", KILLED_BY_AN);
 		    makeknown(BAG_OF_TRICKS);
 		    timepassed = 1;
@@ -1972,7 +2016,7 @@ boolean silent;
 		    if (x == u.ux && y == u.uy) {
 			if (underwater && (Flying || Levitation))
 			    pline_The("water boils beneath you.");
-			else if (underwater && Wwalking)
+			else if (underwater && (Wwalking || Race_if(PM_KORONST)))
 			    pline_The("water erupts around you.");
 			else pline("A bag explodes under your %s!",
 			  makeplural(body_part(FOOT)));
@@ -1981,8 +2025,8 @@ boolean silent;
 			    "see a plume of water shoot up." :
 			    "see a bag explode.");
 		}
-		if (underwater && (Flying || Levitation || Wwalking)) {
-		    if (Wwalking && x == u.ux && y == u.uy) {
+		if (underwater && (Flying || Levitation || Wwalking || Race_if(PM_KORONST))) {
+		    if ((Wwalking || Race_if(PM_KORONST)) && x == u.ux && y == u.uy) {
 			struct trap trap;
 			trap.ntrap = NULL;
 			trap.tx = x;
@@ -2047,7 +2091,7 @@ boolean invobj;
 		You("must be kidding.");
 		return 0;
 	} else if (obj == current_container) {
-		pline(Hallucination ? "You try folding it with some ikebana technique but to no avail." : "That would be an interesting topological exercise.");
+		pline(FunnyHallu ? "You try folding it with some ikebana technique but to no avail." : "That would be an interesting topological exercise.");
 		return 0;
 	} else if (obj->owornmask & (W_ARMOR | W_RING | W_AMUL | W_IMPLANT | W_TOOL)) {
 		Norep("You cannot %s %s you are wearing.",
@@ -2082,7 +2126,7 @@ boolean invobj;
 			weldmsg(obj);
 			return 0;
 		}
-		setuwep((struct obj *) 0, FALSE);
+		setuwep((struct obj *) 0, FALSE, TRUE);
 		if (uwep) return 0;	/* unwielded, died, rewielded */
 	} else if (obj == uswapwep) {
 		setuswapwep((struct obj *) 0, FALSE);
@@ -2094,7 +2138,7 @@ boolean invobj;
 
 	if (obj->otyp == CORPSE) {
 	    if ( (touch_petrifies(&mons[obj->corpsenm])) && (!uarmg || FingerlessGloves)
-		 && !Stone_resistance) {
+		 && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) )) {
 		if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))
 		    display_nhwindow(WIN_MESSAGE, FALSE);
 		else {
@@ -2110,8 +2154,8 @@ boolean invobj;
 	}
 
 	if (obj->otyp == EGG) {
-	    if ( (touch_petrifies(&mons[obj->corpsenm])) && (!uarmg || FingerlessGloves)
-		 && !Stone_resistance) {
+	    if ( (touch_petrifies(&mons[obj->corpsenm])) && obj->corpsenm != PM_PLAYERMON && (!uarmg || FingerlessGloves)
+		 && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) )) {
 		if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))
 		    display_nhwindow(WIN_MESSAGE, FALSE);
 		else {
@@ -2159,7 +2203,8 @@ boolean invobj;
 		sellobj_state(SELL_NORMAL);
 	    }
 	}
-	if (Icebox && !age_is_relative(obj)) {
+	if (Icebox && !age_is_relative(obj) && !is_lightsaber(obj)) {
+		obj->icedobject = TRUE;
 		obj->age = monstermoves - obj->age; /* actual age */
 		/* stop any corpse timeouts when frozen */
 		if (obj->otyp == CORPSE && obj->timed) {
@@ -2265,7 +2310,7 @@ register struct obj *obj;
 
 	if (obj->otyp == CORPSE) {
 	    if ( (touch_petrifies(&mons[obj->corpsenm])) && (!uarmg || FingerlessGloves)
-		 && !Stone_resistance) {
+		 && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) )) {
 		if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))
 		    display_nhwindow(WIN_MESSAGE, FALSE);
 		else {
@@ -2281,8 +2326,8 @@ register struct obj *obj;
 	}
 
 	if (obj->otyp == EGG) {
-	    if ( (touch_petrifies(&mons[obj->corpsenm])) && (!uarmg || FingerlessGloves)
-		 && !Stone_resistance) {
+	    if ( (touch_petrifies(&mons[obj->corpsenm])) && obj->corpsenm != PM_PLAYERMON && (!uarmg || FingerlessGloves)
+		 && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) )) {
 		if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))
 		    display_nhwindow(WIN_MESSAGE, FALSE);
 		else {
@@ -2298,7 +2343,7 @@ register struct obj *obj;
 	}
 
 	count = obj->quan;
-	if ((res = lift_object(obj, current_container, &count, FALSE)) <= 0)
+	if ((res = lift_object(obj, current_container, &count, FALSE, FALSE)) <= 0)
 	    return res;
 
 	if (obj->quan != count && obj->otyp != LOADSTONE && obj->otyp != LUCKSTONE && obj->otyp != HEALTHSTONE && obj->otyp != MANASTONE && obj->otyp != SLEEPSTONE && obj->otyp != LOADBOULDER && obj->otyp != STARLIGHTSTONE && obj->otyp != STONE_OF_MAGIC_RESISTANCE && !is_nastygraystone(obj) )
@@ -2308,7 +2353,8 @@ register struct obj *obj;
 	obj_extract_self(obj);
 	current_container->owt = weight(current_container);
 
-	if (Icebox && !age_is_relative(obj)) {
+	if (Icebox && !age_is_relative(obj) && !is_lightsaber(obj)) {
+		obj->icedobject = TRUE;
 		obj->age = monstermoves - obj->age; /* actual age */
 		if (obj->otyp == CORPSE)
 			start_corpse_timeout(obj);
@@ -2417,6 +2463,91 @@ struct obj *box;
 
 #undef Icebox
 
+void
+containerkaboom()
+{
+	    switch(rn2(26)) {
+		case 25:
+		case 24:
+		case 23:
+		case 22:
+		case 21:
+			pline("You're hit by a massive explosion!");
+			wake_nearby();
+			losehp( (d(6,6) + rnd((monster_difficulty()) + 1) ), "massive explosion", KILLED_BY_AN);
+			exercise(A_STR, FALSE);
+			break;
+		case 20:
+		case 19:
+		case 18:
+		case 17:
+			pline("A cloud of noxious gas billows out at you.");
+			poisoned("gas cloud", A_STR, "cloud of poison gas",15);
+			exercise(A_CON, FALSE);
+			break;
+		case 16:
+		case 15:
+		case 14:
+		case 13:
+			You_feel("a needle prick your %s.",body_part(ARM));
+			poisoned("needle", A_CON, "poisoned needle",10);
+			exercise(A_CON, FALSE);
+			break;
+		case 12:
+		case 11:
+		case 10:
+		case 9:
+			dofiretrap((struct obj *)0);
+			break;
+		case 8:
+		case 7:
+		case 6: {
+			int dmg;
+
+			You("are jolted by a surge of electricity!");
+			if(Shock_resistance && (StrongShock_resistance || rn2(10)) )  {
+			    shieldeff(u.ux, u.uy);
+			    You("don't seem to be affected.");
+			    break;
+			} else
+			    losehp(d(4, 4) + rnd((monster_difficulty() / 2) + 1), "electric shock", KILLED_BY_AN);
+		    if (isevilvariant || !rn2(issoviet ? 6 : 33)) /* new calculations --Amy */	destroy_item(RING_CLASS, AD_ELEC);
+		    if (isevilvariant || !rn2(issoviet ? 6 : 33)) /* new calculations --Amy */	destroy_item(WAND_CLASS, AD_ELEC);
+		    if (isevilvariant || !rn2(issoviet ? 30 : 165)) /* new calculations --Amy */	destroy_item(AMULET_CLASS, AD_ELEC);
+			break;
+		      }
+		case 5:
+		case 4:
+		case 3:
+			if (!Free_action || !rn2(StrongFree_action ? 100 : 20)) {
+			pline("Suddenly you are frozen in place!");
+			if (PlayerHearsSoundEffects) pline(issoviet ? "Teper' vy ne mozhete dvigat'sya. Nadeyus', chto-to ubivayet vas, prezhde chem vash paralich zakonchitsya." : "Klltsch-tsch-tsch-tsch-tsch!");
+			nomul(-d(5, 6), "frozen by a container kaboom", TRUE);
+			exercise(A_DEX, FALSE);
+			nomovemsg = You_can_move_again;
+			} else You("momentarily stiffen.");
+			break;
+		case 2:
+		case 1:
+		case 0:
+			pline("A cloud of %s gas billows out at you.", Blind ? "booming" : rndcolor() );
+			if(!Stunned) {
+			    if (Blind)
+				You("%s and get dizzy...",
+				    stagger(youmonst.data, "stagger"));
+			    else
+				You("%s and your vision blurs...",
+				    stagger(youmonst.data, "stagger"));
+				if (PlayerHearsSoundEffects) pline(issoviet ? "Imet' delo s effektami statusa ili sdat'sya!" : "Wrueue-ue-e-ue-e-ue-e...");
+			}
+			make_stunned(HStun + rn1(7, 16) + rnd((monster_difficulty() / 2) + 1),FALSE);
+			(void) make_hallucinated(HHallucination + rn1(5, 16) + rnd((monster_difficulty() / 2) + 1),FALSE,0L);
+			break;
+		default: impossible("bad kaboom trap");
+			break;
+		}
+}
+
 /* used by askchain() to check for magic bag explosion */
 boolean
 container_gone(fn)
@@ -2465,7 +2596,7 @@ int held;
 		}
 		else {return(0);}
 
-	} else if (!freehandX()) {
+	} else if (!freehandX() && !(Role_if(PM_CELLAR_CHILD) && uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) ) {
 		You("have no free %s.", body_part(HAND));
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return 0;
@@ -2476,6 +2607,11 @@ int held;
 	    return 0;
 	} else if (obj->otrapped) {
 	    if (held) You("open %s...", the(xname(obj)));
+	    if (Role_if(PM_CYBERNINJA) && rn2(5)) {
+		You("discover a trap on %s and disarm it.", the(xname(obj)));
+		obj->otrapped = FALSE;
+		return 1;
+	    }
 	    (void) chest_trap(obj, HAND, FALSE);
 	    /* even if the trap fails, you've used up this turn */
 	    if (multi >= 0) {	/* in case we didn't become paralyzed */
@@ -2567,88 +2703,7 @@ int held;
 	}
 
 	if (ContainerKaboom || u.uprops[CONTAINER_KABOOM].extrinsic || have_containerkaboomstone()) {
-
-	    switch(rn2(26)) {
-		case 25:
-		case 24:
-		case 23:
-		case 22:
-		case 21:
-			pline("You're hit by a massive explosion!");
-			wake_nearby();
-			losehp( (d(6,6) + rnd((monster_difficulty()) + 1) ), "massive explosion", KILLED_BY_AN);
-			exercise(A_STR, FALSE);
-			break;
-		case 20:
-		case 19:
-		case 18:
-		case 17:
-			pline("A cloud of noxious gas billows out at you.");
-			poisoned("gas cloud", A_STR, "cloud of poison gas",15);
-			exercise(A_CON, FALSE);
-			break;
-		case 16:
-		case 15:
-		case 14:
-		case 13:
-			You_feel("a needle prick your %s.",body_part(ARM));
-			poisoned("needle", A_CON, "poisoned needle",10);
-			exercise(A_CON, FALSE);
-			break;
-		case 12:
-		case 11:
-		case 10:
-		case 9:
-			dofiretrap((struct obj *)0);
-			break;
-		case 8:
-		case 7:
-		case 6: {
-			int dmg;
-
-			You("are jolted by a surge of electricity!");
-			if(Shock_resistance)  {
-			    shieldeff(u.ux, u.uy);
-			    You("don't seem to be affected.");
-			    break;
-			} else
-			    losehp(d(4, 4) + rnd((monster_difficulty() / 2) + 1), "electric shock", KILLED_BY_AN);
-		    if (isevilvariant || !rn2(issoviet ? 6 : 33)) /* new calculations --Amy */	destroy_item(RING_CLASS, AD_ELEC);
-		    if (isevilvariant || !rn2(issoviet ? 6 : 33)) /* new calculations --Amy */	destroy_item(WAND_CLASS, AD_ELEC);
-		    if (isevilvariant || !rn2(issoviet ? 30 : 165)) /* new calculations --Amy */	destroy_item(AMULET_CLASS, AD_ELEC);
-			break;
-		      }
-		case 5:
-		case 4:
-		case 3:
-			if (!Free_action || !rn2(20)) {
-			pline("Suddenly you are frozen in place!");
-			if (PlayerHearsSoundEffects) pline(issoviet ? "Teper' vy ne mozhete dvigat'sya. Nadeyus', chto-to ubivayet vas, prezhde chem vash paralich zakonchitsya." : "Klltsch-tsch-tsch-tsch-tsch!");
-			nomul(-d(5, 6), "frozen by a container kaboom", TRUE);
-			exercise(A_DEX, FALSE);
-			nomovemsg = You_can_move_again;
-			} else You("momentarily stiffen.");
-			break;
-		case 2:
-		case 1:
-		case 0:
-			pline("A cloud of %s gas billows out at you.", Blind ? "booming" : rndcolor() );
-			if(!Stunned) {
-			    if (Blind)
-				You("%s and get dizzy...",
-				    stagger(youmonst.data, "stagger"));
-			    else
-				You("%s and your vision blurs...",
-				    stagger(youmonst.data, "stagger"));
-				if (PlayerHearsSoundEffects) pline(issoviet ? "Imet' delo s effektami statusa ili sdat'sya!" : "Wrueue-ue-e-ue-e-ue-e...");
-			}
-			make_stunned(HStun + rn1(7, 16) + rnd((monster_difficulty() / 2) + 1),FALSE);
-			(void) make_hallucinated(HHallucination + rn1(5, 16) + rnd((monster_difficulty() / 2) + 1),FALSE,0L);
-			break;
-		default: impossible("bad kaboom trap");
-			break;
-		}
-
+		containerkaboom();
 	}
 
 	if (!cnt)
@@ -2661,11 +2716,11 @@ int held;
 		(void) display_cinventory(current_container);
 	    return 0;
 	}
-	if (cnt || flags.menu_style == MENU_FULL) {
+	if (cnt || (flags.menu_style == MENU_FULL && !InventoryDoesNotGo)) {
 	    strcpy(qbuf, "Do you want to take something out of ");
 	    sprintf(eos(qbuf), "%s?",
 		    safe_qbuf(qbuf, 1, yname(obj), ysimple_name(obj), "it"));
-	    if (flags.menu_style != MENU_TRADITIONAL) {
+	    if (flags.menu_style != MENU_TRADITIONAL && !InventoryDoesNotGo) {
 		if (flags.menu_style == MENU_FULL) {
 		    int t;
 		    char menuprompt[BUFSZ];
@@ -2707,6 +2762,10 @@ ask_again2:
 		if (cnt) strcat(pbuf, "m");
 		switch (yn_function(qbuf, pbuf, 'n')) {
 		case ':':
+		    if (InventoryDoesNotGo) {
+			pline("Not enough memory to create inventory window");
+			goto ask_again2;
+		    }
 		    container_contents(current_container, FALSE, FALSE);
 		    goto ask_again2;
 		case 'y':
@@ -2752,10 +2811,10 @@ ask_again2:
 	    You("don't have anything to put in.");
 	    goto containerdone;
 	}
-	if (flags.menu_style != MENU_FULL) {
+	if (flags.menu_style != MENU_FULL || InventoryDoesNotGo) {
 	    sprintf(qbuf, "Do you wish to put %s in?", something);
 	    strcpy(pbuf, ynqchars);
-	    if (flags.menu_style == MENU_TRADITIONAL && invent && inv_cnt() > 0)
+	    if ((flags.menu_style == MENU_TRADITIONAL || InventoryDoesNotGo) && invent && inv_cnt() > 0)
 		strcat(pbuf, "m");
 	    switch (yn_function(qbuf, pbuf, 'n')) {
 		case 'y':
@@ -2793,7 +2852,7 @@ ask_again2:
 	    }
 #endif
 	    add_valid_menu_class(0);	  /* reset */
-	    if (flags.menu_style != MENU_TRADITIONAL) {
+	    if (flags.menu_style != MENU_TRADITIONAL && !InventoryDoesNotGo) {
 		used |= menu_loot(0, current_container, TRUE) > 0;
 	    } else {
 		/* traditional code */
@@ -2849,7 +2908,7 @@ boolean put_in;
 
     if (retry) {
 	all_categories = (retry == -2);
-    } else if (flags.menu_style == MENU_FULL) {
+    } else if (flags.menu_style == MENU_FULL && !InventoryDoesNotGo) {
 	all_categories = FALSE;
 	sprintf(buf,"%s what type of objects?", put_in ? putin : takeout);
 	mflags = put_in ? ALL_TYPES | NOTFULLYIDED | BUC_ALLBKNOWN | BUC_UNKNOWN :
@@ -2979,8 +3038,9 @@ BOOLEAN_P destroy_after;
 		container->owt = weight(container);
 
 		/* we do need to start the timer on these */
-		if ( (container->otyp == ICE_BOX || container->otyp == ICE_BOX_OF_HOLDING || container->otyp == ICE_BOX_OF_WATERPROOFING || container->otyp == ICE_BOX_OF_DIGESTION) && !age_is_relative(otmp)) {
+		if ( (container->otyp == ICE_BOX || container->otyp == ICE_BOX_OF_HOLDING || container->otyp == ICE_BOX_OF_WATERPROOFING || container->otyp == ICE_BOX_OF_DIGESTION) && !age_is_relative(otmp) && !is_lightsaber(otmp)) {
 			otmp->age = monstermoves - otmp->age;
+			otmp->icedobject = TRUE;
 			if (otmp->otyp == CORPSE) {
 				start_corpse_timeout(otmp);
 			}

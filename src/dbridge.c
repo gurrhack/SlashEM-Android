@@ -270,6 +270,19 @@ int x,y;
 }
 
 boolean
+isimportantlocation(x,y)
+int x,y;
+{
+    schar ltyp;
+
+    if (!isok(x,y)) return FALSE;
+    ltyp = levl[x][y].typ;
+    if (ltyp == STAIRS) return TRUE;
+    if (invocation_pos(x, y)) return TRUE;
+    return FALSE;
+}
+
+boolean
 is_mattress(x,y)
 int x,y;
 {
@@ -688,7 +701,7 @@ int x, y;
 		return(TRUE);
 	if (is_pool(x, y))
                 return((boolean)((is_u(etmp) && 
-				(Wwalking || Amphibious || Swimming ||
+				(Wwalking || Race_if(PM_KORONST) || Amphibious || Swimming ||
 				Flying || Levitation)) ||
 			is_swimmer(etmp->edata) || is_flyer(etmp->edata) ||
 			is_floater(etmp->edata)));
@@ -733,7 +746,7 @@ int dest, how;
 			if (!e_survives_at(etmp, etmp->ex, etmp->ey)) {
 			    if (enexto(&xy, etmp->ex, etmp->ey, etmp->edata)) {
 				pline("A %s force teleports you away...",
-				      Hallucination ? "normal" : "strange");
+				      FunnyHallu ? "normal" : "strange");
 				teleds(xy.x, xy.y, FALSE);
 			    }
 			    /* otherwise on top of the drawbridge is the
@@ -1055,7 +1068,7 @@ struct entity *etmp;
 			/* drown() will supply msgs if nec. */
 			boolean lava = is_lava(etmp->ex, etmp->ey);
 
-			if (Hallucination)
+			if (FunnyHallu)
 			    pline("%s the %s and disappears.",
 				  E_phrase(etmp, "drink"),
 				  lava ? "lava" : "moat");
@@ -1256,7 +1269,7 @@ int x,y;
 #endif
 		} else {
 			if (e_inview) {
-			    if (!is_u(etmp1) && Hallucination)
+			    if (!is_u(etmp1) && FunnyHallu)
 				pline("%s into some heavy metal!",
 				      E_phrase(etmp1, "get"));
 			    else

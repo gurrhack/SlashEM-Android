@@ -243,10 +243,11 @@ boolean unchain_ball;	/* whether to unpunish or just unwield */
  * Avoid stealing the object stealoid
  */
 int
-steal(mtmp, objnambuf, powersteal)
+steal(mtmp, objnambuf, powersteal, instasteal)
 struct monst *mtmp;
 char *objnambuf;
-boolean powersteal;
+boolean powersteal; /* AD_SEDU - more likely to succeed */
+boolean instasteal; /* offlevel item or starting as matrayser - guaranteed to succeed, don't give messages */
 {
 	struct obj *otmp;
 	int tmp, could_petrify, named = 0, armordelay;
@@ -269,9 +270,11 @@ stealagain:
 
 	invisstealroll = 0;
 	if (powersteal) invisstealroll = rnd(40);
+	if (instasteal) invisstealroll = 100;
 
 	bonestealroll = 0;
 	if (!rn2(10)) bonestealroll = 1;
+	if (instasteal) bonestealroll = 1;
 
 	char buf[BUFSZ];
 
@@ -287,20 +290,20 @@ stealagain:
 	if (!invent || (inv_cnt() == 1 && uskin)) {
 nothing_to_steal:
 	    /* Not even a thousand men in armor can strip a naked man. */
-	    if(Blind)
+	    if(Blind && !instasteal)
 	      pline("Somebody tries to rob you, but finds nothing to steal.");
-	    else
+	    else if (!instasteal)
 	      pline("%s tries to rob you, but there is nothing to steal!", Monnam(mtmp));
 	    return(1);  /* let thief flee */
 	}
 
-	if (!rn2(10) && uarmf && OBJ_DESCR(objects[uarmf->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmf->otyp]), "noble sandals") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "blagorodnyye sandalii") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "oqlangan sandallar")) ) {
+	if (!rn2(10) && !instasteal && uarmf && itemhasappearance(uarmf, APP_NOBLE_SANDALS) ) {
 		pline("%s tries to steal something from you, but you notice it and scratch %s %s with your noble sandals!", Monnam(mtmp), mhis(mtmp), makeplural(mbodypart(mtmp, LEG)) );
 		return(1);  /* let thief flee */
 
 	}
 
-	monkey_business = is_animal(mtmp->data);
+	monkey_business = (is_animal(mtmp->data) && !instasteal);
 	if (monkey_business) {
 	    ;	/* skip ring special cases */
 	} else if (Adornment & LEFT_RING) {
@@ -314,7 +317,7 @@ nothing_to_steal:
 	tmp = 0;
 	for(otmp = invent; otmp; otmp = otmp->nobj)
 	    if ((!uarm || otmp != uarmc) && otmp != uskin
-				&& ((!otmp->oinvis || perceives(mtmp->data) || (invisstealroll > 10) ) && (objects[otmp->otyp].oc_material != BONE || bonestealroll) && !otmp->stckcurse && (!otmp->oinvisreal || (invisstealroll > 36)) )
+				&& ((!otmp->oinvis || perceives(mtmp->data) || (invisstealroll > 10) ) && (objects[otmp->otyp].oc_material != MT_BONE || bonestealroll) && !(otmp->stckcurse && !instasteal) && (!otmp->oinvisreal || (invisstealroll > 36)) )
 				)
 		tmp += ((otmp->owornmask &
 			(W_ARMOR | W_RING | W_AMUL | W_IMPLANT | W_TOOL)) ? 5 : 1);
@@ -322,7 +325,7 @@ nothing_to_steal:
 	tmp = rn2(tmp);
 	for(otmp = invent; otmp; otmp = otmp->nobj)
 	    if ((!uarm || otmp != uarmc) && otmp != uskin
-				&& ((!otmp->oinvis || perceives(mtmp->data) || (invisstealroll > 10)) && (objects[otmp->otyp].oc_material != BONE || bonestealroll) && !otmp->stckcurse && (!otmp->oinvisreal || (invisstealroll > 36)) )
+				&& ((!otmp->oinvis || perceives(mtmp->data) || (invisstealroll > 10)) && (objects[otmp->otyp].oc_material != MT_BONE || bonestealroll) && !(otmp->stckcurse && !instasteal) && (!otmp->oinvisreal || (invisstealroll > 36)) )
 			)
 		if((tmp -= ((otmp->owornmask &
 			(W_ARMOR | W_RING | W_AMUL | W_IMPLANT | W_TOOL)) ? 5 : 1)) < 0)
@@ -332,42 +335,42 @@ nothing_to_steal:
 		return(0);
 	}
 	/* can't steal gloves while wielding - so steal the wielded item. */
-	if (otmp == uarmg && uwep && uwep->stckcurse) {
+	if (otmp == uarmg && !instasteal && uwep && uwep->stckcurse) {
 		if (amountofstealings > 1) {
 			amountofstealings--;
 			goto stealagain;
 		} else return(0);
 	}
-	if (otmp == uarm && uarmc && uarmc->stckcurse) {
+	if (otmp == uarm && !instasteal && uarmc && uarmc->stckcurse) {
 		if (amountofstealings > 1) {
 			amountofstealings--;
 			goto stealagain;
 		} else return(0);
 	}
-	if (otmp == uarmu && uarmc && uarmc->stckcurse) {
+	if (otmp == uarmu && !instasteal && uarmc && uarmc->stckcurse) {
 		if (amountofstealings > 1) {
 			amountofstealings--;
 			goto stealagain;
 		} else return(0);
 	}
-	if (otmp == uarmu && uarm && uarm->stckcurse) {
+	if (otmp == uarmu && !instasteal && uarm && uarm->stckcurse) {
 		if (amountofstealings > 1) {
 			amountofstealings--;
 			goto stealagain;
 		} else return(0);
 	}
 
-	if (otmp == uarmg && uwep && !uwep->stckcurse)
+	if (otmp == uarmg && uwep && !(uwep->stckcurse && !instasteal))
 	    otmp = uwep;
 
 	/* can't steal armor while wearing cloak - so steal the cloak. */
-	else if(otmp == uarm && uarmc && !uarmc->stckcurse) otmp = uarmc;
-	else if(otmp == uarmu && uarmc && !uarmc->stckcurse) otmp = uarmc;
-	else if(otmp == uarmu && uarm && !uarm->stckcurse) otmp = uarm;
+	else if(otmp == uarm && uarmc && !(uarmc->stckcurse && !instasteal)) otmp = uarmc;
+	else if(otmp == uarmu && uarmc && !(uarmc->stckcurse && !instasteal)) otmp = uarmc;
+	else if(otmp == uarmu && uarm && !(uarm->stckcurse && !instasteal)) otmp = uarm;
 
 
 gotobj:
-	if (stack_too_big(otmp) && !issoviet) {
+	if (stack_too_big(otmp) && !instasteal && !issoviet) {
 
 		pline("%s tries to steal your %s, but you quickly protect them!", !canspotmon(mtmp) ? "It" : Monnam(mtmp), doname(otmp));
 		/* can't say "you may steal them anyway", because the stack resisted,
@@ -380,7 +383,7 @@ gotobj:
 	}
 
 	/* artifacts resist stealing because I'm nice --Amy */
-	if (rn2(10) && (!powersteal || !rn2(2)) && (otmp->oartifact || (otmp->fakeartifact && !rn2(3))) && !issoviet) {
+	if (rn2(10) && !instasteal && (!powersteal || !rn2(2)) && (otmp->oartifact || (otmp->fakeartifact && !rn2(3))) && !issoviet) {
 
 		pline("%s tries to steal your %s, but you quickly protect it!", !canspotmon(mtmp) ? "It" : Monnam(mtmp), doname(otmp));
 
@@ -401,7 +404,7 @@ gotobj:
 	 * have "fun" with a woman. Even if said "fun" means losing all that you have. And of course, Russian women are also
 	 * the absolute temptresses who will MAKE you undress whether you want it or not. --Amy */
 
-	if ( ((rnd(50) < ACURR(A_CHA)) || (rnd(50) < ACURR(A_CHA)) || (rnd(50) < ACURR(A_CHA)) ) && !powersteal && !issoviet && (otmp->owornmask & (W_ARMOR | W_RING | W_AMUL | W_IMPLANT | W_TOOL))) {
+	if ( ((rnd(50) < ACURR(A_CHA)) || (rnd(50) < ACURR(A_CHA)) || (rnd(50) < ACURR(A_CHA)) ) && !instasteal && !powersteal && !issoviet && (otmp->owornmask & (W_ARMOR | W_RING | W_AMUL | W_IMPLANT | W_TOOL))) {
 		if (otmp->cursed) {
 			otmp->bknown = 1;
 			pline("%s tries to take off your %s, which appears to be cursed.", !canspotmon(mtmp) ? "It" : Monnam(mtmp), equipname(otmp)); 
@@ -449,7 +452,7 @@ gotobj:
 	if (otmp == usaddle) dismount_steed(DISMOUNT_FELL);
 
 	/* animals can't overcome curse stickiness nor unlock chains */
-	if (monkey_business) {
+	if (monkey_business && !instasteal) {
 	    boolean ostuck;
 	    /* is the player prevented from voluntarily giving up this item?
 	       (ignores loadstones; the !can_carry() check will catch those) */
@@ -490,6 +493,10 @@ gotobj:
 
 	/* you're going to notice the theft... */
 	stop_occupation();
+
+	if (otmp->owornmask && instasteal) {
+		setnotworn(otmp); /* catchall */
+	}
 
 	if((otmp->owornmask & (W_ARMOR | W_RING | W_AMUL | W_IMPLANT | W_TOOL))){
 		switch(otmp->oclass) {
@@ -545,12 +552,12 @@ gotobj:
 				  curssv ? "helps you to take" :
 				  slowly ? "you start taking" : "you take",
 				  equipname(otmp));
-				if (mtmp->female) (void) adjattrib(A_CHA, -1, FALSE);
-				if (!mtmp->female) (void) adjattrib(A_WIS, -1, FALSE);
+				if (mtmp->female) (void) adjattrib(A_CHA, -1, FALSE, TRUE);
+				if (!mtmp->female) (void) adjattrib(A_WIS, -1, FALSE, TRUE);
 				}
 			named++;
 			/* the following is to set multi for later on */
-			nomul(-armordelay, "being seduced into taking off your clothes", TRUE);
+			nomul(-armordelay, "being seduced into taking off their clothes", TRUE);
 			nomovemsg = 0;
 			remove_worn_item(otmp, TRUE);
 			otmp->cursed = curssv;
@@ -588,8 +595,9 @@ gotobj:
 	mtmp->mavenge = 1;
 
 	freeinv(otmp);
-	if (evilfriday) pline("Something seems missing...");
-	else pline("%s stole %s.", named ? "It" : Monnam(mtmp), doname(otmp));
+	if (evilfriday && !instasteal) pline("Something seems missing...");
+	else if (!instasteal) pline("%s stole %s.", named ? "It" : Monnam(mtmp), doname(otmp));
+	u.cnd_itemstealamount++;
 
 	/* evil patch idea by jonadab - levelporting stealers
          he wants them to always levelport if they manage to steal an artifact...
@@ -605,7 +613,7 @@ gotobj:
 	}
 
 	(void) mpickobj(mtmp,otmp,FALSE);	/* may free otmp */
-	if (could_petrify && !(mtmp->misc_worn_check & W_ARMG) && !rn2(4)) {
+	if (could_petrify && !instasteal && !(mtmp->misc_worn_check & W_ARMG) && !rn2(4)) {
 	    minstapetrify(mtmp, TRUE);
 	    return -1;
 	}
@@ -674,49 +682,119 @@ struct monst *mtmp;
     struct obj *otmp = (struct obj *)0;
     int real=0, fake=0;
 
-    /* select the artifact to steal */
-    if(u.uhave.amulet) {
-	real = AMULET_OF_YENDOR;
-	fake = FAKE_AMULET_OF_YENDOR;
-    } else if(u.uhave.bell) {
-	real = BELL_OF_OPENING;
-	fake = BELL;
-    } else if(u.uhave.book) {
-	real = SPE_BOOK_OF_THE_DEAD;
-    } else if(u.uhave.menorah) {
-	real = CANDELABRUM_OF_INVOCATION;
-    } else {
-	/* steal any artifact. Based on the reaction of the 3.6.0 devteam on tungtn's complaint about AD_SAMU behavior --Amy */
-	for(otmp = invent; otmp; otmp = otmp->nobj)
-	    if(otmp->oartifact && rn2(2) ) break; /* randomness :D */
-	if (!otmp) return;
-    }
+	int choiceamount = 0;
+	int totalamount = 0;
+	boolean somethingtosteal = FALSE;
 
-    if (!otmp) {
-	/* If we get here, real and fake have been set up. */
-	for(otmp = invent; otmp; otmp = otmp->nobj)
-	    if(otmp->otyp == real || (otmp->otyp == fake && !mtmp->iswiz))
-		break;
-    }
+	int stealtype = isevilvariant ? 3 : rnd(2);
 
-    if (otmp) { /* we have something to snatch */
-	if (otmp->owornmask)
-	    remove_worn_item(otmp, TRUE);
-	freeinv(otmp);
-	/* mpickobj wont merge otmp because none of the above things
-	   to steal are mergable */
+	/* select the artifact to steal */
+	/* Amy edit: completely overhauled the function; in evilvariant mode it always tries to steal both a macguffin
+	 * and an artifact now, otherwise it either steals one or the other. If it can't find anything in non-evilvariant
+	 * mode, it may try to find something in the other category so the attack isn't wasted */
 
-	if (StealDegrading || u.uprops[STEAL_DEGRADING].extrinsic || have_stealdegradestone()) {
-		if (!stack_too_big(otmp)) curse(otmp);
-		if (!stack_too_big(otmp) && otmp->spe > -20) otmp->spe--;
+tryagain:
+	if (stealtype == 1 || stealtype == 3) {
+		if(u.uhave.amulet) {
+			real = AMULET_OF_YENDOR;
+			fake = FAKE_AMULET_OF_YENDOR;
+			choiceamount++;
+		}
+		if(u.uhave.bell && !rn2(choiceamount + 1)) {
+			real = BELL_OF_OPENING;
+			fake = BELL;
+			choiceamount++;
+		}
+		if(u.uhave.book && !rn2(choiceamount + 1)) {
+			real = SPE_BOOK_OF_THE_DEAD;
+			fake = 0;
+			choiceamount++;
+		}
+		if(u.uhave.menorah && !rn2(choiceamount + 1)) {
+			real = CANDELABRUM_OF_INVOCATION;
+			fake = 0;
+			choiceamount++;
+		}
+
+		if (!otmp) {
+		/* If we get here, real and fake have been set up. */
+			for(otmp = invent; otmp; otmp = otmp->nobj)
+				if(otmp->otyp == real || (otmp->otyp == fake && !mtmp->iswiz))
+				break;
+		}
+
+		if (otmp) { /* we have something to snatch */
+			if (otmp->owornmask)
+				remove_worn_item(otmp, TRUE);
+			freeinv(otmp);
+		/* mpickobj wont merge otmp because none of the above things
+		   to steal are mergable */
+
+			if (StealDegrading || u.uprops[STEAL_DEGRADING].extrinsic || have_stealdegradestone()) {
+				if (!stack_too_big(otmp)) curse(otmp);
+				if (!stack_too_big(otmp) && otmp->spe > -20) otmp->spe--;
+			}
+
+			somethingtosteal = TRUE;
+			(void) mpickobj(mtmp,otmp,FALSE);	/* may merge and free otmp */
+			if (evilfriday) pline("Something seems missing...");
+			else pline("%s stole %s!", Monnam(mtmp), doname(otmp));
+			u.cnd_itemstealamount++;
+			if (can_teleport(mtmp->data) && !tele_restrict(mtmp))
+			(void) rloc(mtmp, FALSE);
+		}
+		if (!somethingtosteal && stealtype == 1 && rn2(50)) {
+			stealtype = 2;
+			goto tryagain;
+		}
+
 	}
 
-	(void) mpickobj(mtmp,otmp,FALSE);	/* may merge and free otmp */
-	if (evilfriday) pline("Something seems missing...");
-	else pline("%s stole %s!", Monnam(mtmp), doname(otmp));
-	if (can_teleport(mtmp->data) && !tele_restrict(mtmp))
-	    (void) rloc(mtmp, FALSE);
-    }
+	if (stealtype == 2 || stealtype == 3) {
+
+		/* steal any artifact. Based on the reaction of the 3.6.0 devteam on tungtn's complaint about AD_SAMU behavior --Amy */
+		choiceamount = 0;
+		for(otmp = invent; otmp; otmp = otmp->nobj) {
+			if(otmp->oartifact && !rn2(totalamount + 1) ) {
+				choiceamount++;
+				totalamount++;
+			}
+		}
+		for(otmp = invent; otmp; otmp = otmp->nobj) {
+			if(otmp->oartifact) {
+				choiceamount--;
+				if (choiceamount <= 0) break; /* steal this one */
+			}
+		}
+		if (!otmp) return;
+
+		if (otmp) { /* we have something to snatch */
+			if (otmp->owornmask)
+				remove_worn_item(otmp, TRUE);
+			freeinv(otmp);
+		/* mpickobj wont merge otmp because none of the above things
+		   to steal are mergable */
+
+			if (StealDegrading || u.uprops[STEAL_DEGRADING].extrinsic || have_stealdegradestone()) {
+				if (!stack_too_big(otmp)) curse(otmp);
+				if (!stack_too_big(otmp) && otmp->spe > -20) otmp->spe--;
+			}
+
+			somethingtosteal = TRUE;
+			(void) mpickobj(mtmp,otmp,FALSE);	/* may merge and free otmp */
+			if (evilfriday) pline("Something seems missing...");
+			else pline("%s stole %s!", Monnam(mtmp), doname(otmp));
+			u.cnd_itemstealamount++;
+			if (can_teleport(mtmp->data) && !tele_restrict(mtmp))
+			(void) rloc(mtmp, FALSE);
+		}
+
+		if (!somethingtosteal && stealtype == 2 && rn2(50)) {
+			stealtype = 1;
+			goto tryagain;
+		}
+
+	}
 }
 
 #endif /* OVLB */
@@ -747,6 +825,7 @@ boolean verbosely;
     }
     obj->mstartinvent = 0;
     obj->mstartinventB = 0;
+    obj->mstartinventC = 0;
     if (verbosely && cansee(omx, omy))
 	pline("%s drops %s.", Monnam(mon), distant_name(obj, doname));
     if (!flooreffects(obj, omx, omy, "fall")) {
@@ -798,10 +877,10 @@ boolean is_pet;		/* If true, pet should keep wielded/worn items */
 		/* special case: pick-axe and unicorn horn are non-worn */
 		/* items that we also want pets to keep 1 of */
 		/* (It is a coincidence that these can also be wielded.) */
-		if (otmp->owornmask || otmp == wep || otmp->mstartinvent || otmp->petmarked || otmp->mstartinventB ||
+		if (otmp->owornmask || otmp == wep || otmp->mstartinvent || otmp->petmarked || otmp->mstartinventB || otmp->mstartinventC ||
 		    ((!item1 && otmp->otyp == PICK_AXE) ||
 		     (!item2 && otmp->otyp == UNICORN_HORN && !otmp->cursed))) {
-			if (is_pet) { /* dont drop worn/wielded item */
+			if (is_pet && !evades_destruction(otmp)) { /* dont drop worn/wielded item */
 				if (otmp->otyp == PICK_AXE)
 					item1 = TRUE;
 				if (otmp->otyp == UNICORN_HORN && !otmp->cursed)
@@ -816,6 +895,7 @@ boolean is_pet;		/* If true, pet should keep wielded/worn items */
 		/* item stealers usually won't delete stuff, since their stuff might actually be your original stuff! */
 		if (is_musable(otmp) && !(is_grenade(otmp) && otmp->oarmed) && otmp->mstartinvent && !(otmp->oartifact) && !(otmp->fakeartifact && timebasedlowerchance()) && (!rn2(3) || (rn2(100) < u.musableremovechance) || (rn2(4) && (otmp->otyp == POT_BLOOD || otmp->otyp == POT_VAMPIRE_BLOOD) ) || LootcutBug || u.uprops[LOOTCUT_BUG].extrinsic || have_lootcutstone() || !timebasedlowerchance() ) && !(mtmp->data == &mons[PM_GOOD_ITEM_MASTER]) && !(mtmp->data == &mons[PM_BAD_ITEM_MASTER]) && !is_pet ) delobj(otmp);
 		else if (otmp->mstartinventB && !(is_grenade(otmp) && otmp->oarmed) && !(otmp->oartifact) && !(otmp->fakeartifact && timebasedlowerchance()) && (!rn2(4) || (rn2(100) < u.equipmentremovechance) || !timebasedlowerchance() ) && !(mtmp->data == &mons[PM_GOOD_ITEM_MASTER]) && !(mtmp->data == &mons[PM_BAD_ITEM_MASTER]) && !is_pet ) delobj(otmp);
+		else if (otmp->mstartinventC && !(is_grenade(otmp) && otmp->oarmed) && !(otmp->oartifact) && !(otmp->fakeartifact && !rn2(10)) && rn2(10) && !(mtmp->data == &mons[PM_GOOD_ITEM_MASTER]) && !(mtmp->data == &mons[PM_BAD_ITEM_MASTER]) && !is_pet ) delobj(otmp);
 		else mdrop_obj(mtmp, otmp, is_pet && flags.verbose);
 	}
 

@@ -260,7 +260,7 @@ int rank;
 const char *
 rank_of(lev, monnum, female)
 int lev;
-	short monnum;
+int monnum;
 boolean female;
 {
 	register struct Role *role;
@@ -435,10 +435,23 @@ bot1()
 	if (FlimmeringStrips) {
 
 		strcpy(newbot1, " ");
-	     	add_flicker_textA(generate_garbage_string(), newbot1);
-	     	add_flicker_textA(generate_garbage_string(), newbot1);
-	     	add_flicker_textA(generate_garbage_string(), newbot1);
-	     	if (!rn2(2)) add_flicker_textA(generate_garbage_string(), newbot1);
+
+		if (FunnyHallu) {
+			int funnyhallucnt = rnd(37);
+			if (!rn2(2)) funnyhallucnt += rnd(12);
+
+			while (funnyhallucnt > 0) {
+				funnyhallucnt--;
+			     	add_flicker_textA(generate_garbage_char(), newbot1);
+			}
+
+		} else {
+
+		     	add_flicker_textA(generate_garbage_string(), newbot1);
+		     	add_flicker_textA(generate_garbage_string(), newbot1);
+		     	add_flicker_textA(generate_garbage_string(), newbot1);
+		     	if (!rn2(2)) add_flicker_textA(generate_garbage_string(), newbot1);
+		}
 
 		goto flicker1;
 	}
@@ -519,6 +532,18 @@ bot1()
 		if (flags.hybriderosator) sprintf(nb = eos(nb), "e");
 		if (flags.hybridroommate) sprintf(nb = eos(nb), "r");
 		if (flags.hybridextravator) sprintf(nb = eos(nb), "g");
+		if (flags.hybridhallucinator) sprintf(nb = eos(nb), "h");
+		if (flags.hybridbossrusher) sprintf(nb = eos(nb), "b");
+		if (flags.hybriddorian) sprintf(nb = eos(nb), "d");
+		if (flags.hybridtechless) sprintf(nb = eos(nb), "t");
+		if (flags.hybridblait) sprintf(nb = eos(nb), "l");
+		if (flags.hybridgrouper) sprintf(nb = eos(nb), "o");
+		if (flags.hybridscriptor) sprintf(nb = eos(nb), "c");
+		if (flags.hybridunbalancor) sprintf(nb = eos(nb), "u");
+		if (flags.hybridbeacher) sprintf(nb = eos(nb), "a");
+		if (flags.hybridstairseeker) sprintf(nb = eos(nb), "i");
+		if (flags.hybridmatrayser) sprintf(nb = eos(nb), "m");
+		if (flags.hybridfeminizer) sprintf(nb = eos(nb), "f");
 	}
 
 	if (flags.showscore)
@@ -639,6 +664,40 @@ int verbose;
 		sprintf(buf, flags.showlongstats ? "Swimming Pool:%d " : "Swi:%d ", depth(&u.uz));
 	else if (!strcmp(dungeons[u.uz.dnum].dname, "Hell's Bathroom"))
 		sprintf(buf, flags.showlongstats ? "Hell's Bathroom:%d " : "Bat:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone GA"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone GA:%d " : "RGA:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone GB"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone GB:%d " : "RGB:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone GC"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone GC:%d " : "RGC:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone GD"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone GD:%d " : "RGD:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone GE"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone GE:%d " : "RGE:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TA"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone TA:%d " : "RTA:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TB"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone TB:%d " : "RTB:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TC"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone TC:%d " : "RTC:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TD"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone TD:%d " : "RTD:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TE"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone TE:%d " : "RTE:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TF"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone TF:%d " : "RTF:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TG"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone TG:%d " : "RTG:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TH"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone TH:%d " : "RTH:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TI"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone TI:%d " : "RTI:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TJ"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone TJ:%d " : "RTJ:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone A"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone A:%d " : "RZA:%d ", depth(&u.uz));
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone S"))
+		sprintf(buf, flags.showlongstats ? "Resting Zone S:%d " : "RZS:%d ", depth(&u.uz));
 	else {
 		if (verbose)
 			sprintf(buf, "%s, level %d ",
@@ -708,13 +767,16 @@ struct monst *mon;
 	    armpro = objects[armor->otyp].a_can;
 	if (MCReduction && mon == &youmonst) armpro -= (1 + (MCReduction / 5000));
 	if (u.magicshield) armpro++;
+	if (Race_if(PM_GERTEUT)) armpro++;
 	if (uarm && uarm->oartifact == ART_MITHRAL_CANCELLATION) armpro++;
+	if (uarm && uarm->oartifact == ART_FREE_EXTRA_CANCEL) armpro++;
 	if (uarm && uarm->oartifact == ART_IMPRACTICAL_COMBAT_WEAR) armpro++;
 	if (uarmc && uarmc->oartifact == ART_RESISTANT_PUNCHING_BAG) armpro++;
-	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_HENRIETTA_S_TENACIOUSNESS) armpro++;
+	if (powerfulimplants() && uimplant && uimplant->oartifact == ART_HENRIETTA_S_TENACIOUSNESS) armpro++;
 	if (Race_if(PM_INKA)) armpro++;
 	if (ACURR(A_CHA) >= 18) armpro++;
 	if (armpro < 0) armpro = 0;
+	if (isunbalancor) armpro = 0;
 
 	return armpro;
 }
@@ -745,17 +807,58 @@ bot2str(char *newbot2)
 	if (FlimmeringStrips) {
 		nb = newbot2;
 		strcpy(newbot2, " ");
-	     	add_flicker_text(generate_garbage_string(), newbot2);
-		if (rn2(3)) add_flicker_text(generate_garbage_string(), newbot2);
-		sprintf(nb = eos(nb), "%d(%d)", hp, hpmax);
-            add_flicker_text(generate_garbage_string(), newbot2);
-		if (rn2(3)) add_flicker_text(generate_garbage_string(), newbot2);
-		sprintf(nb = eos(nb), "%d(%d)", u.uen, u.uenmax);
-            add_flicker_text(generate_garbage_string(), newbot2);
-		if (rn2(3)) add_flicker_text(generate_garbage_string(), newbot2);
-            if (!rn2(2)) add_flicker_text(generate_garbage_string(), newbot2);
-		if (!rn2(3)) add_flicker_text(generate_garbage_string(), newbot2);
 
+		if (FunnyHallu) {
+			int funnyhallucnt = rnd(12);
+			if (rn2(3)) funnyhallucnt += rnd(12);
+
+			while (funnyhallucnt > 0) {
+				funnyhallucnt--;
+			     	add_flicker_text(generate_garbage_char(), newbot2);
+			}
+
+			sprintf(nb = eos(nb), "%d", hp);
+			sprintf(nb = eos(nb), "(");
+			sprintf(nb = eos(nb), "%d", hpmax);
+			sprintf(nb = eos(nb), ")");
+
+			funnyhallucnt = rnd(12);
+			if (rn2(3)) funnyhallucnt += rnd(12);
+
+			while (funnyhallucnt > 0) {
+				funnyhallucnt--;
+			     	add_flicker_text(generate_garbage_char(), newbot2);
+			}
+
+			sprintf(nb = eos(nb), "%d", u.uen);
+			sprintf(nb = eos(nb), "(");
+			sprintf(nb = eos(nb), "%d", u.uenmax);
+			sprintf(nb = eos(nb), ")");
+
+			funnyhallucnt = rnd(12);
+			if (rn2(3)) funnyhallucnt += rnd(12);
+			if (!rn2(2)) funnyhallucnt += rnd(12);
+			if (!rn2(3)) funnyhallucnt += rnd(12);
+
+			while (funnyhallucnt > 0) {
+				funnyhallucnt--;
+			     	add_flicker_text(generate_garbage_char(), newbot2);
+			}
+
+
+		} else {
+
+		     	add_flicker_text(generate_garbage_string(), newbot2);
+			if (rn2(3)) add_flicker_text(generate_garbage_string(), newbot2);
+			sprintf(nb = eos(nb), "%d(%d)", hp, hpmax);
+	            add_flicker_text(generate_garbage_string(), newbot2);
+			if (rn2(3)) add_flicker_text(generate_garbage_string(), newbot2);
+			sprintf(nb = eos(nb), "%d(%d)", u.uen, u.uenmax);
+	            add_flicker_text(generate_garbage_string(), newbot2);
+			if (rn2(3)) add_flicker_text(generate_garbage_string(), newbot2);
+	            if (!rn2(2)) add_flicker_text(generate_garbage_string(), newbot2);
+			if (!rn2(3)) add_flicker_text(generate_garbage_string(), newbot2);
+		}
 
 		goto flicker2;
 	}
@@ -766,7 +869,7 @@ bot2str(char *newbot2)
 	else
 		newbot2[0] = '\0';
 	if (bot2_abbrev < 1)
-		sprintf(nb = eos(newbot2), "%c%d ",
+		sprintf(nb = eos(newbot2), "%c%ld ",
 		  flags.supergmmode ? monsyms[S_SNAKE] : flags.gmmode ? monsyms[S_GNOME] : oc_syms[COIN_CLASS],
 #ifndef GOLDOBJ
 		u.ugold
@@ -821,6 +924,24 @@ bot2str(char *newbot2)
 	else
 		sprintf(nb = eos(nb), " Exp%u", u.ulevel);
 
+	if (flags.showsymbiotehp && uinsymbiosis) {
+#if defined(STATUS_COLORS) && defined(TEXTCOLOR)
+		strcat(nb = eos(nb), " SH");
+		curs(WIN_STATUS, 1, 1);
+		putstr(WIN_STATUS, 0, newbot2);
+
+		sprintf(nb = eos(nb), "%d(%d)", u.usymbiote.mhp, u.usymbiote.mhpmax);
+		apply_color_option(percentage_color_of(u.usymbiote.mhp, u.usymbiote.mhpmax, hp_colors), newbot2, 2);
+#else
+		sprintf(nb = eos(nb), " SH%d(%d)", u.usymbiote.mhp, u.usymbiote.mhpmax);
+#endif
+		if (u.usymbiote.cursed) {
+			sprintf(nb = eos(nb), "%s", u.usymbiote.stckcurse ? "S" : "C");
+			sprintf(nb = eos(nb), "%d", (u.usymbiote.evilcurse || u.usymbiote.bbcurse || u.usymbiote.morgcurse) ? 4 : u.usymbiote.prmcurse ? 3 : u.usymbiote.hvycurse ? 2 : 1);
+		}
+		if (u.shutdowntime) sprintf(nb = eos(nb), "sd");
+	}
+
 #ifdef SHOW_WEIGHT
 	if (flags.showweight && !WeightDisplayIsArbitrary && bot2_abbrev < 3)
 		sprintf(nb = eos(nb), " Wt%ld/%ld", (long)(inv_weight()+weight_cap()),
@@ -833,7 +954,7 @@ bot2str(char *newbot2)
 #ifdef REALTIME_ON_BOTL
   if(iflags.showrealtime) {
     time_t currenttime = get_realtime();
-    sprintf(nb = eos(nb), " %d:%2.2d", currenttime / 3600, 
+    sprintf(nb = eos(nb), " %ld:%2.2ld", currenttime / 3600, 
                                        (currenttime % 3600) / 60);
   }
 #endif
@@ -859,14 +980,14 @@ bot2str(char *newbot2)
 	}
 */
 
-	if (!Thirst && !u.uprops[THIRST].extrinsic && !have_thirststone() && !(uwep && uwep->oartifact == ART_LUISA_S_CHARMING_BEAUTY) && !(u.twoweap && uswapwep && uswapwep->oartifact == ART_LUISA_S_CHARMING_BEAUTY) && u.urealedibility && u.uhunger >= 4500) 
+	if (!YouAreThirsty && u.urealedibility && u.uhunger >= 4500) 
 #if defined(STATUS_COLORS) && defined(TEXTCOLOR)
 	     	add_colored_text(flags.showlongstats ? "Oversatiated" : "Ovs", newbot2);
 #else
 		strcat(nb = eos(nb), flags.showlongstats ? " Oversatiated" : " Ovs");
 #endif
 
-	else if(!Thirst && !u.uprops[THIRST].extrinsic && !have_thirststone() && !(uwep && uwep->oartifact == ART_LUISA_S_CHARMING_BEAUTY) && !(u.twoweap && uswapwep && uswapwep->oartifact == ART_LUISA_S_CHARMING_BEAUTY) && strcmp(hu_stat[u.uhs], "        "))
+	else if(!YouAreThirsty && strcmp(hu_stat[u.uhs], "        "))
 #if defined(STATUS_COLORS) && defined(TEXTCOLOR)
 	     	add_colored_text(flags.showlongstats ? hu_stat[u.uhs] : hu_abbrev_stat[u.uhs], newbot2);
 #else
@@ -917,6 +1038,12 @@ bot2str(char *newbot2)
 	     	add_colored_text(flags.showlongstats ? "Choke" : "Chk", newbot2);
 #else
 		strcat(nb = eos(nb), flags.showlongstats ? " Choke" : " Chk");
+#endif
+	if (PlayerBleeds)
+#if defined(STATUS_COLORS) && defined(TEXTCOLOR)
+	     	add_colored_text(flags.showlongstats ? "Bleed" : "Bld", newbot2);
+#else
+		strcat(nb = eos(nb), flags.showlongstats ? " Bleed" : " Bld");
 #endif
 	if (Vomiting)
 #if defined(STATUS_COLORS) && defined(TEXTCOLOR)
@@ -973,15 +1100,15 @@ bot2str(char *newbot2)
 
 	if(Feared && !HeavyFeared)
 #if defined(STATUS_COLORS) && defined(TEXTCOLOR)
-	     	add_colored_text(Race_if(PM_TUMBLRER) ? (flags.showlongstats ? "Triggered" : "Trg") : (flags.showlongstats ? "Fear" : "Fea"), newbot2);
+	     	add_colored_text((Race_if(PM_TUMBLRER) || Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) ? (flags.showlongstats ? "Triggered" : "Trg") : (flags.showlongstats ? "Fear" : "Fea"), newbot2);
 #else
-		strcat(nb = eos(nb), Race_if(PM_TUMBLRER) ? (flags.showlongstats ? " Triggered" : " Trg") : (flags.showlongstats ? " Fear" : " Fea") );
+		strcat(nb = eos(nb), (Race_if(PM_TUMBLRER) || Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) ? (flags.showlongstats ? " Triggered" : " Trg") : (flags.showlongstats ? " Fear" : " Fea") );
 #endif
 	if(Feared && HeavyFeared)
 #if defined(STATUS_COLORS) && defined(TEXTCOLOR)
-	     	add_colored_text(Race_if(PM_TUMBLRER) ? (flags.showlongstats ? "XTriggered" : "XTrg") : (flags.showlongstats ? "XFear" : "XFea"), newbot2);
+	     	add_colored_text((Race_if(PM_TUMBLRER) || Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) ? (flags.showlongstats ? "XTriggered" : "XTrg") : (flags.showlongstats ? "XFear" : "XFea"), newbot2);
 #else
-		strcat(nb = eos(nb), Race_if(PM_TUMBLRER) ? (flags.showlongstats ? " XTriggered" : " XTrg") : (flags.showlongstats ? " XFear" : " XFea"));
+		strcat(nb = eos(nb), (Race_if(PM_TUMBLRER) || Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) ? (flags.showlongstats ? " XTriggered" : " XTrg") : (flags.showlongstats ? " XFear" : " XFea"));
 #endif
 	if(Numbed && !HeavyNumbed)
 #if defined(STATUS_COLORS) && defined(TEXTCOLOR)
@@ -1220,10 +1347,10 @@ boolean reconfig;
 #endif
     if (flags.time)
 	*rv++ = reconfig ? "time" : (sprintf(tim, "%ld", moves), tim);
-    if (!Thirst && !u.uprops[THIRST].extrinsic && !have_thirststone() && !(uwep && uwep->oartifact == ART_LUISA_S_CHARMING_BEAUTY) && !(u.twoweap && uswapwep && uswapwep->oartifact == ART_LUISA_S_CHARMING_BEAUTY) ) *rv++ = reconfig ? "hunger" : strcmp(hu_stat[u.uhs], "        ") ?
+    if (!YouAreThirsty) *rv++ = reconfig ? "hunger" : strcmp(hu_stat[u.uhs], "        ") ?
 	    hu_stat[u.uhs] : "";
     *rv++ = reconfig ? "encumberance" : enc_stat[near_capacity()];
-    *rv++ = reconfig ? "flags" : (sprintf(flgs, "%lX",
+    *rv++ = reconfig ? "flags" : (sprintf(flgs, "%d",
         (Levitation ? RAW_STAT_LEVITATION : 0) |
 	(Confusion ? RAW_STAT_CONFUSION : 0) |
 	(Sick && (u.usick_type & SICK_VOMITABLE) ? RAW_STAT_FOODPOIS : 0) |

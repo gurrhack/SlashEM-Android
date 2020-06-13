@@ -13,52 +13,6 @@
 # endif
 #endif
 
-#define PN_POLEARMS		(-1)
-#define PN_SABER		(-2)
-#define PN_HAMMER		(-3)
-#define PN_WHIP			(-4)
-#define PN_PADDLE		(-5)
-#define PN_FIREARMS		(-6)
-#define PN_ATTACK_SPELL		(-7)
-#define PN_HEALING_SPELL	(-8)
-#define PN_DIVINATION_SPELL	(-9)
-#define PN_ENCHANTMENT_SPELL	(-10)
-#define PN_PROTECTION_SPELL	(-11)
-#define PN_BODY_SPELL		(-12)
-#define PN_OCCULT_SPELL		(-13)
-#define PN_ELEMENTAL_SPELL		(-14)
-#define PN_CHAOS_SPELL		(-15)
-#define PN_MATTER_SPELL		(-16)
-#define PN_BARE_HANDED		(-17)
-#define PN_HIGH_HEELS		(-18)
-#define PN_GENERAL_COMBAT		(-19)
-#define PN_SHIELD		(-20)
-#define PN_BODY_ARMOR		(-21)
-#define PN_TWO_HANDED_WEAPON		(-22)
-#define PN_POLYMORPHING		(-23)
-#define PN_DEVICES		(-24)
-#define PN_SEARCHING		(-25)
-#define PN_SPIRITUALITY		(-26)
-#define PN_PETKEEPING		(-27)
-#define PN_MISSILE_WEAPONS		(-28)
-#define PN_TECHNIQUES		(-29)
-#define PN_IMPLANTS		(-30)
-#define PN_SEXY_FLATS		(-31)
-#define PN_SHII_CHO		(-32)
-#define PN_MAKASHI		(-33)
-#define PN_SORESU		(-34)
-#define PN_ATARU		(-35)
-#define PN_SHIEN		(-36)
-#define PN_DJEM_SO		(-37)
-#define PN_NIMAN		(-38)
-#define PN_JUYO		(-39)
-#define PN_VAAPAD		(-40)
-#define PN_WEDI		(-41)
-#define PN_MARTIAL_ARTS		(-42)
-#define PN_RIDING		(-43)
-#define PN_TWO_WEAPONS		(-44)
-#define PN_LIGHTSABER		(-45)
-
 #ifndef OVLB
 
 STATIC_DCL NEARDATA const short skill_names_indices[];
@@ -89,6 +43,7 @@ STATIC_OVL NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
 	PN_TWO_HANDED_WEAPON,	PN_POLYMORPHING,	PN_DEVICES,
 	PN_SEARCHING,	PN_SPIRITUALITY,	PN_PETKEEPING,
 	PN_MISSILE_WEAPONS,	PN_TECHNIQUES,	PN_IMPLANTS,	PN_SEXY_FLATS,
+	PN_MEMORIZATION,	PN_GUN_CONTROL,	PN_SQUEAKING,	PN_SYMBIOSIS,
 	PN_SHII_CHO,	PN_MAKASHI,	PN_SORESU,
 	PN_ATARU,	PN_SHIEN,	PN_DJEM_SO,
 	PN_NIMAN,	PN_JUYO,	PN_VAAPAD,	PN_WEDI,
@@ -131,6 +86,10 @@ STATIC_OVL NEARDATA const char * const odd_skill_names[] = {
     "techniques",
     "implants",
     "sexy flats",
+    "memorization",
+    "gun control",
+    "squeaking",
+    "symbiosis",
     "form I (Shii-Cho)",
     "form II (Makashi)",
     "form III (Soresu)",
@@ -185,6 +144,7 @@ STATIC_DCL void eataccessory(struct obj *);
 STATIC_DCL const char *foodword(struct obj *);
 STATIC_DCL boolean maybe_cannibal(int,BOOLEAN_P);
 STATIC_DCL struct obj *floorfood(const char *);
+STATIC_DCL boolean cannibal_allowed(void);
 
 char msgbuf[BUFSZ];
 
@@ -198,12 +158,6 @@ char msgbuf[BUFSZ];
 #define FAINTING	4
 #define FAINTED		5
 #define STARVED		6
-
-/* also used to see if you're allowed to eat cats and dogs */
-#define CANNIBAL_ALLOWED() (Role_if(PM_CAVEMAN) || Role_if(PM_LUNATIC) || Race_if(PM_ORC) || Race_if(PM_YEEK) || \
-Race_if(PM_CURSER) || Race_if(PM_ALIEN) || Race_if(PM_TROLLOR) || Race_if(PM_SHOE) || Race_if(PM_PLAYER_SALAMANDER) || Race_if(PM_VORTEX) || Race_if(PM_CORTEX) || Race_if(PM_HUMANOID_DEVIL) || Race_if(PM_MUMMY) || Race_if(PM_LICH_WARRIOR) || Race_if(PM_KOBOLT) || Race_if(PM_PHANTOM_GHOST) || Race_if(PM_GIGANT) || Race_if(PM_RODNEYAN) || Race_if(PM_OGRO) || Race_if(PM_WEAPON_TRAPPER) || \
- Race_if(PM_INSECTOID) || Race_if(PM_MOULD) || Race_if(PM_MISSINGNO) || Race_if(PM_HUMANLIKE_DRAGON) || Race_if(PM_HUMANLIKE_NAGA) || Race_if(PM_DEATHMOLD) || Race_if(PM_AQUATIC_MONSTER) || Race_if(PM_WORM_THAT_WALKS) || Race_if(PM_UNGENOMOLD) || Race_if(PM_UNALIGNMENT_THING) || Race_if(PM_HUMAN_WEREWOLF) || Race_if(PM_AK_THIEF_IS_DEAD_) || \
- Race_if(PM_SNAKEMAN) || Race_if(PM_SPIDERMAN) || Race_if(PM_RACE_X) || Race_if(PM_VAMPIRE) || Race_if(PM_VAMGOYLE) || Race_if(PM_SUCKING_FIEND) || Race_if(PM_LEVITATOR) || Race_if(PM_CLOCKWORK_AUTOMATON) || Race_if(PM_ARMED_COCKATRICE) || Race_if(PM_ELEMENTAL) || Race_if(PM_WEAPON_BUG) || Race_if(PM_HUMANOID_LEPRECHAUN) || Race_if(PM_NYMPH) || Race_if(PM_TURTLE) || Race_if(PM_LOWER_ENT) || Race_if(PM_SPRIGGAN) || Race_if(PM_JELLY) || Race_if(PM_WEAPON_CUBE) || Race_if(PM_WEAPON_IMP) || Race_if(PM_DRYAD) || Race_if(PM_PLAYER_SLIME) || Race_if(PM_AUREAL) || Race_if(PM_MAZKE) || Race_if(PM_PLAYER_GREMLIN) || Race_if(PM_BORG) || Race_if(PM_ELONA_SNAIL) || Race_if(PM_PLAYER_UNICORN) || Race_if(PM_WEAPONIZED_DINOSAUR) || Race_if(PM_ANCIPITAL) || Race_if(PM_FAWN) || Race_if(PM_CHIROPTERAN) || Race_if(PM_YUKI_PLAYA) || Race_if(PM_OCTOPODE) || Race_if(PM_INKA) || Race_if(PM_SATRE) || Race_if(PM_WISP) || Race_if(PM_PLAYER_SKELETON) || Race_if(PM_WEAPON_XORN) || Race_if(PM_PLAYER_DOLGSMAN) )
 
 #ifndef OVLB
 
@@ -236,6 +190,116 @@ const char *hu_stat[] = {
 #endif /* OVLB */
 #ifdef OVL1
 
+/* also used to see if you're allowed to eat cats and dogs */
+
+STATIC_OVL boolean
+cannibal_allowed()
+{
+	if (RngeCannibalism) return TRUE;
+
+	switch (Role_switch) {
+		case PM_CAVEMAN:
+		case PM_LUNATIC:
+			return TRUE;
+	}
+
+	switch (Race_switch) {
+		case PM_ORC:
+		case PM_YEEK:
+		case PM_CURSER:
+		case PM_ALIEN:
+		case PM_TROLLOR:
+		case PM_SHOE:
+		case PM_PLAYER_SALAMANDER:
+		case PM_VORTEX:
+		case PM_GAVIL:
+		case PM_CORTEX:
+		case PM_GOAULD:
+		case PM_KLACKON:
+		case PM_KUTAR:
+		case PM_TONBERRY:
+		case PM_PLAYER_GLORKUM:
+		case PM_RACE_THAT_DOESN_T_EXIST:
+		case PM_HYBRIDRAGON:
+		case PM_PLAYER_ANDROID:
+		case PM_RETICULAN:
+		case PM_OUTSIDER:
+		case PM_HUMANOID_DEVIL:
+		case PM_MUMMY:
+		case PM_LICH_WARRIOR:
+		case PM_KOBOLT:
+		case PM_PHANTOM_GHOST:
+		case PM_GIGANT:
+		case PM_RODNEYAN:
+		case PM_OGRO:
+		case PM_WEAPON_TRAPPER:
+		case PM_INSECTOID:
+		case PM_MOULD:
+		case PM_MISSINGNO:
+		case PM_HUMANLIKE_DRAGON:
+		case PM_HUMANLIKE_NAGA:
+		case PM_DEATHMOLD:
+		case PM_PLAYER_JABBERWOCK:
+		case PM_AQUATIC_MONSTER:
+		case PM_WORM_THAT_WALKS:
+		case PM_UNGENOMOLD:
+		case PM_UNALIGNMENT_THING:
+		case PM_HUMAN_WEREWOLF:
+		case PM_AK_THIEF_IS_DEAD_:
+		case PM_SNAKEMAN:
+		case PM_SPIDERMAN:
+		case PM_PLAYER_ZRUTY:
+		case PM_PLAYER_MUSHROOM:
+		case PM_PLAYER_ASURA:
+		case PM_METAL:
+		case PM_SHELL:
+		case PM_PLAYER_GOLEM:
+		case PM_PIERCER:
+		case PM_PLAYER_HULK:
+		case PM_RACE_X:
+		case PM_VAMPIRE:
+		case PM_VAMGOYLE:
+		case PM_SUCKING_FIEND:
+		case PM_LEVITATOR:
+		case PM_CLOCKWORK_AUTOMATON:
+		case PM_ARMED_COCKATRICE:
+		case PM_ELEMENTAL:
+		case PM_WEAPON_BUG:
+		case PM_HUMANOID_LEPRECHAUN:
+		case PM_NYMPH:
+		case PM_TURTLE:
+		case PM_LOWER_ENT:
+		case PM_SPRIGGAN:
+		case PM_JELLY:
+		case PM_WEAPON_CUBE:
+		case PM_WEAPON_IMP:
+		case PM_HUMANOID_DRYAD:
+		case PM_PLAYER_SLIME:
+		case PM_AUREAL:
+		case PM_MAZKE:
+		case PM_PLAYER_GREMLIN:
+		case PM_BORG:
+		case PM_ELONA_SNAIL:
+		case PM_PLAYER_UNICORN:
+		case PM_WEAPONIZED_DINOSAUR:
+		case PM_ANCIPITAL:
+		case PM_FAWN:
+		case PM_CHIROPTERAN:
+		case PM_YUKI_PLAYA:
+		case PM_OCTOPODE:
+		case PM_INKA:
+		case PM_SATRE:
+		case PM_WISP:
+		case PM_PLAYER_SKELETON:
+		case PM_WEAPON_XORN:
+		case PM_PLAYER_DOLGSMAN:
+			return TRUE;
+	}
+
+	return FALSE;
+
+}
+
 /*
  * Decide whether a particular object can be eaten by the possibly
  * polymorphed character.  Not used for monster checks.
@@ -257,8 +321,20 @@ register struct obj *obj;
 	/* Clockwork automatons can't eat anything at all, they need to use booze or oil --Amy */
 	if (Race_if(PM_CLOCKWORK_AUTOMATON) && !Upolyd) return 0;
 
+	/* same for golems, except they also don't get hungry over time */
+	if (Race_if(PM_PLAYER_GOLEM) && !Upolyd) return 0;
+
+	/* and also Demo's etherealoid */
+	if (Race_if(PM_ETHEREALOID) && !Upolyd) return 0;
+
 	/* Spirits can't eat corpses --Amy */
 	if (Race_if(PM_SPIRIT) && obj->otyp == CORPSE && !Upolyd) return 0;
+
+	/* android can't either (anachrononononononist from dnethack who can only eat processed food) */
+	if (Race_if(PM_PLAYER_ANDROID) && obj->otyp == CORPSE && !Upolyd) return 0;
+
+	/* chewable potion randomized appearance is edible --Amy */
+	if (itemhasappearance(obj, APP_POTION_CHEWABLE)) return 1;
 
 	if (Race_if(PM_OCTOPODE) && obj->oclass == RING_CLASS) return 1;
 
@@ -293,8 +369,7 @@ register struct obj *obj;
 		return (boolean)(obj->otyp == EUCALYPTUS_LEAF);
 
 	/* Ghouls, ghasts only eat corpses */
-	if (u.umonnum == PM_GHOUL || u.umonnum == PM_GHAST || u.umonnum == PM_GASTLY || u.umonnum == PM_PHANTOM_GHOST || u.umonnum == PM_HAUNTER
-	|| u.umonnum == PM_GENGAR || (Race_if(PM_GASTLY) && !Upolyd) || (Race_if(PM_PLAYER_SKELETON) && !Upolyd) || (Race_if(PM_PHANTOM_GHOST) && !Upolyd) )
+	if (saprovorousnumber(u.umonnum) || (Race_if(PM_GASTLY) && !Upolyd) || (Race_if(PM_PLAYER_SKELETON) && !Upolyd) || (Race_if(PM_PHANTOM_GHOST) && !Upolyd) )
 	   	return (boolean)(obj->otyp == CORPSE);
 	/* Vampires drink the blood of meaty corpses */
 	/* [ALI] (fully) drained food is not presented as an option,
@@ -317,7 +392,7 @@ register struct obj *obj;
 		return (boolean)(obj->oclass == FOOD_CLASS && (!obj->odrained || obj->oeaten > drainlevel(obj)));
 
      /* return((boolean)(!!index(comestibles, obj->oclass))); */
-	return (boolean)((obj->oclass == FOOD_CLASS) || (objects[(obj)->otyp].oc_material == VEGGY) || (objects[(obj)->otyp].oc_material == SECREE) || (objects[(obj)->otyp].oc_material == FLESH) ) ;
+	return (boolean)((obj->oclass == FOOD_CLASS) || (objects[(obj)->otyp].oc_material == MT_VEGGY) || (objects[(obj)->otyp].oc_material == MT_SECREE) || (objects[(obj)->otyp].oc_material == MT_FLESH) ) ;
 }
 
 #endif /* OVL1 */
@@ -380,6 +455,7 @@ static const struct { const char *txt; int nut; } tintxts[] = {
 	{"icy", 340},
 	{"delicious", 400},
 	{"gourmet", 350},
+	{"stale", 100},
 	{"", 0}
 };
 #define TTSZ	SIZE(tintxts)
@@ -475,25 +551,25 @@ register struct obj *food;
 	if (u.uhs != SATIATED) {
 		if (!food || food->otyp != AMULET_OF_STRANGULATION)
 			return;
-	} else if ((Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL) || Role_if(PM_CHEVALIER) || Race_if(PM_VEELA) || Role_if(PM_PALADIN) || Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") ))  || Role_if(PM_FAILED_EXISTENCE) || Role_if(PM_GOFF)) {
+	} else if ((Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL) || Role_if(PM_CHEVALIER) || Race_if(PM_VEELA) || Role_if(PM_PALADIN) || have_anorexia() || Role_if(PM_FAILED_EXISTENCE)) {
 			adjalign(-3);		/* gluttony is unchivalrous */
-		You(Hallucination ? "feel that your belly's gonna burst!" : "feel like a glutton!");
+		You(FunnyHallu ? "feel that your belly's gonna burst!" : "feel like a glutton!");
 	}
 
 	if (Race_if(PM_VEELA) || Role_if(PM_FAILED_EXISTENCE) ) badeffect();
 
-	if (Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || Role_if(PM_GOFF) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") )) ) { /* They aren't used to eat much. --Amy */
+	if (have_anorexia()) { /* They aren't used to eat much. --Amy */
 
 	if(!rn2(4)) {
-		if (Hallucination) You_feel("rather trippy.");
+		if (FunnyHallu) You_feel("rather trippy.");
 		else You_feel("rather %s.", body_part(LIGHT_HEADED));
 		make_confused(HConfusion + d(2,4),FALSE);
 	} else if(!rn2(5)) {
-		if (Hallucination) You_feel("uncontrollable."); /* this and some other effects added by Amy */
+		if (FunnyHallu) You_feel("uncontrollable."); /* this and some other effects added by Amy */
 		else You_feel("stunned.");
 		make_stunned(HStun + d(2,4),FALSE);
 	} else if(!rn2(5)) {
-		if (Hallucination) You_feel("even weirder!");
+		if (FunnyHallu) You_feel("even weirder!");
 		else You_feel("weirded out!");
 		make_hallucinated(HHallucination + d(2,10),FALSE,0L);
 	} else if(!rn2(4)) {
@@ -501,31 +577,31 @@ register struct obj *food;
 		make_blinded(Blinded+d(2,10),FALSE);
 		if (!Blind) Your("%s", vision_clears);
 	} else if(!rn2(8)) {
-		if (Hallucination) You_feel("like your body is trying to fall asleep!");
+		if (FunnyHallu) You_feel("like your body is trying to fall asleep!");
 		else You_feel("numb.");
 		make_numbed(HNumbed + d(2,15),FALSE);
 	} else if(!rn2(10)) {
-		if (Hallucination) pline("Crap! A %s suddenly appeared! RUN!",rndmonnam() );
+		if (FunnyHallu) pline("Crap! A %s suddenly appeared! RUN!",rndmonnam() );
 		else You_feel("fear spreading through your body.");
 		make_feared(HFeared + d(2,15),FALSE);
 	} else if(!rn2(10)) {
-		if (Hallucination) You_feel("like your on fire despite there being no heat!");
+		if (FunnyHallu) You_feel("like your on fire despite there being no heat!");
 		else You_feel("like you're on fire!");
 		make_burned(HBurned + d(2,15),FALSE);
 	} else if(!rn2(20)) {
-		if (Hallucination) You_feel("a giant ice cream cone enclosing you!");
+		if (FunnyHallu) You_feel("a giant ice cream cone enclosing you!");
 		else pline("You're getting the chills.");
 		make_frozen(HFrozen + d(2,15),FALSE);
 	} else if(!rn2(20)) {
-		if (Hallucination) You_feel("that your wife is gonna break up with you!");
+		if (FunnyHallu) You_feel("that your wife is gonna break up with you!");
 		else pline("You're dimmed.");
 		make_dimmed(HDimmed + d(2,15),FALSE);
 	} else if(!rn2(10)) {
-		if (Hallucination) You_feel("like you have dementia tremor!"); /* not a real name --Amy */
+		if (FunnyHallu) You_feel("like you have dementia tremor!"); /* not a real name --Amy */
 		else pline("Your hands start trembling violently!");
 		incr_itimeout(&Glib, d(2,4) );
 	} else if(!rn2(10)) {
-		if (Hallucination) You_feel("totally down! Seems you tried some illegal shit!");
+		if (FunnyHallu) You_feel("totally down! Seems you tried some illegal shit!");
 		else You_feel("like you're going to throw up.");
 	      make_vomiting(Vomiting+20, TRUE);
 		if (Sick && Sick < 100) 	set_itimeout(&Sick, (Sick * 2) + 10); /* higher chance to survive long enough --Amy */
@@ -551,10 +627,9 @@ register struct obj *food;
 
 	} else if(!rn2(200) && !Slimed && !issoviet && !flaming(youmonst.data) && !Unchanging && !slime_on_touch(youmonst.data) ) { /* This chance should be even lower. --Amy */
 			You("don't feel very well.");
-		    Slimed = Race_if(PM_EROSATOR) ? 25L : 100L;
-		    flags.botl = 1;
+			make_slimed(100);
 		    killer_format = KILLED_BY_AN;
-		    delayed_killer = "slimy meal";
+		    delayed_killer = "slimed by a slimy meal";
 	}
 
 	}
@@ -566,15 +641,17 @@ register struct obj *food;
 		/* ALI - nor does other non-food nutrition (eg., life-blood) */
 		if (!food || food->otyp == AMULET_OF_STRANGULATION) {
 			nomovemsg = "You recover your composure.";
-			You(Hallucination ? "spew bits of puke everywhere." : "choke over it.");
+			You(FunnyHallu ? "spew bits of puke everywhere." : "choke over it.");
 			morehungry(100);	/* remove a bit of nutrition so you don't choke again instantly --Amy */
 			nomul(-2, "vomiting", TRUE);
 			u_wipe_engr(100);
 			return;
 		}
-		You(Hallucination ? "vomit all over the place. Shit, now your clothes are a huge mess!" : "stuff yourself and then vomit voluminously.");
-		if (Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || Role_if(PM_FAILED_EXISTENCE) || Role_if(PM_GOFF) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") )) ) {adjalign(-20);	/* overeating doesn't befit a topmodel */
-		pline(Hallucination ? "Uaargh - maybe you should order some smaller meals next time?" : "Bleeargh! You feel very bad for trying to overeat."); }
+		You(FunnyHallu ? "vomit all over the place. Shit, now your clothes are a huge mess!" : "stuff yourself and then vomit voluminously.");
+		if (have_anorexia() || Role_if(PM_FAILED_EXISTENCE)) {
+			adjalign(-20); /* overeating doesn't befit a topmodel */
+			pline(FunnyHallu ? "Uaargh - maybe you should order some smaller meals next time?" : "Bleeargh! You feel very bad for trying to overeat.");
+		}
 		morehungry(2000);	/* you just got *very* sick! */
 		u_wipe_engr(100);
 		nomovemsg = 0;
@@ -777,7 +854,7 @@ boolean message;
 	/* Bleeders who can drain corpses will benefit from doing so */
 	if(victual.piece->otyp == CORPSE && victual.piece->odrained && Role_if(PM_BLEEDER) ) {
 
-		pline(Hallucination ? "It tastes like sweet, delicious nectar!" : "That blood really hit the spot!");
+		pline(FunnyHallu ? "It tastes like sweet, delicious nectar!" : "That blood really hit the spot!");
 		healup(d(8,8) + rnz(u.ulevel), 0, TRUE, TRUE);
 		exercise(A_CON, TRUE);
 
@@ -785,7 +862,7 @@ boolean message;
 
 	if(victual.piece->otyp == CORPSE && victual.piece->odrained && Race_if(PM_HEMOPHAGE) ) {
 
-		pline(Hallucination ? "It tastes like sweet, delicious nectar!" : "That blood really hit the spot!");
+		pline(FunnyHallu ? "It tastes like sweet, delicious nectar!" : "That blood really hit the spot!");
 		healup(d(8,8) + rnz(u.ulevel), 0, TRUE, TRUE);
 		exercise(A_CON, TRUE);
 
@@ -863,13 +940,24 @@ int pm;
 boolean allowmsg;
 {
 	if (your_race(&mons[pm])) {
-	    if (!CANNIBAL_ALLOWED()) {
+	    if (!cannibal_allowed()) {
 		if (allowmsg) {
 		    if (Upolyd)
 			You("have a bad feeling deep inside.");
 		    You("cannibal!  You will regret this!");
 		}
-		HAggravate_monster |= FROMOUTSIDE;
+		u.cnd_cannibalcount++;
+
+		/* Amy edit: it's teh uber-sux if one mishap gives you aggravate monster permanently.
+		 * So we're just making it last longer the more often you cannibalize */
+		if (u.cnd_cannibalcount < 1) u.cnd_cannibalcount = 1; /* should never happen */
+		if (u.cnd_cannibalcount < 5) {
+			HAggravate_monster += (1000 * u.cnd_cannibalcount);
+		} else {
+			HAggravate_monster += ((1000 + rnd(9000)) * u.cnd_cannibalcount);
+
+		}
+		increasesanity(rnd((level_difficulty() * 2) + 5));
 
 		/* "Cannibalism angers your god instead of removing telepathy." In the Evil Variant, new bad effects are added,
 		 * they don't replace old bad effects but happen in addition to them. --Amy */
@@ -901,8 +989,8 @@ cprefx(pm)
 register int pm;
 {
 	(void) maybe_cannibal(pm,TRUE);
-	if (touch_petrifies(&mons[pm]) || pm == PM_MEDUSA) {
-	    if (!Stone_resistance &&
+	if ((touch_petrifies(&mons[pm]) || pm == PM_MEDUSA) && pm != PM_PLAYERMON) {
+	    if ((!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) &&
 		!(poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))) {
 		/* sprintf(killer_buf, "tasting petrifying meat (%s)", mons[pm].mname);
 		killer_format = KILLED_BY;
@@ -917,6 +1005,7 @@ register int pm;
 			else {
 				You("start turning to stone.");
 				Stoned = Race_if(PM_EROSATOR) ? 3 : 7;
+				u.cnd_stoningcount++;
 				sprintf(killer_buf, "tasting petrifying meat (%s)", mons[pm].mname);
 				delayed_killer = killer_buf;
 			}
@@ -929,7 +1018,13 @@ register int pm;
 	    You_feel("that %s the %s%s was a bad idea.",
 	      victual.eating ? "eating" : "biting",
 	      occupation == opentin ? "tinned " : "", mons[pm].mname);
-	    HAggravate_monster |= FROMOUTSIDE;
+	    HAggravate_monster += rnd(100);
+
+	}
+
+	if (HardcoreAlienMode && mons[pm].mlet == S_QUADRUPED) {
+		u.ugangr++;
+		pline("Eeeek - you ate forbidden meat! The gods will most probably not like that...");
 	}
 
 	if (dmgtype(&mons[pm], AD_RAGN) ) {
@@ -950,15 +1045,23 @@ register int pm;
 	    case PM_LARGE_CAT:
 	    case PM_DOMESTIC_COCKATRICE:
 	    case PM_CHAIN_SMOKER_ASSHOLE:
-		if (!CANNIBAL_ALLOWED()) {
+		if (!cannibal_allowed()) {
 		    You_feel("that %s the %s%s was a bad idea.",
 		      victual.eating ? "eating" : "biting",
 		      occupation == opentin ? "tinned " : "", mons[pm].mname);
-		    HAggravate_monster |= FROMOUTSIDE;
+
+			/* make aggravation last only for a couple turns, but summon stuff (see cpostfx) --Amy */
+
 		}
 		break;
 	    case PM_LIZARD:
+	    case PM_LIZZY:
+	    case PM_LIZARD_PRINCE:
 	    case PM_ROCK_LIZARD:
+	    case PM_WILL_STONE_LIZARD:
+	    case PM_WILL_RATCH_LIZARD:
+	    case PM_LICHZARD:
+	    case PM_SKELLIZARD:
 	    case PM_BLACK_LIZARD:
 	    case PM_BABY_CAVE_LIZARD:
 	    case PM_NIGHT_LIZARD:
@@ -974,8 +1077,17 @@ register int pm;
 	    case PM_FBI_AGENT:
 	    case PM_OWN_SMOKE:
 	    case PM_GRANDPA:
+	    case PM_LIZARD_MAGE:
+	    case PM_BLACK_LIZARDMAN:
+	    case PM_ASSASSIN_LIZARD:
+	    case PM_BLIZZARD_LIZARD:
+	    case PM_HELTH_LIZARD:
+	    case PM_NORMAL_LIZARD:
+	    case PM_CLOCKBACK_LIZARD:
+	    case PM_ADULT_LIZARD:
 	    case PM_KARMIC_LIZARD:
 	    case PM_GREEN_LIZARD:
+	    case PM_SCORZARD:
 	    case PM_MONSTER_LIZARD:
 	    case PM_FIRE_LIZARD:
 	    case PM_LIGHTNING_LIZARD:
@@ -984,6 +1096,8 @@ register int pm;
 	    case PM_LIZARD_EEL:
 	    case PM_EEL_LIZARD:
 	    case PM_GRASS_LIZARD:
+	    case PM_RUNE_LIZARD:
+	    case PM_SPECTRAL_LIZARD:
 	    case PM_BLUE_LIZARD:
 	    case PM_SWAMP_LIZARD:
 	    case PM_SPITTING_LIZARD:
@@ -1010,15 +1124,20 @@ register int pm;
 	    break;
 
 	    case PM_SQUIRREL:
+	    case PM_KWIRREL:
 	    case PM_IGUANA:
+	    case PM_LEGWA:
 	    case PM_BIG_IGUANA:
 	    case PM_HELPFUL_SQUIRREL:
+	    case PM_STAR_SQUIRREL:
 		make_hallucinated(0L,TRUE,0L);
 		make_confused(0L,TRUE);
 		make_stunned(0L,TRUE);
 		make_blinded(0L,TRUE);
 		break;
 	    case PM_RHAUMBUSUN:
+	    case PM_FEMBUSUN:
+	    case PM_BLOODBUSUN:
 	    case PM_BIG_RHAUMBUSUN:
 		if (Slimed) {pline("The slime disappears.");
 		    Slimed = 0;
@@ -1035,6 +1154,7 @@ register int pm;
 	    case PM_PARALYSIS_WHIP_SALAMANDER:
 	    case PM_FROST_SALAMANDER:
 	    case PM_KOMODO_DRAGON:
+	    case PM_KOMODO_BEAST:
 	    case PM_PETTY_KOMODO_DRAGON:
 		make_numbed(0L,TRUE);
 		make_frozen(0L,TRUE);
@@ -1042,6 +1162,7 @@ register int pm;
 		make_feared(0L,TRUE);
 		break;
 	    case PM_GECKO:
+	    case PM_GEGGO:
 	    case PM_FLYING_GECKO:
 	    case PM_GIANT_GECKO:
 		if (Sick)
@@ -1091,8 +1212,9 @@ register int pm;
 		if (!Slimed && !Unchanging && !flaming(youmonst.data) && slime_on_touch(&mons[pm]) &&
 			!slime_on_touch(youmonst.data) ) {
 		    You("don't feel very well.");
-		    Slimed = Race_if(PM_EROSATOR) ? 25L : 100L;
-		    flags.botl = 1;
+			make_slimed(100);
+		    killer_format = KILLED_BY_AN;
+		    delayed_killer = "slimed by doing something stupid";
 		}
 		if (acidic(&mons[pm]) && Stoned)
 		    fix_petrification();
@@ -1111,7 +1233,13 @@ struct monst *mon;
 {
     switch(monsndx(mon->data)) {
 	case PM_LIZARD:
+	case PM_LIZZY:
+	case PM_LIZARD_PRINCE:
 	case PM_ROCK_LIZARD:
+      case PM_WILL_STONE_LIZARD:
+      case PM_WILL_RATCH_LIZARD:
+      case PM_LICHZARD:
+      case PM_SKELLIZARD:
 	case PM_BABY_CAVE_LIZARD:
 	case PM_NIGHT_LIZARD:
 	case PM_LIZARD_MAN:
@@ -1124,6 +1252,8 @@ struct monst *mon;
 	case PM_LIZARD_EEL:
 	case PM_EEL_LIZARD:
 	case PM_GRASS_LIZARD:
+	case PM_RUNE_LIZARD:
+	case PM_SPECTRAL_LIZARD:
       case PM_BLUE_LIZARD:
 	case PM_SWAMP_LIZARD:
 	case PM_SPITTING_LIZARD:
@@ -1136,9 +1266,18 @@ struct monst *mon;
 	case PM_SAND_TIDE:
 	case PM_FBI_AGENT:
 	    case PM_OWN_SMOKE:
+	    case PM_ADULT_LIZARD:
 	    case PM_GRANDPA:
+	    case PM_LIZARD_MAGE:
+	    case PM_BLACK_LIZARDMAN:
+	    case PM_ASSASSIN_LIZARD:
+	    case PM_BLIZZARD_LIZARD:
+	    case PM_HELTH_LIZARD:
+	    case PM_NORMAL_LIZARD:
+	    case PM_CLOCKBACK_LIZARD:
 	case PM_KARMIC_LIZARD:
 	case PM_GREEN_LIZARD:
+	case PM_SCORZARD:
 	case PM_BLACK_LIZARD:
 	case PM_MONSTER_LIZARD:
 	case PM_FIRE_LIZARD:
@@ -1174,7 +1313,9 @@ struct monst *mon;
 			    youmonst.data != &mons[PM_FIRE_ELEMENTAL] &&
 			    !slime_on_touch(youmonst.data) && slime_on_touch(mon->data) ) {
 		You("don't feel very well.");
-		Slimed = Race_if(PM_EROSATOR) ? 25L : 100L;
+		make_slimed(100);
+		killer_format = KILLED_BY_AN;
+		delayed_killer = "slimed by doing something stupid";
 	    }
 	    if (acidic(mon->data) && Stoned)
 		fix_petrification();
@@ -1188,7 +1329,7 @@ fix_petrification()
 {
 	Stoned = 0;
 	delayed_killer = 0;
-	if (Hallucination)
+	if (FunnyHallu)
 	    pline("What a pity - you just ruined a future piece of %sart!",
 		  ACURR(A_CHA) > 15 ? "fine " : "");
 	else {
@@ -1421,7 +1562,7 @@ register struct permonst *ptr;
 			chance = 1;
 			break; */
 		default:
-			chance = (Race_if(PM_ILLITHID) ? 105 : 35); /*much lower chance now --Amy */
+			chance = (Race_if(PM_ILLITHID) ? 105 : Race_if(PM_BACTERIA) ? 12 : 35); /*much lower chance now --Amy */
 			break;
 	}
 	} else {
@@ -1445,10 +1586,16 @@ register struct permonst *ptr;
 			chance = 1;
 			break;
 		default:
-			chance = (Race_if(PM_ILLITHID) ? 35 : 15);
+			chance = (Race_if(PM_ILLITHID) ? 35 : Race_if(PM_BACTERIA) ? 12 : 15);
 			break;
 	}
 
+	} /* issoviet check */
+
+	/* dragonmaster is much better at gaining dragon powers --Amy */
+	if (Role_if(PM_DRAGONMASTER) && ptr->mlet == S_DRAGON && chance > 1) {
+		chance /= 3;
+		if (chance < 1) chance = 1;
 	}
 
 	if ( (ptr->mlevel <= rn2(chance) ) || !rn2(4) )
@@ -1460,7 +1607,8 @@ register struct permonst *ptr;
 		debugpline("Trying to give acid resistance");
 #endif
 		if(!(Acid_resistance & INTRINSIC)) {
-			You(Hallucination ? "wanna do more acid!" :
+			u.cnd_eatrinsicamount++;
+			You(FunnyHallu ? "wanna do more acid!" :
 			    "feel less afraid of corrosives.");
 			if (rn2(100)) incr_itimeout(&HAcid_resistance, rn1(1000, 500));
 			else HAcid_resistance |= FROMOUTSIDE;
@@ -1471,7 +1619,8 @@ register struct permonst *ptr;
 		debugpline("Trying to give petrify resistance");
 #endif
 		if(!(HStone_resistance & INTRINSIC)) {
-			You(Hallucination ? "feel stony and groovy, man." :
+			u.cnd_eatrinsicamount++;
+			You(FunnyHallu ? "feel stony and groovy, man." :
 			    "feel rock solid.");
 			if (rn2(100)) incr_itimeout(&HStone_resistance, rn1(1000, 500));
 			else HStone_resistance |= FROMOUTSIDE;
@@ -1482,7 +1631,8 @@ register struct permonst *ptr;
 		debugpline("Trying to give fire resistance");
 #endif
 		if(!(HFire_resistance & FROMOUTSIDE)) {
-			You(Hallucination ? "be chillin'." :
+			u.cnd_eatrinsicamount++;
+			You(FunnyHallu ? "be chillin'." :
 			    "feel a momentary chill.");
 			HFire_resistance |= FROMOUTSIDE;
 		}
@@ -1492,6 +1642,7 @@ register struct permonst *ptr;
 		debugpline("Trying to give sleep resistance");
 #endif
 		if(!(HSleep_resistance & FROMOUTSIDE)) {
+			u.cnd_eatrinsicamount++;
 			You_feel("wide awake.");
 			HSleep_resistance |= FROMOUTSIDE;
 		}
@@ -1501,6 +1652,7 @@ register struct permonst *ptr;
 		debugpline("Trying to give cold resistance");
 #endif
 		if(!(HCold_resistance & FROMOUTSIDE)) {
+			u.cnd_eatrinsicamount++;
 			You_feel("full of hot air.");
 			HCold_resistance |= FROMOUTSIDE;
 		}
@@ -1510,7 +1662,8 @@ register struct permonst *ptr;
 		debugpline("Trying to give disintegration resistance");
 #endif
 		if(!(HDisint_resistance & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "totally together, man." :
 			    "very firm.");
 			HDisint_resistance |= FROMOUTSIDE;
@@ -1521,7 +1674,8 @@ register struct permonst *ptr;
 		debugpline("Trying to give shock resistance");
 #endif
 		if(!(HShock_resistance & FROMOUTSIDE)) {
-			if (Hallucination)
+			u.cnd_eatrinsicamount++;
+			if (FunnyHallu)
 				You_feel("grounded in reality.");
 			else
 				Your("health currently feels amplified!");
@@ -1533,6 +1687,7 @@ register struct permonst *ptr;
 		debugpline("Trying to give poison resistance");
 #endif
 		if(!(HPoison_resistance & FROMOUTSIDE)) {
+			u.cnd_eatrinsicamount++;
 			You_feel(Poison_resistance ?
 				 "especially healthy." : "healthy.");
 			HPoison_resistance |= FROMOUTSIDE;
@@ -1543,7 +1698,8 @@ register struct permonst *ptr;
 		debugpline("Trying to give teleport");
 #endif
 		if(!(HTeleportation & FROMOUTSIDE)) {
-			You_feel(Hallucination ? "diffuse." :
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ? "diffuse." :
 			    "very jumpy.");
 			HTeleportation |= FROMOUTSIDE;
 		}
@@ -1553,7 +1709,8 @@ register struct permonst *ptr;
 		debugpline("Trying to give teleport control");
 #endif
 		if(!(HTeleport_control & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "centered in your personal space." :
 			    "in control of yourself.");
 			HTeleport_control |= FROMOUTSIDE;
@@ -1564,7 +1721,8 @@ register struct permonst *ptr;
 		debugpline("Trying to give telepathy");
 #endif
 		if(!(HTelepat & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "in touch with the cosmos." :
 			    "a strange mental acuity.");
 			HTelepat |= FROMOUTSIDE;
@@ -1575,7 +1733,8 @@ register struct permonst *ptr;
 
 	    case HALLU_PARTY:
 		if(!(HHallu_party & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "like throwing wild parties with lots of sexy girls! Yeah!" :
 			    "a strange desire to celebrate.");
 			HHallu_party |= FROMOUTSIDE;
@@ -1583,7 +1742,8 @@ register struct permonst *ptr;
 		break;
 	    case DRUNKEN_BOXING:
 		if(!(HDrunken_boxing & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "like Mike Tyson!" :
 			    "ready for a good brawl.");
 			HDrunken_boxing |= FROMOUTSIDE;
@@ -1591,7 +1751,8 @@ register struct permonst *ptr;
 		break;
 	    case STUNNOPATHY:
 		if(!(HStunnopathy & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "a controlled wobbling! Feels like being on a bouncy ship!" :
 			    "steadily observant.");
 			HStunnopathy |= FROMOUTSIDE;
@@ -1599,7 +1760,8 @@ register struct permonst *ptr;
 		break;
 	    case NUMBOPATHY:
 		if(!(HNumbopathy & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "as if a sweet woman were clamping your toes with a block-heeled combat boot!" :
 			    "a numb feeling spreading through your body. Somehow, it doesn't feel bad at all...");
 			HNumbopathy |= FROMOUTSIDE;
@@ -1607,7 +1769,8 @@ register struct permonst *ptr;
 		break;
 	    case DIMMOPATHY:
 		if(!(HDimmopathy & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "like your wife was contemplating a breakup, but then you realize that she's gonna stay with you to the end of all time." :
 			    "a little down. But then, good feelings overcome you.");
 			HDimmopathy |= FROMOUTSIDE;
@@ -1615,7 +1778,8 @@ register struct permonst *ptr;
 		break;
 	    case FREEZOPATHY:
 		if(!(HFreezopathy & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "like eating a big cone of ice-cream - mmmmmmmm!" :
 			    "icy.");
 			HFreezopathy |= FROMOUTSIDE;
@@ -1623,7 +1787,8 @@ register struct permonst *ptr;
 		break;
 	    case STONED_CHILLER:
 		if(!(HStoned_chiller & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "that you're simply the best - yeah, no shit, man!" :
 			    "like relaxing on a couch.");
 			HStoned_chiller |= FROMOUTSIDE;
@@ -1631,7 +1796,8 @@ register struct permonst *ptr;
 		break;
 	    case CORROSIVITY:
 		if(!(HCorrosivity & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "like you just got splashed with gunks of acid!" :
 			    "an acidic burning.");
 			HCorrosivity |= FROMOUTSIDE;
@@ -1639,7 +1805,8 @@ register struct permonst *ptr;
 		break;
 	    case FEAR_FACTOR:
 		if(!(HFear_factor & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "like you're always running - from something! And the 'something' is a prostitute." :
 			    "ready to face your fears.");
 			HFear_factor |= FROMOUTSIDE;
@@ -1647,7 +1814,8 @@ register struct permonst *ptr;
 		break;
 	    case BURNOPATHY:
 		if(!(HBurnopathy & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "super burninated by enemy with very tired!" :
 			    "a burning inside. Strangely, it feels quite soothing.");
 			HBurnopathy |= FROMOUTSIDE;
@@ -1655,7 +1823,8 @@ register struct permonst *ptr;
 		break;
 	    case SICKOPATHY:
 		if(!(HSickopathy & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "that you just ate some really wacky stuff! What the heck was in there?" :
 			    "ill for a moment, but get the feeling that you know more about diseases now.");
 			HSickopathy |= FROMOUTSIDE;
@@ -1663,7 +1832,8 @@ register struct permonst *ptr;
 		break;
 	    case WONDERLEGS:
 		if(!(HWonderlegs & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "a wonderful sensation in your shins, like they were just kicked by female hugging boots! How lovely!" :
 			    "like having your legs scratched up and down by sexy leather pumps.");
 			HWonderlegs |= FROMOUTSIDE;
@@ -1671,7 +1841,8 @@ register struct permonst *ptr;
 		break;
 	    case GLIB_COMBAT:
 		if(!(HGlib_combat & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			u.cnd_eatrinsicamount++;
+			You_feel(FunnyHallu ?
 			    "like an absolute marital arts champion, so you can start fighting off your spouse!" :
 			    "the fliction in your hands disappearing.");
 			HGlib_combat |= FROMOUTSIDE;
@@ -1698,15 +1869,47 @@ register int pm;
 	if (eatmbuf) (void)eatmdone();
 
 	switch(pm) {
+
+	    case PM_LITTLE_DOG:
+	    case PM_DOG:
+	    case PM_LARGE_DOG:
+	    case PM_KITTEN:
+	    case PM_HOUSECAT:
+	    case PM_LARGE_CAT:
+	    case PM_DOMESTIC_COCKATRICE:
+	    case PM_CHAIN_SMOKER_ASSHOLE:
+			{
+			int aggroamount = rnd(6);
+			if (isfriday) aggroamount *= 2;
+			u.aggravation = 1;
+			reset_rndmonst(NON_PM);
+			while (aggroamount) {
+				u.cnd_aggravateamount++;
+				makemon((struct permonst *)0, u.ux, u.uy, MM_ANGRY|MM_FRENZIED);
+				aggroamount--;
+				if (aggroamount < 0) aggroamount = 0;
+			}
+			u.aggravation = 0;
+			pline("Several monsters come out of a portal.");
+			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+			}
+		break;
+
 	    case PM_IGUANA:
+	    case PM_LEGWA:
 	    case PM_GECKO:
+	    case PM_GEGGO:
 	    case PM_FLYING_GECKO:
 			lesshungry(20);
 		break;
 	    case PM_RHAUMBUSUN:
+	    case PM_FEMBUSUN:
+	    case PM_BLOODBUSUN:
 			lesshungry(40);
 	    case PM_SQUIRREL:
+	    case PM_KWIRREL:
 	    case PM_HELPFUL_SQUIRREL:
+	    case PM_STAR_SQUIRREL:
 			lesshungry(50);
 		break;
 	    case PM_BIG_IGUANA:
@@ -1724,17 +1927,19 @@ register int pm;
 	    case PM_PARALYSIS_WHIP_SALAMANDER:
 	    case PM_FROST_SALAMANDER:
 	    case PM_KOMODO_DRAGON:
+	    case PM_KOMODO_BEAST:
 	    case PM_PETTY_KOMODO_DRAGON:
 			lesshungry(400);
 		break;
 	    case PM_GORGON:
+	    case PM_HACKBEAKTRICE:
 	    case PM_ATTRACTIVE_TROVE:
 
 		if (u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) break;
 		if (ABASE(A_CHA) < ATTRMAX(A_CHA)) {
 			if (!rn2(10)) {
 				You_feel("more %s!", flags.female ? "pretty" : "attractive");
-				(void) adjattrib(A_CHA, 1, FALSE);
+				(void) adjattrib(A_CHA, 1, FALSE, TRUE);
 				break;
 			}
 		}
@@ -1745,7 +1950,7 @@ register int pm;
 		if (u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) break;
 		if (ABASE(A_CHA) < ATTRMAX(A_CHA)) {
 			You_feel("more %s!", flags.female ? "pretty" : "attractive");
-			(void) adjattrib(A_CHA, 1, FALSE);
+			(void) adjattrib(A_CHA, 1, FALSE, TRUE);
 			}
 		break;
 
@@ -1754,22 +1959,24 @@ register int pm;
 		if (u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) break;
 		if (ABASE(A_CON) < ATTRMAX(A_CON)) {
 			You_feel("tougher!");
-			(void) adjattrib(A_CON, 1, FALSE);
+			(void) adjattrib(A_CON, 1, FALSE, TRUE);
 			}
 
 		break;
 
 	    case PM_PORTBEAMTRICE:
 
-		pushplayer();
+		pushplayer(TRUE);
 		break;
 
+	    case PM_EVILISK:
 	    case PM_ADULT_SHIMMERING_DRAGON:
 	    case PM_OLD_SHIMMERING_DRAGON:
 	    case PM_SHIMMERING_DRAGON:
 	    case PM_VERY_OLD_SHIMMERING_DRAGON:
 	    case PM_ANCIENT_SHIMMERING_DRAGON:
 	    case PM_GREAT_SHIMMERING_DRAGON:
+	    case PM_GARGANTUAN_COCKATRICE:
 
 		Your("intrinsics seem to change!");
 		intrinsicgainorloss();
@@ -1782,7 +1989,7 @@ register int pm;
 		if (!rn2(20)) {
 
 			if(!(HPolymorph & FROMOUTSIDE)) {
-				You_feel(Hallucination ?
+				You_feel(FunnyHallu ?
 				    "able to take on different shapes! Yeah! Let's transform into something fun!" :
 				    "unstable.");
 				HPolymorph  |= FROMOUTSIDE;
@@ -1799,6 +2006,12 @@ register int pm;
 
 	    case PM_SMALL_CHICKATRICE:
 	    case PM_NEWT:
+	    case PM_DRAGONEWT:
+	    case PM_CLAYMORE_DRAGONEWT:
+	    case PM_DRACO_EQUES:
+	    case PM_SUPER_DRAGONEWT:
+	    case PM_PINBALL_NEWT:
+	    case PM_NUUT:
 	    case PM_ENERGY_TROVE:
 	    case PM_GRAY_NEWT:
 	    case PM_ARCH_NEWT:
@@ -1808,6 +2021,7 @@ register int pm;
 	    case PM_EMPEROR_NEWT:
 	    case PM_LARGE_NEWT:
 	    case PM_ORE_NEWT:
+	    case PM_MINNEWT:
 	    case PM_SENSEI_NEWT:
 	    case PM_GRANDMASTER_NEWT:
 	    case PM_ASPHYNX:
@@ -1828,6 +2042,7 @@ register int pm;
 			if (!rn2(3)) u.uenmax++;
 			/*u.uen = u.uenmax;
 		    } */
+		    if (u.uen > u.uenmax) u.uen = u.uenmax;
 		    if (old_uen != u.uen) {
 			    You_feel("a mild buzz.");
 			    flags.botl = 1;
@@ -1854,6 +2069,7 @@ register int pm;
 		    u.uen += rnd(3);
 		    if (!rn2(3)) u.uenmax++;
 		}
+		if (u.uen > u.uenmax) u.uen = u.uenmax;
 		if (old_uen != u.uen) {
 		    You_feel("a mild buzz.");
 		    flags.botl = 1;
@@ -1863,6 +2079,7 @@ register int pm;
 	    case PM_GIGANTIC_NEWT:
 	    case PM_BONUS_MANA_TROVE:
 	    case PM_KILLERTRICE:
+	    case PM_MULTITRICE:
 		if (u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) break;
 	      {int old_uen = u.uen;
 		    u.uen += rnd(4);
@@ -1872,6 +2089,7 @@ register int pm;
 		    u.uen += rnd(4);
 		    if (rn2(3)) u.uenmax++;
 			u.uenmax++; u.uenmax++; u.uenmax++;
+		if (u.uen > u.uenmax) u.uen = u.uenmax;
 		if (old_uen != u.uen) {
 		    You_feel("a mild buzz.");
 		    flags.botl = 1;
@@ -1879,6 +2097,8 @@ register int pm;
 		}
 		break;
 	    case PM_TWEN:
+	    case PM_PINBALL_TWEN:
+	    case PM_DWEN:
 	    case PM_HEALTH_TROVE:
 	    case PM_GRAY_TWEN:
 	    case PM_DEMITWEN:
@@ -1886,17 +2106,25 @@ register int pm;
 	    case PM_GRANDMASTER_TWEN:
 	    case PM_LARGE_TWEN:
 	    case PM_ORE_TWEN:
+	    case PM_MINTWEN:
 	    case PM_EMPEROR_TWEN:
 	    case PM_SENSEI_TWEN:
 	    case PM_YELDUD_TWEN:
 	    case PM_PORTER_RUBBER_CHICKEN:
+	    case PM_CHALKATRICE:
 		if (u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) break;
 		if (Upolyd) {
 			u.mh++;
 			u.mhmax++;
+			if (u.mh > u.mhmax) u.mh = u.mhmax;
 		} else {
 			u.uhp++;
 			u.uhpmax++;
+			if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
+		}
+		if (uactivesymbiosis) {
+			u.usymbiote.mhpmax++;
+			if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
 		}
 		    You_feel("vitalized.");
 		    flags.botl = 1;
@@ -1919,6 +2147,12 @@ register int pm;
 			u.uhpmax += rnd(2);
 			if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
 		}
+		if (uactivesymbiosis) {
+			u.usymbiote.mhpmax++;
+			u.usymbiote.mhpmax += rnd(2);
+			if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
+		}
+
 		    You_feel("vitalized.");
 		    flags.botl = 1;
 		break;
@@ -1948,6 +2182,13 @@ register int pm;
 			u.uhpmax += rnd(10);
 			if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
 		}
+		if (uactivesymbiosis) {
+			u.usymbiote.mhpmax++;
+			u.usymbiote.mhpmax++;
+			u.usymbiote.mhpmax++;
+			u.usymbiote.mhpmax += rnd(10);
+			if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
+		}
 		    You_feel("vitalized.");
 		    flags.botl = 1;
 		break;
@@ -1963,6 +2204,7 @@ register int pm;
 		    u.uen += rnd(4);
 		    if (rn2(3)) u.uenmax++;
 			u.uenmax++; u.uenmax++; u.uenmax++;
+		if (u.uen > u.uenmax) u.uen = u.uenmax;
 		if (old_uen != u.uen) {
 		    You_feel("a mild buzz.");
 		    flags.botl = 1;
@@ -1990,6 +2232,13 @@ register int pm;
 			u.uhpmax += rnd(10);
 			if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
 		}
+		if (uactivesymbiosis) {
+			u.usymbiote.mhpmax++;
+			u.usymbiote.mhpmax++;
+			u.usymbiote.mhpmax++;
+			u.usymbiote.mhpmax += rnd(10);
+			if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
+		}
 		    You_feel("vitalized.");
 		    flags.botl = 1;
 		break;
@@ -1998,6 +2247,7 @@ register int pm;
 	    case PM_PETRO_FUNGUS:
 	    case PM_PETRO_PATCH:
 	    case PM_PETRO_FORCE_FUNGUS:
+	    case PM_PETRO_WORT:
 	    case PM_PETRO_FORCE_PATCH:
 	    case PM_PETRO_WARP_FUNGUS:
 	    case PM_PETRO_WARP_PATCH:
@@ -2019,13 +2269,19 @@ register int pm;
 	    case PM_DISINTITRICE:
 		if (u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) break;
 	      You_feel("that was a smart thing to do.");
-		pluslvl(FALSE);
+		gainlevelmaybe();
 
 		break;
 
 	    case PM_STONE_BUG:
 		You_feel("that was a bad idea.");
 		losexp("eating a stone bug corpse", FALSE, TRUE);
+
+		break;
+
+	    case PM_GIANT_COCKATRICE:
+		You_feel("that was a bad idea.");
+		losexp("eating a giant cockatrice corpse", FALSE, TRUE);
 
 		break;
 
@@ -2065,7 +2321,7 @@ register int pm;
 			/* If we're still oversaturated ... */
 			if (u.uhunger >= 4000) {
 				You_feel("like your chest is going to explode.");
-				losestr(rnd(4));
+				losestr(rnd(4), TRUE);
 				losehp(rnd(15), "gluttony", KILLED_BY);
 				pline("It did!");
 			}
@@ -2078,6 +2334,14 @@ register int pm;
 		break;
 
 	    case PM_WRAITH:
+	    case PM_CORONA_WRAITH:
+	    case PM_WIGHTSPECTRE:
+	    case PM_KING_WRAITH:
+	    case PM_GUD_WRAITH:
+	    case PM_CREVICE_WRAITH:
+	    case PM_HUDDLED_WRAITH:
+	    case PM_HITTABLE_WRAITH:
+	    case PM_ACID_WRAITH:
 	    case PM_HUMAN_WRAITH:
 	    case PM_BIG_WRAITH:
 	    case PM_HUGE_WRAITH:
@@ -2088,6 +2352,7 @@ register int pm;
 	    case PM_GREATER_BASILISK:
 	    case PM_ETHEREAL_TROVE:
 	    case PM_CENTAURTRICE:
+	    case PM_SPICKATRICE:
 		if (u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) break;
 		switch(rnd(10)) {                
 		case 1:
@@ -2131,7 +2396,7 @@ register int pm;
 		case 9:                        
 		case 10:                
 		    You_feel("that was a smart thing to do.");
-		pluslvl(FALSE);
+		gainlevelmaybe();
 		break;
 		default:            
 		    break;
@@ -2191,7 +2456,7 @@ register int pm;
 		case 9:                        
 		case 10:                
 		    You_feel("that was a smart thing to do.");
-		pluslvl(FALSE);
+		gainlevelmaybe();
 		make_hallucinated(HHallucination+rn1(10,50),TRUE,0L);
 		break;
 		default:            
@@ -2448,6 +2713,14 @@ register int pm;
 		catch_lycanthropy = TRUE;
 		if (!Race_if(PM_HUMAN_WEREWOLF) && !Race_if(PM_AK_THIEF_IS_DEAD_) && !Role_if(PM_LUNATIC)) u.ulycn = PM_WEREBEAR;
 		break;
+	    case PM_HUMAN_WEREDEMON:
+		catch_lycanthropy = TRUE;
+		if (!Race_if(PM_HUMAN_WEREWOLF) && !Race_if(PM_AK_THIEF_IS_DEAD_) && !Role_if(PM_LUNATIC)) u.ulycn = PM_WEREDEMON;
+		break;
+	    case PM_HUMAN_WEREPHANT:
+		catch_lycanthropy = TRUE;
+		if (!Race_if(PM_HUMAN_WEREWOLF) && !Race_if(PM_AK_THIEF_IS_DEAD_) && !Role_if(PM_LUNATIC)) u.ulycn = PM_WEREPHANT;
+		break;
 	    case PM_HUMAN_WEREWEDGESANDAL:
 		catch_lycanthropy = TRUE;
 		if (!Race_if(PM_HUMAN_WEREWOLF) && !Race_if(PM_AK_THIEF_IS_DEAD_) && !Role_if(PM_LUNATIC)) u.ulycn = PM_WEREWEDGESANDAL;
@@ -2583,18 +2856,29 @@ register int pm;
 
 	    case PM_STALKER:
 	    case PM_FORCE_STALKER:
+	    case PM_LANTERN_STALKER:
+	    case PM_GREEN_STALKER:
+	    case PM_RED_STALKER:
+	    case PM_YELLOW_STALKER:
+	    case PM_WHITE_STALKER:
+	    case PM_CYAN_STALKER:
 	    case PM_THE_HIDDEN:
 	    case PM_INVISIBLE_BADGUY:
 	    case PM_UNSEEN_POTATO:
 	    case PM_CAMOUFLAGED_WATCHER:
 	    case PM_HIDDEN_TRACKER:
 	    case PM_UNSEEN_SERVANT:
+	    case PM_SCHEDAU_STALKER:
 	    case PM_SILENT_KILLER:
 	    case PM_STONE_STALKER:
 	    case PM_ILLUSION_WEAVER:
+	    case PM_INVIS_SAMER:
+	    case PM_INVIS_SCORER:
+	    case PM_MIRAGE_WEAVER:
 	    case PM_PAIN_MASTER:
 	    case PM_PAIN_MISTER:
 	    case PM_COCKTAUR:
+	    case PM_REVEALING_COCKATRICE:
 	    case PM_HIDDEN_COCKATRICE:
 	    case PM_MIMIC_CHICKEN:
 	    case PM_PETRO_MIMIC:
@@ -2621,10 +2905,25 @@ register int pm;
 		make_stunned(HStun + 30,FALSE);
 		break;
 	    case PM_QUANTUM_MECHANIC:
+	    case PM_QUANTUM_CREATURE:
+	    case PM_ECO_MECHANIC:
+	    case PM_COMO_MECHANIC:
+	    case PM_MATHEMATICIAN:
+	    case PM_TOLKIEN_MECHANIC:
+	    case PM_FORGER_MECHANIC:
+	    case PM_IMPORTANT_MECHANIC:
+	    case PM_UNSEEN_MECHANIC:
+	    case PM_HASTY_MECHANIC:
+	    case PM_COUNTER_MECHANIC:
+	    case PM_DISMANTLER_MECHANIC:
+	    case PM_PLAYER_MECHANIC:
+	    case PM_QUANTUM_ABERRATION:
+	    case PM_QUANTUMMOID:
 	    case PM_ATOMIC_QUANTUM_MECHANIC:
 	    case PM_FORCE_QUANTUM_MECHANIC:
 	    case PM_METAL_MECHANIC:
 	    case PM_AUTO_MECHANIC:
+	    case PM_COMMUNITY_SPREAD_MECHANIC:
 	    case PM_GORGON_BEETLE:
 	    case PM_SPEED_TROVE:
 	    case PM_MINI_CHICKATRICE:
@@ -2643,6 +2942,7 @@ register int pm;
 		break;
 
 	    case PM_RACEY_CHICKEN:
+	    case PM_QUADWANGLER:
 
 		if (!Very_fast)
 			You("are suddenly moving %sfaster.", Fast ? "" : "much ");
@@ -2654,26 +2954,41 @@ register int pm;
 
 	    case PM_PREHISTORIC_CAVE_LIZARD:
 	    case PM_LIZARD_OF_YENDOR:
+	    case PM_LICHZARD:
 			lesshungry(500); /* fall thru */
 	    case PM_GIANT_LIZARD:
+	    case PM_LIZARD_MAGE:
+	    case PM_BLACK_LIZARDMAN:
+	    case PM_ASSASSIN_LIZARD:
+	    case PM_BLIZZARD_LIZARD:
 			lesshungry(300); /* fall thru */
 	    case PM_CHAOS_LIZARD:
 	    case PM_CHAOTIC_LIZARD:
 	    case PM_LIZARD_MAN:
+	    case PM_SKELLIZARD:
+	    case PM_NORMAL_LIZARD:
 			lesshungry(180); /* fall thru */
 	    case PM_LIZARD:
+	    case PM_LIZZY:
+	    case PM_LIZARD_PRINCE:
+	    case PM_WILL_STONE_LIZARD:
+	    case PM_WILL_RATCH_LIZARD:
 	    case PM_ROCK_LIZARD:
 	    case PM_BABY_CAVE_LIZARD:
 	    case PM_NIGHT_LIZARD:
 	    case PM_KARMIC_LIZARD:
 	    case PM_GREEN_LIZARD:
+	    case PM_SCORZARD:
 	    case PM_CAVE_LIZARD:
 	    case PM_GRASS_LIZARD:
+	    case PM_RUNE_LIZARD:
+	    case PM_SPECTRAL_LIZARD:
 	    case PM_BLUE_LIZARD:
 	    case PM_SWAMP_LIZARD:
 	    case PM_SPITTING_LIZARD:
 	    case PM_LIZARD_EEL:
 	    case PM_LIZARD_KING:
+	    case PM_ADULT_LIZARD:
 	    case PM_EEL_LIZARD:
 	    case PM_ANTI_STONE_LIZARD:
 	    case PM_HIDDEN_LIZARD:
@@ -2695,6 +3010,7 @@ register int pm;
 	    case PM_FBI_AGENT:
 	    case PM_OWN_SMOKE:
 	    case PM_GRANDPA:
+	    case PM_CLOCKBACK_LIZARD:
 	    case PM_FIRE_LIZARD:
 	    case PM_BLACK_LIZARD:
 	    case PM_LIGHTNING_LIZARD:
@@ -2705,6 +3021,7 @@ register int pm;
 		break;
 
 	    case PM_MIMIC_LIZARD:
+	    case PM_HELTH_LIZARD:
 	    case PM_DEFORMED_LIZARD:
 	    case PM_GRATING_CHICKEN:
 			lesshungry(20); /* fall thru */
@@ -2713,13 +3030,43 @@ register int pm;
 
 		break;
 
+	    case PM_PYROLETROLISK:
+		if ((HFire_resistance & FROMOUTSIDE) && (HShock_resistance & FROMOUTSIDE)) {
+			HFire_resistance &= ~FROMOUTSIDE;
+			HShock_resistance &= ~FROMOUTSIDE;
+			You_feel("like you got zapped by fire!");
+		} else if (HFire_resistance & FROMOUTSIDE) {
+			HFire_resistance &= ~FROMOUTSIDE;
+			HShock_resistance |= FROMOUTSIDE;
+			You("switched fire resistance for shock resistance.");
+		} else if (HShock_resistance & FROMOUTSIDE) {
+			HShock_resistance &= ~FROMOUTSIDE;
+			HFire_resistance |= FROMOUTSIDE;
+			You("switched shock resistance for fire resistance.");
+		}
+		break;
+
 	    case PM_CHAMELEON:
+	    case PM_CHAMECHAUN:
+	    case PM_METAMORPHOSE:
+	    case PM_GHELEON:
+	    case PM_PURPLE_R:
+	    case PM_VAMPSHIFTER:
+	    case PM_UNGENOCIDABLE_VAMPSHIFTER:
+	    case PM_CHARMONIE:
+	    case PM_EDOTO:
+	    case PM_COCKAMELEON:
+	    case PM_GREEN_SLAAD:
 	    case PM_POLYFESHNEE:
 	    case PM_FOREPREACHER_CONVERTER:
 	    case PM_MARTIIN:
 	    case PM_IVEL_WUXTINA:
+	    case PM_EARLY_LEON:
 	    case PM_SLUMBER_HULK:
 	    case PM_OFFDIVER:
+	    case PM_CHANGELING:
+	    case PM_CHANGELING_ZOMBIE:
+	    case PM_CHANGELING_MUMMY:
 	    case PM_ELEROTIC_DREAM_WOMAN:
 	    case PM_TENDER_JESSE:
 	    case PM_WHORED_HORE:
@@ -2730,6 +3077,7 @@ register int pm;
 	    case PM_VERY_POLY_NYMPH:
 	    case PM_KARMA_CHAMELEON:
 	    case PM_DOPPELGANGER:
+	    case PM_METAL_DOPPELGANGER:
 	    case PM_LAURA_S_PARLOR_TRICK:
 	    case PM_LAURA_S_MASTERPIECE:
 	    case PM_CHANGE_EXPLODER:
@@ -2748,14 +3096,17 @@ register int pm;
 	    case PM_SANDESTIN:
 	    case PM_POLYMORPHITIC_WOLF:
 	    case PM_COVETOUSLEON:
+	    case PM_THE_ZRUTINATOR:
 	    case PM_GIANT_CHAMELEON:
 	    case PM_MEDUQUASIT:
+	    case PM_FICKATRICE:
+	    case PM_PUCE_JELLY:
 
 		/* evil patch idea by jonadab: eating shapeshifters has a 5% chance of conveying polymorphitis */
 		if (!rn2(20)) {
 
 			if(!(HPolymorph & FROMOUTSIDE)) {
-				You_feel(Hallucination ?
+				You_feel(FunnyHallu ?
 				    "able to take on different shapes! Yeah! Let's transform into something fun!" :
 				    "unstable.");
 				HPolymorph  |= FROMOUTSIDE;
@@ -2768,11 +3119,22 @@ register int pm;
 		    polyself(FALSE);
 		}
 		break;
+
+	    case PM_UMBER_MIND_FLAYER:
+	    case PM_GLOCKATRICE:
+	    case PM_BOSSATRICE:
+
+		You_feel("ethereal.");
+		incr_itimeout(&HPasses_walls, rn1(10, 50));
+
+		break;
+
 	    case PM_HENRIETTA_S_THICK_BLOCK_HEELED_BOOT:
 	    case PM_VERY_STEAL_MIND_FLAYER:
+	    case PM_CONTACT_BEASTLING:
 
 		if(!(HPolymorph & FROMOUTSIDE)) {
-			You_feel(Hallucination ?
+			You_feel(FunnyHallu ?
 			    "able to take on different shapes! Yeah! Let's transform into something fun!" :
 			    "unstable.");
 			HPolymorph  |= FROMOUTSIDE;
@@ -2794,7 +3156,7 @@ register int pm;
 		if (!rn2(20)) {
 
 			if(!(HPolymorph & FROMOUTSIDE)) {
-				You_feel(Hallucination ?
+				You_feel(FunnyHallu ?
 				    "able to take on different shapes! Yeah! Let's transform into something fun!" :
 				    "unstable.");
 				HPolymorph  |= FROMOUTSIDE;
@@ -2811,13 +3173,13 @@ register int pm;
 
 		if (ABASE(A_INT) < ATTRMAX(A_INT)) {
 			if (!rn2(2)) {
-				pline(Hallucination ? "Hmm, is that what human brain tastes like?" : "Yum! That was real brain food!");
-				(void) adjattrib(A_INT, 1, FALSE);
+				pline(FunnyHallu ? "Hmm, is that what human brain tastes like?" : "Yum! That was real brain food!");
+				(void) adjattrib(A_INT, 1, FALSE, TRUE);
 				break;	/* don't give them telepathy, too */
 			}
 		}
 		else {
-			pline(Hallucination ? "Eek, that tasted like rotten oversalted seaweed!" : "For some reason, that tasted bland.");
+			pline(FunnyHallu ? "Eek, that tasted like rotten oversalted seaweed!" : "For some reason, that tasted bland.");
 		}
 
 		break;
@@ -2829,32 +3191,115 @@ register int pm;
 
 		break;
 
+	    case PM_ROTTEN_EXHAUSTED_NOODLE:
+
+		pline("Ulch - the noodle was tainted!");
+	      make_sick(rn1(25,25), "a tainted noodle", TRUE, SICK_VOMITABLE);
+
+		break;
+
+	    case PM_HOPE_COCKATRICE:
+
+		pline("Ulch - the cockatrice was tainted!");
+	      make_sick(rn1(25,25), "a tainted cockatrice", TRUE, SICK_VOMITABLE);
+
+		break;
+
+	    case PM_NAPT_GIRL:
+
+		pline("Ulch - the asian girl was tainted!");
+	      make_sick(rn1(25,25), "a tainted nude girl", TRUE, SICK_VOMITABLE);
+
+		break;
+
+	    case PM_FIREBALL_LASS:
+
+		pline("Ulch - the stupid girl was tainted!");
+	      make_sick(rn1(25,25), "a tainted lass", TRUE, SICK_VOMITABLE);
+
+		break;
+
 	    case PM_OLOG_HAI_GORGON:
 	    case PM_BEAR_TROVE:
 	    case PM_SPINACH:
+	    case PM_COCKERICH:
 	    case PM_GRAVITY_CHICKEN:
 	    case PM_MEDUSA_S_PET_FISH:
 		if (u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) break;
 		gainstr((struct obj *)0, 0);
-		pline(Hallucination ? "You feel like ripping out some trees!" : "You feel stronger!");
+		pline(FunnyHallu ? "You feel like ripping out some trees!" : "You feel stronger!");
 		break;
 
 	    case PM_KATOISEFUL:
+	    case PM_MURDATRICE:
 		pline("You'll have incessant flatulence for a while now...");
 		FemaleTrapMaurah += rnz(2000);
 		CrapEffect += rnz(50 * (monster_difficulty() + 1));
 		break;
 
 	    case PM_STEALATRICE:
+	    case PM_LICORICE:
+	    case PM_CONTACT_BEAST:
 		if (u.contamination && u.contamination < 1000) {
 			decontaminate(100);
 		}
 
 		break;
 
+	    case PM_CHOOKATRICE:
+	    case PM_ROCKATRICE:
+
+		switch (rnd(16)) {
+
+			case 1:	/* blueberry (cure blind) */
+				/* They're good for your eyes, too. [Sakusha]*/
+				pline("It was blueberry-flavored!");
+				make_blinded((long)u.ucreamed,TRUE);
+				break;
+			case 2:	/* bitter (cure stun) */
+				pline("It tasted bitter!");
+				make_stunned(0L,TRUE);
+				break;
+			case 3:	/* wasabi (cure confuse) */
+				pline("It contained all-natural wasabi extract!");
+				make_confused(0L,TRUE);
+				break;
+			case 4:	/* mattya (cure slow and totter) */
+				pline("There was some weird japanese food extras in there...");
+				make_frozen(0L, TRUE);
+				u.totter = 0;
+				break;
+			case 5:	/* ginger (cure hallucinate) */
+				pline("Ginger! Who puts that in a chocolate???");
+				(void) make_hallucinated(0L, TRUE, 0L);
+				break;
+			default: break;
+
+		}
+		break;
+
+	    case PM_CUCKATRICE:
+	    case PM_COCKAHORSE:
+	    case PM_CUP_COCKATRICE:
+
+		change_sex(); /* ignores unchanging (intentional) */
+		You("are suddenly very %s!", flags.female ? "feminine" : "masculine");
+		flags.botl = 1;
+		break;
+
 	    case PM_NEXUS_CHICKEN:
 
 		pline("This corpse can grant both teleportitis and teleport control. It can also petrify you, though.");
+		break;
+
+	    case PM_ELONA__:
+
+		pline("You dare to eat @!");
+		break;
+
+	    case PM_STONE_BACULATHRIUM:
+
+		pline("This monster is a funny misspelling of 'baluchitherium' and can turn you to stone.");
 		break;
 
 		/* non-mind flayers that emit mental blasts sometimes give INT boosts, too --Amy */
@@ -2869,7 +3314,10 @@ register int pm;
 	    case PM_KURROE:
 	    case PM_MIND_IMP:
 	    case PM_MASTER_BLASTER:
+	    case PM_SANITY_BLASTER:
 	    case PM_NECROMORB:
+	    case PM_HAMMER_ORB:
+	    case PM_STUPID_ORB:
 	    case PM_EVIL_ORB:
 	    case PM_NERF_ORB:
 	    case PM_ABRA:
@@ -2882,13 +3330,13 @@ register int pm;
 
 		if (ABASE(A_INT) < ATTRMAX(A_INT)) {
 			if (!rn2(5)) {
-				pline(Hallucination ? "Hmm, is that what human brain tastes like?" : "Yum! That was real brain food!");
-				(void) adjattrib(A_INT, 1, FALSE);
+				pline(FunnyHallu ? "Hmm, is that what human brain tastes like?" : "Yum! That was real brain food!");
+				(void) adjattrib(A_INT, 1, FALSE, TRUE);
 				break;	/* don't give them telepathy, too */
 			}
 		}
 		else {
-			pline(Hallucination ? "Eek, that tasted like rotten oversalted seaweed!" : "For some reason, that tasted bland.");
+			pline(FunnyHallu ? "Eek, that tasted like rotten oversalted seaweed!" : "For some reason, that tasted bland.");
 		}
 		}
 		break;
@@ -2902,13 +3350,28 @@ register int pm;
 	    case PM_INTELLIGENT_TROVE:
 	    case PM_NEOTHELID:
 	    case PM_VILLITHID:
+	    case PM_ILLITHILICH:
+	    case PM_FEMIFLAYER:
 	    case PM_ULITHARID:
+	    case PM_BRAIN_SLUG:
+	    case PM_ABERRATION_FLAYER:
+	    case PM_MASTER_ABERRATION_FLAYER:
 	    case PM_MASTER_MIND_FLAYER:
+	    case PM_MINDFLAYER_MIMIC:
+	    case PM_MINDFLAYER_PERMAMIMIC:
+	    case PM_OOGABOOGAGOBILITGOOK_SEEKER_AREHETYPE_FUCKING_RETARD_ASS_SHIT_FLINGING_MONKEY_MONSTER:
+	    case PM_YITHIAN_MIND_FLAYER:
+	    case PM_VORPAL_MIND_FLAYER:
+	    case PM_MEAN_FLAYER:
+	    case PM_BRIGHT_MIND_FLAYER:
+	    case PM_BRIGHT_MASTER_MIND_FLAYER:
 	    case PM_MISTRESS_MIND_FLAYER:
 	    case PM_FOOCUBUS_MIND_FLAYER:
 	    case PM_HUGE_MIND_FLAYER:
+	    case PM_OWNER_MIND_FLAYER:
 	    case PM_MINOR_MIND_FLAYER:
 	    case PM_LOW_MIND_FLAYER:
+	    case PM_BWARHAR_FLAYER:
 	    case PM_LARGE_MIND_FLAYER:
 	    case PM_EVIL_MIND_FLAYER:
 	    case PM_TELEMINDFLAYER:
@@ -2918,6 +3381,7 @@ register int pm;
 	    case PM_ARMY_MIND_FLAYER:
 	    case PM_UNDEAD_MIND_FLAYER:
 	    case PM_ELDRITCH_MIND_FLAYER:
+	    case PM_BLANK_MIND_FLAYER:
 	    case PM_SOPHISTICATED_MIND_FLAYER:
 	    case PM_SWAPPED_MASTER_MIND_FLAYER:
 	    case PM_GIGANTIC_MIND_FLAYER:
@@ -2959,22 +3423,36 @@ register int pm;
 		case PM_REGENERATING_MIND_FLAYER:
 		case PM_PSYCHO_MIND_FLAYER:
 		case PM_PSYCH_FLAYER:
+		case PM_MINDGAYER:
+		case PM_CLEAR_FLAYER:
 		case PM_CHIEF_MIND_FLAYER:
 		case PM_PASSIVE_MIND_FLAYER:
 		case PM_MINDFLAY_WRAITH:
+		case PM_TROLL_FLAYER:
+		case PM_POSION_FLAYER:
+		case PM_PARASITIC_MIND_FLAYER:
+		case PM_SHIELDED_MIND_FLAYER:
+		case PM_PARASITIC_MASTER_MIND_FLAYER:
+		case PM_BLUE_FLAYER:
+		case PM_MASTER_BLUE_FLAYER:
 		case PM_MIND_FLAYER_TELEPATH:
+		case PM_MIND_FLAYER_LARVA:
+		case PM_EVIL_MIND_FLAYER_LARVA:
+		case PM_VAMPIRIC_MIND_FLAYER:
+		case PM_HAPPY_MEAL:
+		case PM_CANCEROUS_MIND_FLAYER:
 	    case PM_MIND_FLAYER: {
 		if (u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) break;
 
 		if (ABASE(A_INT) < ATTRMAX(A_INT)) {
 			if (!rn2(2)) {
-				pline(Hallucination ? "Hmm, is that what human brain tastes like?" : "Yum! That was real brain food!");
-				(void) adjattrib(A_INT, 1, FALSE);
+				pline(FunnyHallu ? "Hmm, is that what human brain tastes like?" : "Yum! That was real brain food!");
+				(void) adjattrib(A_INT, 1, FALSE, TRUE);
 				break;	/* don't give them telepathy, too */
 			}
 		}
 		else {
-			pline(Hallucination ? "Eek, that tasted like rotten oversalted seaweed!" : "For some reason, that tasted bland.");
+			pline(FunnyHallu ? "Eek, that tasted like rotten oversalted seaweed!" : "For some reason, that tasted bland.");
 		}
 		}
 		/* fall through to default case */
@@ -2991,7 +3469,7 @@ register int pm;
 			pline ("Oh wow!  Great stuff!");
 			make_hallucinated(HHallucination + rnz(200),FALSE,0L);
 		}
-		if(is_giant(ptr) && !rn2(4) && !(u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) ) {gainstr((struct obj *)0, 0); pline(Hallucination ? "You feel like ripping out some trees!" : "You feel stronger!"); }
+		if(is_giant(ptr) && !rn2(4) && !(u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) ) {gainstr((struct obj *)0, 0); pline(FunnyHallu ? "You feel like ripping out some trees!" : "You feel stronger!"); }
 
 		/* Check the monster for all of the intrinsics.  If this
 		 * monster can give more than one, pick one to try to give
@@ -3020,7 +3498,7 @@ register int pm;
 		 if (ABASE(A_CHA) < ATTRMAX(A_CHA)) {
 			if (!rn2(10) && !(u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) ) {
 				You_feel("more %s!", flags.female ? "pretty" : "attractive");
-				(void) adjattrib(A_CHA, 1, FALSE);
+				(void) adjattrib(A_CHA, 1, FALSE, TRUE);
 			}
 		  }
 		}
@@ -3031,7 +3509,7 @@ register int pm;
 		 if (ABASE(A_CHA) < ATTRMAX(A_CHA)) {
 			if (!rn2(dmgtype(ptr, AD_SSEX) ? 3 : 10)  && !(u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) ) {
 				You_feel("more %s!", flags.female ? "pretty" : "attractive");
-				(void) adjattrib(A_CHA, 1, FALSE);
+				(void) adjattrib(A_CHA, 1, FALSE, TRUE);
 			}
 		  }
 		}
@@ -3052,7 +3530,7 @@ register int pm;
 		if (dmgtype(ptr, AD_DRIN) && (ptr->mlevel > rn2(Race_if(PM_ILLITHID) ? 105 : 35) && rn2(4) && !(u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() )  ) ) {
 		 if (ABASE(A_INT) < ATTRMAX(A_INT)) {
 			You_feel("smarter!");
-			(void) adjattrib(A_INT, 1, 2);
+			(void) adjattrib(A_INT, 1, 2, TRUE);
 		  }
 		}
 
@@ -3060,12 +3538,16 @@ register int pm;
 		if (dmgtype(ptr, AD_SPC2) && (ptr->mlevel > rn2(Race_if(PM_ILLITHID) ? 105 : 35) && rn2(4) && !(u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() )  ) ) {
 		 if (ABASE(A_INT) < ATTRMAX(A_INT)) {
 			You_feel("smarter!");
-			(void) adjattrib(A_INT, 1, 2);
+			(void) adjattrib(A_INT, 1, 2, TRUE);
 		  }
 		}
 
 	/* insanity monsters should not be eaten... --Amy */
 		if (dmgtype(ptr, AD_INSA)) {
+			pline("It tasted really, really strange.");
+			increasesanity(rnz(100));
+		}
+		if (dmgtype(ptr, AD_SANI)) {
 			pline("It tasted really, really strange.");
 			increasesanity(rnz(100));
 		}
@@ -3099,16 +3581,46 @@ register int pm;
 			} else if (!rn2(200) && P_MAX_SKILL(skillimprove) == P_GRAND_MASTER) {
 				P_MAX_SKILL(skillimprove) = P_SUPREME_MASTER;
 				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
-			} else pluslvl(FALSE);
+			} else gainlevelmaybe();
 
-			pluslvl(FALSE);
+			if (Race_if(PM_RUSMOT)) {
+				if (P_MAX_SKILL(skillimprove) == P_ISRESTRICTED) {
+					unrestrict_weapon_skill(skillimprove);
+					pline("You can now learn the %s skill.", P_NAME(skillimprove));
+				} else if (P_MAX_SKILL(skillimprove) == P_UNSKILLED) {
+					unrestrict_weapon_skill(skillimprove);
+					P_MAX_SKILL(skillimprove) = P_BASIC;
+					pline("You can now learn the %s skill.", P_NAME(skillimprove));
+				} else if (rn2(2) && P_MAX_SKILL(skillimprove) == P_BASIC) {
+					P_MAX_SKILL(skillimprove) = P_SKILLED;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(4) && P_MAX_SKILL(skillimprove) == P_SKILLED) {
+					P_MAX_SKILL(skillimprove) = P_EXPERT;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(10) && P_MAX_SKILL(skillimprove) == P_EXPERT) {
+					P_MAX_SKILL(skillimprove) = P_MASTER;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(100) && P_MAX_SKILL(skillimprove) == P_MASTER) {
+					P_MAX_SKILL(skillimprove) = P_GRAND_MASTER;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(200) && P_MAX_SKILL(skillimprove) == P_GRAND_MASTER) {
+					P_MAX_SKILL(skillimprove) = P_SUPREME_MASTER;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				}
+			}
+
+			gainlevelmaybe();
 
 		}
 
 	/* eating anything that spouts fake messages will give another one --Amy */
 		if (dmgtype(ptr, AD_FAKE)) {
 			pline("%s", fauxmessage());
-			if (!rn2(3)) pline("%s", fauxmessage());
+			u.cnd_plineamount++;
+			if (!rn2(3)) {
+				pline("%s", fauxmessage());
+				u.cnd_plineamount++;
+			}
 		}
 
 	/* AD_HEAL monsters are rare; let's make them give one extra max HP --Amy */
@@ -3116,9 +3628,15 @@ register int pm;
 			if (Upolyd) {
 				u.mh++;
 				u.mhmax++;
+				if (u.mh > u.mhmax) u.mh = u.mhmax;
 			} else {
 				u.uhp++;
 				u.uhpmax++;
+				if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
+			}
+			if (uactivesymbiosis) {
+				u.usymbiote.mhpmax++;
+				if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
 			}
 		    You_feel("vitalized.");
 		    flags.botl = 1;
@@ -3138,6 +3656,38 @@ register int pm;
 		    nomovemsg = 0;
 		}
 
+		if (evilfriday && dmgtype(ptr, AD_ENCH)) {
+			pline("Harharhar...");
+			attrcurse();
+			pline("Welcome to the evil variant, bitch!");
+		}
+		if (evilfriday && dmgtype(ptr, AD_NGEN)) {
+			pline("Harharhar...");
+			attrcurse();
+			attrcurse();
+			attrcurse();
+			attrcurse();
+			attrcurse();
+			pline("Welcome to the evil variant, bitch!");
+		}
+
+		if (dmgtype(ptr, AD_AGGR)) {
+			int aggroamount = rnd(6);
+			if (isfriday) aggroamount *= 2;
+			u.aggravation = 1;
+			reset_rndmonst(NON_PM);
+			while (aggroamount) {
+				u.cnd_aggravateamount++;
+				makemon((struct permonst *)0, u.ux, u.uy, MM_ANGRY|MM_FRENZIED);
+				aggroamount--;
+				if (aggroamount < 0) aggroamount = 0;
+			}
+			u.aggravation = 0;
+			pline("Several monsters come out of a portal.");
+			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+
+		}
+
 		/* Eating slimy or oily corpses makes your fingers slippery in unnethack because harharhar harhar har. */
 		if (evilfriday && (amorphous(&mons[pm]) || slithy(&mons[pm]) || mons[pm].mlet == S_BLOB || mons[pm].mlet == S_JELLY || mons[pm].mlet == S_FUNGUS || mons[pm].mlet == S_WORM || mons[pm].mlet == S_PUDDING)) {
 			pline("Harharhar harhar har, you ate the wrong thing and therefore your %s are slippery now.", makeplural(body_part(HAND)));
@@ -3155,9 +3705,9 @@ register int pm;
 		if (dmgtype(ptr, AD_EDGE) && !(u.uprops[NONINTRINSIC_EFFECT].extrinsic || Nonintrinsics || have_nonintrinsicstone() ) ) {
 			int edgeeffect;
 			if (touch_petrifies(ptr)) {
-				edgeeffect = rnd(12); /* petrifying corpses are dangerous - only give positive effects --Amy */
+				edgeeffect = rnd(13); /* petrifying corpses are dangerous - only give positive effects --Amy */
 			} else {
-				edgeeffect = rnd(20); /* others are safe - give either positive or negative effects --Amy */
+				edgeeffect = rnd(21); /* others are safe - give either positive or negative effects --Amy */
 			}
 			switch (rnd(edgeeffect)) {
 
@@ -3165,7 +3715,7 @@ register int pm;
 				if (ABASE(A_CHA) < ATTRMAX(A_CHA)) {
 					if (!rn2(10)) {
 						You_feel("more %s!", flags.female ? "pretty" : "attractive");
-						(void) adjattrib(A_CHA, 1, FALSE);
+						(void) adjattrib(A_CHA, 1, FALSE, TRUE);
 						break;
 					}
 				}
@@ -3173,7 +3723,7 @@ register int pm;
 			case 2:
 				if (ABASE(A_CON) < ATTRMAX(A_CON)) {
 					You_feel("tougher!");
-					(void) adjattrib(A_CON, 1, FALSE);
+					(void) adjattrib(A_CON, 1, FALSE, TRUE);
 					}
 			break;
 			case 3:
@@ -3186,6 +3736,7 @@ register int pm;
 				    int old_uen = u.uen; /* Some slight changes to this code. --Amy */
 				    u.uen += rnd(3);
 					if (!rn2(3)) u.uenmax++;
+				    if (u.uen > u.uenmax) u.uen = u.uenmax;
 				    if (old_uen != u.uen) {
 					    You_feel("a mild buzz.");
 					    flags.botl = 1;
@@ -3196,9 +3747,15 @@ register int pm;
 				if (Upolyd) {
 					u.mh++;
 					u.mhmax++;
+					if (u.mh > u.mhmax) u.mh = u.mhmax;
 				} else {
 					u.uhp++;
 					u.uhpmax++;
+					if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
+				}
+				if (uactivesymbiosis) {
+					u.usymbiote.mhpmax++;
+					if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
 				}
 				You_feel("vitalized.");
 				flags.botl = 1;
@@ -3210,7 +3767,7 @@ register int pm;
 			break;
 			case 6:
 			      You_feel("that was a smart thing to do.");
-				pluslvl(FALSE);
+				gainlevelmaybe();
 			break;
 			case 7:
 				if (Upolyd) u.mh = u.mhmax;
@@ -3224,19 +3781,19 @@ register int pm;
 			break;
 			case 9:
 				gainstr((struct obj *)0, 0);
-				pline(Hallucination ? "You feel like ripping out some trees!" : "You feel stronger!");
+				pline(FunnyHallu ? "You feel like ripping out some trees!" : "You feel stronger!");
 				break;
 			break;
 			case 10:
 				if (ABASE(A_INT) < ATTRMAX(A_INT)) {
 					if (!rn2(2)) {
-						pline(Hallucination ? "Hmm, is that what human brain tastes like?" : "Yum! That was real brain food!");
-						(void) adjattrib(A_INT, 1, FALSE);
+						pline(FunnyHallu ? "Hmm, is that what human brain tastes like?" : "Yum! That was real brain food!");
+						(void) adjattrib(A_INT, 1, FALSE, TRUE);
 						break;
 					}
 				}
 				else {
-					pline(Hallucination ? "Eek, that tasted like rotten oversalted seaweed!" : "For some reason, that tasted bland.");
+					pline(FunnyHallu ? "Eek, that tasted like rotten oversalted seaweed!" : "For some reason, that tasted bland.");
 				}
 			break;
 			case 11:
@@ -3252,22 +3809,17 @@ register int pm;
 				}
 				incr_itimeout(&HFast, rn1(1000, 1000));
 			break;
+
 			case 13:
-				Your("velocity suddenly seems very uncertain!");
-				if (HFast & INTRINSIC) {
-					HFast &= ~INTRINSIC;
-					You("seem slower.");
-				} else {
-					HFast |= FROMOUTSIDE;
-					You("seem faster.");
-				}
+				You_feel("ethereal.");
+				incr_itimeout(&HPasses_walls, rn1(10, 50));
 			break;
 			case 14:
 				make_stunned(HStun + 30,FALSE);
 			break;
 			case 15:
 				if(!(HPolymorph & FROMOUTSIDE)) {
-				You_feel(Hallucination ? "able to take on different shapes! Yeah! Let's transform into something fun!" : "unstable.");
+				You_feel(FunnyHallu ? "able to take on different shapes! Yeah! Let's transform into something fun!" : "unstable.");
 					HPolymorph  |= FROMOUTSIDE;
 				}
 			break;
@@ -3286,11 +3838,21 @@ register int pm;
 				make_hallucinated(HHallucination + rnz(200),FALSE,0L);
 			break;
 			case 19:
-				pushplayer();
+				pushplayer(TRUE);
 			break;
 			case 20:
 				You_feel("that was a bad idea.");
 				losexp("eating an edgy corpse", FALSE, TRUE);
+			break;
+			case 21:
+				Your("velocity suddenly seems very uncertain!");
+				if (HFast & INTRINSIC) {
+					HFast &= ~INTRINSIC;
+					You("seem slower.");
+				} else {
+					HFast |= FROMOUTSIDE;
+					You("seem faster.");
+				}
 			break;
 
 			}
@@ -3318,6 +3880,9 @@ register int pm;
 		if (dmgtype(ptr, AD_BADE) ) {
 			badeffect();
 		}
+		if (dmgtype(ptr, AD_RBAD) ) {
+			reallybadeffect();
+		}
 
 	/* Eating contaminating monsters increases your contamination --Amy */
 		if (dmgtype(ptr, AD_CONT) ) {
@@ -3331,11 +3896,11 @@ register int pm;
 			if (youmonst.data->mlet != S_MIMIC && !Unchanging) {
 			    char buf[BUFSZ];
 			    You_cant("resist the temptation to mimic %s.",
-				Hallucination ? "an orange" : "a pile of gold");
+				FunnyHallu ? "an orange" : "a pile of gold");
 	                    /* A pile of gold can't ride. */
 			    if (u.usteed) dismount_steed(DISMOUNT_FELL);
 			    nomul(-(rnd(60)), "pretending to be a pile of gold", TRUE);
-			    sprintf(buf, Hallucination ?
+			    sprintf(buf, FunnyHallu ?
 				"You suddenly dread being peeled and mimic %s again!" :
 				"You now prefer mimicking %s again.",
 				an( (Upolyd && !missingnoprotect) ? youmonst.data->mname : urace.noun));
@@ -3344,7 +3909,7 @@ register int pm;
 			    afternmv = eatmdone;
 			    /* ??? what if this was set before? */
 			    youmonst.m_ap_type = M_AP_OBJECT;
-			    youmonst.mappearance = Hallucination ? ORANGE : GOLD_PIECE;
+			    youmonst.mappearance = FunnyHallu ? ORANGE : GOLD_PIECE;
 			    newsym(u.ux,u.uy);
 			    curs_on_u();
 			    /* make gold symbol show up now */
@@ -3394,26 +3959,26 @@ void
 gluttonous()
 {
 	/* only happens if you were satiated, extra check by Amy to make that conduct mean more */
-	if ((u.uhs == SATIATED) && ((Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL) || Role_if(PM_CHEVALIER) || Race_if(PM_VEELA) || Role_if(PM_PALADIN) || Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || Role_if(PM_FAILED_EXISTENCE) || Role_if(PM_GOFF) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") )) ) ) {
+	if ((u.uhs == SATIATED) && ((Role_if(PM_KNIGHT) && u.ualign.type == A_LAWFUL) || Role_if(PM_CHEVALIER) || Race_if(PM_VEELA) || Role_if(PM_PALADIN) || have_anorexia() || Role_if(PM_FAILED_EXISTENCE)) ) {
 			adjalign(-3);		/* gluttony is unchivalrous */
-		You(Hallucination ? "feel that your belly's gonna burst!" : "feel like a glutton!");
+		You(FunnyHallu ? "feel that your belly's gonna burst!" : "feel like a glutton!");
 	}
 
 	if ((u.uhs == SATIATED) && (Race_if(PM_VEELA) || Role_if(PM_FAILED_EXISTENCE)) ) {	badeffect();
 	}
 
-	if (u.uhs == SATIATED && (Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || Role_if(PM_GOFF) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") )) ) ) { /* They aren't used to eat much. --Amy */
+	if (u.uhs == SATIATED && have_anorexia() ) { /* They aren't used to eat much. --Amy */
 
 	if(!rn2(4)) {
-		if (Hallucination) You_feel("rather trippy.");
+		if (FunnyHallu) You_feel("rather trippy.");
 		else You_feel("rather %s.", body_part(LIGHT_HEADED));
 		make_confused(HConfusion + d(2,4),FALSE);
 	} else if(!rn2(5)) {
-		if (Hallucination) You_feel("uncontrollable."); /* this and some other effects added by Amy */
+		if (FunnyHallu) You_feel("uncontrollable."); /* this and some other effects added by Amy */
 		else You_feel("stunned.");
 		make_stunned(HStun + d(2,4),FALSE);
 	} else if(!rn2(5)) {
-		if (Hallucination) You_feel("even weirder!");
+		if (FunnyHallu) You_feel("even weirder!");
 		else You_feel("weirded out!");
 		make_hallucinated(HHallucination + d(2,10),FALSE,0L);
 	} else if(!rn2(4)) {
@@ -3421,31 +3986,31 @@ gluttonous()
 		make_blinded(Blinded+d(2,10),FALSE);
 		if (!Blind) Your("%s", vision_clears);
 	} else if(!rn2(8)) {
-		if (Hallucination) You_feel("like your body is trying to fall asleep!");
+		if (FunnyHallu) You_feel("like your body is trying to fall asleep!");
 		else You_feel("numb.");
 		make_numbed(HNumbed + d(2,15),FALSE);
 	} else if(!rn2(10)) {
-		if (Hallucination) pline("Crap! A %s suddenly appeared! RUN!",rndmonnam() );
+		if (FunnyHallu) pline("Crap! A %s suddenly appeared! RUN!",rndmonnam() );
 		else You_feel("fear spreading through your body.");
 		make_feared(HFeared + d(2,15),FALSE);
 	} else if(!rn2(10)) {
-		if (Hallucination) You_feel("like your on fire despite there being no heat!");
+		if (FunnyHallu) You_feel("like your on fire despite there being no heat!");
 		else You_feel("like you're on fire!");
 		make_burned(HBurned + d(2,15),FALSE);
 	} else if(!rn2(20)) {
-		if (Hallucination) You_feel("a giant ice cream cone enclosing you!");
+		if (FunnyHallu) You_feel("a giant ice cream cone enclosing you!");
 		else pline("You're getting the chills.");
 		make_frozen(HFrozen + d(2,15),FALSE);
 	} else if(!rn2(20)) {
-		if (Hallucination) You_feel("that your wife is gonna break up with you!");
+		if (FunnyHallu) You_feel("that your wife is gonna break up with you!");
 		else pline("You're dimmed.");
 		make_dimmed(HDimmed + d(2,15),FALSE);
 	} else if(!rn2(10)) {
-		if (Hallucination) You_feel("like you have dementia tremor!"); /* not a real name --Amy */
+		if (FunnyHallu) You_feel("like you have dementia tremor!"); /* not a real name --Amy */
 		else pline("Your hands start trembling violently!");
 		incr_itimeout(&Glib, d(2,4) );
 	} else if(!rn2(10)) {
-		if (Hallucination) You_feel("totally down! Seems you tried some illegal shit!");
+		if (FunnyHallu) You_feel("totally down! Seems you tried some illegal shit!");
 		else You_feel("like you're going to throw up.");
 	      make_vomiting(Vomiting+20, TRUE);
 		if (Sick && Sick < 100) 	set_itimeout(&Sick, (Sick * 2) + 10); /* higher chance to survive long enough --Amy */
@@ -3468,10 +4033,9 @@ gluttonous()
 	    make_sick(rn1(25,25), "rotten food", TRUE, SICK_VOMITABLE);
 	} else if(!rn2(200) && !Slimed && !issoviet && !flaming(youmonst.data) && !Unchanging && !slime_on_touch(youmonst.data) ) { /* This chance should be even lower. --Amy */
 			You("don't feel very well.");
-		    Slimed = Race_if(PM_EROSATOR) ? 25L : 100L;
-		    flags.botl = 1;
+			make_slimed(100);
 		    killer_format = KILLED_BY_AN;
-		    delayed_killer = "slimy meal";
+		    delayed_killer = "slimed by a slimy meal";
 	}
 
 	}
@@ -3484,24 +4048,24 @@ void
 violated_vegetarian()
 {
     u.uconduct.unvegetarian++;
-    if (Role_if(PM_MONK) || Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || Role_if(PM_FAILED_EXISTENCE) || Role_if(PM_GOFF) || Race_if(PM_SYLPH) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") ))  ) {
+    if (Role_if(PM_MONK) || have_anorexia() || Role_if(PM_FAILED_EXISTENCE) || Race_if(PM_SYLPH) ) {
 	You_feel("guilty.");
 	adjalign(-5);
     }
 	if (Role_if(PM_FAILED_EXISTENCE)) badeffect();
 
-	if (Role_if(PM_TOPMODEL) || Role_if(PM_GOFF) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") )) ) { /* Their metabolism isn't used to meat. --Amy */
+	if (have_anorexia()) { /* Their metabolism isn't used to meat. --Amy */
 
 	if(!rn2(4)) {
-		if (Hallucination) You_feel("rather trippy.");
+		if (FunnyHallu) You_feel("rather trippy.");
 		else You_feel("rather %s.", body_part(LIGHT_HEADED));
 		make_confused(HConfusion + d(2,4),FALSE);
 	} else if(!rn2(5)) {
-		if (Hallucination) You_feel("uncontrollable."); /* this and some other effects added by Amy */
+		if (FunnyHallu) You_feel("uncontrollable."); /* this and some other effects added by Amy */
 		else You_feel("stunned.");
 		make_stunned(HStun + d(2,4),FALSE);
 	} else if(!rn2(5)) {
-		if (Hallucination) You_feel("even weirder!");
+		if (FunnyHallu) You_feel("even weirder!");
 		else You_feel("weirded out!");
 		make_hallucinated(HHallucination + d(2,10),FALSE,0L);
 	} else if(!rn2(4)) {
@@ -3509,31 +4073,31 @@ violated_vegetarian()
 		make_blinded(Blinded+d(2,10),FALSE);
 		if (!Blind) Your("%s", vision_clears);
 	} else if(!rn2(8)) {
-		if (Hallucination) You_feel("like your body is trying to fall asleep!");
+		if (FunnyHallu) You_feel("like your body is trying to fall asleep!");
 		else You_feel("numb.");
 		make_numbed(HNumbed + d(2,15),FALSE);
 	} else if(!rn2(10)) {
-		if (Hallucination) pline("Crap! A %s suddenly appeared! RUN!",rndmonnam() );
+		if (FunnyHallu) pline("Crap! A %s suddenly appeared! RUN!",rndmonnam() );
 		else You_feel("fear spreading through your body.");
 		make_feared(HFeared + d(2,15),FALSE);
 	} else if(!rn2(10)) {
-		if (Hallucination) You_feel("like your on fire despite there being no heat!");
+		if (FunnyHallu) You_feel("like your on fire despite there being no heat!");
 		else You_feel("like you're on fire!");
 		make_burned(HBurned + d(2,15),FALSE);
 	} else if(!rn2(20)) {
-		if (Hallucination) You_feel("a giant ice cream cone enclosing you!");
+		if (FunnyHallu) You_feel("a giant ice cream cone enclosing you!");
 		else pline("You're getting the chills.");
 		make_frozen(HFrozen + d(2,15),FALSE);
 	} else if(!rn2(20)) {
-		if (Hallucination) You_feel("that your wife is gonna break up with you!");
+		if (FunnyHallu) You_feel("that your wife is gonna break up with you!");
 		else pline("You're dimmed.");
 		make_dimmed(HDimmed + d(2,15),FALSE);
 	} else if(!rn2(10)) {
-		if (Hallucination) You_feel("like you have dementia tremor!"); /* not a real name --Amy */
+		if (FunnyHallu) You_feel("like you have dementia tremor!"); /* not a real name --Amy */
 		else pline("Your hands start trembling violently!");
 		incr_itimeout(&Glib, d(2,4) );
 	} else if(!rn2(10)) {
-		if (Hallucination) You_feel("totally down! Seems you tried some illegal shit!");
+		if (FunnyHallu) You_feel("totally down! Seems you tried some illegal shit!");
 		else You_feel("like you're going to throw up.");
 	      make_vomiting(Vomiting+20, TRUE);
 		if (Sick && Sick < 100) 	set_itimeout(&Sick, (Sick * 2) + 10); /* higher chance to survive long enough --Amy */
@@ -3556,10 +4120,9 @@ violated_vegetarian()
 	    make_sick(rn1(25,25), "rotten food", TRUE, SICK_VOMITABLE);
 	} else if(!rn2(200) && !Slimed && !issoviet && !flaming(youmonst.data) && !Unchanging && !slime_on_touch(youmonst.data) ) { /* This chance should be even lower. --Amy */
 			You("don't feel very well.");
-		    Slimed = Race_if(PM_EROSATOR) ? 25L : 100L;
-		    flags.botl = 1;
+			make_slimed(100);
 		    killer_format = KILLED_BY_AN;
-		    delayed_killer = "slimy meal";
+		    delayed_killer = "slimed by a slimy meal";
 	}
 
 	/* By the way, I'm certainly not a vegetarian myself. It's just a twist of the topmodel role. --Amy */
@@ -3599,7 +4162,7 @@ opentin()		/* called during each move whilst opening a tin */
 					/* perhaps it was stolen? */
 		return(0);		/* %% probably we should use tinoid */
 	if(tin.usedtime++ >= 50) {
-		You(Hallucination ? "get bored while playing with that dildo-like thing." : "give up your attempt to open the tin.");
+		You(FunnyHallu ? "get bored while playing with that dildo-like thing." : "give up your attempt to open the tin.");
 		return(0);
 	}
 	if(tin.usedtime < tin.reqtime)
@@ -3610,10 +4173,10 @@ opentin()		/* called during each move whilst opening a tin */
 		costly_tin("destroyed");
 		goto use_me;
 	}
-	You(Hallucination ? "open it! Now let's see the contents, maybe it's some acid?" : "succeed in opening the tin.");
+	You(FunnyHallu ? "open it! Now let's see the contents, maybe it's some acid?" : "succeed in opening the tin.");
 	if(tin.tin->spe < 1) {
 	    if (tin.tin->corpsenm == NON_PM) {
-		pline(Hallucination ? "Nothing in there, might as well throw it in the trash can." : "It turns out to be empty.");
+		pline(FunnyHallu ? "Nothing in there, might as well throw it in the trash can." : "It turns out to be empty.");
 		tin.tin->dknown = tin.tin->known = TRUE;
 		costly_tin((const char*)0);
 		goto use_me;
@@ -3648,9 +4211,9 @@ opentin()		/* called during each move whilst opening a tin */
 	    } else
 	    pline("It smells like %s%s.", (which == 2) ? "the " : "", what);
 
-	    getlin ("Eat it? [yes/no]",buf);
+	    getlin ("Eat it? [y/yes/no]",buf);
 	    (void) lcase (buf);
-	    if (strcmp (buf, "yes")) {
+	    if (strcmp (buf, "yes") && strcmp (buf, "y")) {
 	    	/* ALI - you know the tin iff you recognized the contents */
 		if (mvitals[tin.tin->corpsenm].eaten)
 		if (!Hallucination) tin.tin->dknown = tin.tin->known = TRUE;
@@ -3768,11 +4331,11 @@ opentin()		/* called during each move whilst opening a tin */
 		pline("It contains some decaying%s%s substance.",
 			Blind ? "" : " ", Blind ? "" : hcolor(NH_GREEN));
 	    else
-		pline(Hallucination ? "It contains potato tack or something like that." : "It contains spinach.");
+		pline(FunnyHallu ? "It contains potato tack or something like that." : "It contains spinach.");
 
-	    getlin ("Eat it? [yes/no]",buf);
+	    getlin ("Eat it? [y/yes/no]",buf);
 	    (void) lcase (buf);
-	    if (strcmp (buf, "yes")) {
+	    if (strcmp (buf, "yes") && strcmp (buf, "y")) {
 		if (!Hallucination && !tin.tin->cursed)
 		    tin.tin->dknown = tin.tin->known = TRUE;
 		if (flags.verbose)
@@ -3786,7 +4349,7 @@ opentin()		/* called during each move whilst opening a tin */
 
 	    if (!tin.tin->cursed)
 		pline("This makes you feel like %s!",
-		      Hallucination ? "Swee'pea" : "Popeye");
+		      FunnyHallu ? "Swee'pea" : "Popeye");
 	    lesshungry(600);
 	    gainstr(tin.tin, 0);
 	    u.uconduct.food++;
@@ -3795,11 +4358,11 @@ opentin()		/* called during each move whilst opening a tin */
 		pline("It contains some decaying%s%s substance.",
 			Blind ? "" : " ", Blind ? "" : hcolor(NH_WHITE));
 	    else
-		pline(Hallucination ? "It contains french fries." : "It contains beans.");
+		pline(FunnyHallu ? "It contains french fries." : "It contains beans.");
 
-	    getlin ("Eat it? [yes/no]",buf);
+	    getlin ("Eat it? [y/yes/no]",buf);
 	    (void) lcase (buf);
-	    if (strcmp (buf, "yes")) {
+	    if (strcmp (buf, "yes") && strcmp (buf, "y")) {
 		if (!Hallucination && !tin.tin->cursed)
 		    tin.tin->dknown = tin.tin->known = TRUE;
 		if (flags.verbose)
@@ -3812,20 +4375,20 @@ opentin()		/* called during each move whilst opening a tin */
 	    costly_tin((const char*)0);
 
 	    if (!tin.tin->cursed) {
-		if (!rn2(3)) (void) adjattrib(A_STR, 1, FALSE);
-		if (!rn2(3)) (void) adjattrib(A_DEX, 1, FALSE);
-		if (!rn2(3)) (void) adjattrib(A_CON, 1, FALSE);
-		if (!rn2(3)) (void) adjattrib(A_INT, 1, FALSE);
-		if (!rn2(3)) (void) adjattrib(A_WIS, 1, FALSE);
-		if (!rn2(3)) (void) adjattrib(A_CHA, 1, FALSE);
+		if (!rn2(3)) (void) adjattrib(A_STR, 1, FALSE, TRUE);
+		if (!rn2(3)) (void) adjattrib(A_DEX, 1, FALSE, TRUE);
+		if (!rn2(3)) (void) adjattrib(A_CON, 1, FALSE, TRUE);
+		if (!rn2(3)) (void) adjattrib(A_INT, 1, FALSE, TRUE);
+		if (!rn2(3)) (void) adjattrib(A_WIS, 1, FALSE, TRUE);
+		if (!rn2(3)) (void) adjattrib(A_CHA, 1, FALSE, TRUE);
 
 	    } else {
-		(void) adjattrib(A_STR, -1, FALSE);
-		(void) adjattrib(A_DEX, -1, FALSE);
-		(void) adjattrib(A_CON, -1, FALSE);
-		(void) adjattrib(A_INT, -1, FALSE);
-		(void) adjattrib(A_WIS, -1, FALSE);
-		(void) adjattrib(A_CHA, -1, FALSE);
+		(void) adjattrib(A_STR, -1, FALSE, TRUE);
+		(void) adjattrib(A_DEX, -1, FALSE, TRUE);
+		(void) adjattrib(A_CON, -1, FALSE, TRUE);
+		(void) adjattrib(A_INT, -1, FALSE, TRUE);
+		(void) adjattrib(A_WIS, -1, FALSE, TRUE);
+		(void) adjattrib(A_CHA, -1, FALSE, TRUE);
 
 	    }
 	    pline("You'll have incessant flatulence for a while now...");
@@ -3838,11 +4401,11 @@ opentin()		/* called during each move whilst opening a tin */
 		pline("It contains some decaying%s%s substance.",
 			Blind ? "" : " ", Blind ? "" : hcolor(NH_PURPLE));
 	    else
-		pline(Hallucination ? "It contains mangos." : "It contains peaches.");
+		pline(FunnyHallu ? "It contains mangos." : "It contains peaches.");
 
-	    getlin ("Eat it? [yes/no]",buf);
+	    getlin ("Eat it? [y/yes/no]",buf);
 	    (void) lcase (buf);
-	    if (strcmp (buf, "yes")) {
+	    if (strcmp (buf, "yes") && strcmp (buf, "y")) {
 		if (!Hallucination && !tin.tin->cursed)
 		    tin.tin->dknown = tin.tin->known = TRUE;
 		if (flags.verbose)
@@ -3855,10 +4418,10 @@ opentin()		/* called during each move whilst opening a tin */
 	    costly_tin((const char*)0);
 
 	    if (!tin.tin->cursed) {
-		(void) adjattrib(A_CON, 1, FALSE);
+		(void) adjattrib(A_CON, 1, FALSE, TRUE);
 
 	    } else {
-		(void) adjattrib(A_CON, -1, FALSE);
+		(void) adjattrib(A_CON, -1, FALSE, TRUE);
 
 	    }
 
@@ -3868,11 +4431,11 @@ opentin()		/* called during each move whilst opening a tin */
 	    if (tin.tin->cursed)
 		pline("It contains something extremely stinky.");
 	    else
-		pline(Hallucination ? "It contains submarines and tadpoles." : "It contains fish.");
+		pline(FunnyHallu ? "It contains submarines and tadpoles." : "It contains fish.");
 
-	    getlin ("Eat it? [yes/no]",buf);
+	    getlin ("Eat it? [y/yes/no]",buf);
 	    (void) lcase (buf);
-	    if (strcmp (buf, "yes")) {
+	    if (strcmp (buf, "yes") && strcmp (buf, "y")) {
 		if (!Hallucination && !tin.tin->cursed)
 		    tin.tin->dknown = tin.tin->known = TRUE;
 		if (flags.verbose)
@@ -3885,10 +4448,10 @@ opentin()		/* called during each move whilst opening a tin */
 	    costly_tin((const char*)0);
 
 	    if (!tin.tin->cursed) {
-		(void) adjattrib(A_INT, 1, FALSE);
+		(void) adjattrib(A_INT, 1, FALSE, TRUE);
 
 	    } else {
-		(void) adjattrib(A_INT, -1, FALSE);
+		(void) adjattrib(A_INT, -1, FALSE, TRUE);
 
 	    }
 
@@ -3913,9 +4476,19 @@ start_tin(otmp)		/* called when starting to open a tin */
 		tmp = 1;
 	} else if (nolimbs(youmonst.data) && !Race_if(PM_TRANSFORMER) ) {
 		You("cannot handle the tin properly to open it.");
-		return;
-	} else if (otmp->blessed) {
-		pline_The(Hallucination ? "tin is opened by the little man sitting inside!" : "tin opens like magic!");
+		if (yn("Attempt to force it open?") == 'y') {
+			if (rn2(3) && !polyskillchance()) {
+				playerbleed(rnd(2 + (level_difficulty() * 10)));
+				pline("Great. Now your %s is squirting everywhere.", body_part(BLOOD));
+				if (!rn2(20)) badeffect();
+				return;
+			}
+
+		}
+		else return;
+	}
+	if (otmp->blessed) {
+		pline_The(FunnyHallu ? "tin is opened by the little man sitting inside!" : "tin opens like magic!");
 		tmp = 1;
 	} else if(uwep) {
 		switch(uwep->otyp) {
@@ -3934,12 +4507,16 @@ start_tin(otmp)		/* called when starting to open a tin */
 		case GREAT_DAGGER:
 		case RADIOACTIVE_DAGGER:
 		case SECRETION_DAGGER:
+		case WONDER_DAGGER:
 		case DROVEN_DAGGER:
 			tmp = 3;
 			break;
 		case PICK_AXE:
 		case CONGLOMERATE_PICK:
+		case MYSTERY_PICK:
 		case BRONZE_PICK:
+		case BRICK_PICK:
+		case NANO_PICK:
 		case AXE:
 			tmp = 6;
 			break;
@@ -3950,7 +4527,7 @@ start_tin(otmp)		/* called when starting to open a tin */
 			aobjnam(uwep, (char *)0));
 	} else {
 no_opener:
-		pline(Hallucination ? "Using your fingernails, you try to open this tin." : "It is not so easy to open this tin.");
+		pline(FunnyHallu ? "Using your fingernails, you try to open this tin." : "It is not so easy to open this tin.");
 		if(IsGlib) {
 			pline_The("tin slips from your %s.",
 			      makeplural(body_part(FINGER)));
@@ -3985,20 +4562,20 @@ struct obj *obj;
 	pline("Blecch!  Rotten %s!", foodword(obj));
 	if (issoviet) pline("Tip bloka l'da vinovat v etom!");
 
-	if (Hallucination && (obj->otyp == K_RATION || obj->otyp == C_RATION)) {
+	if (FunnyHallu && (obj->otyp == K_RATION || obj->otyp == C_RATION)) {
 		pline("That wasn't a meal, it wasn't ready, and you shouldn't have eaten it.");
 	}
 
 	if(!rn2(4)) {
-		if (Hallucination) You_feel("rather trippy.");
+		if (FunnyHallu) You_feel("rather trippy.");
 		else You_feel("rather %s.", body_part(LIGHT_HEADED));
 		make_confused(HConfusion + d(2,4),FALSE);
 	} else if(!rn2(5)) {
-		if (Hallucination) You_feel("uncontrollable."); /* this and some other effects added by Amy */
+		if (FunnyHallu) You_feel("uncontrollable."); /* this and some other effects added by Amy */
 		else You_feel("stunned.");
 		make_stunned(HStun + d(2,4),FALSE);
 	} else if(!rn2(5)) {
-		if (Hallucination) You_feel("even weirder!");
+		if (FunnyHallu) You_feel("even weirder!");
 		else You_feel("weirded out!");
 		make_hallucinated(HHallucination + d(2,10),FALSE,0L);
 	} else if(!rn2(4)) {
@@ -4006,31 +4583,31 @@ struct obj *obj;
 		make_blinded(Blinded+d(2,10),FALSE);
 		if (!Blind) Your("%s", vision_clears);
 	} else if(!rn2(8)) {
-		if (Hallucination) You_feel("like your body is trying to fall asleep!");
+		if (FunnyHallu) You_feel("like your body is trying to fall asleep!");
 		else You_feel("numb.");
 		make_numbed(HNumbed + d(2,15),FALSE);
 	} else if(!rn2(10)) {
-		if (Hallucination) pline("Crap! A %s suddenly appeared! RUN!",rndmonnam() );
+		if (FunnyHallu) pline("Crap! A %s suddenly appeared! RUN!",rndmonnam() );
 		else You_feel("fear spreading through your body.");
 		make_feared(HFeared + d(2,15),FALSE);
 	} else if(!rn2(10)) {
-		if (Hallucination) You_feel("like your on fire despite there being no heat!");
+		if (FunnyHallu) You_feel("like your on fire despite there being no heat!");
 		else You_feel("like you're on fire!");
 		make_burned(HBurned + d(2,15),FALSE);
 	} else if(!rn2(20)) {
-		if (Hallucination) You_feel("a giant ice cream cone enclosing you!");
+		if (FunnyHallu) You_feel("a giant ice cream cone enclosing you!");
 		else pline("You're getting the chills.");
 		make_frozen(HFrozen + d(2,15),FALSE);
 	} else if(!rn2(20)) {
-		if (Hallucination) You_feel("that your wife is gonna break up with you!");
+		if (FunnyHallu) You_feel("that your wife is gonna break up with you!");
 		else pline("You're dimmed.");
 		make_dimmed(HDimmed + d(2,15),FALSE);
 	} else if(!rn2(10)) {
-		if (Hallucination) You_feel("like you have dementia tremor!"); /* not a real name --Amy */
+		if (FunnyHallu) You_feel("like you have dementia tremor!"); /* not a real name --Amy */
 		else pline("Your hands start trembling violently!");
 		incr_itimeout(&Glib, d(2,4) );
 	} else if(!rn2(10)) {
-		if (Hallucination) You_feel("totally down! Seems you tried some illegal shit!");
+		if (FunnyHallu) You_feel("totally down! Seems you tried some illegal shit!");
 		else You_feel("like you're going to throw up.");
 	      make_vomiting(Vomiting+20, TRUE);
 		if (Sick && Sick < 100) 	set_itimeout(&Sick, (Sick * 2) + 10); /* higher chance to survive long enough --Amy */
@@ -4053,10 +4630,9 @@ struct obj *obj;
 	    make_sick(rn1(25,25), "rotten food", TRUE, SICK_VOMITABLE);
 	} else if(!rn2(200) && !Slimed && !issoviet && !flaming(youmonst.data) && !Unchanging && !slime_on_touch(youmonst.data) ) { /* This chance should be even lower. --Amy */
 			You("don't feel very well.");
-		    Slimed = Race_if(PM_EROSATOR) ? 25L : 100L;
-		    flags.botl = 1;
+			make_slimed(100);
 		    killer_format = KILLED_BY_AN;
-		    delayed_killer = "slimy meal";
+		    delayed_killer = "slimed by a slimy meal";
 	}
 	return(0);
 }
@@ -4077,7 +4653,7 @@ eatcorpse(otmp)		/* called when a corpse is selected as food */
 	long rotted = 0L;
 	boolean uniq = !!(mons[mnum].geno & G_UNIQ);
 	int retcode = 0;
-	boolean stoneable = (touch_petrifies(&mons[mnum]) && !Stone_resistance &&
+	boolean stoneable = (touch_petrifies(&mons[mnum]) && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) &&
 				!poly_when_stoned(youmonst.data));
 
 	register struct permonst *ptr = &mons[mnum];
@@ -4146,7 +4722,7 @@ eatcorpse(otmp)		/* called when a corpse is selected as food */
 	    /* oeaten is set up by touchfood */
 	    if (otmp->odrained ? otmp->oeaten <= drainlevel(otmp) :
 	      otmp->oeaten < mons[otmp->corpsenm].cnutrit) {
-	    	pline(Hallucination ? "No juice left - gotta get a new bottle from your cellar!" : "There is no blood left in this corpse!");
+	    	pline(FunnyHallu ? "No juice left - gotta get a new bottle from your cellar!" : "There is no blood left in this corpse!");
 	    	return 3;
 	    } else if (rotted <= 0 &&
 	      (peek_at_iced_corpse_age(otmp) + 5) >= monstermoves) {
@@ -4163,7 +4739,7 @@ eatcorpse(otmp)		/* called when a corpse is selected as food */
 	    	pline("You drain the blood from %s.", buf);
 		otmp->odrained = 1;
 	    } else {
-	    	pline(Hallucination ? "You try to suck, but it just tastes very disgusting!" : "The blood in this corpse has coagulated!");
+	    	pline(FunnyHallu ? "You try to suck, but it just tastes very disgusting!" : "The blood in this corpse has coagulated!");
 	    	return 3;
 	    }
 	}
@@ -4171,10 +4747,9 @@ eatcorpse(otmp)		/* called when a corpse is selected as food */
 	    otmp->odrained = 0;
 
 	/* Very rotten corpse will make you sick unless you are a ghoul or a ghast */
-	if (mnum != PM_ACID_BLOB && !stoneable && rotted > 5L) {
+	if (!acidic(&mons[mnum]) && !stoneable && rotted > 5L) {
 	    boolean cannibal = maybe_cannibal(mnum, FALSE);
-	    if (u.umonnum == PM_GHOUL || u.umonnum == PM_GHAST || u.umonnum == PM_GASTLY || u.umonnum == PM_PHANTOM_GHOST || u.umonnum == PM_HAUNTER
-		|| u.umonnum == PM_GENGAR || (Race_if(PM_GASTLY) && !Upolyd) || (Race_if(PM_PLAYER_SKELETON) && !Upolyd) || (Race_if(PM_PHANTOM_GHOST) && !Upolyd) ) {
+	    if (saprovorousnumber(u.umonnum) || (Race_if(PM_GASTLY) && !Upolyd) || (Race_if(PM_PLAYER_SKELETON) && !Upolyd) || (Race_if(PM_PHANTOM_GHOST) && !Upolyd) ) {
 	    	pline("Yum - that %s was well aged%s!",
 		      mons[mnum].mlet == S_FUNGUS ? "fungoid vegetation" :
 		      !vegetarian(&mons[mnum]) ? "meat" : "protoplasm",
@@ -4184,8 +4759,8 @@ eatcorpse(otmp)		/* called when a corpse is selected as food */
 		      mons[mnum].mlet == S_FUNGUS ? "fungoid vegetation" :
 		      !vegetarian(&mons[mnum]) ? "meat" : "protoplasm",
 		      cannibal ? ", cannibal" : "");
-		if (Sick_resistance) {
-			pline(Hallucination ? "Interesting taste, though..." : "It doesn't seem at all sickening, though...");
+		if (IntSick_resistance || (ExtSick_resistance && rn2(20)) ) {
+			pline(FunnyHallu ? "Interesting taste, though..." : "It doesn't seem at all sickening, though...");
 		} else {
 			char buf[BUFSZ];
 			long sick_time;
@@ -4209,26 +4784,36 @@ eatcorpse(otmp)		/* called when a corpse is selected as food */
 			return(2);
 		}
 	    }
-	} else if (youmonst.data == &mons[PM_GHOUL] || 
-	youmonst.data == &mons[PM_GASTLY] || youmonst.data == &mons[PM_HAUNTER] || youmonst.data == &mons[PM_GENGAR] || youmonst.data == &mons[PM_PHANTOM_GHOST] || 
-		   youmonst.data == &mons[PM_GHAST] || (Race_if(PM_GASTLY) && !Upolyd) || (Race_if(PM_PLAYER_SKELETON) && !Upolyd) || (Race_if(PM_PHANTOM_GHOST) && !Upolyd) ) {
-		pline (Hallucination ? "You can't seem to find any manky bits!" : "This corpse is too fresh!");
+	} else if (saprovorous(youmonst.data) || (Race_if(PM_GASTLY) && !Upolyd) || (Race_if(PM_PLAYER_SKELETON) && !Upolyd) || (Race_if(PM_PHANTOM_GHOST) && !Upolyd) ) {
+		pline (FunnyHallu ? "You can't seem to find any manky bits!" : "This corpse is too fresh!");
 		return 3;
-	} else if (acidic(&mons[mnum]) && !Acid_resistance) {
+	} else if (acidic(&mons[mnum]) && (!Acid_resistance || (!StrongAcid_resistance && !rn2(10))) ) {
 		tp++;
 		You("have a very bad case of stomach acid."); /* not body_part() */
 		losehp(rnd(15 + ptr->mlevel), "acidic corpse", KILLED_BY_AN);
 	} else if (poisonous(&mons[mnum]) && rn2(5)) {
 		tp++;
-		pline(Hallucination ? "Feels like your face is turning green!" : "Ecch - that must have been poisonous!");
+		pline(FunnyHallu ? "Feels like your face is turning green!" : "Ecch - that must have been poisonous!");
 		if(!Poison_resistance) {
-			if (!rn2(3)) losestr(rnd(2)); /* tone down strength loss, since you have to eat many more poisonous */
-			if (!rn2(60)) losestr(rnd(2)); /* corpses in order to get poison resistance --Amy */
+
+			/* tone down strength loss, since you have to eat many more poisonous
+			 * corpses in order to get poison resistance --Amy
+			 * In Soviet Russia, kobolds and certain animals are REALLY poisonous and will completely trash
+			 * your strength when eaten. No one should be able to gain poison resistance from eating those without
+			 * sacrificing a significant amount of strength because otherwise the communist government can't sell
+			 * enough antidotes and stuff. */
+
+			if (!rn2(3)) losestr(rnd(2), TRUE);
+			if (!rn2(60)) losestr(rnd(2), TRUE);
+			if (issoviet) {
+				losestr(rnd(5), TRUE);
+				pline("On, on, ty otravilsya i, veroyatno, poteryal silu! Nay khe khe!");
+			}
 			losehp(rnd(15 + ptr->mlevel), "poisonous corpse", KILLED_BY_AN);
 		} else	You("seem unaffected by the poison.");
 	/* now any corpse left too long will make you mildly ill */
 	} else if ((rotted > 5L || (rotted > 3L && rn2(5)))
-					&& !Sick_resistance) {
+					&& !(IntSick_resistance || (ExtSick_resistance && rn2(20))) ) {
 		tp++;
 		You_feel("%ssick.", (Sick) ? "very " : "");
 		losehp(rnd(8 + ptr->mlevel), "cadaver", KILLED_BY_AN);
@@ -4340,7 +4925,7 @@ struct obj *otmp;
 	    case BREAD:
 	    case FOOD_RATION:
 		if(u.uhunger <= 500)
-		    pline(Hallucination ? "Oh wow, like, superior, man!" :
+		    pline(FunnyHallu ? "Oh wow, like, superior, man!" :
 			  "That food really hit the spot!");
 		else if(u.uhunger <= 1200) pline("That satiated your %s!",
 						body_part(STOMACH));
@@ -4366,7 +4951,7 @@ struct obj *otmp;
 		     */
 		    pline("That tripe ration was surprisingly good!");
 		else if (maybe_polyd(is_orc(youmonst.data), Race_if(PM_ORC)))
-		    pline(Hallucination ? "Tastes great! Less filling!" :
+		    pline(FunnyHallu ? "Tastes great! Less filling!" :
 			  "Mmm, tripe... not bad!");
 		else {
 		    pline("Yak - dog food!");
@@ -4376,7 +4961,7 @@ struct obj *otmp;
 		    newexplevel();
 		    /* not cannibalism, but we use similar criteria
 		       for deciding whether to be sickened by this meal */
-		    if (rn2(2) && !CANNIBAL_ALLOWED())
+		    if (rn2(2) && !cannibal_allowed())
 		    if (!Role_if(PM_CONVICT))
 			{ make_vomiting((long)rn1(victual.reqtime, 14), FALSE);
 			if (Sick && Sick < 100) 	set_itimeout(&Sick, (Sick * 2) + 10); /* higher chance to survive long enough --Amy */
@@ -4403,14 +4988,14 @@ struct obj *otmp;
 
 			/* [Tom] wishing pills are from the Land of Oz */
 			pline ("The pink sugar coating hid a silver special pill!"); /* wish no longer guaranteed --Amy */
-			if (!rn2(4)) makewish();
+			if (!rn2(4)) makewish(evilfriday ? FALSE : TRUE);
 			else othergreateffect();
 			break;
 			}
 		   case 1:
-			if(!Poison_resistance) {
+			if(!Poison_resistance || (!rn2(10) && !StrongPoison_resistance) ) {
 				You_feel("your stomach twinge.");
-				losestr(rnd(4));
+				losestr(rnd(4), TRUE);
 				losehp(rnd(15), "poisonous pill", KILLED_BY_AN);
 			} else  You("seem unaffected by the poison.");
 			break;
@@ -4427,7 +5012,7 @@ struct obj *otmp;
 			lesshungry(600);
 			break;
 		   case 5:
-			if(Sleep_resistance) {
+			if(Sleep_resistance && (StrongSleep_resistance || rn2(10)) ) {
 				pline("Hmm. Nothing happens.");
 			} else {
 				You_feel("drowsy...");
@@ -4445,15 +5030,15 @@ struct obj *otmp;
 		break;
 	    case MUSHROOM:
 	       pline("This %s is %s", singular(otmp, xname),
-	       otmp->cursed ? (Hallucination ? "far-out!" : "terrible!") :
-		      Hallucination ? "groovy!" : "delicious!");
+	       otmp->cursed ? (FunnyHallu ? "far-out!" : "terrible!") :
+		      FunnyHallu ? "groovy!" : "delicious!");
 		switch(rn2(10))
 		{
 		   case 0:
 		   case 1:
-			if(!Poison_resistance) {
+			if(!Poison_resistance || (!rn2(10) && !StrongPoison_resistance) ) {
 				You_feel("rather ill....");
-				losestr(rnd(4));
+				losestr(rnd(4), TRUE);
 				losehp(rnd(15), "poisonous mushroom", KILLED_BY_AN);
 			} else  You("burp loudly.");
 			break;
@@ -4490,7 +5075,7 @@ struct obj *otmp;
 
 	    case X_MAS_CAKE:
 
-		if (!rn2(3)) pline(Hallucination ? "...It tastes sweet, so, too sweet!" :
+		if (!rn2(3)) pline(FunnyHallu ? "...It tastes sweet, so, too sweet!" :
 			"You munched, munched, munched...It's delicious!");
 		else pline(rn2(2) ? "(That's dud, tut.)  You feel that someone clucked her tongue." :
 			"Very delicious, mew!  You feel that your toon seems changing, mew.");
@@ -4527,7 +5112,7 @@ struct obj *otmp;
 
 	    case WHITE_PEACH:
 	    case SENTOU:
-		if (hates_silver(youmonst.data)) {
+		if (hates_silver(youmonst.data) || (uwep && uwep->oartifact == ART_PORKMAN_S_BALLS_OF_STEEL) || (u.twoweap && uswapwep && uswapwep->oartifact == ART_PORKMAN_S_BALLS_OF_STEEL) ) {
 			make_vomiting((long)rn1(victual.reqtime, 5), FALSE);
 			break;
 		}
@@ -4556,12 +5141,12 @@ struct obj *otmp;
 		if (otmp->otyp == SLIME_MOLD && !otmp->cursed && !(FoodIsAlwaysRotten || u.uprops[FOOD_IS_ROTTEN].extrinsic || have_rottenstone())
 			&& otmp->spe == current_fruit)
 		    pline("My, that was a %s %s!",
-			  Hallucination ? "primo" : "yummy",
+			  FunnyHallu ? "primo" : "yummy",
 			  singular(otmp, xname));
 		else
 #ifdef UNIX
 		if (otmp->otyp == APPLE || otmp->otyp == PEAR) {
-		    if (!Hallucination) pline("Core dumped.");
+		    if (!FunnyHallu) pline("Core dumped.");
 		    else {
 /* This is based on an old Usenet joke, a fake a.out manual page */
 			int x = rnd(100);
@@ -4578,8 +5163,8 @@ struct obj *otmp;
 			pline("This Macintosh is wonderful!");
 		} else
 #endif
-		if (otmp->otyp == EGG && stale_egg(otmp)) {
-		    pline(Hallucination ? "Uaaah! That tasted like hydrogen sulfide!" : "Ugh.  Rotten egg.");	/* perhaps others like it */
+		if (otmp->otyp == EGG && otmp->corpsenm != PM_EASTER && stale_egg(otmp)) {
+		    pline(FunnyHallu ? "Uaaah! That tasted like hydrogen sulfide!" : "Ugh.  Rotten egg.");	/* perhaps others like it */
 		if (Role_if(PM_CONVICT) && (rn2(8) > u.ulevel)) {
 		    You_feel("a slight stomach ache.");	/* prisoners are used to bad food */
 		} else
@@ -4593,12 +5178,12 @@ struct obj *otmp;
 		      ((Race_if(PM_HUMAN_WEREWOLF) || Role_if(PM_LUNATIC) || Race_if(PM_AK_THIEF_IS_DEAD_)) &&
 		      otmp->otyp == SPRIG_OF_WOLFSBANE);
 		    pline("This %s is %s", singular(otmp, xname),
-		      bad_for_you ? (Hallucination ? "grody!" : "terrible!") :
+		      bad_for_you ? (FunnyHallu ? "grody!" : "terrible!") :
 		      (otmp->otyp == CRAM_RATION
 		      || otmp->otyp == K_RATION
 		      || otmp->otyp == C_RATION)
-		      ? "bland." :
-		      Hallucination ? "gnarly!" : "delicious!");
+		      ? (FunnyHallu ? "enjoyable." : "bland.") :
+		      FunnyHallu ? "gnarly!" : "delicious!");
 		}
 		if (otmp->otyp == EGG && otmp->oartifact == ART_EGG_OF_SPLAT) {
 		    pline("Ulch - that was a contaminated egg!");
@@ -4615,6 +5200,7 @@ struct obj *otmp;
 {
 	pline("Magic spreads through your body as you digest the %s.",
 	    otmp->oclass == RING_CLASS ? "ring" : otmp->oclass == IMPLANT_CLASS ? "implant" : "amulet");
+	u.cnd_ringtrinsiccount++;
 }
 
 STATIC_OVL void
@@ -4633,7 +5219,7 @@ struct obj *otmp;
 	    if (u.uhp <= 0) return; /* died from sink fall */
 	}
 	otmp->known = otmp->dknown = 1; /* by taste */
-	if ((!rn2(otmp->oclass == RING_CLASS ? 5 : otmp->oclass == IMPLANT_CLASS ? 2 : 10)) || (Race_if(PM_OCTOPODE) && otmp->oclass == RING_CLASS) || objects[(otmp)->otyp].oc_material == VIVA) { /* lower chance, due to existence of sickness resistance etc --Amy */
+	if ((!rn2(otmp->oclass == RING_CLASS ? 5 : otmp->oclass == IMPLANT_CLASS ? 2 : 10)) || (Race_if(PM_OCTOPODE) && otmp->oclass == RING_CLASS) || (objects[(otmp)->otyp].oc_material == MT_VIVA && !rn2(5)) ) { /* lower chance, due to existence of sickness resistance etc --Amy */
 	  switch (otmp->otyp) {
 	    default:
 	        if (!objects[typ].oc_oprop) break; /* should never happen */
@@ -4659,7 +5245,7 @@ struct obj *otmp;
 					!See_invisible && !Blind) {
 			newsym(u.ux,u.uy);
 			Your("body takes on a %s transparency...",
-				Hallucination ? "normal" : "strange");
+				FunnyHallu ? "normal" : "strange");
 			makeknown(typ);
 		    }
 		    break;
@@ -4682,32 +5268,32 @@ struct obj *otmp;
 		break;
 	    case RIN_ADORNMENT:
 		accessory_has_effect(otmp);
-		if (adjattrib(A_CHA, otmp->spe, -1))
+		if (adjattrib(A_CHA, otmp->spe, -1, TRUE))
 		    makeknown(typ);
 		break;
 	    case RIN_GAIN_STRENGTH:
 		accessory_has_effect(otmp);
-		if (adjattrib(A_STR, otmp->spe, -1))
+		if (adjattrib(A_STR, otmp->spe, -1, TRUE))
 		    makeknown(typ);
 		break;
 	    case RIN_GAIN_CONSTITUTION:
 		accessory_has_effect(otmp);
-		if (adjattrib(A_CON, otmp->spe, -1))
+		if (adjattrib(A_CON, otmp->spe, -1, TRUE))
 		    makeknown(typ);
 		break;
 	    case RIN_GAIN_INTELLIGENCE:
 		accessory_has_effect(otmp);
-		if (adjattrib(A_INT, otmp->spe, -1))
+		if (adjattrib(A_INT, otmp->spe, -1, TRUE))
 		    makeknown(typ);
 		break;
 	    case RIN_GAIN_WISDOM:
 		accessory_has_effect(otmp);
-		if (adjattrib(A_WIS, otmp->spe, -1))
+		if (adjattrib(A_WIS, otmp->spe, -1, TRUE))
 		    makeknown(typ);
 		break;
 	    case RIN_GAIN_DEXTERITY:
 		accessory_has_effect(otmp);
-		if (adjattrib(A_DEX, otmp->spe, -1))
+		if (adjattrib(A_DEX, otmp->spe, -1, TRUE))
 		    makeknown(typ);
 		break;
 	    case RIN_INCREASE_ACCURACY:
@@ -4760,12 +5346,13 @@ struct obj *otmp;
 	    case AMULET_OF_STONE:
 		accessory_has_effect(otmp);
 		makeknown(typ);
-		if (!Stoned && !Stone_resistance && !(poly_when_stoned(youmonst.data) &&
+		if (!Stoned && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && !(poly_when_stoned(youmonst.data) &&
 				 polymon(PM_STONE_GOLEM)) ) {
 			if (Hallucination && rn2(10)) pline("Good thing you are already stoned.");
 			else {
 				You("start turning to stone.");
 				Stoned = Race_if(PM_EROSATOR) ? 3 : 7;
+				u.cnd_stoningcount++;
 				stop_occupation();
 				delayed_killer = "eating a petrifying amulet";
 			}
@@ -4875,13 +5462,13 @@ eatspecial() /* called after eating non-food */
 	/* KMH -- idea by "Tommy the Terrorist" */
 	if ((otmp->otyp == TRIDENT) && !otmp->cursed && !(FoodIsAlwaysRotten || u.uprops[FOOD_IS_ROTTEN].extrinsic || have_rottenstone()) )
 	{
-		pline(Hallucination ? "Four out of five dentists agree." :
+		pline(FunnyHallu ? "Four out of five dentists agree." :
 				"That was pure chewing satisfaction!");
 		exercise(A_WIS, TRUE);
 	}
 	if ((otmp->otyp == FLINT) && !otmp->cursed && !(FoodIsAlwaysRotten || u.uprops[FOOD_IS_ROTTEN].extrinsic || have_rottenstone()) )
 	{
-		pline(Hallucination ? "Whoops, what's that grating sound? Was that a piece of your tooth?" : "Yabba-dabba delicious!");
+		pline(FunnyHallu ? "Whoops, what's that grating sound? Was that a piece of your tooth?" : "Yabba-dabba delicious!");
 		exercise(A_CON, TRUE);
 	}
 
@@ -4905,9 +5492,15 @@ eatspecial() /* called after eating non-food */
 		if (Upolyd) {
 			u.mh++;
 			u.mhmax++;
+			if (u.mh > u.mhmax) u.mh = u.mhmax;
 		} else {
 			u.uhp++;
 			u.uhpmax++;
+			if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
+		}
+		if (uactivesymbiosis) {
+			u.usymbiote.mhpmax++;
+			if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
 		}
 		You_feel("vitalized.");
 		flags.botl = 1;
@@ -5407,11 +6000,32 @@ eatspecial() /* called after eating non-food */
 			    StatDecay |= FROMOUTSIDE; break;
 			case MOVEMORK_STONE:
 			    Movemork |= FROMOUTSIDE; break;
+			case BAD_PART_STONE:
+			    BadPartBug |= FROMOUTSIDE; break;
+			case COMPLETELY_BAD_PART_STONE:
+			    CompletelyBadPartBug |= FROMOUTSIDE; break;
+			case EVIL_VARIANT_STONE:
+			    EvilVariantActive |= FROMOUTSIDE; break;
+			case SANE_TREBLE_STONE:
+			    SanityTrebleEffect |= FROMOUTSIDE; break;
+			case STATCREASE_STONE:
+			    StatDecreaseBug |= FROMOUTSIDE; break;
+			case SIMEOUT_STONE:
+			    SimeoutBug |= FROMOUTSIDE; break;
 
 		}
 	}
 
 	if (Race_if(PM_WORM_THAT_WALKS) && otmp->otyp == FIGURINE) {/* chance to polymorph into the depicted monster --Amy */
+		if (rn2(5)) {
+
+			 if (polyok(&mons[otmp->corpsenm])) {
+			u.wormpolymorph = otmp->corpsenm;
+			polyself(FALSE);
+			}
+		} else polyself(FALSE);
+	}
+	if (Race_if(PM_WORM_THAT_WALKS) && otmp->otyp == ENERGY_SAP) {
 		if (rn2(5)) {
 
 			 if (polyok(&mons[otmp->corpsenm])) {
@@ -5458,6 +6072,7 @@ eatspecial() /* called after eating non-food */
 
 /* NOTE: the order of these words exactly corresponds to the
    order of oc_material values #define'd in objclass.h. */
+/* Amy grepping target: "materialeffect" */
 static const char *foodwords[] = {
 	"meal", "liquid", "wax", "food", "meat",
 	"paper", "cloth", "leather", "wood", "bone", "scale",
@@ -5465,7 +6080,9 @@ static const char *foodwords[] = {
 	"plastic", "glass", "rich food", "stone",
 	"fissile metal", "elasthan", "bitumen", "silk",
 	"arcanium", "secretion", "poor food", "compost",
-	"eternium", "contamination", "brick wall",
+	"eternium", "contamination", "brick wall", "sand",
+	"shadow material", "volcanic glass", "lead", "chrome",
+	"porcelain", "nanomachines",
 };
 
 STATIC_OVL const char *
@@ -5474,7 +6091,7 @@ register struct obj *otmp;
 {
 	if (otmp->oclass == FOOD_CLASS) return "food";
 	if (otmp->oclass == GEM_CLASS &&
-	    objects[otmp->otyp].oc_material == GLASS &&
+	    objects[otmp->otyp].oc_material == MT_GLASS &&
 	    otmp->dknown)
 		makeknown(otmp->otyp);
 	return foodwords[objects[otmp->otyp].oc_material];
@@ -5613,9 +6230,10 @@ register struct obj *otmp;
 
 	    case UGH_MEMORY_TO_CREATE_INVENTORY:
 
-		u.wormpolymorph = (NUMMONS + rnd(MISSINGNORANGE));
+		/*u.wormpolymorph = (NUMMONS + rnd(MISSINGNORANGE));
 		u.ughmemory = 1;
-		polyself(FALSE);
+		polyself(FALSE);*/
+		pline("Effect deactivated. Sorry.");
 
 		break;
 
@@ -5643,9 +6261,9 @@ register struct obj *otmp;
 
 		}
 
-		getlin ("Read the fortune? [yes/no]",buf);
+		getlin ("Read the fortune? [y/yes/no]",buf);
 		(void) lcase (buf);
-		if (!strcmp (buf, "yes")) {
+		if (!strcmp (buf, "yes") || !strcmp (buf, "y")) {
 
 			/* reading it might influence your luck --Amy */
 
@@ -5681,25 +6299,35 @@ register struct obj *otmp;
 			done(POISONING);
 			u.youaredead = 0;
 		    }
+			if (uactivesymbiosis && !rn2(17)) {
+				u.usymbiote.mhpmax++;
+				if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
+			}
 		}
 		if(!otmp->cursed && !(FoodIsAlwaysRotten || u.uprops[FOOD_IS_ROTTEN].extrinsic || have_rottenstone()) ) heal_legs();
 		break;
 	    case EGG:
 
+		if (otmp->corpsenm == PM_EASTER) {
+			pline("Wow, you found an easter egg!");
+			if (getmonth() == 3) pline("Happy Easter!");
+		}
+
 		/* eating your own eggs is bad luck --Amy */
 		if (otmp->spe && otmp->corpsenm >= LOW_PM) {
-				pline(Hallucination ? "Great taste, like what chewing your own nails is like!" : "How are your children, you sorry excuse for a parent?");
+				pline(FunnyHallu ? "Great taste, like what chewing your own nails is like!" : "How are your children, you sorry excuse for a parent?");
 			    change_luck(-2);
 		}
 
-		if (touch_petrifies(&mons[otmp->corpsenm])) {
-		    if (!Stone_resistance &&
+		if (touch_petrifies(&mons[otmp->corpsenm]) && otmp->corpsenm != PM_PLAYERMON) {
+		    if ((!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) &&
 			!(poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))) {
 			if (!Stoned) {
 				if (Hallucination && rn2(10)) pline("Good thing you are already stoned.");
 				else {
 					You("start turning to stone.");
 					Stoned = Race_if(PM_EROSATOR) ? 3 : 7;
+					u.cnd_stoningcount++;
 					killer_format = KILLED_BY_AN;
 					sprintf(killer_buf, "petrifying egg (%s)", mons[otmp->corpsenm].mname);
 					delayed_killer = killer_buf;
@@ -5718,9 +6346,9 @@ register struct obj *otmp;
 
 	if (!rn2(25)) { /* more random fortunes --Amy */
 
-		getlin ("Somehow, a strip of paper appeared in your food! Read it? [yes/no]",buf);
+		getlin ("Somehow, a strip of paper appeared in your food! Read it? [y/yes/no]",buf);
 		(void) lcase (buf);
-		if (!strcmp (buf, "yes")) {
+		if (!strcmp (buf, "yes") || !strcmp (buf, "y")) {
 
 		/* reading it will influence the player's luck --Amy */
 
@@ -5763,7 +6391,7 @@ struct obj *otmp;
 
 	if (cadaver || otmp->otyp == EGG || otmp->otyp == TIN) {
 		/* These checks must match those in eatcorpse() */
-	  	stoneorslime = (touch_petrifies(&mons[mnum]) &&
+	  	stoneorslime = (touch_petrifies(&mons[mnum]) && mnum != PM_PLAYERMON &&
 				!Stone_resistance && !poly_when_stoned(youmonst.data));
 
 		if (slime_on_touch(&mons[mnum]))
@@ -5787,7 +6415,7 @@ struct obj *otmp;
 	 * order from most detrimental to least detrimental.
 	 */
 
-	if (cadaver && mnum != PM_ACID_BLOB && rotted > 5L && !Sick_resistance) {
+	if (cadaver && !acidic(&mons[mnum]) && rotted > 5L && !(IntSick_resistance || (ExtSick_resistance && rn2(20))) ) {
 		/* Tainted meat */
 		sprintf(buf, "%s like %s could be tainted! %s",
 			foodsmell, it_or_they, eat_it_anyway);
@@ -5829,6 +6457,13 @@ struct obj *otmp;
 		else return 2;
 	}
 
+	if (dmgtype(&mons[mnum], AD_RBAD)) {
+		sprintf(buf, "%s like %s could be really bad for you! %s",
+			foodsmell, it_or_they, eat_it_anyway);
+		if (yn_function(buf,ynchars,'n')=='n') return 1;
+		else return 2;
+	}
+
 	if (otmp->orotten || (cadaver && rotted > 3L)) {
 		/* Rotten */
 		sprintf(buf, "%s like %s could be rotten! %s",
@@ -5844,7 +6479,7 @@ struct obj *otmp;
 		else return 2;
 	}
 	if (cadaver && !vegetarian(&mons[mnum]) &&
-	    !u.uconduct.unvegetarian && (Role_if(PM_MONK) || Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") ))  || Role_if(PM_FAILED_EXISTENCE) || Role_if(PM_GOFF) || Race_if(PM_SYLPH) ) ) {
+	    !u.uconduct.unvegetarian && (Role_if(PM_MONK) || have_anorexia() || Role_if(PM_FAILED_EXISTENCE) || Race_if(PM_SYLPH) ) ) {
 		sprintf(buf, "%s unhealthy. %s",
 			foodsmell, eat_it_anyway);
 		if (yn_function(buf,ynchars,'n')=='n') return 1;
@@ -5861,7 +6496,7 @@ struct obj *otmp;
 		    mnum == PM_VIOLET_FUNGUS || mnum == PM_VIOLET_STALK || mnum == PM_VIOLET_SPORE || mnum == PM_VIOLET_COLONY) { 
 		sprintf(buf, "%s like %s may be %s! %s", 
 			foodsmell, it_or_they, 
-			Hallucination ? "some real hard stuff" 
+			FunnyHallu ? "some real hard stuff" 
 			: "hallucinogenic", eat_it_anyway); 
 		if (yn_function(buf,ynchars,'n')=='n') return 1; 
 		/*adjalign(-sgn(u.ualign.type));*/ /* you took it knowingly */ /*what the heck??? --Amy */
@@ -5879,9 +6514,9 @@ struct obj *otmp;
 	 */
 	 
 	if (!u.uconduct.unvegan &&
-	    ((material == LEATHER || material == BONE ||
-	      material == EYEBALL || material == SEVERED_HAND ||
-	      material == DRAGON_HIDE || material == WAX) ||
+	    ((material == MT_LEATHER || material == MT_BONE ||
+	      otmp->otyp == EYEBALL || otmp->otyp == SEVERED_HAND ||
+	      material == MT_DRAGON_HIDE || material == MT_WAX) ||
 	     (cadaver && !vegan(&mons[mnum])))) {
 		sprintf(buf, "%s foul and unfamiliar to you. %s",
 			foodsmell, eat_it_anyway);
@@ -5889,9 +6524,9 @@ struct obj *otmp;
 		else return 2;
 	}
 	if (!u.uconduct.unvegetarian &&
-	    ((material == LEATHER || material == BONE ||
-	      material == EYEBALL || material == SEVERED_HAND ||
-	      material == DRAGON_HIDE) ||
+	    ((material == MT_LEATHER || material == MT_BONE ||
+	      otmp->otyp == EYEBALL || otmp->otyp == SEVERED_HAND ||
+	      material == MT_DRAGON_HIDE) ||
 	     (cadaver && !vegetarian(&mons[mnum])))) {
 		sprintf(buf, "%s unfamiliar to you. %s",
 			foodsmell, eat_it_anyway);
@@ -5899,7 +6534,7 @@ struct obj *otmp;
 		else return 2;
 	}
 
-	if (cadaver && mnum != PM_ACID_BLOB && rotted > 5L && Sick_resistance) {
+	if (cadaver && !acidic(&mons[mnum]) && rotted > 5L && Sick_resistance) {
 		/* Tainted meat with Sick_resistance */
 		sprintf(buf, "%s like %s could be tainted! %s",
 			foodsmell, it_or_they, eat_it_anyway);
@@ -5920,7 +6555,7 @@ doeat()		/* generic "eat" command funtion (see cmd.c) */
 	
 	boolean dont_start = FALSE;
 	if (Strangled) {
-		pline(Hallucination ? "You just can't seem to get it down your throat - is it too big?!" : "If you can't breathe air, how can you consume solids?");
+		pline(FunnyHallu ? "You just can't seem to get it down your throat - is it too big?!" : "If you can't breathe air, how can you consume solids?");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return 0;
 	}
@@ -6059,12 +6694,12 @@ doeat()		/* generic "eat" command funtion (see cmd.c) */
 	    victual.eating = TRUE; /* needed for lesshungry() */
 
 	    material = objects[otmp->otyp].oc_material;
-	    if (material == LEATHER ||
-		material == EYEBALL || material == SEVERED_HAND ||
-		material == BONE || material == DRAGON_HIDE) {
+	    if (material == MT_LEATHER ||
+		otmp->otyp == EYEBALL || otmp->otyp == SEVERED_HAND ||
+		material == MT_BONE || material == MT_DRAGON_HIDE) {
 	 		u.uconduct.unvegan++;
 	    		violated_vegetarian();
-	    } else if (material == WAX)
+	    } else if (material == MT_WAX)
 			u.uconduct.unvegan++;
 	    u.uconduct.food++;
 		gluttonous();
@@ -6074,27 +6709,32 @@ doeat()		/* generic "eat" command funtion (see cmd.c) */
 		(void) rottenfood(otmp);
 
 	    if (otmp->oclass == WEAPON_CLASS && otmp->opoisoned) {
-		pline(Hallucination ? "Urgh - that tastes like cactus juice with full-length thorns in it!" : "Ecch - that must have been poisonous!");
+		pline(FunnyHallu ? "Urgh - that tastes like cactus juice with full-length thorns in it!" : "Ecch - that must have been poisonous!");
 		if(!Poison_resistance) {
-		    losestr(rnd(4));
+		    if (!rn2(2)) losestr(rnd(2), TRUE);
+		    if (!rn2(15)) losestr(rnd(2), TRUE);
+		    if (issoviet) {
+				losestr(rnd(5), TRUE);
+				pline("On, on, ty otravilsya i, veroyatno, poteryal silu! Nay khe khe!");
+		    }
 		    losehp(rnd(15), xname(otmp), KILLED_BY_AN);
 		} else
 		    You("seem unaffected by the poison.");
-	    } else if (!otmp->cursed && material != SECREE && material != ETHER && !(FoodIsAlwaysRotten || u.uprops[FOOD_IS_ROTTEN].extrinsic || have_rottenstone()) ) {
+	    } else if (!otmp->cursed && material != MT_SECREE && material != MT_ETHER && !(FoodIsAlwaysRotten || u.uprops[FOOD_IS_ROTTEN].extrinsic || have_rottenstone()) ) {
 		pline("This %s is delicious!",
 		      otmp->oclass == COIN_CLASS ? foodword(otmp) :
 		      singular(otmp, xname));
 	    }
 
-	    if (material == SECREE) {
+	    if (material == MT_SECREE) {
 			pline("Ulch - this %s tastes like secretion!", otmp->oclass == COIN_CLASS ? foodword(otmp) : singular(otmp, xname));
 			badeffect();
 	    }
-	    if (material == ETHER) {
+	    if (material == MT_ETHER) {
 			pline("The contamination spreads through your body.");
 			contaminate(rnz((level_difficulty() + 40) * 5), TRUE);
 	    }
-	    if (material == VIVA) {
+	    if (material == MT_VIVA) {
 			pline("Eating radioactive metal is a bad idea.");
 			ABASE(A_STR)--;
 			ABASE(A_DEX)--;
@@ -6110,10 +6750,15 @@ doeat()		/* generic "eat" command funtion (see cmd.c) */
 			if(ABASE(A_CHA) < ATTRMIN(A_CHA)) {losehp(rnd(15), "eating radioactive food", KILLED_BY); ABASE(A_CHA) = ATTRMIN(A_CHA);}
 	    }
 
-	    if (material == INKA) {
+	    if (material == MT_INKA) {
 			pline("Urgh... your %s is turning as it's having difficulties digesting inka leather.", body_part(STOMACH));
 			nomul(-20, "trying to digest an inka object", TRUE);
 			/* This ignores free action. --Amy */
+	    }
+
+	    if (practicantterror && material == MT_SILK) {
+			pline("%s booms: 'You insolent maggot! You're worse than a goddamn cat, eating valuable clothing like that! I'll punish you by forcing you to bring me 20 arrows, you have ten minutes to comply or you'll also pay a bunch of money.'", noroelaname());
+			fineforpracticant(0, 0, 20);
 	    }
 
 	    eatspecial();
@@ -6197,7 +6842,7 @@ doeat()		/* generic "eat" command funtion (see cmd.c) */
 	    /* No checks for WAX, LEATHER, BONE, DRAGON_HIDE.  These are
 	     * all handled in the != FOOD_CLASS case, above */
 	    switch (objects[otmp->otyp].oc_material) {
-	    case FLESH:
+	    case MT_FLESH:
 		u.uconduct.unvegan++;
 		gluttonous();
 		if (otmp->otyp != EGG && otmp->otyp != CHEESE) {
@@ -6289,7 +6934,7 @@ bite()
 {
 	int vampirenutrition = 0;
 	if ( (is_vampire(youmonst.data) || (Role_if(PM_GOFF) && !Upolyd) ) && (u.uhunger < 2500) ) vampirenutrition += rn2(6);
-	if ( (u.umonnum == PM_GHOUL || u.umonnum == PM_GHAST || u.umonnum == PM_GASTLY || u.umonnum == PM_PHANTOM_GHOST || u.umonnum == PM_HAUNTER || u.umonnum == PM_GENGAR || (Race_if(PM_GASTLY) && !Upolyd) || (Race_if(PM_PLAYER_SKELETON) && !Upolyd) || (Race_if(PM_PHANTOM_GHOST) && !Upolyd) ) && (u.uhunger < 2500) ) vampirenutrition += rn2(3);
+	if ( (saprovorousnumber(u.umonnum) || (Race_if(PM_GASTLY) && !Upolyd) || (Race_if(PM_PLAYER_SKELETON) && !Upolyd) || (Race_if(PM_PHANTOM_GHOST) && !Upolyd) ) && (u.uhunger < 2500) ) vampirenutrition += rn2(3);
 
 	if(victual.canchoke && u.uhunger >= 5000) { /* allowing players to eat more --Amy */
 		choke(victual.piece);
@@ -6321,75 +6966,85 @@ gethungry()	/* as time goes by - called by moveloop() and domove() */
 {
 	if (u.uinvulnerable) return;	/* you don't feel hungrier */
 
-	if ( (Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || Role_if(PM_FAILED_EXISTENCE) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") )) || Role_if(PM_GOFF)) && ( (rn2(2) && u.uhs == HUNGRY) || (rn2(4) && u.uhs == WEAK) || (rn2(8) && u.uhs == FAINTING) || (rn2(16) && u.uhs == FAINTED) ) ) return; /* They are used to eating very little. --Amy */
+	if ( (have_anorexia() || Role_if(PM_FAILED_EXISTENCE)) && ( (rn2(2) && u.uhs == HUNGRY) || (rn2(4) && u.uhs == WEAK) || (rn2(8) && u.uhs == FAINTING) || (rn2(16) && u.uhs == FAINTED) ) ) return; /* They are used to eating very little. --Amy */
 
 	if ((!u.usleep || !rn2(10))	/* slow metabolic rate while asleep */
 		&& (carnivorous(youmonst.data) || herbivorous(youmonst.data) || metallivorous(youmonst.data) || lithivorous(youmonst.data))
         /* Convicts can last twice as long at hungry and below */
-        && (!Role_if(PM_CONVICT) || (moves % 2) || (u.uhs < HUNGRY))
-		&& !Slow_digestion && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) )
+        && (!Role_if(PM_CONVICT) || (rn2(2)) || (u.uhs < HUNGRY))
+		&& !Slow_digestion && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500) )
 	    u.uhunger--;		/* ordinary food consumption */
 
 	/* cloak of slow digestion is not supposed to be cloak of no digestion --Amy */
-	if (uarmc && uarmc->otyp == CLOAK_OF_SLOW_DIGESTION && !rn2(10) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
+	if (uarmc && uarmc->otyp == CLOAK_OF_SLOW_DIGESTION && !rn2(10) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
 
-	if (u.uprops[FAST_METABOLISM].extrinsic && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
-	if (have_metabolicstone() && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
+	if (u.uprops[FAST_METABOLISM].extrinsic && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
+	if (have_metabolicstone() && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
 	if (FastMetabolismEffect) {
 
 		int extrahungerpoints;
 
-		if (!(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
+		if (!(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongSlow_digestion && rn2(3)) ) u.uhunger--;
 
 		extrahungerpoints = FastMetabolismEffect;
 		if (extrahungerpoints >= 67108864) extrahungerpoints -= 67108864;
 		if (extrahungerpoints >= 33554432) extrahungerpoints -= 33554432;
 		if (extrahungerpoints >= 16777216) extrahungerpoints -= 16777216;
 		extrahungerpoints /= 5000;
-		if (extrahungerpoints > 0 && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= extrahungerpoints;
+		if (extrahungerpoints > 0 && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= extrahungerpoints;
 	}
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "avenger cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "mstitel' plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "qasoskor plash") ) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= 2;
+	if (uarmc && itemhasappearance(uarmc, APP_AVENGER_CLOAK) && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= 2;
 
 	/* ancipital's slow digestion is not supposed to be no digestion --Amy */
-	if (Race_if(PM_ANCIPITAL) && !(moves % 20) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
+	if (Race_if(PM_ANCIPITAL) && !rn2(20) && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
 
-	if (moves % 2) {	/* odd turns */
+	/* having a symbiote uses your nutrition to feed it, especially if it has HP regeneration --Amy */
+	if (uactivesymbiosis && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) {
+		if (carnivorous(&mons[u.usymbiote.mnum]) || herbivorous(&mons[u.usymbiote.mnum]) || metallivorous(&mons[u.usymbiote.mnum]) || organivorous(&mons[u.usymbiote.mnum]) || lithivorous(&mons[u.usymbiote.mnum])) u.uhunger--;
+		if (regenerates(&mons[u.usymbiote.mnum])) u.uhunger -= 5;
+	}
+
+	if (!rn2(2)) {	/* used to be odd turns, but nasty traps that speed up turncount exist --Amy */
 	    /* Regeneration uses up food, unless due to an artifact */
 	    /*if (HRegeneration || ((ERegeneration & (~W_ART)) &&
 				(ERegeneration != W_WEP || !uwep->oartifact)))
 			u.uhunger--;*/
 
 		/* rewrite by Amy */
-		if (Regeneration && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
-		if (Energy_regeneration && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) { u.uhunger--; u.uhunger--;}
+		if (Regeneration && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
+		if (StrongRegeneration && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
+		if (Energy_regeneration && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) { u.uhunger--; u.uhunger--;}
+		if (StrongEnergy_regeneration && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) { u.uhunger--; u.uhunger--;}
 
-	    if (near_capacity() > SLT_ENCUMBER && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
+	    if (near_capacity() > SLT_ENCUMBER && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
 	} else {		/* even turns */
-	    if (Hunger && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
-		if (Race_if(PM_CLOCKWORK_AUTOMATON) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--; /* to prevent =oSD from being overpowered --Amy */
+	    if (Hunger && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
+	    if (StrongHunger && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
+		if (Race_if(PM_CLOCKWORK_AUTOMATON) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--; /* to prevent =oSD from being overpowered --Amy */
 	    /* Conflict uses up food too */
 		/* and a lot of it because conflict is so overpowered --Amy */
-	    if (HConflict || EConflict && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) { u.uhunger--; u.uhunger--; u.uhunger--; u.uhunger--; u.uhunger--; }
-	    if (uwep && uwep->oartifact == ART_TENSA_ZANGETSU && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= 10;
-	    if (uwep && uwep->oartifact == ART_ZANKAI_HUNG_ZE_TUNG_DO_HAI && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= 10;
-	    if (uwep && uwep->oartifact == ART_GARNET_ROD && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= 3;
-	    if (u.twoweap && uswapwep && uswapwep->oartifact == ART_TENSA_ZANGETSU && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= 10;
-	    if (u.twoweap && uswapwep && uswapwep->oartifact == ART_ZANKAI_HUNG_ZE_TUNG_DO_HAI && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= 10;
-	    if (u.twoweap && uswapwep && uswapwep->oartifact == ART_GARNET_ROD && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= 3;
+	    if (Conflict && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) { u.uhunger--; u.uhunger--; u.uhunger--; u.uhunger--; u.uhunger--; }
+	    if (StrongConflict && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) { u.uhunger--; u.uhunger--; u.uhunger--; u.uhunger--; u.uhunger--; }
+	    if (uwep && uwep->oartifact == ART_TENSA_ZANGETSU && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= 10;
+	    if (uwep && uwep->oartifact == ART_ZANKAI_HUNG_ZE_TUNG_DO_HAI && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= 10;
+	    if (uwep && uwep->oartifact == ART_GARNET_ROD && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= 3;
+	    if (u.twoweap && uswapwep && uswapwep->oartifact == ART_TENSA_ZANGETSU && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= 10;
+	    if (u.twoweap && uswapwep && uswapwep->oartifact == ART_ZANKAI_HUNG_ZE_TUNG_DO_HAI && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= 10;
+	    if (u.twoweap && uswapwep && uswapwep->oartifact == ART_GARNET_ROD && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger -= 3;
 	    /* +0 charged rings don't do anything, so don't affect hunger */
 	    /* Slow digestion still uses ring hunger */
-	    switch ((int)(moves % 20)) {	/* note: use even cases only */
+	    switch (rnd(10)) {	/* used to depend on turn count too... */
 	     case  4: if (uleft &&
-			  (uleft->spe || !objects[uleft->otyp].oc_charged) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500))
+			  (uleft->spe || !objects[uleft->otyp].oc_charged) && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500))
 			    u.uhunger--;
 		    break;
-	     case  8: if (uamul && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
+	     case  8: if (uamul && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
 		    break;
 	     case 12: if (uright &&
-			  (uright->spe || !objects[uright->otyp].oc_charged) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500))
+			  (uright->spe || !objects[uright->otyp].oc_charged) && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500))
 			    u.uhunger--;
 		    break;
-	     case 16: if (u.uhave.amulet && (u.amuletcompletelyimbued || !rn2(5)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
+	     case 16: if (u.uhave.amulet && !u.freeplaymode && (u.amuletcompletelyimbued || !rn2(5)) && !(StrongSlow_digestion && rn2(3)) && !(Full_nutrient && !rn2(2) && u.uhunger < 2500) && !(StrongFull_nutrient && !rn2(2) && u.uhunger < 2500)) u.uhunger--;
 		    break;
 	     default: break;
 	    }
@@ -6405,7 +7060,9 @@ morehungry(num)	/* called after vomiting and after performing feats of magic */
 register int num;
 {
 	if (Full_nutrient && num == 1 && rn2(2) && u.uhunger < 2500) num = 0;
+	if (StrongFull_nutrient && num == 1 && rn2(2) && u.uhunger < 2500) num = 0;
 	if (Full_nutrient && num > 1 && u.uhunger < 2500) num /= 2;
+	if (StrongFull_nutrient && num > 1 && u.uhunger < 2500) num /= 2;
 
 	if (num < 0 && (CutNutritionEffect || u.uprops[CUT_NUTRITION].extrinsic || have_cutnutritionstone()) ) num /= 3;
 
@@ -6425,6 +7082,26 @@ register int num;
 #endif
 	if (num > 0 && (CutNutritionEffect || u.uprops[CUT_NUTRITION].extrinsic || have_cutnutritionstone()) ) num /= 3;
 
+	if (Race_if(PM_GERTEUT)) {
+		num *= 4;
+		num /= 3;
+	}
+
+	if (Race_if(PM_SERB)) {
+		num *= 3;
+		num /= 2;
+	}
+
+	/* eating heals symbiote a bit --Amy */
+	if (num >= 100 && uactivesymbiosis) {
+		if (u.usymbiote.mhp < u.usymbiote.mhpmax) {
+			u.usymbiote.mhp += (num / 100);
+			if (u.usymbiote.mhp > u.usymbiote.mhpmax) u.usymbiote.mhp = u.usymbiote.mhpmax;
+			if (flags.showsymbiotehp) flags.botl = TRUE;
+		}
+
+	}
+
 	u.uhunger += num;
 	if(u.uhunger >= 5000) {
 	    if (!iseating || victual.canchoke) {
@@ -6441,7 +7118,7 @@ register int num;
 	     */
 	    if (u.uhunger >= 4500) {
 		if (!victual.eating || (victual.eating && !victual.fullwarn)) {
-		    pline(Hallucination ? "You feel like taking the All-You-Can-Eat challenge." : "You're having a hard time getting all of it down.");
+		    pline(FunnyHallu ? "You feel like taking the All-You-Can-Eat challenge." : "You're having a hard time getting all of it down.");
 		    nomovemsg = "You're finally finished.";
 		    if (!victual.eating)
 			multi = -2;
@@ -6575,18 +7252,18 @@ boolean incr;
 			if(!is_fainted() && multi >= 0 /* %% */) {
 				/* stop what you're doing, then faint */
 				stop_occupation();
-				You(Hallucination ? "pass out due to those damn munchies." : (Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") )) ? "enter a state of trance." : "faint from lack of food.");
+				You(FunnyHallu ? "pass out due to those damn munchies." : (have_anorexia()) ? "enter a state of trance." : "faint from lack of food.");
 
 	/* warn player if starvation will happen soon, that is, less than 200 nutrition remaining --Amy */
-			if(u.uhunger < -(int)(800 + 50*ACURR(A_CON))) { You(Hallucination ? "sense the Grim Reaper approaching." : (Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") )) ? "sense that you're getting closer to your deity." : "are close to starvation.");
-		if (Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") )) ) adjalign(5);
+			if(u.uhunger < -(int)(800 + 50*ACURR(A_CON))) { You(FunnyHallu ? "sense the Grim Reaper approaching." : (have_anorexia()) ? "sense that you're getting closer to your deity." : "are close to starvation.");
+		if (have_anorexia()) adjalign(5);
 		}
 				flags.soundok = 0;
 				nomul(-3+(u.uhunger/200), "fainted from lack of food", TRUE);
 				nomovemsg = "You regain consciousness.";
 				afternmv = unfaint;
 				newhs = FAINTED;
-				if (Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") )) ) adjalign(1);
+				if (have_anorexia()) adjalign(1);
 			}
 		} else
 		if(u.uhunger < -(int)(1000 + 50*ACURR(A_CON))) {
@@ -6594,7 +7271,7 @@ boolean incr;
 			u.uhs = STARVED;
 			flags.botl = 1;
 			bot();
-			You(Hallucination ? "are taken away by the grim reaper..." : (Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") )) ? "meet your deity at last." : "die from starvation.");
+			You(FunnyHallu ? "are taken away by the grim reaper..." : (have_anorexia()) ? "meet your deity at last." : "die from starvation.");
 			killer_format = KILLED_BY;
 			killer = "starvation";
 			done(STARVING);
@@ -6606,16 +7283,16 @@ boolean incr;
 
 	if(newhs != u.uhs) {
 		if(newhs >= WEAK && u.uhs < WEAK) {
-			losestr(1);	/* this may kill you -- see below */
-			if (Fixed_abil || Race_if(PM_SUSTAINER) || (uarms && uarms->oartifact == ART_SYSTEMATIC_CHAOS) || (uarms && uarms->oartifact == ART_BONUS_HOLD) || (uamul && uamul->oartifact == ART_FIX_EVERYTHING) || (uarmf && uarmf->oartifact == ART_ELENETTES) ) u.weakcheat++; /* cheater! */
+			losestr(1, FALSE);	/* this may kill you -- see below */
+			if (SustainAbilityOn) u.weakcheat++; /* cheater! */
 			}
 		else if(newhs < WEAK && u.uhs >= WEAK) {
-			if (!u.weakcheat) losestr(-1); /* otherwise this could be exploited until you have 25 str --Amy */
+			if (!u.weakcheat) losestr(-1, TRUE); /* otherwise this could be exploited until you have 25 str --Amy */
 			else u.weakcheat--;
 			}
 		switch(newhs){
 		case HUNGRY:
-			if (Hallucination) {
+			if (FunnyHallu) {
 			    You((!incr) ?
 				"now have a lesser case of the munchies." :
 				"are getting the munchies.");
@@ -6628,7 +7305,7 @@ boolean incr;
 			    stop_occupation();
 			break;
 		case WEAK:
-			if (Hallucination)
+			if (FunnyHallu)
 			    pline((!incr) ?
 				  "You still have the munchies." :
       "The munchies are interfering with your motor capabilities.");
@@ -6652,7 +7329,7 @@ boolean incr;
 		bot();
 		if ((Upolyd ? u.mh : u.uhp) < 1) {
 			u.youaredead = 1;
-			You(Hallucination ? "pass away like a filthy bum." : (Role_if(PM_TOPMODEL) || RngeAnorexia || (uarmc && uarmc->oartifact == ART_INA_S_SORROW) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "eb buzilishi plash") ))) ? "are embraced by the shadowy figure of your deity..." : "die from hunger and exhaustion.");
+			You(FunnyHallu ? "pass away like a filthy bum." : (have_anorexia()) ? "are embraced by the shadowy figure of your deity..." : "die from hunger and exhaustion.");
 			killer_format = KILLED_BY;
 			killer = "exhaustion";
 			done(STARVING);
@@ -6669,7 +7346,7 @@ boolean can_reach_floorobj()
 {
     return can_reach_floor() &&
 	  !((is_waterypool(u.ux, u.uy) || is_watertunnel(u.ux, u.uy) || is_lava(u.ux, u.uy)) &&
-	    (Wwalking || is_clinger(youmonst.data) || (Flying && !Breathless)));
+	    (Wwalking || Race_if(PM_KORONST) || is_clinger(youmonst.data) || (Flying && !Breathless)));
 }
 
 /* Returns an object representing food.  Object may be either on floor or
@@ -6703,7 +7380,7 @@ floorfood(verb)		/* get food from floor or pack */
 		if ((c = yn_function(qbuf, ynqchars, 'n')) == 'y') {
 		    u.utrap = u.utraptype = 0;
 		    deltrap(ttmp);
-		    return mksobj(BEARTRAP, TRUE, FALSE);
+		    return mksobj(BEARTRAP, TRUE, FALSE, FALSE);
 		} else if (c == 'q') {
 		    return (struct obj *)0;
 		}
@@ -6721,6 +7398,7 @@ floorfood(verb)		/* get food from floor or pack */
 void
 vomit()		/* A good idea from David Neves */
 {
+	u.cnd_vomitingcount++;
 	make_sick(0L, (char *) 0, TRUE, SICK_VOMITABLE);
 	nomul(-2, "vomiting", TRUE);
 	u_wipe_engr(100);
@@ -6753,6 +7431,23 @@ register struct obj *obj;
 
 	base = (int)(full_amount ? (long)base * uneaten_amt / full_amount : 0L);
 	return (base < 1) ? 1 : base;
+}
+
+void
+energysap(obj)
+struct obj *obj;
+{
+
+	You("quaff the sap.");
+
+	if (mons[obj->corpsenm].cnutrit > 0) lesshungry((mons[obj->corpsenm].cnutrit) / 5);
+
+	cprefx(obj->corpsenm);
+	cpostfx(obj->corpsenm);
+
+	if (obj && obj->oartifact == ART_MULTIJUICE && rn2(5)) return;
+	useup(obj);
+
 }
 
 /* reduce obj's oeaten field, making sure it never hits or passes 0 */

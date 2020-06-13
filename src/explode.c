@@ -574,11 +574,20 @@ boolean yours; /* is it your fault (for killing monsters) */
 		if (adtyp == AD_FIRE) burn_away_slime();
 
 		/* player may get lucky and take less damage --Amy */
-		if (!rn2(3) && damu >= 1) {damu = damu / 2; if (damu < 1) damu = 1;}
-		if (!rn2(10) && damu >= 1 && GushLevel >= 10) {damu = damu / 3; if (damu < 1) damu = 1;}
-		if (!rn2(15) && damu >= 1 && GushLevel >= 14) {damu = damu / 4; if (damu < 1) damu = 1;}
-		if (!rn2(20) && damu >= 1 && GushLevel >= 20) {damu = damu / 5; if (damu < 1) damu = 1;}
-		if (!rn2(50) && damu >= 1 && GushLevel >= 30) {damu = damu / 10; if (damu < 1) damu= 1;}
+		if (!rn2(3) && damu >= 1) {damu++; damu = damu / 2; if (damu < 1) damu = 1;}
+		if (!rn2(10) && damu >= 1 && GushLevel >= 10) {damu++; damu = damu / 3; if (damu < 1) damu = 1;}
+		if (!rn2(15) && damu >= 1 && GushLevel >= 14) {damu++; damu = damu / 4; if (damu < 1) damu = 1;}
+		if (!rn2(20) && damu >= 1 && GushLevel >= 20) {damu++; damu = damu / 5; if (damu < 1) damu = 1;}
+		if (!rn2(50) && damu >= 1 && GushLevel >= 30) {damu++; damu = damu / 10; if (damu < 1) damu= 1;}
+
+		/* exploding wands were too strong, a cursed wand of solar beam at XL1 shouldn't be instant death all the time */
+		if (u.explodewandhack && damu >= 1 && u.ulevel < 20) {
+
+			damu++;
+			damu *= u.ulevel;
+			damu /= 20;
+			if (damu < 1) damu = 1;
+		}
 
 		if (PlayerInConeHeels && damu > 0) {
 			register int dmgreductor = 95;
@@ -590,12 +599,59 @@ boolean yours; /* is it your fault (for killing monsters) */
 				case P_GRAND_MASTER: dmgreductor = 80; break;
 				case P_SUPREME_MASTER: dmgreductor = 77; break;
 			}
+			damu++;
 			damu *= dmgreductor;
 			damu /= 100;
 			if (damu < 1) damu = 1;
 		}
 
-		if (damu > 0 && uarmf && OBJ_DESCR(objects[uarmf->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmf->otyp]), "marji shoes") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "obuv' marzhi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "oz maryam poyafzallari")) ) {
+		if (Race_if(PM_ITAQUE) && damu > 0) {
+			damu++;
+			damu *= (100 - u.ulevel);
+			damu /= 100;
+			if (damu < 1) damu = 1;
+		}
+
+		if (is_sand(u.ux,u.uy) && damu > 0) {
+			damu++;
+			damu *= 4;
+			damu /= 5;
+			if (damu < 1) damu = 1;
+		}
+
+		if (Race_if(PM_CARTHAGE) && u.usteed && (mcalcmove(u.usteed) < 12) && damu > 0) {
+			damu++;
+			damu *= 4;
+			damu /= 5;
+			if (damu < 1) damu = 1;
+		}
+
+		if (StrongDetect_monsters && damu > 0) {
+			damu++;
+			damu *= 9;
+			damu /= 10;
+			if (damu < 1) damu = 1;
+		}
+
+		if (Race_if(PM_VIKING) && damu > 0) {
+			damu *= 5;
+			damu /= 4;
+		}
+
+		if (Race_if(PM_SPARD) && damu > 0) {
+			damu *= 5;
+			damu /= 4;
+		}
+
+		if (Race_if(PM_MAYMES) && uwep && weapon_type(uwep) == P_FIREARM && damu > 0) {
+			damu++;
+			damu *= 4;
+			damu /= 5;
+			if (damu < 1) damu = 1;
+		}
+
+		if (damu > 0 && uarmf && itemhasappearance(uarmf, APP_MARJI_SHOES)) {
+			damu++;
 			damu *= 9;
 			damu /= 10;
 			if (damu < 1) damu = 1;
@@ -610,17 +666,27 @@ boolean yours; /* is it your fault (for killing monsters) */
 		if (damu && Race_if(PM_YUKI_PLAYA)) damu += rnd(5);
 		if (Role_if(PM_BLEEDER)) damu = damu * 2; /* bleeders are harder than hard mode */
 		if (have_cursedmagicresstone()) damu = damu * 2;
-		if (HardModeEffect || u.uprops[HARD_MODE_EFFECT].extrinsic || have_hardmodestone()) damu = damu * 2;
+		if (Race_if(PM_METAL)) damu *= rnd(10);
+		if (HardModeEffect || u.uprops[HARD_MODE_EFFECT].extrinsic || have_hardmodestone() || (uimplant && uimplant->oartifact == ART_IME_SPEW) ) damu = damu * 2;
 		if (uamul && uamul->otyp == AMULET_OF_VULNERABILITY) damu *= rnd(4);
 		if (RngeFrailness) damu = damu * 2;
+
+		if (Race_if(PM_SHELL) && !Upolyd && damu > 1) damu /= 2;
 
 		if (isfriday && !rn2(50)) damu += rnd(damu);
 
 		if (Invulnerable || (Stoned_chiller && Stoned)) {
 		    damu = 0;
 		    You("are unharmed!");
-		} else if (Half_physical_damage && adtyp == AD_PHYS && rn2(2) )
-		    damu = (damu+1) / 2;
+		} else if (u.metalguard) {
+		    u.metalguard = 0;
+		    damu = 0;
+		    Your("metal guard prevents the damage!");
+		} else {
+			if (Half_physical_damage && adtyp == AD_PHYS && rn2(2) ) damu = (damu+1) / 2;
+			if (StrongHalf_physical_damage && adtyp == AD_PHYS && rn2(2) ) damu = (damu+1) / 2;
+		}
+
 		if (adtyp == AD_FIRE) {if (isevilvariant || !rn2(Race_if(PM_SEA_ELF) ? 1 : issoviet ? 2 : 33)) (void) burnarmor(&youmonst);}
 		    if (isevilvariant || !rn2(Race_if(PM_SEA_ELF) ? 1 : issoviet ? 3 : 15)) /* new calculations --Amy */	destroy_item(SCROLL_CLASS, (int) adtyp);
 		    if (isevilvariant || !rn2(Race_if(PM_SEA_ELF) ? 1 : issoviet ? 3 : 15)) /* new calculations --Amy */	destroy_item(SPBOOK_CLASS, (int) adtyp);
@@ -631,7 +697,30 @@ boolean yours; /* is it your fault (for killing monsters) */
 
 		ugolemeffects((int) adtyp, damu);
 
-		if (u.disruptionshield && u.uen >= damu) {
+		if (uactivesymbiosis && !u.symbiotedmghack && (rn2(100) < u.symbioteaggressivity) && !(u.usymbiote.mhpmax >= 5 && u.usymbiote.mhp <= (u.usymbiote.mhpmax / 5) && rn2(5)) ) {
+			if (tech_inuse(T_POWERBIOSIS) && damu > 1) damu /= 2;
+			if (tech_inuse(T_IMPLANTED_SYMBIOSIS) && uimplant && objects[uimplant->otyp].oc_charged && uimplant->spe > 0) {
+				int imbiophases = uimplant->spe;
+				while ((imbiophases > 0) && damu > 1) {
+					imbiophases--;
+					damu *= 10;
+					damu /= 11;
+				}
+			}
+			u.usymbiote.mhp -= damu;
+			Your("%s symbiote takes the damage for you.", mons[u.usymbiote.mnum].mname);
+			if (u.usymbiote.mhp <= 0) {
+				u.usymbiote.active = 0;
+				u.usymbiote.mnum = PM_PLAYERMON;
+				u.usymbiote.mhp = 0;
+				u.usymbiote.mhpmax = 0;
+				u.usymbiote.cursed = u.usymbiote.hvycurse = u.usymbiote.prmcurse = u.usymbiote.bbcurse = u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.stckcurse = 0;
+				u.cnd_symbiotesdied++;
+				if (FunnyHallu) pline("Ack! You feel like you quaffed aqua pura by mistake, and feel like something inside you has been flushed away!");
+				else Your("symbiote dies from protecting you, and you feel very sad...");
+			}
+			if (flags.showsymbiotehp) flags.botl = TRUE;
+		} else if (u.disruptionshield && u.uen >= damu) {
 			u.uen -= damu;
 			pline("Your mana shield takes the damage for you!");
 			flags.botl = 1;
@@ -687,6 +776,39 @@ boolean yours; /* is it your fault (for killing monsters) */
 		if (u.uprops[TURNLIMITATION].extrinsic || (uarmf && uarmf->oartifact == ART_OUT_OF_TIME) || (uarmu && uarmu->oartifact == ART_THERMAL_BATH) || TurnLimitation || have_limitationstone() ) {
 			if (damu > 0) u.ascensiontimelimit -= damu;
 			if (u.ascensiontimelimit < 1) u.ascensiontimelimit = 1;
+		}
+
+		if (Race_if(PM_CELTIC) && !rn2(100)) {
+			if (u.berserktime) {
+				if (!obsidianprotection()) switch (rn2(11)) {
+				case 0:
+					make_sick(Sick ? Sick/2L + 1L : (long)rn1(ACURR(A_CON),20), "celtic sickness", TRUE, SICK_NONVOMITABLE);
+					break;
+				case 1: make_blinded(Blinded + 25, TRUE);
+					break;
+				case 2: if (!Confusion)
+					You("suddenly feel %s.", FunnyHallu ? "trippy" : "confused");
+					make_confused(HConfusion + 25, TRUE);
+					break;
+				case 3: make_stunned(HStun + 25, TRUE);
+					break;
+				case 4: make_numbed(HNumbed + 25, TRUE);
+					break;
+				case 5: make_frozen(HFrozen + 25, TRUE);
+					break;
+				case 6: make_burned(HBurned + 25, TRUE);
+					break;
+				case 7: (void) adjattrib(rn2(A_MAX), -1, FALSE, TRUE);
+					break;
+				case 8: (void) make_hallucinated(HHallucination + 25, TRUE, 0L);
+					break;
+				case 9: make_feared(HFeared + 25, TRUE);
+					break;
+				case 10: make_dimmed(HDimmed + 25, TRUE);
+					break;
+				}
+
+			} else u.berserktime = 25;
 		}
 
 	}
@@ -788,7 +910,8 @@ struct obj *obj;			/* only scatter this obj        */
 
 	    /* 1 in 10 chance of destruction of obj; glass, egg destruction */
 	    } else if ((scflags & MAY_DESTROY) && (!rn2(10)
-			|| (objects[otmp->otyp].oc_material == GLASS
+			|| (objects[otmp->otyp].oc_material == MT_GLASS
+			|| objects[otmp->otyp].oc_material == MT_OBSIDIAN
 			|| otmp->otyp == EGG))) {
 		if (breaks(otmp, (xchar)sx, (xchar)sy)) used_up = TRUE;
 	    }
@@ -995,14 +1118,41 @@ boolean isyou;
     boolean shielded = FALSE, redraw;
     struct grenade_callback gc;
 
+    int xtrasiz = 0;
+    if (Role_if(PM_GRENADONIN)) {
+
+	if (isyou) {
+
+		xtrasiz += rnd(1 + (u.ulevel / 2));
+
+		if (!PlayerCannotUseSkills) {
+			switch (P_SKILL(P_FIREARM)) {
+
+		      	case P_BASIC:	xtrasiz += rnd(2); break;
+		      	case P_SKILLED:	xtrasiz += rnd(4); break;
+		      	case P_EXPERT:	xtrasiz += rnd(8); break;
+		      	case P_MASTER:	xtrasiz += rnd(12); break;
+		      	case P_GRAND_MASTER:	xtrasiz += rnd(18); break;
+		      	case P_SUPREME_MASTER:	xtrasiz += rnd(25); break;
+		      	default: break;
+			}		
+		}
+	} else xtrasiz += rno(20);
+
+    }
+
     if (source) {
-	if (source->otyp == GAS_GRENADE)
+	if (source->otyp == GAS_GRENADE) {
 	    no_gas += source->quan;
-	else if (source->otyp == FRAG_GRENADE)
+	    no_gas += xtrasiz;
+	} else if (source->otyp == FRAG_GRENADE) {
 	    no_fiery += source->quan;
-	else if (source->otyp == STICK_OF_DYNAMITE) {
+	    no_fiery += xtrasiz;
+	} else if (source->otyp == STICK_OF_DYNAMITE) {
 	    no_fiery += source->quan * 2;
+	    no_fiery += xtrasiz;
 	    no_dig += source->quan;
+	    no_dig += (xtrasiz / 2) + 1;
 	}
 	redraw = source->where == OBJ_FLOOR;
 	obj_extract_self(source);
@@ -1018,7 +1168,8 @@ boolean isyou;
 	} else {
 	    for(obj = mon->minvent; obj; obj = obj2) {
 		obj2 = obj->nobj;
-		GRENADE_TRIGGER(obj);
+		if (!Role_if(PM_GRENADONIN)) GRENADE_TRIGGER(obj);
+		if (Role_if(PM_GRENADONIN)) delquan = 0;
 		for(i = 0; i < delquan; i++)
 		    m_useup(mon, obj);
 	    }
@@ -1030,7 +1181,8 @@ boolean isyou;
 	else
 	    for(obj = invent; obj; obj = obj2) {
 		obj2 = obj->nobj;
-		GRENADE_TRIGGER(obj);
+		if (!Role_if(PM_GRENADONIN)) GRENADE_TRIGGER(obj);
+		if (Role_if(PM_GRENADONIN)) delquan = 0;
 		for(i = 0; i < delquan; i++)
 		    useup(obj);
 	    }
@@ -1038,7 +1190,8 @@ boolean isyou;
     if (!shielded)
 	for(obj = level.objects[x][y]; obj; obj = obj2) {
 	    obj2 = obj->nexthere;
-	    GRENADE_TRIGGER(obj);
+	    if (!Role_if(PM_GRENADONIN)) GRENADE_TRIGGER(obj);
+	    if (Role_if(PM_GRENADONIN)) delquan = 0;
 	    if (delquan) {
 		if (isyou)
 		    useupf(obj, delquan);
@@ -1097,6 +1250,38 @@ int dest;
     int ox, oy;
     ExplodeRegion *fiery_area, *gas_area, *dig_area;
     struct trap *trap;
+
+    int grenadedamage;
+
+    grenadedamage = d(3,6);
+
+    if (isyou) {
+	u.cnd_gunpowderused++;
+	use_skill(P_FIREARM, (obj && obj->otyp == STICK_OF_DYNAMITE) ? 5 : 1);
+    }
+
+    if (Role_if(PM_GRENADONIN)) {
+
+	if (isyou) {
+
+		grenadedamage += rnd(u.ulevel * 2);
+		if (!rn2(5)) grenadedamage += rnd(u.ulevel);
+
+		if (!PlayerCannotUseSkills) {
+			switch (P_SKILL(P_FIREARM)) {
+
+		      	case P_BASIC:	grenadedamage += rnd(6); break;
+		      	case P_SKILLED:	grenadedamage += rnd(13); break;
+		      	case P_EXPERT:	grenadedamage += rnd(24); break;
+		      	case P_MASTER:	grenadedamage += rnd(40); break;
+		      	case P_GRAND_MASTER:	grenadedamage += rnd(60); break;
+		      	case P_SUPREME_MASTER:	grenadedamage += rnd(80); break;
+		      	default: break;
+			}		
+		}
+	} else grenadedamage += d(3,6);
+
+    }
     
     fiery_area = create_explode_region();
     gas_area = create_explode_region();
@@ -1104,7 +1289,7 @@ int dest;
     grenade_effects(obj, x, y, fiery_area, gas_area, dig_area, isyou);
     if (fiery_area->nlocations) {
 	ztype = isyou ? ZT_SPELL(ZT_FIRE) : -ZT_SPELL(ZT_FIRE);
-	do_explode(x, y, fiery_area, ztype, d(3,6), WEAPON_CLASS,
+	do_explode(x, y, fiery_area, ztype, grenadedamage, WEAPON_CLASS,
 	  EXPL_FIERY, dest, isyou);
     }
     wake_nearto(x, y, 400);

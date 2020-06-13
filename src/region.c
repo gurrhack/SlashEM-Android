@@ -818,7 +818,7 @@ void * p2;
     if (p2 == NULL) {		/* That means the player */
 	if (!Blind)
 		You("bump into %s. Ouch!",
-		    Hallucination ? "an invisible tree" :
+		    FunnyHallu ? "an invisible tree" :
 			"some kind of invisible wall");
 	else
 	    pline("Ouch!");
@@ -943,7 +943,7 @@ void * p2;
 	    return FALSE;
 	if (!Blind)
 	    make_blinded(1L, FALSE);
-	if (!Poison_resistance) {
+	if (!Poison_resistance || (!rn2(10) && !StrongPoison_resistance) ) {
 	    pline("%s is burning your %s!", Something, makeplural(body_part(LUNG)));
 	    You("cough and spit blood!");
 	    losehp(rnd(dam) + 5, "gas cloud", KILLED_BY_AN);
@@ -1020,8 +1020,13 @@ int damage;
 	tmprect.hy--;
     }
     cloud->ttl = rn1(3,4);
-    if (!in_mklev && !flags.mon_moving)
+    if (!in_mklev && !flags.mon_moving) {
 	set_heros_fault(cloud);		/* assume player has created it */
+	if (practicantterror) {
+		pline("%s booms: 'You're causing a smelling nuisance! That's very definitely not allowed, so you pay 2000 zorkmids now and then stop stinking around in my lab!'", noroelaname());
+		fineforpracticant(2000, 0, 0);
+	}
+    }
     cloud->inside_f = INSIDE_GAS_CLOUD;
     cloud->expire_f = EXPIRE_GAS_CLOUD;
     cloud->arg = (void *) damage;

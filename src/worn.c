@@ -431,14 +431,14 @@ boolean creation;
 
 	m_dowear_type(mon, W_AMUL, creation, FALSE);
 
-	  if (is_animal(mon->data)) return;
+	  if (!creation && is_animal(mon->data)) return;
 
 	/* can't put on shirt if already wearing suit */
-	if (!cantweararm(mon->data) || (mon->misc_worn_check & W_ARM) || mon->data->msize == MZ_SMALL)
+	if ( (!cantweararm(mon->data) || (creation && !verysmall(mon->data) && (mon->data->msize <= MZ_LARGE) ) ) || (mon->misc_worn_check & W_ARM) || mon->data->msize == MZ_SMALL)
 	    m_dowear_type(mon, W_ARMU, creation, FALSE);
 	/* treating small as a special case allows
 	   hobbits, gnomes, and kobolds to wear cloaks */
-	if (!cantweararm(mon->data) || mon->data->msize == MZ_SMALL)
+	if ( (!cantweararm(mon->data) || (creation && !verysmall(mon->data) && (mon->data->msize <= MZ_LARGE) ) ) || mon->data->msize == MZ_SMALL)
 	    m_dowear_type(mon, W_ARMC, creation, FALSE);
 	m_dowear_type(mon, W_ARMH, creation, FALSE);
 	if (!MON_WEP(mon) || !bimanual(MON_WEP(mon)))
@@ -446,7 +446,7 @@ boolean creation;
 	m_dowear_type(mon, W_ARMG, creation, FALSE);
 	if ((!slithy(mon->data) && mon->data->mlet != S_CENTAUR) || !issoviet)
 	    m_dowear_type(mon, W_ARMF, creation, FALSE);
-	if (!cantweararm(mon->data))
+	if (!cantweararm(mon->data) || (creation && !verysmall(mon->data) && (mon->data->msize <= MZ_LARGE) ) )
 	    m_dowear_type(mon, W_ARM, creation, FALSE);
 	else
 	    m_dowear_type(mon, W_ARM, creation, RACE_EXCEPTION);
@@ -504,7 +504,7 @@ boolean racialexception;
 		case W_ARMH:
 		    if (!is_helmet(obj)) continue;
 		    /* (flimsy exception matches polyself handling) */
-		    if (has_horns(mon->data) && !is_flimsy(obj)) continue;
+		    if (!creation && has_horns(mon->data) && !is_flimsy(obj)) continue;
 		    break;
 		case W_ARMS:
 		    if (!is_shield(obj)) continue;
@@ -517,7 +517,7 @@ boolean racialexception;
 		    break;
 		case W_ARM:
 		    if (!is_suit(obj)) continue;
-		    if (racialexception && (racial_exception(mon, obj) < 1)) continue;
+		    if (!creation && racialexception && (racial_exception(mon, obj) < 1)) continue;
 		    break;
 	    }
 	    if (obj->owornmask) continue;
@@ -797,7 +797,7 @@ boolean polyspot;
 	} else if (mon == u.usteed && !can_ride(mon)) {
 	noride:
 	    You("can no longer ride %s.", mon_nam(mon));
-	    if (touch_petrifies(u.usteed->data) && !Stone_resistance && !(uarmg && !FingerlessGloves && uarmu && uarm && uarmc) && rnl(3)) {
+	    if (touch_petrifies(u.usteed->data) && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && !(uarmg && !FingerlessGloves && uarmu && uarm && uarmc) && rnl(3)) {
 		char buf[BUFSZ];
 
 		You("touch %s.", mon_nam(u.usteed));

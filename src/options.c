@@ -152,9 +152,7 @@ static struct Bool_Opt
 #else
 	{"ignintr", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
-#ifdef ANDROID
-    { "implicit_uncursed", &iflags.implicit_uncursed, FALSE, SET_IN_GAME },
-#endif
+	{"inertiaconfirm", &flags.inertiaconfirm, FALSE, SET_IN_GAME},
 #ifdef SHOW_WEIGHT
 	{"invweight", &flags.invweight, TRUE, SET_IN_GAME},
 #else
@@ -184,6 +182,8 @@ static struct Bool_Opt
 #endif
 
 	{"materialglyph", &flags.materialglyph, FALSE, SET_IN_GAME},
+
+	{"memorizationknown", &iflags.memorizationknown, FALSE, SET_IN_GAME},
 
 #if defined(STATUS_COLORS) && defined(TEXTCOLOR)
 	{"statuscolors", &iflags.use_status_colors, TRUE, SET_IN_GAME},
@@ -240,6 +240,7 @@ static struct Bool_Opt
 #else
 	{"page_wait", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
+	{"paranoidquit", &flags.paranoidquit, TRUE, SET_IN_GAME},
 	{"perm_invent", &flags.perm_invent, TRUE, SET_IN_GAME},
 	{"pickup_thrown", &flags.pickup_thrown, TRUE, SET_IN_GAME},
 	{"pickup_cursed", &flags.pickup_cursed, FALSE, SET_IN_GAME},
@@ -291,8 +292,10 @@ static struct Bool_Opt
 	{"showmovement", &flags.showmovement, FALSE, SET_IN_GAME},
 	{"showlongstats", &flags.showlongstats, FALSE, SET_IN_GAME},
 	{"showsanity", &flags.showsanity, FALSE, SET_IN_GAME},
+	{"showsymbiotehp", &flags.showsymbiotehp, FALSE, SET_IN_GAME},
 
 	{"silent", &flags.silent, TRUE, SET_IN_GAME},
+	{"simpledescs", &flags.simpledescs, FALSE, SET_IN_GAME},
 	{"softkeyboard", &iflags.wc2_softkeyboard, FALSE, SET_IN_FILE},
 	{"sortpack", &flags.sortpack, TRUE, SET_IN_GAME},
 	{"sound", &flags.soundok, TRUE, SET_IN_GAME},
@@ -339,39 +342,52 @@ static struct Bool_Opt
 	{"gmmode", &flags.gmmode, FALSE, DISP_IN_GAME}, 
 	{"supergmmode", &flags.supergmmode, FALSE, DISP_IN_GAME}, 
 	{"wonderland", &flags.wonderland, FALSE, DISP_IN_GAME}, 
+	{"zapem", &flags.zapem, FALSE, DISP_IN_GAME}, 
 
 	{"askforalias", &flags.askforalias, FALSE, DISP_IN_GAME}, 
 
-	{"hybridangbander", &flags.hybridangbander, FALSE, DISP_IN_GAME}, 
-	{"hybridaquarian", &flags.hybridaquarian, FALSE, DISP_IN_GAME}, 
-	{"hybridcurser", &flags.hybridcurser, FALSE, DISP_IN_GAME}, 
-	{"hybridhaxor", &flags.hybridhaxor, FALSE, DISP_IN_GAME}, 
-	{"hybridhomicider", &flags.hybridhomicider, FALSE, DISP_IN_GAME}, 
-	{"hybridsuxxor", &flags.hybridsuxxor, FALSE, DISP_IN_GAME}, 
-	{"hybridwarper", &flags.hybridwarper, FALSE, DISP_IN_GAME}, 
-	{"hybridrandomizer", &flags.hybridrandomizer, FALSE, DISP_IN_GAME}, 
-	{"hybridnullrace", &flags.hybridnullrace, FALSE, DISP_IN_GAME}, 
-	{"hybridmazewalker", &flags.hybridmazewalker, FALSE, DISP_IN_GAME}, 
-	{"hybridsoviet", &flags.hybridsoviet, FALSE, DISP_IN_GAME}, 
-	{"hybridxrace", &flags.hybridxrace, FALSE, DISP_IN_GAME}, 
-	{"hybridheretic", &flags.hybridheretic, FALSE, DISP_IN_GAME}, 
-	{"hybridsokosolver", &flags.hybridsokosolver, FALSE, DISP_IN_GAME}, 
-	{"hybridspecialist", &flags.hybridspecialist, FALSE, DISP_IN_GAME}, 
-	{"hybridamerican", &flags.hybridamerican, FALSE, DISP_IN_GAME}, 
-	{"hybridminimalist", &flags.hybridminimalist, FALSE, DISP_IN_GAME}, 
-	{"hybridnastinator", &flags.hybridnastinator, FALSE, DISP_IN_GAME}, 
-	{"hybridrougelike", &flags.hybridrougelike, FALSE, DISP_IN_GAME}, 
-	{"hybridsegfaulter", &flags.hybridsegfaulter, FALSE, DISP_IN_GAME}, 
-	{"hybridironman", &flags.hybridironman, FALSE, DISP_IN_GAME}, 
-	{"hybridamnesiac", &flags.hybridamnesiac, FALSE, DISP_IN_GAME}, 
-	{"hybridproblematic", &flags.hybridproblematic, FALSE, DISP_IN_GAME}, 
-	{"hybridwindinhabitant", &flags.hybridwindinhabitant, FALSE, DISP_IN_GAME}, 
-	{"hybridaggravator", &flags.hybridaggravator, FALSE, DISP_IN_GAME}, 
-	{"hybridevilvariant", &flags.hybridevilvariant, FALSE, DISP_IN_GAME}, 
-	{"hybridlevelscaler", &flags.hybridlevelscaler, FALSE, DISP_IN_GAME}, 
-	{"hybriderosator", &flags.hybriderosator, FALSE, DISP_IN_GAME}, 
-	{"hybridroommate", &flags.hybridroommate, FALSE, DISP_IN_GAME}, 
-	{"hybridextravator", &flags.hybridextravator, FALSE, DISP_IN_GAME}, 
+	{"hybridangbander", &flags.hybridangbander, FALSE, SET_IN_FILE}, 
+	{"hybridaquarian", &flags.hybridaquarian, FALSE, SET_IN_FILE}, 
+	{"hybridcurser", &flags.hybridcurser, FALSE, SET_IN_FILE}, 
+	{"hybridhaxor", &flags.hybridhaxor, FALSE, SET_IN_FILE}, 
+	{"hybridhomicider", &flags.hybridhomicider, FALSE, SET_IN_FILE}, 
+	{"hybridsuxxor", &flags.hybridsuxxor, FALSE, SET_IN_FILE}, 
+	{"hybridwarper", &flags.hybridwarper, FALSE, SET_IN_FILE}, 
+	{"hybridrandomizer", &flags.hybridrandomizer, FALSE, SET_IN_FILE}, 
+	{"hybridnullrace", &flags.hybridnullrace, FALSE, SET_IN_FILE}, 
+	{"hybridmazewalker", &flags.hybridmazewalker, FALSE, SET_IN_FILE}, 
+	{"hybridsoviet", &flags.hybridsoviet, FALSE, SET_IN_FILE}, 
+	{"hybridxrace", &flags.hybridxrace, FALSE, SET_IN_FILE}, 
+	{"hybridheretic", &flags.hybridheretic, FALSE, SET_IN_FILE}, 
+	{"hybridsokosolver", &flags.hybridsokosolver, FALSE, SET_IN_FILE}, 
+	{"hybridspecialist", &flags.hybridspecialist, FALSE, SET_IN_FILE}, 
+	{"hybridamerican", &flags.hybridamerican, FALSE, SET_IN_FILE}, 
+	{"hybridminimalist", &flags.hybridminimalist, FALSE, SET_IN_FILE}, 
+	{"hybridnastinator", &flags.hybridnastinator, FALSE, SET_IN_FILE}, 
+	{"hybridrougelike", &flags.hybridrougelike, FALSE, SET_IN_FILE}, 
+	{"hybridsegfaulter", &flags.hybridsegfaulter, FALSE, SET_IN_FILE}, 
+	{"hybridironman", &flags.hybridironman, FALSE, SET_IN_FILE}, 
+	{"hybridamnesiac", &flags.hybridamnesiac, FALSE, SET_IN_FILE}, 
+	{"hybridproblematic", &flags.hybridproblematic, FALSE, SET_IN_FILE}, 
+	{"hybridwindinhabitant", &flags.hybridwindinhabitant, FALSE, SET_IN_FILE}, 
+	{"hybridaggravator", &flags.hybridaggravator, FALSE, SET_IN_FILE}, 
+	{"hybridevilvariant", &flags.hybridevilvariant, FALSE, SET_IN_FILE}, 
+	{"hybridlevelscaler", &flags.hybridlevelscaler, FALSE, SET_IN_FILE}, 
+	{"hybriderosator", &flags.hybriderosator, FALSE, SET_IN_FILE}, 
+	{"hybridroommate", &flags.hybridroommate, FALSE, SET_IN_FILE}, 
+	{"hybridextravator", &flags.hybridextravator, FALSE, SET_IN_FILE}, 
+	{"hybridhallucinator", &flags.hybridhallucinator, FALSE, SET_IN_FILE}, 
+	{"hybridbossrusher", &flags.hybridbossrusher, FALSE, SET_IN_FILE}, 
+	{"hybriddorian", &flags.hybriddorian, FALSE, SET_IN_FILE}, 
+	{"hybridtechless", &flags.hybridtechless, FALSE, SET_IN_FILE}, 
+	{"hybridblait", &flags.hybridblait, FALSE, SET_IN_FILE}, 
+	{"hybridgrouper", &flags.hybridgrouper, FALSE, SET_IN_FILE}, 
+	{"hybridscriptor", &flags.hybridscriptor, FALSE, SET_IN_FILE}, 
+	{"hybridunbalancor", &flags.hybridunbalancor, FALSE, SET_IN_FILE}, 
+	{"hybridbeacher", &flags.hybridbeacher, FALSE, SET_IN_FILE}, 
+	{"hybridstairseeker", &flags.hybridstairseeker, FALSE, SET_IN_FILE}, 
+	{"hybridmatrayser", &flags.hybridmatrayser, FALSE, SET_IN_FILE}, 
+	{"hybridfeminizer", &flags.hybridfeminizer, FALSE, SET_IN_FILE}, 
 
 	{"randomhybrids", &flags.randomhybrids, TRUE, DISP_IN_GAME},
 
@@ -527,6 +543,7 @@ static struct Comp_Opt
 	{ "scroll_amount", "amount to scroll map when scroll_margin is reached",
 						20, DISP_IN_GAME }, /*WC*/
 	{ "scroll_margin", "scroll map when this far from the edge", 20, DISP_IN_GAME }, /*WC*/
+	{ "sortloot", "sort object selection lists by description", 4, SET_IN_GAME },
 #ifdef MSDOS
 	{ "soundcard", "type of sound card to use", 20, SET_IN_FILE },
 #endif
@@ -778,6 +795,7 @@ initoptions()
 		     (void *)def_inv_order, sizeof flags.inv_order);
 	flags.pickup_types[0] = '\0';
 	flags.pickup_burden = MOD_ENCUMBER;
+	iflags.sortloot = 'n';
 
 	for (i = 0; i < NUM_DISCLOSURE_OPTIONS; i++)
 		flags.end_disclose[i] = DISCLOSE_PROMPT_DEFAULT_NO;
@@ -879,64 +897,96 @@ nmcpy(dest, src, maxlen)
 }
 
 /*
- * escapes: escape expansion for showsyms. C-style escapes understood include
- * \n, \b, \t, \r, \xnnn (hex), \onnn (octal), \nnn (decimal). The ^-prefix
- * for control characters is also understood, and \[mM] followed by any of the
- * previous forms or by a character has the effect of 'meta'-ing the value (so
- * that the alternate character set will be enabled).
+ * escapes(): escape expansion for showsyms.  C-style escapes understood
+ * include \n, \b, \t, \r, \xnnn (hex), \onnn (octal), \nnn (decimal).
+ * (Note: unlike in C, leading digit 0 is not used to indicate octal;
+ * the letter o (either upper or lower case) is used for that.
+ * The ^-prefix for control characters is also understood, and \[mM]
+ * has the effect of 'meta'-ing the value which follows (so that the
+ * alternate character set will be enabled).
+ *
+ * X     normal key X
+ * ^X    control-X
+ * \mX   meta-X
+ *
+ * For 3.4.3 and earlier, input ending with "\M", backslash, or caret
+ * prior to terminating '\0' would pull that '\0' into the output and then
+ * keep processing past it, potentially overflowing the output buffer.
+ * Now, trailing \ or ^ will act like \\ or \^ and add '\\' or '^' to the
+ * output and stop there; trailing \M will fall through to \<other> and
+ * yield 'M', then stop.  Any \X or \O followed by something other than
+ * an appropriate digit will also fall through to \<other> and yield 'X'
+ * or 'O', plus stop if the non-digit is end-of-string.
  */
 STATIC_OVL void
 escapes(cp, tp)
-const char	*cp;
-char *tp;
+const char *cp; /* might be 'tp', updating in place */
+char *tp; /* result is never longer than 'cp' */
 {
-    while (*cp)
-    {
-	int	cval = 0, meta = 0;
+    static NEARDATA const char oct[] = "01234567", dec[] = "0123456789",
+                               hex[] = "00112233445566778899aAbBcCdDeEfF";
+    const char *dp;
+    int cval, meta, dcount;
 
-	if (*cp == '\\' && index("mM", cp[1])) {
-		meta = 1;
+    while (*cp) {
+        /* \M has to be followed by something to do meta conversion,
+           otherwise it will just be \M which ultimately yields 'M' */
+        meta = (*cp == '\\' && (cp[1] == 'm' || cp[1] == 'M') && cp[2]);
+        if (meta)
 		cp += 2;
-	}
-	if (*cp == '\\' && index("0123456789xXoO", cp[1]))
-	{
-	    const char *dp, *hex = "00112233445566778899aAbBcCdDeEfF";
-	    int dcount = 0;
 
-	    cp++;
-	    if (*cp == 'x' || *cp == 'X')
-		for (++cp; (dp = index(hex, *cp)) && (dcount++ < 2); cp++)
-		    cval = (cval * 16) + (dp - hex) / 2;
-	    else if (*cp == 'o' || *cp == 'O')
-		for (++cp; (index("01234567",*cp)) && (dcount++ < 3); cp++)
+        cval = dcount = 0; /* for decimal, octal, hexadecimal cases */
+        if ((*cp != '\\' && *cp != '^') || !cp[1]) {
+            /* simple character, or nothing left for \ or ^ to escape */
+            cval = *cp++;
+        } else if (*cp == '^') { /* expand control-character syntax */
+            cval = (*++cp & 0x1f);
+            ++cp;
+
+        /* remaining cases are all for backslash; we know cp[1] is not \0 */
+        } else if (index(dec, cp[1])) {
+            ++cp; /* move past backslash to first digit */
+            do {
+                cval = (cval * 10) + (*cp - '0');
+            } while (*++cp && index(dec, *cp) && ++dcount < 3);
+        } else if ((cp[1] == 'o' || cp[1] == 'O') && cp[2]
+                   && index(oct, cp[2])) {
+            cp += 2; /* move past backslash and 'O' */
+            do {
 		    cval = (cval * 8) + (*cp - '0');
-	    else
-		for (; (index("0123456789",*cp)) && (dcount++ < 3); cp++)
-		    cval = (cval * 10) + (*cp - '0');
+            } while (*++cp && index(oct, *cp) && ++dcount < 3);
+        } else if ((cp[1] == 'x' || cp[1] == 'X') && cp[2]
+                   && (dp = index(hex, cp[2])) != 0) {
+            cp += 2; /* move past backslash and 'X' */
+            do {
+                cval = (cval * 16) + ((int) (dp - hex) / 2);
+            } while (*++cp && (dp = index(hex, *cp)) != 0 && ++dcount < 2);
+        } else { /* C-style character escapes */
+            switch (*++cp) {
+            case '\\':
+                cval = '\\';
+                break;
+            case 'n':
+                cval = '\n';
+                break;
+            case 't':
+                cval = '\t';
+                break;
+            case 'b':
+                cval = '\b';
+                break;
+            case 'r':
+                cval = '\r';
+                break;
+            default:
+                cval = *cp;
 	}
-	else if (*cp == '\\')		/* C-style character escapes */
-	{
-	    switch (*++cp)
-	    {
-	    case '\\': cval = '\\'; break;
-	    case 'n': cval = '\n'; break;
-	    case 't': cval = '\t'; break;
-	    case 'b': cval = '\b'; break;
-	    case 'r': cval = '\r'; break;
-	    default: cval = *cp;
+            ++cp;
 	    }
-	    cp++;
-	}
-	else if (*cp == '^')		/* expand control-character syntax */
-	{
-	    cval = (*++cp & 0x1f);
-	    cp++;
-	}
-	else
-	    cval = *cp++;
+
 	if (meta)
 	    cval |= 0x80;
-	*tp++ = cval;
+        *tp++ = (char) cval;
     }
     *tp = '\0';
 }
@@ -1669,6 +1719,42 @@ boolean tinitial, tfrom_file;
 		flags.hybridization++;
 	}
 	if (match_optname(opts, "hybridextravator", 16, FALSE)) {
+		flags.hybridization++;
+	}
+	if (match_optname(opts, "hybridhallucinator", 18, FALSE)) {
+		flags.hybridization++;
+	}
+	if (match_optname(opts, "hybridbossrusher", 16, FALSE)) {
+		flags.hybridization++;
+	}
+	if (match_optname(opts, "hybriddorian", 12, FALSE)) {
+		flags.hybridization++;
+	}
+	if (match_optname(opts, "hybridtechless", 14, FALSE)) {
+		flags.hybridization++;
+	}
+	if (match_optname(opts, "hybridblait", 11, FALSE)) {
+		flags.hybridization++;
+	}
+	if (match_optname(opts, "hybridgrouper", 13, FALSE)) {
+		flags.hybridization++;
+	}
+	if (match_optname(opts, "hybridscriptor", 14, FALSE)) {
+		flags.hybridization++;
+	}
+	if (match_optname(opts, "hybridunbalancor", 16, FALSE)) {
+		flags.hybridization++;
+	}
+	if (match_optname(opts, "hybridbeacher", 13, FALSE)) {
+		flags.hybridization++;
+	}
+	if (match_optname(opts, "hybridstairseeker", 17, FALSE)) {
+		flags.hybridization++;
+	}
+	if (match_optname(opts, "hybridmatrayser", 15, FALSE)) {
+		flags.hybridization++;
+	}
+	if (match_optname(opts, "hybridfeminizer", 15, FALSE)) {
 		flags.hybridization++;
 	}
 
@@ -2484,7 +2570,7 @@ goodfruit:
 			    flags.menu_style == MENU_COMBINATION) {
 			use_menu = FALSE;
 			sprintf(qbuf, "New pickup_types: [%s am] (%s)",
-				ocl, *tbuf ? tbuf : "all");
+				ocl, *tbuf ? tbuf : "none");
 			getlin(qbuf, abuf);
 			op = mungspaces(abuf);
 			if (abuf[0] == '\0' || abuf[0] == '\033')
@@ -2677,6 +2763,22 @@ goodfruit:
 	    return;
 	}
 	
+	fullname = "sortloot";
+	if (match_optname(opts, fullname, 4, TRUE)) {
+	        op = string_for_env_opt(fullname, opts, FALSE);
+	        if (op) {
+	                switch (tolower(*op)) {
+	                 case 'n':
+	                 case 'l':
+	                 case 'f': iflags.sortloot = tolower(*op);
+	                        break;
+	                 default:  badoption(opts);
+	                        return;
+	                }
+	        }
+	        return;
+	}
+
 	fullname = "suppress_alert";
 	if (match_optname(opts, fullname, 4, TRUE)) {
 		op = string_for_opt(opts, negated);
@@ -2888,7 +2990,12 @@ goodfruit:
 		return;
 	}
 	fullname = "windowtype";
-	if (match_optname(opts, fullname, 3, TRUE)) {
+
+	if (
+#ifdef AWFUL_CURSES
+		FALSE &&
+#endif
+	    match_optname(opts, fullname, 3, TRUE)) {
 	    if (negated) {
 		bad_negation(fullname, FALSE);
 		return;
@@ -2918,7 +3025,7 @@ goodfruit:
 	fullname = "term_cols";
 	if (match_optname(opts, fullname, sizeof("term_cols")-1, TRUE)) {
 		op = string_for_opt(opts, negated);
-		iflags.wc2_term_cols = atoi(op);
+		iflags.wc2_term_cols = op ? atoi(op) : 0;
 		if (negated) bad_negation(fullname, FALSE);
 		return;
 	}
@@ -2928,7 +3035,7 @@ goodfruit:
 	fullname = "term_rows";
 	if (match_optname(opts, fullname, sizeof("term_rows")-1, TRUE)) {
 		op = string_for_opt(opts, negated);
-		iflags.wc2_term_rows = atoi(op);
+		iflags.wc2_term_rows = op ? atoi(op) : 0;
 		if (negated) bad_negation(fullname, FALSE);
 		return;
 	}
@@ -3072,6 +3179,12 @@ goodfruit:
 			    return;
 			}
 
+			if (iflags.debug_fuzzer && !initial) {
+                		/* don't randomly toggle this/these */
+                		if (boolopt[i].addr == &flags.silent) return;
+				if (boolopt[i].addr == &flags.ins_chkpt) return;
+			}
+
 			*(boolopt[i].addr) = !negated;
 
 			duplicate_opt_detection(boolopt[i].name, 0);
@@ -3141,6 +3254,7 @@ goodfruit:
 			 || (boolopt[i].addr) == &flags.showmovement
 			 || (boolopt[i].addr) == &flags.showsanity
 			 || (boolopt[i].addr) == &flags.showlongstats
+			 || (boolopt[i].addr) == &flags.showsymbiotehp
 
 			    )
 			    bot_reconfig();
@@ -3381,6 +3495,10 @@ static NEARDATA const char *burdentype[] = {
 
 static NEARDATA const char *runmodes[] = {
 	"teleport", "run", "walk", "crawl"
+};
+
+static NEARDATA const char *sortltype[] = {
+       "none", "loot", "full"
 };
 
 /*
@@ -3825,6 +3943,24 @@ boolean setinitial,setfromfile;
 	}
 	destroy_nhwindow(tmpwin);
 	retval = TRUE;
+    } else if (!strcmp("sortloot", optname)) {
+       const char *sortl_name;
+       menu_item *sortl_pick = (menu_item *)0;
+       tmpwin = create_nhwindow(NHW_MENU);
+       start_menu(tmpwin);
+       for (i = 0; i < SIZE(sortltype); i++) {
+           sortl_name = sortltype[i];
+           any.a_char = *sortl_name;
+           add_menu(tmpwin, NO_GLYPH, &any, *sortl_name, 0,
+                    ATR_NONE, sortl_name, MENU_UNSELECTED);
+       }
+       end_menu(tmpwin, "Select loot sorting type:");
+       if (select_menu(tmpwin, PICK_ONE, &sortl_pick) > 0) {
+           iflags.sortloot = sortl_pick->item.a_char;
+           free((void *)sortl_pick);
+       }
+       destroy_nhwindow(tmpwin);
+       retval = TRUE;
     } 
 #ifdef TTY_GRAPHICS
       else if (!strcmp("msg_window", optname)) {
@@ -4233,7 +4369,7 @@ char *buf;
 		sprintf(buf, "%s", burdentype[flags.pickup_burden] );
 	else if (!strcmp(optname, "pickup_types")) {
 		oc_to_str(flags.pickup_types, ocl);
-		sprintf(buf, "%s", ocl[0] ? ocl : "all" );
+		sprintf(buf, "%s", ocl[0] ? ocl : "none" );
 	     }
 	else if (!strcmp(optname, "pilesize")) {
 		sprintf(buf, "%u", iflags.pilesize);
@@ -4259,6 +4395,15 @@ char *buf;
 	else if (!strcmp(optname, "scroll_margin")) {
 		if (iflags.wc_scroll_margin) sprintf(buf, "%d",iflags.wc_scroll_margin);
 		else strcpy(buf, defopt);
+	}
+	else if (!strcmp(optname, "sortloot")) {
+	        char *sortname = (char *)NULL;
+	        for (i=0; i < SIZE(sortltype) && sortname==(char *)NULL; i++) {
+	           if (iflags.sortloot == sortltype[i][0])
+	             sortname = (char *)sortltype[i];
+	        }
+	        if (sortname != (char *)NULL)
+	           sprintf(buf, "%s", sortname);
 	}
 	else if (!strcmp(optname, "player_selection"))
 		sprintf(buf, "%s", iflags.wc_player_selection ? "prompts" : "dialog");
@@ -4370,7 +4515,7 @@ dotogglepickup()
 	flags.pickup = !flags.pickup;
 	if (flags.pickup) {
 	    oc_to_str(flags.pickup_types, ocl);
-	    sprintf(buf, "ON, for %s objects%s", ocl[0] ? ocl : "all",
+	    sprintf(buf, "ON, for %s objects%s", ocl[0] ? ocl : "no",
 #ifdef AUTOPICKUP_EXCEPTIONS
 			(iflags.autopickup_exceptions[AP_LEAVE] ||
 			 iflags.autopickup_exceptions[AP_GRAB]) ?

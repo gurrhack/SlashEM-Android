@@ -36,6 +36,12 @@ static const char * const shkliquors[] = {
     /* Schweiz */
     "Leuk", "Brig", "Brienz", "Thun", "Sarnen", "Burglen", "Elm",
     "Flims", "Vals", "Schuls", "Zum Loch",
+    /* Mythology */
+	"Aganippe", "Appias", "Bolbe", "Limnaee", "Pallas", "Tritonis",
+	"Abarbarea", "Aegina", "Asopis", "Chalcis", "Cleone", "Combe",
+	"Corcyra", "Euboea", "Gargaphia", "Harpina", "Ismene", "Nemea",
+	"Ornea", "Peirene", "Salamis", "Sinope", "Tanagra", "Thebe",
+	"Thespeia",
 
 	"Schwiederloch", "Shol", "Pfahlhirsch", "Spendthrift",
 	"Heartfont", "Chansina", "Delilah", "Marihuana", "Boeing",
@@ -57,6 +63,8 @@ static const char * const shkbooks[] = {
     "Droichead Atha", "Inniscrone", "Clonegal", "Lisnaskea",
     "Culdaff", "Dunfanaghy", "Inishbofin", "Kesh",
     "Loughrea", "Croagh", "Maumakeogh", "Ballyjamesduff",
+    /* Deep Ones */
+	"Gilman", "Marsh", "Banks", "Waite", "Eliot", "Olmstead",
 
 	"Benderaz", "Nagano", "Newbig", "Hayabusa", "Eckart",
 	"Usanna", "Tresh", "Also Matte", "SIR", "Schroeder", "Shmeil",
@@ -155,6 +163,27 @@ static const char * const shkweapons[] = {
     "Cazelon", "Eypau", "Carignan", "Monbazillac", "Jonzac",
     "Pons", "Jumilhac", "Fenouilledes", "Laguiolet", "Saujon",
     "Eymoutiers", "Eygurande", "Eauze", "Labouheyre",
+    /* Orkney http://www.contrib.andrew.cmu.edu/~grm/orkney.html */
+	"Crystie", "Marie", "Hector", "Inggagarth", "Cuthbert", "Marion",
+	"Ninian", "Margret", "Edduard", "Alisoun", "Androw", "Christeane",
+	"Henrie", "Sonneta", "Brandam", "Anne", "Malcolm", "Gelis", "Magnus",
+	"Katherein", "Edwart", "Katherine", "Johnne", "Cristiane", "Troelius",
+	"Helline", "Robertt", "Elspet", "Criste", "Alesoun", "Adam", "Helene",
+	"Williame", "Margrete", "Gibboun", "Mariota", "Niniane", "Margarete",
+	"Hugh", "Effe",
+    /* GTA 3 */
+    "Claude", "Catalina", "8-Ball", "Salvatore",
+    /* Vice City */
+    "Tommy", "Ken", "Vance", "Sonny", "Ricardo",
+    /* San Andreas */
+    "Carl", "Sean", "Melvin", "Wilson", /* don't want "Lance" twice, sorry Soviet --Amy */
+    /* 4 */
+    "Niko", "Dimitri", "Mikhail", "Vlad",
+    /* Chinatown Wars */
+    "Huang", "Wu",
+    /* GTAV */
+    "Michael", "Franklin", "Trevor", "Steve",
+    "Weston",
 
 	"Legel", "Deathstrike", "Arschegast", "Mashevka", "Valus",
 	"Arm Chest Contractor", "Falcon", "Al Capone", "Schrack", "Mach",
@@ -210,7 +239,9 @@ static const char * const shktools[] = {
 	"Ahtariz", "Tlov", "Sohtilixitirk", "Nasrekir", "Owthtiek",
 	"Ledanagan", "Yoreel", "Garena", "Tsitonpyh", "Esoreci",
 	"Ikustodam", "Elomacaug Gnimalf", "Qretep", "Blevap", "Tnepocard",
-	"Plug Itna",
+	"Plug Itna", "Oirdna", "Etinatem", "Lyrebyerg", "Nossllep",
+	"Esulcer", "Anelam", "Tsaebknip", "Enamkcim", "Namkrop",
+	"Goomorcim", "Rolam", "Kelrem", "Nomedcisum",
 
     0
 };
@@ -224,12 +255,21 @@ static const char * const shklight[] = {
     "Silistra", "Tulovo", "Panagyuritshte", "Smolyan", "Kirklareli",
     "Pernik", "Lom", "Haskovo", "Dobrinishte", "Varvara", "Oryahovo",
     "Troyan", "Lovech", "Sliven",
+    /* Brazil */
+    "Andre", "Daniel", "Tiago", "Alexandre", "Joao", 
+    "Carlos", "Fabio", "Ricardo", "Gustavo", "Rafael",
+    "Felipe", "Anderson", "Jorge", "Paulo", "Jose",
+    "Rogerio", "Roberto", "Marcos", "Luis", "Luciano",
 
 	"Habich", "Trong-Oul", "Dumont", "Dumas", "Vittel", "Hattrick",
 	"Pekriah", "Innocentia", "Diagna", "Castor", "Ronaldo", "Ganden",
 	"Jasmine", "Zora", "Burner", "Dobrindt", "Bramfield", "Compton",
 	"Edgerton", "Fraidycat", "Hancock", "Jenner", "Lillyliver", "Moore",
 	"Poltroon", "Scroggs", "Thursby", "Withinghall",
+	"Dimaethor", "Hador", "Grond", "Hast", "Maeth",
+	"Rom", "Belegur", "Camaen", "Elvedui", "Gwaedh",
+	"Maen", "Maerphen", "Alagos", "Gaeralagos",
+	"Faimben", "Fain", "Loss", "Cugu",
     0
 };
 
@@ -248,6 +288,11 @@ static const char * const shkgeneral[] = {
     /* Iceland */
     "Akureyri", "Kopasker", "Budereyri", "Akranes", "Bordeyri",
     "Holmavik",
+    /* Marathi */
+	"Punita", "Shakuntala", "Richa", "Ninad", "Nikhil", "Sumeet",
+	"Roshni", "Mohan", "Ranjeet", "Bipin", "Madhuri", "Abhijeet",
+	"Purnima", "Radha", "Grishma", "Satish", "Aparna", "Reena",
+	"Shrinivas", "Arjun", "Shekhar", "Deep", "Sameer", "Sunil", "Apoorva",
 
 	"Miller", "Merkel", "Stone", "Bitchiya", "Pedas", "Garbage Houses",
 	"Kun-Kwei", "Persh", "Levart", "Gunnhild", "Gardener", "Boker",
@@ -278,12 +323,27 @@ static const char *shkpet[] = {
     "Silistra", "Tulovo", "Panagyuritshte", "Smolyan", "Kirklareli",
     "Pernik", "Lom", "Haskovo", "Dobrinishte", "Varvara", "Oryahovo",
     "Troyan", "Lovech", "Sliven",
+    /* Bee scientific names */
+    "Apis", "Mellifera", "Cerana", "Dorsata", "Andreniformis",
+	"Florea", "Nearctica", "Nigrocincta",
+    /* Ant */
+    "Crematogaster", "Linepithema", "Humile", "Pheidole", "Nylanderia",
+	"Pubens", "Camponotus", "Lasius", "Alienus",
+	"Paratrechina", "Longicornis", "Solenopsis", "Invicta", "Tapinoma",
+	"Melanocephalum", "Monomorium", "Minimum", "Tetramorium", "Caespitum",
+	"Paraonis", "Dorymyrmex", "Brachymyrmex", "Technomyrmex", "Albipes", 
+    /* Crab scientific names */
+	"Potamon", "Ibericum", "Parathelphusa", "Convexa", "Johongarthia", "Lagostoma",
+	"Gecarcoidea", "Natalis", 
 
 	"War Mountain", "Oro", "Pure", "King", "Funo", "Cuntrina",
 	"Tato", "Santana", "Dickmouth", "Mul", "White Logel", "Lhasa",
 	"Melody", "Moonbeam", "Whoopee", "Sanuuicula", "Brocksby",
 	"Cosworth", "Emerson", "Frye", "Harwood", "Kay", "Litchfield",
 	"Mouse", "Rampston", "Shawe", "Vernon", "Yellowbelly",
+	"Spiffy", "Bonko", "Binky", "Tubby", "Zippy", "Jumbo",
+	"Mittens", "Chuckles", "Bam Bam", "Larry", "Curly",
+	"Moe", "Zaff", "Punky",
     0
 };
 
@@ -307,7 +367,7 @@ static const char *shkpet[] = {
  */
 const struct shclass shtypes[] = {
 	{"general store", RANDOM_CLASS, 23,
-	    D_SHOP, {{100, RANDOM_CLASS}, {0, 0}, {0, 0}}, shkgeneral},
+	    D_SHOP, {{100, WILDCARD_CLASS}, {0, 0}, {0, 0}}, shkgeneral},
 	{"used armor dealership", ARMOR_CLASS, 17,
 	    D_SHOP, {{90, ARMOR_CLASS}, {10, WEAPON_CLASS}, {0, 0}},
 	     shkarmors},
@@ -385,7 +445,7 @@ const struct shclass shtypes[] = {
 	    {{25, -WAX_CANDLE}, {35, -TALLOW_CANDLE}, {5, -TORCH}, {11, -BRASS_LANTERN},
 	    {16, -OIL_LAMP}, {3, -MAGIC_LAMP}, {5, -MAGIC_CANDLE}}, shklight},
 	{"black market", RANDOM_CLASS, 0, D_SHOP,
-	   {{100, RANDOM_CLASS}, {0, 0}, {0, 0}}, shkblack},
+	   {{100, WILDCARD_CLASS}, {0, 0}, {0, 0}}, shkblack},
 	{(char *)0, 0, 0, 0, {{0, 0}, {0, 0}, {0, 0}}, 0}
 };
 
@@ -421,7 +481,8 @@ boolean artif;
 	int atype;
 	struct permonst *ptr;
 
-	if (rn2(100) < depth(&u.uz) &&
+	/* Amy edit: since the maximum dungeon level is much higher, we need to adjust this calculation */
+	if (rn2(250) < depth(&u.uz) &&
 		!MON_AT(sx, sy) && (ptr = mkclass(S_MIMIC,0)) &&
 		(mtmp = makemon(ptr,sx,sy,NO_MM_FLAGS)) != 0) {
 	    /* note: makemon will set the mimic symbol to a shop item */
@@ -430,21 +491,29 @@ boolean artif;
 		mtmp->mappearance = STRANGE_OBJECT;
 	    }
 	} else {
-	    atype = get_shop_item(shp - shtypes);
-	    if (atype < 0)
-		(void) mksobj_at(-atype, sx, sy, TRUE, artif);
-	    else
-		(void) mkobj_at(atype, sx, sy, artif);
+
+	    if (timebasedlowerchance() && (rnd(100) > u.shopitemreduction) ) {
+
+		    atype = get_shop_item(shp - shtypes);
+		    if (atype < 0)
+			(void) mksobj_at(-atype, sx, sy, TRUE, artif, TRUE);
+		    else
+			(void) mkobj_at(atype, sx, sy, artif, TRUE);
+
+	    }
 	}
 
-	if (ishaxor && (rn2(100) >= depth(&u.uz)) ) {
+	if (ishaxor && (rn2(250) >= depth(&u.uz)) ) {
 
-	    atype = get_shop_item(shp - shtypes);
-	    if (atype < 0)
-		(void) mksobj_at(-atype, sx, sy, TRUE, artif);
-	    else
-		(void) mkobj_at(atype, sx, sy, artif);
+	    if (timebasedlowerchance() && (rnd(100) > u.shopitemreduction) ) {
 
+		    atype = get_shop_item(shp - shtypes);
+		    if (atype < 0)
+			(void) mksobj_at(-atype, sx, sy, TRUE, artif, TRUE);
+		    else
+			(void) mkobj_at(atype, sx, sy, artif, TRUE);
+
+	    }
 	}
 
 }
@@ -494,6 +563,10 @@ const char * const *nlp;
 		}
 		if (!rn2(20)) {
 			shk->isegotype = 1;
+			shk->egotype_flamer = TRUE;
+		}
+		if (!rn2(20)) {
+			shk->isegotype = 1;
 			shk->egotype_wither = TRUE;
 		}
 		if (!rn2(20)) {
@@ -678,6 +751,14 @@ const char * const *nlp;
 		}
 		if (!rn2(20)) {
 			shk->isegotype = 1;
+			shk->egotype_nastycurser = TRUE;
+		}
+		if (!rn2(20)) {
+			shk->isegotype = 1;
+			shk->egotype_sanitizer = TRUE;
+		}
+		if (!rn2(20)) {
+			shk->isegotype = 1;
 			shk->egotype_rogue = TRUE;
 		}
 		if (!rn2(20)) {
@@ -704,6 +785,49 @@ const char * const *nlp;
 			shk->isegotype = 1;
 			shk->egotype_wouwouer = TRUE;
 		}
+		if (!rn2(20)) {
+			shk->isegotype = 1;
+			shk->egotype_badowner = TRUE;
+		}
+		if (!rn2(20)) {
+			shk->isegotype = 1;
+			shk->egotype_bleeder = TRUE;
+		}
+		if (!rn2(20)) {
+			shk->isegotype = 1;
+			shk->egotype_shanker = TRUE;
+		}
+		if (!rn2(20)) {
+			shk->isegotype = 1;
+			shk->egotype_terrorizer = TRUE;
+		}
+		if (!rn2(20)) {
+			shk->isegotype = 1;
+			shk->egotype_feminizer = TRUE;
+		}
+		if (!rn2(20)) {
+			shk->isegotype = 1;
+			shk->egotype_levitator = TRUE;
+		}
+		if (!rn2(20)) {
+			shk->isegotype = 1;
+			shk->egotype_illusionator = TRUE;
+		}
+		if (!rn2(20)) {
+			shk->isegotype = 1;
+			shk->egotype_stealer = TRUE;
+		}
+		if (!rn2(20)) {
+			shk->isegotype = 1;
+			shk->egotype_stoner = TRUE;
+		}
+		if (!rn2(20)) {
+			shk->isegotype = 1;
+			shk->egotype_maecke = TRUE;
+		}
+		/* Izchak always has the laserpwnzor egotype --Amy */
+		shk->isegotype = 1;
+		shk->egotype_laserpwnzor = TRUE;
 
 	} else if (nlp == shkblack) {
 	    /* special-case black marketeer */
@@ -735,6 +859,10 @@ const char * const *nlp;
 		}
 		if (!rn2(10)) {
 			shk->isegotype = 1;
+			shk->egotype_flamer = TRUE;
+		}
+		if (!rn2(10)) {
+			shk->isegotype = 1;
 			shk->egotype_wither = TRUE;
 		}
 		if (!rn2(10)) {
@@ -919,6 +1047,14 @@ const char * const *nlp;
 		}
 		if (!rn2(10)) {
 			shk->isegotype = 1;
+			shk->egotype_nastycurser = TRUE;
+		}
+		if (!rn2(10)) {
+			shk->isegotype = 1;
+			shk->egotype_sanitizer = TRUE;
+		}
+		if (!rn2(10)) {
+			shk->isegotype = 1;
 			shk->egotype_rogue = TRUE;
 		}
 		if (!rn2(10)) {
@@ -944,6 +1080,50 @@ const char * const *nlp;
 		if (!rn2(10)) {
 			shk->isegotype = 1;
 			shk->egotype_wouwouer = TRUE;
+		}
+		if (!rn2(10)) {
+			shk->isegotype = 1;
+			shk->egotype_laserpwnzor = TRUE;
+		}
+		if (!rn2(10)) {
+			shk->isegotype = 1;
+			shk->egotype_badowner = TRUE;
+		}
+		if (!rn2(10)) {
+			shk->isegotype = 1;
+			shk->egotype_bleeder = TRUE;
+		}
+		if (!rn2(10)) {
+			shk->isegotype = 1;
+			shk->egotype_shanker = TRUE;
+		}
+		if (!rn2(10)) {
+			shk->isegotype = 1;
+			shk->egotype_terrorizer = TRUE;
+		}
+		if (!rn2(10)) {
+			shk->isegotype = 1;
+			shk->egotype_feminizer = TRUE;
+		}
+		if (!rn2(10)) {
+			shk->isegotype = 1;
+			shk->egotype_levitator = TRUE;
+		}
+		if (!rn2(10)) {
+			shk->isegotype = 1;
+			shk->egotype_illusionator = TRUE;
+		}
+		if (!rn2(10)) {
+			shk->isegotype = 1;
+			shk->egotype_stealer = TRUE;
+		}
+		if (!rn2(10)) {
+			shk->isegotype = 1;
+			shk->egotype_stoner = TRUE;
+		}
+		if (!rn2(10)) {
+			shk->isegotype = 1;
+			shk->egotype_maecke = TRUE;
 		}
 
 	} else {
@@ -1056,7 +1236,7 @@ struct mkroom	*sroom;
 	}
 	/* deepy wants shopkeepers to start out hostile to a venture capitalist --Amy */
 	if (!shk) {
-	  if(!(shk = makemon(&mons[PM_SHOPKEEPER], sx, sy, Race_if(PM_VENTURE_CAPITALIST) ? MM_ANGRY : NO_MM_FLAGS)))
+	  if(!(shk = makemon(&mons[(level_difficulty() > 39) ? PM_ELITE_SHOPKEEPER : (level_difficulty() > 19) ? PM_MASTER_SHOPKEEPER : PM_SHOPKEEPER], sx, sy, Race_if(PM_VENTURE_CAPITALIST) ? MM_ANGRY : NO_MM_FLAGS)))
 		return(-1);
 	}        
   
@@ -1069,6 +1249,8 @@ struct mkroom	*sroom;
 	sroom->resident = shk;
 	ESHK(shk)->shoptype = sroom->rtype;
 	assign_level(&(ESHK(shk)->shoplevel), &u.uz);
+	ESHK(shk)->creditlimit = (5000 + (depth(&u.uz) * 1000) );
+	ESHK(shk)->totalcredit = 0;
 	ESHK(shk)->shd.x = doors[sh].x;
 	ESHK(shk)->shd.y = doors[sh].y;
 	ESHK(shk)->shk.x = sx;
@@ -1106,34 +1288,34 @@ struct mkroom	*sroom;
 /* make sure black marketeer can wield Thiefbane */
 	  shk->data->maligntyp = -1;
 /* black marketeer's equipment */
-	  otmp = mksobj(LONG_SWORD, FALSE, FALSE);
+	  otmp = mksobj(LONG_SWORD, FALSE, FALSE, FALSE);
 	  if (otmp) {
 		  otmp = oname(otmp, artiname(ART_THIEFBANE));
 		  mpickobj(shk, otmp, TRUE);
 		  if (otmp->spe < 5) otmp->spe += rnd(5);
 	  }
-	  otmp = mksobj(SHIELD_OF_REFLECTION, FALSE, FALSE);
+	  otmp = mksobj(SHIELD_OF_REFLECTION, FALSE, FALSE, FALSE);
 	  if (otmp) {
 		  mpickobj(shk, otmp, TRUE);
 		  if (otmp->spe < 5) otmp->spe += rnd(5);
 	  }
-	  otmp = mksobj(GRAY_DRAGON_SCALE_MAIL, FALSE, FALSE);
+	  otmp = mksobj(GRAY_DRAGON_SCALE_MAIL, FALSE, FALSE, FALSE);
 	  if (otmp) {
 		  mpickobj(shk, otmp, TRUE);
 		  if (otmp->spe < 5) otmp->spe += rnd(5);
 	  }
-	  otmp = mksobj(SPEED_BOOTS, FALSE, FALSE);
+	  otmp = mksobj(SPEED_BOOTS, FALSE, FALSE, FALSE);
 	  if (otmp) {
 		  mpickobj(shk, otmp, TRUE);
 		  if (otmp->spe < 5) otmp->spe += rnd(5);
 	  }
-	  otmp = mksobj(AMULET_OF_LIFE_SAVING, FALSE, FALSE);
+	  otmp = mksobj(AMULET_OF_LIFE_SAVING, FALSE, FALSE, FALSE);
 	  if (otmp) {
 		  mpickobj(shk, otmp, TRUE);
 	  }
 /* wear armor and amulet */
 	  m_dowear(shk, TRUE);
-	  otmp = mksobj(SKELETON_KEY, FALSE, FALSE);
+	  otmp = mksobj(SKELETON_KEY, FALSE, FALSE, FALSE);
 	  if (otmp) {
 		  mpickobj(shk, otmp, TRUE);
 	  }
@@ -1301,11 +1483,11 @@ register int sh;
 	      objects[typ].oc_nowish || typ==0)
 	    continue;
 
-	  otmp = mkobj_at(RANDOM_CLASS,sx,sy,TRUE);
+	  otmp = mkobj_at(WILDCARD_CLASS,sx,sy,TRUE, TRUE);
 /* generate multiple copies with decreasing probabilities */
 /*        if (rn2(blkmar_gen[typ]+1) && i<49)  continue; */
 
-/*        otmp = mksobj_at(typ, sx, sy, TRUE, TRUE);
+/*        otmp = mksobj_at(typ, sx, sy, TRUE, TRUE, TRUE);
 	  blkmar_gen[typ]++;*/
 
 	if (!otmp) break;
@@ -1318,7 +1500,7 @@ register int sh;
 	  if (typ==MAGIC_LAMP) {
 	    otmp->spe = 0;
 	  }
-	  if (typ==SCR_WISHING || typ==SCR_ACQUIREMENT || typ==SCR_ENTHRONIZATION || typ==SCR_FOUNTAIN_BUILDING || typ==SCR_SINKING || typ==SCR_WC) {
+	  if (typ==SCR_WISHING || typ==SCR_ACQUIREMENT || typ==SCR_ENTHRONIZATION || typ==SCR_MAKE_PENTAGRAM || typ==SCR_FOUNTAIN_BUILDING || typ==SCR_SINKING || typ==SCR_WC) {
 	    typ = SCR_BLANK_PAPER;
 	  }
 
@@ -1347,7 +1529,7 @@ struct monst *shk;
 	if (Is_blackmarket(&u.uz)) {
 		ESHK(shk)->services = 
 		    SHK_ID_BASIC|SHK_ID_PREMIUM|SHK_UNCURSE|SHK_APPRAISE|
-		    SHK_SPECIAL_A|SHK_SPECIAL_B|SHK_SPECIAL_C;
+		    SHK_SPECIAL_A|SHK_SPECIAL_B|SHK_SPECIAL_C|SHK_CREDITSRV;
 		return;
 	}
 
@@ -1376,6 +1558,9 @@ struct monst *shk;
 	}
 	if (!rn2(3/*5*/) && (shk_class_match(WEAPON_CLASS, shk) == SHK_MATCH))
 	 ESHK(shk)->services |= SHK_SPECIAL_C;
+
+	/* establishing credit is always possible --Amy */
+	ESHK(shk)->services |= SHK_CREDITSRV;
 
 	return;
 }

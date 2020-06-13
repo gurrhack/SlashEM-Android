@@ -26,7 +26,7 @@ static long final_fpos;
 
 #define newttentry() (struct toptenentry *) alloc(sizeof(struct toptenentry))
 #define dealloc_ttentry(ttent) free((void *) (ttent))
-#define NAMSZ	10
+#define NAMSZ	10	/* DO NOT change this unless you want to break the topten list, several places in this code depend on it being 10 --Amy */
 #define DTHSZ	1000
 #define ROLESZ   3
 #define PERSMAX	 10000		/* entries per name/uid per char. allowed */
@@ -228,7 +228,7 @@ struct toptenentry *tt;
 			for(dp = tt->death; *dp; dp++) {
 				if(!strncmp(dp, " Conduct=", 9)) {
 					dp2 = dp + 9;
-					sscanf(dp2, "%d", &tt->conduct);
+					sscanf(dp2, "%ld", &tt->conduct);
 					/* Find trailing null or space */
 					while(*dp2 && *dp2 != ' ')
 						dp2++;
@@ -270,7 +270,7 @@ struct toptenentry *tt;
 	/* Add a trailing " Conduct=%d" to tt->death */
 	/*if(tt->conduct != 8191) {*/
 		cp = tt->death + strlen(tt->death);
-		sprintf(cp, " Conduct=%d", tt->conduct);
+		sprintf(cp, " Conduct=%ld", tt->conduct);
 	/*}*/
 #endif
 
@@ -336,8 +336,8 @@ struct toptenentry *tt;
                 XLOG_SEP "hp=%d"
                 XLOG_SEP "maxhp=%d"
                 XLOG_SEP "deaths=%d"
-                XLOG_SEP "deathdate=%d"
-                XLOG_SEP "birthdate=%d"
+                XLOG_SEP "deathdate=%ld"
+                XLOG_SEP "birthdate=%ld"
                 XLOG_SEP "uid=%d",
                 tt->ver_major, tt->ver_minor, tt->patchlevel,
                 tt->points, tt->deathdnum, tt->deathlev,
@@ -383,6 +383,12 @@ struct toptenentry *tt;
   (void)fprintf(rfile, XLOG_SEP "endtime=%ld", (long)deathtime);
 #endif
 
+	/* Amy addition: unlike any other variant, your role and race can change during gameplay. This is for junethack,
+	 * where a certain competition is about ascending as many as possible starting combinations. */
+  (void)fprintf(rfile, XLOG_SEP "role0=%s", ustartrole.filecode);
+
+  (void)fprintf(rfile, XLOG_SEP "race0=%s", ustartrace.filecode);
+
 #ifdef RECORD_GENDER0
   (void)fprintf(rfile, XLOG_SEP "gender0=%s", genders[flags.initgend].filecode);
 #endif
@@ -391,9 +397,10 @@ struct toptenentry *tt;
   (void)fprintf(rfile, XLOG_SEP "align0=%s", 
           aligns[1 - u.ualignbase[A_ORIGINAL]].filecode);
 #endif
+
   fprintf(rfile, XLOG_SEP "flags=0x%lx", encodexlogflags());
 
-  (void)fprintf(rfile, "\n");
+  (void)fprintf(rfile,"%s", "\n");
 
 }
 
@@ -404,6 +411,8 @@ static long encodexlogflags(void) {
 		tmp |= 1L << 0;
 	if (discover)
 		tmp |= 1L << 1;
+	if (u.freeplaymode)
+		tmp |= 1L << 2;
 
 	return tmp;
 }
@@ -577,13 +586,13 @@ int how;
          }
 #endif /* XLOGFILE */
 
-	if (wizard || discover) {
+	if (wizard || discover || u.freeplaymode) {
 	    if (how != PANICKED) HUP {
 		char pbuf[BUFSZ];
 		topten_print("");
 		sprintf(pbuf,
 	      "Since you were in %s mode, the score list will not be checked.",
-		    wizard ? "wizard" : "discover");
+		    wizard ? "wizard" : u.freeplaymode ? "freeplay" : "discover");
 		topten_print(pbuf);
 #ifdef DUMP_LOG
 		if (dump_fn[0]) {
@@ -1567,6 +1576,7 @@ gamemode_strcode()
     static char string[BUFSZ];
     *string = '\0';
 
+	if (u.freeplaymode) sprintf(eos(string), "freeplay");
 	if (flags.gehenna) sprintf(eos(string), "gehenna");
 	if (flags.dudley) sprintf(eos(string), "dudley");
 	if (flags.iwbtg) sprintf(eos(string), "iwbtg");
@@ -1578,8 +1588,9 @@ gamemode_strcode()
 	if (flags.gmmode) sprintf(eos(string), "gmmode");
 	if (flags.supergmmode) sprintf(eos(string), "supergmmode");
 	if (flags.wonderland) sprintf(eos(string), "wonderland");
+	if (flags.zapem) sprintf(eos(string), "zapm");
 
-	if (!(flags.gehenna) && !(flags.dudley) && !(flags.gmmode) && !(flags.supergmmode) && !(flags.iwbtg) && !(flags.elmstreet) && !(flags.hippie) && !(flags.blindfox) && !(flags.uberlostsoul) && !(flags.lostsoul) && !(flags.wonderland)) sprintf(eos(string), "none");
+	if (!u.freeplaymode && !(flags.gehenna) && !(flags.dudley) && !(flags.gmmode) && !(flags.supergmmode) && !(flags.iwbtg) && !(flags.elmstreet) && !(flags.hippie) && !(flags.blindfox) && !(flags.uberlostsoul) && !(flags.lostsoul) && !(flags.wonderland) && !(flags.zapem)) sprintf(eos(string), "none");
 
     return (string);
 }

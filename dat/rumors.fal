@@ -1828,7 +1828,6 @@ They say that Nibelungs live in dark caves.
 Some weapons that slay dragons can be very deadly against them...
 Finding the Phial of Galadriel at 50' is nothing to be proud of.
 There are Black Market stores hidden deep in the dungeon, with COOL stuff!
-What a pity, you cannot read it!
 You will encounter a dark, tall stranger...
 A Mithril mail will not rust.
 An Adamantite mail will not rust.
@@ -3029,7 +3028,7 @@ Reading a scroll of cloning while polymorphed can be a frightful combination.
 A tryst with Malcanthet ends poorly as often as not.
 The scroll of astralcension is capable of summoning a player monster equipped with a full ascension kit. They'll be tame, so you can use them to facilitate your quest for the Amulet.
 If you find a mandaruck, gleefully obliterate her with your strongest ranged attack. Never chat to her unless you want to have your data deleted!
-If you chat to a wuxtina, a dialogue starts where you have several options. Careful: if you obey her commands, you'll be banished.
+If you chat to a wuxtina, a dialogue starts where you have several options. Careful: if you don't obey her commands, you'll be banished.
 You can chat to a tearfran to turn her peaceful, but that only works if your alignment record is exactly -20.
 Chatting to a melistride will tame her if, and only if, you're wearing iron shoes or low boots. Don't ever chat to her with a charisma of 18 or higher because she'll be infuriated if you do.
 You have to chat to a nastroscha while wearing occultism gloves. She'll teach 10 random occult spells to you!
@@ -3052,3 +3051,411 @@ They say that on a full moon, lycanthropes are twice as fast.
 Artifacts are completely immune to erosion effects and also otherwise can't be destroyed.
 Putting a monster to sleep is actually exactly the same as paralysis: the chance that the monster wakes up prematurely is really low.
 One of the few ways to cure the totter effect gained from a scroll of symmetry is by wearing the Binder Crash artifact.
+They say the Enemy seeks to destroy the world, though she is not of it.
+Miners are known to freeze to death in The Ice Caves.
+There is a frozen settlement a ways into The Ice Caves.
+It is said a great beast lives at the bottom of The Ice Caves.
+The Ice Caves are full of dangerous cold based monsters.
+The ice in The Ice Caves has unusual traction.
+The Black Forest is inhabited by many plants and beasts.
+Peasants tend to wander into The Black Forest and meet their demise.
+There is said to be a strange shrine in the heart of The Black Forest.
+The Black Forest is dark, as well as foggy.
+A legendary poplar tree lives deep in The Black Forest
+The Dismal Swamp is full of water, trees, and grass.
+It is rumored there is a kobold fortress deep in The Dismal Swamp.
+There is a temple deep in The Dismal Swamp.
+The beasts of The Dismal Swamp include armored kobolds.
+The kobolds of The Dismal Swamp are said to have hoarded treasure.
+Carrying too many shoes in open inventory makes it no longer possible to find any item other than shoes.
+They say that Duri the Blacksmith can damage your items for a fee, if for some reason you want eroded equipment.
+They say that rich people can pay Duri the Blacksmith to remove erosionproofing from their equipment.
+They say that it's possible to request evil artifacts from Duri the Blacksmith, but they'll appear on any random level and you have to search them first.
+They say that if you have a whole lot of zorkmids, one way to spend them is to ask Duri the Blacksmith to forge an artifact of your choice, so you can get exactly the artifacts that suit your role best.
+Sacrificing a kobold? I wouldn't try it.
+Sapphire, silver, and crystal golems are known for their reflective abilities.
+A hydra can regrow heads and become more powerful when attacked with a slashing weapon.
+Brood wasp stings can have delayed symptoms.
+Werewolves are a tough race for beginning players.
+If you donate enough at a temple, they might just teach you how to perform a blessing.
+If you encounter a bug, please report it on the github page, or contact Antigulp on #hardfought.
+Steel golems can disenchant your items, so keep your distance.
+Nazgul will often shriek, and are known to ride fell beasts.
+Monsters are capable of riding other monsters.
+They say that HC aliens will make monsters have sex with them when changing clothes.
+They say that implants with positive enchantment values will improve your armor class just like other armor pieces, i.e. always.
+They say that experts of the memorization skill can use an ability that lets them transfer spell memory from one spell to another.
+You should always be sure to learn about quantum mechanics.
+Try using your magic marker on wet scrolls!
+Crystal plate is the rarest of all.
+Healers are immune to the effects of nurses.
+Wait!  That's a fortune!
+Ever broken an egg against the ground?
+Rust traps are harmless if you are wearing an elven cloak.
+Leaving the dungeon while hallucinating may get you arrested.
+You swallowed the fortune!!!
+A pie fight.  Now that's fun!
+Messes attract ants.
+Only elves can wear elfin chain mail.
+If you want a sex change, you must get it before the game.
+Mark your way with a magic marker.
+Ever read a tin of fire?
+Cave(wo)men all belong to the same club.
+You are filled with a feeling of awwwww.
+Long live Phoenix!
+What does a dead demon taste like?
+If you kill a ghost, how will you find the body?
+What is a three sided die shaped like?
+What is a zero sided die shaped like?
+Hitting a giant that is picking up a boulder may be difficult.
+-- more --
+...and rings may protect your fingers.
+A Quasit is even faster than a jaguar!
+A chameleon imitating a postman often delivers scrolls of fire.
+A chameleon imitating a postman sometimes delivers scrolls of punishment.
+A confused acid blob may attack.
+A dead lizard is a good thing to turn undead.
+A homunculus wouldn't want to hurt a wizard.
+A jaguar shouldn't frighten you.
+A long worm hits with all of its length.
+A magic vomit pump is a necessity for gourmands.
+A ring is just a wound wand.
+A rumor has it that rumors are just rumors.
+A scroll of enchant amulet is only useful on your way back.
+A smoky potion surely affects your vision.
+A spear will hit an ettin.
+A tin of smoked eel is a wonderful find.
+A two-handed sword usually misses.
+A unicorn can be tamed only by a fair maiden.
+Afraid of Mimics? Try to wear a ring of true seeing.
+After being attacked by a Harpy you have a lot of arrows.
+Be careful when the moon is in its last quarter.
+Better go home and hit your kids. They are just little monsters!
+Better go home and play with your kids. They are just little monsters!
+Beware of wands of instant disaster.
+Dark gems are just colored glass.
+Dark room? Just flash often with your camera.
+Death is just around the next door.
+Dogs do not eat when the moon is full.
+Don't throw gems. They are so precious! Besides, you might hit a roommate.
+Dust is an armor of poor quality.
+Eat a homunculus if you want to avoid sickness.
+Every level contains a shop; only the entrance is often hidden.
+Everybody should have tasted a scorpion at least once in his life.
+Expensive cameras have penetrating flashlights.
+Feeding the animals is strictly prohibited. The Management.
+Feeling lousy? Why don't you drink a potion of tea?
+Gems are the droppings of other inmates.
+Gems are the droppings of Umber Hulks.
+Gems do get a burden.
+Genocide on shopkeepers is punishable.
+Getting Hungry? Wear an amulet!
+Ghosts always empty the fridge.
+Ghosts are visible because they don't leave a trace.
+Giant beetles make giant holes in giant trees!
+Gossip is the opiate of the depressed.
+Hackers do it with bugs.
+Hey guys, you *WIELD* a dead lizard against a cockatrice! [David London]
+Hungry? There is an abundance of food on the next level.
+Hungry? Wear an amulet!
+I doubt whether nurses are virgins.
+If "nothing happens", something *has* happened anyway!!
+If a chameleon mimics a mace, it really mimics a Mimic mimicking a mace.
+If a shopkeeper kicks you out of his shop, he'll kick you out of the dungeon.
+If you are too cute some monsters might be tempted to embrace you.
+If you see nurses you better start looking somewhere for a doctor.
+If you were a troll, would you like looking yourself?
+If you're afraid of trapdoors, just cover the floor with all you've got.
+Improve your environment, using a wand of rearrangement.
+In need of a rest? Quaff a potion of sickness!
+In total, there are nine sorts of shops (sometimes).
+It is said that Giant Rabbits can be tamed with carrots only.
+It seems you keep overlooking a sign reading "No trespassing"!
+It's bad luck to drown a postman.
+It's not safe to Save.
+Jackals are intrinsically rotten.
+Keep a clear mind: quaff clear potions.
+Large dogs make larger turds than little ones.
+Latest news? Put newsgroup 'netUNX.indoor.hackers-scroll' in your .newsrc!
+Looking for a monster -- use a staff of monster summoning.
+Looking pale? Quaff a red potion!
+Meet yourself! Commit suicide and type "hack"
+Memory flaw - core dumped.
+Most rumors are just as misleading as this one.
+Murder complaint? Mail to 'netnix!devil!gamble!freak!trap!lastwill!rip'.
+Never drop a crysknife! No, never even unwield it, until...
+Never fight a monster: you might get killed.
+Never go into the dungeon at midnight.
+Never kick a sleeping dog.
+Never kiss an animal. It may cause kissing disease.
+Never map the labyrinth.
+Never vomit on a door mat.
+Not even a spear will hit a Xorn.
+Now what is it that cures digestion?
+Nymphs are very pleased when you call them by their real name: Lorelei.
+Old trees sometimes fall without a warning!
+One wand of concentration equals eight scrolls of create monster.
+Only Today! A dramatic price-cut on slightly used wands.
+Only a dragon will never get a cold from a wand of cold.
+Only cave-women can catch a unicorn. And then only with a golden rope.
+Only david can find the zoo!
+Only wizards are able to zap a wand.
+Operation coded OVERKILL has started now.
+Punishment is a thing you call over yourself. So why complain?
+Pursue the monsters and you will be had indeed.
+Reading might change your vision.
+Reading might improve your scope.
+Relying on a dog might turn you in a dog addict.
+Ropes are made from the long, blond hairs of dead Nymphs.
+Savings do include amnesia.
+Scrolls of fire are useful against fog clouds.
+Selling and rebuying a wand will recharge it.
+Shopkeepers are vegetarians: they only eat Swedes.
+Shopkeepers can't read, so what use is engraving in a shop?
+Sleeping may increase your strength.
+Some Balrogs don't attack if you offer them a ring.
+Speed Kills (The Doors)
+Stay clear of the level of no return.
+Surprise your dog with an acid blob!
+Tame a troll and it will learn you fighting.
+Taming a postman may cause a system security violation.
+Teleportation lessens your orientation.
+The "pray" command is not yet implemented.
+The Gods are angry with you...
+The Gods seem to be pleased with you...
+The Jackal only eats bad food.
+The air is positively magic in here. Better wear a negative armor.
+The emptiness of a ghost is too heavy to bear.
+The key to this game is that there are no keys.
+The postman always rings twice.
+The proof of the quivering blob is in the eating thereof.
+There is a VIP-lounge on this level. Only first-class travellers admitted.
+There is no business like throw business.
+They say that Elven cloaks absorb enchantments.
+They say that a spear will hit a Dragon.
+They say that a spear will hit an ettin.
+They say that a two-handed sword misses.
+They say that cavemen seldom find tins in the dungeon.
+They say that there is a trap on this level!
+They say that you can meet old friends in the caves.
+This is not a fortune.
+Tin openers are rare indeed.
+To hit or not to hit, that is the question.
+Tranquilizers might get you killed.
+Tripe on its own is revolting,  but with onions it's delicious!
+Try hacking in the wee hours: you will have more room.
+Unwanted mail? Sell it to the bookshop!
+Vault guards always make sure you aren't a shopkeeper.
+Wanna fly? Eat a bat.
+Want fun? Throw a potion in a pool and go swimming!
+Warning: end of file 'fortunes' reached.
+Watch your steps on staircases.
+Wear armor, going naked seems to offend public decency in here.
+What a pity, you cannot read it! (That doesn't specify whether that was the message in the fortune or you were actually unable to read it.)
+When in a shop, do as shopkeepers do.
+Who should ever have thought one could live from eating fog clouds?
+Why a "2" for the postman? Well, how many times does he ring?
+Why should one ever throw an egg to a cockatrice?
+Wish for a pass-key and pass all obstacles!
+Wizards do not sleep.
+You are heading for head-stone for sure.
+You cannot ride a long worm.
+You cannot trust scrolls of rumor.
+You have to outwit a Sphinx or pay her.
+You might cut yourself on a long sword.
+You'll need a spear if you want to attack a Dragon.
+A Ninja knows how to use poison.
+A Samurai is just a fighter with a bent sword.
+A katana might cut a demon.
+If you're a Samurai, you must obey the Mikado.
+If you're a Ninja, don't let the Mikado see you.
+NetHack is a fantasy, in fact you're dreaming.
+Orcs go around poisoning the spikes in pits!
+Try calling your katana Snikersnee.
+What is this demi-god stuff anyway?
+You might be able to bribe a Demon-prince.
+They say that gun control is a skill that only lawful characters can learn.
+They say that in order to learn the squeaking skill, you must convert yourself to Moloch, but since that isn't implemented the skill is actually impossible to get.
+They say that the gun control skill lets you #monster to ban monsters from using guns against you.
+They say that the squeaking skill will spawn rubber ducks that constantly make noises similar to those of squeaky boards.
+They say that unlabeled scrolls are actually the hardest kind to label correctly.
+Welcome! Have you heard the good news about Moloch? Come and say a prayer at his altar. Moloch loves you.
+The mysterious force sometimes arbitrarily starts the stoning or sliming process.
+If the mysterious force triggers, it will scatter your inventory across the whole level and spawn a bunch of intelligent monsters.
+The mysterious force gets more nasty for every subsequent Rodney kill.
+Samurai is a good role choice for beginners, so that they won't get confused by the japanese names later down the road.
+Tourist is a good role choice for beginners because they can train every weapon skill except club. It is a good idea to enhance whichever weapon you find first to the maximum skill level you can reach because that way you'll survive longer.
+Gnome ranger is a good choice for beginners because the combination of crossbow + infravision lets you kill monsters before they can reach you, allowing you to avoid melee combat and thereby survive longer.
+You should avoid eating elves until you know the amulet of restful sleep, because that way you can identify it by wearing unidentified amulets for a while.
+you should read every scroll you find just in case it is a good one You wouldn't want to die with a tp scroll un-id in your inventory!!!
+The best way to identify the ring of sustain ability is to repeatedly step into a spiked pit without poison resistance. If the poison fails to damage your strength, you've found the ring.
+Symbiosis allows you to carry around a mobile monster, similar to riding, except that the monster rides you and you're still in charge of movement. Give the monster a ranged weapon so it can perform drive-bys.
+The easiest symbiotes to get are humanoid boss monsters with high monster magic resistance. Using the symbiote item on them is virtually guaranteed to succeed.
+They say that if you voluntarily kill your symbiote, it will spawn again 3 levels further down, with a symbiote item in its inventory.
+They say that if you're master at symbiosis, you can turn any random monster into a symbiote simply by chatting to it.
+They say that if your symbiote has special abilities, such as breath attacks or mind blasts, the AI will decide when it uses them, possibly resulting in waking up monsters you wanted to leave asleep.
+They say that if you kill a nurse, you can extract healing herbs from her body that you can grow and which heal all kinds of ailments when consumed.
+If you can get a +1 luck bonus, you will be able to kill that shopkeeper whom you weren't able to take on without the luck bonus.
+A butterfile is a device for reducing the size of butter.
+SLEX is bad for short statured people because they will be inclined to try on any high-heeled shoes they find in-game, even the autocursing ones.
+They say that aklysts can apply their aklys to hit monsters standing three tiles away, while all other roles can only hit targets at a distance of 2 squares.
+They say that altmer can't have reflection, but will gain resistances to fire, cold and shock from leveling up.
+They say that amazons are pierced.
+They say that astronauts have steeled their body to a point where they no longer require any food, making the foodless conduct easy to do.
+They say that bleeders can cure their hemophilia if they quaff 20 blessed potions of full healing.
+They say that camperstrikers encounter much more nasty traps but are also much more likely to find them.
+They say that cartomancers reading a scroll of wishing will get two wishes instead of one.
+They say that cellar childs (sic) are the easiest spellcaster role in the game.
+They say that combatants can reach grand master in absolutely every skill.
+They say that crackers automatically transform cursed scrolls into blessed ones upon picking them up.
+They say that cyberninjas will always instakill monsters by attacking from behind with a knife.
+They say that demagogues will untrain their skills by using them repeatedly, and can only unlock skill-dependant techniques by quickly enhancing the skills in question before their training is undone.
+They say that dissidents are hunted by government troops, which are high-level K-class monsters that spawn more often and in more dangerous versions as the player kills more of them.
+They say that divers can only wield tridents and snorkels, any other type of weapon flat out refuses to be wielded.
+They say that doom marines constantly encounter cacodemons and revenants, and the latter can even fire homing missiles.
+They say that DQ slimes can select a skill to be unlocked whenever they level up.
+They say that dragonmasters should actually be called dragonfailures, because they can't wear dragon scale mail for cookie reasons.
+They say that while the druid quest nemesis is called an armorer, he actually doesn't behave like one.
+They say that when the Amy was little, she invented a monster called 'dissolved undead potato' that shoots unholy bolts and breathes poison gas, and many years later she discovered that Diablo 2 has a monster that does exactly that and is also called 'dissolved undead potato' to boot.
+They say that the drunk role's signature technique brings an end.
+They say that dunmer and thalmor are the same race.
+They say that emeras constantly encounter hostile gentleman shoes and grandpa's brogues, which are annoying because they look butt ugly.
+They say that empaths can frenzy monsters by stethoscoping them.
+They say that erdricks start with intrinsic confusion resistance.
+They say that failed existences have a 1 in 10000 chance to suddenly die. And the death reason? Critical existence failure out of the blue.
+They say that feminists will get randomized nasty trap effects from leveling up, which can be cured by draining their experience level and get replaced with different nasty trap effects when leveling up again.
+They say that fencers can only use sabers. If they use a different type of sword, they receive a hefty -20 to-hit penalty that makes them miss all the damn time.
+They say that if you play the fighter role, you should listen to the song 'Berzerk' by Eminem.
+They say that firefighters start with potions of water, which they should throw at pools of lava to solidify them.
+They say that the fjorde role can tame fishes by throwing food, and for him in particular, tame fishes can also walk on land and are much smarter when trying to follow the player.
+They say that form changers are able to polymorph into various monsters, but with even more control over what they polymorph into than the doppelganger race.
+They say that foxhound agents are superb spellcasters but will have trouble trying to hit anything with a weapon.
+They say that gang scholars can tame most monsters by chatting to them.
+They say that genderstarists always count as both male and female at the same time, which is important for e.g. nymph or foocubus seduction.
+They say that gladiators start with a helmet of antimagic.
+They say that goffs start the game with an ascension kit. Especially their boots should never be switched out for something else.
+They say that graduates can use the #hallpunishment on hostile monsters to force them to pay their lunch money.
+They say that grenadonins can play real-time grenade tennis with soldiers. If you don't hit the buttons quickly enough, the grenades explode in your face!
+They say that hussies can #monster to summon the other members of the hussy club, which are called AmyBSOD (the leader of the hussy club), Maria and Gwendolyn.
+They say that janitors have the special ability to lock doors without requiring a key or wand of locking.
+They say that for a korsair, all messages are translated to indraenian.
+They say that the ladiesman is the ultimate speedrunner role because they're so damn fast, a sub-5000 turn ascension is very possible.
+They say that locksmiths can lock everything, not just chests and doors but also e.g. staircases, teleportation traps, and of course items lying on the floor. Any monster who wants to use a locked entity will fail unless it carries a key.
+They say that lunatics constantly shout illegible phrases, and start the game with all skills restricted.
+They say that masons can erect walls by dropping at least 50 rocks at once, but only if they also carry a hammer and a can of grease. The latter will lose a charge in the process.
+They say that masterminds suffer twice the usual amount of amnesia when attacked by a mind flayer, due to their brains having so much stuff memorized.
+They say that mill swallowers can eat windmills (wtf) and get a multishot bonus when throwing sheafs of hay.
+They say that musicians can simply whistle the castle passtune without requiring an instrument.
+They say that nuclear physicists can launch a nuclear bomb every once in a while. After doing so, they have 20 turns to get off the current dungeon level or be caught in the blast (and probably killed).
+They say that ordinators are mighty glaciers, as they get truckloads of armor class and various intrinsic elemental resistances, but their downside is that they can only use wimpy daggers as weapons that deal next to no damage.
+They say that practicants will receive nasty penalties as soon as they killed their quest nemesis.
+They say that practicants should delay killing their quest nemesis as long as possible, because bad stuff starts to happen once they do.
+They say that psions are a completely overpowered role and every beginner plays them because it's so easy to ascend one.
+They say that psykers can use thaumathurgy spells, which are randomly generated spells whenever the psyker levels up and which can be absolutely overpowered.
+They say that quarterbacks have a ramming attack in melee, which dazes monsters and can break their bones.
+They say that saiyans can't attack in melee. Instead, they will shout 'KAMEHAMEHA!' and shoot a projectile in the general direction of their opponent.
+They say that scientists start with several magic markers and blank scrolls, plus all scroll types are known from the start.
+They say that shapeshifters are a role that can never control their polymorphs, which means that they suck and as a result nobody ever plays them.
+They say that if the slave master role ever abuses a pet, the pet in question will always turn hostile even if it was very tame. And what's more, any other pets in line of sight will also turn hostile.
+They say that social justice warriors aren't a playable role in SLEX, because Amy doesn't want to step on anybody's toes and therefore didn't include them even though she had plenty of gameplay ideas for them.
+They say that software engineers have the special ability to program disks with arbitrary programs.
+They say that space marines and doom marines are basically the same role and even have the exact same quest.
+They say that stormboys can only survive the early game by spamming lightning spells.
+They say that symbiants can only enter symbiosis once. If their symbiote dies, the symbiant dies as well. And life saving gives the message 'Unfortunately, your symbiote is still dead...'
+They say that playing the thalmor role isn't possible. If you try, the autopilot takes over and all you can do is to keep pressing space to watch the computer play the game for you.
+They say that tossers gain an alignment bonus by tossing an item into a pool of water.
+They say that tossers can only use javelins as weapons, and then only as throwing weapons. Using any other ranged weapon, or (heaven forbid) trying to go melee, will just give a 'You can't.' message, making the game unnecessarily hard.
+They say that tracers can use the special tracing ability that creates a copy of an artifact, which for all purposes acts like the real artifact but will vanish after a certain amount of turns and doesn't count as the artifact being in existence for wishing or gifting purposes.
+They say that transsylvanians always hallucinate unless they wear hippie heels.
+They say that the transsylvanian role exists because someone suggested that the transvestite role be renamed to that, and as a result, the transvestite role unfortunately doesn't exist anymore. :-(
+They say that the twelph is a drow role, which is good at using droven bows.
+They say that unbelievers have a certain chance of preventing enemies from using magic, which gets higher as they increase their 'antimagic field strength', but the downside is that they themselves can never cast spells at all.
+They say that walscholars can fart with the #monster command and need to do so if they want to destroy grave walls. This gives an alignment bonus for every wall tile they destroy, and sometimes they can find diamonds inside.
+They say that the weirdboy is actually the most normal role in the game and the name just acts as a disguise because otherwise every beginner would play that role and have an easy time.
+They say that the wild talent role will always polymorph into a certain random (predetermined at game start) monster upon leveling up and then has to play as that monster until they level up again.
+They say that xelnagas start with tons of weapons and armor, and every weapon skill starts at expert for them and can go up to supreme master.
+They say that yautjas start the game with nothing at all - no skills, no equipment, no nothing, and don't get any guaranteed stuff from leveling up either.
+They say that the YSexymate should take off their starting high heels and wield them as a weapon because it'll deal great damage.
+If you eat 7 cloves of garlic and drink 8 glass of water, you become immune to corona virus.
+Earmuffs protect you from sonic, but not from knuckles.
+Wearing a face mask will protect you from corona virus.
+You can only contract corona if you get closer than 1.50 m to another person.
+You need to stay at home to avoid contracting corona.
+You may not meet other people, not even your closest relatives, unless you want to contract a deadly flu.
+Every little byte counts.
+If you want to polyself with a wand, you can also use an eroded of cursed wand. In the case of an explosion, it'll just polymorph you normally without affecting your items.
+They say that if you cast one point shoot or particle cannon every turn, it will keep increasing its average damage output.
+They say that the demigod bar is at Hebiwerie's general store.
+A hacker named Jonah once got swallowed by a sea monster, but his prayers forced it to expel him.
+A hacker named Leeroy Jenkins once read a scroll of charging while confused.
+A hacker named The Pied Piper once played a wooden flute and tamed rats.
+A really lucky hacker might find an empty bottle - only 4 of them ever got made!
+Adventurers who loot glass boxes shouldn't throw stones.
+Charon's ferry is very overpriced.
+I once saw a hacker with a +9 elven runesword!
+If the prize isn't behind the first Sokoban door, there's a 2/3 chance that it's behind the second one.
+Levitation potions aren't as heavy as other potions.
+Mithril is the spandex of the RPG universe.
+Monks take a vow of poverty: those with many worldly possessions are cursed by the gods.
+Narrow weapons like short swords aren't as good as broad weapons like broadswords.
+Need a wand of polymorph?  Try dipping another wand into a potion of polymorph.
+Demonbane is a narrow weapon while Frost Brand is a broad weapon.
+Only you can prevent fireballs.
+Owlbears just want a hug.  Is that so bad?
+Polymorphing the Wizard of Yendor could turn him into the Lizard of Yendor.
+There's no replacement for displacement!
+They say Charon's boat fee depends on charisma, experience doesn't matter.
+They say that the bill bec-de-bardiche glaive-guisarme isn't really that great.
+You can always tell a potion of levitation: it'll be the one floating in the air.
+You can't make an Amulet without breaking some eggs.
+A hacker once tried to recharge a spellbook of charging and got 20 extra charges.
+Nexus is how you can max out your strength, because every point above 18 in some other stat will be converted to 10 percentage points of strength.
+They say that trove corpses are excellent for sacrificing.
+They say that in order to make your god really happy, stash every corpse you find in your portable ice box.
+The best defense against purple worms is a ring of slow digestion, you absolutely cannot die to them while wearing one!
+Eating viva rings and amulets cannot give you the intrinsic associated with them. But if you eat them while already having it, the intrinsic will be lost!
+If you use a weapon made of platinum against a monster that has contamination attacks, you only ever do a single point of damage, and additionally the weapon will be disenchanted every time.
+Equipment made of silk will increase the chance that monsters with armor-shredding attacks spawn and try to rip your precious garments to shreds.
+Got both the gun control and squeaking skills at expert or higher? Great! That allows you to fart more powerfully with the #monster command, making all monsters on the level turn to flee for 100 turns.
+Monsters with explosion attacks will blow up all adjacent exploders when they explode.
+You will summon peaceful fanservice girls if you dilute oil in water.
+Is your spell list getting littered with useless spells that would take forever to become forgotten spells? Use the new #spelldelete command!
+Remember, you can delete a random spell from your list with #spelldelete but it may accidentally delete one that you actually needed.
+Ran out of skill points? Level up some more. XL30 already? Well too bad, you have to make do with the amount of skill points you have.
+A forgotten spell is as good as another, it doesn't matter which one it is. You can repeatedly attempt to use them for no cost in order to get confused.
+They say that if your magic marker has at least 100 ink, you're guaranteed to be able to write a scroll of world fall.
+If your experience level is at least 25, a potion of gain level will immediately take you all the way to XL30 and give you bonuses, intrinsics and stuff for all the levels it skips.
+Tired of that stupid 'finalized' attribute on every other potion? Dip them into lethe water! Then they'll forget that they were finalized.
+World fall has a potency level when used by the player. All monsters whose level isn't more than twice that potency level will die outright.
+The shopkeepers' uncurse services are much more useful if you purchase them while impaired, because it'll guaranteed-bless the item you select!
+Symbiotes weigh more if your skill with them goes up, which is stupid design but that's how the game works.
+Whenever you sink-drop a ring of a type that you haven't yet dropped down that particular sink yet, there's a 1% chance of getting a wish!
+Protip! Kicking a sink has 1% chance per kick to give you a wish, and since you can just try repeatedly, each sink is basically one wish!
+If your unicorn horn glows black, you can use it to confuse yourself on demand with zero risk as long as you still have one that glows cyan.
+Be careful when playing a magical instrument while impaired, it can explode. You can still play mundane ones with impunity though.
+When levitating, you might expect to be able to drop your potions on soft terrain like sand, grass or snow, but this stupid game doesn't care and will cause the bottles to break anyway.
+If you want your pets to attack Rodney, you can forget it unless you level them up all the way to 29.
+Once you find a touchstone, identifying gems becomes easy. Just rub every insignificant gem or stone you find, and put the stone away when there's item-cursing monsters around.
+Killing a shopkeeper or temple priest is basically the litmus test for your character: if you can pull it off, any such NPCs you find deeper down will also be cannon fodder.
+If a nurse doesn't offer the services you need, tough luck. It means that this specific service is globally unavailable in your current game and you have to make do without it.
+They say that automatic searching has double the chance of finding something compared to manual searching.
+If a giant is throwing boulders at you, a sound strategy is to hide behind the first boulder so that the giant cannot see you.
+The potion of vampire blood can transform you into the base "vampire" monster indefinitely.
+Some monsters are heavily armored, but if you equip a heavy machine gun you can easily pierce their armor and hit them anyway.
+They say that you can secure an infinite food supply by using the stone to flesh spell on stone golems.
+Is your wand of wishing cursed and you don't have a way of uncursing it? Just engrave with it instead, you'll get your wishes. Guaranteed.
+They say that even adventurers with little to no symbiosis skill are guaranteed to succeed with the symbiote token as long as the target monster has no monster magic resistance.
+The green slime race has magikarp power, which comes online as soon as they defeat Medusa.
+The Wizard has a pet zruty, which you can easily recruit with the charm monster spell and then it kicks the monsters' butts.
+They say that heavy two-handed weapons actually improve your defenses because they can be used to block attacks.
+A hacker named Catalina once cured her living by setting fire to the escape helicopter.
+An easy way to make a lot of money is to just sell those superfluous scrolls of healing and mana, because they fetch a lot of gold.
+Don't worry if you sold an expensive item to a shop. You can easily take it back and sell it to the next shop one level below. They don't have EAN codes to track the items yet.
+Once, a hacker came running to me, shouting "I have cyan spells! I have cyan spells!" I took a look at her spell list and riled her up by pointing out that her gender change spell had actually been forgotten already, hahaha!
+If you end up with an amulet of strangulation on your neck, breathe easily. It'll take several thousand turns to slowly kill you, and by that point you'll surely have a method of uncursing it.
+Showing the quest artifact to your leader after the nemesis has been killed will do nothing except give some boring fluff speech.
+Looking for an implant? Why, chatting to a farting monster will occasionally show you a list with ones you can buy!
+Yellow-highlighted monsters with "Steed" appended to their name actually do nothing at all, it's just a clever trap designed to make you futilely attempt to saddle them over and over with zero chance of success.
+If you are stupid enough to BREAK a wand on purpose, it will damage your devices skill. And if that causes you to be set back to a lower skill level, it reduces your maximum reachable skill level, too, so be very careful.
+If you ascend, you'll be able to enter freeplay mode where the riders will change levels with you while still resurrecting endlessly, and the bad effects of carrying the Amulet of Yendor will be active even if you're not carrying it anymore.
+They say that farting monsters are mortally scared of toilets and won't enter a square with a toilet, nor attack or fart at players standing on one.

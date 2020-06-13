@@ -12,57 +12,11 @@
 #include "edog.h"
 #include "artifact.h"
 #include "display.h"
-#include "global.h" 
+#include "global.h"
 #include "quest.h"
 #include "qtext.h"
 
 #include <ctype.h>
-
-#define PN_POLEARMS		(-1)
-#define PN_SABER		(-2)
-#define PN_HAMMER		(-3)
-#define PN_WHIP			(-4)
-#define PN_PADDLE		(-5)
-#define PN_FIREARMS		(-6)
-#define PN_ATTACK_SPELL		(-7)
-#define PN_HEALING_SPELL	(-8)
-#define PN_DIVINATION_SPELL	(-9)
-#define PN_ENCHANTMENT_SPELL	(-10)
-#define PN_PROTECTION_SPELL	(-11)
-#define PN_BODY_SPELL		(-12)
-#define PN_OCCULT_SPELL		(-13)
-#define PN_ELEMENTAL_SPELL		(-14)
-#define PN_CHAOS_SPELL		(-15)
-#define PN_MATTER_SPELL		(-16)
-#define PN_BARE_HANDED		(-17)
-#define PN_HIGH_HEELS		(-18)
-#define PN_GENERAL_COMBAT		(-19)
-#define PN_SHIELD		(-20)
-#define PN_BODY_ARMOR		(-21)
-#define PN_TWO_HANDED_WEAPON		(-22)
-#define PN_POLYMORPHING		(-23)
-#define PN_DEVICES		(-24)
-#define PN_SEARCHING		(-25)
-#define PN_SPIRITUALITY		(-26)
-#define PN_PETKEEPING		(-27)
-#define PN_MISSILE_WEAPONS		(-28)
-#define PN_TECHNIQUES		(-29)
-#define PN_IMPLANTS		(-30)
-#define PN_SEXY_FLATS		(-31)
-#define PN_SHII_CHO		(-32)
-#define PN_MAKASHI		(-33)
-#define PN_SORESU		(-34)
-#define PN_ATARU		(-35)
-#define PN_SHIEN		(-36)
-#define PN_DJEM_SO		(-37)
-#define PN_NIMAN		(-38)
-#define PN_JUYO		(-39)
-#define PN_VAAPAD		(-40)
-#define PN_WEDI		(-41)
-#define PN_MARTIAL_ARTS		(-42)
-#define PN_RIDING		(-43)
-#define PN_TWO_WEAPONS		(-44)
-#define PN_LIGHTSABER		(-45)
 
 #ifndef OVLB
 
@@ -94,13 +48,15 @@ STATIC_OVL NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
 	PN_TWO_HANDED_WEAPON,	PN_POLYMORPHING,	PN_DEVICES,
 	PN_SEARCHING,	PN_SPIRITUALITY,	PN_PETKEEPING,
 	PN_MISSILE_WEAPONS,	PN_TECHNIQUES,	PN_IMPLANTS,	PN_SEXY_FLATS,
+	PN_MEMORIZATION,	PN_GUN_CONTROL,	PN_SQUEAKING,	PN_SYMBIOSIS,
 	PN_SHII_CHO,	PN_MAKASHI,	PN_SORESU,
 	PN_ATARU,	PN_SHIEN,	PN_DJEM_SO,
 	PN_NIMAN,	PN_JUYO,	PN_VAAPAD,	PN_WEDI,
-	PN_MARTIAL_ARTS, 
+	PN_MARTIAL_ARTS,
 	PN_TWO_WEAPONS,
 	PN_RIDING,
 };
+
 
 STATIC_OVL NEARDATA const char * const odd_skill_names[] = {
     "no skill",
@@ -135,6 +91,10 @@ STATIC_OVL NEARDATA const char * const odd_skill_names[] = {
     "techniques",
     "implants",
     "sexy flats",
+    "memorization",
+    "gun control",
+    "squeaking",
+    "symbiosis",
     "form I (Shii-Cho)",
     "form II (Makashi)",
     "form III (Soresu)",
@@ -158,7 +118,7 @@ STATIC_OVL NEARDATA const char * const odd_skill_names[] = {
 			odd_skill_names[-skill_names_indices[type]])
 
 void display_monster(XCHAR_P,XCHAR_P,struct monst *,int,XCHAR_P);
- 
+
 STATIC_DCL boolean restrap(struct monst *);
 STATIC_DCL long mm_aggression(struct monst *,struct monst *);
 #ifdef OVL2
@@ -168,17 +128,6 @@ STATIC_DCL void kill_eggs(struct obj *);
 #endif
 
 /* make wraith luring unnecessary --Amy */
-
-#ifdef REINCARNATION
-#define LEVEL_SPECIFIC_NOCORPSE(mdat) \
-	 ( (Is_rogue_level(&u.uz) && rn2(2)) || \
-	   ( (level.flags.graveyard || mdat == &mons[PM_WRAITH] || mdat == &mons[PM_BIG_WRAITH] || mdat == &mons[PM_HUGE_WRAITH] || mdat == &mons[PM_GIGANTIC_WRAITH] || mdat == &mons[PM_WAFER_THIN_MINT] || mdat == &mons[PM_WRAITH_SHAMAN] || mdat == &mons[PM_NASTY_WRAITH] || mdat == &mons[PM_CREEPING___] ) && is_undead(mdat) && !is_reviver(mdat) && !(mdat == &mons[PM_TROLL_ZOMBIE]) && !(mdat == &mons[PM_EGO_TROLL_MUMMY]) && !(mdat == &mons[PM_TROLL_PERMAMIMIC_MUMMY]) && !(mdat == &mons[PM_TROLL_MUMMY]) && \
-	    mdat != &mons[PM_VECNA] && rn2(3)))
-#else
-#define LEVEL_SPECIFIC_NOCORPSE(mdat) \
-	   ((level.flags.graveyard || mdat == &mons[PM_WRAITH] || mdat == &mons[PM_BIG_WRAITH] || mdat == &mons[PM_HUGE_WRAITH] || mdat == &mons[PM_GIGANTIC_WRAITH] || mdat == &mons[PM_WAFER_THIN_MINT] || mdat == &mons[PM_WRAITH_SHAMAN] || mdat == &mons[PM_NASTY_WRAITH] || mdat == &mons[PM_CREEPING___] ) && is_undead(mdat) && !is_reviver(mdat) && !(mdat == &mons[PM_TROLL_ZOMBIE]) && !(mdat == &mons[PM_EGO_TROLL_MUMMY]) && !(mdat == &mons[PM_TROLL_PERMAMIMIC_MUMMY]) && !(mdat == &mons[PM_TROLL_MUMMY]) && \
-	    mdat != &mons[PM_VECNA] && rn2(3))
-#endif
 
 #define STARVATION_SPECIFIC_NOCORPSE(mdat) \
 	 (!is_reviver(mdat) && !(mdat == &mons[PM_TROLL_ZOMBIE]) && !(mdat == &mons[PM_EGO_TROLL_MUMMY]) && !(mdat == &mons[PM_TROLL_PERMAMIMIC_MUMMY]) && !(mdat == &mons[PM_TROLL_MUMMY]))
@@ -198,32 +147,58 @@ STATIC_DCL void warn_effects(void);
 #endif /* 0 */
 
 #ifndef OVLB
-STATIC_VAR short cham_to_pm[];
+STATIC_VAR int cham_to_pm[];
 #else
 STATIC_DCL struct obj *make_corpse(struct monst *);
 STATIC_DCL void m_detach(struct monst *, struct permonst *);
 STATIC_DCL void lifesaved_monster(struct monst *);
 static void unpoly_monster(struct monst *);
+STATIC_DCL boolean level_specific_nocorpse(struct permonst *);
+
+STATIC_OVL boolean
+level_specific_nocorpse(mdat)
+struct permonst *mdat;
+{
+#ifdef REINCARNATION
+	if (Is_rogue_level(&u.uz) && rn2(2)) return TRUE;
+#endif
+	if ((level.flags.graveyard || mdat == &mons[PM_WRAITH] || mdat == &mons[PM_HUDDLED_WRAITH] || mdat == &mons[PM_HITTABLE_WRAITH] || mdat == &mons[PM_BIG_WRAITH] || mdat == &mons[PM_CREVICE_WRAITH] || mdat == &mons[PM_HUGE_WRAITH] || mdat == &mons[PM_GIGANTIC_WRAITH] || mdat == &mons[PM_WAFER_THIN_MINT] || mdat == &mons[PM_WRAITH_SHAMAN] || mdat == &mons[PM_NASTY_WRAITH] || mdat == &mons[PM_CREEPING___] ) && is_undead(mdat) && !is_reviver(mdat) && mdat != &mons[PM_TROLL_ZOMBIE] && mdat != &mons[PM_EGO_TROLL_MUMMY] && mdat != &mons[PM_TROLL_PERMAMIMIC_MUMMY] && mdat != &mons[PM_TROLL_MUMMY] && mdat != &mons[PM_VECNA] && rn2(3)) return TRUE;
+
+	return FALSE;
+}
 
 /* convert the monster index of an undead to its living counterpart */
 int
 undead_to_corpse(mndx)
 int mndx;
 {
+
 	switch (mndx) {
 	case PM_KOBOLD_ZOMBIE:
+	case PM_GHEY_KOBOLD_ZOMBIE:
+	case PM_EVIL_KOBOLD_MUMMY:
 	case PM_KOBOLD_MUMMY:	mndx = PM_KOBOLD;  break;
 	case PM_OGRE_ZOMBIE:
+	case PM_EVIL_OGRE_MUMMY:
 	case PM_OGRE_MUMMY:	mndx = PM_OGRE;  break;
 	case PM_DWARF_ZOMBIE:
+	case PM_EVIL_DWARF_MUMMY:
 	case PM_DWARF_MUMMY:	mndx = PM_DWARF;  break;
+	case PM_COCKATRICE_ZOMBIE:
+	case PM_COCKATRICE_MUMMY:	mndx = PM_COCKATRICE;  break;
 	case PM_GNOME_ZOMBIE:
+	case PM_EVIL_GNOME_MUMMY:
 	case PM_GNOME_MUMMY:	mndx = PM_GNOME;  break;
 	case PM_ORC_ZOMBIE:
+	case PM_NEVER_AN_ORC_ZOMBIE:
+	case PM_DEFINITELY_NOT_ORC_MUMMY:
+	case PM_EVIL_ORC_MUMMY:
 	case PM_ORC_MUMMY:	mndx = PM_ORC;  break;
 	case PM_DROW_MUMMY:
 	case PM_DROW_ZOMBIE:
 	case PM_ELF_ZOMBIE:
+	case PM_EVIL_ELF_MUMMY:
+	case PM_EVIL_DROW_MUMMY:
 	case PM_ELF_MUMMY:	mndx = PM_ELF;  break;
 	case PM_VAMPIRE:
 	case PM_VAMPIRE_LORD:
@@ -277,14 +252,20 @@ int mndx;
 	case PM_WAIVED_POTATO:
 	case PM_DEAD_POTATO:
 	case PM_ADOM_MUMMY:
+	case PM_EVIL_HUMAN_MUMMY:
 	case PM_HUMAN_MUMMY:	mndx = PM_HUMAN;  break;
 	case PM_GIANT_ZOMBIE:
+	case PM_EVIL_GIANT_MUMMY:
 	case PM_GIANT_MUMMY:	mndx = PM_GIANT;  break;
 	case PM_ETTIN_ZOMBIE:
+	case PM_PROTESTAINST_ETTIN_ZOMBIE:
+	case PM_CALLS_ITSELF_ETTIN_MUMMY:
+	case PM_EVIL_ETTIN_MUMMY:
 	case PM_ETTIN_MUMMY:	mndx = PM_ETTIN;  break;
 	case PM_TROLL_ZOMBIE:
 	case PM_EGO_TROLL_MUMMY:
 	case PM_TROLL_PERMAMIMIC_MUMMY:
+	case PM_EVIL_TROLL_MUMMY:
 	case PM_TROLL_MUMMY:    mndx = PM_TROLL;  break;
 	case PM_MIMIC_MUMMY:    mndx = PM_GIANT_MIMIC;  break;
 	case PM_TASMANIAN_ZOMBIE:    mndx = PM_TASMANIAN_DEVIL;  break;
@@ -344,8 +325,19 @@ int mndx;
 
 	switch (mndx) {
 	case PM_CHAMELEON:	mcham = CHAM_CHAMELEON; break;
+	case PM_CHAMECHAUN:	mcham = CHAM_CHAMECHAUN; break;
+	case PM_METAMORPHOSE:	mcham = CHAM_METAMORPHOSE; break;
+	case PM_GHELEON:	mcham = CHAM_GHELEON; break;
+	case PM_PURPLE_R:	mcham = CHAM_PURPLE_R; break;
+	case PM_VAMPSHIFTER:	mcham = CHAM_VAMPSHIFTER; break;
+	case PM_UNGENOCIDABLE_VAMPSHIFTER:	mcham = CHAM_UNGENOCIDABLE_VAMPSHIFTER; break;
+	case PM_CHARMONIE:	mcham = CHAM_CHARMONIE; break;
+	case PM_EDOTO:	mcham = CHAM_EDOTO; break;
+	case PM_COCKAMELEON:	mcham = CHAM_COCKAMELEON; break;
+	case PM_GREEN_SLAAD:	mcham = CHAM_GREEN_SLAAD; break;
 	case PM_KARMA_CHAMELEON:	mcham = CHAM_KARMA_CHAMELEON; break;
 	case PM_DOPPELGANGER:	mcham = CHAM_DOPPELGANGER; break;
+	case PM_METAL_DOPPELGANGER:	mcham = CHAM_METAL_DOPPELGANGER; break;
 	case PM_DOPPLEZON:	mcham = CHAM_DOPPLEZON; break;
 	case PM_SANDESTIN:	mcham = CHAM_SANDESTIN; break;
 	case PM_MISSINGNO:	mcham = CHAM_MISSINGNO; break;
@@ -370,6 +362,7 @@ int mndx;
 	case PM_SHOEMELEON:	mcham = CHAM_SHOEMELEON; break;
 	case PM_POLYFESHNEE:	mcham = CHAM_POLYFESHNEE; break;
 	case PM_COVETOUSLEON:	mcham = CHAM_COVETOUSLEON; break;
+	case PM_THE_ZRUTINATOR:	mcham = CHAM_ZRUTINATOR; break;
 	case PM_WHORED_HORE:	mcham = CHAM_WHORED_HORE; break;
 	case PM_LULU_ASS:	mcham = CHAM_LULU_ASS; break;
 	case PM_TENDER_JESSE:	mcham = CHAM_TENDER_JESSE; break;
@@ -381,6 +374,10 @@ int mndx;
 	case PM_OFFDIVER:	mcham = CHAM_OFFDIVER; break;
 	case PM_SLUMBER_HULK:	mcham = CHAM_SLUMBER_HULK; break;
 	case PM_IVEL_WUXTINA:	mcham = CHAM_IVEL_WUXTINA; break;
+	case PM_EARLY_LEON:	mcham = CHAM_EARLY_LEON; break;
+	case PM_CHANGELING:	mcham = CHAM_CHANGELING; break;
+	case PM_CHANGELING_ZOMBIE:	mcham = CHAM_CHANGELING_ZOMBIE; break;
+	case PM_CHANGELING_MUMMY:	mcham = CHAM_CHANGELING_MUMMY; break;
 	case PM_GIANT_CHAMELEON:	mcham = CHAM_GIANT_CHAMELEON; break;
 	default: mcham = CHAM_ORDINARY; break;
 	}
@@ -388,7 +385,7 @@ int mndx;
 }
 
 /* convert chameleon index to monster index */
-STATIC_VAR short cham_to_pm[] = {
+STATIC_VAR int cham_to_pm[] = {
 		NON_PM,		/* placeholder for CHAM_ORDINARY */
 		PM_CHAMELEON,
 		PM_DOPPELGANGER,
@@ -428,6 +425,22 @@ STATIC_VAR short cham_to_pm[] = {
 		PM_OFFDIVER,
 		PM_SLUMBER_HULK,
 		PM_IVEL_WUXTINA,
+		PM_EARLY_LEON,
+		PM_CHAMECHAUN,
+		PM_METAL_DOPPELGANGER,
+		PM_GHELEON,
+		PM_THE_ZRUTINATOR,
+		PM_METAMORPHOSE,
+		PM_GREEN_SLAAD,
+		PM_CHANGELING,
+		PM_CHANGELING_MUMMY,
+		PM_CHANGELING_ZOMBIE,
+		PM_COCKAMELEON,
+		PM_CHARMONIE,
+		PM_EDOTO,
+		PM_PURPLE_R,
+		PM_VAMPSHIFTER,
+		PM_UNGENOCIDABLE_VAMPSHIFTER,
 		PM_GIANT_CHAMELEON,
 };
 
@@ -480,6 +493,11 @@ register struct monst *mtmp;
 	    case PM_RUBY_DRAGON:
 	    case PM_GREEN_DRAGON:
 	    case PM_GOLDEN_DRAGON:
+	    case PM_FEMINISM_DRAGON:
+	    case PM_CANCEL_DRAGON:
+	    case PM_NEGATIVE_DRAGON:
+	    case PM_CORONA_DRAGON:
+	    case PM_HEROIC_DRAGON:
 	    case PM_STONE_DRAGON:
 	    case PM_CYAN_DRAGON:
 	    case PM_PSYCHIC_DRAGON:
@@ -496,7 +514,54 @@ register struct monst *mtmp;
 		if (!rn2(mtmp->mrevived ? 20 : 3)) {
 		    num = GRAY_DRAGON_SCALES + monsndx(mdat) - PM_GRAY_DRAGON;
 		    if (!rn2(8)) num = GRAY_DRAGON_SCALE_SHIELD + monsndx(mdat) - PM_GRAY_DRAGON;
-		    obj = mksobj_at(num, x, y, TRUE, FALSE); /* allow random enchantment and BUC --Amy */
+		    obj = mksobj_at(num, x, y, TRUE, FALSE, FALSE); /* allow random enchantment and BUC --Amy */
+		    /*obj->spe = 0;
+		    obj->cursed = obj->blessed = FALSE;*/
+		}
+		goto default_1;
+
+	    case PM_GRAY_DRAGOM:
+	    case PM_MERCURIAL_DRAGOM:
+	    case PM_SILVER_DRAGOM:
+	    case PM_SHIMMERING_DRAGOM:
+	    case PM_DEEP_DRAGOM:
+	    case PM_RED_DRAGOM:
+	    case PM_ORANGE_DRAGOM:
+	    case PM_WHITE_DRAGOM:
+	    case PM_BLACK_DRAGOM:
+	    case PM_BLUE_DRAGOM:
+	    case PM_COPPER_DRAGOM:
+	    case PM_PLATINUM_DRAGOM:
+	    case PM_BRASS_DRAGOM:
+	    case PM_AMETHYST_DRAGOM:
+	    case PM_PURPLE_DRAGOM:
+	    case PM_DIAMOND_DRAGOM:
+	    case PM_EMERALD_DRAGOM:
+	    case PM_SAPPHIRE_DRAGOM:
+	    case PM_RUBY_DRAGOM:
+	    case PM_GREEN_DRAGOM:
+	    case PM_GOLDEN_DRAGOM:
+	    case PM_FEMINISM_DRAGOM:
+	    case PM_CANCEL_DRAGOM:
+	    case PM_NEGATIVE_DRAGOM:
+	    case PM_HEROIC_DRAGOM:
+	    case PM_STONE_DRAGOM:
+	    case PM_CYAN_DRAGOM:
+	    case PM_PSYCHIC_DRAGOM:
+	    case PM_RAINBOW_DRAGOM:
+	    case PM_BLOOD_DRAGOM:
+	    case PM_PLAIN_DRAGOM:
+	    case PM_SKY_DRAGOM:
+	    case PM_WATER_DRAGOM:
+	    case PM_EVIL_DRAGOM:
+	    case PM_MAGIC_DRAGOM:
+	    case PM_YELLOW_DRAGOM:
+		/* Make dragon scales.  This assumes that the order of the */
+		/* dragons is the same as the order of the scales.	   */
+		if (!rn2(mtmp->mrevived ? 20 : 3)) {
+		    num = GRAY_DRAGON_SCALES + monsndx(mdat) - PM_GRAY_DRAGOM;
+		    if (!rn2(8)) num = GRAY_DRAGON_SCALE_SHIELD + monsndx(mdat) - PM_GRAY_DRAGOM;
+		    obj = mksobj_at(num, x, y, TRUE, FALSE, FALSE); /* allow random enchantment and BUC --Amy */
 		    /*obj->spe = 0;
 		    obj->cursed = obj->blessed = FALSE;*/
 		}
@@ -518,8 +583,39 @@ register struct monst *mtmp;
 	    case PM_SMOKY_QUARTZ_UNICORN:
 	    case PM_JET_UNICORN:
 	    case PM_PEARL_UNICORN:
+	    case PM_SELF_FLAGELLATING_UNICORN:
+	    case PM_WIPED_UNICORN:
+	    case PM_GREAT_WHITE_UNICORN:
+	    case PM_GREAT_GRAY_UNICORN:
+	    case PM_GREAT_BLACK_UNICORN:
+	    case PM_SUPERPOWERED_WHITE_UNICORN:
+	    case PM_SUPERPOWERED_GRAY_UNICORN:
+	    case PM_SUPERPOWERED_BLACK_UNICORN:
+	    case PM_REAR_WHITE_UNICORN:
+	    case PM_REAR_GRAY_UNICORN:
+	    case PM_REAR_BLACK_UNICORN:
+	    case PM_BEHIDE_WHITE_UNICORN:
+	    case PM_BEHIDE_GRAY_UNICORN:
+	    case PM_BEHIDE_BLACK_UNICORN:
 	    case PM_PURE_WHITE_UNICORN:
+	    case PM_ETHER_UNICORN:
 	    case PM_WHITE_UNICORN_FOAL:
+	    case PM_BEGIN_UNICORN:
+	    case PM_WEIT_UNICORN:
+	    case PM_DORK_UNICORN:
+	    case PM_PROSE_UNICORN:
+	    case PM_ILLUSION_HORN:
+	    case PM_BLOODY_HORN:
+	    case PM_DEVIOUS_HORN:
+	    case PM_CEMENT_UNICORN:
+	    case PM_TAR_UNICORN:
+	    case PM_COCOON_ANTIHERO:
+	    case PM_EVIL_SAVIOR:
+	    case PM_BADFICINA:
+	    case PM_SLAU_UNICORN:
+	    case PM_UNICORN_ZOMBIE:
+	    case PM_LEYM_UNICORN:
+	    case PM_STED_UNICORN:
 	    case PM_GRAY_UNICORN_FOAL:
 	    case PM_BLACK_UNICORN_FOAL:
 	    case PM_GRAY_UNICORN:
@@ -529,6 +625,16 @@ register struct monst *mtmp;
 	    case PM_PORTER_BLACK_UNICORN:
 	    case PM_PURPLE_UNICORN:
 	    case PM_PINK_UNICORN:
+	    case PM_ORANGE_UNICORN:
+	    case PM_CYAN_UNICORN:
+	    case PM_BROWN_UNICORN:
+	    case PM_RED_UNICORN:
+	    case PM_YELLOW_UNICORN:
+	    case PM_GREEN_UNICORN:
+	    case PM_ULTRAVIOLET_UNICORN:
+	    case PM_XRAY_UNICORN:
+	    case PM_SPOTTED_UNICORN:
+	    case PM_LESSER_SPOTTED_UNICORN:
 	    case PM_POLECORN:
 	    case PM_HUGE_POLECORN:
 	    case PM_GOLDEN_UNICORN:
@@ -555,46 +661,74 @@ register struct monst *mtmp;
 			   pline("%s recently regrown horn crumbles to dust.",
 				s_suffix(Monnam(mtmp)));
 		} else
-			(void) mksobj_at(UNICORN_HORN, x, y, TRUE, FALSE);
+			(void) mksobj_at(UNICORN_HORN, x, y, TRUE, FALSE, FALSE);
+		goto default_1;
+	    case PM_ARCANE_LIGHT_UNICORN:
+	    case PM_ARCANE_MEDIUM_UNICORN:
+	    case PM_ARCANE_EVIL_UNICORN:
+		if (mtmp->mrevived && rn2(20)) {
+			if (canseemon(mtmp))
+			   pline("%s recently regrown horn crumbles to dust.",
+				s_suffix(Monnam(mtmp)));
+		} else
+			(void) mksobj_at(ARCANE_HORN, x, y, TRUE, FALSE, FALSE);
+		goto default_1;
+	    case PM_COLLUDE_UNICORN:
+		if (mtmp->mrevived && rn2(20)) {
+			if (canseemon(mtmp))
+			   pline("%s recently regrown horn crumbles to dust.",
+				s_suffix(Monnam(mtmp)));
+		} else
+			(void) mksobj_at(DARK_HORN, x, y, TRUE, FALSE, FALSE);
 		goto default_1;
 	    case PM_LONG_WORM: /* crysknives are too powerful, they should be rare --Amy */
-		if (!rn2(20)) (void) mksobj_at(WORM_TOOTH, x, y, TRUE, FALSE);
+		if (!rn2(20)) (void) mksobj_at(WORM_TOOTH, x, y, TRUE, FALSE, FALSE);
 		goto default_1;
 	    case PM_KILLER_TRIPE_RATION:
 	    case PM_PERSONALIZED_KILLER_TRIPE_RATION:
-		(void) mksobj_at(TRIPE_RATION, x, y, TRUE, FALSE);
+		(void) mksobj_at(TRIPE_RATION, x, y, TRUE, FALSE, FALSE);
 		newsym(x, y);
 		return (struct obj *)0;
 	    case PM_KILLER_APPLE:
 	    case PM_IWBTG_APPLE:
-		(void) mksobj_at(APPLE, x, y, TRUE, FALSE);
+		(void) mksobj_at(APPLE, x, y, TRUE, FALSE, FALSE);
+		newsym(x, y);
+		return (struct obj *)0;
+	    case PM_KILLER_PEAR:
+		(void) mksobj_at(ASIAN_PEAR, x, y, TRUE, FALSE, FALSE);
 		newsym(x, y);
 		return (struct obj *)0;
 	    case PM_EVIL_ORANGE:
-		(void) mksobj_at(ORANGE, x, y, TRUE, FALSE);
+		(void) mksobj_at(ORANGE, x, y, TRUE, FALSE, FALSE);
 		newsym(x, y);
 		return (struct obj *)0;
 	    case PM_FLOATING_LEMON:
-		(void) mksobj_at(LEMON, x, y, TRUE, FALSE);
+		(void) mksobj_at(LEMON, x, y, TRUE, FALSE, FALSE);
 		newsym(x, y);
 		return (struct obj *)0;
 	    case PM_FLOATING_MELON:
-		(void) mksobj_at(MELON, x, y, TRUE, FALSE);
+		(void) mksobj_at(MELON, x, y, TRUE, FALSE, FALSE);
 		newsym(x, y);
 		return (struct obj *)0;
 	    case PM_RAVENOUS_CREAM_PIE:
 	    case PM_KOP_BRANDED_RAVENOUS_CREAM_PIE:
-		(void) mksobj_at(CREAM_PIE, x, y, TRUE, FALSE);
+		(void) mksobj_at(CREAM_PIE, x, y, TRUE, FALSE, FALSE);
 		newsym(x, y);
 		return (struct obj *)0;
 	    case PM_KILLER_FOOD_RATION:
+	    case PM_GIANT_FOOD_RATION:
+	    case PM_EXTRA_ONIONY_FOOD_RATION:
 	    case PM_ROTTEN_FOOD_RATION:
-		(void) mksobj_at(FOOD_RATION, x, y, TRUE, FALSE);
+		(void) mksobj_at(FOOD_RATION, x, y, TRUE, FALSE, FALSE);
+		newsym(x, y);
+		return (struct obj *)0;
+	    case PM_KILLER_MEATBALL:
+		(void) mksobj_at(MEATBALL, x, y, TRUE, FALSE, FALSE);
 		newsym(x, y);
 		return (struct obj *)0;
 	    case PM_BAD_EGG:
 	    case PM_PORTER_BAD_EGG:
-		(void) mksobj_at(EGG, x, y, TRUE, FALSE);
+		(void) mksobj_at(EGG, x, y, TRUE, FALSE, FALSE);
 		newsym(x, y);
 		return (struct obj *)0;
 	    case PM_VAMPIRE:
@@ -605,10 +739,14 @@ register struct monst *mtmp;
 		obj = mkcorpstat(CORPSE, mtmp, &mons[num], x, y, TRUE);
 		obj->age -= 100;		/* this is an *OLD* corpse */
 		break;
+	    case PM_EVIL_KOBOLD_MUMMY:
 	    case PM_KOBOLD_MUMMY:
 	    case PM_DWARF_MUMMY:
 	    case PM_GNOME_MUMMY:
 	    case PM_ORC_MUMMY:
+	    case PM_COCKATRICE_MUMMY:
+	    case PM_COCKATRICE_ZOMBIE:
+	    case PM_DEFINITELY_NOT_ORC_MUMMY:
 	    case PM_ELF_MUMMY:
 	    case PM_HUMAN_MUMMY:
 	    case PM_MUMMY:
@@ -617,17 +755,20 @@ register struct monst *mtmp;
 	    case PM_MIMIC_MUMMY:
 	    case PM_GIANT_MUMMY:
 	    case PM_ETTIN_MUMMY:
-	    case PM_TROLL_MUMMY:            
-	    case PM_EGO_TROLL_MUMMY:            
+	    case PM_CALLS_ITSELF_ETTIN_MUMMY:
+	    case PM_TROLL_MUMMY:
+	    case PM_EGO_TROLL_MUMMY:
 	    case PM_TROLL_PERMAMIMIC_MUMMY:
-	    case PM_TROLL_ZOMBIE:            
+	    case PM_TROLL_ZOMBIE:
 	    case PM_KOBOLD_ZOMBIE:
+	    case PM_GHEY_KOBOLD_ZOMBIE:
 	    case PM_OGRE_ZOMBIE:
 	    case PM_JUJU_ZOMBI:
 	    case PM_OGRE_MUMMY:
 	    case PM_DWARF_ZOMBIE:
 	    case PM_GNOME_ZOMBIE:
 	    case PM_ORC_ZOMBIE:
+	    case PM_NEVER_AN_ORC_ZOMBIE:
 	    case PM_ELF_ZOMBIE:
 	    case PM_HUMAN_ZOMBIE:
 	case PM_GRUNTHACK_ZOMBIE:
@@ -671,6 +812,7 @@ register struct monst *mtmp;
 	case PM_WEAUM_ZOMBIE:
 	    case PM_GIANT_ZOMBIE:
 	    case PM_ETTIN_ZOMBIE:
+	    case PM_PROTESTAINST_ETTIN_ZOMBIE:
 		case PM_GNOLL_GHOUL:
 	    case PM_DRAUGR_ZOMBIE:
 	    case PM_STEEL_ZOMBIE:
@@ -685,6 +827,7 @@ register struct monst *mtmp;
 		obj = mkcorpstat(CORPSE, mtmp, &mons[num], x, y, TRUE);
 		obj->age -= 100;		/* this is an *OLD* corpse */
 		break;
+	    case PM_ROTTEN_WIGHT:
 	    case PM_WIGHT:
 	    case PM_FOREST_WIGHT:
 	    case PM_GRAVE_WIGHT:
@@ -707,7 +850,10 @@ register struct monst *mtmp;
 	    case PM_GRAVE_WARRIOR:
 	    case PM_ULTRA_WIGHT:
 	    case PM_GHOUL:
+	    case PM_OH_GOD_GHOUL:
 	    case PM_GHAST:
+	    case PM_LOL_WE_INVENTED_ANOTHER_GHAST:
+	    case PM_STINKING_ALIEN:
 	    case PM_GASTLY:
 	    case PM_HAUNTER:
 	    case PM_GENGAR:
@@ -770,6 +916,17 @@ register struct monst *mtmp;
 	    case PM_UNDEAD_COURIER:
 	    case PM_UNDEAD_SPACEWARS_FIGHTER:
 	    case PM_UNDEAD_CAMPERSTRIKER:
+	    case PM_UNDEAD_CARTOMANCER:
+	    case PM_UNDEAD_DRAGONMASTER:
+	    case PM_UNDEAD_FJORDE:
+	    case PM_UNDEAD_PRACTICANT:
+	    case PM_UNDEAD_EMERA:
+	    case PM_UNDEAD_TOSSER:
+	    case PM_UNDEAD_AKLYST:
+	    case PM_UNDEAD_MILL_SWALLOWER:
+	    case PM_UNDEAD_SYMBIANT:
+	    case PM_UNDEAD_GENDERSTARIST:
+	    case PM_UNDEAD_COMBATANT:
 	    case PM_UNDEAD_ZYBORG:
 	    case PM_UNDEAD_DEATH_EATER:
 	    case PM_UNDEAD_GANGSTER:
@@ -826,6 +983,11 @@ register struct monst *mtmp;
 	    case PM_UNDEAD_FORM_CHANGER:
 	    case PM_UNDEAD_TRACER:
 	    case PM_UNDEAD_MASON:
+	    case PM_UNDEAD_DEMAGOGUE:
+	    case PM_UNDEAD_CELLAR_CHILD:
+	    case PM_UNDEAD_GRENADONIN:
+	    case PM_UNDEAD_SOCIAL_JUSTICE_WARRIOR:
+	    case PM_UNDEAD_WALSCHOLAR:
 	    case PM_UNDEAD_HUSSY:
 	    case PM_UNDEAD_ANACHRONOUNBINDER:
 	    case PM_UNDEAD_NUCLEAR_PHYSICIST:
@@ -873,6 +1035,21 @@ register struct monst *mtmp;
 	    case PM_UNDEAD_ZOOKEEPER:
 	    case PM_UNDEAD_TRANSVESTITE:
 	    case PM_UNDEAD_TRANSSYLVANIAN:
+	    case PM_UNDEAD_SOFTWARE_ENGINEER:
+	    case PM_UNDEAD_CRACKER:
+	    case PM_UNDEAD_JANITOR:
+	    case PM_UNDEAD_SPACE_MARINE:
+	    case PM_UNDEAD_STORMBOY:
+	    case PM_UNDEAD_YAUTJA:
+	    case PM_UNDEAD_QUARTERBACK:
+	    case PM_UNDEAD_PSYKER:
+	    case PM_UNDEAD_EMPATH:
+	    case PM_UNDEAD_MASTERMIND:
+	    case PM_UNDEAD_WEIRDBOY:
+	    case PM_UNDEAD_ASTRONAUT:
+	    case PM_UNDEAD_CYBERNINJA:
+	    case PM_UNDEAD_DISSIDENT:
+	    case PM_UNDEAD_XELNAGA:
 	    case PM_UNDEAD_UNBELIEVER:
 	    case PM_UNDEAD_TOPMODEL:
 	    case PM_UNDEAD_ACTIVISTOR:
@@ -889,7 +1066,9 @@ register struct monst *mtmp;
 	    case PM_UNDEAD_PATCH:
 	    case PM_MOLDY_PATCH:
 	    case PM_UNDEAD_FORCE_FUNGUS:
+	    case PM_UNDEAD_WORT:
 	    case PM_MOLDY_FORCE_FUNGUS:
+	    case PM_MOLDY_WORT:
 	    case PM_UNDEAD_FORCE_PATCH:
 	    case PM_MOLDY_FORCE_PATCH:
 	    case PM_UNDEAD_WARP_FUNGUS:
@@ -907,6 +1086,7 @@ register struct monst *mtmp;
 	    case PM_UNDEAD_COLONY:
 	    case PM_MOLDY_COLONY:
 	    case PM_MUTATED_UNDEAD_POTATO:
+	    case PM_THOUL:
 		obj = mkcorpstat(CORPSE, (struct monst *)0, &mons[mndx], x, y, TRUE);
 		obj->age -= 100;                /* this is an *OLD* corpse */
 		break;
@@ -927,20 +1107,21 @@ register struct monst *mtmp;
 		}
 	    case PM_NIGHTMARE:
 			pline("All that remains is her horn...");
-			obj = oname(mksobj(UNICORN_HORN, TRUE, FALSE),
+			obj = oname(mksobj(UNICORN_HORN, TRUE, FALSE, FALSE),
 					artiname(ART_NIGHTHORN));
 			goto initspecial;
 	    case PM_BEHOLDER:
 			pline("All that remains is a single eye...");
-			obj = oname(mksobj(EYEBALL, TRUE, FALSE),
+			obj = oname(mksobj(EYEBALL, TRUE, FALSE, FALSE),
 					artiname(ART_EYE_OF_THE_BEHOLDER));
 			goto initspecial;
 	    case PM_VECNA:
 			pline("All that remains is a hand...");
-			obj = oname(mksobj(SEVERED_HAND, TRUE, FALSE),
+			obj = oname(mksobj(SEVERED_HAND, TRUE, FALSE, FALSE),
 					artiname(ART_HAND_OF_VECNA));
 		initspecial:
 			obj->quan = 1;
+			obj->owt = weight(obj);
 			curse(obj);
 			place_object(obj, x, y);
 			stackobj(obj);
@@ -950,13 +1131,13 @@ register struct monst *mtmp;
 	    case PM_IRON_GOLEM:
 		num = d(2,6);
 		while (num--)
-			obj = mksobj_at(IRON_CHAIN, x, y, TRUE, FALSE);
+			obj = mksobj_at(IRON_CHAIN, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_GLASS_GOLEM:
 		num = d(2,4);   /* very low chance of creating all glass gems */
 		while (num--)
-			obj = mksobj_at((LAST_GEM + rnd(9)), x, y, TRUE, FALSE);
+			obj = mksobj_at((LAST_GEM + rnd(9)), x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_RUBY_GOLEM:
@@ -965,26 +1146,44 @@ register struct monst *mtmp;
 		 * you can kill one of these guys, you deserve the gems. */
 		num = d(2,4);
 		while (num--)
-			obj = mksobj_at(RUBY, x, y, TRUE, FALSE);
+			obj = mksobj_at(RUBY, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_DIAMOND_GOLEM:
-		num = d(2,4);   
+		num = d(2,4);
 		while (num--)
-			obj = mksobj_at(DIAMOND, x, y, TRUE, FALSE);
+			obj = mksobj_at(DIAMOND, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_SAPPHIRE_GOLEM:
 		num = d(2,4);
 		while (num--)
-			obj = mksobj_at(SAPPHIRE, x, y, TRUE, FALSE);
+			obj = mksobj_at(SAPPHIRE, x, y, TRUE, FALSE, FALSE);
+		mtmp->mnamelth = 0;
+		break;
+	    case PM_EMERALD_GOLEM:
+		num = d(2,4);
+		while (num--)
+			obj = mksobj_at(EMERALD, x, y, TRUE, FALSE, FALSE);
+		mtmp->mnamelth = 0;
+		break;
+	    case PM_TOPAZ_GOLEM:
+		num = d(2,4);
+		while (num--)
+			obj = mksobj_at(TOPAZ, x, y, TRUE, FALSE, FALSE);
+		mtmp->mnamelth = 0;
+		break;
+	    case PM_AMETHYST_GOLEM:
+		num = d(2,4);
+		while (num--)
+			obj = mksobj_at(AMETHYST, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_STEEL_GOLEM:
 		num = d(2,6);
 		/* [DS] Add steel chains (or handcuffs!) for steel golems? */
 		while (num--)
-			obj = mksobj_at(IRON_CHAIN, x, y, TRUE, FALSE);
+			obj = mksobj_at(IRON_CHAIN, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_CRYSTAL_GOLEM:
@@ -994,12 +1193,12 @@ register struct monst *mtmp;
 		    int gemspan = LAST_GEM - bases[GEM_CLASS] + 1;
 		    while (num--)
 			obj = mksobj_at(bases[GEM_CLASS] + rn2(gemspan), x, y,
-		    			TRUE, FALSE);
+		    			TRUE, FALSE, FALSE);
 		    mtmp->mnamelth = 0;
 		}
 		break;
 	    case PM_CLAY_GOLEM:
-		obj = mksobj_at(ROCK, x, y, FALSE, FALSE);
+		obj = mksobj_at(ROCK, x, y, FALSE, FALSE, FALSE);
 
 		if (obj) {
 			if(!rn2(8)) {
@@ -1011,12 +1210,12 @@ register struct monst *mtmp;
 				 else	blessorcurse(obj, 3);
 				obj->spe = -rne(2);
 			} else	blessorcurse(obj, 10);
-	
+
 			obj->quan = (long)(rn2(20) + 50);
 			obj->owt = weight(obj);
 		}
 		mtmp->mnamelth = 0;
-		
+
 		break;
 	    case PM_STONE_GOLEM:
 		obj = mkcorpstat(STATUE, (struct monst *)0,
@@ -1026,346 +1225,374 @@ register struct monst *mtmp;
 		num = d(2,4);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(QUARTERSTAFF, x, y, TRUE, FALSE);
+			obj = mksobj_at(QUARTERSTAFF, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_AXLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(AXE, x, y, TRUE, FALSE);
+			obj = mksobj_at(AXE, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_UNICORN_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(UNICORN_HORN, x, y, TRUE, FALSE);
+			obj = mksobj_at(UNICORN_HORN, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_MINTERM_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(ETERNIUM_BLADE, x, y, TRUE, FALSE);
+			obj = mksobj_at(ETERNIUM_BLADE, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_LONG_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(LONG_SWORD, x, y, TRUE, FALSE);
+			obj = mksobj_at(LONG_SWORD, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_SLASH_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(IRON_SABER, x, y, TRUE, FALSE);
+			obj = mksobj_at(IRON_SABER, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_MAYLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(MACE, x, y, TRUE, FALSE);
+			obj = mksobj_at(MACE, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_FLATOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(FLAIL, x, y, TRUE, FALSE);
+			obj = mksobj_at(FLAIL, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_WULSCHLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(VOULGE, x, y, TRUE, FALSE);
+			obj = mksobj_at(VOULGE, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_RANSOEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(RANSEUR, x, y, TRUE, FALSE);
+			obj = mksobj_at(RANSEUR, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_BARDIIM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(BARDICHE, x, y, TRUE, FALSE);
+			obj = mksobj_at(BARDICHE, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_FORKLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(GARDEN_FORK, x, y, TRUE, FALSE);
+			obj = mksobj_at(GARDEN_FORK, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_HAMLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(WAR_HAMMER, x, y, TRUE, FALSE);
+			obj = mksobj_at(WAR_HAMMER, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_GISLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(GUISARME, x, y, TRUE, FALSE);
+			obj = mksobj_at(GUISARME, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_BEARD_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(HELMET_BEARD, x, y, TRUE, FALSE);
+			obj = mksobj_at(HELMET_BEARD, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_PIX_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(PICK_AXE, x, y, TRUE, FALSE);
+			obj = mksobj_at(PICK_AXE, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_FLEECY_LEATHER_GOLEM:
 		num = d(2,3);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(BULLWHIP, x, y, TRUE, FALSE);
+			obj = mksobj_at(BULLWHIP, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_RETARDED_GOLEM:
 		num = d(2,4);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(SLING, x, y, TRUE, FALSE);
+			obj = mksobj_at(SLING, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_LANCE_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(LANCE, x, y, TRUE, FALSE);
+			obj = mksobj_at(LANCE, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_DENT_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(TRIDENT, x, y, TRUE, FALSE);
+			obj = mksobj_at(TRIDENT, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_FLY_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(FLY_SWATTER, x, y, TRUE, FALSE);
+			obj = mksobj_at(FLY_SWATTER, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_STAR_GOLEM:
 		num = d(2,6);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(MORNING_STAR, x, y, TRUE, FALSE);
+			obj = mksobj_at(MORNING_STAR, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_TIMBER_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(CLUB, x, y, TRUE, FALSE);
+			obj = mksobj_at(CLUB, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_RAPIER_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(RAPIER, x, y, TRUE, FALSE);
+			obj = mksobj_at(RAPIER, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_SCIM_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(SCIMITAR, x, y, TRUE, FALSE);
+			obj = mksobj_at(SCIMITAR, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_PURPUR_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(BIDENHANDER, x, y, TRUE, FALSE);
+			obj = mksobj_at(BIDENHANDER, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_BALL_GOLEM:
 		num = d(2,5);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(HEAVY_IRON_BALL, x, y, TRUE, FALSE);
+			obj = mksobj_at(HEAVY_IRON_BALL, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_PAGER_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(PAPER_SWORD, x, y, TRUE, FALSE);
+			obj = mksobj_at(PAPER_SWORD, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_LIQUID_GOLEM:
 		num = d(2,4);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(ASTERISK, x, y, TRUE, FALSE);
+			obj = mksobj_at(ASTERISK, x, y, TRUE, FALSE, FALSE);
+		mtmp->mnamelth = 0;
+		break;
+	    case PM_GEMSTONE_GOLEM:
+		num = d(2,4);
+		if (num > 1 && rn2(2)) num /= 2;
+		while(num--)
+			obj = mksobj_at(CYAN_STONE, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_TAR_GOLEM:
 		num = d(2,4);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(BITUKNIFE, x, y, TRUE, FALSE);
+			obj = mksobj_at(BITUKNIFE, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_SECRETION_GOLEM:
 		num = d(2,4);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(rn2(10) ? SECRETION_DAGGER : POKER_STICK, x, y, TRUE, FALSE);
+			obj = mksobj_at(rn2(10) ? SECRETION_DAGGER : POKER_STICK, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_ARCANIUM_GOLEM:
 		num = d(2,4);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(COLLUSION_KNIFE, x, y, TRUE, FALSE);
+			obj = mksobj_at(COLLUSION_KNIFE, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_INKA_GOLEM:
 		num = d(2,4);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(INKA_BLADE, x, y, TRUE, FALSE);
+			obj = mksobj_at(INKA_BLADE, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_VIVA_GOLEM:
 		num = d(2,4);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(HUNTING_RIFLE, x, y, TRUE, FALSE);
+			obj = mksobj_at(HUNTING_RIFLE, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_LEATHER_GOLEM:
 		num = d(2,4);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(LEATHER_ARMOR, x, y, TRUE, FALSE);
+			obj = mksobj_at(LEATHER_ARMOR, x, y, TRUE, FALSE, FALSE);
+		mtmp->mnamelth = 0;
+		break;
+	    case PM_BOOT_GOLEM:
+		num = d(1,6);
+		if (num > 1 && rn2(2)) num /= 2;
+		while(num--)
+			obj = mksobj_at(LADY_BOOTS, x, y, TRUE, FALSE, FALSE);
+		mtmp->mnamelth = 0;
+		break;
+	    case PM_SANDAL_GOLEM:
+		num = d(1,6);
+		if (num > 1 && rn2(2)) num /= 2;
+		while(num--)
+			obj = mksobj_at(STILETTO_SANDALS, x, y, TRUE, FALSE, FALSE);
+		mtmp->mnamelth = 0;
+		break;
+	    case PM_ITALIAN_GOLEM:
+		num = d(1,6);
+		if (num > 1 && rn2(2)) num /= 2;
+		while(num--)
+			obj = mksobj_at(ITALIAN_HEELS, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_STUDDED_GOLEM:
 		num = d(2,3);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(STUDDED_LEATHER_ARMOR, x, y, TRUE, FALSE);
+			obj = mksobj_at(STUDDED_LEATHER_ARMOR, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_RING_GOLEM:
 		num = d(2,3);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(RING_MAIL, x, y, TRUE, FALSE);
+			obj = mksobj_at(RING_MAIL, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_SCALE_GOLEM:
 		num = d(2,3);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(SCALE_MAIL, x, y, TRUE, FALSE);
+			obj = mksobj_at(SCALE_MAIL, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_CHAIN_GOLEM:
 		num = d(2,3);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(CHAIN_MAIL, x, y, TRUE, FALSE);
+			obj = mksobj_at(CHAIN_MAIL, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_BANDED_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(BANDED_MAIL, x, y, TRUE, FALSE);
+			obj = mksobj_at(BANDED_MAIL, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_VOLUME_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(SPLINT_MAIL, x, y, TRUE, FALSE);
+			obj = mksobj_at(SPLINT_MAIL, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_LAMEL_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(METAL_LAMELLAR_ARMOR, x, y, TRUE, FALSE);
+			obj = mksobj_at(METAL_LAMELLAR_ARMOR, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_BRATE_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(BRONZE_PLATE_MAIL, x, y, TRUE, FALSE);
+			obj = mksobj_at(BRONZE_PLATE_MAIL, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_CRYLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(CRYSTAL_PLATE_MAIL, x, y, TRUE, FALSE);
+			obj = mksobj_at(CRYSTAL_PLATE_MAIL, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_PARTIAL_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(PARTIAL_PLATE_MAIL, x, y, TRUE, FALSE);
+			obj = mksobj_at(PARTIAL_PLATE_MAIL, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_RIB_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(RIBBED_PLATE_MAIL, x, y, TRUE, FALSE);
+			obj = mksobj_at(RIBBED_PLATE_MAIL, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_PLATE_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(PLATE_MAIL, x, y, TRUE, FALSE);
+			obj = mksobj_at(PLATE_MAIL, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_FULL_PLATE_GOLEM:
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while(num--)
-			obj = mksobj_at(FULL_PLATE_MAIL, x, y, TRUE, FALSE);
+			obj = mksobj_at(FULL_PLATE_MAIL, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_BUG:
 	    	if (!rn2(6)) {
-			mksobj_at(PACK_OF_FLOPPIES, x, y, TRUE, FALSE);
+			mksobj_at(PACK_OF_FLOPPIES, x, y, TRUE, FALSE, FALSE);
 		}
 		break;
 	    case PM_HEISENBUG:
 	    	if (!rn2(3)) {
-			mksobj_at(PACK_OF_FLOPPIES, x, y, TRUE, FALSE);
+			mksobj_at(PACK_OF_FLOPPIES, x, y, TRUE, FALSE, FALSE);
 		}
 		break;
 	    case PM_PDP___:	/* PDP-11 */
@@ -1374,18 +1601,18 @@ register struct monst *mtmp;
 	    case PM_CRAY:
 	    	num = rn2(10) + 5;
 		while (num--) {
-			mksobj_at(!rn2(3) ? DIODE : (!rn2(2) ? TRANSISTOR : IC), x, y, TRUE, FALSE);
+			mksobj_at(!rn2(3) ? DIODE : (!rn2(2) ? TRANSISTOR : IC), x, y, TRUE, FALSE, FALSE);
 		}
 		break;
 	    case PM_ALGOLIAN_SUNTIGER:
 		if (!rn2(75)) {
- 			mksobj_at(TOOTH_OF_AN_ALGOLIAN_SUNTIGER,x, y, TRUE, FALSE);
+ 			mksobj_at(TOOTH_OF_AN_ALGOLIAN_SUNTIGER,x, y, TRUE, FALSE, FALSE);
 		}
 		goto default_1;
 		case PM_WAX_GOLEM:
 		num = d(2,4);
 		while (num--)
-			obj = mksobj_at(WAX_CANDLE, x, y, TRUE, FALSE);
+			obj = mksobj_at(WAX_CANDLE, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_PLASTIC_GOLEM:
@@ -1393,9 +1620,7 @@ register struct monst *mtmp;
 		num = d(2,2);
 		if (num > 1 && rn2(2)) num /= 2;
 		while (num--)
-			obj = mksobj_at(
-				CREDIT_CARD,
-					x, y, TRUE, FALSE);
+			obj = mksobj_at(CREDIT_CARD, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 	    case PM_GOLD_GOLEM:
@@ -1413,7 +1638,7 @@ register struct monst *mtmp;
 	    case PM_PAPER_GOLEM:
 		num = rnd(4);
 		while (num--)
-			obj = mksobj_at(SCR_BLANK_PAPER, x, y, TRUE, FALSE);
+			obj = mksobj_at(SCR_BLANK_PAPER, x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 
@@ -1421,28 +1646,43 @@ register struct monst *mtmp;
 	    case PM_ALCHEMY_GOLEM:
 		num = rnd(4);
 		while (num--)
-			obj = mksobj_at(rnd_class(POT_BOOZE, POT_AMNESIA), x, y, TRUE, FALSE);
+			obj = mksobj_at(rnd_class(POT_BOOZE, POT_AMNESIA), x, y, TRUE, FALSE, FALSE);
+		mtmp->mnamelth = 0;
+		break;
+
+	    case PM_FOOD_GOLEM:
+	    case PM_SCHOOL_FOOD_GOLEM:
+		num = rnd(3);
+		while (num--)
+			obj = mksobj_at(rnd_class(TRIPE_RATION, TIN), x, y, TRUE, FALSE, FALSE);
+		mtmp->mnamelth = 0;
+		break;
+
+	    case PM_IMPLANT_GOLEM:
+		num = rnd(3);
+		while (num--)
+			obj = mksobj_at(rnd_class(IMPLANT_OF_ABSORPTION, IMPLANT_OF_ENFORCING), x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 
 	    case PM_SCROLL_GOLEM:
 		num = rnd(4);
 		while (num--)
-			obj = mksobj_at(rnd_class(SCR_CREATE_MONSTER, SCR_BLANK_PAPER), x, y, TRUE, FALSE);
+			obj = mksobj_at(rnd_class(SCR_CREATE_MONSTER, SCR_BLANK_PAPER), x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 
 	    case PM_WAND_GOLEM:
 		num = rnd(3);
 		while (num--)
-			obj = mksobj_at(rnd_class(WAN_LIGHT, WAN_PSYBEAM), x, y, TRUE, FALSE);
+			obj = mksobj_at(rnd_class(WAN_LIGHT, WAN_PSYBEAM), x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 
 	    case PM_GIANT_PENIS_GOLEM:
 		num = rnd(5);
 		while (num--)
-			obj = mksobj_at(rnd_class(WAN_LIGHT, WAN_PSYBEAM), x, y, TRUE, FALSE);
+			obj = mksobj_at(rnd_class(WAN_LIGHT, WAN_PSYBEAM), x, y, TRUE, FALSE, FALSE);
 		mtmp->mnamelth = 0;
 		break;
 
@@ -1459,6 +1699,25 @@ register struct monst *mtmp;
 
 	if (!obj) return (struct obj *)0; /* really fixing the damn bug with the "bug" and similar monster types! --Amy */
 
+	/* clockwork automatons rarely get the sap of a monster, which might give intrinsics */
+	if (obj && Race_if(PM_CLOCKWORK_AUTOMATON) && !rn2(100) && !(mtmp->egotype_troll) && !is_reviver(mdat) ) {
+		register struct obj *energysap;
+
+		energysap = mksobj_at(ENERGY_SAP, x, y, FALSE, FALSE, FALSE);
+		if (energysap) {
+			energysap->corpsenm = mtmp->mnum;
+		}
+	}
+
+	if (obj && RngeSapGeneration && !rn2(100) && !(mtmp->egotype_troll) && !is_reviver(mdat) ) {
+		register struct obj *energysap;
+
+		energysap = mksobj_at(ENERGY_SAP, x, y, FALSE, FALSE, FALSE);
+		if (energysap) {
+			energysap->corpsenm = mtmp->mnum;
+		}
+	}
+
 	/* All special cases should precede the G_NOCORPSE check */
 
 	/* if polymorph or undead turning has killed this monster,
@@ -1468,7 +1727,7 @@ register struct monst *mtmp;
 	if (mtmp->mnamelth)
 	    obj = oname(obj, NAME(mtmp));
 
-	/* Avoid "It was hidden under a green mold corpse!" 
+	/* Avoid "It was hidden under a green mold corpse!"
 	 *  during Blind combat. An unseen monster referred to as "it"
 	 *  could be killed and leave a corpse.  If a hider then hid
 	 *  underneath it, you could be told the corpse type of a
@@ -1495,7 +1754,7 @@ register struct monst *mtmp;
 STATIC_OVL void
 warn_effects()
 {
-	register struct monst *mtmp;    
+	register struct monst *mtmp;
 	int num_mon;
 	int warned_of;
 
@@ -1542,47 +1801,57 @@ register struct monst *mtmp;
 	     !is_flyer(mtmp->data) && (!mtmp->egotype_flying) && !is_floater(mtmp->data);
     infountain = IS_FOUNTAIN(levl[mtmp->mx][mtmp->my].typ);
 
+	int crapcnt = 1;
+
 	/* Flying and levitation keeps our steed out of the liquid */
 	/* (but not water-walking or swimming) */
 	if (mtmp == u.usteed && (Flying || Levitation))
 		return (0);
 
 	/* poisonous non-zombies will poison a well --Amy */
-    if (IS_WELL(levl[mtmp->mx][mtmp->my].typ) && multi >= 0 && poisonous(mtmp->data) && !(mtmp->data->mlet == S_ZOMBIE)) {
+    if (IS_WELL(levl[mtmp->mx][mtmp->my].typ) && poisonous(mtmp->data) && !(mtmp->data->mlet == S_ZOMBIE)) {
 		levl[mtmp->mx][mtmp->my].typ = POISONEDWELL;
 		if (cansee(mtmp->mx, mtmp->my)) pline("%s poisons the well!", Monnam(mtmp));
     }
 
 	/* but zombies will cure it... no matter how nonsensical this might seem, it's intentional */
-    if (IS_POISONEDWELL(levl[mtmp->mx][mtmp->my].typ) && multi >= 0 && mtmp->data->mlet == S_ZOMBIE) {
+    if (IS_POISONEDWELL(levl[mtmp->mx][mtmp->my].typ) && mtmp->data->mlet == S_ZOMBIE) {
 		levl[mtmp->mx][mtmp->my].typ = WELL;
 		if (cansee(mtmp->mx, mtmp->my)) pline("%s cures the well of its poison!", Monnam(mtmp));
     }
 
-    if (IS_TOILET(levl[mtmp->mx][mtmp->my].typ) && multi >= 0 && flags.soundok && mtmp->mcanmove && ((distu(mtmp->mx,mtmp->my) <= BOLT_LIM*BOLT_LIM) || FemaleTrapKatharina) && ((mtmp->data->msound == MS_FART_QUIET) || (mtmp->data->msound == MS_FART_NORMAL) || (mtmp->data->msound == MS_FART_LOUD) || FemaleTrapThai ) ) {
+    if (IS_TOILET(levl[mtmp->mx][mtmp->my].typ) && multi >= 0 && !rn2(10) && flags.soundok && mtmp->mcanmove && ((distu(mtmp->mx,mtmp->my) <= BOLT_LIM*BOLT_LIM) || FemtrapActiveKatharina) && ((mtmp->data->msound == MS_FART_QUIET) || (mtmp->data->msound == MS_FART_NORMAL) || (mtmp->data->msound == MS_FART_LOUD) || FemtrapActiveThai ) ) {
 	if (cansee(mtmp->mx,mtmp->my)) {
 		pline("%s produces %s crapping noises with %s %s butt.", Monnam(mtmp), mtmp->data->msound == MS_FART_QUIET ? "tender" : mtmp->data->msound == MS_FART_NORMAL ? "beautiful" : "disgusting", mhis(mtmp), mtmp->female ? "sexy" : "ugly" );
 	} else {
 		You_hear("%s crapping noises.", mtmp->data->msound == MS_FART_QUIET ? "tender" : mtmp->data->msound == MS_FART_NORMAL ? "beautiful" : "disgusting");
 	}
+	u.cnd_crappingcount++;
+	if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 	if (mtmp->data->msound == MS_FART_QUIET) pline("Because of the wonderfully soft noises, you briefly forget what you were doing and just stand there.");
 	else if (mtmp->data->msound == MS_FART_NORMAL) pline("You just can't believe that someone could produce such erotic noises, and are immobilized by your feelings.");
 	else pline("This is really disgusting. You resist the urge to vomit, but fail to pay attention to your surroundings for a moment...");
-      if (mtmp->data->msound == MS_FART_QUIET) nomul(-rnz(4 + mtmp->crapbonus), "listening to tender crapping noises", TRUE);
-      else if (mtmp->data->msound == MS_FART_NORMAL) nomul(-rnz(5 + mtmp->crapbonus), "listening to beautiful crapping noises", TRUE);
-      else nomul(-rnz(3 + mtmp->crapbonus), "listening to disgusting crapping noises", TRUE);
+
+	if (mtmp->crapbonus > 0) crapcnt += mtmp->crapbonus;
+	if (crapcnt > 10) crapcnt = 10; /* sanity check --Amy */
+
+      if (mtmp->data->msound == MS_FART_QUIET) nomul(-rnz(3 + crapcnt), "listening to tender crapping noises", TRUE);
+      else if (mtmp->data->msound == MS_FART_NORMAL) nomul(-rnz(4 + crapcnt), "listening to beautiful crapping noises", TRUE);
+      else nomul(-rnz(2 + crapcnt), "listening to disgusting crapping noises", TRUE);
       nomovemsg = "At last, you get yourself together, ready to move on.";
 
 	if (!rn2(10)) increasesanity(1);
 
     }
 
-    if (IS_TOILET(levl[mtmp->mx][mtmp->my].typ) && uarmc && uarmc->oartifact == ART_TOILET_NOISES && multi >= 0 && flags.soundok && mtmp->mcanmove && ((distu(mtmp->mx,mtmp->my) <= BOLT_LIM*BOLT_LIM) || FemaleTrapKatharina) && ((mtmp->data->msound != MS_FART_QUIET) && (mtmp->data->msound != MS_FART_NORMAL) && (mtmp->data->msound != MS_FART_LOUD) ) ) {
+    if (IS_TOILET(levl[mtmp->mx][mtmp->my].typ) && uarmc && uarmc->oartifact == ART_TOILET_NOISES && multi >= 0 && flags.soundok && mtmp->mcanmove && ((distu(mtmp->mx,mtmp->my) <= BOLT_LIM*BOLT_LIM) || FemtrapActiveKatharina) && ((mtmp->data->msound != MS_FART_QUIET) && (mtmp->data->msound != MS_FART_NORMAL) && (mtmp->data->msound != MS_FART_LOUD) ) ) {
 	if (cansee(mtmp->mx,mtmp->my)) {
 		pline("%s produces crapping noises with %s %s butt.", Monnam(mtmp), mhis(mtmp), mtmp->female ? "sexy" : "ugly" );
 	} else {
 		You_hear("crapping noises.");
 	}
+	u.cnd_crappingcount++;
+	if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 
 	pline("Because you are stupid, you stop to listen.");
 	nomul(-rnz(3 + mtmp->crapbonus), "listening to crapping noises", TRUE);
@@ -1594,7 +1863,7 @@ register struct monst *mtmp;
      * keep going down, and when it gets to 1 hit point the clone
      * function will fail.
      */
-    if (mtmp->data == &mons[PM_GREMLIN] && (inpool || infountain) && !rn2(5)) { /* lowered chance --Amy */
+    if (splittinggremlin(mtmp->data) && (inpool || infountain) && !rn2(5)) { /* lowered chance --Amy */
 	if (split_mon(mtmp, (struct monst *)0))
 	    dryup(mtmp->mx, mtmp->my, FALSE);
 	if (inpool) water_damage(mtmp->minvent, FALSE, FALSE);
@@ -1738,11 +2007,15 @@ struct monst *mon;
 		mmove /= 2;
 	}
 
+	if (mon->data == &mons[PM_YEEK_HARD_WORKER] && !rn2(5)) mmove += 12;
+	if (mon->data == &mons[PM_INDRA] && !rn2(5)) mmove += 12;
+	if (mon->data == &mons[PM_KOBOLD_BLASTER] && !rn2(5)) mmove += 12;
+
 	if (uamul && uamul->oartifact == ART_APATHY_STRATEGY && mmove > 1) mmove /= 2;
 
-    if (mmove && uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "greek cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "grecheskiy plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yunon plash") ) ) mmove += 1;
+	if (mmove && uarmc && itemhasappearance(uarmc, APP_GREEK_CLOAK) ) mmove += 1;
 
-	if (uarmh && mmove && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "formula one helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "formula odin shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "formula bir zarbdan") ) ) mmove += 1;
+	if (uarmh && mmove && itemhasappearance(uarmh, APP_FORMULA_ONE_HELMET) ) mmove += 1;
 
     if (uarmg && uarmg->oartifact == ART_AFK_MEANS_ASS_FUCKER && (dmgtype(mon->data, AD_SITM) || dmgtype(mon->data, AD_SEDU) || dmgtype(mon->data, AD_SSEX) ) ) mmove += 12;
 
@@ -1772,8 +2045,9 @@ mcalcdistress()
 	/* regenerate hit points */
 	mon_regen(mtmp, FALSE);
 
-	/* possibly polymorph shapechangers and lycanthropes */
-	if (mtmp->cham && !rn2(6) && !Protection_from_shape_changers)
+	/* possibly polymorph shapechangers and lycanthropes
+	 * Amy edit: zrutinator (Rodney's special pet) has a low polymorph chance; he likes to be in his natural form */
+	if (mtmp->cham && !rn2(mtmp->cham == CHAM_ZRUTINATOR ? 100 : 6) && !Protection_from_shape_changers)
 	    (void) mon_spec_poly(mtmp, (struct permonst *)0, 0L, FALSE,
 		    cansee(mtmp->mx,mtmp->my) && flags.verbose, FALSE, FALSE);
 	were_change(mtmp);
@@ -1853,7 +2127,22 @@ movemon()
 	}
 
 	/* continue if the monster died fighting */
-	if (Conflict && !mtmp->iswiz && mtmp->mcansee && haseyes(mtmp->data) ) {
+	if ((Conflict || (mtmp->mnum == PM_FRENZY_KANGAROO) ) && !mtmp->iswiz && mtmp->mcansee && haseyes(mtmp->data) ) {
+	    /* Note:
+	     *  Conflict does not take effect in the first round.
+	     *  Therefore, A monster when stepping into the area will
+	     *  get to swing at you.
+	     *
+	     *  The call to fightm() must be _last_.  The monster might
+	     *  have died if it returns 1.
+	     */
+		/* Amy addition: monsters without eyes are now immune, because the Astral Plane is easy enough already! */
+	    if (couldsee(mtmp->mx,mtmp->my) &&
+		(distu(mtmp->mx,mtmp->my) <= /*BOLT_LIM*BOLT_LIM*/ 4) &&
+							fightm(mtmp))
+		continue;	/* mon might have died */
+	}
+	if ((StrongConflict || (mtmp->mnum == PM_FRENZY_KANGAROO)) && !mtmp->iswiz && mtmp->mcansee && haseyes(mtmp->data) ) {
 	    /* Note:
 	     *  Conflict does not take effect in the first round.
 	     *  Therefore, A monster when stepping into the area will
@@ -1894,8 +2183,8 @@ movemon()
 #ifdef OVLB
 
 #define mstoning(obj)	(ofood(obj) && \
-					(touch_petrifies(&mons[(obj)->corpsenm]) || \
-					(obj)->corpsenm == PM_MEDUSA))
+					((touch_petrifies(&mons[(obj)->corpsenm]) || \
+					(obj)->corpsenm == PM_MEDUSA) && (obj)->corpsenm != PM_PLAYERMON ))
 
 /*
  * Maybe eat a metallic object (not just gold).
@@ -1931,6 +2220,8 @@ meatmetal(mtmp)
 			You_hear("a crunching sound.");
 			if (PlayerHearsSoundEffects) pline(issoviet ? "Ochen' tsennyy element metalla tol'ko chto poyel i vy budete pinat' sebya, yesli ya skazhu vam, chto eto bylo." : "Gruum!");
 			}
+
+		    u.cnd_moneatmetal++;
 		    mtmp->meating = otmp->owt/2 + 1;
 		    if (mtmp->meating > 10) mtmp->meating = 10; /* arbitrary --Amy */
 		    /* Heal up to the object's weight in hp */
@@ -1975,7 +2266,7 @@ meatmetal(mtmp)
 		    }
 		    /* Left behind a pile? */
 		    if (rnd(25) < 3)
-			(void) mksobj_at(ROCK, mtmp->mx, mtmp->my, TRUE, FALSE);
+			(void) mksobj_at(ROCK, mtmp->mx, mtmp->my, TRUE, FALSE, FALSE);
 		    newsym(mtmp->mx, mtmp->my);
 		    return 1;
 		}
@@ -2004,7 +2295,7 @@ meatlithic(mtmp)
 
 	/* Eats topmost lithic object if it is there */
 	for (otmp = level.objects[mtmp->mx][mtmp->my];
-						otmp; otmp = otmp->nexthere) { 
+						otmp; otmp = otmp->nexthere) {
 
 	    if (otmp->oerodeproof) continue; /* change by Amy - erosionproof items can't be eaten */
 	    if (is_lithic(otmp) && !obj_resists(otmp, 5, 95) &&
@@ -2018,6 +2309,7 @@ meatlithic(mtmp)
 			You_hear("a grating sound.");
 			if (PlayerHearsSoundEffects) pline(issoviet ? "Luchshe nadeyat'sya, chto etot punkt kamennyy ne bylo chem-to vazhnym, potomu chto teper' poteryana navsegda." : "Wuoeing!");
 			}
+		    u.cnd_moneatstone++;
 		    mtmp->meating = otmp->owt/2 + 1;
 		    if (mtmp->meating > 10) mtmp->meating = 10; /* arbitrary --Amy */
 		    /* Heal up to the object's weight in hp */
@@ -2094,6 +2386,7 @@ meatanything(mtmp)
 			You_hear("a chewing sound.");
 			if (PlayerHearsSoundEffects) pline(issoviet ? "Ochen' tsennyy element metalla tol'ko chto poyel i vy budete pinat' sebya, yesli ya skazhu vam, chto eto bylo." : "Gruum!");
 			}
+		    u.cnd_moneatall++;
 		    mtmp->meating = otmp->owt/2 + 1;
 		    if (mtmp->meating > 10) mtmp->meating = 10; /* arbitrary --Amy */
 		    /* Heal up to the object's weight in hp */
@@ -2149,10 +2442,10 @@ meatcorpse(mtmp)
 	register struct monst *mtmp;
 {
 	register struct obj *otmp, *otmpB;
- 
+
 	/* If a pet, eating is handled separately, in dog.c */
 	if (mtmp->mtame) return;
-  
+
 	/* Eats topmost corpse if it is there */
 	for (otmp = level.objects[mtmp->mx][mtmp->my];
 						    otmp; otmp = otmp->nexthere)
@@ -2162,7 +2455,7 @@ meatcorpse(mtmp)
 			pline("%s eats %s!", Monnam(mtmp),
 				distant_name(otmp,doname));
 		    else if (flags.soundok && flags.verbose) {
-			You(Hallucination ? "hear an alien's noises!" : "hear an awful gobbling noise!");
+			You(FunnyHallu ? "hear an alien's noises!" : "hear an awful gobbling noise!");
 			if (PlayerHearsSoundEffects) pline(issoviet ? "Vy boites' ne meneye, vy malen'kiy rebenok? Postaraytes', chtoby ne ispachkat' sebya, kha-kha!" : "Kwololololo lololololo!");
 			}
 		    mtmp->meating = 2;
@@ -2170,7 +2463,7 @@ meatcorpse(mtmp)
 
 			if (mtmp->data == &mons[PM_CORPULENT_DOG] || mtmp->data == &mons[PM_THICK_POTATO] || mtmp->data == &mons[PM_BLACK_MUZZLE] || mtmp->data == &mons[PM_CORPSE_SPITTER] || mtmp->data == &mons[PM_MUZZLE_FIEND] || mtmp->data == &mons[PM_MAW_FIEND] || mtmp->data == &mons[PM_ROCKET_MUZZLE]) {
 
-				otmpB = mksobj(ROCKET, TRUE, FALSE);
+				otmpB = mksobj(ROCKET, TRUE, FALSE, FALSE);
 				if (otmpB) {
 					otmpB->quan = 1;
 					otmpB->owt = weight(otmpB);
@@ -2180,7 +2473,7 @@ meatcorpse(mtmp)
 
 			if (mtmp->data == &mons[PM_SPIT_DEMON]) {
 
-				otmpB = mksobj(ROCK, TRUE, FALSE);
+				otmpB = mksobj(ROCK, TRUE, FALSE, FALSE);
 				if (otmpB) {
 					otmpB->quan = 5;
 					otmpB->owt = weight(otmpB);
@@ -2195,7 +2488,7 @@ meatcorpse(mtmp)
 		  }
       newsym(mtmp->mx, mtmp->my);
 }
- 
+
 int
 meatobj(mtmp)		/* for gelatinous cubes */
 	register struct monst *mtmp;
@@ -2230,6 +2523,7 @@ meatobj(mtmp)		/* for gelatinous cubes */
 		    You_hear("a slurping sound.");
 			if (PlayerHearsSoundEffects) pline(issoviet ? "Skoreye vsego, eto bylo chto-to, chto vy, vozmozhno, khoteli ispol'zovat', ili, mozhet byt', dazhe vash taynik! Razve eto ne veselo?" : "Chllp!");
 		}
+		u.cnd_moneatorganic++;
 		/* Heal up to the object's weight in hp */
 		if (mtmp->mhp < mtmp->mhpmax) {
 		    mtmp->mhp += objects[otmp->otyp].oc_weight;
@@ -2244,6 +2538,7 @@ meatobj(mtmp)		/* for gelatinous cubes */
 		    while ((otmp3 = otmp->cobj) != 0) {
 			obj_extract_self(otmp3);
 			if ( (otmp->otyp == ICE_BOX || otmp->otyp == ICE_BOX_OF_HOLDING || otmp->otyp == ICE_BOX_OF_WATERPROOFING || otmp->otyp == ICE_BOX_OF_DIGESTION) && otmp3->otyp == CORPSE) {
+			    otmp3->icedobject = TRUE;
 			    otmp3->age = monstermoves - otmp3->age;
 			    start_corpse_timeout(otmp3);
 			}
@@ -2299,26 +2594,37 @@ void
 mpickgold(mtmp)
 	register struct monst *mtmp;
 {
-    register struct obj *gold;
-    int mat_idx;
+	register struct obj *gold;
+	int mat_idx;
 
-    if ((gold = g_at(mtmp->mx, mtmp->my)) != 0) {
+	if ((gold = g_at(mtmp->mx, mtmp->my)) != 0) {
+
+	/* Amy edit: pets shouldn't be able to simply pick up the 10k you used for credit cloning, you lame ass... */
+	int dogquan = 5 * mtmp->m_lev; /* halved by Amy, see also dogmove.c */
+	if (gold && gold->quan < dogquan) dogquan = gold->quan;
+
 	mat_idx = objects[gold->otyp].oc_material;
 
 	if (uchain && (gold == uchain) ) return;
 	if (uchain && (gold == uball) ) return;
 
 #ifndef GOLDOBJ
-	mtmp->mgold += gold->quan;
-	delobj(gold);
+	if (mtmp->mtame && dogquan < gold->quan) {
+		gold->quan -= dogquan;
+		gold->owt = weight(gold);
+		mtmp->mgold += dogquan;
+	} else {
+		mtmp->mgold += gold->quan;
+		delobj(gold);
+	}
 #else
-        obj_extract_self(gold);
-        add_to_minv(mtmp, gold);
+	obj_extract_self(gold);
+	add_to_minv(mtmp, gold);
 #endif
 	if (cansee(mtmp->mx, mtmp->my) ) {
 	    if (flags.verbose && !mtmp->isgd)
 		pline("%s picks up some %s.", Monnam(mtmp),
-			mat_idx == GOLD ? "gold" : "money");
+			mat_idx == MT_GOLD ? "gold" : "money");
 	    newsym(mtmp->mx, mtmp->my);
 	}
     }
@@ -2333,6 +2639,8 @@ mpickstuff(mtmp, str)
 {
 	register struct obj *otmp, *otmp2;
 
+	int dogquan = 5 * mtmp->m_lev; /* halved by Amy, see also dogmove.c */
+
 /*	prevent shopkeepers from leaving the door of their shop */
 	if(mtmp->isshk && inhishop(mtmp)) return FALSE;
 
@@ -2341,7 +2649,7 @@ mpickstuff(mtmp, str)
 /*	Nymphs take everything.  Most monsters don't pick up corpses. */
 	    if (!str ? searches_for_item(mtmp,otmp) :
 		  !!(index(str, otmp->oclass))) {
-		if (otmp->otyp == CORPSE && mtmp->data->mlet != S_NYMPH &&
+		if (otmp->otyp == CORPSE && mtmp->data->mlet != S_NYMPH && mtmp->data != &mons[PM_GOLDEN_KNIGHT] && mtmp->data != &mons[PM_URCAGUARY] &&
 			/* let a handful of corpse types thru to can_carry() */
 			!touch_petrifies(&mons[otmp->corpsenm]) &&
 			otmp->corpsenm != PM_LIZARD &&
@@ -2351,6 +2659,8 @@ mpickstuff(mtmp, str)
 			otmp->corpsenm != PM_CHAOTIC_LIZARD &&
 			otmp->corpsenm != PM_LIZARD_OF_YENDOR &&
 			otmp->corpsenm != PM_GRASS_LIZARD &&
+			otmp->corpsenm != PM_RUNE_LIZARD &&
+			otmp->corpsenm != PM_SPECTRAL_LIZARD &&
 			otmp->corpsenm != PM_BLUE_LIZARD &&
 			otmp->corpsenm != PM_SWAMP_LIZARD &&
 			otmp->corpsenm != PM_SPITTING_LIZARD &&
@@ -2361,12 +2671,26 @@ mpickstuff(mtmp, str)
 			otmp->corpsenm != PM_ANTI_STONE_LIZARD &&
 			otmp->corpsenm != PM_HUGE_LIZARD &&
 			otmp->corpsenm != PM_ROCK_LIZARD &&
+			otmp->corpsenm != PM_WILL_STONE_LIZARD &&
+			otmp->corpsenm != PM_WILL_RATCH_LIZARD &&
 			otmp->corpsenm != PM_BABY_CAVE_LIZARD &&
 			otmp->corpsenm != PM_NIGHT_LIZARD &&
+			otmp->corpsenm != PM_LICHZARD &&
+			otmp->corpsenm != PM_SKELLIZARD &&
 			otmp->corpsenm != PM_SAND_TIDE &&
 			otmp->corpsenm != PM_FBI_AGENT &&
 			otmp->corpsenm != PM_OWN_SMOKE &&
 			otmp->corpsenm != PM_GRANDPA &&
+			otmp->corpsenm != PM_LIZARD_MAGE &&
+			otmp->corpsenm != PM_BLACK_LIZARDMAN &&
+			otmp->corpsenm != PM_ASSASSIN_LIZARD &&
+			otmp->corpsenm != PM_BLIZZARD_LIZARD &&
+			otmp->corpsenm != PM_HELTH_LIZARD &&
+			otmp->corpsenm != PM_NORMAL_LIZARD &&
+			otmp->corpsenm != PM_CLOCKBACK_LIZARD &&
+			otmp->corpsenm != PM_ADULT_LIZARD &&
+			otmp->corpsenm != PM_LIZZY &&
+			otmp->corpsenm != PM_LIZARD_PRINCE &&
 			otmp->corpsenm != PM_HIDDEN_LIZARD &&
 			otmp->corpsenm != PM_BLACK_LIZARD &&
 			otmp->corpsenm != PM_DEFORMED_LIZARD &&
@@ -2374,6 +2698,7 @@ mpickstuff(mtmp, str)
 			otmp->corpsenm != PM_MIMIC_LIZARD &&
 			otmp->corpsenm != PM_KARMIC_LIZARD &&
 			otmp->corpsenm != PM_GREEN_LIZARD &&
+			otmp->corpsenm != PM_SCORZARD &&
 			otmp->corpsenm != PM_MONSTER_LIZARD &&
 			otmp->corpsenm != PM_ICE_LIZARD &&
 			otmp->corpsenm != PM_FIRE_LIZARD &&
@@ -2382,13 +2707,35 @@ mpickstuff(mtmp, str)
 			!acidic(&mons[otmp->corpsenm])) continue;
 
 		/* Giants used to pluck the statues off of statue traps, rendering the traps inoperative!
-		 * I'm just going to ban monsters from picking up statues, that oughta fix it. --Amy */
+		 * I'm just going to ban monsters from picking up statues, that oughta fix it. --Amy
+		 * also they shouldn't pick up certain items from special rooms */
 		if (otmp->otyp == STATUE) continue;
+		if (otmp->otyp == SWITCHER) continue;
+		if (otmp->otyp == CHARGER) continue;
+		if (otmp->otyp == SYMBIOTE) continue;
+		if (otmp->otyp == UGH_MEMORY_TO_CREATE_INVENTORY) continue;
 		if (!touch_artifact(otmp,mtmp)) continue;
 		if (!can_carry(mtmp,otmp)) continue;
 		if (is_waterypool(mtmp->mx,mtmp->my)) continue;
 		if (is_watertunnel(mtmp->mx,mtmp->my)) continue;
 		if ((otmp->oinvis && !perceives(mtmp->data) || otmp->oinvisreal) ) continue;
+
+		/* disallow pets to simply pick up a huge amount of gold, because credit cloning is OP --Amy */
+		if (mtmp->mtame && otmp && (otmp->oclass == COIN_CLASS)) {
+			if (otmp->quan < dogquan) dogquan = otmp->quan;
+			if (dogquan < otmp->quan) {
+				otmp->quan -= dogquan;
+				otmp->owt = weight(otmp);
+				mtmp->mgold += dogquan;
+				if (cansee(mtmp->mx, mtmp->my) ) {
+					if (flags.verbose && !mtmp->isgd)
+						pline("%s picks up some gold.", Monnam(mtmp));
+					newsym(mtmp->mx, mtmp->my);
+				}
+				return TRUE;
+			}
+		}
+
 		if (cansee(mtmp->mx,mtmp->my) && flags.verbose)
 			pline("%s picks up %s.", Monnam(mtmp),
 			      (distu(mtmp->mx, mtmp->my) <= 5) ?
@@ -2470,7 +2817,7 @@ struct obj *otmp;
 	    return FALSE;
 	if (otyp == CORPSE && is_deadlysin(&mons[otmp->corpsenm]))
 	    return FALSE;
-	if (objects[otyp].oc_material == SILVER && hates_silver(mdat) &&
+	if (objects[otyp].oc_material == MT_SILVER && hates_silver(mdat) &&
 		(otyp != BELL_OF_OPENING || !is_covetous(mdat)))
 	    return FALSE;
 
@@ -2486,6 +2833,11 @@ struct obj *otmp;
 	if (throws_rocks(mdat) && otyp == BOULDER)
 		return(TRUE);
 
+	if (mdat == &mons[PM_GOLDEN_KNIGHT])
+		return (boolean)(otmp->oclass != ROCK_CLASS);
+	if (mdat == &mons[PM_URCAGUARY])
+		return (boolean)(otmp->oclass != ROCK_CLASS);
+
 	/* nymphs deal in stolen merchandise, but not boulders or statues */
 	if (mdat->mlet == S_NYMPH)
 		return (boolean)(otmp->oclass != ROCK_CLASS);
@@ -2493,7 +2845,7 @@ struct obj *otmp;
 	if (curr_mon_load(mtmp) + newload > max_mon_load(mtmp)) return FALSE;
 
 	/* if the monster hates silver,  don't pick it up */
-	if (objects[otmp->otyp].oc_material == SILVER && hates_silver(mtmp->data)) 
+	if (objects[otmp->otyp].oc_material == MT_SILVER && hates_silver(mtmp->data))
 		return(FALSE);
 
 	if(curr_mon_load(mtmp) + newload > max_mon_load(mtmp)) return(FALSE);
@@ -2522,7 +2874,7 @@ mfndpos(mon, poss, info, flag)
 	y = mon->my;
 	nowtyp = levl[x][y].typ;
 
-	nodiag = (isgridbug(mdat) || (uarmf && !rn2(10) && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "chess boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "shakhmatnyye sapogi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "shaxmat chizilmasin") ) ) );
+	nodiag = (isgridbug(mdat) || (uwep && uwep->oartifact == ART_EGRID_BUG && mon->data->mlet == S_XAN) || (uarmf && !rn2(10) && itemhasappearance(uarmf, APP_CHESS_BOOTS) ) );
 	wantpool = mdat->mlet == S_EEL || mdat->mlet == S_FLYFISH || mdat == &mons[PM_HUMAN_WEREPIRANHA] || mdat == &mons[PM_HUMAN_WEREEEL] || mdat == &mons[PM_HUMAN_WEREKRAKEN] || mdat == &mons[PM_HUMAN_WEREFLYFISH] || mdat == &mons[PM_CONCORDE__] || mdat == &mons[PM_SWIMMER_TROLL] || mdat == &mons[PM_MISTER_SUBMARINE] || mdat == &mons[PM_EEL_GOLEM] || mdat == &mons[PM_WATER_TURRET] || mdat == &mons[PM_AQUA_TURRET] || mdat == &mons[PM_DIVER_TROLL] || mdat == &mons[PM_PUNT] || mdat == &mons[PM_LUXURY_YACHT] || mdat == &mons[PM_SUBMARINE_GOBLIN] ;
 	poolok = (is_flyer(mdat) || mon->egotype_flying || is_clinger(mdat) || mon->egotype_watersplasher ||
 		 (is_swimmer(mdat) && !wantpool)) && !(mdat->mlet == S_FLYFISH || mdat == &mons[PM_HUMAN_WEREFLYFISH] || mdat == &mons[PM_CONCORDE__]);
@@ -2536,16 +2888,18 @@ mfndpos(mon, poss, info, flag)
 	    /* need to be specific about what can currently be dug */
 	    if (!needspick(mdat)) {
 		rockok = treeok = TRUE;
-	    } else if ((mw_tmp = MON_WEP(mon)) && mw_tmp->cursed &&
+	    } else if ((mw_tmp = MON_WEP(mon)) && mw_tmp && mw_tmp->cursed &&
 		       mon->weapon_check == NO_WEAPON_WANTED) {
 		rockok = is_pick(mw_tmp);
 	    } else {
-		rockok = (m_carrying(mon, PICK_AXE) || m_carrying(mon, CONGLOMERATE_PICK) || m_carrying(mon, BRONZE_PICK) ||
+		rockok = (m_carrying(mon, PICK_AXE) || m_carrying(mon, CONGLOMERATE_PICK) || m_carrying(mon, MYSTERY_PICK) || m_carrying(mon, BRONZE_PICK) || m_carrying(mon, BRICK_PICK) || m_carrying(mon, NANO_PICK) ||
 			  (m_carrying(mon, DWARVISH_MATTOCK) &&
-			   !which_armor(mon, W_ARMS)) || 
+			   !which_armor(mon, W_ARMS)) ||
 			  (m_carrying(mon, SOFT_MATTOCK) &&
+			   !which_armor(mon, W_ARMS)) ||
+			  (m_carrying(mon, ETERNIUM_MATTOCK) &&
 			   !which_armor(mon, W_ARMS)) );
-		treeok = (m_carrying(mon, AXE) || m_carrying(mon, OBSIDIAN_AXE) || m_carrying(mon, SPIRIT_AXE) || m_carrying(mon, TUBING_PLIERS) ||
+		treeok = (m_carrying(mon, AXE) || m_carrying(mon, OBSIDIAN_AXE) || m_carrying(mon, SPIRIT_AXE) || m_carrying(mon, SHARP_AXE) || m_carrying(mon, NANO_AXE) || m_carrying(mon, TUBING_PLIERS) ||
 			  (m_carrying(mon, BATTLE_AXE) &&
 			   !which_armor(mon, W_ARMS)) ||
 			  (m_carrying(mon, MOON_AXE) &&
@@ -2562,8 +2916,29 @@ mfndpos(mon, poss, info, flag)
 nexttry:	/* eels prefer the water, but if there is no water nearby,
 		   they will crawl over land */
 	if(mon->mconf) {
-		flag |= ALLOW_ALL;
-		flag &= ~NOTONL;
+
+		/* Amy edit: petkeeping will now make it less likely for your confused pet to lash out at other pets */
+
+		if (mon->mtame && !PlayerCannotUseSkills) {
+			boolean willbeconfused = TRUE;
+			switch (P_SKILL(P_PETKEEPING)) {
+				default: willbeconfused = TRUE;
+				case P_BASIC: if (!rn2(5)) willbeconfused = FALSE; break;
+				case P_SKILLED: if (rnd(5) > 3) willbeconfused = FALSE; break;
+				case P_EXPERT: if (rnd(5) > 2) willbeconfused = FALSE; break;
+				case P_MASTER: if (rn2(5)) willbeconfused = FALSE; break;
+				case P_GRAND_MASTER: if (rn2(10)) willbeconfused = FALSE; break;
+				case P_SUPREME_MASTER: if (rn2(10)) willbeconfused = FALSE; break;
+			}
+
+			if (willbeconfused) {
+				flag |= ALLOW_ALL;
+				flag &= ~NOTONL;
+			}
+		} else {
+			flag |= ALLOW_ALL;
+			flag &= ~NOTONL;
+		}
 	}
 	if(!mon->mcansee)
 		flag |= ALLOW_SSM;
@@ -2612,13 +2987,13 @@ nexttry:	/* eels prefer the water, but if there is no water nearby,
 		 (is_lava(nx,ny) && wantlava) || (is_styxriver(nx,ny) && wantlava) || poolok) &&
 	       (lavaok || wantlava || (!is_lava(nx,ny) && !is_styxriver(nx,ny)) )) {
 		int dispx, dispy;
-		boolean monseeu = (mon->mcansee && (!Invis || perceives(mdat)));
+		boolean monseeu = (mon->mcansee && (!Invis || perceives(mdat) || (!StrongInvis && rn2(3)) ));
 		boolean checkobj = OBJ_AT(nx,ny);
 
 		/* Displacement also displaces the Elbereth/scare monster,
 		 * as long as you are visible.
 		 */
-		if(Displaced && monseeu && (mon->mux==nx) && (mon->muy==ny)) {
+		if(Displaced && (StrongDisplaced || !rn2(3)) && monseeu && (mon->mux==nx) && (mon->muy==ny)) {
 		    dispx = u.ux;
 		    dispy = u.uy;
 		} else {
@@ -2748,6 +3123,9 @@ impossible("A monster looked at a very strange trap of type %d.", ttmp->ttyp);
 				&& ttmp->ttyp != STAIRS_TRAP
 				&& ttmp->ttyp != UNINFORMATION_TRAP
 				&& ttmp->ttyp != TIMERUN_TRAP
+				&& ttmp->ttyp != BAD_PART_TRAP
+				&& ttmp->ttyp != COMPLETELY_BAD_PART_TRAP
+				&& ttmp->ttyp != EVIL_VARIANT_TRAP
 				&& ttmp->ttyp != INTRINSIC_LOSS_TRAP
 				&& ttmp->ttyp != BLOOD_LOSS_TRAP
 				&& ttmp->ttyp != BAD_EFFECT_TRAP
@@ -2854,6 +3232,43 @@ impossible("A monster looked at a very strange trap of type %d.", ttmp->ttyp);
 				&& ttmp->ttyp != DATA_DELETE_TRAP
 				&& ttmp->ttyp != ELDER_TENTACLING_TRAP
 				&& ttmp->ttyp != FOOTERER_TRAP
+
+				&& ttmp->ttyp != GRAVE_WALL_TRAP
+				&& ttmp->ttyp != TUNNEL_TRAP
+				&& ttmp->ttyp != FARMLAND_TRAP
+				&& ttmp->ttyp != MOUNTAIN_TRAP
+				&& ttmp->ttyp != WATER_TUNNEL_TRAP
+				&& ttmp->ttyp != CRYSTAL_FLOOD_TRAP
+				&& ttmp->ttyp != MOORLAND_TRAP
+				&& ttmp->ttyp != URINE_TRAP
+				&& ttmp->ttyp != SHIFTING_SAND_TRAP
+				&& ttmp->ttyp != STYX_TRAP
+				&& ttmp->ttyp != PENTAGRAM_TRAP
+				&& ttmp->ttyp != SNOW_TRAP
+				&& ttmp->ttyp != ASH_TRAP
+				&& ttmp->ttyp != SAND_TRAP
+				&& ttmp->ttyp != PAVEMENT_TRAP
+				&& ttmp->ttyp != HIGHWAY_TRAP
+				&& ttmp->ttyp != GRASSLAND_TRAP
+				&& ttmp->ttyp != NETHER_MIST_TRAP
+				&& ttmp->ttyp != STALACTITE_TRAP
+				&& ttmp->ttyp != CRYPTFLOOR_TRAP
+				&& ttmp->ttyp != BUBBLE_TRAP
+				&& ttmp->ttyp != RAIN_CLOUD_TRAP
+
+				&& ttmp->ttyp != ITEM_NASTIFICATION_TRAP
+				&& ttmp->ttyp != SANITY_INCREASE_TRAP
+				&& ttmp->ttyp != PSI_TRAP
+				&& ttmp->ttyp != GAY_TRAP
+
+				&& ttmp->ttyp != SARAH_TRAP
+				&& ttmp->ttyp != CLAUDIA_TRAP
+				&& ttmp->ttyp != LUDGERA_TRAP
+				&& ttmp->ttyp != KATI_TRAP
+
+				&& ttmp->ttyp != SANITY_TREBLE_TRAP
+				&& ttmp->ttyp != STAT_DECREASE_TRAP
+				&& ttmp->ttyp != SIMEOUT_TRAP
 
 				&& ttmp->ttyp != LOOTCUT_TRAP
 				&& ttmp->ttyp != MONSTER_SPEED_TRAP
@@ -3138,7 +3553,7 @@ impossible("A monster looked at a very strange trap of type %d.", ttmp->ttyp);
 				    && ttmp->ttyp != SHAFT_TRAP
 				    && ttmp->ttyp != TRAPDOOR
 				    && ttmp->ttyp != HOLE)
-				      || (!is_flyer(mdat) && (!mon->egotype_flying) 
+				      || (!is_flyer(mdat) && (!mon->egotype_flying)
 				    && !is_floater(mdat)
 				    && !is_clinger(mdat))
 				      || In_sokoban(&u.uz))
@@ -3214,11 +3629,24 @@ impossible("A monster looked at a very strange trap of type %d.", ttmp->ttyp);
    in the absence of Conflict.  There is no provision for targetting
    other monsters; just hand to hand fighting when they happen to be
    next to each other. */
+
+/* Amy keywords: "grudge" "Nephi" (no idea why none of those words appear here) */
 STATIC_OVL long
 mm_aggression(magr, mdef)
 struct monst *magr,	/* monster that is currently deciding where to move */
 	     *mdef;	/* another monster which is next to it */
 {
+
+	if (TimeStopped && !immune_timestop(magr->data) && !immune_timestop(mdef->data) ) return 0L; /* turned out they were still able to bash each other during time stop! */
+
+	if (!magr || !mdef) return 0L; /* error - shouldn't happen */
+	if (DEADMONSTER(magr) || DEADMONSTER(mdef)) return 0L; /* bugfix */
+
+	/* Amy edit: if pets are ignored by everything, it can result in them being way too unkillable because they often
+	 * won't attack things that would kill them...
+	 * keyword: dnethack */
+	if (!magr->mtame && !magr->mpeaceful && mdef->mtame && !(u.usteed && mdef == u.usteed) && (mdef->m_lev > rn2(6)) && ((magr->m_lev - mdef->m_lev) < (2 + rn2(5)) ) && !rn2((mdef->m_lev > 40) ? 3 : (mdef->m_lev > 30) ? 5 : (mdef->m_lev > 20) ? 10 : 20) && (!rn2(5) || mdef->mcanmove) && (!rn2(5) || (mdef->mhpmax > 5 && mdef->mhp > (mdef->mhpmax / 5))) ) return ALLOW_M|ALLOW_TM;
+	if (!magr->mtame && !magr->mpeaceful && mdef->mtame && !(u.usteed && mdef == u.usteed) && ((attacktype(mdef->data, AT_EXPL)) || (mindless(magr->data) && evilfriday) || magr->mfrenzied ) ) return ALLOW_M|ALLOW_TM;
 
 	if (Race_if(PM_ALBAE)) return 0L; /* if you're an albae, everything hates you more than anything else --Amy */
 	if (Role_if(PM_CRUEL_ABUSER) && Qstatf(killed_nemesis) ) return 0L; /* or if you killed the abuser nemesis */
@@ -3266,17 +3694,36 @@ struct monst *magr,	/* monster that is currently deciding where to move */
 	/* and vice versa */
 	if(mdef->data == &mons[PM_STORMTROOPER] && magr->data == &mons[PM_JEDI])
 		return ALLOW_M|ALLOW_TM;
-	/* Stormtroopers vs. The Jedi Master */
-	//if(magr->data == &mons[PM_STORMTROOPER] && mdef->data == &mons[PM_THE_JEDI_MASTER])
-		//return ALLOW_M|ALLOW_TM;
+	if(magr->data == &mons[PM_LASER_STORMTROOPER] && mdef->data == &mons[PM_PADAWAN])
+		return ALLOW_M|ALLOW_TM;
 	/* and vice versa */
-	//if(mdef->data == &mons[PM_STORMTROOPER] && magr->data == &mons[PM_THE_JEDI_MASTER])
-		//return ALLOW_M|ALLOW_TM;
+	if(mdef->data == &mons[PM_LASER_STORMTROOPER] && magr->data == &mons[PM_PADAWAN])
+		return ALLOW_M|ALLOW_TM;
+	/* Stormtroopers vs. Jedi */
+	if(magr->data == &mons[PM_LASER_STORMTROOPER] && mdef->data == &mons[PM_JEDI])
+		return ALLOW_M|ALLOW_TM;
+	/* and vice versa */
+	if(mdef->data == &mons[PM_LASER_STORMTROOPER] && magr->data == &mons[PM_JEDI])
+		return ALLOW_M|ALLOW_TM;
 	/* Jedi vs. Lord Sidious */
 	if(magr->data == &mons[PM_LORD_SIDIOUS] && mdef->data == &mons[PM_JEDI])
 		return ALLOW_M|ALLOW_TM;
 	/* and vice versa */
 	if(mdef->data == &mons[PM_LORD_SIDIOUS] && magr->data == &mons[PM_JEDI])
+		return ALLOW_M|ALLOW_TM;
+
+	/* the three stooges */
+	if (mdef->data == &mons[PM_STOOGE_CURLY] && magr->data == &mons[PM_STOOGE_MOE])
+		return ALLOW_M|ALLOW_TM;
+	if (mdef->data == &mons[PM_STOOGE_CURLY] && magr->data == &mons[PM_STOOGE_LARRY])
+		return ALLOW_M|ALLOW_TM;
+	if (mdef->data == &mons[PM_STOOGE_MOE] && magr->data == &mons[PM_STOOGE_LARRY])
+		return ALLOW_M|ALLOW_TM;
+	if (mdef->data == &mons[PM_STOOGE_MOE] && magr->data == &mons[PM_STOOGE_CURLY])
+		return ALLOW_M|ALLOW_TM;
+	if (mdef->data == &mons[PM_STOOGE_LARRY] && magr->data == &mons[PM_STOOGE_CURLY])
+		return ALLOW_M|ALLOW_TM;
+	if (mdef->data == &mons[PM_STOOGE_LARRY] && magr->data == &mons[PM_STOOGE_MOE])
 		return ALLOW_M|ALLOW_TM;
 
 	return 0L;
@@ -3289,7 +3736,7 @@ register int x,y;
 /* Is the square close enough for the monster to move or attack into? */
 {
 	register int distance = dist2(mon->mx, mon->my, x, y);
-	if (distance==2 && ( isgridbug(mon->data) || (uarmf && !rn2(10) && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "chess boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "shakhmatnyye sapogi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "shaxmat chizilmasin") ) ) ) ) return 0;
+	if (distance==2 && ( isgridbug(mon->data) || (uwep && uwep->oartifact == ART_EGRID_BUG && mon->data->mlet == S_XAN) || (uarmf && !rn2(10) && itemhasappearance(uarmf, APP_CHESS_BOOTS) ) ) ) return 0;
 	return((boolean)(distance < 3));
 }
 
@@ -3495,6 +3942,33 @@ struct monst *mtmp;
 		} else
 			return;
 
+	} else if ((mtmp->data == &mons[PM_IMMORTAL_MYSTIC_SCARAB] || mtmp->data == &mons[PM_WRONG_DECISION_MEETING_COURT] || mtmp->data == &mons[PM_ORICHAL_CO]) && rn2(5) ) {
+		visible = u.uswallow && u.ustuck == mtmp ||
+			cansee(mtmp->mx, mtmp->my);
+		if (visible) {
+			pline("But wait...");
+			pline("%s lifesaves!", Monnam(mtmp));
+			if (attacktype(mtmp->data, AT_EXPL)
+			    || attacktype(mtmp->data, AT_BOOM))
+				pline("%s reconstitutes!", Monnam(mtmp));
+			else
+				pline("%s looks much better!", Monnam(mtmp));
+		}
+		mtmp->mcanmove = 1;
+		mtmp->masleep = 0;
+		mtmp->mfrozen = 0;
+		if (mtmp->mtame && !mtmp->isminion) {
+			wary_dog(mtmp, FALSE);
+		}
+		if (mtmp->mhpmax <= 0) mtmp->mhpmax = 10;
+		mtmp->mhp = mtmp->mhpmax;
+		if (mvitals[monsndx(mtmp->data)].mvflags & G_GENOD) {
+			if (visible)
+			    pline("Unfortunately %s is still genocided...",
+				mon_nam(mtmp));
+		} else
+			return;
+
 	} else if (!rn2(5) && !mtmp->mpeaceful && (LifeSavingBug || u.uprops[LIFE_SAVING_BUG].extrinsic || have_lifesavingstone()) ) {
 		visible = u.uswallow && u.ustuck == mtmp ||
 			cansee(mtmp->mx, mtmp->my);
@@ -3663,6 +4137,10 @@ register struct monst *mtmp;
 	    set_mon_data(mtmp, &mons[PM_HUMAN_WERECOW], -1);
 	else if (mtmp->data == &mons[PM_WEREBEAR])
 	    set_mon_data(mtmp, &mons[PM_HUMAN_WEREBEAR], -1);
+	else if (mtmp->data == &mons[PM_WEREDEMON])
+	    set_mon_data(mtmp, &mons[PM_HUMAN_WEREDEMON], -1);
+	else if (mtmp->data == &mons[PM_WEREPHANT])
+	    set_mon_data(mtmp, &mons[PM_HUMAN_WEREPHANT], -1);
 	else if (mtmp->data == &mons[PM_WEREPIERCER])
 	    set_mon_data(mtmp, &mons[PM_HUMAN_WEREPIERCER], -1);
 	else if (mtmp->data == &mons[PM_WEREPENETRATOR])
@@ -3827,13 +4305,13 @@ register struct monst *mtmp;
 	if (tmp == PM_MOLDOUX__THE_DEFENCELESS_MOLD) {
 		pline("This monster was under the protection of a Great Wyrm of Power!");
 		verbalize("Harharhar mortal, now you DIE!!!");
-	      (void) makemon(&mons[PM_GREAT_WYRM_OF_POWER], u.ux, u.uy, NO_MM_FLAGS);
+	      (void) makemon(&mons[PM_GREAT_WYRM_OF_POWER], u.ux, u.uy, MM_ANGRY|MM_FRENZIED|MM_XFRENZIED);
 	}
 
 	if (tmp == PM_ARIANE_S_FLEECY_COMBAT_BOOT) {
 		pline("This monster was under the protection of a Great Wyrm of Power!");
 		verbalize("Harharhar mortal, now you DIE!!!");
-	      (void) makemon(&mons[PM_GREAT_WYRM_OF_POWER], u.ux, u.uy, NO_MM_FLAGS);
+	      (void) makemon(&mons[PM_GREAT_WYRM_OF_POWER], u.ux, u.uy, MM_ANGRY|MM_FRENZIED|MM_XFRENZIED);
 	}
 
 	if (tmp == PM_GUNNHILD_S_GENERAL_STORE) {	/* create traps on the level, disregarding special probability checks */
@@ -3848,7 +4326,10 @@ register struct monst *mtmp;
 
 					rtrap = rnd(TRAPNUM-1);
 					if (rtrap == MAGIC_PORTAL) rtrap = ROCKTRAP;
+					if (rtrap == S_PRESSING_TRAP) rtrap = ROCKTRAP;
 					if (rtrap == WISHING_TRAP) rtrap = BLINDNESS_TRAP;
+					if (In_sokoban(&u.uz) && rn2(10) && (rtrap == HOLE || rtrap == TRAPDOOR || rtrap == SHAFT_TRAP || rtrap == CURRENT_SHAFT || rtrap == PIT || rtrap == SPIKED_PIT || rtrap == GIANT_CHASM || rtrap == SHIT_PIT || rtrap == MANA_PIT || rtrap == ANOXIC_PIT || rtrap == ACID_PIT)) rtrap = ROCKTRAP;
+					if (In_sokoban(&u.uz) && rn2(100) && rtrap == NUPESELL_TRAP) rtrap = FIRE_TRAP;
 					if (rtrap == ELDER_TENTACLING_TRAP) rtrap = FIRE_TRAP;
 					if (rtrap == DATA_DELETE_TRAP) rtrap = RUST_TRAP;
 					if (rtrap == ARTIFACT_JACKPOT_TRAP) rtrap = MAGIC_TRAP;
@@ -3887,7 +4368,7 @@ register struct monst *mtmp;
 	if (mtmp->data->mlet == S_KOP) {
 
 	    /* Dead Kops may come back. */
-	    switch(rnd( (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "anti-government helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "antipravitel'stvennaya shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "aksil-hukumat dubulg'a") ) ) ? 50 : RngeAntiGovernment ? 50 : 25)) {
+	    switch(rnd( (uarmh && itemhasappearance(uarmh, APP_ANTI_GOVERNMENT_HELMET) ) ? 50 : RngeAntiGovernment ? 50 : 25)) {
 		case 1:	     /* returns near the stairs */
 			(void) makemon(mtmp->data,xdnstair,ydnstair,MM_ADJACENTOK);
 			break;
@@ -3905,20 +4386,50 @@ register struct monst *mtmp;
 	    }
 	}
 
+	/* Respawn trap effect by Amy. Gotta limit it somehow, to ensure that the game doesn't become completely impossible
+	 * for characters who have the effect intrinsically. It used to be that the # of newly spawned monsters was
+	 * on average exactly the amount that you killed, which is very problematic for trolls and other revivers.
+	 * So, now the born counter (which can go over 255, yay!) matters and will make it less and less likely for
+	 * a monster to respawn if many of it were already spawned. Good thing this mechanism of monster "respawn" uses
+	 * a function that increases the counter, huh? */
 	if ( (RespawnProblem || u.uprops[RESPAWN_BUG].extrinsic || (uimplant && uimplant->oartifact == ART_YOU_SHOULD_SURRENDER) || (uarmc && uarmc->oartifact == ART_PERCENTIOEOEPSPERCENTD_THI) || have_respawnstone() ) && tmp != PM_UNFORTUNATE_VICTIM && tmp != PM_SCROLLER_MASTER && tmp != PM_BOULDER_MASTER && tmp != PM_ITEM_MASTER && tmp != PM_GOOD_ITEM_MASTER && tmp != PM_BAD_ITEM_MASTER && tmp != PM_HOLE_MASTER && tmp != PM_TRAP_MASTER && !(mtmp->data->geno & G_UNIQ) ) {
 	    switch(rnd(10)) {
 		case 1:
+			if (mvitals[mtmp->mnum].born > 100 && rn2(10)) break;
+			(void) makemon(mtmp->data,0,0,NO_MM_FLAGS);
+			break;
 		case 2:
+			if (mvitals[mtmp->mnum].born > 200 && rn2(10)) break;
+			(void) makemon(mtmp->data,0,0,NO_MM_FLAGS);
+			break;
 		case 3:
+			if (mvitals[mtmp->mnum].born > 500 && rn2(10)) break;
+			(void) makemon(mtmp->data,0,0,NO_MM_FLAGS);
+			break;
 		case 4:
+			if (mvitals[mtmp->mnum].born > 750 && rn2(10)) break;
+			(void) makemon(mtmp->data,0,0,NO_MM_FLAGS);
+			break;
 		case 5:
+			if (mvitals[mtmp->mnum].born > 1000 && rn2(10)) break;
+			(void) makemon(mtmp->data,0,0,NO_MM_FLAGS);
+			break;
 		case 6:
+			if (mvitals[mtmp->mnum].born > 1500 && rn2(10)) break;
+			(void) makemon(mtmp->data,0,0,NO_MM_FLAGS);
+			break;
 		case 7:
+			if (mvitals[mtmp->mnum].born > 2000 && rn2(10)) break;
+			(void) makemon(mtmp->data,0,0,NO_MM_FLAGS);
+			break;
 		case 8:
+			if (mvitals[mtmp->mnum].born > 50 && rn2(10)) break;
 			(void) makemon(mtmp->data,0,0,NO_MM_FLAGS);
 			break;
 		case 9:
+			if (mvitals[mtmp->mnum].born > 5000 && rn2(10)) break;
 			(void) makemon(mtmp->data,0,0,NO_MM_FLAGS);
+			if (rn2(10)) break;
 			(void) makemon(mtmp->data,0,0,NO_MM_FLAGS);
 			break;
 		case 10:
@@ -3927,12 +4438,19 @@ register struct monst *mtmp;
 		}
 	}
 	if(mtmp->iswiz) wizdead();
-	if(mtmp->data->msound == MS_NEMESIS && mtmp->data->mlet != S_NEMESE && tmp != PM_TRUE_MISSINGNO && tmp != PM_ETHEREAL_MISSINGNO && tmp != PM_STARLIT_SKY  && tmp != PM_MISNAMED_STARLIT_SKY && tmp != PM_WRONG_NAMED_STARLIT_SKY && tmp != PM_ERRONEOUS_STARLIT_SKY && tmp != PM_DARK_STARLIT_SKY && tmp != PM_BLACK_STARLIT_SKY && tmp != PM_RED_STARLIT_SKY && tmp != PM_BROWN_STARLIT_SKY && tmp != PM_GREEN_STARLIT_SKY && tmp != PM_PURPLE_STARLIT_SKY && tmp != PM_YELLOW_STARLIT_SKY && tmp != PM_ORANGE_STARLIT_SKY && tmp != PM_CYAN_STARLIT_SKY && tmp != PM_VIOLET_STARLIT_SKY && tmp != PM_POLYINITOR && tmp != PM_DESTABILIZER) nemdead();
+	if(mtmp->data->msound == MS_NEMESIS && mtmp->mnum >= PM_LORD_CARNARVON && mtmp->mnum <= PM_UPPER_BULL) nemdead();
+
+	if (tmp == PM_SUPER_SLOW_TURTLE) {
+		adjalign(-100);
+		u.ualign.sins += 5;
+		u.alignlim -= 5;
+		You_feel("really bad about the death of this turtle...");
+	}
 
 	if(tmp == PM_ANASTASIA_STEELE) { /* very bad! */
 
 		change_luck(-10);
-		u.ualign.sins += 20; 
+		u.ualign.sins += 20;
 		u.alignlim -= 20;
 		adjalign(-200);
 		u.ugangr++; u.ugangr++; u.ugangr++; u.ugangr++; u.ugangr++;
@@ -3940,14 +4458,20 @@ register struct monst *mtmp;
 
 	}
 
-	if(tmp == PM_SHOPKEEPER || tmp == PM_BLACK_MARKETEER || tmp == PM_GUARD) /* punishment */ {
+	if (tmp == PM_ALIGNED_PRIEST || tmp == PM_MASTER_PRIEST || tmp == PM_ELITE_PRIEST || tmp == PM_HIGH_PRIEST || tmp == PM_DNETHACK_ELDER_PRIEST_TM_) { /* you murderer! */
+		angry_guards(FALSE); /* The guards are on the side of Moloch's priests (not a bug). */
+	}
+
+	if(tmp == PM_SHOPKEEPER || tmp == PM_MASTER_SHOPKEEPER || tmp == PM_ELITE_SHOPKEEPER || tmp == PM_BLACK_MARKETEER || tmp == PM_GUARD || tmp == PM_MASTER_GUARD || tmp == PM_ELITE_GUARD) /* punishment */ {
 
 		pline("The twit quickly called the kops, and it seems they're out to get you!");
+		angry_guards(FALSE); /* Porkman observed the towns remaining peaceful if you murder all the shopkeepers... */
+		u.cnd_kopsummonamount++;
 		copcnt = rnd(monster_difficulty() ) + 1;
 		if (rn2(5)) copcnt = (copcnt / (rnd(4) + 1)) + 1;
 		if (Role_if(PM_CAMPERSTRIKER)) copcnt *= (rn2(5) ? 2 : rn2(5) ? 3 : 5);
 
-		if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "anti-government helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "antipravitel'stvennaya shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "aksil-hukumat dubulg'a") ) ) {
+		if (uarmh && itemhasappearance(uarmh, APP_ANTI_GOVERNMENT_HELMET) ) {
 			copcnt = (copcnt / 2) + 1;
 		}
 
@@ -3956,7 +4480,7 @@ register struct monst *mtmp;
 		}
 
 	      while(--copcnt >= 0) {
-			(void) makemon(mkclass(S_KOP,0), u.ux, u.uy, MM_ANGRY);
+			(void) makemon(mkclass(S_KOP,0), u.ux, u.uy, MM_ANGRY|MM_FRENZIED);
 
 			if (!rn2(100)) {
 
@@ -3989,7 +4513,7 @@ register struct monst *mtmp;
       if(mtmp->data == &mons[PM_MOTHERFUCKER_GLASS_GOLEM] && !u.glassgolemdown) {
 		u.glassgolemdown = 1;
 		pline("Congratulations, the glass golem is defeated! Your reward was dropped at your %s.", makeplural(body_part(FOOT)));
-		trophy = mksobj(HELM_OF_TELEPATHY, FALSE, FALSE);
+		trophy = mksobj(HELM_OF_TELEPATHY, FALSE, FALSE, FALSE);
 		if (trophy) {
 		    trophy = oname(trophy, artiname(ART_HELM_OF_KNOWLEDGE));
 		    dropy(trophy);
@@ -4012,7 +4536,7 @@ register struct monst *mtmp;
       if(mtmp->data == &mons[PM_EROGENOUS_KATIA] && !u.katiaremoved) {
 		u.katiaremoved = 1;
 		pline("Congratulations, Erogenous Katia is defeated! Your reward was dropped at your %s.", makeplural(body_part(FOOT)));
-		trophy = mksobj(BATH_TOWEL, FALSE, FALSE);
+		trophy = mksobj(BATH_TOWEL, FALSE, FALSE, FALSE);
 		if (trophy) {
 		    trophy = oname(trophy, artiname(ART_KATIA_S_SOFT_COTTON));
 		    dropy(trophy);
@@ -4022,7 +4546,7 @@ register struct monst *mtmp;
       if(mtmp->data == &mons[PM_BOFH] && !u.bofhremoved) {
 		u.bofhremoved = 1;
 		pline("Congratulations, the Bastard Operator From Hell is defeated! Your reward was dropped at your %s.", makeplural(body_part(FOOT)));
-		trophy = mksobj(HITCHHIKER_S_GUIDE_TO_THE_GALA, FALSE, FALSE);
+		trophy = mksobj(HITCHHIKER_S_GUIDE_TO_THE_GALA, FALSE, FALSE, FALSE);
 		if (trophy) {
 		    trophy = oname(trophy, artiname(ART_BIZARRO_ORGASMATRON));
 		    dropy(trophy);
@@ -4050,6 +4574,24 @@ register struct monst *mtmp;
 				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_GRAND_MASTER;
 			} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_GRAND_MASTER) {
 				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SUPREME_MASTER;
+			}
+			if (Race_if(PM_RUSMOT)) {
+				if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_ISRESTRICTED) {
+					unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+				} else if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_UNSKILLED) {
+					unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_BASIC;
+				} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_BASIC) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SKILLED;
+				} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_SKILLED) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_EXPERT;
+				} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_EXPERT) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_MASTER;
+				} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_MASTER) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_GRAND_MASTER;
+				} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_GRAND_MASTER) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SUPREME_MASTER;
+				}
 			}
 			discover_artifact(trophy->oartifact);
 			if (!havegifts) u.ugifts--;
@@ -4133,6 +4675,87 @@ register struct monst *mtmp;
 			pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
 		}
 
+		if (Race_if(PM_RUSMOT)) {
+			skillimprove = randomgoodskill();
+
+			if (P_MAX_SKILL(skillimprove) == P_ISRESTRICTED) {
+				unrestrict_weapon_skill(skillimprove);
+				pline("You can now learn the %s skill.", P_NAME(skillimprove));
+			} else if (P_MAX_SKILL(skillimprove) == P_UNSKILLED) {
+				unrestrict_weapon_skill(skillimprove);
+				P_MAX_SKILL(skillimprove) = P_BASIC;
+				pline("You can now learn the %s skill.", P_NAME(skillimprove));
+			} else if (rn2(2) && P_MAX_SKILL(skillimprove) == P_BASIC) {
+				P_MAX_SKILL(skillimprove) = P_SKILLED;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			} else if (!rn2(4) && P_MAX_SKILL(skillimprove) == P_SKILLED) {
+				P_MAX_SKILL(skillimprove) = P_EXPERT;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			} else if (!rn2(10) && P_MAX_SKILL(skillimprove) == P_EXPERT) {
+				P_MAX_SKILL(skillimprove) = P_MASTER;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			} else if (!rn2(100) && P_MAX_SKILL(skillimprove) == P_MASTER) {
+				P_MAX_SKILL(skillimprove) = P_GRAND_MASTER;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			} else if (!rn2(200) && P_MAX_SKILL(skillimprove) == P_GRAND_MASTER) {
+				P_MAX_SKILL(skillimprove) = P_SUPREME_MASTER;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			}
+
+			skillimprove = randomgoodskill();
+
+			if (P_MAX_SKILL(skillimprove) == P_ISRESTRICTED) {
+				unrestrict_weapon_skill(skillimprove);
+				pline("You can now learn the %s skill.", P_NAME(skillimprove));
+			} else if (P_MAX_SKILL(skillimprove) == P_UNSKILLED) {
+				unrestrict_weapon_skill(skillimprove);
+				P_MAX_SKILL(skillimprove) = P_BASIC;
+				pline("You can now learn the %s skill.", P_NAME(skillimprove));
+			} else if (rn2(2) && P_MAX_SKILL(skillimprove) == P_BASIC) {
+				P_MAX_SKILL(skillimprove) = P_SKILLED;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			} else if (!rn2(4) && P_MAX_SKILL(skillimprove) == P_SKILLED) {
+				P_MAX_SKILL(skillimprove) = P_EXPERT;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			} else if (!rn2(10) && P_MAX_SKILL(skillimprove) == P_EXPERT) {
+				P_MAX_SKILL(skillimprove) = P_MASTER;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			} else if (!rn2(100) && P_MAX_SKILL(skillimprove) == P_MASTER) {
+				P_MAX_SKILL(skillimprove) = P_GRAND_MASTER;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			} else if (!rn2(200) && P_MAX_SKILL(skillimprove) == P_GRAND_MASTER) {
+				P_MAX_SKILL(skillimprove) = P_SUPREME_MASTER;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			}
+
+			skillimprove = randomgoodskill();
+
+			if (P_MAX_SKILL(skillimprove) == P_ISRESTRICTED) {
+				unrestrict_weapon_skill(skillimprove);
+				pline("You can now learn the %s skill.", P_NAME(skillimprove));
+			} else if (P_MAX_SKILL(skillimprove) == P_UNSKILLED) {
+				unrestrict_weapon_skill(skillimprove);
+				P_MAX_SKILL(skillimprove) = P_BASIC;
+				pline("You can now learn the %s skill.", P_NAME(skillimprove));
+			} else if (rn2(2) && P_MAX_SKILL(skillimprove) == P_BASIC) {
+				P_MAX_SKILL(skillimprove) = P_SKILLED;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			} else if (!rn2(4) && P_MAX_SKILL(skillimprove) == P_SKILLED) {
+				P_MAX_SKILL(skillimprove) = P_EXPERT;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			} else if (!rn2(10) && P_MAX_SKILL(skillimprove) == P_EXPERT) {
+				P_MAX_SKILL(skillimprove) = P_MASTER;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			} else if (!rn2(100) && P_MAX_SKILL(skillimprove) == P_MASTER) {
+				P_MAX_SKILL(skillimprove) = P_GRAND_MASTER;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			} else if (!rn2(200) && P_MAX_SKILL(skillimprove) == P_GRAND_MASTER) {
+				P_MAX_SKILL(skillimprove) = P_SUPREME_MASTER;
+				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+			}
+
+		}
+
 	}
 
       if(mtmp->data == &mons[PM_TIKSRVZLLAT] && !u.tiksrvzllatdown) {
@@ -4162,26 +4785,23 @@ register struct monst *mtmp;
 			} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_GRAND_MASTER) {
 				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SUPREME_MASTER;
 			}
-			discover_artifact(trophy->oartifact);
-		}
-		trophy = mk_artifact((struct obj *)0, !rn2(3) ? A_CHAOTIC : rn2(2) ? A_NEUTRAL : A_LAWFUL, TRUE);
-		if (trophy) {
-			dropy(trophy);
-			if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_ISRESTRICTED) {
-				unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
-			} else if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_UNSKILLED) {
-				unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
-				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_BASIC;
-			} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_BASIC) {
-				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SKILLED;
-			} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_SKILLED) {
-				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_EXPERT;
-			} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_EXPERT) {
-				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_MASTER;
-			} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_MASTER) {
-				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_GRAND_MASTER;
-			} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_GRAND_MASTER) {
-				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SUPREME_MASTER;
+			if (Race_if(PM_RUSMOT)) {
+				if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_ISRESTRICTED) {
+					unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+				} else if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_UNSKILLED) {
+					unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_BASIC;
+				} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_BASIC) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SKILLED;
+				} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_SKILLED) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_EXPERT;
+				} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_EXPERT) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_MASTER;
+				} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_MASTER) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_GRAND_MASTER;
+				} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_GRAND_MASTER) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SUPREME_MASTER;
+				}
 			}
 			discover_artifact(trophy->oartifact);
 		}
@@ -4204,26 +4824,23 @@ register struct monst *mtmp;
 			} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_GRAND_MASTER) {
 				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SUPREME_MASTER;
 			}
-			discover_artifact(trophy->oartifact);
-		}
-		trophy = mk_artifact((struct obj *)0, !rn2(3) ? A_CHAOTIC : rn2(2) ? A_NEUTRAL : A_LAWFUL, TRUE);
-		if (trophy) {
-			dropy(trophy);
-			if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_ISRESTRICTED) {
-				unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
-			} else if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_UNSKILLED) {
-				unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
-				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_BASIC;
-			} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_BASIC) {
-				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SKILLED;
-			} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_SKILLED) {
-				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_EXPERT;
-			} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_EXPERT) {
-				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_MASTER;
-			} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_MASTER) {
-				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_GRAND_MASTER;
-			} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_GRAND_MASTER) {
-				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SUPREME_MASTER;
+			if (Race_if(PM_RUSMOT)) {
+				if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_ISRESTRICTED) {
+					unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+				} else if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_UNSKILLED) {
+					unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_BASIC;
+				} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_BASIC) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SKILLED;
+				} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_SKILLED) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_EXPERT;
+				} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_EXPERT) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_MASTER;
+				} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_MASTER) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_GRAND_MASTER;
+				} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_GRAND_MASTER) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SUPREME_MASTER;
+				}
 			}
 			discover_artifact(trophy->oartifact);
 		}
@@ -4245,6 +4862,102 @@ register struct monst *mtmp;
 				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_GRAND_MASTER;
 			} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_GRAND_MASTER) {
 				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SUPREME_MASTER;
+			}
+			if (Race_if(PM_RUSMOT)) {
+				if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_ISRESTRICTED) {
+					unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+				} else if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_UNSKILLED) {
+					unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_BASIC;
+				} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_BASIC) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SKILLED;
+				} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_SKILLED) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_EXPERT;
+				} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_EXPERT) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_MASTER;
+				} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_MASTER) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_GRAND_MASTER;
+				} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_GRAND_MASTER) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SUPREME_MASTER;
+				}
+			}
+			discover_artifact(trophy->oartifact);
+		}
+		trophy = mk_artifact((struct obj *)0, !rn2(3) ? A_CHAOTIC : rn2(2) ? A_NEUTRAL : A_LAWFUL, TRUE);
+		if (trophy) {
+			dropy(trophy);
+			if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_ISRESTRICTED) {
+				unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+			} else if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_UNSKILLED) {
+				unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_BASIC;
+			} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_BASIC) {
+				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SKILLED;
+			} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_SKILLED) {
+				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_EXPERT;
+			} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_EXPERT) {
+				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_MASTER;
+			} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_MASTER) {
+				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_GRAND_MASTER;
+			} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_GRAND_MASTER) {
+				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SUPREME_MASTER;
+			}
+			if (Race_if(PM_RUSMOT)) {
+				if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_ISRESTRICTED) {
+					unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+				} else if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_UNSKILLED) {
+					unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_BASIC;
+				} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_BASIC) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SKILLED;
+				} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_SKILLED) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_EXPERT;
+				} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_EXPERT) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_MASTER;
+				} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_MASTER) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_GRAND_MASTER;
+				} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_GRAND_MASTER) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SUPREME_MASTER;
+				}
+			}
+			discover_artifact(trophy->oartifact);
+		}
+		trophy = mk_artifact((struct obj *)0, !rn2(3) ? A_CHAOTIC : rn2(2) ? A_NEUTRAL : A_LAWFUL, TRUE);
+		if (trophy) {
+			dropy(trophy);
+			if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_ISRESTRICTED) {
+				unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+			} else if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_UNSKILLED) {
+				unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_BASIC;
+			} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_BASIC) {
+				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SKILLED;
+			} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_SKILLED) {
+				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_EXPERT;
+			} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_EXPERT) {
+				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_MASTER;
+			} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_MASTER) {
+				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_GRAND_MASTER;
+			} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_GRAND_MASTER) {
+				P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SUPREME_MASTER;
+			}
+			if (Race_if(PM_RUSMOT)) {
+				if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_ISRESTRICTED) {
+					unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+				} else if (P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_UNSKILLED) {
+					unrestrict_weapon_skill(get_obj_skill(trophy, TRUE));
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_BASIC;
+				} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_BASIC) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SKILLED;
+				} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_SKILLED) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_EXPERT;
+				} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_EXPERT) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_MASTER;
+				} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_MASTER) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_GRAND_MASTER;
+				} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(trophy, TRUE)) == P_GRAND_MASTER) {
+					P_MAX_SKILL(get_obj_skill(trophy, TRUE)) = P_SUPREME_MASTER;
+				}
 			}
 			discover_artifact(trophy->oartifact);
 			if (!havegifts) u.ugifts--;
@@ -4257,8 +4970,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_medusa) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4276,8 +4991,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_nightmare) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4295,8 +5012,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_vecna) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4313,8 +5032,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_beholder) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4331,8 +5052,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_ruggo) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4349,8 +5072,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_kroo) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4367,8 +5092,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_grund) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4385,8 +5112,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_largestgiant) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4403,8 +5132,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_shelob) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4421,8 +5152,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_girtab) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4439,8 +5172,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_aphrodite) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4457,8 +5192,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_frankenstein) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4475,8 +5212,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_croesus) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4493,8 +5232,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_dagon) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4511,8 +5252,10 @@ register struct monst *mtmp;
 
 		if (!achieve.killed_hydra) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4532,8 +5275,10 @@ register struct monst *mtmp;
 
 	            achieveX.killed_elderpriest = 1;
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4552,8 +5297,10 @@ register struct monst *mtmp;
 
 	            achieveX.killed_glassgolem = 1;
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4572,8 +5319,10 @@ register struct monst *mtmp;
 
 	            achieveX.killed_tiksrvzllat = 1;
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4592,8 +5341,10 @@ register struct monst *mtmp;
 
 	            achieveX.killed_bofh = 1;
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4612,8 +5363,10 @@ register struct monst *mtmp;
 
 	            achieveX.killed_katia = 1;
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4632,8 +5385,10 @@ register struct monst *mtmp;
 
 	            achieveX.killed_witchking = 1;
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -4667,7 +5422,43 @@ boolean was_swallowed;			/* digestion */
 	int i, tmp;
 	boolean trolling = 0;
 
-	if (mdat == &mons[PM_VLAD_THE_IMPALER] || mdat->mlet == S_LICH) {
+	int monsx, monsy;
+	boolean terrainok = FALSE;
+	if (mon) {
+		monsx = mon->mx;
+		monsy = mon->my;
+		if (isok(monsx, monsy)) terrainok = TRUE;
+	}
+
+	if (terrainok && mdat == &mons[PM_WATERFIELD_NYMPH]) {
+		if (levl[monsx][monsy].typ == ROOM || levl[monsx][monsy].typ == CORR || (levl[monsx][monsy].typ >= ICE && levl[monsx][monsy].typ <= CRYPTFLOOR) || (levl[monsx][monsy].typ >= AIR && levl[monsx][monsy].typ <= RAINCLOUD)) {
+			levl[monsx][monsy].typ = POOL;
+			blockorunblock_point(monsx,monsy);
+			if(cansee(monsx,monsy)) {
+				newsym(monsx,monsy);
+			}
+		}
+	}
+	if (terrainok && mdat == &mons[PM_DEEP_POOL_NYMPH]) {
+		if (levl[monsx][monsy].typ == ROOM || levl[monsx][monsy].typ == CORR || (levl[monsx][monsy].typ >= ICE && levl[monsx][monsy].typ <= CRYPTFLOOR) || (levl[monsx][monsy].typ >= AIR && levl[monsx][monsy].typ <= RAINCLOUD)) {
+			levl[monsx][monsy].typ = MOAT;
+			blockorunblock_point(monsx,monsy);
+			if(cansee(monsx,monsy)) {
+				newsym(monsx,monsy);
+			}
+		}
+	}
+	if (terrainok && mdat == &mons[PM_LAVALAND_NYMPH]) {
+		if (levl[monsx][monsy].typ == ROOM || levl[monsx][monsy].typ == CORR || (levl[monsx][monsy].typ >= ICE && levl[monsx][monsy].typ <= CRYPTFLOOR) || (levl[monsx][monsy].typ >= AIR && levl[monsx][monsy].typ <= RAINCLOUD)) {
+			levl[monsx][monsy].typ = LAVAPOOL;
+			blockorunblock_point(monsx,monsy);
+			if(cansee(monsx,monsy)) {
+				newsym(monsx,monsy);
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_VLAD_THE_IMPALER] || (mdat->mlet == S_LICH && mdat != &mons[PM_LICHZARD] && !(mon->egotype_troll || (is_reviver(mdat))) ) ) {
 	    if (cansee(mon->mx, mon->my) && !was_swallowed)
 		pline("%s body crumbles into dust.", s_suffix(Monnam(mon)));
 		if (PlayerHearsSoundEffects) pline(issoviet ? "Vy ne poluchite trup. Ya udivlen, chto vy dazhe udalos' pobedit' takogo monstra, dolzhno byt', udacha, potomu chto ty na samom dele ochen' plokhoy igrok..." : "Dueouaaaaaaaaaah.");
@@ -4691,6 +5482,7 @@ boolean was_swallowed;			/* digestion */
 			sprintf(killer_buf, "%s explosion",
 				s_suffix(mdat->mname));
 			if (Half_physical_damage && rn2(2) ) tmp = (tmp+1) / 2;
+			if (StrongHalf_physical_damage && rn2(2) ) tmp = (tmp+1) / 2;
 			losehp(tmp, killer_buf, KILLED_BY_AN);
 		    } else {
 			if (flags.soundok) You_hear("an explosion.");
@@ -4711,7 +5503,7 @@ boolean was_swallowed;			/* digestion */
 	    	sprintf(killer_buf, "%s explosion", s_suffix(mdat->mname));
 	    	killer = killer_buf;
 	    	killer_format = KILLED_BY_AN;
-	    	explode(mon->mx, mon->my, -1, tmp, MON_EXPLODE, EXPL_NOXIOUS); 
+	    	explode(mon->mx, mon->my, -1, tmp, MON_EXPLODE, EXPL_NOXIOUS);
 	    	if (!trolling) return (FALSE);
 	    } else if (mon->egotype_exploder) {
 		tmp = d(2, 1 + (mon->m_lev * 5) );
@@ -4722,6 +5514,7 @@ boolean was_swallowed;			/* digestion */
 			sprintf(killer_buf, "%s explosion",
 				s_suffix(mdat->mname));
 			if (Half_physical_damage && rn2(2) ) tmp = (tmp+1) / 2;
+			if (StrongHalf_physical_damage && rn2(2) ) tmp = (tmp+1) / 2;
 			losehp(tmp, killer_buf, KILLED_BY_AN);
 		    } else {
 			if (flags.soundok) You_hear("an explosion.");
@@ -4742,10 +5535,17 @@ boolean was_swallowed;			/* digestion */
 	    	sprintf(killer_buf, "%s explosion", s_suffix(mdat->mname));
 	    	killer = killer_buf;
 	    	killer_format = KILLED_BY_AN;
-	    	explode(mon->mx, mon->my, -1, tmp, MON_EXPLODE, EXPL_NOXIOUS); 
+	    	explode(mon->mx, mon->my, -1, tmp, MON_EXPLODE, EXPL_NOXIOUS);
 	    	if (!trolling) return (FALSE);
 	    }
   	}
+
+	/* freeplay mode isn't supposed to devolve into the player farming reviving bosses... --Amy */
+	if (u.freeplaymode) {
+		if (mdat == &mons[PM_CTHULHU]) return FALSE;
+		if (is_rider(mdat)) return FALSE;
+		if (is_deadlysin(mdat)) return FALSE;
+	}
 
 	/* Cthulhu Deliquesces... */
 	if (mdat == &mons[PM_CTHULHU]) {
@@ -4762,7 +5562,7 @@ boolean was_swallowed;			/* digestion */
 	/* must duplicate this below check in xkilled() since it results in
 	 * creating no objects as well as no corpse
 	 */
-	if (LEVEL_SPECIFIC_NOCORPSE(mdat))
+	if (level_specific_nocorpse(mdat))
 		return FALSE;
 
 	if ( (u.uprops[STARVATION_EFFECT].extrinsic || StarvationEffect || (uarmc && uarmc->oartifact == ART_FEMMY_FATALE) || have_starvationstone() ) && STARVATION_SPECIFIC_NOCORPSE(mdat))
@@ -4777,7 +5577,7 @@ boolean was_swallowed;			/* digestion */
 	if (!timebasedlowerchance() && !timebasedlowerchance() && rn2(8) && !is_reviver(mdat) && !mon->egotype_troll && !(mdat == &mons[PM_TROLL_ZOMBIE]) && !(mdat == &mons[PM_VECNA]) && !(mdat == &mons[PM_NIGHTMARE]) && !(mdat == &mons[PM_BEHOLDER]) && !(mdat == &mons[PM_MEDUSA]) && !(mdat == &mons[PM_EGO_TROLL_MUMMY]) && !(mdat == &mons[PM_TROLL_PERMAMIMIC_MUMMY]) && !(mdat == &mons[PM_TROLL_MUMMY]) && !mon->mtame)
 		return FALSE;
 
-	if (mon->egotype_troll || (is_reviver(mdat) && !(mdat->mlet == S_FUNGUS) ) || bigmonst(mdat) || mdat == &mons[PM_LIZARD] || mdat == &mons[PM_CAVE_LIZARD] || mdat == &mons[PM_CHAOS_LIZARD] || mdat == &mons[PM_CHAOTIC_LIZARD] || mdat == &mons[PM_LIZARD_EEL] || mdat == &mons[PM_EEL_LIZARD] || mdat == &mons[PM_BLUE_LIZARD] || mdat == &mons[PM_GRASS_LIZARD] || mdat == &mons[PM_SWAMP_LIZARD] || mdat == &mons[PM_SPITTING_LIZARD] || mdat == &mons[PM_ROCK_LIZARD] || mdat == &mons[PM_BABY_CAVE_LIZARD] || mdat == &mons[PM_NIGHT_LIZARD] || mdat == &mons[PM_LIZARD_MAN] || mdat == &mons[PM_LIZARD_KING] || mdat == &mons[PM_LIZARD_OF_YENDOR] || mdat == &mons[PM_ANTI_STONE_LIZARD]  || mdat == &mons[PM_GIANT_LIZARD] || mdat == &mons[PM_HIDDEN_LIZARD] || mdat == &mons[PM_DEFORMED_LIZARD] || mdat == &mons[PM_MIMIC_LIZARD] || mdat == &mons[PM_CLINGING_LIZARD] || mdat == &mons[PM_HUGE_LIZARD] || mdat == &mons[PM_PREHISTORIC_CAVE_LIZARD] || mdat == &mons[PM_KARMIC_LIZARD] || mdat == &mons[PM_GREEN_LIZARD] || mdat == &mons[PM_SAND_TIDE] || mdat == &mons[PM_MONSTER_LIZARD] || mdat == &mons[PM_FBI_AGENT] || mdat == &mons[PM_OWN_SMOKE] || mdat == &mons[PM_GRANDPA] || mdat == &mons[PM_FIRE_LIZARD] || mdat == &mons[PM_LIGHTNING_LIZARD] || mdat == &mons[PM_ICE_LIZARD] || mdat == &mons[PM_BLACK_LIZARD] || mdat == &mons[PM_KATNISS]
+	if (mon->egotype_troll || (is_reviver(mdat) && !(mdat->mlet == S_FUNGUS) ) || bigmonst(mdat) || mdat == &mons[PM_LIZARD] || mdat == &mons[PM_CAVE_LIZARD] || mdat == &mons[PM_CHAOS_LIZARD] || mdat == &mons[PM_CHAOTIC_LIZARD] || mdat == &mons[PM_LIZARD_EEL] || mdat == &mons[PM_EEL_LIZARD] || mdat == &mons[PM_BLUE_LIZARD] || mdat == &mons[PM_GRASS_LIZARD] || mdat == &mons[PM_RUNE_LIZARD] || mdat == &mons[PM_SPECTRAL_LIZARD] || mdat == &mons[PM_SWAMP_LIZARD] || mdat == &mons[PM_SPITTING_LIZARD] || mdat == &mons[PM_ROCK_LIZARD] || mdat == &mons[PM_WILL_STONE_LIZARD] || mdat == &mons[PM_WILL_RATCH_LIZARD] || mdat == &mons[PM_LICHZARD] || mdat == &mons[PM_SKELLIZARD] || mdat == &mons[PM_BABY_CAVE_LIZARD] || mdat == &mons[PM_NIGHT_LIZARD] || mdat == &mons[PM_LIZARD_MAN] || mdat == &mons[PM_LIZARD_KING] || mdat == &mons[PM_LIZARD_OF_YENDOR] || mdat == &mons[PM_ANTI_STONE_LIZARD]  || mdat == &mons[PM_GIANT_LIZARD] || mdat == &mons[PM_HIDDEN_LIZARD] || mdat == &mons[PM_DEFORMED_LIZARD] || mdat == &mons[PM_MIMIC_LIZARD] || mdat == &mons[PM_CLINGING_LIZARD] || mdat == &mons[PM_HUGE_LIZARD] || mdat == &mons[PM_PREHISTORIC_CAVE_LIZARD] || mdat == &mons[PM_KARMIC_LIZARD] || mdat == &mons[PM_GREEN_LIZARD] || mdat == &mons[PM_SCORZARD] || mdat == &mons[PM_SAND_TIDE] || mdat == &mons[PM_MONSTER_LIZARD] || mdat == &mons[PM_FBI_AGENT] || mdat == &mons[PM_OWN_SMOKE] || mdat == &mons[PM_GRANDPA] || mdat == &mons[PM_CLOCKBACK_LIZARD] || mdat == &mons[PM_LIZARD_MAGE] || mdat == &mons[PM_BLACK_LIZARDMAN] || mdat == &mons[PM_ASSASSIN_LIZARD] || mdat == &mons[PM_BLIZZARD_LIZARD] || mdat == &mons[PM_HELTH_LIZARD] || mdat == &mons[PM_NORMAL_LIZARD] || mdat == &mons[PM_ADULT_LIZARD] || mdat == &mons[PM_LIZZY] || mdat == &mons[PM_LIZARD_PRINCE] || mdat == &mons[PM_FIRE_LIZARD] || mdat == &mons[PM_LIGHTNING_LIZARD] || mdat == &mons[PM_ICE_LIZARD] || mdat == &mons[PM_BLACK_LIZARD] || mdat == &mons[PM_KATNISS]
 		   || is_golem(mdat)
 		   || is_mplayer(mdat)
 		   || is_umplayer(mdat)
@@ -4814,6 +5614,41 @@ register struct monst *mdef;
 
 	/* drop special items like the Amulet so that a dismissed Kop or nurse
 	   can't remove them from the game */
+	/* Amy edit: unless you're playing the evil variant :P */
+
+	if (isevilvariant) {
+	    struct obj *obj, *otmp;
+
+	    for (obj = mdef->minvent; obj; obj = otmp) {
+		otmp = obj->nobj;
+		if (obj && obj->otyp == AMULET_OF_YENDOR && !u.freeplaymode) {
+			u.youaredead = 1;
+			u.youarereallydead = 1;
+			pline("Oh no! The monster that was holding the Amulet of Yendor has left the dungeon and since your game is no longer winnable now, it ends here. Sorry.");
+			killer_format = NO_KILLER_PREFIX;
+			killer = "allowed the Amulet of Yendor to be removed from the dungeon";
+		      done(DIED);
+		      done(DIED);
+		      done(QUIT); /* sorry but your game *really* ends here --Amy */
+
+		}
+
+		if (obj && (obj->otyp == CANDELABRUM_OF_INVOCATION || obj->otyp == BELL_OF_OPENING || obj->otyp == SPE_BOOK_OF_THE_DEAD) && !u.uevent.invoked && !u.freeplaymode) {
+			u.youaredead = 1;
+			u.youarereallydead = 1;
+			pline("Oh no! One of the special items that were required to win the game has just been removed from the dungeon, and therefore your game is now over. Sorry.");
+			killer_format = NO_KILLER_PREFIX;
+			killer = "allowed an invocation artifact to be removed from the dungeon";
+		      done(DIED);
+		      done(DIED);
+		      done(QUIT); /* sorry but your game *really* ends here --Amy */
+
+		}
+
+	    }
+
+	}
+
 	mdrop_special_objs(mdef);
 	/* release rest of monster's inventory--it is removed from game */
 	discard_minvent(mdef);
@@ -4878,12 +5713,13 @@ register struct monst *mdef;
 		/* reduce amount of musable items the player can use --Amy */
 		if (is_musable(obj) && obj->mstartinvent && !(obj->oartifact) && !(obj->fakeartifact && timebasedlowerchance()) && (!rn2(3) || (rn2(100) < u.musableremovechance) || (rn2(4) && (obj->otyp == POT_BLOOD || obj->otyp == POT_VAMPIRE_BLOOD) ) || LootcutBug || u.uprops[LOOTCUT_BUG].extrinsic || have_lootcutstone() || !timebasedlowerchance() ) && !(mdef->data == &mons[PM_GOOD_ITEM_MASTER]) && !(mdef->data == &mons[PM_BAD_ITEM_MASTER]) ) delobj(obj);
 		else if (obj->mstartinventB && !(obj->oartifact) && !(obj->fakeartifact && timebasedlowerchance()) && (!rn2(4) || (rn2(100) < u.equipmentremovechance) || !timebasedlowerchance() ) && !(mdef->data == &mons[PM_GOOD_ITEM_MASTER]) && !(mdef->data == &mons[PM_BAD_ITEM_MASTER]) ) delobj(obj);
+		else if (obj->mstartinventC && !(obj->oartifact) && !(obj->fakeartifact && !rn2(10)) && rn2(10) && !(mdef->data == &mons[PM_GOOD_ITEM_MASTER]) && !(mdef->data == &mons[PM_BAD_ITEM_MASTER]) ) delobj(obj);
 		    else (void) add_to_container(otmp, obj);
 		}
 #ifndef GOLDOBJ
 		if (mdef->mgold) {
 			struct obj *au;
-			au = mksobj(GOLD_PIECE, FALSE, FALSE);
+			au = mksobj(GOLD_PIECE, FALSE, FALSE, FALSE);
 			au->quan = mdef->mgold;
 			au->owt = weight(au);
 			(void) add_to_container(otmp, au);
@@ -4895,7 +5731,7 @@ register struct monst *mdef;
 			otmp->spe = 1;
 		otmp->owt = weight(otmp);
 	} else
-		otmp = mksobj_at(ROCK, x, y, TRUE, FALSE);
+		otmp = mksobj_at(ROCK, x, y, TRUE, FALSE, FALSE);
 
 	if (otmp) stackobj(otmp);
 	/* mondead() already does this, but we must do it before the newsym */
@@ -4933,10 +5769,12 @@ int how;
 	else
 	    be_sad = (mdef->mtame != 0 && !mdef->isspell);
 
-	if (mdef->mtame != 0 && uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "poke mongo cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "sovat' mongo plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "soktudun mongo plash") ) ) {
+	if (mdef->mtame != 0 && uarmc && itemhasappearance(uarmc, APP_POKE_MONGO_CLOAK) ) {
 		pline("You allowed a pet to die, thereby incurring the wrath of the gods!");
 		u.ugangr += rnd(3);
 	}
+
+	if (mdef->mtame != 0 && !mdef->isspell) u.cnd_petdeathcount++;
 
 	/* no corpses if digested or disintegrated */
 	if(how == AD_DGST || how == -AD_RBRE)
@@ -4945,7 +5783,7 @@ int how;
 	    mondied(mdef);
 
 	if (be_sad && mdef->mhp <= 0) {
-	    You(Hallucination ? "are feeling totally down for a moment, then it passes." : (Role_if(PM_PIRATE) || Role_if(PM_KORSAIR) || (uwep && uwep->oartifact == ART_ARRRRRR_MATEY) ) ? "hang the jib for a moment, then it passes." : "have a sad feeling for a moment, then it passes.");
+	    You(FunnyHallu ? "are feeling totally down for a moment, then it passes." : (Role_if(PM_PIRATE) || Role_if(PM_KORSAIR) || (uwep && uwep->oartifact == ART_ARRRRRR_MATEY) ) ? "hang the jib for a moment, then it passes." : "have a sad feeling for a moment, then it passes.");
 	    if (PlayerHearsSoundEffects) pline(issoviet ? "Da! Vash pitomets umer! Tip bloka l'da ochen' pozabavilo!" : "Daeaeae-aeaeaeaeae!");
 	}
 
@@ -4968,7 +5806,9 @@ mon_xkilled(mdef, fltxt, how)
 				*fltxt ? " by the " : "",
 				fltxt);
 	else
-		be_sad = (mdef->mtame != 0 && !mdef->isspell); 
+		be_sad = (mdef->mtame != 0 && !mdef->isspell);
+
+	if (mdef->mtame != 0 && !mdef->isspell) u.cnd_petdeathcount++;
 
 	/* no corpses if digested or disintegrated */
 	if(how == AD_DGST || how == -AD_RBRE)
@@ -4977,7 +5817,7 @@ mon_xkilled(mdef, fltxt, how)
 		xkilled(mdef,0);
 
 	if (be_sad && mdef->mhp <= 0) {
-	    You(Hallucination ? "are feeling totally down for a moment, then it passes." : (Role_if(PM_PIRATE) || Role_if(PM_KORSAIR) || (uwep && uwep->oartifact == ART_ARRRRRR_MATEY) ) ? "hang the jib for a moment, then it passes." : "have a sad feeling for a moment, then it passes.");
+	    You(FunnyHallu ? "are feeling totally down for a moment, then it passes." : (Role_if(PM_PIRATE) || Role_if(PM_KORSAIR) || (uwep && uwep->oartifact == ART_ARRRRRR_MATEY) ) ? "hang the jib for a moment, then it passes." : "have a sad feeling for a moment, then it passes.");
 	    if (PlayerHearsSoundEffects) pline(issoviet ? "Da! Vash pitomets umer! Tip bloka l'da ochen' pozabavilo!" : "Daeaeae-aeaeaeaeae!");
 	}
 }
@@ -5026,28 +5866,70 @@ xkilled(mtmp, dest)
 	boolean redisp = FALSE;
 	boolean wasinside = u.uswallow && (u.ustuck == mtmp);
 
+	mdat = mtmp->data; /* mondead can change that, see below */
+
+	if (practicantterror && !u.pract_shopkeepers) {
+		if (mdat == &mons[PM_SHOPKEEPER] || mdat == &mons[PM_MASTER_SHOPKEEPER] || mdat == &mons[PM_ELITE_SHOPKEEPER]) u.pract_shopkeepercount++;
+		if (u.pract_shopkeepercount >= 5) {
+			pline("%s rings out: '8000 zorkmids, payable right away to my account. Last warning. Kill any more shopkeepers and I'm enormously cracking your cardboard boxes.'", noroelaname());
+			fineforpracticant(8000, 0, 0);
+			u.pract_shopkeepers = TRUE;
+		}
+	}
+	if (practicantterror && !u.pract_peacedisturb) {
+		if (mdat == &mons[PM_SHOPKEEPER] || mdat == &mons[PM_MASTER_SHOPKEEPER] || mdat == &mons[PM_ELITE_SHOPKEEPER] || mdat == &mons[PM_GUARD] || mdat == &mons[PM_MASTER_GUARD] || mdat == &mons[PM_ELITE_GUARD] || mdat == &mons[PM_ALIGNED_PRIEST] || mdat == &mons[PM_ELITE_PRIEST] || mdat == &mons[PM_MASTER_PRIEST] || mdat == &mons[PM_HIGH_PRIEST] || mdat == &mons[PM_DNETHACK_ELDER_PRIEST_TM_] || mdat == &mons[PM_WATCHMAN] || mdat == &mons[PM_WATCH_CAPTAIN] || mdat == &mons[PM_WATCH_LIEUTENANT] || mdat == &mons[PM_WATCH_LEADER]) u.pract_disturbcount++;
+
+		if (u.pract_disturbcount >= 20) {
+			pline("%s thunders: 'That was the last straw for you! From now on you pay the conventional penalty for too many murders without permission, for the rest of your life!'", noroelaname());
+			u.pract_conv3timer = 5000;
+			u.pract_peacedisturb = TRUE;
+		}
+	}
 
 	/* KMH, conduct */
 	u.uconduct.killer++;
 
 	if (Role_if(PM_BLOODSEEKER)) healup(mtmp->m_lev, 0, FALSE, FALSE); /* special ability called "Stygwyr's Thirst" */
+	if (Race_if(PM_ETHEREALOID) && !rn2(2)) healup(mtmp->m_lev, 0, FALSE, FALSE);
+	/* Demo wants a complicated calculation for how many HP the etherealoid gains from a kill... I took the easy way out */
+
+	if (uwep && uwep->oartifact == ART_GOLDIFICATION && mtmp->m_lev > 0) {
+		u.ugold += mtmp->m_lev;
+	}
+	if (uwep && uwep->oartifact == ART_PRICK_BEARER_S_RANSOM && mtmp->m_lev > 0) {
+		u.ugold += mtmp->m_lev;
+	}
+
+	if (uimplant && uimplant->oartifact == ART_ETERNAL_SORENESS && !rn2(50)) {
+		u.uhpmax++;
+		if (Upolyd) u.mhmax++;
+		if (uactivesymbiosis) {
+			u.usymbiote.mhpmax++;
+			if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
+		}
+	}
 
 	if (uwep && uwep->oartifact == ART_RIP_STRATEGY) healup(mtmp->m_lev, 0, FALSE, FALSE);
 
-	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_BURN_BABY_BURN) {
+	if (powerfulimplants() && uimplant && uimplant->oartifact == ART_BURN_BABY_BURN) {
 		healup(mtmp->m_lev, 0, FALSE, FALSE);
 		u.uen += mtmp->m_lev;
 		if (u.uen > u.uenmax) u.uen = u.uenmax;
 	}
 
-	if (uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "red sneakers") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "krasnyye krossovki") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "qizil shippak") )) healup( (mtmp->m_lev / 3), 0, FALSE, FALSE);
+	if (uarmf && itemhasappearance(uarmf, APP_RED_SNEAKERS)) healup( (mtmp->m_lev / 3), 0, FALSE, FALSE);
 
 	if (Manaleech && !rn2(3) ) { /* leech mana from killed monsters */
 		u.uen += rno(mtmp->m_lev + 1); /* rno instead of rnd, and added rn2 above, due to this property being too unbalanced --Amy */
 		if (u.uen > u.uenmax) u.uen = u.uenmax;
 	}
 
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "energizer cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "antidepressant plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "energiya plash")) && !rn2(3) ) {
+	if (StrongManaleech && !rn2(3) ) { /* leech mana from killed monsters */
+		u.uen += rno(mtmp->m_lev + 1); /* rno instead of rnd, and added rn2 above, due to this property being too unbalanced --Amy */
+		if (u.uen > u.uenmax) u.uen = u.uenmax;
+	}
+
+	if (uarmc && itemhasappearance(uarmc, APP_ENERGIZER_CLOAK) && !rn2(3) ) {
 		u.uen += rno((mtmp->m_lev + 5) / 5);
 		if (u.uen > u.uenmax) u.uen = u.uenmax;
 
@@ -5106,12 +5988,12 @@ xkilled(mtmp, dest)
 		goto cleanup;
 	}
 
-	if((dest & 2) || LEVEL_SPECIFIC_NOCORPSE(mdat))
+	if((dest & 2) || level_specific_nocorpse(mdat))
 		goto cleanup;
 
 #ifdef MAIL
 	if(mdat == &mons[PM_MAIL_DAEMON]) {
-		stackobj(mksobj_at(SCR_MAIL, x, y, FALSE, FALSE));
+		stackobj(mksobj_at(SCR_MAIL, x, y, FALSE, FALSE, FALSE));
 		redisp = TRUE;
 	}
 #endif
@@ -5132,372 +6014,374 @@ xkilled(mtmp, dest)
 		/* might be here after swallowed */
 
 		/* Throw a bone to vampiric and ghast players who cannot unstone themselves easily. --Amy */
-		if ((mdat == &mons[PM_LIZARD] || mdat == &mons[PM_CAVE_LIZARD] || mdat == &mons[PM_PREHISTORIC_CAVE_LIZARD] || mdat == &mons[PM_CHAOS_LIZARD] || mdat == &mons[PM_HUGE_LIZARD] || mdat == &mons[PM_CHAOTIC_LIZARD] || mdat == &mons[PM_SAND_TIDE] || mdat == &mons[PM_FIRE_LIZARD] || mdat == &mons[PM_ROCK_LIZARD] || mdat == &mons[PM_BABY_CAVE_LIZARD] || mdat == &mons[PM_NIGHT_LIZARD] || mdat == &mons[PM_FBI_AGENT] || mdat == &mons[PM_OWN_SMOKE] || mdat == &mons[PM_GRANDPA] || mdat == &mons[PM_LIGHTNING_LIZARD] || mdat == &mons[PM_KARMIC_LIZARD] || mdat == &mons[PM_GREEN_LIZARD] || mdat == &mons[PM_BLACK_LIZARD] || mdat == &mons[PM_MONSTER_LIZARD] || mdat == &mons[PM_ICE_LIZARD] || mdat == &mons[PM_GRASS_LIZARD] || mdat == &mons[PM_BLUE_LIZARD] || mdat == &mons[PM_SWAMP_LIZARD] || mdat == &mons[PM_SPITTING_LIZARD] || mdat == &mons[PM_LIZARD_EEL] || mdat == &mons[PM_HIDDEN_LIZARD] || mdat == &mons[PM_DEFORMED_LIZARD] || mdat == &mons[PM_MIMIC_LIZARD] || mdat == &mons[PM_CLINGING_LIZARD] || mdat == &mons[PM_LIZARD_MAN] || mdat == &mons[PM_LIZARD_OF_YENDOR] || mdat == &mons[PM_LIZARD_KING] || mdat == &mons[PM_GIANT_LIZARD] || mdat == &mons[PM_EEL_LIZARD] || mdat == &mons[PM_ANTI_STONE_LIZARD]) && !rn2(5) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(POT_ACID, x, y, TRUE, FALSE);
+		if ((mdat == &mons[PM_LIZARD] || mdat == &mons[PM_CAVE_LIZARD] || mdat == &mons[PM_PREHISTORIC_CAVE_LIZARD] || mdat == &mons[PM_CHAOS_LIZARD] || mdat == &mons[PM_HUGE_LIZARD] || mdat == &mons[PM_CHAOTIC_LIZARD] || mdat == &mons[PM_SAND_TIDE] || mdat == &mons[PM_FIRE_LIZARD] || mdat == &mons[PM_ROCK_LIZARD] || mdat == &mons[PM_WILL_STONE_LIZARD] || mdat == &mons[PM_WILL_RATCH_LIZARD] || mdat == &mons[PM_BABY_CAVE_LIZARD] || mdat == &mons[PM_LICHZARD] || mdat == &mons[PM_SKELLIZARD] || mdat == &mons[PM_NIGHT_LIZARD] || mdat == &mons[PM_FBI_AGENT] || mdat == &mons[PM_OWN_SMOKE] || mdat == &mons[PM_GRANDPA] || mdat == &mons[PM_LIZZY] || mdat == &mons[PM_LIZARD_MAGE] || mdat == &mons[PM_BLACK_LIZARDMAN] || mdat == &mons[PM_ASSASSIN_LIZARD] || mdat == &mons[PM_BLIZZARD_LIZARD] || mdat == &mons[PM_CLOCKBACK_LIZARD] || mdat == &mons[PM_LIZARD_PRINCE] || mdat == &mons[PM_ADULT_LIZARD] || mdat == &mons[PM_HELTH_LIZARD] || mdat == &mons[PM_NORMAL_LIZARD] || mdat == &mons[PM_LIGHTNING_LIZARD] || mdat == &mons[PM_KARMIC_LIZARD] || mdat == &mons[PM_GREEN_LIZARD] || mdat == &mons[PM_BLACK_LIZARD] || mdat == &mons[PM_SCORZARD] || mdat == &mons[PM_MONSTER_LIZARD] || mdat == &mons[PM_ICE_LIZARD] || mdat == &mons[PM_GRASS_LIZARD] || mdat == &mons[PM_RUNE_LIZARD] || mdat == &mons[PM_SPECTRAL_LIZARD] || mdat == &mons[PM_BLUE_LIZARD] || mdat == &mons[PM_SWAMP_LIZARD] || mdat == &mons[PM_SPITTING_LIZARD] || mdat == &mons[PM_LIZARD_EEL] || mdat == &mons[PM_HIDDEN_LIZARD] || mdat == &mons[PM_DEFORMED_LIZARD] || mdat == &mons[PM_MIMIC_LIZARD] || mdat == &mons[PM_CLINGING_LIZARD] || mdat == &mons[PM_LIZARD_MAN] || mdat == &mons[PM_LIZARD_OF_YENDOR] || mdat == &mons[PM_LIZARD_KING] || mdat == &mons[PM_GIANT_LIZARD] || mdat == &mons[PM_EEL_LIZARD] || mdat == &mons[PM_ANTI_STONE_LIZARD]) && !rn2(5) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(POT_ACID, x, y, TRUE, FALSE, FALSE);
 		/* of course the acid potions are useful for other races too, if they run out of lizard corpses */
 
-		if ((mdat == &mons[PM_SQUIRREL] || mdat == &mons[PM_IGUANA] || mdat == &mons[PM_HELPFUL_SQUIRREL] || mdat == &mons[PM_BIG_IGUANA]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(CARROT, x, y, TRUE, FALSE);
-		if ((mdat == &mons[PM_SQUIRREL] || mdat == &mons[PM_IGUANA] || mdat == &mons[PM_HELPFUL_SQUIRREL] || mdat == &mons[PM_BIG_IGUANA]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(BANANA, x, y, TRUE, FALSE);
-		if ((mdat == &mons[PM_SQUIRREL] || mdat == &mons[PM_IGUANA] || mdat == &mons[PM_HELPFUL_SQUIRREL] || mdat == &mons[PM_BIG_IGUANA]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(MELON, x, y, TRUE, FALSE);
-		if ((mdat == &mons[PM_SQUIRREL] || mdat == &mons[PM_IGUANA] || mdat == &mons[PM_HELPFUL_SQUIRREL] || mdat == &mons[PM_BIG_IGUANA]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(PEAR, x, y, TRUE, FALSE);
-		if ((mdat == &mons[PM_SQUIRREL] || mdat == &mons[PM_IGUANA] || mdat == &mons[PM_HELPFUL_SQUIRREL] || mdat == &mons[PM_BIG_IGUANA]) && !rn2(50) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(ASIAN_PEAR, x, y, TRUE, FALSE);
+		if ((mdat == &mons[PM_SQUIRREL] || mdat == &mons[PM_IGUANA] || mdat == &mons[PM_HELPFUL_SQUIRREL] || mdat == &mons[PM_STAR_SQUIRREL] || mdat == &mons[PM_BIG_IGUANA]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(CARROT, x, y, TRUE, FALSE, FALSE);
+		if ((mdat == &mons[PM_SQUIRREL] || mdat == &mons[PM_IGUANA] || mdat == &mons[PM_HELPFUL_SQUIRREL] || mdat == &mons[PM_STAR_SQUIRREL] || mdat == &mons[PM_BIG_IGUANA]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(BANANA, x, y, TRUE, FALSE, FALSE);
+		if ((mdat == &mons[PM_SQUIRREL] || mdat == &mons[PM_IGUANA] || mdat == &mons[PM_HELPFUL_SQUIRREL] || mdat == &mons[PM_STAR_SQUIRREL] || mdat == &mons[PM_BIG_IGUANA]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(MELON, x, y, TRUE, FALSE, FALSE);
+		if ((mdat == &mons[PM_SQUIRREL] || mdat == &mons[PM_IGUANA] || mdat == &mons[PM_HELPFUL_SQUIRREL] || mdat == &mons[PM_STAR_SQUIRREL] || mdat == &mons[PM_BIG_IGUANA]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(PEAR, x, y, TRUE, FALSE, FALSE);
+		if ((mdat == &mons[PM_SQUIRREL] || mdat == &mons[PM_IGUANA] || mdat == &mons[PM_HELPFUL_SQUIRREL] || mdat == &mons[PM_STAR_SQUIRREL] || mdat == &mons[PM_BIG_IGUANA]) && !rn2(50) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(ASIAN_PEAR, x, y, TRUE, FALSE, FALSE);
 
-		if ((mdat == &mons[PM_GECKO] || mdat == &mons[PM_GIANT_GECKO] || mdat == &mons[PM_FLYING_GECKO]) && !rn2(40) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(EUCALYPTUS_LEAF, x, y, TRUE, FALSE);
+		if ((mdat == &mons[PM_GECKO] || mdat == &mons[PM_GIANT_GECKO] || mdat == &mons[PM_FLYING_GECKO]) && !rn2(40) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(EUCALYPTUS_LEAF, x, y, TRUE, FALSE, FALSE);
 
-		if ((mdat == &mons[PM_RHAUMBUSUN] || mdat == &mons[PM_BIG_RHAUMBUSUN]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_FIRE, x, y, TRUE, FALSE);
+		if ((mdat == &mons[PM_RHAUMBUSUN] || mdat == &mons[PM_FEMBUSUN] || mdat == &mons[PM_BLOODBUSUN] || mdat == &mons[PM_BIG_RHAUMBUSUN]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_FIRE, x, y, TRUE, FALSE, FALSE);
 
-		if ((mdat == &mons[PM_SALAMANDER] || mdat == &mons[PM_SALAMANDER_SLAVE] || mdat == &mons[PM_SALAMANDER_PRISONER] || mdat == &mons[PM_SALAMANDER_MAGE] || mdat == &mons[PM_SALAMANDER_SHAMAN] || mdat == &mons[PM_PARALYSIS_WHIP_SALAMANDER] || mdat == &mons[PM_POISON_WHIP_SALAMANDER] || mdat == &mons[PM_FROST_SALAMANDER] || mdat == &mons[PM_KOMODO_DRAGON] || mdat == &mons[PM_PETTY_KOMODO_DRAGON]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(CREAM_PIE, x, y, TRUE, FALSE);
-		if ((mdat == &mons[PM_SALAMANDER] || mdat == &mons[PM_SALAMANDER_SLAVE] || mdat == &mons[PM_SALAMANDER_PRISONER] || mdat == &mons[PM_SALAMANDER_MAGE] || mdat == &mons[PM_SALAMANDER_SHAMAN] || mdat == &mons[PM_PARALYSIS_WHIP_SALAMANDER]  || mdat == &mons[PM_POISON_WHIP_SALAMANDER] || mdat == &mons[PM_FROST_SALAMANDER] || mdat == &mons[PM_KOMODO_DRAGON] || mdat == &mons[PM_PETTY_KOMODO_DRAGON]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(APPLE, x, y, TRUE, FALSE);
-		if ((mdat == &mons[PM_SALAMANDER] || mdat == &mons[PM_SALAMANDER_SLAVE] || mdat == &mons[PM_SALAMANDER_PRISONER] || mdat == &mons[PM_SALAMANDER_MAGE] || mdat == &mons[PM_SALAMANDER_SHAMAN] || mdat == &mons[PM_PARALYSIS_WHIP_SALAMANDER]  || mdat == &mons[PM_POISON_WHIP_SALAMANDER] || mdat == &mons[PM_FROST_SALAMANDER] || mdat == &mons[PM_KOMODO_DRAGON] || mdat == &mons[PM_PETTY_KOMODO_DRAGON]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(ORANGE, x, y, TRUE, FALSE);
-		if ((mdat == &mons[PM_SALAMANDER] || mdat == &mons[PM_SALAMANDER_SLAVE] || mdat == &mons[PM_SALAMANDER_PRISONER] || mdat == &mons[PM_SALAMANDER_MAGE] || mdat == &mons[PM_SALAMANDER_SHAMAN] || mdat == &mons[PM_PARALYSIS_WHIP_SALAMANDER]  || mdat == &mons[PM_POISON_WHIP_SALAMANDER] || mdat == &mons[PM_FROST_SALAMANDER] || mdat == &mons[PM_KOMODO_DRAGON] || mdat == &mons[PM_PETTY_KOMODO_DRAGON]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(LEMON, x, y, TRUE, FALSE);
+		if ((mdat == &mons[PM_SALAMANDER] || mdat == &mons[PM_SALAMANDER_SLAVE] || mdat == &mons[PM_SALAMANDER_PRISONER] || mdat == &mons[PM_SALAMANDER_MAGE] || mdat == &mons[PM_SALAMANDER_SHAMAN] || mdat == &mons[PM_PARALYSIS_WHIP_SALAMANDER] || mdat == &mons[PM_POISON_WHIP_SALAMANDER] || mdat == &mons[PM_FROST_SALAMANDER] || mdat == &mons[PM_KOMODO_DRAGON] || mdat == &mons[PM_PETTY_KOMODO_DRAGON]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(CREAM_PIE, x, y, TRUE, FALSE, FALSE);
+		if ((mdat == &mons[PM_SALAMANDER] || mdat == &mons[PM_SALAMANDER_SLAVE] || mdat == &mons[PM_SALAMANDER_PRISONER] || mdat == &mons[PM_SALAMANDER_MAGE] || mdat == &mons[PM_SALAMANDER_SHAMAN] || mdat == &mons[PM_PARALYSIS_WHIP_SALAMANDER]  || mdat == &mons[PM_POISON_WHIP_SALAMANDER] || mdat == &mons[PM_FROST_SALAMANDER] || mdat == &mons[PM_KOMODO_DRAGON] || mdat == &mons[PM_PETTY_KOMODO_DRAGON]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(APPLE, x, y, TRUE, FALSE, FALSE);
+		if ((mdat == &mons[PM_SALAMANDER] || mdat == &mons[PM_SALAMANDER_SLAVE] || mdat == &mons[PM_SALAMANDER_PRISONER] || mdat == &mons[PM_SALAMANDER_MAGE] || mdat == &mons[PM_SALAMANDER_SHAMAN] || mdat == &mons[PM_PARALYSIS_WHIP_SALAMANDER]  || mdat == &mons[PM_POISON_WHIP_SALAMANDER] || mdat == &mons[PM_FROST_SALAMANDER] || mdat == &mons[PM_KOMODO_DRAGON] || mdat == &mons[PM_PETTY_KOMODO_DRAGON]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(ORANGE, x, y, TRUE, FALSE, FALSE);
+		if ((mdat == &mons[PM_SALAMANDER] || mdat == &mons[PM_SALAMANDER_SLAVE] || mdat == &mons[PM_SALAMANDER_PRISONER] || mdat == &mons[PM_SALAMANDER_MAGE] || mdat == &mons[PM_SALAMANDER_SHAMAN] || mdat == &mons[PM_PARALYSIS_WHIP_SALAMANDER]  || mdat == &mons[PM_POISON_WHIP_SALAMANDER] || mdat == &mons[PM_FROST_SALAMANDER] || mdat == &mons[PM_KOMODO_DRAGON] || mdat == &mons[PM_PETTY_KOMODO_DRAGON]) && !rn2(20) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(LEMON, x, y, TRUE, FALSE, FALSE);
 
-		if (mdat == &mons[PM_SMALL_ITEM_TROVE]) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+		if (mdat == &mons[PM_SMALL_ITEM_TROVE]) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 
 		if (mdat == &mons[PM_ITEM_TROVE]) {
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 		}
 
 		if (mdat == &mons[PM_LARGE_ITEM_TROVE]) {
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 		}
 
 		if (mdat == &mons[PM_GIANT_ITEM_TROVE]) {
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 		}
 
 		if (mdat == &mons[PM_ENORMOUS_ITEM_TROVE]) {
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 		}
 
-		if (mdat == &mons[PM_UNIHORN_TROVE]) otmp = mksobj_at(UNICORN_HORN, x, y, TRUE, FALSE);
+		if (mdat == &mons[PM_UNIHORN_TROVE]) otmp = mksobj_at(UNICORN_HORN, x, y, TRUE, FALSE, FALSE);
 
 		if (mdat == &mons[PM_MEGA_UNIHORN_TROVE]) {
-			otmp = mksobj_at(UNICORN_HORN, x, y, TRUE, FALSE);
-			otmp = mksobj_at(UNICORN_HORN, x, y, TRUE, FALSE);
+			otmp = mksobj_at(UNICORN_HORN, x, y, TRUE, FALSE, FALSE);
+			otmp = mksobj_at(UNICORN_HORN, x, y, TRUE, FALSE, FALSE);
 		}
 
-		if (mdat == &mons[PM_POTION_TROVE]) otmp = mkobj_at(POTION_CLASS, x, y, TRUE);
-		if (mdat == &mons[PM_WEAPON_TROVE]) otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE);
-		if (mdat == &mons[PM_ARMOR_TROVE]) otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE);
-		if (mdat == &mons[PM_RING_TROVE]) otmp = mkobj_at(RING_CLASS, x, y, TRUE);
-		if (mdat == &mons[PM_AMULET_TROVE]) otmp = mkobj_at(AMULET_CLASS, x, y, TRUE);
-		if (mdat == &mons[PM_IMPLANT_TROVE]) otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE);
-		if (mdat == &mons[PM_TOOL_TROVE]) otmp = mkobj_at(TOOL_CLASS, x, y, TRUE);
-		if (mdat == &mons[PM_FOOD_TROVE]) otmp = mkobj_at(FOOD_CLASS, x, y, TRUE);
-		if (mdat == &mons[PM_SCROLL_TROVE]) otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE);
-		if (mdat == &mons[PM_SPELLBOOK_TROVE]) otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE);
-		if (mdat == &mons[PM_WAND_TROVE]) otmp = mkobj_at(WAND_CLASS, x, y, TRUE);
-		if (mdat == &mons[PM_GEM_TROVE]) otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
+		if (mdat == &mons[PM_POTION_TROVE]) otmp = mkobj_at(POTION_CLASS, x, y, TRUE, FALSE);
+		if (mdat == &mons[PM_WEAPON_TROVE]) otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE, FALSE);
+		if (mdat == &mons[PM_ARMOR_TROVE]) otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE, FALSE);
+		if (mdat == &mons[PM_RING_TROVE]) otmp = mkobj_at(RING_CLASS, x, y, TRUE, FALSE);
+		if (mdat == &mons[PM_AMULET_TROVE]) otmp = mkobj_at(AMULET_CLASS, x, y, TRUE, FALSE);
+		if (mdat == &mons[PM_IMPLANT_TROVE]) otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE, FALSE);
+		if (mdat == &mons[PM_TOOL_TROVE]) otmp = mkobj_at(TOOL_CLASS, x, y, TRUE, FALSE);
+		if (mdat == &mons[PM_FOOD_TROVE]) otmp = mkobj_at(FOOD_CLASS, x, y, TRUE, FALSE);
+		if (mdat == &mons[PM_SCROLL_TROVE]) otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE, FALSE);
+		if (mdat == &mons[PM_SPELLBOOK_TROVE]) otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE, FALSE);
+		if (mdat == &mons[PM_WAND_TROVE]) otmp = mkobj_at(WAND_CLASS, x, y, TRUE, FALSE);
+		if (mdat == &mons[PM_GEM_TROVE]) otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
 
 		if (mdat == &mons[PM_LARGE_POTION_TROVE]) {
-			otmp = mkobj_at(POTION_CLASS, x, y, TRUE);
-			otmp = mkobj_at(POTION_CLASS, x, y, TRUE);
+			otmp = mkobj_at(POTION_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(POTION_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_LARGE_WEAPON_TROVE]) {
-			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE);
-			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE);
+			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_LARGE_ARMOR_TROVE]) {
-			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE);
-			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE);
+			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_LARGE_RING_TROVE]) {
-			otmp = mkobj_at(RING_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RING_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RING_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RING_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_LARGE_AMULET_TROVE]) {
-			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE);
-			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE);
+			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_LARGE_IMPLANT_TROVE]) {
-			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE);
-			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE);
+			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_LARGE_TOOL_TROVE]) {
-			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE);
-			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE);
+			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_LARGE_FOOD_TROVE]) {
-			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE);
-			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE);
+			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_LARGE_SCROLL_TROVE]) {
-			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE);
-			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE);
+			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_LARGE_SPELLBOOK_TROVE]) {
-			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE);
-			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE);
+			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_LARGE_WAND_TROVE]) {
-			otmp = mkobj_at(WAND_CLASS, x, y, TRUE);
-			otmp = mkobj_at(WAND_CLASS, x, y, TRUE);
+			otmp = mkobj_at(WAND_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(WAND_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_LARGE_GEM_TROVE]) {
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
 		}
 
 		if (mdat == &mons[PM_BIG_POTION_TROVE]) {
-			otmp = mkobj_at(POTION_CLASS, x, y, TRUE);
-			otmp = mkobj_at(POTION_CLASS, x, y, TRUE);
-			otmp = mkobj_at(POTION_CLASS, x, y, TRUE);
+			otmp = mkobj_at(POTION_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(POTION_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(POTION_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_BIG_WEAPON_TROVE]) {
-			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE);
-			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE);
-			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE);
+			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_BIG_ARMOR_TROVE]) {
-			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE);
-			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE);
-			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE);
+			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_BIG_RING_TROVE]) {
-			otmp = mkobj_at(RING_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RING_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RING_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RING_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RING_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RING_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_BIG_AMULET_TROVE]) {
-			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE);
-			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE);
-			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE);
+			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_BIG_IMPLANT_TROVE]) {
-			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE);
-			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE);
-			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE);
+			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_BIG_TOOL_TROVE]) {
-			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE);
-			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE);
-			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE);
+			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_BIG_FOOD_TROVE]) {
-			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE);
-			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE);
-			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE);
+			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_BIG_SCROLL_TROVE]) {
-			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE);
-			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE);
-			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE);
+			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_BIG_SPELLBOOK_TROVE]) {
-			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE);
-			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE);
-			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE);
+			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_BIG_WAND_TROVE]) {
-			otmp = mkobj_at(WAND_CLASS, x, y, TRUE);
-			otmp = mkobj_at(WAND_CLASS, x, y, TRUE);
-			otmp = mkobj_at(WAND_CLASS, x, y, TRUE);
+			otmp = mkobj_at(WAND_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(WAND_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(WAND_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_BIG_GEM_TROVE]) {
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
 		}
 
 		if (mdat == &mons[PM_GIANT_POTION_TROVE]) {
-			otmp = mkobj_at(POTION_CLASS, x, y, TRUE);
-			otmp = mkobj_at(POTION_CLASS, x, y, TRUE);
-			otmp = mkobj_at(POTION_CLASS, x, y, TRUE);
-			otmp = mkobj_at(POTION_CLASS, x, y, TRUE);
+			otmp = mkobj_at(POTION_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(POTION_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(POTION_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(POTION_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_GIANT_WEAPON_TROVE]) {
-			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE);
-			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE);
-			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE);
-			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE);
+			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(WEAPON_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_GIANT_ARMOR_TROVE]) {
-			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE);
-			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE);
-			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE);
-			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE);
+			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(ARMOR_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_GIANT_RING_TROVE]) {
-			otmp = mkobj_at(RING_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RING_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RING_CLASS, x, y, TRUE);
-			otmp = mkobj_at(RING_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RING_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RING_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RING_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(RING_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_GIANT_AMULET_TROVE]) {
-			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE);
-			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE);
-			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE);
-			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE);
+			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(AMULET_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_GIANT_IMPLANT_TROVE]) {
-			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE);
-			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE);
-			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE);
-			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE);
+			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(IMPLANT_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_GIANT_TOOL_TROVE]) {
-			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE);
-			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE);
-			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE);
-			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE);
+			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(TOOL_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_GIANT_FOOD_TROVE]) {
-			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE);
-			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE);
-			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE);
-			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE);
+			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(FOOD_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_GIANT_SCROLL_TROVE]) {
-			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE);
-			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE);
-			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE);
-			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE);
+			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(SCROLL_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_GIANT_SPELLBOOK_TROVE]) {
-			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE);
-			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE);
-			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE);
-			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE);
+			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(SPBOOK_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_GIANT_WAND_TROVE]) {
-			otmp = mkobj_at(WAND_CLASS, x, y, TRUE);
-			otmp = mkobj_at(WAND_CLASS, x, y, TRUE);
-			otmp = mkobj_at(WAND_CLASS, x, y, TRUE);
-			otmp = mkobj_at(WAND_CLASS, x, y, TRUE);
+			otmp = mkobj_at(WAND_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(WAND_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(WAND_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(WAND_CLASS, x, y, TRUE, FALSE);
 		}
 		if (mdat == &mons[PM_GIANT_GEM_TROVE]) {
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
-			otmp = mkobj_at(GEM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
+			otmp = mkobj_at(GEM_CLASS, x, y, TRUE, FALSE);
 		}
 
-		if (!rn2(100) && (Race_if(PM_ANGBANDER) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "angband cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "plashch sredizem'ye krepost'") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "o'rta yer qal'a plash") ) ) ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_TELEPORTATION, x, y, TRUE, FALSE);
-		if (!rn2(100) && Race_if(PM_ANGBANDER) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_IDENTIFY, x, y, TRUE, FALSE);
-		if (!rn2(100) && RngeAngband && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_TELEPORTATION, x, y, TRUE, FALSE);
+		if (!rn2(100) && (Race_if(PM_ANGBANDER) || (uarmc && itemhasappearance(uarmc, APP_ANGBAND_CLOAK) ) ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_TELEPORTATION, x, y, TRUE, FALSE, FALSE);
+		if (!rn2(100) && Race_if(PM_ANGBANDER) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_IDENTIFY, x, y, TRUE, FALSE, FALSE);
+		if (!rn2(100) && RngeAngband && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_TELEPORTATION, x, y, TRUE, FALSE, FALSE);
 
-		if (!rn2(500) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_CURE, x, y, TRUE, FALSE);
-		if (!rn2(Race_if(PM_ROHIRRIM) ? 100 : 250) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_PHASE_DOOR, x, y, TRUE, FALSE);
-		if (!rn2(100) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(rn2(25) ? SCR_MANA : SCR_GREATER_MANA_RESTORATION, x, y, TRUE, FALSE);
-		if (!rn2(120) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_STANDARD_ID, x, y, TRUE, FALSE);
-		if (!rn2(40) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(rn2(25) ? SCR_HEALING : SCR_EXTRA_HEALING, x, y, TRUE, FALSE);
+		if (!rn2(500) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_CURE, x, y, TRUE, FALSE, FALSE);
+		if (!rn2(Race_if(PM_ROHIRRIM) ? 100 : 250) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_PHASE_DOOR, x, y, TRUE, FALSE, FALSE);
+		if (!rn2(100) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(rn2(25) ? SCR_MANA : SCR_GREATER_MANA_RESTORATION, x, y, TRUE, FALSE, FALSE);
+		if (!rn2(120) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_STANDARD_ID, x, y, TRUE, FALSE, FALSE);
+		if (!rn2(100) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_HEAL_OTHER, x, y, TRUE, FALSE, FALSE);
+		if (!rn2(40) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(rn2(25) ? SCR_HEALING : SCR_EXTRA_HEALING, x, y, TRUE, FALSE, FALSE);
 
 		if (uarmg && uarmg->oartifact == ART_SCROLLSCROLLSCROLL) {
-			if (!rn2(500) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_CURE, x, y, TRUE, FALSE);
-			if (!rn2(250) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_PHASE_DOOR, x, y, TRUE, FALSE);
-			if (!rn2(100) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(rn2(25) ? SCR_MANA : SCR_GREATER_MANA_RESTORATION, x, y, TRUE, FALSE);
-			if (!rn2(120) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_STANDARD_ID, x, y, TRUE, FALSE);
-			if (!rn2(40) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(rn2(25) ? SCR_HEALING : SCR_EXTRA_HEALING, x, y, TRUE, FALSE);
+			if (!rn2(500) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_CURE, x, y, TRUE, FALSE, FALSE);
+			if (!rn2(250) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_PHASE_DOOR, x, y, TRUE, FALSE, FALSE);
+			if (!rn2(100) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(rn2(25) ? SCR_MANA : SCR_GREATER_MANA_RESTORATION, x, y, TRUE, FALSE, FALSE);
+			if (!rn2(120) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_STANDARD_ID, x, y, TRUE, FALSE, FALSE);
+			if (!rn2(100) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(SCR_HEAL_OTHER, x, y, TRUE, FALSE, FALSE);
+			if (!rn2(40) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(rn2(25) ? SCR_HEALING : SCR_EXTRA_HEALING, x, y, TRUE, FALSE, FALSE);
 		}
 
-		if (!rn2(500) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(usefulitem(), x, y, TRUE, FALSE);
+		if (!rn2(500) && timebasedlowerchance() && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && (rn2(100) > u.usefulitemchance) ) otmp = mksobj_at(usefulitem(), x, y, TRUE, FALSE, FALSE);
 
 		/* you should not be able to farm trolls, gremlins, long worms etc. --Amy */
-		if (!rn2( (Race_if(PM_DROW) ? 100 : Race_if(PM_DOPPELGANGER) ? 150 : 30) ) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && !is_reviver(mdat) && !is_rider(mdat) && !is_deadlysin(mdat) && mdat != &mons[PM_GREMLIN] && mdat != &mons[PM_LONG_WORM] && mdat != &mons[PM_GHOST] && mdat != &mons[PM_TROLL_ZOMBIE] && mdat != &mons[PM_TROLL_MUMMY] && mdat != &mons[PM_TROLL_PERMAMIMIC_MUMMY] && mdat != &mons[PM_EGO_TROLL_MUMMY] && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) && !(issoviet && (mvitals[mndx].mvflags & G_NOCORPSE)) && !(issoviet && nohands(mdat))
+		if (!rn2( (Race_if(PM_DROW) ? 100 : Race_if(PM_DOPPELGANGER) ? 150 : 30) ) && !(u.uprops[NO_DROPS_EFFECT].extrinsic || NoDropsEffect || have_droplessstone() ) && !is_reviver(mdat) && !is_rider(mdat) && !is_deadlysin(mdat) && !splittinggremlin(mdat) && mdat != &mons[PM_DUMMY_MONSTER_NEEDED_FOR_VISUAL_INTERFACE] && mdat != &mons[PM_LONG_WORM] && mdat != &mons[PM_GHOST] && mdat != &mons[PM_TROLL_ZOMBIE] && mdat != &mons[PM_TROLL_MUMMY] && mdat != &mons[PM_TROLL_PERMAMIMIC_MUMMY] && mdat != &mons[PM_EGO_TROLL_MUMMY] && timebasedlowerchance() && (rn2(100) > u.usefulitemchance) && !(issoviet && (mvitals[mndx].mvflags & G_NOCORPSE)) && !(issoviet && nohands(mdat))
 	/* lowered overall chance, but see below for a chance to get extra items --Amy
 	 * Drow and especially Doppelgangers are super-powerful anyway, so I decided to nerf them a bit. */
 					&& (!issoviet || (mdat->mlet != S_KOP))
 							) { /* allow death drops for every monster type --Amy */
 			int typ;
 
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 			if (!rn2(32) && (rn2(100) > u.usefulitemchance) ) {
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE); /* small chance to get even more stuff --Amy */
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE); /* small chance to get even more stuff --Amy */
 			}
 			if (!rn2(96) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) ) {
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE); /* small chance to get even more stuff --Amy */
-			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE); /* small chance to get even more stuff --Amy */
+			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 			}
 			if (!rn2(288) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) ) {
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE); /* small chance to get even more stuff --Amy */
-			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE); /* small chance to get even more stuff --Amy */
+			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 			}
 			if (!rn2(864) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) ) {
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE); /* small chance to get even more stuff --Amy */
-			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(27)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE); /* small chance to get even more stuff --Amy */
+			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(27)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 			}
 			if (!rn2(2592) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) ) {
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE); /* small chance to get even more stuff --Amy */
-			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(27)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(81)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE); /* small chance to get even more stuff --Amy */
+			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(27)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(81)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 			}
 			if (!rn2(7776) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) ) {
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE); /* small chance to get even more stuff --Amy */
-			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(27)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(81)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(243)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE); /* small chance to get even more stuff --Amy */
+			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(27)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(81)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(243)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 			}
 			if (!rn2(23328) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) ) {
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE); /* small chance to get even more stuff --Amy */
-			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(27)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(81)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(243)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(729)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE); /* small chance to get even more stuff --Amy */
+			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(27)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(81)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(243)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(729)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 			}
 			if (!rn2(69984) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) ) {
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE); /* small chance to get even more stuff --Amy */
-			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(27)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(81)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(243)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(729)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(2187)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE); /* small chance to get even more stuff --Amy */
+			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(27)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(81)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(243)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(729)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(2187)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 			}
 			if (!rn2(209952) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) ) {
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE); /* small chance to get even more stuff --Amy */
-			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(27)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(81)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(243)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(729)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(2187)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(6561)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE); /* small chance to get even more stuff --Amy */
+			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(27)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(81)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(243)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(729)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(2187)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(6561)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 			}
 			if (!rn2(629856) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) && (rn2(100) > u.usefulitemchance) ) {
-			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE); /* small chance to get even more stuff --Amy */
-			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(27)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(81)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(243)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(729)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(2187)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(6561)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
-			if (!rn2(19683)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE);
+			otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(3)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE); /* small chance to get even more stuff --Amy */
+			if (!rn2(9)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(27)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(81)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(243)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(729)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(2187)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(6561)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
+			if (!rn2(19683)) otmp = mkobj_at(RANDOM_CLASS, x, y, TRUE, FALSE);
 			}
 
 			/* Don't create large objects from small monsters */
 			/*if (otmp) typ = otmp->otyp;*/
-			/*if (mdat->msize < MZ_HUMAN && typ != FOOD_RATION 
+			/*if (mdat->msize < MZ_HUMAN && typ != FOOD_RATION
 			    && typ != LEATHER_LEASH
 			    && typ != INKA_LEASH
 			    && typ != FIGURINE
@@ -5526,9 +6410,9 @@ cleanup:
 
 	if ( Role_if(PM_LADIESMAN) && !flags.female && mtmp->female && humanoid(mtmp->data) ) {
 
-	    You(Hallucination ? "feel very bad for killing your future wife." : "feel very bad for killing a defenseless woman.");
+	    You(FunnyHallu ? "feel very bad for killing your future wife." : "feel very bad for killing a defenseless woman.");
 	    adjalign(-25);
-		u.ualign.sins++; 
+		u.ualign.sins++;
 		u.alignlim--;
 		change_luck(-1);
 
@@ -5537,9 +6421,9 @@ cleanup:
 	/* Batman may not kill women, but you can be a female batman and it would be unfair to only punish males. --Amy */
 	if ( Race_if(PM_BATMAN) && ((!flags.female && mtmp->female) || (flags.female && !mtmp->female)) && humanoid(mtmp->data)) {
 
-	    Hallucination ? You_feel("very bad for killing your future %s.", flags.female ? "husband" : "wife") : You_feel("very bad for killing a defenseless %s.", flags.female ? "man" : "woman");
+	    FunnyHallu ? You_feel("very bad for killing your future %s.", flags.female ? "husband" : "wife") : You_feel("very bad for killing a defenseless %s.", flags.female ? "man" : "woman");
 	    adjalign(-25);
-		u.ualign.sins++; 
+		u.ualign.sins++;
 		u.alignlim--;
 		change_luck(-1);
 
@@ -5552,17 +6436,23 @@ cleanup:
 		if (always_peaceful(mdat)) { /* being penalized for killing maia, imperials etc. was just stupid. --Amy */
 		HTelepat &= ~INTRINSIC;
 		change_luck( u.ualign.type == A_LAWFUL ? -2 : -1); /* lower penalty for neutrals --Amy */
-		You(Hallucination ? "killed someone you weren't supposed to - whoops!" : "murderer!");
+		You(FunnyHallu ? "killed someone you weren't supposed to - whoops!" : "murderer!");
+
+		if (Role_if(PM_CELLAR_CHILD)) {
+			register int cellarvar = rnz(25000);
+			incr_itimeout(&HAggravate_monster, cellarvar);
+			u.cellargravate += cellarvar;
+		}
 
 		if (Role_if(PM_PALADIN)) { /* more severe murderer penalties */
-			u.ualign.sins += 5; 
+			u.ualign.sins += 5;
 			u.alignlim -= 5;
 			change_luck(-1);
 			adjalign(-50);
 		}
 
 		if(u.ualign.type == A_LAWFUL) { u.ualign.sins += 3; u.alignlim -= 3;} /*fall through*/
-		u.ualign.sins += 2; 
+		u.ualign.sins += 2;
 		u.alignlim -= 2;
 		if (Blind && !Blind_telepat)
 		    see_monsters(); /* Can't sense monsters any more. */
@@ -5571,8 +6461,7 @@ cleanup:
 
 	}
 	if((mtmp->mpeaceful && !rn2(2)) || mtmp->mtame)	change_luck(-1);
-	if (is_unicorn(mdat) &&
-				sgn(u.ualign.type) == sgn(mdat->maligntyp)) {
+	if (is_unicorn(mdat) && mndx != PM_MOLOCH_ALIGNED_UNICORN && sgn(u.ualign.type) == sgn(mdat->maligntyp)) {
 		change_luck(-5);
 		You_feel("guilty...");
 	}
@@ -5580,7 +6469,7 @@ cleanup:
 	if ( (Role_if(PM_ACTIVISTOR) || Race_if(PM_PEACEMAKER)) && mdat == &mons[PM_TOPMODEL]) { /* very bad idea! --Amy */
 		You_feel("guilty for killing an innocent girl.");
 		change_luck(-5);
-		u.ualign.sins += 10; 
+		u.ualign.sins += 10;
 		u.alignlim -= 10;
 		adjalign(-50);
 		u.ugangr++; u.ugangr++; u.ugangr++;
@@ -5628,6 +6517,7 @@ newbossA:
 		levl[mtmp->mx][mtmp->my].typ = CORR;
 		if (cansee(mtmp->mx,mtmp->my)) {
 			pline("The nether mist dissipates.");
+			u.cnd_nethermistremoved++;
 			newsym(mtmp->mx, mtmp->my);
 		}
 	}
@@ -5641,7 +6531,7 @@ newbossA:
 	    adjalign((u.alignlim/4));
 	else if (mdat->msound == MS_GUARDIAN) {	/* Bad */
 	    adjalign(-(u.alignlim/8));
-	    if (!Hallucination) pline("That was probably a bad idea...");
+	    if (!FunnyHallu) pline("That was probably a bad idea...");
 	    else pline("Whoopsie-daisy!");
 	} else if (mtmp->ispriest) {
 		adjalign((p_coaligned(mtmp)) ? -2 : 2);
@@ -5652,32 +6542,38 @@ newbossA:
 	} else if (mtmp->mtame) {
 		adjalign(-50);	/* bad!! */
 		/* your god is mighty displeased... */
-		if (!Hallucination) {(Role_if(PM_PIRATE) || Role_if(PM_KORSAIR) || (uwep && uwep->oartifact == ART_ARRRRRR_MATEY) ) ? pline("Batten down the hatches!") : You_hear("the rumble of distant thunder...");}
+		if (!FunnyHallu) {(Role_if(PM_PIRATE) || Role_if(PM_KORSAIR) || (uwep && uwep->oartifact == ART_ARRRRRR_MATEY) ) ? pline("Batten down the hatches!") : You_hear("the rumble of distant thunder...");}
 		else You_hear("the studio audience applaud!");
 		if (PlayerHearsSoundEffects) pline(issoviet ? "Molodets, geroy - ty ubil sobstvennogo domashnego zhivotnogo, potomu chto vy byli glupy. Vy na samom dele sovetskaya Pyat' Lo? Potomu chto on ne igrayet namnogo khuzhe, chem vy." : "Wummm. Wummmmmmmm!");
 
-		if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "poke mongo cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "sovat' mongo plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "soktudun mongo plash") ) ) {
+		if (uarmc && itemhasappearance(uarmc, APP_POKE_MONGO_CLOAK) ) {
 			pline("You killed your pet, thereby incurring the wrath of the gods!");
 			u.ugangr += rnd(3);
 		}
 
 	} else if (mtmp->mpeaceful) {
 		adjalign(-15);
-		if (!Hallucination) pline("The gods will probably not appreciate this...");
+		if (!FunnyHallu) pline("The gods will probably not appreciate this...");
 		else pline("Whoopsie-daisy!");
 	}
 
 	/* malign was already adjusted for u.ualign.type and randomization */
 	adjalign(mtmp->malign);
 
+	if (practicantterror && (mtmp->data->geno & G_UNIQ) && mtmp->data->msound != MS_NEMESIS && !u.pract_bosskill) {
+		pline("%s thunders: 'You destroyed the guardian that had cost 5000 zorkmids and have to pay twice that amount, because I'm Dictator Noroela and therefore can define the amount of your fine myself.'", noroelaname());
+		fineforpracticant(10000, 0, 0);
+		u.pract_bosskill = TRUE;
+	}
+
 	if (Role_if(PM_ANACHRONOUNBINDER) && (mtmp->data->geno & G_UNIQ)) {
 		pline("As a reward for killing a boss monster, your skill training is temporarily doubled!");
 		u.acutraining += rnz(200 + (mtmp->m_lev * 20));
 	}
 
-#ifdef LIVELOG_BONES_KILLER 
-	livelog_bones_killed(mtmp); 
-#endif 
+#ifdef LIVELOG_BONES_KILLER
+	livelog_bones_killed(mtmp);
+#endif
 }
 
 /* changes the monster into a stone monster of the same type */
@@ -5797,6 +6693,10 @@ int  typ, fatal;
 	int i, plural, kprefix = KILLED_BY_AN;
 	boolean thrown_weapon = (fatal < 0);
 
+	if (chromeprotection()) return;
+
+	u.cnd_poisonamount++;
+
 	if (thrown_weapon) fatal = -fatal;
 	if(strcmp(string, "blast") && !thrown_weapon) {
 	    /* 'blast' has already given a 'poison gas' message */
@@ -5807,17 +6707,32 @@ int  typ, fatal;
 			string, plural ? "were" : "was");
 	}
 
-	if(Poison_resistance && rn2(20) ) {
-		if(!strcmp(string, "blast")) shieldeff(u.ux, u.uy);
-		pline_The("poison doesn't seem to affect you.");
+	if (Race_if(PM_VIETIS)) {
+		if(Poison_resistance && rn2(StrongPoison_resistance ? 5 : 2) ) {
+			if(!strcmp(string, "blast")) shieldeff(u.ux, u.uy);
+			pline_The("poison doesn't seem to affect you.");
 
-		if(!rn2(20)) {
-		/* Check that a stat change was made */
-		if (adjattrib(typ, -1, 1)) {
-		    pline("You%s!", poiseff[typ]);
-			pline("You lose  %s", typ == 0 ? "Strength" : typ == 1 ? "Intelligence" : typ == 2 ? "Wisdom" : typ == 3 ? "Dexterity" : typ == 4 ? "Constitution" : "Charisma");			 } 
-			}
-		return;
+			if(!rn2(StrongPoison_resistance ? 20 : 4)) {
+			/* Check that a stat change was made */
+			if (adjattrib(typ, -1, 1, TRUE)) {
+			    pline("You%s!", poiseff[typ]);
+				pline("You lose  %s", typ == 0 ? "Strength" : typ == 1 ? "Intelligence" : typ == 2 ? "Wisdom" : typ == 3 ? "Dexterity" : typ == 4 ? "Constitution" : "Charisma");			 }
+				}
+			return;
+		}
+	} else {
+		if(Poison_resistance && rn2(StrongPoison_resistance ? 20 : 5) ) {
+			if(!strcmp(string, "blast")) shieldeff(u.ux, u.uy);
+			pline_The("poison doesn't seem to affect you.");
+
+			if(!rn2(StrongPoison_resistance ? 100 : 20)) {
+			/* Check that a stat change was made */
+			if (adjattrib(typ, -1, 1, TRUE)) {
+			    pline("You%s!", poiseff[typ]);
+				pline("You lose  %s", typ == 0 ? "Strength" : typ == 1 ? "Intelligence" : typ == 2 ? "Wisdom" : typ == 3 ? "Dexterity" : typ == 4 ? "Constitution" : "Charisma");			 }
+				}
+			return;
+		}
 	}
 	/* suppress killer prefix if it already has one */
 	if ((i = name_to_mon(pname)) >= LOW_PM && mons[i].geno & G_UNIQ) {
@@ -5830,7 +6745,7 @@ int  typ, fatal;
 	    kprefix = KILLED_BY;
 	}
 	i = rn2(fatal + 20*thrown_weapon);
-	if(i == 0 && !Poison_resistance && !(uarms && uarms->oartifact == ART_ANTINSTANT_DEATH) && typ != A_CHA && !rn2(100)) {
+	if(i == 0 && (!Poison_resistance || (Race_if(PM_VIETIS) && !StrongPoison_resistance)) && !(uarms && uarms->oartifact == ART_ANTINSTANT_DEATH) && typ != A_CHA && !rn2((Race_if(PM_VIETIS) && !Poison_resistance) ? 10 : 100)) {
 		if (Invulnerable || (Stoned_chiller && Stoned))
 		   pline("You are unharmed!");
 		else {
@@ -5839,7 +6754,7 @@ int  typ, fatal;
 		}
 	} else if(i <= 5) {
 		/* Check that a stat change was made */
-		if (adjattrib(typ, thrown_weapon ? -1 : -rn1(3,3), 1)) {
+		if (adjattrib(typ, thrown_weapon ? -1 : StrongPoison_resistance ? -1 : Poison_resistance ? -rno(3) : -rnd(5), 1, TRUE)) {
 		    pline("You%s!", poiseff[typ]);
 			pline("You lose  %s", typ == 0 ? "Strength" : typ == 1 ? "Intelligence" : typ == 2 ? "Wisdom" : typ == 3 ? "Dexterity" : typ == 4 ? "Constitution" : "Charisma");
 		}
@@ -5847,11 +6762,13 @@ int  typ, fatal;
 		/* still does damage --Amy */
 		i = thrown_weapon ? rnd(6) : rn1(10,6);
 		if(Half_physical_damage && rn2(2) ) i = (i+1) / 2;
+		if(StrongHalf_physical_damage && rn2(2) ) i = (i+1) / 2;
 		losehp(i, pname, kprefix);
 
 	} else {
 		i = thrown_weapon ? rnd(6) : rn1(10,6);
 		if(Half_physical_damage && rn2(2) ) i = (i+1) / 2;
+		if(StrongHalf_physical_damage && rn2(2) ) i = (i+1) / 2;
 		losehp(i, pname, kprefix);
 	}
 	if(u.uhp < 1) {
@@ -5882,7 +6799,7 @@ register struct monst *mtmp;
 		reset_rndmonst(NON_PM);
 	}
 
-	/* [Tom] took out the weird purple worm thing and lowered prob from 10 */        
+	/* [Tom] took out the weird purple worm thing and lowered prob from 10 */
 	if (!rn2(8)) {
 /*          if (!rn2(13))
 		(void) makemon(&mons[PM_PURPLE_WORM], 0, 0, NO_MM_FLAGS);
@@ -5897,6 +6814,8 @@ register struct monst *mtmp;
     }
     if(!mtmp->egotype_farter && mtmp->data->msound == MS_FART_QUIET) {
 		pline("%s produces %s farting noises with %s %s butt.", Monnam(mtmp), rn2(2) ? "tender" : "soft", mhis(mtmp), mtmp->female ? "sexy" : "ugly" );
+		u.cnd_fartingcount++;
+		if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 
 		if (uarmf && uarmf->oartifact == ART_SARAH_S_GRANNY_WEAR) {
 			healup((level_difficulty() + 5), 0, FALSE, FALSE);
@@ -5917,9 +6836,9 @@ register struct monst *mtmp;
 			badeffect();
 			badeffect();
 		}
-		badeffect();
+		if (!extralongsqueak()) badeffect();
 
-		if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "breath control helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "shlem upravleniya dykhaniyem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "nafasni boshqarish dubulg'asi")) ) {
+		if (uarmh && itemhasappearance(uarmh, APP_BREATH_CONTROL_HELMET) ) {
 			pline("Your breath control helmet keeps pumping the farting gas into your %s...", body_part(NOSE));
 			badeffect();
 			badeffect();
@@ -5940,6 +6859,8 @@ register struct monst *mtmp;
 sarahdone:
     if(!mtmp->egotype_farter && mtmp->data->msound == MS_FART_NORMAL) {
 		pline("%s produces %s farting noises with %s %s butt.", Monnam(mtmp), rn2(2) ? "beautiful" : "squeaky", mhis(mtmp), mtmp->female ? "sexy" : "ugly" );
+		u.cnd_fartingcount++;
+		if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 		if (uarmf && uarmf->oartifact == ART_ELIANE_S_SHIN_SMASH) {
 			pline("The farting gas destroys your footwear instantly.");
 		      useup(uarmf);
@@ -5953,9 +6874,9 @@ sarahdone:
 			badeffect();
 			badeffect();
 		}
-		badeffect();
+		if (!extralongsqueak()) badeffect();
 
-		if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "breath control helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "shlem upravleniya dykhaniyem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "nafasni boshqarish dubulg'asi")) ) {
+		if (uarmh && itemhasappearance(uarmh, APP_BREATH_CONTROL_HELMET) ) {
 			pline("Your breath control helmet keeps pumping the farting gas into your %s...", body_part(NOSE));
 			badeffect();
 			badeffect();
@@ -5975,6 +6896,8 @@ sarahdone:
     }
     if(!mtmp->egotype_farter && mtmp->data->msound == MS_FART_LOUD) {
 		pline("%s produces %s farting noises with %s %s butt.", Monnam(mtmp), rn2(2) ? "disgusting" : "loud", mhis(mtmp), mtmp->female ? "sexy" : "ugly" );
+		u.cnd_fartingcount++;
+		if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 		if (uarmf && uarmf->oartifact == ART_ELIANE_S_SHIN_SMASH) {
 			pline("The farting gas destroys your footwear instantly.");
 		      useup(uarmf);
@@ -5987,9 +6910,9 @@ sarahdone:
 			badeffect();
 			badeffect();
 		}
-		badeffect();
+		if (!extralongsqueak()) badeffect();
 
-		if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "breath control helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "shlem upravleniya dykhaniyem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "nafasni boshqarish dubulg'asi")) ) {
+		if (uarmh && itemhasappearance(uarmh, APP_BREATH_CONTROL_HELMET) ) {
 			pline("Your breath control helmet keeps pumping the farting gas into your %s...", body_part(NOSE));
 			badeffect();
 			badeffect();
@@ -6009,6 +6932,8 @@ sarahdone:
     }
     if (mtmp->egotype_farter) {
 		pline("%s produces %s farting noises with %s %s butt.", Monnam(mtmp), !rn2(6) ? "disgusting" : !rn2(5) ? "loud" : !rn2(4) ? "tender" : !rn2(3) ? "soft" : !rn2(2) ? "beautiful" : "squeaky", mhis(mtmp), mtmp->female ? "sexy" : "ugly" );
+		u.cnd_fartingcount++;
+		if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 		if (uarmf && uarmf->oartifact == ART_ELIANE_S_SHIN_SMASH) {
 			pline("The farting gas destroys your footwear instantly.");
 		      useup(uarmf);
@@ -6020,9 +6945,9 @@ sarahdone:
 			badeffect();
 			badeffect();
 		}
-		badeffect();
+		if (!extralongsqueak()) badeffect();
 
-		if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "breath control helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "shlem upravleniya dykhaniyem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "nafasni boshqarish dubulg'asi")) ) {
+		if (uarmh && itemhasappearance(uarmh, APP_BREATH_CONTROL_HELMET) ) {
 			pline("Your breath control helmet keeps pumping the farting gas into your %s...", body_part(NOSE));
 			badeffect();
 			badeffect();
@@ -6104,7 +7029,7 @@ register struct monst *mtmp;
 							}
 						}
 
-						if (untamingchance > rnd(10) && !((rnd(30 - ACURR(A_CHA))) < 4) ) {
+						if (untamingchance > rnd(10) && !(Role_if(PM_DRAGONMASTER) && uarms && Is_dragon_shield(uarms) && mtmp2->data->mlet == S_DRAGON) && !((rnd(30 - ACURR(A_CHA))) < 4) ) {
 
 							mtmp2->mtame = mtmp2->mpeaceful = 0;
 							if (mtmp2->mleashed) { m_unleash(mtmp2,FALSE); }
@@ -6174,8 +7099,10 @@ newkopcube:
 	}
 
 	if (couldsee(mtmp->mx, mtmp->my)) {
-		if (humanoid(mtmp->data) || mtmp->isshk || mtmp->isgd)
-		    pline("%s gets angry!", Monnam(mtmp));
+		if (humanoid(mtmp->data) || mtmp->isshk || mtmp->isgd) {
+			pline("%s gets angry!", Monnam(mtmp));
+			if (flags.verbose && flags.soundok) growl(mtmp);
+		}
 		else if (flags.verbose && flags.soundok) growl(mtmp);
 	}
 
@@ -6217,6 +7144,11 @@ void
 wakeup(mtmp)
 register struct monst *mtmp;
 {
+	if (mtmp->masleep && !rn2(3)) {
+		mtmp->mcanmove = 1;
+		mtmp->masleep = 0;
+		mtmp->mfrozen = 0;
+	}
 	mtmp->msleeping = 0;
 	mtmp->meating = 0;	/* assume there's no salvagable food left */
 	setmangry(mtmp);
@@ -6233,8 +7165,17 @@ wake_nearby()
 {
 	register struct monst *mtmp;
 
+	/* Amy edit: stealth gives a chance of the monster not waking up; aggravate monster reduces that chance */
+	int stealthchance = 0;
+	if (Stealth) stealthchance += 20;
+	if (StrongStealth) stealthchance += 30;
+	if (Aggravate_monster) stealthchance /= 2;
+	if (StrongAggravate_monster) stealthchance /= 2;
+	if (stealthchance < 0) stealthchance = 0; /* less than 0% chance makes no sense anyway --Amy */
+	if (stealthchance > 0) stealthchance = rnd(stealthchance); /* some randomness */
+
 	for(mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-	    if (!DEADMONSTER(mtmp) && distu(mtmp->mx,mtmp->my) < level_difficulty()*20) {
+	    if (!DEADMONSTER(mtmp) && (rnd(100) > stealthchance) && !(Race_if(PM_VIETIS) && rn2(3)) && !(Race_if(PM_KUTAR) && rn2(3)) && distu(mtmp->mx,mtmp->my) < level_difficulty()*20) {
 		mtmp->msleeping = 0;
 		if (mtmp->mtame && !mtmp->isminion)
 		    EDOG(mtmp)->whistletime = moves;
@@ -6242,7 +7183,7 @@ wake_nearby()
 	}
 
 	if (!rn2(250)) for(mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-	    if (!DEADMONSTER(mtmp)) {
+	    if (!DEADMONSTER(mtmp) && (rnd(100) > stealthchance) && !(Race_if(PM_VIETIS) && rn2(3)) && !(Race_if(PM_KUTAR) && rn2(3)) ) {
 		mtmp->msleeping = 0;
 		if (mtmp->mtame && !mtmp->isminion)
 		    EDOG(mtmp)->whistletime = moves;
@@ -6251,17 +7192,23 @@ wake_nearby()
 
 }
 
-/* Wake up monsters near some particular location. */
+/* Wake up monsters near some particular location.
+ * Amy edit: not guaranteed, and less likely with greater distance */
 void
 wake_nearto(x, y, distance)
 register int x, y, distance;
 {
 	register struct monst *mtmp;
+	int wakedistance;
 
 	for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-	    if (!DEADMONSTER(mtmp) && mtmp->msleeping && (distance == 0 ||
-				 dist2(mtmp->mx, mtmp->my, x, y) < distance))
-		mtmp->msleeping = 0;
+		if (!DEADMONSTER(mtmp) && !(Race_if(PM_VIETIS) && rn2(3)) && !(Race_if(PM_KUTAR) && rn2(3)) && mtmp->msleeping && (distance == 0 ||
+				 dist2(mtmp->mx, mtmp->my, x, y) < distance)) {
+			if (distance > 1) wakedistance = rnd(distance);
+			if (rn2(2) && ( (distance == 0) || (dist2(mtmp->mx, mtmp->my, x, y) < wakedistance)) ) {
+				mtmp->msleeping = 0;
+			}
+		}
 	}
 }
 
@@ -6380,7 +7327,7 @@ register struct monst *mtmp;
 	return(FALSE);
 }
 
-short *animal_list = 0;		/* list of PM values for animal monsters */
+int *animal_list = 0;		/* list of PM values for animal monsters */
 int animal_list_count;
 
 void
@@ -6388,7 +7335,7 @@ mon_animal_list(construct)
 boolean construct;
 {
 	if (construct) {
-	    short animal_temp[SPECIAL_PM];
+	    int animal_temp[SPECIAL_PM];
 	    int i, n;
 
 	 /* if (animal_list) impossible("animal_list already exists"); */
@@ -6397,7 +7344,7 @@ boolean construct;
 		if (is_animal(&mons[i])) animal_temp[n++] = i;
 	 /* if (n == 0) animal_temp[n++] = NON_PM; */
 
-	    animal_list = (short *)alloc(n * sizeof *animal_list);
+	    animal_list = (int *)alloc(n * sizeof *animal_list);
 	    (void) memcpy((void *)animal_list,
 			  (void *)animal_temp,
 			  n * sizeof *animal_list);
@@ -6423,6 +7370,75 @@ struct monst *mon;
 	int mndx = NON_PM;
 	struct permonst *pm;
 
+	int chambaselvl; /* base level of the unpolymorphed shapechanger --Amy */
+	/* basically, what we want here is that the shapechanger is exceedingly unlikely to turn into something of a much
+	 * higher level than its base form; it shouldn't be completely impossible, but rare enough to not turn all
+	 * shapeshifters into a crapshoot a la "did it change into a level 50 ubermonster or not?" */
+
+	switch (mon->cham) {
+
+	case CHAM_CHAMELEON: chambaselvl = 6; break;
+	case CHAM_DOPPELGANGER: chambaselvl = 9; break;
+	case CHAM_DOPPLEZON: chambaselvl = 10; break;
+	case CHAM_SANDESTIN: chambaselvl = 13; break;
+	case CHAM_MISSINGNO: chambaselvl = 10; break;
+	case CHAM_TRANSFORMER: chambaselvl = 10; break;
+	case CHAM_WARPER: chambaselvl = 20; break;
+	case CHAM_CHAOS_SHAPECHANGER: chambaselvl = 11; break;
+	case CHAM_SANDWICH: chambaselvl = 6; break;
+	case CHAM_KARMA_CHAMELEON: chambaselvl = 6; break;
+	case CHAM_JUNOW_TRICE: chambaselvl = 10; break;
+	case CHAM_POLY_FLAYER: chambaselvl = 15; break;
+	case CHAM_WILD_CHANGE_NYMPH: chambaselvl = 5; break;
+	case CHAM_VERY_POLY_NYMPH: chambaselvl = 20; break;
+	case CHAM_CORTEGEX: chambaselvl = 15; break;
+	case CHAM_CHANGE_EXPLODER: chambaselvl = 10; break;
+	case CHAM_BAM_CHAM: chambaselvl = 16; break;
+	case CHAM_LAURA_S_PARLOR_TRICK: chambaselvl = 10; break;
+	case CHAM_LAURA_S_MASTERPIECE: chambaselvl = 32; break;
+	case CHAM_TSCHANG_SEPHIRAH: chambaselvl = 10; break;
+	case CHAM_GLONK_SEPHIRAH: chambaselvl = 25; break;
+	case CHAM_KUSCHOING_SEPHIRAH: chambaselvl = 40; break;
+	case CHAM_ULTRA_DESTRUCTIVE_MONSTER: chambaselvl = 20; break;
+	case CHAM_DARN_DEMENTOR: chambaselvl = 15; break;
+	case CHAM_SHOEMELEON: chambaselvl = 10; break;
+	case CHAM_POLYFESHNEE: chambaselvl = 11; break;
+	case CHAM_COVETOUSLEON: chambaselvl = 17; break;
+	case CHAM_WHORED_HORE: chambaselvl = 22; break;
+	case CHAM_LULU_ASS: chambaselvl = 8; break;
+	case CHAM_TENDER_JESSE: chambaselvl = 5; break;
+	case CHAM_ELEROTIC_DREAM_WOMAN: chambaselvl = 20; break;
+	case CHAM_MARTIIN: chambaselvl = 10; break;
+	case CHAM_FOREPREACHER_CONVERTER: chambaselvl = 14; break;
+	case CHAM_RICTIM_TERRORIZER: chambaselvl = 10; break;
+	case CHAM_POLYMORPHITIC_WOLF: chambaselvl = 9; break;
+	case CHAM_OFFDIVER: chambaselvl = 8; break;
+	case CHAM_SLUMBER_HULK: chambaselvl = 10; break;
+	case CHAM_IVEL_WUXTINA: chambaselvl = 20; break;
+	case CHAM_EARLY_LEON: chambaselvl = 0; break;
+	case CHAM_CHAMECHAUN: chambaselvl = 6; break;
+	case CHAM_METAL_DOPPELGANGER: chambaselvl = 9; break;
+	case CHAM_GHELEON: chambaselvl = 6; break;
+	case CHAM_ZRUTINATOR: chambaselvl = 25; break;
+	case CHAM_METAMORPHOSE: chambaselvl = 51; break;
+	case CHAM_GREEN_SLAAD: chambaselvl = 24; break;
+	case CHAM_CHANGELING: chambaselvl = 8; break;
+	case CHAM_CHANGELING_MUMMY: chambaselvl = 6; break;
+	case CHAM_CHANGELING_ZOMBIE: chambaselvl = 4; break;
+	case CHAM_COCKAMELEON: chambaselvl = 5; break;
+	case CHAM_CHARMONIE: chambaselvl = 90; break;
+	case CHAM_EDOTO: chambaselvl = 45; break;
+	case CHAM_PURPLE_R: chambaselvl = 12; break;
+	case CHAM_VAMPSHIFTER: chambaselvl = 12; break;
+	case CHAM_UNGENOCIDABLE_VAMPSHIFTER: chambaselvl = 12; break;
+	case CHAM_GIANT_CHAMELEON: chambaselvl = 10; break;
+	/* gah they made it so that regular polymorphs, e.g. via potion, also use this function! */
+	default:
+		if (mon->oldmonnm) chambaselvl = mons[mon->oldmonnm].mlevel;
+		else chambaselvl = mon->data->mlevel;
+		break;
+	}
+
 	switch (mon->cham) {
 	    case CHAM_SANDESTIN:
 	    case CHAM_CHAOS_SHAPECHANGER:
@@ -6432,11 +7448,13 @@ sandestinchoice:
 			mndx = pick_nasty();
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto sandestinchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto sandestinchoice;
 			if (uncommon2(pm) && !rn2(4)) goto sandestinchoice;
 			if (uncommon3(pm) && !rn2(3)) goto sandestinchoice;
 			if (uncommon5(pm) && !rn2(2)) goto sandestinchoice;
 			if (uncommon7(pm) && rn2(3)) goto sandestinchoice;
 			if (uncommon10(pm) && rn2(5)) goto sandestinchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto sandestinchoice;
 		}
 		break;
 	    case CHAM_WARPER:
@@ -6445,11 +7463,13 @@ warperchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto warperchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto warperchoice;
 			if (uncommon2(pm) && !rn2(4)) goto warperchoice;
 			if (uncommon3(pm) && !rn2(3)) goto warperchoice;
 			if (uncommon5(pm) && !rn2(2)) goto warperchoice;
 			if (uncommon7(pm) && rn2(3)) goto warperchoice;
 			if (uncommon10(pm) && rn2(5)) goto warperchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto warperchoice;
 		}
 		break;
 	    case CHAM_SANDWICH:
@@ -6457,11 +7477,13 @@ sandwichchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto sandwichchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto sandwichchoice;
 			if (uncommon2(pm) && !rn2(4)) goto sandwichchoice;
 			if (uncommon3(pm) && !rn2(3)) goto sandwichchoice;
 			if (uncommon5(pm) && !rn2(2)) goto sandwichchoice;
 			if (uncommon7(pm) && rn2(3)) goto sandwichchoice;
 			if (uncommon10(pm) && rn2(5)) goto sandwichchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto sandwichchoice;
 			if (rn2(10000) && !(pm->mlet == S_BLOB || pm->mlet == S_PUDDING || pm->mlet == S_JELLY) ) goto sandwichchoice;
 		break;
 	    case CHAM_JUNOW_TRICE:
@@ -6469,11 +7491,13 @@ junowchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto junowchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto junowchoice;
 			if (uncommon2(pm) && !rn2(4)) goto junowchoice;
 			if (uncommon3(pm) && !rn2(3)) goto junowchoice;
 			if (uncommon5(pm) && !rn2(2)) goto junowchoice;
 			if (uncommon7(pm) && rn2(3)) goto junowchoice;
 			if (uncommon10(pm) && rn2(5)) goto junowchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto junowchoice;
 			if (rn2(10000) && !(pm->mlet == S_COCKATRICE) ) goto junowchoice;
 		break;
 	    case CHAM_POLY_FLAYER:
@@ -6481,11 +7505,13 @@ flayerchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto flayerchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto flayerchoice;
 			if (uncommon2(pm) && !rn2(4)) goto flayerchoice;
 			if (uncommon3(pm) && !rn2(3)) goto flayerchoice;
 			if (uncommon5(pm) && !rn2(2)) goto flayerchoice;
 			if (uncommon7(pm) && rn2(3)) goto flayerchoice;
 			if (uncommon10(pm) && rn2(5)) goto flayerchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto flayerchoice;
 			if (rn2(10000) && !(dmgtype(pm, AD_DRIN)) ) goto flayerchoice;
 		break;
 	    case CHAM_WILD_CHANGE_NYMPH:
@@ -6494,11 +7520,13 @@ nymphchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto nymphchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto nymphchoice;
 			if (uncommon2(pm) && !rn2(4)) goto nymphchoice;
 			if (uncommon3(pm) && !rn2(3)) goto nymphchoice;
 			if (uncommon5(pm) && !rn2(2)) goto nymphchoice;
 			if (uncommon7(pm) && rn2(3)) goto nymphchoice;
 			if (uncommon10(pm) && rn2(5)) goto nymphchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto nymphchoice;
 			if (rn2(10000) && !(pm->mlet == S_NYMPH) ) goto nymphchoice;
 		break;
 	    case CHAM_CORTEGEX:
@@ -6506,11 +7534,13 @@ vortexchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto vortexchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto vortexchoice;
 			if (uncommon2(pm) && !rn2(4)) goto vortexchoice;
 			if (uncommon3(pm) && !rn2(3)) goto vortexchoice;
 			if (uncommon5(pm) && !rn2(2)) goto vortexchoice;
 			if (uncommon7(pm) && rn2(3)) goto vortexchoice;
 			if (uncommon10(pm) && rn2(5)) goto vortexchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto vortexchoice;
 			if (rn2(10000) && !(pm->mlet == S_VORTEX) ) goto vortexchoice;
 		break;
 	    case CHAM_CHANGE_EXPLODER:
@@ -6518,11 +7548,13 @@ lightchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto lightchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto lightchoice;
 			if (uncommon2(pm) && !rn2(4)) goto lightchoice;
 			if (uncommon3(pm) && !rn2(3)) goto lightchoice;
 			if (uncommon5(pm) && !rn2(2)) goto lightchoice;
 			if (uncommon7(pm) && rn2(3)) goto lightchoice;
 			if (uncommon10(pm) && rn2(5)) goto lightchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto lightchoice;
 			if (rn2(10000) && !(pm->mlet == S_LIGHT) ) goto lightchoice;
 		break;
 	    case CHAM_BAM_CHAM:
@@ -6530,11 +7562,13 @@ dragonchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto dragonchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto dragonchoice;
 			if (uncommon2(pm) && !rn2(4)) goto dragonchoice;
 			if (uncommon3(pm) && !rn2(3)) goto dragonchoice;
 			if (uncommon5(pm) && !rn2(2)) goto dragonchoice;
 			if (uncommon7(pm) && rn2(3)) goto dragonchoice;
 			if (uncommon10(pm) && rn2(5)) goto dragonchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto dragonchoice;
 			if (rn2(10000) && !(pm->mlet == S_DRAGON) ) goto dragonchoice;
 		break;
 	    case CHAM_LAURA_S_PARLOR_TRICK:
@@ -6543,11 +7577,13 @@ elementalchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto elementalchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto elementalchoice;
 			if (uncommon2(pm) && !rn2(4)) goto elementalchoice;
 			if (uncommon3(pm) && !rn2(3)) goto elementalchoice;
 			if (uncommon5(pm) && !rn2(2)) goto elementalchoice;
 			if (uncommon7(pm) && rn2(3)) goto elementalchoice;
 			if (uncommon10(pm) && rn2(5)) goto elementalchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto elementalchoice;
 			if (rn2(10000) && !(pm->mlet == S_ELEMENTAL) ) goto elementalchoice;
 		break;
 	    case CHAM_TSCHANG_SEPHIRAH:
@@ -6557,35 +7593,57 @@ kopchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto kopchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto kopchoice;
 			if (uncommon2(pm) && !rn2(4)) goto kopchoice;
 			if (uncommon3(pm) && !rn2(3)) goto kopchoice;
 			if (uncommon5(pm) && !rn2(2)) goto kopchoice;
 			if (uncommon7(pm) && rn2(3)) goto kopchoice;
 			if (uncommon10(pm) && rn2(5)) goto kopchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto kopchoice;
 			if (rn2(10000) && !(pm->mlet == S_KOP) ) goto kopchoice;
 		break;
 	    case CHAM_ULTRA_DESTRUCTIVE_MONSTER:
+	    case CHAM_PURPLE_R:
 rustmonsterchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto rustmonsterchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto rustmonsterchoice;
 			if (uncommon2(pm) && !rn2(4)) goto rustmonsterchoice;
 			if (uncommon3(pm) && !rn2(3)) goto rustmonsterchoice;
 			if (uncommon5(pm) && !rn2(2)) goto rustmonsterchoice;
 			if (uncommon7(pm) && rn2(3)) goto rustmonsterchoice;
 			if (uncommon10(pm) && rn2(5)) goto rustmonsterchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto rustmonsterchoice;
 			if (rn2(10000) && !(pm->mlet == S_RUSTMONST) ) goto rustmonsterchoice;
+		break;
+	    case CHAM_UNGENOCIDABLE_VAMPSHIFTER:
+	    case CHAM_VAMPSHIFTER:
+vampirechoice:
+			mndx = rn2(NUMMONS);
+			pm = &mons[mndx];
+			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto vampirechoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto vampirechoice;
+			if (uncommon2(pm) && !rn2(4)) goto vampirechoice;
+			if (uncommon3(pm) && !rn2(3)) goto vampirechoice;
+			if (uncommon5(pm) && !rn2(2)) goto vampirechoice;
+			if (uncommon7(pm) && rn2(3)) goto vampirechoice;
+			if (uncommon10(pm) && rn2(5)) goto vampirechoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto vampirechoice;
+			if (rn2(10000) && !(pm->mlet == S_VAMPIRE) ) goto vampirechoice;
 		break;
 	    case CHAM_DARN_DEMENTOR:
 ghostchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto ghostchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto ghostchoice;
 			if (uncommon2(pm) && !rn2(4)) goto ghostchoice;
 			if (uncommon3(pm) && !rn2(3)) goto ghostchoice;
 			if (uncommon5(pm) && !rn2(2)) goto ghostchoice;
 			if (uncommon7(pm) && rn2(3)) goto ghostchoice;
 			if (uncommon10(pm) && rn2(5)) goto ghostchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto ghostchoice;
 			if (rn2(10000) && !(pm->mlet == S_GHOST) ) goto ghostchoice;
 		break;
 	    case CHAM_SHOEMELEON:
@@ -6593,11 +7651,13 @@ shoechoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto shoechoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto shoechoice;
 			if (uncommon2(pm) && !rn2(4)) goto shoechoice;
 			if (uncommon3(pm) && !rn2(3)) goto shoechoice;
 			if (uncommon5(pm) && !rn2(2)) goto shoechoice;
 			if (uncommon7(pm) && rn2(3)) goto shoechoice;
 			if (uncommon10(pm) && rn2(5)) goto shoechoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto shoechoice;
 			if (rn2(10000) && !(pm->msound == MS_SHOE) ) goto shoechoice;
 		break;
 	    case CHAM_POLYFESHNEE:
@@ -6605,11 +7665,13 @@ demonchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto demonchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto demonchoice;
 			if (uncommon2(pm) && !rn2(4)) goto demonchoice;
 			if (uncommon3(pm) && !rn2(3)) goto demonchoice;
 			if (uncommon5(pm) && !rn2(2)) goto demonchoice;
 			if (uncommon7(pm) && rn2(3)) goto demonchoice;
 			if (uncommon10(pm) && rn2(5)) goto demonchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto demonchoice;
 			if (rn2(10000) && !(is_demon(pm)) ) goto demonchoice;
 		break;
 	    case CHAM_COVETOUSLEON:
@@ -6617,11 +7679,13 @@ covetouschoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto covetouschoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto covetouschoice;
 			if (uncommon2(pm) && !rn2(4)) goto covetouschoice;
 			if (uncommon3(pm) && !rn2(3)) goto covetouschoice;
 			if (uncommon5(pm) && !rn2(2)) goto covetouschoice;
 			if (uncommon7(pm) && rn2(3)) goto covetouschoice;
 			if (uncommon10(pm) && rn2(5)) goto covetouschoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto covetouschoice;
 			if (rn2(10000) && !(is_covetous(pm)) ) goto covetouschoice;
 		break;
 	    case CHAM_WHORED_HORE:
@@ -6629,11 +7693,13 @@ whorechoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto whorechoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto whorechoice;
 			if (uncommon2(pm) && !rn2(4)) goto whorechoice;
 			if (uncommon3(pm) && !rn2(3)) goto whorechoice;
 			if (uncommon5(pm) && !rn2(2)) goto whorechoice;
 			if (uncommon7(pm) && rn2(3)) goto whorechoice;
 			if (uncommon10(pm) && rn2(5)) goto whorechoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto whorechoice;
 			if (rn2(10000) && !(pm->msound == MS_WHORE) ) goto whorechoice;
 		break;
 	    case CHAM_LULU_ASS:
@@ -6641,11 +7707,13 @@ fartloudchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto fartloudchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto fartloudchoice;
 			if (uncommon2(pm) && !rn2(4)) goto fartloudchoice;
 			if (uncommon3(pm) && !rn2(3)) goto fartloudchoice;
 			if (uncommon5(pm) && !rn2(2)) goto fartloudchoice;
 			if (uncommon7(pm) && rn2(3)) goto fartloudchoice;
 			if (uncommon10(pm) && rn2(5)) goto fartloudchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto fartloudchoice;
 			if (rn2(10000) && !(pm->msound == MS_FART_LOUD) ) goto fartloudchoice;
 		break;
 	    case CHAM_TENDER_JESSE:
@@ -6653,11 +7721,13 @@ fartquietchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto fartquietchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto fartquietchoice;
 			if (uncommon2(pm) && !rn2(4)) goto fartquietchoice;
 			if (uncommon3(pm) && !rn2(3)) goto fartquietchoice;
 			if (uncommon5(pm) && !rn2(2)) goto fartquietchoice;
 			if (uncommon7(pm) && rn2(3)) goto fartquietchoice;
 			if (uncommon10(pm) && rn2(5)) goto fartquietchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto fartquietchoice;
 			if (rn2(10000) && !(pm->msound == MS_FART_QUIET) ) goto fartquietchoice;
 		break;
 	    case CHAM_ELEROTIC_DREAM_WOMAN:
@@ -6665,11 +7735,13 @@ fartnormalchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto fartnormalchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto fartnormalchoice;
 			if (uncommon2(pm) && !rn2(4)) goto fartnormalchoice;
 			if (uncommon3(pm) && !rn2(3)) goto fartnormalchoice;
 			if (uncommon5(pm) && !rn2(2)) goto fartnormalchoice;
 			if (uncommon7(pm) && rn2(3)) goto fartnormalchoice;
 			if (uncommon10(pm) && rn2(5)) goto fartnormalchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto fartnormalchoice;
 			if (rn2(10000) && !(pm->msound == MS_FART_NORMAL) ) goto fartnormalchoice;
 		break;
 	    case CHAM_MARTIIN:
@@ -6677,11 +7749,13 @@ scentchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto scentchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto scentchoice;
 			if (uncommon2(pm) && !rn2(4)) goto scentchoice;
 			if (uncommon3(pm) && !rn2(3)) goto scentchoice;
 			if (uncommon5(pm) && !rn2(2)) goto scentchoice;
 			if (uncommon7(pm) && rn2(3)) goto scentchoice;
 			if (uncommon10(pm) && rn2(5)) goto scentchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto scentchoice;
 			if (rn2(10000) && !(pm->msound == MS_STENCH) ) goto scentchoice;
 		break;
 	    case CHAM_FOREPREACHER_CONVERTER:
@@ -6689,11 +7763,13 @@ convertchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto convertchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto convertchoice;
 			if (uncommon2(pm) && !rn2(4)) goto convertchoice;
 			if (uncommon3(pm) && !rn2(3)) goto convertchoice;
 			if (uncommon5(pm) && !rn2(2)) goto convertchoice;
 			if (uncommon7(pm) && rn2(3)) goto convertchoice;
 			if (uncommon10(pm) && rn2(5)) goto convertchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto convertchoice;
 			if (rn2(10000) && !(pm->msound == MS_CONVERT) ) goto convertchoice;
 		break;
 	    case CHAM_RICTIM_TERRORIZER:
@@ -6701,11 +7777,13 @@ hcalienchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto hcalienchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto hcalienchoice;
 			if (uncommon2(pm) && !rn2(4)) goto hcalienchoice;
 			if (uncommon3(pm) && !rn2(3)) goto hcalienchoice;
 			if (uncommon5(pm) && !rn2(2)) goto hcalienchoice;
 			if (uncommon7(pm) && rn2(3)) goto hcalienchoice;
 			if (uncommon10(pm) && rn2(5)) goto hcalienchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto hcalienchoice;
 			if (rn2(10000) && !(pm->msound == MS_HCALIEN) ) goto hcalienchoice;
 		break;
 	    case CHAM_POLYMORPHITIC_WOLF:
@@ -6713,11 +7791,13 @@ spacewarschoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto spacewarschoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto spacewarschoice;
 			if (uncommon2(pm) && !rn2(4)) goto spacewarschoice;
 			if (uncommon3(pm) && !rn2(3)) goto spacewarschoice;
 			if (uncommon5(pm) && !rn2(2)) goto spacewarschoice;
 			if (uncommon7(pm) && rn2(3)) goto spacewarschoice;
 			if (uncommon10(pm) && rn2(5)) goto spacewarschoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto spacewarschoice;
 			if (rn2(10000) && !(is_cowmonster(pm)) ) goto spacewarschoice;
 		break;
 	    case CHAM_OFFDIVER:
@@ -6725,11 +7805,13 @@ jokechoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto jokechoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto jokechoice;
 			if (uncommon2(pm) && !rn2(4)) goto jokechoice;
 			if (uncommon3(pm) && !rn2(3)) goto jokechoice;
 			if (uncommon5(pm) && !rn2(2)) goto jokechoice;
 			if (uncommon7(pm) && rn2(3)) goto jokechoice;
 			if (uncommon10(pm) && rn2(5)) goto jokechoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto jokechoice;
 			if (rn2(10000) && !(is_jokemonster(pm)) ) goto jokechoice;
 		break;
 	    case CHAM_SLUMBER_HULK:
@@ -6737,11 +7819,13 @@ randomizedchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto randomizedchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto randomizedchoice;
 			if (uncommon2(pm) && !rn2(4)) goto randomizedchoice;
 			if (uncommon3(pm) && !rn2(3)) goto randomizedchoice;
 			if (uncommon5(pm) && !rn2(2)) goto randomizedchoice;
 			if (uncommon7(pm) && rn2(3)) goto randomizedchoice;
 			if (uncommon10(pm) && rn2(5)) goto randomizedchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto randomizedchoice;
 			if (rn2(10000) && !(is_randomizedmonster(pm)) ) goto randomizedchoice;
 		break;
 	    case CHAM_IVEL_WUXTINA:
@@ -6749,21 +7833,104 @@ evilchoice:
 			mndx = rn2(NUMMONS);
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto evilchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto evilchoice;
 			if (uncommon2(pm) && !rn2(4)) goto evilchoice;
 			if (uncommon3(pm) && !rn2(3)) goto evilchoice;
 			if (uncommon5(pm) && !rn2(2)) goto evilchoice;
 			if (uncommon7(pm) && rn2(3)) goto evilchoice;
 			if (uncommon10(pm) && rn2(5)) goto evilchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto evilchoice;
 			if (rn2(10000) && !(is_evilpatchmonster(pm)) ) goto evilchoice;
 		break;
+	    case CHAM_ZRUTINATOR:
+
+zevilchoice:
+			mndx = rn2(NUMMONS);
+			pm = &mons[mndx];
+			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto zevilchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto zevilchoice;
+			if (uncommon2(pm) && !rn2(4)) goto zevilchoice;
+			if (uncommon3(pm) && !rn2(3)) goto zevilchoice;
+			if (uncommon5(pm) && !rn2(2)) goto zevilchoice;
+			if (uncommon7(pm) && rn2(3)) goto zevilchoice;
+			if (uncommon10(pm) && rn2(5)) goto zevilchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto zevilchoice;
+			if (rn2(10000) && !(is_evilpatchmonster(pm)) ) goto zevilchoice;
+		break;
+	    case CHAM_GREEN_SLAAD:
+slaadchoice:
+			mndx = rn2(NUMMONS);
+			pm = &mons[mndx];
+			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto slaadchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto slaadchoice;
+			if (uncommon2(pm) && !rn2(4)) goto slaadchoice;
+			if (uncommon3(pm) && !rn2(3)) goto slaadchoice;
+			if (uncommon5(pm) && !rn2(2)) goto slaadchoice;
+			if (uncommon7(pm) && rn2(3)) goto slaadchoice;
+			if (uncommon10(pm) && rn2(5)) goto slaadchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto slaadchoice;
+			if (rn2(10000) && !(humanoid(pm)) ) goto slaadchoice;
+		break;
+	    case CHAM_EARLY_LEON:
+earlyleonchoice:
+			mndx = rn2(NUMMONS);
+			pm = &mons[mndx];
+			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto earlyleonchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto earlyleonchoice;
+			if (uncommon2(pm) && !rn2(4)) goto earlyleonchoice;
+			if (uncommon3(pm) && !rn2(3)) goto earlyleonchoice;
+			if (uncommon5(pm) && !rn2(2)) goto earlyleonchoice;
+			if (uncommon7(pm) && rn2(3)) goto earlyleonchoice;
+			if (uncommon10(pm) && rn2(5)) goto earlyleonchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto earlyleonchoice;
+			if (rn2(10000) && (pm->mlevel > 5)) goto earlyleonchoice;
+		break;
+	    case CHAM_METAMORPHOSE:
+metamorphchoice:
+			mndx = rn2(NUMMONS);
+			pm = &mons[mndx];
+			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto metamorphchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto metamorphchoice;
+			if (uncommon2(pm) && !rn2(4)) goto metamorphchoice;
+			if (uncommon3(pm) && !rn2(3)) goto metamorphchoice;
+			if (uncommon5(pm) && !rn2(2)) goto metamorphchoice;
+			if (uncommon7(pm) && rn2(3)) goto metamorphchoice;
+			if (uncommon10(pm) && rn2(5)) goto metamorphchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto metamorphchoice;
+		break;
+
 	    case CHAM_DOPPELGANGER:
+	    case CHAM_METAL_DOPPELGANGER:
 	    case CHAM_MISSINGNO:
 	    case CHAM_TRANSFORMER:
 		if (!rn2(20)) mndx = pick_nasty();
 		else if (!rn2(7)) mndx = rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1,
 					    PM_ARCHEOLOGIST);
 		break;
+	    case CHAM_CHARMONIE:
+		mndx = rn1(PM_DEMOGORGON - PM_JUIBLEX + 1, PM_JUIBLEX);
+		break;
+	    case CHAM_EDOTO:
+edotochoice:
+			mndx = rn2(NUMMONS);
+			pm = &mons[mndx];
+			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto edotochoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto edotochoice;
+			if (uncommon2(pm) && !rn2(4)) goto edotochoice;
+			if (uncommon3(pm) && !rn2(3)) goto edotochoice;
+			if (uncommon5(pm) && !rn2(2)) goto edotochoice;
+			if (uncommon7(pm) && rn2(3)) goto edotochoice;
+			if (uncommon10(pm) && rn2(5)) goto edotochoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto edotochoice;
+			if (rn2(10000) && !(pm->mlet == S_ARCHFIEND) ) goto jokechoice;
+		break;
 	    case CHAM_CHAMELEON:
+	    case CHAM_CHAMECHAUN:
+	    case CHAM_GHELEON:
+	    case CHAM_COCKAMELEON:
+	    case CHAM_CHANGELING:
+	    case CHAM_CHANGELING_ZOMBIE:
+	    case CHAM_CHANGELING_MUMMY:
 	    case CHAM_KARMA_CHAMELEON:
 	    case CHAM_GIANT_CHAMELEON:
 		if (!rn2(7)) {
@@ -6771,11 +7938,13 @@ chameleonchoice:
 			mndx = pick_animal();
 			pm = &mons[mndx];
 			if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto chameleonchoice;
+			if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto chameleonchoice;
 			if (uncommon2(pm) && !rn2(4)) goto chameleonchoice;
 			if (uncommon3(pm) && !rn2(3)) goto chameleonchoice;
 			if (uncommon5(pm) && !rn2(2)) goto chameleonchoice;
 			if (uncommon7(pm) && rn2(3)) goto chameleonchoice;
 			if (uncommon10(pm) && rn2(5)) goto chameleonchoice;
+			if (is_jonadabmonster(pm) && rn2(20)) goto chameleonchoice;
 		}
 
 		break;
@@ -6812,12 +7981,15 @@ chameleonchoice:
 findrandomform:
 		mndx = rn1(SPECIAL_PM - LOW_PM, LOW_PM);
 		pm = &mons[mndx];
+
 		if (rnd(pm->mlevel + 1) > (mon->m_lev + 10) ) goto findrandomform;
+		if (rnd(pm->mlevel + 1) > (chambaselvl + rn2(11))) goto findrandomform;
 		if (uncommon2(pm) && !rn2(4)) goto findrandomform;
 		if (uncommon3(pm) && !rn2(3)) goto findrandomform;
 		if (uncommon5(pm) && !rn2(2)) goto findrandomform;
 		if (uncommon7(pm) && rn2(3)) goto findrandomform;
 		if (uncommon10(pm) && rn2(5)) goto findrandomform;
+		if (is_jonadabmonster(pm) && rn2(20)) goto findrandomform;
 	}
 	return mndx;
 }
@@ -6841,7 +8013,9 @@ boolean msg;
 	char oldname[BUFSZ];
 	boolean alt_mesg = FALSE;	/* Avoid "<rank> turns into a <rank>" */
 
-	if (msg) {
+	if (RngePolyvision) {
+	    strcpy(oldname, noit_Monnam(mtmp));
+	} else if (msg) {
 	    /* like Monnam() but never mention saddle */
 	    strcpy(oldname, x_monnam(mtmp, ARTICLE_THE, (char *)0,
 				     SUPPRESS_SADDLE, FALSE));
@@ -6973,7 +8147,7 @@ boolean msg;
 			!(mdat->mlet == S_EEL && (is_waterypool(mtmp->mx, mtmp->my) || is_watertunnel(mtmp->mx, mtmp->my) || is_shiftingsand(mtmp->mx, mtmp->my) ) ))
 		mtmp->mundetected = 0;
 	if (u.usteed) {
-	    if (touch_petrifies(u.usteed->data) && !Stone_resistance && !(uarmg && !FingerlessGloves && uarmu && uarm && uarmc) && rnl(3)) {
+	    if (touch_petrifies(u.usteed->data) && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && !(uarmg && !FingerlessGloves && uarmu && uarm && uarmc) && rnl(3)) {
 	    	char buf[BUFSZ];
 
 	    	pline("You touch %s.", mon_nam(u.usteed));
@@ -7000,7 +8174,13 @@ boolean msg;
 
 	newsym(mtmp->mx,mtmp->my);
 
-	if (msg && (u.uswallow && mtmp == u.ustuck || canspotmon(mtmp))) {
+	if (RngePolyvision) {
+	    uchar save_mnamelth = mtmp->mnamelth;
+	    mtmp->mnamelth = 0;
+	    pline("%s polymorphs into %s!", oldname, a_noit_monnam(mtmp));
+	    mtmp->mnamelth = save_mnamelth;
+
+	} else if (msg && (u.uswallow && mtmp == u.ustuck || canspotmon(mtmp))) {
 	    if (alt_mesg && is_mplayer(mdat))
 		pline("%s is suddenly very %s!", oldname,
 			mtmp->female ? "feminine" : "masculine");
@@ -7032,7 +8212,9 @@ boolean msg;
 					You("break out of %s%s!", mon_nam(mtmp),
 					    (is_animal(mdat)?
 					    "'s stomach" : ""));
-					mtmp->mhp = 1;  /* almost dead */
+					mtmp->mhp *= 4;
+					mtmp->mhp /= 5; /* prevent easy Jubilex killing --Amy */
+					if (mtmp->mhp < 1) mtmp->mhp = 1; /* fail safe */
 				}
 				expels(mtmp, olddata, FALSE);
 			} else {
@@ -7289,11 +8471,12 @@ register boolean silent;
 			if (PlayerHearsSoundEffects) pline(issoviet ? "Davayte posmotrim, sposobna li ubezhat' ot chasov v obshchey slozhnosti neudachnik! Vozmozhno net!" : "Pfiiiiiiiiiie!");
 	    }
 
+		u.cnd_kopsummonamount++;
 		copcnt = rnd(monster_difficulty() ) + 1;
 		if (rn2(5)) copcnt = (copcnt / (rnd(4) + 1)) + 1;
 		if (Role_if(PM_CAMPERSTRIKER)) copcnt *= (rn2(5) ? 2 : rn2(5) ? 3 : 5);
 
-		if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "anti-government helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "antipravitel'stvennaya shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "aksil-hukumat dubulg'a") ) ) {
+		if (uarmh && itemhasappearance(uarmh, APP_ANTI_GOVERNMENT_HELMET) ) {
 			copcnt = (copcnt / 2) + 1;
 		}
 
@@ -7302,7 +8485,7 @@ register boolean silent;
 		}
 
 	      while(--copcnt >= 0) {
-			(void) makemon(mkclass(S_KOP,0), u.ux, u.uy, MM_ANGRY);
+			(void) makemon(mkclass(S_KOP,0), u.ux, u.uy, MM_ANGRY|MM_FRENZIED);
 
 			if (!rn2(100)) {
 
@@ -7357,10 +8540,10 @@ mimic_hit_msg(mtmp, otyp)
 struct monst *mtmp;
 short otyp;
 {
-	short ap = mtmp->mappearance;
+	int ap = mtmp->mappearance;
 
 	switch(mtmp->m_ap_type) {
-	    case M_AP_NOTHING:			
+	    case M_AP_NOTHING:
 	    case M_AP_FURNITURE:
 	    case M_AP_MONSTER:
 		break;
@@ -7373,6 +8556,377 @@ short otyp;
 		break;
 	}
 }
+
+/* symbiosis skill by Amy */
+void
+turnmonintosymbiote(mtmp, holdeneffect)
+struct monst *mtmp;
+boolean holdeneffect;
+{
+	/* reset any existing symbiote structure first */
+
+	if (uinsymbiosis) {
+		if (u.usymbiote.cursed) {
+			pline(FunnyHallu ? "Apparently Morgoth himself decided to curse you with some ancient hex." : "Since your current symbiote is cursed, you cannot get a new one.");
+			return;
+		}
+
+		u.cnd_symbiotesdied++;
+		pline(FunnyHallu ? "Damn, you feel like you killed a part of yourself..." : "You discard your current symbiote to make room for the new one.");
+	}
+
+	u.usymbiote.active = 0;
+	u.usymbiote.mnum = PM_PLAYERMON;
+	u.usymbiote.mhp = 0;
+	u.usymbiote.mhpmax = 0;
+	u.usymbiote.cursed = u.usymbiote.hvycurse = u.usymbiote.prmcurse = u.usymbiote.bbcurse = u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.stckcurse = 0;
+
+	/* now set the new symbiote's stats */
+
+	u.shutdowntime = 0;
+	u.usymbiote.active = 1;
+	u.usymbiote.mnum = mtmp->mnum;
+	u.usymbiote.mhpmax = mtmp->mhpmax;
+	if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500; /* cap value */
+
+	/* symbiote HP start out lower (but can heal back up) if the monster wasn't wounded;
+	 * supposed to simulate catching a pokemon, but without it actually affecting catch rate */
+	u.usymbiote.mhp = (u.usymbiote.mhpmax / 2);
+	if (u.usymbiote.mhp < 1) u.usymbiote.mhp = 1;
+	while ((mtmp->mhp < mtmp->mhpmax) && (mtmp->mhp > 0) && (mtmp->mhpmax > 0)) {
+		mtmp->mhp++;
+		u.usymbiote.mhp++;
+	}
+	if (u.usymbiote.mhp > u.usymbiote.mhpmax) u.usymbiote.mhp = u.usymbiote.mhpmax;
+	u.usymbiote.cursed = u.usymbiote.hvycurse = u.usymbiote.prmcurse = u.usymbiote.bbcurse = u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.stckcurse = 0; /* caller may override this */
+
+	pline("%s becomes your new symbiote!", noit_Monnam(mtmp));
+	pline("Use #monster to manage your symbiote.");
+	if (flags.showsymbiotehp) flags.botl = TRUE;
+	use_skill(P_SYMBIOSIS, 1);
+
+	if (!holdeneffect) mongone(mtmp);
+}
+
+void
+getrandomsymbiote(extrahealth)
+boolean extrahealth;
+{
+	struct permonst *pm = 0;
+	int attempts = 0;
+
+	if (!Race_if(PM_GOAULD)) {
+		do {
+			pm = rndmonst();
+			attempts++;
+			if (!rn2(2000)) reset_rndmonst(NON_PM);
+
+		} while ( (!pm || (pm && (!(stationary(pm) || pm->mmove == 0 || pm->mlet == S_TURRET) || cannot_be_tamed(pm) ) )) && attempts < 500000);
+
+		if (!pm || (pm && (!(stationary(pm) || pm->mmove == 0 || pm->mlet == S_TURRET) || cannot_be_tamed(pm) ) )) {
+			pline("For some reason, symbiote creation failed.");
+			return;
+		}
+	} else { /* player is goauld */
+		do {
+			pm = rndmonst();
+			attempts++;
+			if (!rn2(2000)) reset_rndmonst(NON_PM);
+
+		} while ( (!pm || (pm && ((stationary(pm) || pm->mmove == 0 || pm->mlet == S_TURRET) || cannot_be_tamed(pm) ) )) && attempts < 500000);
+
+		if (!pm || (pm && ((stationary(pm) || pm->mmove == 0 || pm->mlet == S_TURRET) || cannot_be_tamed(pm) ) )) {
+			pline("For some reason, symbiote creation failed.");
+			return;
+		}
+	}
+
+	/* reset any existing symbiote structure first */
+
+	if (uinsymbiosis) {
+		if (u.usymbiote.cursed) {
+			pline("An attempt to replace your symbiote was done, but failed. Maybe your current symbiote is cursed?");
+			return;
+		}
+
+		u.cnd_symbiotesdied++;
+		pline(FunnyHallu ? "Did you just quaff FEV-spiked water?" : "Your current symbiote vanishes.");
+	}
+
+	u.usymbiote.active = 0;
+	u.usymbiote.mnum = PM_PLAYERMON;
+	u.usymbiote.mhp = 0;
+	u.usymbiote.mhpmax = 0;
+	u.usymbiote.cursed = u.usymbiote.hvycurse = u.usymbiote.prmcurse = u.usymbiote.bbcurse = u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.stckcurse = 0;
+
+	/* now set the new symbiote's stats */
+
+	u.shutdowntime = 0;
+	u.usymbiote.active = 1;
+	u.usymbiote.mnum = monsndx(pm); /* permonst to number conversion */
+	u.usymbiote.mhpmax = (pm->mlevel * 8);
+	if (u.usymbiote.mhpmax < 4) u.usymbiote.mhpmax = 4;
+	if (extrahealth) {
+		u.usymbiote.mhpmax *= 3;
+		u.usymbiote.mhpmax /= 2;
+	}
+	if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500; /* cap value */
+
+	/* symbiote HP start out at half of the maximum if you get a random one */
+	u.usymbiote.mhp = (u.usymbiote.mhpmax / 2);
+	if (u.usymbiote.mhp < 1) u.usymbiote.mhp = 1;
+	if (u.usymbiote.mhp > u.usymbiote.mhpmax) u.usymbiote.mhp = u.usymbiote.mhpmax;
+	u.usymbiote.cursed = u.usymbiote.hvycurse = u.usymbiote.prmcurse = u.usymbiote.bbcurse = u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.stckcurse = 0;
+
+	/* now have a chance for it to be cursed */
+	if (!rn2(isfriday ? 3 : 6)) cursesymbiote();
+	if (Role_if(PM_CAMPERSTRIKER) && !rn2(isfriday ? 3 : 6)) cursesymbiote();
+	if (iscurser && rn2(5)) cursesymbiote();
+	if (u.genericcursechance && (u.genericcursechance >= rnd(100)) ) cursesymbiote();
+	if (uinsymbiosis && u.usymbiote.cursed) {
+		if (u.stickycursechance && (u.stickycursechance >= rnd(100)) ) u.usymbiote.stckcurse = 1;
+		if (u.heavycursechance && (u.heavycursechance >= rnd(100)) ) u.usymbiote.hvycurse = 1;
+		if (u.usymbiote.hvycurse && u.primecursechance && (u.primecursechance >= rnd(100)) ) u.usymbiote.prmcurse = 1;
+	}
+
+	if (touch_petrifies(pm) && (!Stone_resistance || (!IntStone_resistance && !rn2(20))) ) {
+		if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))
+			display_nhwindow(WIN_MESSAGE, FALSE);
+		else {
+			char kbuf[BUFSZ];
+			pline("Unfortunately the symbiote you got is of a petrifying kind.");
+			sprintf(kbuf, "symbiosis accident");
+			instapetrify(kbuf);
+		}
+	}
+
+	if (slime_on_touch(pm) && !Slimed && !flaming(youmonst.data) && !Unchanging && !slime_on_touch(youmonst.data)) {
+		You("don't feel very well.");
+		make_slimed(100);
+		killer_format = KILLED_BY_AN;
+		delayed_killer = "slimed by a symbiosis accident";
+	}
+
+	pline("%s becomes your new symbiote!", mons[u.usymbiote.mnum].mname);
+	pline("Use #monster to manage your symbiote.");
+	if (flags.showsymbiotehp) flags.botl = TRUE;
+	use_skill(P_SYMBIOSIS, 1);
+
+}
+
+void
+killsymbiote()
+{
+	u.usymbiote.active = 0;
+	u.usymbiote.mnum = PM_PLAYERMON;
+	u.usymbiote.mhp = 0;
+	u.usymbiote.mhpmax = 0;
+	u.usymbiote.cursed = u.usymbiote.hvycurse = u.usymbiote.prmcurse = u.usymbiote.bbcurse = u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.stckcurse = 0;
+	if (flags.showsymbiotehp) flags.botl = TRUE;
+	u.cnd_symbiotesdied++;
+}
+
+void
+uncursesymbiote(guaranteed)
+boolean guaranteed;
+{
+	if (!uinsymbiosis) return;
+
+	if (guaranteed) {
+		u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.bbcurse = u.usymbiote.prmcurse = u.usymbiote.hvycurse = u.usymbiote.cursed = u.usymbiote.stckcurse = 0;
+		if (flags.showsymbiotehp) flags.botl = TRUE;
+		return;
+	}
+
+	if ((u.usymbiote.morgcurse || u.usymbiote.evilcurse || u.usymbiote.bbcurse) && !rn2(100) ) {
+		u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.bbcurse = u.usymbiote.prmcurse = u.usymbiote.hvycurse = u.usymbiote.cursed = u.usymbiote.stckcurse = 0;
+	}
+	else if (u.usymbiote.prmcurse && !(u.usymbiote.morgcurse || u.usymbiote.evilcurse || u.usymbiote.bbcurse) && !rn2(10) ) {
+		u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.bbcurse = u.usymbiote.prmcurse = u.usymbiote.hvycurse = u.usymbiote.cursed = u.usymbiote.stckcurse = 0;
+	}
+	else if (!(u.usymbiote.prmcurse) && !(u.usymbiote.morgcurse || u.usymbiote.evilcurse || u.usymbiote.bbcurse) && u.usymbiote.hvycurse && !rn2(3) ) {
+		u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.bbcurse = u.usymbiote.prmcurse = u.usymbiote.hvycurse = u.usymbiote.cursed = u.usymbiote.stckcurse = 0;
+	}
+	else if (!(u.usymbiote.prmcurse) && !u.usymbiote.hvycurse && !(u.usymbiote.morgcurse || u.usymbiote.evilcurse || u.usymbiote.bbcurse) ) u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.bbcurse = u.usymbiote.prmcurse = u.usymbiote.hvycurse = u.usymbiote.cursed = u.usymbiote.stckcurse = 0;
+
+	if (flags.showsymbiotehp) flags.botl = TRUE;
+
+}
+
+void
+cursesymbiote()
+{
+	if (!uinsymbiosis) return;
+	if (!rn2(isfriday ? 50 : 100)) u.usymbiote.stckcurse = 1;
+
+	if (u.stickycursechance && (u.stickycursechance >= rnd(100)) ) u.usymbiote.stckcurse = 1;
+	if (Role_if(PM_CELLAR_CHILD) && !rn2(10)) u.usymbiote.stckcurse = 1;
+
+	if (u.usymbiote.cursed) {
+		if (!u.usymbiote.hvycurse && !rn2(5)) u.usymbiote.hvycurse = 1;
+		else if (u.usymbiote.hvycurse && !u.usymbiote.prmcurse && !rn2(25)) u.usymbiote.prmcurse = 1;
+		else if (u.usymbiote.prmcurse && !rn2(250)) {
+			if (!rn2(3)) u.usymbiote.morgcurse = 1;
+			else if (!rn2(2)) u.usymbiote.evilcurse = 1;
+			else u.usymbiote.bbcurse = 1;
+		}
+	} else {
+		u.usymbiote.cursed = 1;
+		if (!u.usymbiote.hvycurse && !u.usymbiote.prmcurse && !(u.usymbiote.morgcurse || u.usymbiote.evilcurse || u.usymbiote.bbcurse) && !rn2(isfriday ? 20 : 35)) u.usymbiote.hvycurse = 1;
+		if (u.usymbiote.hvycurse && !u.usymbiote.prmcurse && !(u.usymbiote.morgcurse || u.usymbiote.evilcurse || u.usymbiote.bbcurse) && !rn2(isfriday ? 100 : 225)) u.usymbiote.prmcurse = 1;
+		if (u.usymbiote.prmcurse && !rn2(isfriday ? 1000 : 6255)) {
+			if (!rn2(3)) u.usymbiote.morgcurse = 1;
+			else if (!rn2(2)) u.usymbiote.evilcurse = 1;
+			else u.usymbiote.bbcurse = 1;
+		}
+	}
+
+	if (flags.showsymbiotehp) flags.botl = TRUE;
+
+}
+
+/* will you get to use the melee attack of your symbiote? --Amy */
+boolean
+symbiotemelee()
+{
+	if (!uactivesymbiosis) return FALSE;
+
+	if (u.usymbiote.mhpmax >= 5 && u.usymbiote.mhp <= (u.usymbiote.mhpmax / 5) && rn2(5)) return FALSE;
+
+	int symchance = 0;
+
+	if (Role_if(PM_SYMBIANT)) {
+		if (!PlayerCannotUseSkills) {
+			switch (P_SKILL(P_SYMBIOSIS)) {
+				default: symchance = 20; break;
+				case P_BASIC: symchance = 22; break;
+				case P_SKILLED: symchance = 24; break;
+				case P_EXPERT: symchance = 26; break;
+				case P_MASTER: symchance = 28; break;
+				case P_GRAND_MASTER: symchance = 30; break;
+				case P_SUPREME_MASTER: symchance = 32; break;
+			}
+		} else {
+			symchance = 20;
+		}
+
+	} else {
+
+		if (!PlayerCannotUseSkills) {
+			switch (P_SKILL(P_SYMBIOSIS)) {
+				default: symchance = 10; break;
+				case P_BASIC: symchance = 12; break;
+				case P_SKILLED: symchance = 14; break;
+				case P_EXPERT: symchance = 16; break;
+				case P_MASTER: symchance = 18; break;
+				case P_GRAND_MASTER: symchance = 20; break;
+				case P_SUPREME_MASTER: symchance = 22; break;
+			}
+		} else {
+			symchance = 10;
+		}
+	}
+
+	switch (u.symbioteaggressivity) {
+		case 5:
+			if (rn2(10)) return 0; break;
+		case 10:
+			if (rn2(5)) return 0; break;
+		case 12:
+			if (rn2(3)) return 0; break;
+		case 15:
+			if (!rn2(2)) return 0; break;
+		case 20:
+			if (!rn2(4)) return 0; break;
+		default:
+		case 25:
+			break;
+		case 33:
+			symchance += 3; break;
+		case 40:
+			symchance += 6; break;
+		case 50:
+			symchance += 9; break;
+		case 60:
+			symchance += 12; break;
+		case 75:
+			symchance += 15; break;
+	}
+	if (rn2(100) < symchance) return TRUE;
+	return FALSE;
+}
+
+/* will your symbiote retaliate against something that tried to melee you? --Amy */
+boolean
+symbiotepassive()
+{
+	if (!uactivesymbiosis) return FALSE;
+
+	if (u.usymbiote.mhpmax >= 5 && u.usymbiote.mhp <= (u.usymbiote.mhpmax / 5) && rn2(5)) return FALSE;
+
+	int symchance = 0;
+
+	if (Role_if(PM_SYMBIANT)) {
+		if (!PlayerCannotUseSkills) {
+			switch (P_SKILL(P_SYMBIOSIS)) {
+				default: symchance = 30; break;
+				case P_BASIC: symchance = 32; break;
+				case P_SKILLED: symchance = 34; break;
+				case P_EXPERT: symchance = 36; break;
+				case P_MASTER: symchance = 38; break;
+				case P_GRAND_MASTER: symchance = 40; break;
+				case P_SUPREME_MASTER: symchance = 42; break;
+			}
+		} else {
+			symchance = 30;
+		}
+
+	} else {
+
+		if (!PlayerCannotUseSkills) {
+			switch (P_SKILL(P_SYMBIOSIS)) {
+				default: symchance = 20; break;
+				case P_BASIC: symchance = 22; break;
+				case P_SKILLED: symchance = 24; break;
+				case P_EXPERT: symchance = 26; break;
+				case P_MASTER: symchance = 28; break;
+				case P_GRAND_MASTER: symchance = 30; break;
+				case P_SUPREME_MASTER: symchance = 32; break;
+			}
+		} else {
+			symchance = 20;
+		}
+	}
+
+	switch (u.symbioteaggressivity) {
+		case 5:
+			if (rn2(10)) return 0; break;
+		case 10:
+			if (rn2(5)) return 0; break;
+		case 12:
+			if (rn2(3)) return 0; break;
+		case 15:
+			if (!rn2(2)) return 0; break;
+		case 20:
+			if (!rn2(4)) return 0; break;
+		default:
+		case 25:
+			break;
+		case 33:
+			symchance += 3; break;
+		case 40:
+			symchance += 6; break;
+		case 50:
+			symchance += 9; break;
+		case 60:
+			symchance += 12; break;
+		case 75:
+			symchance += 15; break;
+	}
+	if (rn2(100) < symchance) return TRUE;
+	return FALSE;
+}
+
 #endif /* OVLB */
 
 /*mon.c*/

@@ -291,12 +291,22 @@ extern const char * const killed_by_prefix[];	/* from topten.c */
 int
 done2()
 {
+	if (iflags.debug_fuzzer) return 0;
+
 	char buf[BUFSZ];
 	int really_quit = FALSE;
 
-	  getlin ("Really quit [yes/no]?",buf);
+	if (flags.paranoidquit) {
+
+	  getlin ("Really quit? WARNING: this will erase your game permanently! [yes/no]?",buf);
 	  (void) lcase (buf);
 	  if (!(strcmp (buf, "yes"))) really_quit = TRUE;
+
+	} else {
+
+		if(yn("Really quit? WARNING: this will erase your game permanently and you disabled the paranoidquit safety option so if you hit 'y' now, your game will be GONE!") != 'n') really_quit = TRUE;
+
+	}
 	
 	if (!really_quit) {
 #ifndef NO_SIGNAL
@@ -585,7 +595,7 @@ boolean taken;
 
 	if (invent) {
 	    if(taken)
-		sprintf(qbuf, Role_if(PM_SPACEWARS_FIGHTER) ? "Another one bites the dust... DYWYPI?" : Role_if(PM_CAMPERSTRIKER) ? "A problem has been detected and NetHack has been shut down to prevent damage to your sanity. The problem seems to be caused by the following file: SLASHEM.EXE YET_ANOTHER_STUPID_DEATH (DYWYPI?) If this is the first time you've seen this Stop error screen, restart your game. If this screen appears again, follow these steps: Check to make sure any equipments or spells is properly installed. If this is a proper installation, ask your cheat or spoiler manufacturer for any spoilers you might need. If problems continue, remove any newly created save files (if explore) or bone files. Disable bad options such as rest_on_space or autopickup. If you need to use Explore Mode to remove or disable components, restart your game, press X to select Explore Mode Options, and then select Yes. Technical information: *** STOP: 0x0000DEAD (0x44, 0x75, 0x64, 0x6C, 0x65, 0x79) *** SLASHEM.EXE - Address DLVL1 base at MAINDUN, DateStamp 20150401" : issoviet ? "Tvoi tovari hotjat tebja identifitsirovat? DYWYPI? [da]" : "Do you want to see what you had when you %s? DYWYPI?",
+		sprintf(qbuf, Role_if(PM_SPACE_MARINE) ? "Game over, man!  Game over! (DYWYPI?)" : Role_if(PM_SPACEWARS_FIGHTER) ? "Another one bites the dust... DYWYPI?" : Role_if(PM_CAMPERSTRIKER) ? "A problem has been detected and NetHack has been shut down to prevent damage to your sanity. The problem seems to be caused by the following file: SLASHEM.EXE YET_ANOTHER_STUPID_DEATH (DYWYPI?) If this is the first time you've seen this Stop error screen, restart your game. If this screen appears again, follow these steps: Check to make sure any equipments or spells is properly installed. If this is a proper installation, ask your cheat or spoiler manufacturer for any spoilers you might need. If problems continue, remove any newly created save files (if explore) or bone files. Disable bad options such as rest_on_space or autopickup. If you need to use Explore Mode to remove or disable components, restart your game, press X to select Explore Mode Options, and then select Yes. Technical information: *** STOP: 0x0000DEAD (0x44, 0x75, 0x64, 0x6C, 0x65, 0x79) *** SLASHEM.EXE - Address DLVL1 base at MAINDUN, DateStamp 20150401" : issoviet ? "Tvoi tovari hotjat tebja identifitsirovat? DYWYPI? [da]" : "Do you want to see what you had when you %s? DYWYPI?",
 			(how == QUIT) ? "quit" : "died");
 	    else
 		strcpy(qbuf, Role_if(PM_SPACEWARS_FIGHTER) ? "Another one bites the dust... DYWYPI?" : Role_if(PM_CAMPERSTRIKER) ? "A problem has been detected and NetHack has been shut down to prevent damage to your sanity. The problem seems to be caused by the following file: SLASHEM.EXE YET_ANOTHER_STUPID_DEATH (DYWYPI?) If this is the first time you've seen this Stop error screen, restart your game. If this screen appears again, follow these steps: Check to make sure any equipments or spells is properly installed. If this is a proper installation, ask your cheat or spoiler manufacturer for any spoilers you might need. If problems continue, remove any newly created save files (if explore) or bone files. Disable bad options such as rest_on_space or autopickup. If you need to use Explore Mode to remove or disable components, restart your game, press X to select Explore Mode Options, and then select Yes. Technical information: *** STOP: 0x0000DEAD (0x44, 0x75, 0x64, 0x6C, 0x65, 0x79) *** SLASHEM.EXE - Address DLVL1 base at MAINDUN, DateStamp 20150401" : issoviet ? "Tvoi tovari hotjat tebja identifitsirovat? DYWYPI? [da]" : "Do you want your possessions identified? DYWYPI?");
@@ -818,6 +828,7 @@ int how;
 {
 	boolean taken;
 	boolean goexplore = FALSE;
+	boolean gofreeplay = FALSE;
 	char kilbuf[BUFSZ], pbuf[BUFSZ];
 #ifdef EPITAPH
 	char ebuf[BUFSZ];
@@ -828,6 +839,7 @@ int how;
 	long umoney;
 	struct obj *otmp, *otmp2;
 	int  n;
+	char buf[BUFSZ];
 
 	boolean wanttodie = 0;
 
@@ -842,6 +854,15 @@ int how;
 		return;
 	    }
 #endif
+	}
+
+	if (iflags.debug_fuzzer) {
+		if (!(program_state.panicking || how == PANICKED)) {
+			savelife(how);
+			killer = '\0';
+			killer_format = 0;
+			return;
+		}
 	}
 
 #ifdef ANDROID
@@ -865,7 +886,7 @@ int how;
 
 	if (how < PANICKED) u.umortality++;
 
-	if (DywypiProblem || u.uprops[DYWYPI_PROBLEM].extrinsic || have_dywypistone()) {
+	if (DywypiProblem || u.uprops[DYWYPI_PROBLEM].extrinsic || have_dywypistone() || (uarmf && uarmf->oartifact == ART_PRADA_S_DEVIL_WEAR)) {
 		wanttodie = 1;
 		char qbuf[QBUFSZ];
 		char possid = 0;
@@ -876,6 +897,40 @@ int how;
 			wanttodie = 1;
 		} else wanttodie = 0;
 	}
+
+	/* symbiote can save you from being killed by something other than HP loss --Amy */
+	if (uactivesymbiosis && (u.uhp > 0) && (u.uhpmax > 0) && (rn2(100) < u.symbioteaggressivity) && how < GENOCIDED) {
+		pline("But wait...");
+
+		if (wanttodie) {
+			pline("Nyehehe-hehe-he, you would have lifesaved but you said you want your possessions identified! GAME OVER!");
+			goto symbiotedone;
+		}
+
+		u.usymbiote.active = 0;
+		u.usymbiote.mnum = PM_PLAYERMON;
+		u.usymbiote.mhp = 0;
+		u.usymbiote.mhpmax = 0;
+		u.usymbiote.cursed = u.usymbiote.hvycurse = u.usymbiote.prmcurse = u.usymbiote.bbcurse = u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.stckcurse = 0;
+		if (flags.showsymbiotehp) flags.botl = TRUE;
+		u.cnd_symbiotesdied++;
+		Your("symbiote sacrifices itself to absorb the deadly hit, and saves your life!");
+
+		(void) adjattrib(A_CON, -1, TRUE, TRUE);
+		if(u.uhpmax <= 0) u.uhpmax = 1;
+		savelife(how);
+		killer = 0;
+		killer_format = 0;
+
+#ifdef LIVELOGFILE
+		livelog_avert_death();
+#endif
+
+		u.youaredead = 0;
+
+		return;
+	}
+symbiotedone:
 
 	if (how == STONING && uamul && uamul->otyp == AMULET_VERSUS_STONE) {
 		pline("But wait...");
@@ -897,7 +952,7 @@ int how;
 		}
 
 		uunstone();
-		(void) adjattrib(A_CON, -1, TRUE);
+		(void) adjattrib(A_CON, -1, TRUE, TRUE);
 		if(u.uhpmax <= 0) u.uhpmax = 1;
 		savelife(how);
 		killer = 0;
@@ -913,7 +968,7 @@ int how;
 	}
 stoningdone:
 
-	if (uarmg && uarmg->oartifact == ART_COME_BACK_TO_LIFE && rn2(2)) {
+	if (uarmg && uarmg->oartifact == ART_COME_BACK_TO_LIFE && how < GENOCIDED && rn2(2)) {
 		pline("But wait...");
 		pline("You come back to life!");
 
@@ -937,7 +992,49 @@ stoningdone:
 	}
 cbldone:
 
-	if (uarmh && uarmh->oartifact == ART_LUXIDREAM_S_ASCENSION && !rn2(10)) {
+	if (u.contingencyturns && how < GENOCIDED) {
+
+		int contingencychance = 25;
+
+		if (!(PlayerCannotUseSkills) && P_SKILL(P_OCCULT_SPELL) >= P_BASIC) {
+
+			switch (P_SKILL(P_OCCULT_SPELL)) {
+				case P_BASIC: contingencychance = 35; break;
+				case P_SKILLED: contingencychance = 50; break;
+				case P_EXPERT: contingencychance = 65; break;
+				case P_MASTER: contingencychance = 75; break;
+				case P_GRAND_MASTER: contingencychance = 85; break;
+				case P_SUPREME_MASTER: contingencychance = 90; break;
+				default: break;
+			}
+		}
+
+		if (rnd(100) > contingencychance) goto contingencydone;
+
+		pline("But wait...");
+		pline("You lost the effect of contingency.");
+
+		if (wanttodie) {
+			pline("Nyehehe-hehe-he, you would have lifesaved but you said you want your possessions identified! GAME OVER!");
+			goto contingencydone;
+		}
+
+		if(u.uhpmax <= 0) u.uhpmax = 1;	/* arbitrary */
+		savelife(how);
+		killer = 0;
+		killer_format = 0;
+
+#ifdef LIVELOGFILE
+		livelog_avert_death();
+#endif
+		u.youaredead = 0;
+
+		return;
+
+	}
+contingencydone:
+
+	if (uarmh && uarmh->oartifact == ART_LUXIDREAM_S_ASCENSION && how < GENOCIDED && !rn2(10)) {
 		pline("But wait...");
 		pline("You come back to life!");
 
@@ -961,7 +1058,7 @@ cbldone:
 	}
 luxidone:
 
-	if (uwep && uwep->oartifact == ART_ERU_ILUVATAR_S_BIBLE && !rn2(5)) {
+	if (uwep && uwep->oartifact == ART_ERU_ILUVATAR_S_BIBLE && how < GENOCIDED && !rn2(5)) {
 		pline("But wait...");
 		pline("Eru Iluvatar saves your life!");
 
@@ -1009,6 +1106,31 @@ erudone:
 
 	}
 ruffledone:
+
+	/* double detect monsters can let you lifesave too */
+	if (StrongDetect_monsters && how < GENOCIDED && !rn2(10) ) {
+		pline("But wait...");
+		pline("For some reason, you're not dead!");
+
+		if (wanttodie) {
+			pline("Nyehehe-hehe-he, you would have lifesaved but you said you want your possessions identified! GAME OVER!");
+			goto detectmonstersdone;
+		}
+
+		if(u.uhpmax <= 0) u.uhpmax = 1;	/* arbitrary */
+		savelife(how);
+		killer = 0;
+		killer_format = 0;
+
+#ifdef LIVELOGFILE
+		livelog_avert_death();
+#endif
+		u.youaredead = 0;
+
+		return;
+
+	}
+detectmonstersdone:
 
 	if (uarmf && how < GENOCIDED && uarmf->oartifact == ART_PRINCE_OF_PERSIA && !rn2(2) ) {
 		pline("But wait...");
@@ -1133,7 +1255,7 @@ oneupdone:
 			goto lsdone;
 		}
 
-		(void) adjattrib(A_CON, -1, TRUE);
+		(void) adjattrib(A_CON, -1, TRUE, TRUE);
 		if(u.uhpmax <= 0) u.uhpmax = 10;	/* arbitrary */
 		savelife(how);
 /* useup() had to be moved for savelife() to distingush between Lifesaved */
@@ -1167,7 +1289,7 @@ lsdone:
 			goto implantdone;
 		}
 
-		(void) adjattrib(A_CON, -1, TRUE);
+		(void) adjattrib(A_CON, -1, TRUE, TRUE);
 		if(u.uhpmax <= 0) u.uhpmax = 10;	/* arbitrary */
 		savelife(how);
 		if (how == GENOCIDED)
@@ -1360,6 +1482,28 @@ rodneydone:
 	  }
 	}
 
+	if (how == ASCENDED) {
+		/* Amy edit: allow the player to keep their character and go on playing if they ascend! */
+freeplaycheck:
+		if (yn("CONGRATULATIONS!!! You've beaten the game. You can go on playing now if you want. Do you want to keep playing your character?") == 'y') {
+
+			getlin ("You decided to keep playing your character. Please confirm your choice with yes [y/yes/no]",buf);
+			(void) lcase (buf);
+			if (!(strcmp (buf, "yes")) || !(strcmp (buf, "y"))) { /* yes, do go on playing after ascending */
+
+				gofreeplay = TRUE;
+
+			} else goto freeplaycheck;
+
+		} else {
+			getlin ("You decided to end the game here. Please confirm your choice with yes [y/yes/no]",buf);
+			(void) lcase (buf);
+			if (strcmp (buf, "yes") && strcmp (buf, "y")) goto freeplaycheck;
+			/* else the game ends here */
+		}
+
+	}
+
     /*
      *	The game is now over...
      */
@@ -1367,13 +1511,13 @@ rodneydone:
 die:
 	if(u.uhpmax <= 0) u.uhpmax = 1; /* fixing a VERY annoying dump_techniques SIGFPE */
 	u.hangupcheat = 0;
-	if (!goexplore) {
+	if (!goexplore && !gofreeplay) {
 	program_state.gameover = 1;
 	/* in case of a subsequent panic(), there's no point trying to save */
 	program_state.something_worth_saving = 0;
 #ifdef DUMP_LOG
 	/* D: Grab screen dump right here */
-	if (dump_fn[0]) {
+	if (dump_fn[0] && how != PANICKED && how != TRICKED) {
 	  dump_init();
 	  sprintf(pbuf, "%s, %s %s %s %s", playeraliasname,
 		  aligns[1 - u.ualign.type].adj,
@@ -1387,7 +1531,7 @@ die:
 	  dump_screen();
 	}
 
-	if (lastmsg >= 0) {
+	if (lastmsg >= 0 && how != PANICKED && how != TRICKED) {
 		char tmpbuf[BUFSZ];
 		int i,j;
 		dump("Latest messages", "");
@@ -1405,7 +1549,7 @@ die:
 		dump("","");
 	}
 
-	(void)doredraw();
+	if (how != PANICKED && how != TRICKED) (void)doredraw();
 
 #endif /* DUMP_LOG */
 
@@ -1444,7 +1588,7 @@ die:
 	/* I'll allow you to see this message if you die on your second turn, too. --Amy */
 
 	if (have_windows) wait_synch();	/* flush screen output */
-	if (!goexplore) {
+	if (!goexplore && !gofreeplay) {
 #ifndef NO_SIGNAL
 	(void) signal(SIGINT, (SIG_RET_TYPE) done_intr);
 # if defined(UNIX) || defined(VMS) || defined (__EMX__)
@@ -1518,7 +1662,7 @@ die:
 	    clearpriests();
 	} else	taken = FALSE;	/* lint; assert( !bones_ok ); */
 
-	if (!goexplore) {
+	if (!goexplore && !gofreeplay) {
 	clearlocks();
 
 	if (have_windows) display_nhwindow(WIN_MESSAGE, FALSE);
@@ -1552,7 +1696,52 @@ die:
 	    u.urexp += 50L * (long)(deepest - 1);
 	    if (deepest > 20)
 		u.urexp += 1000L * (long)((deepest > 30) ? 10 : deepest - 20);
-	    if (how == ASCENDED) u.urexp *= 2L;
+	    if (how == ASCENDED) {
+		u.urexp *= 2L;
+
+		if (gofreeplay) {
+
+			discover = FALSE; /* a kludge to fool the topten function.. */
+			topten(how);
+			umoney -= hidden_gold();
+			if (u.urexp > 1) u.urexp /= 2;
+			u.urexp -= tmp;
+			u.urexp -= 50L * (long)(deepest - 1);
+			vision_reset();
+			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+			(void)doredraw();
+			u.freeplaymode = TRUE;
+			u.freeplaytransit = TRUE;
+			u.freeplayplanes = FALSE;
+
+			if (u.uhave.amulet) { /* no longer need the amulet, now that you've won */
+				struct obj *otmpi, *otmpii;
+				if (invent) {
+					for (otmpi = invent; otmpi; otmpi = otmpii) {
+					      otmpii = otmpi->nobj;
+						if (otmpi->otyp == AMULET_OF_YENDOR) {							
+							if (otmpi->owornmask) {
+								setnotworn(otmpi);
+							}
+							dropx(otmpi);
+						}
+					}
+				}
+			}
+			goto_level(&medusa_level, TRUE, FALSE, FALSE);
+
+			register int newlevX = 1;
+			d_level newlevelX;
+			get_level(&newlevelX, newlevX);
+			goto_level(&newlevelX, TRUE, FALSE, FALSE);
+			u.freeplaytransit = FALSE;
+			pline("You find yourself back in the dungeon. Since you've officially won the game, you can freely explore now. If you want to go back to the Elemental Planes, you have to visit Moloch's Sanctum first. You can also retire (commit suicide) when you are ready.");
+
+			return;
+
+		}
+
+	    }
 	    if (goexplore) {
 	      discover = FALSE; /* a kludge to fool the topten function.. */
 	      topten(how);
@@ -1568,9 +1757,9 @@ die:
 	      killer = 0;
 	      killer_format = 0;
 	      vision_reset();
-	      return;
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		(void)doredraw();
+	      return;
 	    }
 	}
 
@@ -1625,9 +1814,9 @@ die:
 	}
 	/* since we're not removing the amulet any longer (this is by design)... had to restore celestial disgrace --Amy */
 
-//	if (!done_stopprint) {
+//	if (!done_stopprint)
 	    sprintf(pbuf, "%s %s the %s...", Goodbye(), playeraliasname,
-		   how != ASCENDED ?
+		   (how != ASCENDED && !u.freeplaymode) ?
 		      (const char *) ((flags.female && urole.name.f) ?
 		         urole.name.f : urole.name.m) :
 		      (const char *) (flags.female ? "Demigoddess" : "Demigod"));
@@ -1639,7 +1828,7 @@ die:
 	if (dump_fp) dump("", pbuf);
 #endif
 
-	if (how == ESCAPED || how == ASCENDED) {
+	if (how == ESCAPED || how == ASCENDED || u.freeplaymode) {
 	    register struct monst *mtmp;
 	    register struct obj *otmp;
 	    register struct val_list *val;
@@ -1667,7 +1856,12 @@ die:
 	    strcpy(pbuf, "You");
 	    if (mtmp) {
 		while (mtmp) {
+			/* CAREFUL! if the player has a lot of pets with long names, this can result in a SIGSEGV! --Amy
+			 * the buffer should be 3000 characters long, so this will normally not be an issue, but just in case
+			 * that it would be exceeded, prevent it from crashing upon ascension... */
+			if (strlen(pbuf) < (BUFSZ - 300)) {
 			sprintf(eos(pbuf), " and %s", mon_nam(mtmp));
+			}
 		    if (mtmp->mtame)
 			u.urexp += mtmp->mhp;
 		    mtmp = mtmp->nmon;
@@ -1682,6 +1876,7 @@ die:
 	    }
 		sprintf(eos(pbuf), "%s with %ld point%s,",
 			how==ASCENDED ? "went to your reward" :
+			u.freeplaymode ? "retired after beating the game" :
 					"escaped from the dungeon",
 			u.urexp, plur(u.urexp));
 #ifdef DUMP_LOG
@@ -1703,7 +1898,7 @@ die:
 
 		    if (count == 0L) continue;
 		    if (objects[typ].oc_class != GEM_CLASS || typ <= LAST_GEM) {
-			otmp = mksobj(typ, FALSE, FALSE);
+			otmp = mksobj(typ, FALSE, FALSE, FALSE);
 			if (otmp) {
 				makeknown(otmp->otyp);
 				otmp->known = 1;	/* for fake amulets */
@@ -1816,6 +2011,9 @@ boolean identified, all_containers, want_dump;
 /* The original container_contents function */
 {
 	register struct obj *box, *obj;
+	struct obj **oarray;
+	int i,j,n;
+	char *invlet;
 	char buf[BUFSZ];
 
 	for (box = list; box; box = box->nobj) {
@@ -1824,13 +2022,50 @@ boolean identified, all_containers, want_dump;
 		    continue;	/* wrong type of container */
 		} else if (box->cobj) {
 		    winid tmpwin = create_nhwindow(NHW_MENU);
+
+                   /* count the number of items */
+                   for (n = 0, obj = box->cobj; obj; obj = obj->nobj) n++;
+                   /* Make a temporary array to store the objects sorted */
+                   oarray = (struct obj **) alloc(n*sizeof(struct obj*));
+
+                   /* Add objects to the array */
+                   i = 0;
+                   invlet = flags.inv_order;
+nextclass:
+                   for (obj = box->cobj; obj; obj = obj->nobj) {
+                      if (!flags.sortpack || obj->oclass == *invlet) {
+                       if (iflags.sortloot == 'f'
+                           || iflags.sortloot == 'l') {
+                         /* Insert object at correct index */
+                         for (j = i; j; j--) {
+                           if (strcmpi(cxname2(obj), cxname2(oarray[j-1]))>0
+                           || (flags.sortpack &&
+                               oarray[j-1]->oclass != obj->oclass))
+                             break;
+                           oarray[j] = oarray[j-1];
+                         }
+                         oarray[j] = obj;
+                         i++;
+                       } else {
+                         /* Just add it to the array */
+                         oarray[i++] = obj;
+                       }
+                     }
+                   } /* for loop */
+                   if (flags.sortpack) {
+                     if (*++invlet) goto nextclass;
+                   }
+
 		    sprintf(buf, "Contents of %s:", the(xname(box)));
 		    putstr(tmpwin, 0, buf);
 		    putstr(tmpwin, 0, "");
 #ifdef DUMP_LOG
 		    if (dump_fp) dump("", buf);
 #endif
-		    for (obj = box->cobj; obj; obj = obj->nobj) {
+                   for (i = 0; i < n; i++) {
+                       obj = oarray[i];
+
+		    /*for (obj = box->cobj; obj; obj = obj->nobj) {*/ /* pre-sortloot */
 			if (identified) {
 			    makeknown(obj->otyp);
 			    obj->known = obj->bknown =
@@ -2139,7 +2374,7 @@ mk_dgl_extrainfo()
 
     sprintf(new_fn, "%s", dump_format_str(EXTRAINFO_FN));
 
-    extrai = fopen_datafile(new_fn, "w", LEVELPREFIX);
+    extrai = fopen_datafile_area(FILE_AREA_VAR, new_fn, "w", LEVELPREFIX);
     if (!extrai) {
     } else {
         char tmpdng[16];
@@ -2147,13 +2382,13 @@ mk_dgl_extrainfo()
         if (Is_knox(&u.uz)) {
 		sortval = 1000;
             sprintf(tmpdng, "%i|%s", sortval, "Knx");
-        } else if (In_quest(&u.uz)) {
+        } else if (In_quest(&u.uz)) { /* this depends on the fact that the quest is never longer than 7 levels --Amy */
 		sortval = 1500 + depth(&u.uz);
-            sprintf(tmpdng, "%i|%s%i", sortval, "Q", dunlev(&u.uz));
+            sprintf(tmpdng, "%i|%s%i", sortval, "  Q", dunlev(&u.uz));
         } else if (In_endgame(&u.uz)) {
             sprintf(tmpdng, "%i|%s", sortval, "End");
 		sortval = 10000;
-        } else if (In_sokoban(&u.uz)) {
+        } else if (In_sokoban_real(&u.uz)) {
             sprintf(tmpdng, "%i|Sok%i", sortval, depth(&u.uz));
 		sortval = 200 + depth(&u.uz);
         } else if (In_mines(&u.uz)) {
@@ -2176,6 +2411,9 @@ mk_dgl_extrainfo()
 		sortval = 7500 + depth(&u.uz);
         } else if (In_illusorycastle(&u.uz)) {
             sprintf(tmpdng, "%i|Ill%i", sortval, depth(&u.uz));
+		sortval = 3000 + depth(&u.uz);
+        } else if (In_restingzone(&u.uz)) {
+            sprintf(tmpdng, "%i|Res%i", sortval, depth(&u.uz));
 		sortval = 3000 + depth(&u.uz);
         } else if (In_voiddungeon(&u.uz)) {
             sprintf(tmpdng, "%i|Voi%i", sortval, depth(&u.uz));
@@ -2241,7 +2479,9 @@ mk_dgl_extrainfo()
             sprintf(tmpdng, "%i|%s", sortval, "Mol");
 		sortval = 1000 + depth(&u.uz);
         } else {
-            sprintf(tmpdng, "%i|D%i", sortval, depth(&u.uz));
+		if (depth(&u.uz) < 10) sprintf(tmpdng, "%i|%c%cD%i", sortval, ' ', ' ', depth(&u.uz));
+		else if (depth(&u.uz) < 100) sprintf(tmpdng, "%i|%cD%i", sortval, ' ', depth(&u.uz));
+            else sprintf(tmpdng, "%i|D%i", sortval, depth(&u.uz));
         }
 
 #ifdef UNIX

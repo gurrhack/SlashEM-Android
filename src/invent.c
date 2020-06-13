@@ -36,11 +36,10 @@ static char display_pickinv_q(const char *,BOOLEAN_P, long *, const char *, BOOL
 STATIC_DCL boolean this_type_only(struct obj *);
 STATIC_DCL void dounpaid(void);
 STATIC_DCL struct obj *find_unpaid(struct obj *,struct obj **);
-STATIC_DCL void menu_identify(int);
+STATIC_DCL void menu_identify(int, BOOLEAN_P);
 STATIC_DCL boolean tool_in_use(struct obj *);
 #endif /* OVLB */
 STATIC_DCL char obj_to_let(struct obj *);
-STATIC_DCL int itemactions(struct obj *);
 
 /* define for getobj() */
 #define FOLLOW(curr, flags) \
@@ -325,8 +324,10 @@ struct obj *obj;
 		if (!achieve.get_amulet) {
 			achieve.get_amulet = 1; /* filthy hangup cheater bastard!!! --Amy */
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -364,8 +365,10 @@ struct obj *obj;
 
 		if (!achieve.get_candelabrum) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -373,11 +376,11 @@ struct obj *obj;
 				if (Upolyd) u.mhmax += 10;
 				pline("Well done! Your maximum health and mana were increased to make sure you'll get even more trophies! Go for it!");
 			}
+			qt_pager(QT_VLAD);
 
 		}
 
                 achieve.get_candelabrum = 1;
-			qt_pager(QT_VLAD);
 #ifdef LIVELOGFILE
 		livelog_achieve_update();
 		livelog_report_trophy("obtained the Candelabrum of Invocation");
@@ -397,8 +400,10 @@ struct obj *obj;
 
 		if (!achieve.get_bell) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -428,8 +433,10 @@ struct obj *obj;
 
 		if (!achieve.get_book) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -437,11 +444,11 @@ struct obj *obj;
 				if (Upolyd) u.mhmax += 10;
 				pline("Well done! Your maximum health and mana were increased to make sure you'll get even more trophies! Go for it!");
 			}
+			qt_pager(QT_RODNEY);
 
 		}
 
                 achieve.get_book = 1;
-			qt_pager(QT_RODNEY);
 #ifdef LIVELOGFILE
 		livelog_achieve_update();
 		livelog_report_trophy("obtained the Book of the Dead");
@@ -485,8 +492,10 @@ struct obj *obj;
 
 		if (!achieve.get_luckstone) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -516,8 +525,10 @@ struct obj *obj;
 
 		if (!achieve.finish_sokoban) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -545,8 +556,16 @@ struct obj *obj;
 
 		if (!achieveX.get_magresstone) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (practicantterror && !u.pract_mrstone) {
+				pline("%s rings out: 'Well, let's just say that you have to pay 6000 zorkmids, that thing certainly wasn't worth that much but who cares.'", noroelaname());
+				fineforpracticant(6000, 0, 0);
+				u.pract_mrstone = TRUE;
+			}
+
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -558,7 +577,7 @@ struct obj *obj;
 		}
 
             achieveX.get_magresstone = 1;
-		/*qt_pager(QT_DEEPMINES);*/
+		qt_pager(QT_MAGRESSTONE);
 		obj->record_achieve_special = 0;
 		if (!u.deepminefinished) {
 			u.deepminefinished = 1;
@@ -822,6 +841,7 @@ const char *drop_fmt, *drop_arg, *hold_msg;
 
 		obj->mstartinvent = 0;
 		obj->mstartinventB = 0;
+		obj->mstartinventC = 0;
 		sprintf(qbuf, "Got %s! Drop it?", doname(obj) );
 
 		if (yn_function(qbuf, ynchars, 'n') == 'y' ) {
@@ -943,10 +963,6 @@ struct obj *obj;
 		set_artifact_intrinsic(obj, 0, W_ART);
 	}
 
-	if (u.uprops[DROPCURSES_EFFECT].extrinsic || Dropcurses || have_dropcursestone() || (uleft && uleft->oartifact == ART_ARABELLA_S_RADAR) || (uright && uright->oartifact == ART_ARABELLA_S_RADAR) ) {
-		curse(obj);
-	}
-
 	if (obj->otyp == LOADSTONE || obj->otyp == SLEEPSTONE || obj->otyp == LOADBOULDER || obj->otyp == STARLIGHTSTONE || is_nastygraystone(obj) ) {
 		curse(obj);
 	} else if (confers_luck(obj)) {
@@ -969,10 +985,19 @@ struct obj *obj;
 		if ((uleft && uleft->oartifact == ART_EVIL_DETECTOR) || (uright && uright->oartifact == ART_EVIL_DETECTOR)) obj->bknown = TRUE;
 	}
 
-	if (obj && (LeftInventoryBug || u.uprops[LEFT_INVENTORY].extrinsic || have_leftinventorystone())) {
-		obj->known = obj->bknown = obj->rknown = obj->dknown = FALSE;
+	if (obj && !rn2(4) && (LeftInventoryBug || u.uprops[LEFT_INVENTORY].extrinsic || have_leftinventorystone())) {
+		if (!rn2(5)) obj->known = FALSE;
+		if (!rn2(5)) obj->bknown = FALSE;
+		if (!rn2(5)) obj->rknown = FALSE;
+		if (!rn2(5)) obj->dknown = FALSE;
+		if (!rn2(5)) {
 		if (OBJ_DESCR(objects[obj->otyp]) && (objects[obj->otyp].oc_name_known || objects[obj->otyp].oc_uname)) 
 			forget_single_object(obj->otyp);
+			if (!obj->oartifact && !obj->fakeartifact && obj->onamelth) {
+				obj->onamelth = 0;
+				*ONAME(obj) = '\0';
+	}
+		}
 	}
 
 }
@@ -1084,8 +1109,13 @@ const char *
 currency(amount)
 long amount;
 {
+	if (zapmrename()) {
+		if (amount == 1L) return "buckazoid";
+		else return "buckazoids";
+	} else {
 	if (amount == 1L) return "zorkmid";
 	else return "zorkmids";
+	}
 }
 
 boolean
@@ -1111,6 +1141,10 @@ have_lizard()
 		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_LIZARD_OF_YENDOR)
 			return(TRUE);
 		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_GRASS_LIZARD)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_RUNE_LIZARD)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_SPECTRAL_LIZARD)
 			return(TRUE);
 		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_BLUE_LIZARD)
 			return(TRUE);
@@ -1140,6 +1174,14 @@ have_lizard()
 			return(TRUE);
 		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_ROCK_LIZARD)
 			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_WILL_STONE_LIZARD)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_WILL_RATCH_LIZARD)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_LICHZARD)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_SKELLIZARD)
+			return(TRUE);
 		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_BABY_CAVE_LIZARD)
 			return(TRUE);
 		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_NIGHT_LIZARD)
@@ -1152,9 +1194,31 @@ have_lizard()
 			return(TRUE);
 		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_GRANDPA)
 			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_HELTH_LIZARD)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_LIZARD_MAGE)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_BLACK_LIZARDMAN)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_ASSASSIN_LIZARD)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_BLIZZARD_LIZARD)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_NORMAL_LIZARD)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_CLOCKBACK_LIZARD)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_ADULT_LIZARD)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_LIZZY)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_LIZARD_PRINCE)
+			return(TRUE);
 		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_KARMIC_LIZARD)
 			return(TRUE);
 		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_GREEN_LIZARD)
+			return(TRUE);
+		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_SCORZARD)
 			return(TRUE);
 		if(otmp->otyp == CORPSE && otmp->corpsenm == PM_BLACK_LIZARD)
 			return(TRUE);
@@ -1222,6 +1286,18 @@ have_pokeloadstone()
 }
 
 boolean
+have_hungerhealer()
+{
+	register struct obj *otmp;
+
+	for(otmp = invent; otmp; otmp = otmp->nobj) {
+		if(otmp->otyp == HITCHHIKER_S_GUIDE_TO_THE_GALA && otmp->oartifact == ART_HUNGERHEALER)
+			return(TRUE);
+		}
+	return(FALSE);
+}
+
+boolean
 have_invisoloadstone()
 {
 	register struct obj *otmp;
@@ -1230,6 +1306,160 @@ have_invisoloadstone()
 		if(otmp->otyp == LOADSTONE && otmp->oartifact == ART_JONADAB_S_HEAVYLOAD)
 			return(TRUE);
 		}
+	return(FALSE);
+}
+
+boolean
+have_femtrapfemmy()
+{
+	if (feminizecheck(1)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapmadeleine()
+{
+	if (feminizecheck(2)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapmarlena()
+{
+	if (feminizecheck(3)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapanastasia()
+{
+	if (feminizecheck(4)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapjessica()
+{
+	if (feminizecheck(5)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapsolvejg()
+{
+	if (feminizecheck(6)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapwendy()
+{
+	if (feminizecheck(7)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapkatharina()
+{
+	if (feminizecheck(8)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapelena()
+{
+	if (feminizecheck(9)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapthai()
+{
+	if (feminizecheck(10)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapelif()
+{
+	if (feminizecheck(11)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapnadja()
+{
+	if (feminizecheck(12)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapsandra()
+{
+	if (feminizecheck(13)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapnatalje()
+{
+	if (feminizecheck(14)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapjeanetta()
+{
+	if (feminizecheck(15)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapyvonne()
+{
+	if (feminizecheck(16)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapmaurah()
+{
+	if (feminizecheck(17)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapmeltem()
+{
+	if (feminizecheck(18)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapsarah()
+{
+	if (feminizecheck(19)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapclaudia()
+{
+	if (feminizecheck(20)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapludgera()
+{
+	if (feminizecheck(21)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_femtrapkati()
+{
+	if (feminizecheck(22)) return TRUE;
 	return(FALSE);
 }
 
@@ -1291,6 +1521,587 @@ have_mothrelay()
 			return(TRUE);
 		}
 	return(FALSE);
+}
+
+/* are you using your quest artifact? if it's equippable, you need to actually have it equipped --Amy */
+boolean
+usingquestarti()
+{
+	register struct obj *otmp;
+
+	for(otmp = invent; otmp; otmp = otmp->nobj) {
+
+		if (otmp->oartifact && is_quest_artifact(otmp)) {
+			if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)) {
+				if (uwep && uwep == otmp) return TRUE;
+				else if (uswapwep && uswapwep == otmp && u.twoweap) return TRUE;
+				else return FALSE;
+			} else if (is_blindfold_slot(otmp)) {
+				if (ublindf && ublindf == otmp) return TRUE;
+				else return FALSE;
+			} else if (otmp->oclass == RING_CLASS) {
+				if (uleft && uleft == otmp) return TRUE;
+				else if (uright && uright == otmp) return TRUE;
+				else return FALSE;
+			} else if (otmp->oclass == AMULET_CLASS) {
+				if (uamul && uamul == otmp) return TRUE;
+				else return FALSE;
+			} else if (otmp->oclass == IMPLANT_CLASS) {
+				if (uimplant && uimplant == otmp) return TRUE;
+				else return FALSE;
+			} else if (is_boots(otmp)) {
+				if (uarmf && uarmf == otmp) return TRUE;
+				else return FALSE;
+			} else if (is_gloves(otmp)) {
+				if (uarmg && uarmg == otmp) return TRUE;
+				else return FALSE;
+			} else if (is_helmet(otmp)) {
+				if (uarmh && uarmh == otmp) return TRUE;
+				else return FALSE;
+			} else if (is_cloak(otmp)) {
+				if (uarmc && uarmc == otmp) return TRUE;
+				else return FALSE;
+			} else if (is_shield(otmp)) {
+				if (uarms && uarms == otmp) return TRUE;
+				else return FALSE;
+			} else if (is_shirt(otmp)) {
+				if (uarmu && uarmu == otmp) return TRUE;
+				else return FALSE;
+			} else if (is_suit(otmp)) {
+				if (uarm && uarm == otmp) return TRUE;
+				if (uskin && uskin == otmp) return TRUE;
+				else return FALSE;
+			} else { /* not equippable - enough to have it in open inventory */
+				return TRUE;
+			}
+
+		}
+	}
+	return(FALSE);
+}
+
+/* for feminizer race: do you have a specific feminism trap effect? --Amy */
+boolean
+feminizecheck(femnumber)
+int femnumber;
+{
+	if (!isfeminizer) return FALSE;
+
+	if (u.feminizeffect == femnumber) return TRUE;
+
+	return FALSE;
+}
+
+/* for SJW role: do you have a specific nastytrap effect at your current XL? --Amy */
+
+boolean
+sjwcheck(nastynumber)
+int nastynumber;
+{
+	int sjwlevel;
+	if (!Role_if(PM_SOCIAL_JUSTICE_WARRIOR) && !isdorian) return FALSE;
+
+	sjwlevel = u.ulevel + u.xtralevelmult - 1; /* because u.xtralevelmult starts at 1, not 0 */
+
+	while (sjwlevel > 59) sjwlevel -= 30; /* it goes from XL1 to 59 and then loops from 30 again */
+
+	if (isdorian) {
+		if (u.ulevel >= 4 && u.dorian4 == nastynumber) return TRUE;
+		if (u.ulevel >= 8 && u.dorian8 == nastynumber) return TRUE;
+		if (u.ulevel >= 12 && u.dorian12 == nastynumber) return TRUE;
+		if (u.ulevel >= 16 && u.dorian16 == nastynumber) return TRUE;
+		if (u.ulevel >= 20 && u.dorian20 == nastynumber) return TRUE;
+		if (u.ulevel >= 24 && u.dorian24 == nastynumber) return TRUE;
+		if (u.ulevel >= 28 && u.dorian28 == nastynumber) return TRUE;
+	}
+
+	if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) {
+	switch (u.ulevel) {
+
+		case 1:
+			if (u.sjwL1E1 == nastynumber) return TRUE;
+			break;
+		case 2:
+			if (u.sjwL2E1 == nastynumber) return TRUE;
+			break;
+		case 3:
+			if (u.sjwL3E1 == nastynumber) return TRUE;
+			break;
+		case 4:
+			if (u.sjwL4E1 == nastynumber) return TRUE;
+			break;
+		case 5:
+			if (u.sjwL5E1 == nastynumber) return TRUE;
+			if (u.sjwL5E2 == nastynumber) return TRUE;
+			break;
+		case 6:
+			if (u.sjwL6E1 == nastynumber) return TRUE;
+			if (u.sjwL6E2 == nastynumber) return TRUE;
+			break;
+		case 7:
+			if (u.sjwL7E1 == nastynumber) return TRUE;
+			if (u.sjwL7E2 == nastynumber) return TRUE;
+			break;
+		case 8:
+			if (u.sjwL8E1 == nastynumber) return TRUE;
+			if (u.sjwL8E2 == nastynumber) return TRUE;
+			break;
+		case 9:
+			if (u.sjwL9E1 == nastynumber) return TRUE;
+			if (u.sjwL9E2 == nastynumber) return TRUE;
+			break;
+		case 10:
+			if (u.sjwL10E1 == nastynumber) return TRUE;
+			if (u.sjwL10E2 == nastynumber) return TRUE;
+			if (u.sjwL10E3 == nastynumber) return TRUE;
+			break;
+		case 11:
+			if (u.sjwL11E1 == nastynumber) return TRUE;
+			if (u.sjwL11E2 == nastynumber) return TRUE;
+			if (u.sjwL11E3 == nastynumber) return TRUE;
+			break;
+		case 12:
+			if (u.sjwL12E1 == nastynumber) return TRUE;
+			if (u.sjwL12E2 == nastynumber) return TRUE;
+			if (u.sjwL12E3 == nastynumber) return TRUE;
+			break;
+		case 13:
+			if (u.sjwL13E1 == nastynumber) return TRUE;
+			if (u.sjwL13E2 == nastynumber) return TRUE;
+			if (u.sjwL13E3 == nastynumber) return TRUE;
+			break;
+		case 14:
+			if (u.sjwL14E1 == nastynumber) return TRUE;
+			if (u.sjwL14E2 == nastynumber) return TRUE;
+			if (u.sjwL14E3 == nastynumber) return TRUE;
+			break;
+		case 15:
+			if (u.sjwL15E1 == nastynumber) return TRUE;
+			if (u.sjwL15E2 == nastynumber) return TRUE;
+			if (u.sjwL15E3 == nastynumber) return TRUE;
+			if (u.sjwL15E4 == nastynumber) return TRUE;
+			break;
+		case 16:
+			if (u.sjwL16E1 == nastynumber) return TRUE;
+			if (u.sjwL16E2 == nastynumber) return TRUE;
+			if (u.sjwL16E3 == nastynumber) return TRUE;
+			if (u.sjwL16E4 == nastynumber) return TRUE;
+			break;
+		case 17:
+			if (u.sjwL17E1 == nastynumber) return TRUE;
+			if (u.sjwL17E2 == nastynumber) return TRUE;
+			if (u.sjwL17E3 == nastynumber) return TRUE;
+			if (u.sjwL17E4 == nastynumber) return TRUE;
+			break;
+		case 18:
+			if (u.sjwL18E1 == nastynumber) return TRUE;
+			if (u.sjwL18E2 == nastynumber) return TRUE;
+			if (u.sjwL18E3 == nastynumber) return TRUE;
+			if (u.sjwL18E4 == nastynumber) return TRUE;
+			break;
+		case 19:
+			if (u.sjwL19E1 == nastynumber) return TRUE;
+			if (u.sjwL19E2 == nastynumber) return TRUE;
+			if (u.sjwL19E3 == nastynumber) return TRUE;
+			if (u.sjwL19E4 == nastynumber) return TRUE;
+			break;
+		case 20:
+			if (u.sjwL20E1 == nastynumber) return TRUE;
+			if (u.sjwL20E2 == nastynumber) return TRUE;
+			if (u.sjwL20E3 == nastynumber) return TRUE;
+			if (u.sjwL20E4 == nastynumber) return TRUE;
+			if (u.sjwL20E5 == nastynumber) return TRUE;
+			break;
+		case 21:
+			if (u.sjwL21E1 == nastynumber) return TRUE;
+			if (u.sjwL21E2 == nastynumber) return TRUE;
+			if (u.sjwL21E3 == nastynumber) return TRUE;
+			if (u.sjwL21E4 == nastynumber) return TRUE;
+			if (u.sjwL21E5 == nastynumber) return TRUE;
+			break;
+		case 22:
+			if (u.sjwL22E1 == nastynumber) return TRUE;
+			if (u.sjwL22E2 == nastynumber) return TRUE;
+			if (u.sjwL22E3 == nastynumber) return TRUE;
+			if (u.sjwL22E4 == nastynumber) return TRUE;
+			if (u.sjwL22E5 == nastynumber) return TRUE;
+			break;
+		case 23:
+			if (u.sjwL23E1 == nastynumber) return TRUE;
+			if (u.sjwL23E2 == nastynumber) return TRUE;
+			if (u.sjwL23E3 == nastynumber) return TRUE;
+			if (u.sjwL23E4 == nastynumber) return TRUE;
+			if (u.sjwL23E5 == nastynumber) return TRUE;
+			break;
+		case 24:
+			if (u.sjwL24E1 == nastynumber) return TRUE;
+			if (u.sjwL24E2 == nastynumber) return TRUE;
+			if (u.sjwL24E3 == nastynumber) return TRUE;
+			if (u.sjwL24E4 == nastynumber) return TRUE;
+			if (u.sjwL24E5 == nastynumber) return TRUE;
+			break;
+		case 25:
+			if (u.sjwL25E1 == nastynumber) return TRUE;
+			if (u.sjwL25E2 == nastynumber) return TRUE;
+			if (u.sjwL25E3 == nastynumber) return TRUE;
+			if (u.sjwL25E4 == nastynumber) return TRUE;
+			if (u.sjwL25E5 == nastynumber) return TRUE;
+			if (u.sjwL25E6 == nastynumber) return TRUE;
+			break;
+		case 26:
+			if (u.sjwL26E1 == nastynumber) return TRUE;
+			if (u.sjwL26E2 == nastynumber) return TRUE;
+			if (u.sjwL26E3 == nastynumber) return TRUE;
+			if (u.sjwL26E4 == nastynumber) return TRUE;
+			if (u.sjwL26E5 == nastynumber) return TRUE;
+			if (u.sjwL26E6 == nastynumber) return TRUE;
+			break;
+		case 27:
+			if (u.sjwL27E1 == nastynumber) return TRUE;
+			if (u.sjwL27E2 == nastynumber) return TRUE;
+			if (u.sjwL27E3 == nastynumber) return TRUE;
+			if (u.sjwL27E4 == nastynumber) return TRUE;
+			if (u.sjwL27E5 == nastynumber) return TRUE;
+			if (u.sjwL27E6 == nastynumber) return TRUE;
+			break;
+		case 28:
+			if (u.sjwL28E1 == nastynumber) return TRUE;
+			if (u.sjwL28E2 == nastynumber) return TRUE;
+			if (u.sjwL28E3 == nastynumber) return TRUE;
+			if (u.sjwL28E4 == nastynumber) return TRUE;
+			if (u.sjwL28E5 == nastynumber) return TRUE;
+			if (u.sjwL28E6 == nastynumber) return TRUE;
+			break;
+		case 29:
+			if (u.sjwL29E1 == nastynumber) return TRUE;
+			if (u.sjwL29E2 == nastynumber) return TRUE;
+			if (u.sjwL29E3 == nastynumber) return TRUE;
+			if (u.sjwL29E4 == nastynumber) return TRUE;
+			if (u.sjwL29E5 == nastynumber) return TRUE;
+			if (u.sjwL29E6 == nastynumber) return TRUE;
+			break;
+		case 30:
+			if (u.sjwL30E1 == nastynumber) return TRUE;
+			if (u.sjwL30E2 == nastynumber) return TRUE;
+			if (u.sjwL30E3 == nastynumber) return TRUE;
+			if (u.sjwL30E4 == nastynumber) return TRUE;
+			if (u.sjwL30E5 == nastynumber) return TRUE;
+			if (u.sjwL30E6 == nastynumber) return TRUE;
+			if (u.sjwL30E7 == nastynumber) return TRUE;
+			break;
+		case 31:
+			if (u.sjwL31E1 == nastynumber) return TRUE;
+			if (u.sjwL31E2 == nastynumber) return TRUE;
+			if (u.sjwL31E3 == nastynumber) return TRUE;
+			if (u.sjwL31E4 == nastynumber) return TRUE;
+			if (u.sjwL31E5 == nastynumber) return TRUE;
+			if (u.sjwL31E6 == nastynumber) return TRUE;
+			if (u.sjwL31E7 == nastynumber) return TRUE;
+			break;
+		case 32:
+			if (u.sjwL32E1 == nastynumber) return TRUE;
+			if (u.sjwL32E2 == nastynumber) return TRUE;
+			if (u.sjwL32E3 == nastynumber) return TRUE;
+			if (u.sjwL32E4 == nastynumber) return TRUE;
+			if (u.sjwL32E5 == nastynumber) return TRUE;
+			if (u.sjwL32E6 == nastynumber) return TRUE;
+			if (u.sjwL32E7 == nastynumber) return TRUE;
+			break;
+		case 33:
+			if (u.sjwL33E1 == nastynumber) return TRUE;
+			if (u.sjwL33E2 == nastynumber) return TRUE;
+			if (u.sjwL33E3 == nastynumber) return TRUE;
+			if (u.sjwL33E4 == nastynumber) return TRUE;
+			if (u.sjwL33E5 == nastynumber) return TRUE;
+			if (u.sjwL33E6 == nastynumber) return TRUE;
+			if (u.sjwL33E7 == nastynumber) return TRUE;
+			break;
+		case 34:
+			if (u.sjwL34E1 == nastynumber) return TRUE;
+			if (u.sjwL34E2 == nastynumber) return TRUE;
+			if (u.sjwL34E3 == nastynumber) return TRUE;
+			if (u.sjwL34E4 == nastynumber) return TRUE;
+			if (u.sjwL34E5 == nastynumber) return TRUE;
+			if (u.sjwL34E6 == nastynumber) return TRUE;
+			if (u.sjwL34E7 == nastynumber) return TRUE;
+			break;
+		case 35:
+			if (u.sjwL35E1 == nastynumber) return TRUE;
+			if (u.sjwL35E2 == nastynumber) return TRUE;
+			if (u.sjwL35E3 == nastynumber) return TRUE;
+			if (u.sjwL35E4 == nastynumber) return TRUE;
+			if (u.sjwL35E5 == nastynumber) return TRUE;
+			if (u.sjwL35E6 == nastynumber) return TRUE;
+			if (u.sjwL35E7 == nastynumber) return TRUE;
+			break;
+		case 36:
+			if (u.sjwL36E1 == nastynumber) return TRUE;
+			if (u.sjwL36E2 == nastynumber) return TRUE;
+			if (u.sjwL36E3 == nastynumber) return TRUE;
+			if (u.sjwL36E4 == nastynumber) return TRUE;
+			if (u.sjwL36E5 == nastynumber) return TRUE;
+			if (u.sjwL36E6 == nastynumber) return TRUE;
+			if (u.sjwL36E7 == nastynumber) return TRUE;
+			break;
+		case 37:
+			if (u.sjwL37E1 == nastynumber) return TRUE;
+			if (u.sjwL37E2 == nastynumber) return TRUE;
+			if (u.sjwL37E3 == nastynumber) return TRUE;
+			if (u.sjwL37E4 == nastynumber) return TRUE;
+			if (u.sjwL37E5 == nastynumber) return TRUE;
+			if (u.sjwL37E6 == nastynumber) return TRUE;
+			if (u.sjwL37E7 == nastynumber) return TRUE;
+			break;
+		case 38:
+			if (u.sjwL38E1 == nastynumber) return TRUE;
+			if (u.sjwL38E2 == nastynumber) return TRUE;
+			if (u.sjwL38E3 == nastynumber) return TRUE;
+			if (u.sjwL38E4 == nastynumber) return TRUE;
+			if (u.sjwL38E5 == nastynumber) return TRUE;
+			if (u.sjwL38E6 == nastynumber) return TRUE;
+			if (u.sjwL38E7 == nastynumber) return TRUE;
+			break;
+		case 39:
+			if (u.sjwL39E1 == nastynumber) return TRUE;
+			if (u.sjwL39E2 == nastynumber) return TRUE;
+			if (u.sjwL39E3 == nastynumber) return TRUE;
+			if (u.sjwL39E4 == nastynumber) return TRUE;
+			if (u.sjwL39E5 == nastynumber) return TRUE;
+			if (u.sjwL39E6 == nastynumber) return TRUE;
+			if (u.sjwL39E7 == nastynumber) return TRUE;
+			break;
+		case 40:
+			if (u.sjwL40E1 == nastynumber) return TRUE;
+			if (u.sjwL40E2 == nastynumber) return TRUE;
+			if (u.sjwL40E3 == nastynumber) return TRUE;
+			if (u.sjwL40E4 == nastynumber) return TRUE;
+			if (u.sjwL40E5 == nastynumber) return TRUE;
+			if (u.sjwL40E6 == nastynumber) return TRUE;
+			if (u.sjwL40E7 == nastynumber) return TRUE;
+			break;
+		case 41:
+			if (u.sjwL41E1 == nastynumber) return TRUE;
+			if (u.sjwL41E2 == nastynumber) return TRUE;
+			if (u.sjwL41E3 == nastynumber) return TRUE;
+			if (u.sjwL41E4 == nastynumber) return TRUE;
+			if (u.sjwL41E5 == nastynumber) return TRUE;
+			if (u.sjwL41E6 == nastynumber) return TRUE;
+			if (u.sjwL41E7 == nastynumber) return TRUE;
+			break;
+		case 42:
+			if (u.sjwL42E1 == nastynumber) return TRUE;
+			if (u.sjwL42E2 == nastynumber) return TRUE;
+			if (u.sjwL42E3 == nastynumber) return TRUE;
+			if (u.sjwL42E4 == nastynumber) return TRUE;
+			if (u.sjwL42E5 == nastynumber) return TRUE;
+			if (u.sjwL42E6 == nastynumber) return TRUE;
+			if (u.sjwL42E7 == nastynumber) return TRUE;
+			break;
+		case 43:
+			if (u.sjwL43E1 == nastynumber) return TRUE;
+			if (u.sjwL43E2 == nastynumber) return TRUE;
+			if (u.sjwL43E3 == nastynumber) return TRUE;
+			if (u.sjwL43E4 == nastynumber) return TRUE;
+			if (u.sjwL43E5 == nastynumber) return TRUE;
+			if (u.sjwL43E6 == nastynumber) return TRUE;
+			if (u.sjwL43E7 == nastynumber) return TRUE;
+			break;
+		case 44:
+			if (u.sjwL44E1 == nastynumber) return TRUE;
+			if (u.sjwL44E2 == nastynumber) return TRUE;
+			if (u.sjwL44E3 == nastynumber) return TRUE;
+			if (u.sjwL44E4 == nastynumber) return TRUE;
+			if (u.sjwL44E5 == nastynumber) return TRUE;
+			if (u.sjwL44E6 == nastynumber) return TRUE;
+			if (u.sjwL44E7 == nastynumber) return TRUE;
+			break;
+		case 45:
+			if (u.sjwL45E1 == nastynumber) return TRUE;
+			if (u.sjwL45E2 == nastynumber) return TRUE;
+			if (u.sjwL45E3 == nastynumber) return TRUE;
+			if (u.sjwL45E4 == nastynumber) return TRUE;
+			if (u.sjwL45E5 == nastynumber) return TRUE;
+			if (u.sjwL45E6 == nastynumber) return TRUE;
+			if (u.sjwL45E7 == nastynumber) return TRUE;
+			break;
+		case 46:
+			if (u.sjwL46E1 == nastynumber) return TRUE;
+			if (u.sjwL46E2 == nastynumber) return TRUE;
+			if (u.sjwL46E3 == nastynumber) return TRUE;
+			if (u.sjwL46E4 == nastynumber) return TRUE;
+			if (u.sjwL46E5 == nastynumber) return TRUE;
+			if (u.sjwL46E6 == nastynumber) return TRUE;
+			if (u.sjwL46E7 == nastynumber) return TRUE;
+			break;
+		case 47:
+			if (u.sjwL47E1 == nastynumber) return TRUE;
+			if (u.sjwL47E2 == nastynumber) return TRUE;
+			if (u.sjwL47E3 == nastynumber) return TRUE;
+			if (u.sjwL47E4 == nastynumber) return TRUE;
+			if (u.sjwL47E5 == nastynumber) return TRUE;
+			if (u.sjwL47E6 == nastynumber) return TRUE;
+			if (u.sjwL47E7 == nastynumber) return TRUE;
+			break;
+		case 48:
+			if (u.sjwL48E1 == nastynumber) return TRUE;
+			if (u.sjwL48E2 == nastynumber) return TRUE;
+			if (u.sjwL48E3 == nastynumber) return TRUE;
+			if (u.sjwL48E4 == nastynumber) return TRUE;
+			if (u.sjwL48E5 == nastynumber) return TRUE;
+			if (u.sjwL48E6 == nastynumber) return TRUE;
+			if (u.sjwL48E7 == nastynumber) return TRUE;
+			break;
+		case 49:
+			if (u.sjwL49E1 == nastynumber) return TRUE;
+			if (u.sjwL49E2 == nastynumber) return TRUE;
+			if (u.sjwL49E3 == nastynumber) return TRUE;
+			if (u.sjwL49E4 == nastynumber) return TRUE;
+			if (u.sjwL49E5 == nastynumber) return TRUE;
+			if (u.sjwL49E6 == nastynumber) return TRUE;
+			if (u.sjwL49E7 == nastynumber) return TRUE;
+			break;
+		case 50:
+			if (u.sjwL50E1 == nastynumber) return TRUE;
+			if (u.sjwL50E2 == nastynumber) return TRUE;
+			if (u.sjwL50E3 == nastynumber) return TRUE;
+			if (u.sjwL50E4 == nastynumber) return TRUE;
+			if (u.sjwL50E5 == nastynumber) return TRUE;
+			if (u.sjwL50E6 == nastynumber) return TRUE;
+			if (u.sjwL50E7 == nastynumber) return TRUE;
+			break;
+		case 51:
+			if (u.sjwL51E1 == nastynumber) return TRUE;
+			if (u.sjwL51E2 == nastynumber) return TRUE;
+			if (u.sjwL51E3 == nastynumber) return TRUE;
+			if (u.sjwL51E4 == nastynumber) return TRUE;
+			if (u.sjwL51E5 == nastynumber) return TRUE;
+			if (u.sjwL51E6 == nastynumber) return TRUE;
+			if (u.sjwL51E7 == nastynumber) return TRUE;
+			break;
+		case 52:
+			if (u.sjwL52E1 == nastynumber) return TRUE;
+			if (u.sjwL52E2 == nastynumber) return TRUE;
+			if (u.sjwL52E3 == nastynumber) return TRUE;
+			if (u.sjwL52E4 == nastynumber) return TRUE;
+			if (u.sjwL52E5 == nastynumber) return TRUE;
+			if (u.sjwL52E6 == nastynumber) return TRUE;
+			if (u.sjwL52E7 == nastynumber) return TRUE;
+			break;
+		case 53:
+			if (u.sjwL53E1 == nastynumber) return TRUE;
+			if (u.sjwL53E2 == nastynumber) return TRUE;
+			if (u.sjwL53E3 == nastynumber) return TRUE;
+			if (u.sjwL53E4 == nastynumber) return TRUE;
+			if (u.sjwL53E5 == nastynumber) return TRUE;
+			if (u.sjwL53E6 == nastynumber) return TRUE;
+			if (u.sjwL53E7 == nastynumber) return TRUE;
+			break;
+		case 54:
+			if (u.sjwL54E1 == nastynumber) return TRUE;
+			if (u.sjwL54E2 == nastynumber) return TRUE;
+			if (u.sjwL54E3 == nastynumber) return TRUE;
+			if (u.sjwL54E4 == nastynumber) return TRUE;
+			if (u.sjwL54E5 == nastynumber) return TRUE;
+			if (u.sjwL54E6 == nastynumber) return TRUE;
+			if (u.sjwL54E7 == nastynumber) return TRUE;
+			break;
+		case 55:
+			if (u.sjwL55E1 == nastynumber) return TRUE;
+			if (u.sjwL55E2 == nastynumber) return TRUE;
+			if (u.sjwL55E3 == nastynumber) return TRUE;
+			if (u.sjwL55E4 == nastynumber) return TRUE;
+			if (u.sjwL55E5 == nastynumber) return TRUE;
+			if (u.sjwL55E6 == nastynumber) return TRUE;
+			if (u.sjwL55E7 == nastynumber) return TRUE;
+			break;
+		case 56:
+			if (u.sjwL56E1 == nastynumber) return TRUE;
+			if (u.sjwL56E2 == nastynumber) return TRUE;
+			if (u.sjwL56E3 == nastynumber) return TRUE;
+			if (u.sjwL56E4 == nastynumber) return TRUE;
+			if (u.sjwL56E5 == nastynumber) return TRUE;
+			if (u.sjwL56E6 == nastynumber) return TRUE;
+			if (u.sjwL56E7 == nastynumber) return TRUE;
+			break;
+		case 57:
+			if (u.sjwL57E1 == nastynumber) return TRUE;
+			if (u.sjwL57E2 == nastynumber) return TRUE;
+			if (u.sjwL57E3 == nastynumber) return TRUE;
+			if (u.sjwL57E4 == nastynumber) return TRUE;
+			if (u.sjwL57E5 == nastynumber) return TRUE;
+			if (u.sjwL57E6 == nastynumber) return TRUE;
+			if (u.sjwL57E7 == nastynumber) return TRUE;
+			break;
+		case 58:
+			if (u.sjwL58E1 == nastynumber) return TRUE;
+			if (u.sjwL58E2 == nastynumber) return TRUE;
+			if (u.sjwL58E3 == nastynumber) return TRUE;
+			if (u.sjwL58E4 == nastynumber) return TRUE;
+			if (u.sjwL58E5 == nastynumber) return TRUE;
+			if (u.sjwL58E6 == nastynumber) return TRUE;
+			if (u.sjwL58E7 == nastynumber) return TRUE;
+			break;
+		case 59:
+			if (u.sjwL59E1 == nastynumber) return TRUE;
+			if (u.sjwL59E2 == nastynumber) return TRUE;
+			if (u.sjwL59E3 == nastynumber) return TRUE;
+			if (u.sjwL59E4 == nastynumber) return TRUE;
+			if (u.sjwL59E5 == nastynumber) return TRUE;
+			if (u.sjwL59E6 == nastynumber) return TRUE;
+			if (u.sjwL59E7 == nastynumber) return TRUE;
+			break;
+
+	} /* switch statement check */
+	} /* player is SJW check */
+
+	return FALSE;
+
+}
+
+/* are you carrying or even using quest artifacts that aren't your own? if yes, you might get downsides --Amy */
+int
+foreignartifactcount()
+{
+	register struct obj *otmp;
+	int facount = 0;
+
+	for(otmp = invent; otmp; otmp = otmp->nobj) {
+
+		if (otmp->oartifact && otmp->oartifact >= ART_ORB_OF_DETECTION && !is_quest_artifact(otmp)) {
+			if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)) {
+				if (uwep && uwep == otmp) facount += 4;
+				else if (uswapwep && uswapwep == otmp && u.twoweap) facount += 4;
+			} else if (is_blindfold_slot(otmp)) {
+				if (ublindf && ublindf == otmp) facount += 4;
+			} else if (otmp->oclass == RING_CLASS) {
+				if (uleft && uleft == otmp) facount += 4;
+				else if (uright && uright == otmp) facount += 4;
+			} else if (otmp->oclass == AMULET_CLASS) {
+				if (uamul && uamul == otmp) facount += 4;
+			} else if (otmp->oclass == IMPLANT_CLASS) {
+				if (uimplant && uimplant == otmp) facount += 4;
+			} else if (is_boots(otmp)) {
+				if (uarmf && uarmf == otmp) facount += 4;
+			} else if (is_gloves(otmp)) {
+				if (uarmg && uarmg == otmp) facount += 4;
+			} else if (is_helmet(otmp)) {
+				if (uarmh && uarmh == otmp) facount += 4;
+			} else if (is_cloak(otmp)) {
+				if (uarmc && uarmc == otmp) facount += 4;
+			} else if (is_shield(otmp)) {
+				if (uarms && uarms == otmp) facount += 4;
+			} else if (is_shirt(otmp)) {
+				if (uarmu && uarmu == otmp) facount += 4;
+			} else if (is_suit(otmp)) {
+				if (uarm && uarm == otmp) facount += 4;
+				if (uskin && uskin == otmp) facount += 4;
+			}
+			facount++;
+
+		}
+
+	}
+	return facount;
 }
 
 boolean
@@ -1364,6 +2175,7 @@ have_rmbstone()
 		}
 
 	if (u.nastinator01) return TRUE;
+	if (sjwcheck(1)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 6 && u.femauspices6 == 1) return TRUE;
 	return(FALSE);
 }
@@ -1378,6 +2190,7 @@ have_displaystone()
 			return(TRUE);
 		}
 	if (u.nastinator02) return TRUE;
+	if (sjwcheck(2)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 6 && u.femauspices6 == 2) return TRUE;
 	return(FALSE);
 }
@@ -1392,6 +2205,7 @@ have_yellowspellstone()
 			return(TRUE);
 		}
 	if (u.nastinator03) return TRUE;
+	if (sjwcheck(3)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 1) return TRUE;
 	return(FALSE);
 }
@@ -1406,6 +2220,7 @@ have_spelllossstone()
 			return(TRUE);
 		}
 	if (u.nastinator04) return TRUE;
+	if (sjwcheck(4)) return TRUE;
 	return(FALSE);
 }
 
@@ -1419,6 +2234,7 @@ have_autodestructstone()
 			return(TRUE);
 		}
 	if (u.nastinator05) return TRUE;
+	if (sjwcheck(5)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 15 && u.femauspices15 == 2) return TRUE;
 	return(FALSE);
 }
@@ -1433,6 +2249,7 @@ have_memorylossstone()
 			return(TRUE);
 		}
 	if (u.nastinator06) return TRUE;
+	if (sjwcheck(6)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 6 && u.femauspices6 == 3) return TRUE;
 	return(FALSE);
 }
@@ -1447,6 +2264,7 @@ have_inventorylossstone()
 			return(TRUE);
 		}
 	if (u.nastinator07) return TRUE;
+	if (sjwcheck(7)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 30 && u.femauspices30 == 1) return TRUE;
 	return(FALSE);
 }
@@ -1461,6 +2279,7 @@ have_blackystone()
 			return(TRUE);
 		}
 	if (u.nastinator08) return TRUE;
+	if (sjwcheck(8)) return TRUE;
 	return(FALSE);
 }
 
@@ -1474,6 +2293,7 @@ have_menubugstone()
 			return(TRUE);
 		}
 	if (u.nastinator09) return TRUE;
+	if (sjwcheck(9)) return TRUE;
 	return(FALSE);
 }
 
@@ -1487,6 +2307,7 @@ have_speedbugstone()
 			return(TRUE);
 		}
 	if (u.nastinator10) return TRUE;
+	if (sjwcheck(10)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 15 && u.femauspices15 == 1) return TRUE;
 	return(FALSE);
 }
@@ -1501,6 +2322,7 @@ have_superscrollerstone()
 			return(TRUE);
 		}
 	if (u.nastinator11) return TRUE;
+	if (sjwcheck(11)) return TRUE;
 	return(FALSE);
 }
 
@@ -1514,6 +2336,7 @@ have_freehandbugstone()
 			return(TRUE);
 		}
 	if (u.nastinator12) return TRUE;
+	if (sjwcheck(12)) return TRUE;
 	return(FALSE);
 }
 
@@ -1527,6 +2350,7 @@ have_unidentifystone()
 			return(TRUE);
 		}
 	if (u.nastinator13) return TRUE;
+	if (sjwcheck(13)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 20 && u.femauspices20 == 1) return TRUE;
 	return(FALSE);
 }
@@ -1541,6 +2365,7 @@ have_thirststone()
 			return(TRUE);
 		}
 	if (u.nastinator14) return TRUE;
+	if (sjwcheck(14)) return TRUE;
 	return(FALSE);
 }
 
@@ -1554,6 +2379,7 @@ have_unluckystone()
 			return(TRUE);
 		}
 	if (u.nastinator15) return TRUE;
+	if (sjwcheck(15)) return TRUE;
 	return(FALSE);
 }
 
@@ -1567,6 +2393,7 @@ have_shadesofgreystone()
 			return(TRUE);
 		}
 	if (u.nastinator16) return TRUE;
+	if (sjwcheck(16)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 8 && u.femauspices8 == 1) return TRUE;
 	return(FALSE);
 }
@@ -1581,6 +2408,7 @@ have_faintingstone()
 			return(TRUE);
 		}
 	if (u.nastinator17) return TRUE;
+	if (sjwcheck(17)) return TRUE;
 	return(FALSE);
 }
 
@@ -1594,6 +2422,7 @@ have_cursingstone()
 			return(TRUE);
 		}
 	if (u.nastinator18) return TRUE;
+	if (sjwcheck(18)) return TRUE;
 	return(FALSE);
 }
 
@@ -1607,6 +2436,7 @@ have_difficultystone()
 			return(TRUE);
 		}
 	if (u.nastinator19) return TRUE;
+	if (sjwcheck(19)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 17 && u.femauspices17 == 1) return TRUE;
 	return(FALSE);
 }
@@ -1621,6 +2451,7 @@ have_deafnessstone()
 			return(TRUE);
 		}
 	if (u.nastinator20) return TRUE;
+	if (sjwcheck(20)) return TRUE;
 	return(FALSE);
 }
 
@@ -1634,6 +2465,7 @@ have_weaknessstone()
 			return(TRUE);
 		}
 	if (u.nastinator21) return TRUE;
+	if (sjwcheck(21)) return TRUE;
 	return(FALSE);
 }
 
@@ -1647,6 +2479,7 @@ have_antimagicstone()
 			return(TRUE);
 		}
 	if (u.nastinator22) return TRUE;
+	if (sjwcheck(22)) return TRUE;
 	return(FALSE);
 }
 
@@ -1660,6 +2493,7 @@ have_rotthirteenstone()
 			return(TRUE);
 		}
 	if (u.nastinator23) return TRUE;
+	if (sjwcheck(23)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 8 && u.femauspices8 == 2) return TRUE;
 	return(FALSE);
 }
@@ -1674,6 +2508,7 @@ have_bishopstone()
 			return(TRUE);
 		}
 	if (u.nastinator24) return TRUE;
+	if (sjwcheck(24)) return TRUE;
 	return(FALSE);
 }
 
@@ -1687,6 +2522,7 @@ have_confusionstone()
 			return(TRUE);
 		}
 	if (u.nastinator25) return TRUE;
+	if (sjwcheck(25)) return TRUE;
 	return(FALSE);
 }
 
@@ -1700,6 +2536,7 @@ have_dropbugstone()
 			return(TRUE);
 		}
 	if (u.nastinator26) return TRUE;
+	if (sjwcheck(26)) return TRUE;
 	return(FALSE);
 }
 
@@ -1713,6 +2550,7 @@ have_dstwstone()
 			return(TRUE);
 		}
 	if (u.nastinator27) return TRUE;
+	if (sjwcheck(27)) return TRUE;
 
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 4 && u.femauspices4 == 1) return TRUE;
 
@@ -1729,6 +2567,7 @@ have_amnesiastone()
 			return(TRUE);
 		}
 	if (u.nastinator28) return TRUE;
+	if (sjwcheck(28)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 28 && u.femauspices28 == 2) return TRUE;
 	return(FALSE);
 }
@@ -1743,6 +2582,7 @@ have_bigscriptstone()
 			return(TRUE);
 		}
 	if (u.nastinator29) return TRUE;
+	if (sjwcheck(29)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 6 && u.femauspices6 == 4) return TRUE;
 	return(FALSE);
 }
@@ -1757,6 +2597,7 @@ have_bankstone()
 			return(TRUE);
 		}
 	if (u.nastinator30) return TRUE;
+	if (sjwcheck(30)) return TRUE;
 	return(FALSE);
 }
 
@@ -1770,6 +2611,7 @@ have_mapstone()
 			return(TRUE);
 		}
 	if (u.nastinator31) return TRUE;
+	if (sjwcheck(31)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 20 && u.femauspices20 == 3) return TRUE;
 	return(FALSE);
 }
@@ -1784,6 +2626,7 @@ have_techniquestone()
 			return(TRUE);
 		}
 	if (u.nastinator32) return TRUE;
+	if (sjwcheck(32)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 4 && u.femauspices4 == 2) return TRUE;
 	return(FALSE);
 }
@@ -1798,6 +2641,7 @@ have_disenchantmentstone()
 			return(TRUE);
 		}
 	if (u.nastinator33) return TRUE;
+	if (sjwcheck(33)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 28 && u.femauspices28 == 3) return TRUE;
 	return(FALSE);
 }
@@ -1812,6 +2656,7 @@ have_verisiertstone()
 			return(TRUE);
 		}
 	if (u.nastinator34) return TRUE;
+	if (sjwcheck(34)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 17 && u.femauspices17 == 2) return TRUE;
 	return(FALSE);
 }
@@ -1826,6 +2671,7 @@ have_chaosterrainstone()
 			return(TRUE);
 		}
 	if (u.nastinator35) return TRUE;
+	if (sjwcheck(35)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 22 && u.femauspices22 == 2) return TRUE;
 	return(FALSE);
 }
@@ -1840,6 +2686,7 @@ have_mutenessstone()
 			return(TRUE);
 		}
 	if (u.nastinator36) return TRUE;
+	if (sjwcheck(36)) return TRUE;
 	return(FALSE);
 }
 
@@ -1853,6 +2700,7 @@ have_engravingstone()
 			return(TRUE);
 		}
 	if (u.nastinator37) return TRUE;
+	if (sjwcheck(37)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 4 && u.femauspices4 == 3) return TRUE;
 	return(FALSE);
 }
@@ -1867,6 +2715,7 @@ have_magicdevicestone()
 			return(TRUE);
 		}
 	if (u.nastinator38) return TRUE;
+	if (sjwcheck(38)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 4 && u.femauspices4 == 4) return TRUE;
 	return(FALSE);
 }
@@ -1881,6 +2730,7 @@ have_bookstone()
 			return(TRUE);
 		}
 	if (u.nastinator39) return TRUE;
+	if (sjwcheck(39)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 4 && u.femauspices4 == 5) return TRUE;
 	return(FALSE);
 }
@@ -1895,6 +2745,7 @@ have_levelstone()
 			return(TRUE);
 		}
 	if (u.nastinator40) return TRUE;
+	if (sjwcheck(40)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 20 && u.femauspices20 == 4) return TRUE;
 	return(FALSE);
 }
@@ -1909,6 +2760,7 @@ have_quizstone()
 			return(TRUE);
 		}
 	if (u.nastinator41) return TRUE;
+	if (sjwcheck(41)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 8 && u.femauspices8 == 4) return TRUE;
 	return(FALSE);
 }
@@ -1923,6 +2775,7 @@ have_statusstone()
 			return(TRUE);
 		}
 	if (u.nastinator42) return TRUE;
+	if (sjwcheck(42)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 22 && u.femauspices22 == 1) return TRUE;
 	return(FALSE);
 }
@@ -1937,6 +2790,7 @@ have_alignmentstone()
 			return(TRUE);
 		}
 	if (u.nastinator43) return TRUE;
+	if (sjwcheck(43)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 28 && u.femauspices28 == 1) return TRUE;
 	return(FALSE);
 }
@@ -1951,6 +2805,7 @@ have_stairstrapstone()
 			return(TRUE);
 		}
 	if (u.nastinator44) return TRUE;
+	if (sjwcheck(44)) return TRUE;
 	return(FALSE);
 }
 
@@ -1964,6 +2819,7 @@ have_uninformationstone()
 			return(TRUE);
 		}
 	if (u.nastinator45) return TRUE;
+	if (sjwcheck(45)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 20 && u.femauspices20 == 2) return TRUE;
 	return(FALSE);
 }
@@ -1978,6 +2834,7 @@ have_captchastone()
 			return(TRUE);
 		}
 	if (u.nastinator46) return TRUE;
+	if (sjwcheck(46)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 8 && u.femauspices8 == 3) return TRUE;
 	return(FALSE);
 }
@@ -1992,6 +2849,7 @@ have_farlookstone()
 			return(TRUE);
 		}
 	if (u.nastinator47) return TRUE;
+	if (sjwcheck(47)) return TRUE;
 	return(FALSE);
 }
 
@@ -2005,6 +2863,7 @@ have_respawnstone()
 			return(TRUE);
 		}
 	if (u.nastinator48) return TRUE;
+	if (sjwcheck(48)) return TRUE;
 	return(FALSE);
 }
 
@@ -2018,6 +2877,7 @@ have_intrinsiclossstone()
 			return(TRUE);
 		}
 	if (u.nastinator49) return TRUE;
+	if (sjwcheck(49)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 13 && u.femauspices13 == 1) return TRUE;
 	return(FALSE);
 }
@@ -2032,6 +2892,7 @@ have_bloodlossstone()
 			return(TRUE);
 		}
 	if (u.nastinator50) return TRUE;
+	if (sjwcheck(50)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 13 && u.femauspices13 == 3) return TRUE;
 	return(FALSE);
 }
@@ -2046,6 +2907,7 @@ have_badeffectstone()
 			return(TRUE);
 		}
 	if (u.nastinator51) return TRUE;
+	if (sjwcheck(51)) return TRUE;
 	return(FALSE);
 }
 
@@ -2059,6 +2921,7 @@ have_trapcreationstone()
 			return(TRUE);
 		}
 	if (u.nastinator52) return TRUE;
+	if (sjwcheck(52)) return TRUE;
 	return(FALSE);
 }
 
@@ -2072,6 +2935,7 @@ have_vulnerabilitystone()
 			return(TRUE);
 		}
 	if (u.nastinator53) return TRUE;
+	if (sjwcheck(53)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 13 && u.femauspices13 == 2) return TRUE;
 	return(FALSE);
 }
@@ -2086,6 +2950,7 @@ have_itemportstone()
 			return(TRUE);
 		}
 	if (u.nastinator54) return TRUE;
+	if (sjwcheck(54)) return TRUE;
 	return(FALSE);
 }
 
@@ -2099,6 +2964,7 @@ have_nastystone()
 			return(TRUE);
 		}
 	if (u.nastinator55) return TRUE;
+	if (sjwcheck(55)) return TRUE;
 	return(FALSE);
 }
 
@@ -2112,6 +2978,7 @@ have_metabolicstone()
 			return(TRUE);
 		}
 	if (u.nastinator56) return TRUE;
+	if (sjwcheck(56)) return TRUE;
 	return(FALSE);
 }
 
@@ -2125,6 +2992,7 @@ have_noreturnstone()
 			return(TRUE);
 		}
 	if (u.nastinator57) return TRUE;
+	if (sjwcheck(57)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 15 && u.femauspices15 == 3) return TRUE;
 	return(FALSE);
 }
@@ -2139,6 +3007,7 @@ have_egostone()
 			return(TRUE);
 		}
 	if (u.nastinator58) return TRUE;
+	if (sjwcheck(58)) return TRUE;
 	return(FALSE);
 }
 
@@ -2152,6 +3021,7 @@ have_fastforwardstone()
 			return(TRUE);
 		}
 	if (u.nastinator59) return TRUE;
+	if (sjwcheck(59)) return TRUE;
 	return(FALSE);
 }
 
@@ -2165,6 +3035,7 @@ have_rottenstone()
 			return(TRUE);
 		}
 	if (u.nastinator60) return TRUE;
+	if (sjwcheck(60)) return TRUE;
 	return(FALSE);
 }
 
@@ -2178,6 +3049,7 @@ have_unskilledstone()
 			return(TRUE);
 		}
 	if (u.nastinator61) return TRUE;
+	if (sjwcheck(61)) return TRUE;
 	return(FALSE);
 }
 
@@ -2191,6 +3063,7 @@ have_lowstatstone()
 			return(TRUE);
 		}
 	if (u.nastinator62) return TRUE;
+	if (sjwcheck(62)) return TRUE;
 	return(FALSE);
 }
 
@@ -2204,6 +3077,7 @@ have_trainingstone()
 			return(TRUE);
 		}
 	if (u.nastinator63) return TRUE;
+	if (sjwcheck(63)) return TRUE;
 	return(FALSE);
 }
 
@@ -2217,6 +3091,7 @@ have_exercisestone()
 			return(TRUE);
 		}
 	if (u.nastinator64) return TRUE;
+	if (sjwcheck(64)) return TRUE;
 	return(FALSE);
 }
 
@@ -2230,6 +3105,7 @@ have_limitationstone()
 			return(TRUE);
 		}
 	if (u.nastinator65) return TRUE;
+	if (sjwcheck(65)) return TRUE;
 	return(FALSE);
 }
 
@@ -2243,6 +3119,7 @@ have_weaksightstone()
 			return(TRUE);
 		}
 	if (u.nastinator66) return TRUE;
+	if (sjwcheck(66)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 6 && u.femauspices6 == 5) return TRUE;
 	return(FALSE);
 }
@@ -2257,6 +3134,7 @@ have_messagestone()
 			return(TRUE);
 		}
 	if (u.nastinator67) return TRUE;
+	if (sjwcheck(67)) return TRUE;
 	return(FALSE);
 }
 
@@ -2270,6 +3148,7 @@ have_nonsacredstone()
 			return(TRUE);
 		}
 	if (u.nastinator68) return TRUE;
+	if (sjwcheck(68)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 22 && u.femauspices22 == 3) return TRUE;
 	return(FALSE);
 }
@@ -2284,6 +3163,7 @@ have_starvationstone()
 			return(TRUE);
 		}
 	if (u.nastinator69) return TRUE;
+	if (sjwcheck(69)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 30 && u.femauspices30 == 2) return TRUE;
 	return(FALSE);
 }
@@ -2298,6 +3178,7 @@ have_droplessstone()
 			return(TRUE);
 		}
 	if (u.nastinator70) return TRUE;
+	if (sjwcheck(70)) return TRUE;
 	return(FALSE);
 }
 
@@ -2311,6 +3192,7 @@ have_loweffectstone()
 			return(TRUE);
 		}
 	if (u.nastinator71) return TRUE;
+	if (sjwcheck(71)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 4 && u.femauspices4 == 6) return TRUE;
 	return(FALSE);
 }
@@ -2325,6 +3207,7 @@ have_invisostone()
 			return(TRUE);
 		}
 	if (u.nastinator72) return TRUE;
+	if (sjwcheck(72)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 22 && u.femauspices22 == 5) return TRUE;
 	return(FALSE);
 }
@@ -2339,6 +3222,7 @@ have_ghostlystone()
 			return(TRUE);
 		}
 	if (u.nastinator73) return TRUE;
+	if (sjwcheck(73)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 22 && u.femauspices22 == 4) return TRUE;
 	return(FALSE);
 }
@@ -2353,6 +3237,7 @@ have_dehydratingstone()
 			return(TRUE);
 		}
 	if (u.nastinator74) return TRUE;
+	if (sjwcheck(74)) return TRUE;
 	return(FALSE);
 }
 
@@ -2366,6 +3251,7 @@ have_hatestone()
 			return(TRUE);
 		}
 	if (u.nastinator75) return TRUE;
+	if (sjwcheck(75)) return TRUE;
 	return(FALSE);
 }
 
@@ -2379,6 +3265,7 @@ have_directionswapstone()
 			return(TRUE);
 		}
 	if (u.nastinator76) return TRUE;
+	if (sjwcheck(76)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 30 && u.femauspices30 == 3) return TRUE;
 	return(FALSE);
 }
@@ -2393,6 +3280,7 @@ have_nonintrinsicstone()
 			return(TRUE);
 		}
 	if (u.nastinator77) return TRUE;
+	if (sjwcheck(77)) return TRUE;
 	return(FALSE);
 }
 
@@ -2406,6 +3294,7 @@ have_dropcursestone()
 			return(TRUE);
 		}
 	if (u.nastinator78) return TRUE;
+	if (sjwcheck(78)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 15 && u.femauspices15 == 4) return TRUE;
 	return(FALSE);
 }
@@ -2420,6 +3309,7 @@ have_nakedstone()
 			return(TRUE);
 		}
 	if (u.nastinator79) return TRUE;
+	if (sjwcheck(79)) return TRUE;
 	return(FALSE);
 }
 
@@ -2433,6 +3323,7 @@ have_antilevelstone()
 			return(TRUE);
 		}
 	if (u.nastinator80) return TRUE;
+	if (sjwcheck(80)) return TRUE;
 	return(FALSE);
 }
 
@@ -2446,6 +3337,7 @@ have_stealerstone()
 			return(TRUE);
 		}
 	if (u.nastinator81) return TRUE;
+	if (sjwcheck(81)) return TRUE;
 	return(FALSE);
 }
 
@@ -2459,6 +3351,7 @@ have_rebelstone()
 			return(TRUE);
 		}
 	if (u.nastinator82) return TRUE;
+	if (sjwcheck(82)) return TRUE;
 	return(FALSE);
 }
 
@@ -2472,6 +3365,7 @@ have_shitstone()
 			return(TRUE);
 		}
 	if (u.nastinator83) return TRUE;
+	if (sjwcheck(83)) return TRUE;
 	return(FALSE);
 }
 
@@ -2485,6 +3379,7 @@ have_misfirestone()
 			return(TRUE);
 		}
 	if (u.nastinator84) return TRUE;
+	if (sjwcheck(84)) return TRUE;
 	return(FALSE);
 }
 
@@ -2498,6 +3393,7 @@ have_wallstone()
 			return(TRUE);
 		}
 	if (u.nastinator85) return TRUE;
+	if (sjwcheck(85)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 22 && u.femauspices22 == 6) return TRUE;
 	return(FALSE);
 }
@@ -2512,6 +3408,7 @@ have_disconnectstone()
 			return(TRUE);
 		}
 	if (u.nastinator86) return TRUE;
+	if (sjwcheck(86)) return TRUE;
 	return(FALSE);
 }
 
@@ -2525,6 +3422,7 @@ have_interfacescrewstone()
 			return(TRUE);
 		}
 	if (u.nastinator87) return TRUE;
+	if (sjwcheck(87)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 30 && u.femauspices30 == 4) return TRUE;
 	return(FALSE);
 }
@@ -2539,6 +3437,7 @@ have_bossfightstone()
 			return(TRUE);
 		}
 	if (u.nastinator88) return TRUE;
+	if (sjwcheck(88)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 17 && u.femauspices17 == 3) return TRUE;
 	return(FALSE);
 }
@@ -2553,6 +3452,7 @@ have_entirelevelstone()
 			return(TRUE);
 		}
 	if (u.nastinator89) return TRUE;
+	if (sjwcheck(89)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 17 && u.femauspices17 == 4) return TRUE;
 	return(FALSE);
 }
@@ -2567,6 +3467,7 @@ have_bonestone()
 			return(TRUE);
 		}
 	if (u.nastinator90) return TRUE;
+	if (sjwcheck(90)) return TRUE;
 	return(FALSE);
 }
 
@@ -2580,6 +3481,7 @@ have_autocursestone()
 			return(TRUE);
 		}
 	if (u.nastinator91) return TRUE;
+	if (sjwcheck(91)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 28 && u.femauspices28 == 4) return TRUE;
 	return(FALSE);
 }
@@ -2594,6 +3496,7 @@ have_highlevelstone()
 			return(TRUE);
 		}
 	if (u.nastinator92) return TRUE;
+	if (sjwcheck(92)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 17 && u.femauspices17 == 5) return TRUE;
 	return(FALSE);
 }
@@ -2608,6 +3511,7 @@ have_spellforgettingstone()
 			return(TRUE);
 		}
 	if (u.nastinator93) return TRUE;
+	if (sjwcheck(93)) return TRUE;
 	return(FALSE);
 }
 
@@ -2621,6 +3525,7 @@ have_soundeffectstone()
 			return(TRUE);
 		}
 	if (u.nastinator94) return TRUE;
+	if (sjwcheck(94)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 8 && u.femauspices8 == 5) return TRUE;
 	return(FALSE);
 }
@@ -2635,6 +3540,7 @@ have_timerunstone()
 			return(TRUE);
 		}
 	if (u.nastinator95) return TRUE;
+	if (sjwcheck(95)) return TRUE;
 	return(FALSE);
 }
 
@@ -2648,6 +3554,7 @@ have_lootcutstone()
 			return(TRUE);
 		}
 	if (u.nastinator96) return TRUE;
+	if (sjwcheck(96)) return TRUE;
 	return(FALSE);
 }
 
@@ -2661,6 +3568,7 @@ have_monsterspeedstone()
 			return(TRUE);
 		}
 	if (u.nastinator97) return TRUE;
+	if (sjwcheck(97)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 15 && u.femauspices15 == 5) return TRUE;
 	return(FALSE);
 }
@@ -2675,6 +3583,7 @@ have_scalingstone()
 			return(TRUE);
 		}
 	if (u.nastinator98) return TRUE;
+	if (sjwcheck(98)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 17 && u.femauspices17 == 6) return TRUE;
 	return(FALSE);
 }
@@ -2689,6 +3598,7 @@ have_inimicalstone()
 			return(TRUE);
 		}
 	if (u.nastinator99) return TRUE;
+	if (sjwcheck(99)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 13 && u.femauspices13 == 4) return TRUE;
 	return(FALSE);
 }
@@ -2703,6 +3613,7 @@ have_whitespellstone()
 			return(TRUE);
 		}
 	if (u.nastinator100) return TRUE;
+	if (sjwcheck(100)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 2) return TRUE;
 	return(FALSE);
 }
@@ -2717,6 +3628,7 @@ have_greyoutstone()
 			return(TRUE);
 		}
 	if (u.nastinator101) return TRUE;
+	if (sjwcheck(101)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 3) return TRUE;
 	return(FALSE);
 }
@@ -2731,6 +3643,7 @@ have_quasarstone()
 			return(TRUE);
 		}
 	if (u.nastinator102) return TRUE;
+	if (sjwcheck(102)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 30 && u.femauspices30 == 5) return TRUE;
 	return(FALSE);
 }
@@ -2745,6 +3658,7 @@ have_mommystone()
 			return(TRUE);
 		}
 	if (u.nastinator103) return TRUE;
+	if (sjwcheck(103)) return TRUE;
 	return(FALSE);
 }
 
@@ -2758,6 +3672,7 @@ have_horrorstone()
 			return(TRUE);
 		}
 	if (u.nastinator104) return TRUE;
+	if (sjwcheck(104)) return TRUE;
 	return(FALSE);
 }
 
@@ -2771,6 +3686,7 @@ have_artificialstone()
 			return(TRUE);
 		}
 	if (u.nastinator105) return TRUE;
+	if (sjwcheck(105)) return TRUE;
 	return(FALSE);
 }
 
@@ -2784,6 +3700,7 @@ have_wereformstone()
 			return(TRUE);
 		}
 	if (u.nastinator106) return TRUE;
+	if (sjwcheck(106)) return TRUE;
 	return(FALSE);
 }
 
@@ -2797,6 +3714,7 @@ have_antiprayerstone()
 			return(TRUE);
 		}
 	if (u.nastinator107) return TRUE;
+	if (sjwcheck(107)) return TRUE;
 	return(FALSE);
 }
 
@@ -2810,6 +3728,7 @@ have_evilpatchstone()
 			return(TRUE);
 		}
 	if (u.nastinator108) return TRUE;
+	if (sjwcheck(108)) return TRUE;
 	return(FALSE);
 }
 
@@ -2823,6 +3742,7 @@ have_hardmodestone()
 			return(TRUE);
 		}
 	if (u.nastinator109) return TRUE;
+	if (sjwcheck(109)) return TRUE;
 	return(FALSE);
 }
 
@@ -2836,6 +3756,7 @@ have_secretattackstone()
 			return(TRUE);
 		}
 	if (u.nastinator110) return TRUE;
+	if (sjwcheck(110)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 28 && u.femauspices28 == 5) return TRUE;
 	return(FALSE);
 }
@@ -2850,6 +3771,7 @@ have_eaterstone()
 			return(TRUE);
 		}
 	if (u.nastinator111) return TRUE;
+	if (sjwcheck(111)) return TRUE;
 	return(FALSE);
 }
 
@@ -2863,6 +3785,7 @@ have_covetousstone()
 			return(TRUE);
 		}
 	if (u.nastinator112) return TRUE;
+	if (sjwcheck(112)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 13 && u.femauspices13 == 5) return TRUE;
 	return(FALSE);
 }
@@ -2877,6 +3800,7 @@ have_nonseeingstone()
 			return(TRUE);
 		}
 	if (u.nastinator113) return TRUE;
+	if (sjwcheck(113)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 20 && u.femauspices20 == 5) return TRUE;
 	return(FALSE);
 }
@@ -2891,6 +3815,7 @@ have_darkmodestone()
 			return(TRUE);
 		}
 	if (u.nastinator114) return TRUE;
+	if (sjwcheck(114)) return TRUE;
 	return(FALSE);
 }
 
@@ -2904,6 +3829,7 @@ have_unfindablestone()
 			return(TRUE);
 		}
 	if (u.nastinator115) return TRUE;
+	if (sjwcheck(115)) return TRUE;
 	return(FALSE);
 }
 
@@ -2917,6 +3843,7 @@ have_homicidestone()
 			return(TRUE);
 		}
 	if (u.nastinator116) return TRUE;
+	if (sjwcheck(116)) return TRUE;
 	return(FALSE);
 }
 
@@ -2930,6 +3857,7 @@ have_multitrappingstone()
 			return(TRUE);
 		}
 	if (u.nastinator117) return TRUE;
+	if (sjwcheck(117)) return TRUE;
 	return(FALSE);
 }
 
@@ -2943,6 +3871,7 @@ have_wakeupcallstone()
 			return(TRUE);
 		}
 	if (u.nastinator118) return TRUE;
+	if (sjwcheck(118)) return TRUE;
 	return(FALSE);
 }
 
@@ -2956,6 +3885,7 @@ have_grayoutstone()
 			return(TRUE);
 		}
 	if (u.nastinator119) return TRUE;
+	if (sjwcheck(119)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 25 && u.femauspices25 == 1) return TRUE;
 	return(FALSE);
 }
@@ -2970,6 +3900,7 @@ have_graycenterstone()
 			return(TRUE);
 		}
 	if (u.nastinator120) return TRUE;
+	if (sjwcheck(120)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 25 && u.femauspices25 == 2) return TRUE;
 	return(FALSE);
 }
@@ -2984,6 +3915,7 @@ have_checkerboardstone()
 			return(TRUE);
 		}
 	if (u.nastinator121) return TRUE;
+	if (sjwcheck(121)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 25 && u.femauspices25 == 3) return TRUE;
 	return(FALSE);
 }
@@ -2998,6 +3930,7 @@ have_clockwisestone()
 			return(TRUE);
 		}
 	if (u.nastinator122) return TRUE;
+	if (sjwcheck(122)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 30 && u.femauspices30 == 6) return TRUE;
 	return(FALSE);
 }
@@ -3012,6 +3945,7 @@ have_counterclockwisestone()
 			return(TRUE);
 		}
 	if (u.nastinator123) return TRUE;
+	if (sjwcheck(123)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 30 && u.femauspices30 == 7) return TRUE;
 	return(FALSE);
 }
@@ -3026,6 +3960,7 @@ have_lagstone()
 			return(TRUE);
 		}
 	if (u.nastinator124) return TRUE;
+	if (sjwcheck(124)) return TRUE;
 	return(FALSE);
 }
 
@@ -3040,6 +3975,7 @@ have_blesscursestone()
 		}
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 15 && u.femauspices15 == 6) return TRUE;
 	if (u.nastinator125) return TRUE;
+	if (sjwcheck(125)) return TRUE;
 	return(FALSE);
 }
 
@@ -3053,6 +3989,7 @@ have_delightstone()
 			return(TRUE);
 		}
 	if (u.nastinator126) return TRUE;
+	if (sjwcheck(126)) return TRUE;
 	return(FALSE);
 }
 
@@ -3066,6 +4003,7 @@ have_dischargestone()
 			return(TRUE);
 		}
 	if (u.nastinator127) return TRUE;
+	if (sjwcheck(127)) return TRUE;
 	return(FALSE);
 }
 
@@ -3079,6 +4017,7 @@ have_trashstone()
 			return(TRUE);
 		}
 	if (u.nastinator128) return TRUE;
+	if (sjwcheck(128)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 28 && u.femauspices28 == 6) return TRUE;
 	return(FALSE);
 }
@@ -3093,6 +4032,7 @@ have_filteringstone()
 			return(TRUE);
 		}
 	if (u.nastinator129) return TRUE;
+	if (sjwcheck(129)) return TRUE;
 	return(FALSE);
 }
 
@@ -3106,6 +4046,7 @@ have_deformattingstone()
 			return(TRUE);
 		}
 	if (u.nastinator130) return TRUE;
+	if (sjwcheck(130)) return TRUE;
 	return(FALSE);
 }
 
@@ -3119,6 +4060,7 @@ have_flickerstripstone()
 			return(TRUE);
 		}
 	if (u.nastinator131) return TRUE;
+	if (sjwcheck(131)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 6 && u.femauspices6 == 6) return TRUE;
 	return(FALSE);
 }
@@ -3133,6 +4075,7 @@ have_undressingstone()
 			return(TRUE);
 		}
 	if (u.nastinator132) return TRUE;
+	if (sjwcheck(132)) return TRUE;
 	return(FALSE);
 }
 
@@ -3146,6 +4089,7 @@ have_hyperbluestone()
 			return(TRUE);
 		}
 	if (u.nastinator133) return TRUE;
+	if (sjwcheck(133)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 8 && u.femauspices8 == 6) return TRUE;
 	return(FALSE);
 }
@@ -3160,6 +4104,7 @@ have_nolightstone()
 			return(TRUE);
 		}
 	if (u.nastinator134) return TRUE;
+	if (sjwcheck(134)) return TRUE;
 	return(FALSE);
 }
 
@@ -3173,6 +4118,7 @@ have_paranoiastone()
 			return(TRUE);
 		}
 	if (u.nastinator135) return TRUE;
+	if (sjwcheck(135)) return TRUE;
 	return(FALSE);
 }
 
@@ -3186,6 +4132,7 @@ have_fleecestone()
 			return(TRUE);
 		}
 	if (u.nastinator136) return TRUE;
+	if (sjwcheck(136)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 6 && u.femauspices6 == 7) return TRUE;
 	return(FALSE);
 }
@@ -3200,6 +4147,7 @@ have_interruptionstone()
 			return(TRUE);
 		}
 	if (u.nastinator137) return TRUE;
+	if (sjwcheck(137)) return TRUE;
 	return(FALSE);
 }
 
@@ -3213,6 +4161,7 @@ have_dustbinstone()
 			return(TRUE);
 		}
 	if (u.nastinator138) return TRUE;
+	if (sjwcheck(138)) return TRUE;
 	return(FALSE);
 }
 
@@ -3226,6 +4175,7 @@ have_batterystone()
 			return(TRUE);
 		}
 	if (u.nastinator139) return TRUE;
+	if (sjwcheck(139)) return TRUE;
 	return(FALSE);
 }
 
@@ -3239,6 +4189,7 @@ have_butterfingerstone()
 			return(TRUE);
 		}
 	if (u.nastinator140) return TRUE;
+	if (sjwcheck(140)) return TRUE;
 	return(FALSE);
 }
 
@@ -3252,6 +4203,7 @@ have_miscastingstone()
 			return(TRUE);
 		}
 	if (u.nastinator141) return TRUE;
+	if (sjwcheck(141)) return TRUE;
 	return(FALSE);
 }
 
@@ -3265,6 +4217,7 @@ have_messagesuppressionstone()
 			return(TRUE);
 		}
 	if (u.nastinator142) return TRUE;
+	if (sjwcheck(142)) return TRUE;
 	return(FALSE);
 }
 
@@ -3278,6 +4231,7 @@ have_stuckannouncementstone()
 			return(TRUE);
 		}
 	if (u.nastinator143) return TRUE;
+	if (sjwcheck(143)) return TRUE;
 	return(FALSE);
 }
 
@@ -3291,6 +4245,7 @@ have_stormstone()
 			return(TRUE);
 		}
 	if (u.nastinator144) return TRUE;
+	if (sjwcheck(144)) return TRUE;
 	return(FALSE);
 }
 
@@ -3304,6 +4259,7 @@ have_maximumdamagestone()
 			return(TRUE);
 		}
 	if (u.nastinator145) return TRUE;
+	if (sjwcheck(145)) return TRUE;
 	return(FALSE);
 }
 
@@ -3317,6 +4273,7 @@ have_latencystone()
 			return(TRUE);
 		}
 	if (u.nastinator146) return TRUE;
+	if (sjwcheck(146)) return TRUE;
 	return(FALSE);
 }
 
@@ -3330,6 +4287,7 @@ have_starlitskystone()
 			return(TRUE);
 		}
 	if (u.nastinator147) return TRUE;
+	if (sjwcheck(147)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 25 && u.femauspices25 == 5) return TRUE;
 	return(FALSE);
 }
@@ -3344,6 +4302,7 @@ have_trapknowledgestone()
 			return(TRUE);
 		}
 	if (u.nastinator148) return TRUE;
+	if (sjwcheck(148)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 25 && u.femauspices25 == 4) return TRUE;
 	return(FALSE);
 }
@@ -3358,6 +4317,7 @@ have_highscorestone()
 			return(TRUE);
 		}
 	if (u.nastinator149) return TRUE;
+	if (sjwcheck(149)) return TRUE;
 	return(FALSE);
 }
 
@@ -3371,6 +4331,7 @@ have_pinkspellstone()
 			return(TRUE);
 		}
 	if (u.nastinator150) return TRUE;
+	if (sjwcheck(150)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 9) return TRUE;
 	return(FALSE);
 }
@@ -3385,6 +4346,7 @@ have_greenspellstone()
 			return(TRUE);
 		}
 	if (u.nastinator151) return TRUE;
+	if (sjwcheck(151)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 5) return TRUE;
 	return(FALSE);
 }
@@ -3399,6 +4361,7 @@ have_evcstone()
 			return(TRUE);
 		}
 	if (u.nastinator152) return TRUE;
+	if (sjwcheck(152)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 20 && u.femauspices20 == 6) return TRUE;
 	return(FALSE);
 }
@@ -3413,6 +4376,7 @@ have_underlaidstone()
 			return(TRUE);
 		}
 	if (u.nastinator153) return TRUE;
+	if (sjwcheck(153)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 20 && u.femauspices20 == 7) return TRUE;
 	return(FALSE);
 }
@@ -3427,6 +4391,7 @@ have_damagemeterstone()
 			return(TRUE);
 		}
 	if (u.nastinator154) return TRUE;
+	if (sjwcheck(154)) return TRUE;
 	return(FALSE);
 }
 
@@ -3440,6 +4405,7 @@ have_weightstone()
 			return(TRUE);
 		}
 	if (u.nastinator155) return TRUE;
+	if (sjwcheck(155)) return TRUE;
 	return(FALSE);
 }
 
@@ -3453,6 +4419,7 @@ have_infofuckstone()
 			return(TRUE);
 		}
 	if (u.nastinator156) return TRUE;
+	if (sjwcheck(156)) return TRUE;
 	return(FALSE);
 }
 
@@ -3466,6 +4433,7 @@ have_blackspellstone()
 			return(TRUE);
 		}
 	if (u.nastinator157) return TRUE;
+	if (sjwcheck(157)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 7) return TRUE;
 	return(FALSE);
 }
@@ -3480,6 +4448,7 @@ have_cyanspellstone()
 			return(TRUE);
 		}
 	if (u.nastinator158) return TRUE;
+	if (sjwcheck(158)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 8) return TRUE;
 	return(FALSE);
 }
@@ -3494,6 +4463,7 @@ have_heapstone()
 			return(TRUE);
 		}
 	if (u.nastinator159) return TRUE;
+	if (sjwcheck(159)) return TRUE;
 	return(FALSE);
 }
 
@@ -3507,6 +4477,7 @@ have_bluespellstone()
 			return(TRUE);
 		}
 	if (u.nastinator160) return TRUE;
+	if (sjwcheck(160)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 4) return TRUE;
 	return(FALSE);
 }
@@ -3521,6 +4492,7 @@ have_tronstone()
 			return(TRUE);
 		}
 	if (u.nastinator161) return TRUE;
+	if (sjwcheck(161)) return TRUE;
 	return(FALSE);
 }
 
@@ -3534,6 +4506,7 @@ have_redspellstone()
 			return(TRUE);
 		}
 	if (u.nastinator162) return TRUE;
+	if (sjwcheck(162)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 6) return TRUE;
 	return(FALSE);
 }
@@ -3548,6 +4521,7 @@ have_tooheavystone()
 			return(TRUE);
 		}
 	if (u.nastinator163) return TRUE;
+	if (sjwcheck(163)) return TRUE;
 	return(FALSE);
 }
 
@@ -3561,6 +4535,7 @@ have_elongatedstone()
 			return(TRUE);
 		}
 	if (u.nastinator164) return TRUE;
+	if (sjwcheck(164)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 28 && u.femauspices28 == 7) return TRUE;
 	return(FALSE);
 }
@@ -3575,6 +4550,7 @@ have_wrapoverstone()
 			return(TRUE);
 		}
 	if (u.nastinator165) return TRUE;
+	if (sjwcheck(165)) return TRUE;
 	return(FALSE);
 }
 
@@ -3588,6 +4564,7 @@ have_destructionstone()
 			return(TRUE);
 		}
 	if (u.nastinator166) return TRUE;
+	if (sjwcheck(166)) return TRUE;
 	return(FALSE);
 }
 
@@ -3601,6 +4578,7 @@ have_meleeprefixstone()
 			return(TRUE);
 		}
 	if (u.nastinator167) return TRUE;
+	if (sjwcheck(167)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 30 && u.femauspices30 == 8) return TRUE;
 	return(FALSE);
 }
@@ -3615,6 +4593,7 @@ have_automorestone()
 			return(TRUE);
 		}
 	if (u.nastinator168) return TRUE;
+	if (sjwcheck(168)) return TRUE;
 	return(FALSE);
 }
 
@@ -3628,6 +4607,7 @@ have_unfairattackstone()
 			return(TRUE);
 		}
 	if (u.nastinator169) return TRUE;
+	if (sjwcheck(169)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 28 && u.femauspices28 == 8) return TRUE;
 	return(FALSE);
 }
@@ -3642,6 +4622,7 @@ have_orangespellstone()
 			return(TRUE);
 		}
 	if (u.nastinator170) return TRUE;
+	if (sjwcheck(170)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 10) return TRUE;
 	return(FALSE);
 }
@@ -3656,6 +4637,7 @@ have_violetspellstone()
 			return(TRUE);
 		}
 	if (u.nastinator171) return TRUE;
+	if (sjwcheck(171)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 11) return TRUE;
 	return(FALSE);
 }
@@ -3670,6 +4652,7 @@ have_longingstone()
 			return(TRUE);
 		}
 	if (u.nastinator172) return TRUE;
+	if (sjwcheck(172)) return TRUE;
 	return(FALSE);
 }
 
@@ -3683,6 +4666,7 @@ have_cursedpartstone()
 			return(TRUE);
 		}
 	if (u.nastinator173) return TRUE;
+	if (sjwcheck(173)) return TRUE;
 	return(FALSE);
 }
 
@@ -3696,6 +4680,7 @@ have_quaversalstone()
 			return(TRUE);
 		}
 	if (u.nastinator174) return TRUE;
+	if (sjwcheck(174)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 30 && u.femauspices30 == 9) return TRUE;
 	return(FALSE);
 }
@@ -3710,6 +4695,7 @@ have_appearanceshufflingstone()
 			return(TRUE);
 		}
 	if (u.nastinator175) return TRUE;
+	if (sjwcheck(175)) return TRUE;
 	return(FALSE);
 }
 
@@ -3723,6 +4709,7 @@ have_brownspellstone()
 			return(TRUE);
 		}
 	if (u.nastinator176) return TRUE;
+	if (sjwcheck(176)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 12) return TRUE;
 	return(FALSE);
 }
@@ -3737,6 +4724,7 @@ have_choicelessstone()
 			return(TRUE);
 		}
 	if (u.nastinator177) return TRUE;
+	if (sjwcheck(177)) return TRUE;
 	return(FALSE);
 }
 
@@ -3750,6 +4738,7 @@ have_goldspellstone()
 			return(TRUE);
 		}
 	if (u.nastinator178) return TRUE;
+	if (sjwcheck(178)) return TRUE;
 	return(FALSE);
 }
 
@@ -3763,6 +4752,7 @@ have_deprovementstone()
 			return(TRUE);
 		}
 	if (u.nastinator179) return TRUE;
+	if (sjwcheck(179)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 25 && u.femauspices25 == 6) return TRUE;
 	return(FALSE);
 }
@@ -3777,6 +4767,7 @@ have_initializationstone()
 			return(TRUE);
 		}
 	if (u.nastinator180) return TRUE;
+	if (sjwcheck(180)) return TRUE;
 	return(FALSE);
 }
 
@@ -3790,6 +4781,7 @@ have_gushlushstone()
 			return(TRUE);
 		}
 	if (u.nastinator181) return TRUE;
+	if (sjwcheck(181)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 25 && u.femauspices25 == 7) return TRUE;
 	return(FALSE);
 }
@@ -3804,6 +4796,7 @@ have_soiltypestone()
 			return(TRUE);
 		}
 	if (u.nastinator182) return TRUE;
+	if (sjwcheck(182)) return TRUE;
 	return(FALSE);
 }
 
@@ -3817,6 +4810,7 @@ have_dangerousterrainstone()
 			return(TRUE);
 		}
 	if (u.nastinator183) return TRUE;
+	if (sjwcheck(183)) return TRUE;
 	return(FALSE);
 }
 
@@ -3830,6 +4824,7 @@ have_falloutstone()
 			return(TRUE);
 		}
 	if (u.nastinator184) return TRUE;
+	if (sjwcheck(184)) return TRUE;
 	return(FALSE);
 }
 
@@ -3843,6 +4838,7 @@ have_mojibakestone()
 			return(TRUE);
 		}
 	if (u.nastinator185) return TRUE;
+	if (sjwcheck(185)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 6 && u.femauspices6 == 8) return TRUE;
 	return(FALSE);
 }
@@ -3857,6 +4853,7 @@ have_gravationstone()
 			return(TRUE);
 		}
 	if (u.nastinator186) return TRUE;
+	if (sjwcheck(186)) return TRUE;
 	return(FALSE);
 }
 
@@ -3870,6 +4867,7 @@ have_uncalledstone()
 			return(TRUE);
 		}
 	if (u.nastinator187) return TRUE;
+	if (sjwcheck(187)) return TRUE;
 	return(FALSE);
 }
 
@@ -3883,6 +4881,7 @@ have_explodingdicestone()
 			return(TRUE);
 		}
 	if (u.nastinator188) return TRUE;
+	if (sjwcheck(188)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 17 && u.femauspices17 == 7) return TRUE;
 	return(FALSE);
 }
@@ -3897,6 +4896,7 @@ have_permacursestone()
 			return(TRUE);
 		}
 	if (u.nastinator189) return TRUE;
+	if (sjwcheck(189)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 4 && u.femauspices4 == 7) return TRUE;
 	return(FALSE);
 }
@@ -3911,6 +4911,7 @@ have_shroudedidentitystone()
 			return(TRUE);
 		}
 	if (u.nastinator190) return TRUE;
+	if (sjwcheck(190)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 13 && u.femauspices13 == 6) return TRUE;
 	return(FALSE);
 }
@@ -3925,6 +4926,7 @@ have_feelergaugesstone()
 			return(TRUE);
 		}
 	if (u.nastinator191) return TRUE;
+	if (sjwcheck(191)) return TRUE;
 	return(FALSE);
 }
 
@@ -3938,6 +4940,7 @@ have_longscrewupstone()
 			return(TRUE);
 		}
 	if (u.nastinator192) return TRUE;
+	if (sjwcheck(192)) return TRUE;
 	return(FALSE);
 }
 
@@ -3951,6 +4954,7 @@ have_wingyellowstone()
 			return(TRUE);
 		}
 	if (u.nastinator193) return TRUE;
+	if (sjwcheck(193)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 20 && u.femauspices20 == 8) return TRUE;
 	return(FALSE);
 }
@@ -3965,6 +4969,7 @@ have_lifesavingstone()
 			return(TRUE);
 		}
 	if (u.nastinator194) return TRUE;
+	if (sjwcheck(194)) return TRUE;
 	return(FALSE);
 }
 
@@ -3978,6 +4983,7 @@ have_curseusestone()
 			return(TRUE);
 		}
 	if (u.nastinator195) return TRUE;
+	if (sjwcheck(195)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 15 && u.femauspices15 == 7) return TRUE;
 	return(FALSE);
 }
@@ -3992,6 +4998,7 @@ have_cutnutritionstone()
 			return(TRUE);
 		}
 	if (u.nastinator196) return TRUE;
+	if (sjwcheck(196)) return TRUE;
 	return(FALSE);
 }
 
@@ -4005,6 +5012,7 @@ have_skilllossstone()
 			return(TRUE);
 		}
 	if (u.nastinator197) return TRUE;
+	if (sjwcheck(197)) return TRUE;
 	return(FALSE);
 }
 
@@ -4018,6 +5026,7 @@ have_autopilotstone()
 			return(TRUE);
 		}
 	if (u.nastinator198) return TRUE;
+	if (sjwcheck(198)) return TRUE;
 	return(FALSE);
 }
 
@@ -4031,6 +5040,7 @@ have_forcestone()
 			return(TRUE);
 		}
 	if (u.nastinator199) return TRUE;
+	if (sjwcheck(199)) return TRUE;
 	return(FALSE);
 }
 
@@ -4044,6 +5054,7 @@ have_monsterglyphstone()
 			return(TRUE);
 		}
 	if (u.nastinator200) return TRUE;
+	if (sjwcheck(200)) return TRUE;
 	return(FALSE);
 }
 
@@ -4057,6 +5068,7 @@ have_changingdirectivestone()
 			return(TRUE);
 		}
 	if (u.nastinator201) return TRUE;
+	if (sjwcheck(201)) return TRUE;
 	return(FALSE);
 }
 
@@ -4070,6 +5082,7 @@ have_containerkaboomstone()
 			return(TRUE);
 		}
 	if (u.nastinator202) return TRUE;
+	if (sjwcheck(202)) return TRUE;
 	return(FALSE);
 }
 
@@ -4083,6 +5096,7 @@ have_stealdegradestone()
 			return(TRUE);
 		}
 	if (u.nastinator203) return TRUE;
+	if (sjwcheck(203)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 15 && u.femauspices15 == 8) return TRUE;
 	return(FALSE);
 }
@@ -4097,6 +5111,7 @@ have_leftinventorystone()
 			return(TRUE);
 		}
 	if (u.nastinator204) return TRUE;
+	if (sjwcheck(204)) return TRUE;
 	return(FALSE);
 }
 
@@ -4110,6 +5125,7 @@ have_fluctuatingspeedstone()
 			return(TRUE);
 		}
 	if (u.nastinator205) return TRUE;
+	if (sjwcheck(205)) return TRUE;
 	return(FALSE);
 }
 
@@ -4123,6 +5139,7 @@ have_tarmustrokingnorastone()
 			return(TRUE);
 		}
 	if (u.nastinator206) return TRUE;
+	if (sjwcheck(206)) return TRUE;
 	return(FALSE);
 }
 
@@ -4136,6 +5153,7 @@ have_failurestone()
 			return(TRUE);
 		}
 	if (u.nastinator207) return TRUE;
+	if (sjwcheck(207)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 4 && u.femauspices4 == 8) return TRUE;
 	return(FALSE);
 }
@@ -4150,6 +5168,7 @@ have_brightcyanspellstone()
 			return(TRUE);
 		}
 	if (u.nastinator208) return TRUE;
+	if (sjwcheck(208)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 13) return TRUE;
 	return(FALSE);
 }
@@ -4164,6 +5183,7 @@ have_frequentationspawnstone()
 			return(TRUE);
 		}
 	if (u.nastinator209) return TRUE;
+	if (sjwcheck(209)) return TRUE;
 	return(FALSE);
 }
 
@@ -4177,6 +5197,7 @@ have_petaistone()
 			return(TRUE);
 		}
 	if (u.nastinator210) return TRUE;
+	if (sjwcheck(210)) return TRUE;
 	return(FALSE);
 }
 
@@ -4190,6 +5211,7 @@ have_satanstone()
 			return(TRUE);
 		}
 	if (u.nastinator211) return TRUE;
+	if (sjwcheck(211)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 13 && u.femauspices13 == 7) return TRUE;
 	return(FALSE);
 }
@@ -4204,6 +5226,7 @@ have_rememberancestone()
 			return(TRUE);
 		}
 	if (u.nastinator212) return TRUE;
+	if (sjwcheck(212)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 22 && u.femauspices22 == 7) return TRUE;
 	return(FALSE);
 }
@@ -4218,6 +5241,7 @@ have_pokeliestone()
 			return(TRUE);
 		}
 	if (u.nastinator213) return TRUE;
+	if (sjwcheck(213)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 8 && u.femauspices8 == 7) return TRUE;
 	return(FALSE);
 }
@@ -4232,6 +5256,7 @@ have_autopickupstone()
 			return(TRUE);
 		}
 	if (u.nastinator214) return TRUE;
+	if (sjwcheck(214)) return TRUE;
 	return(FALSE);
 }
 
@@ -4245,6 +5270,7 @@ have_dywypistone()
 			return(TRUE);
 		}
 	if (u.nastinator215) return TRUE;
+	if (sjwcheck(215)) return TRUE;
 	return(FALSE);
 }
 
@@ -4258,6 +5284,7 @@ have_silverspellstone()
 			return(TRUE);
 		}
 	if (u.nastinator216) return TRUE;
+	if (sjwcheck(216)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 14) return TRUE;
 	return(FALSE);
 }
@@ -4272,6 +5299,7 @@ have_metalspellstone()
 			return(TRUE);
 		}
 	if (u.nastinator217) return TRUE;
+	if (sjwcheck(217)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 15) return TRUE;
 	return(FALSE);
 }
@@ -4286,6 +5314,7 @@ have_platinumspellstone()
 			return(TRUE);
 		}
 	if (u.nastinator218) return TRUE;
+	if (sjwcheck(218)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 11 && u.femauspices11 == 16) return TRUE;
 	return(FALSE);
 }
@@ -4300,6 +5329,7 @@ have_manlerstone()
 			return(TRUE);
 		}
 	if (u.nastinator219) return TRUE;
+	if (sjwcheck(219)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 25 && u.femauspices25 == 8) return TRUE;
 	return(FALSE);
 }
@@ -4314,6 +5344,7 @@ have_doorningstone()
 			return(TRUE);
 		}
 	if (u.nastinator220) return TRUE;
+	if (sjwcheck(220)) return TRUE;
 	return(FALSE);
 }
 
@@ -4327,6 +5358,7 @@ have_nownsiblestone()
 			return(TRUE);
 		}
 	if (u.nastinator221) return TRUE;
+	if (sjwcheck(221)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 22 && u.femauspices22 == 8) return TRUE;
 	return(FALSE);
 }
@@ -4341,6 +5373,7 @@ have_elmstreetstone()
 			return(TRUE);
 		}
 	if (u.nastinator222) return TRUE;
+	if (sjwcheck(222)) return TRUE;
 	return(FALSE);
 }
 
@@ -4354,6 +5387,7 @@ have_monnoisestone()
 			return(TRUE);
 		}
 	if (u.nastinator223) return TRUE;
+	if (sjwcheck(223)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 8 && u.femauspices8 == 8) return TRUE;
 	return(FALSE);
 }
@@ -4368,6 +5402,7 @@ have_rangcallstone()
 			return(TRUE);
 		}
 	if (u.nastinator224) return TRUE;
+	if (sjwcheck(224)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 28 && u.femauspices28 == 9) return TRUE;
 	return(FALSE);
 }
@@ -4382,6 +5417,7 @@ have_recurringspelllossstone()
 			return(TRUE);
 		}
 	if (u.nastinator225) return TRUE;
+	if (sjwcheck(225)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 4 && u.femauspices4 == 9) return TRUE;
 	return(FALSE);
 }
@@ -4396,6 +5432,7 @@ have_antitrainingstone()
 			return(TRUE);
 		}
 	if (u.nastinator226) return TRUE;
+	if (sjwcheck(226)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 4 && u.femauspices4 == 10) return TRUE;
 	return(FALSE);
 }
@@ -4410,6 +5447,7 @@ have_techoutstone()
 			return(TRUE);
 		}
 	if (u.nastinator227) return TRUE;
+	if (sjwcheck(227)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 4 && u.femauspices4 == 11) return TRUE;
 	return(FALSE);
 }
@@ -4424,6 +5462,7 @@ have_statdecaystone()
 			return(TRUE);
 		}
 	if (u.nastinator228) return TRUE;
+	if (sjwcheck(228)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 30 && u.femauspices30 == 10) return TRUE;
 	return(FALSE);
 }
@@ -4438,7 +5477,96 @@ have_movemorkstone()
 			return(TRUE);
 		}
 	if (u.nastinator229) return TRUE;
+	if (sjwcheck(229)) return TRUE;
 	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 13 && u.femauspices13 == 8) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_badpartstone()
+{
+	register struct obj *otmp;
+
+	for(otmp = invent; otmp; otmp = otmp->nobj) {
+		if(otmp->otyp == BAD_PART_STONE)
+			return(TRUE);
+		}
+	if (u.nastinator230) return TRUE;
+	if (sjwcheck(230)) return TRUE;
+	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 13 && u.femauspices13 == 9) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_completelybadpartstone()
+{
+	register struct obj *otmp;
+
+	for(otmp = invent; otmp; otmp = otmp->nobj) {
+		if(otmp->otyp == COMPLETELY_BAD_PART_STONE)
+			return(TRUE);
+		}
+	if (u.nastinator231) return TRUE;
+	if (sjwcheck(231)) return TRUE;
+	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 13 && u.femauspices13 == 10) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_evilvariantstone()
+{
+	register struct obj *otmp;
+
+	for(otmp = invent; otmp; otmp = otmp->nobj) {
+		if(otmp->otyp == EVIL_VARIANT_STONE)
+			return(TRUE);
+		}
+	if (u.nastinator232) return TRUE;
+	if (sjwcheck(232)) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_sanitytreblestone()
+{
+	register struct obj *otmp;
+
+	for(otmp = invent; otmp; otmp = otmp->nobj) {
+		if(otmp->otyp == SANE_TREBLE_STONE)
+			return(TRUE);
+		}
+	if (u.nastinator233) return TRUE;
+	if (sjwcheck(233)) return TRUE;
+	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 6 && u.femauspices6 == 9) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_statdecreasestone()
+{
+	register struct obj *otmp;
+
+	for(otmp = invent; otmp; otmp = otmp->nobj) {
+		if(otmp->otyp == STATCREASE_STONE)
+			return(TRUE);
+		}
+	if (u.nastinator234) return TRUE;
+	if (sjwcheck(234)) return TRUE;
+	if (Role_if(PM_FEMINIST) && u.urmaxlvlUP >= 8 && u.femauspices8 == 9) return TRUE;
+	return(FALSE);
+}
+
+boolean
+have_simeoutstone()
+{
+	register struct obj *otmp;
+
+	for(otmp = invent; otmp; otmp = otmp->nobj) {
+		if(otmp->otyp == SIMEOUT_STONE)
+			return(TRUE);
+		}
+	if (u.nastinator235) return TRUE;
+	if (sjwcheck(235)) return TRUE;
 	return(FALSE);
 }
 
@@ -4495,7 +5623,7 @@ register long q;
 {
 	register struct obj *otmp;
 
-	otmp = mksobj(GOLD_PIECE, FALSE, FALSE);
+	otmp = mksobj(GOLD_PIECE, FALSE, FALSE, FALSE);
 	u.ugold -= q;
 	otmp->quan = q;
 	otmp->owt = weight(otmp);
@@ -4621,15 +5749,17 @@ struct obj *otmp;
 		|| ((!strcmp(word, "use or apply") ||
 			!strcmp(word, "untrap with")) &&
 		     /* Picks, axes, pole-weapons, bullwhips */
-		    ((otmp->oclass == WEAPON_CLASS && !is_pick(otmp) &&
+		    ((otmp->oclass == WEAPON_CLASS && !(u.mushroompoles && Race_if(PM_PLAYER_MUSHROOM)) && !is_pick(otmp) &&
 		      otyp != SUBMACHINE_GUN &&
 		      otyp != DEMON_CROSSBOW &&
 		      otyp != AUTO_SHOTGUN &&
 		      otyp != ASSAULT_RIFLE &&
+		      otyp != KALASHNIKOV &&
+		      otyp != TELEPHONE &&
 		      otyp != FRAG_GRENADE &&
 		      otyp != GAS_GRENADE &&
 		      otyp != STICK_OF_DYNAMITE &&
-		      !is_axe(otmp) && !is_antibar(otmp) && !is_pole(otmp) && otyp != BULLWHIP) ||
+		      !is_axe(otmp) && !is_antibar(otmp) && !is_applypole(otmp) && !(objects[otyp].oc_skill == P_WHIP && otyp != RUBBER_HOSE) ) ||
 		    (otmp->oclass == POTION_CLASS &&
 		     /* only applicable potion is oil, and it will only
 			be offered as a choice when already discovered */
@@ -4654,9 +5784,13 @@ struct obj *otmp;
 		|| (!strcmp(word, "untrap with") &&
 		    (otmp->oclass == TOOL_CLASS && otyp != CAN_OF_GREASE && otyp != LUBRICANT_CAN))
 		|| (!strcmp(word, "charge") && !is_chargeable(otmp))
+		|| (!strcmp(word, "duplicate") && !(otmp->oclass == SCROLL_CLASS && !otmp->oartifact) )
+		|| (!strcmp(word, "extracharge") && !(otmp->oclass == WAND_CLASS) )
+		|| (!strcmp(word, "polyfix") && !is_hazy(otmp) )
+		|| (!strcmp(word, "definalize") && !otmp->finalcancel )
 		|| (!strcmp(word, "randomly enchant") && !is_enchantable(otmp))
 		|| (!strcmp(word, "poison") && !is_poisonable(otmp))
-		|| (!strcmp(word, "rustproof") && objects[(otmp)->otyp].oc_material == IRON)
+		|| (!strcmp(word, "rustproof") && objects[(otmp)->otyp].oc_material == MT_IRON)
 		|| (!strcmp(word, "magically enchant") && !(otmp->owornmask & W_ARMOR) )
 		|| ((!strcmp(word, "draw blood with") ||
 			!strcmp(word, "bandage your wounds with")) &&
@@ -4821,10 +5955,15 @@ register const char *let,*word;
 			|| otmp->otyp == BAD_SHIRT
 			|| otmp->otyp == BODYGLOVE
 			|| otmp->otyp == BEAUTIFUL_SHIRT
+			|| otmp->otyp == TOILET_ROLL
 			|| otmp->otyp == PETA_COMPLIANT_SHIRT
 			|| otmp->otyp == RADIOACTIVE_UNDERGARMENT
 			|| otmp->otyp == KYRT_SHIRT
 			|| otmp->otyp == WOOLEN_SHIRT
+			|| otmp->otyp == RED_STRING
+			|| otmp->otyp == METAL_SHIRT
+			|| otmp->otyp == YOGA_PANTS
+			|| otmp->otyp == GREEN_GOWN
 			|| otmp->otyp == RUFFLED_SHIRT
 			|| otmp->otyp == VICTORIAN_UNDERWEAR
 		    )))
@@ -4965,6 +6104,8 @@ register const char *let,*word;
 			 * to your money supply.  The LRS is the tax bureau
 			 * from Larn.
 			 */
+
+			if (cnt == 0 && u.ugold > 0) cnt = u.ugold;
 
 			if (cnt <= 0) {
 			    if (cnt < 0 || !prezero)
@@ -5365,7 +6506,7 @@ unsigned *resultflags;
 
 	if (m_seen)
 	    return (allflag || (!oletct && ckfn != ckunpaid)) ? -2 : -3;
-	else if (flags.menu_style != MENU_TRADITIONAL && combo && !allflag)
+	else if (flags.menu_style != MENU_TRADITIONAL && !InventoryDoesNotGo && combo && !allflag)
 	    return 0;
 #ifndef GOLDOBJ
 	else if (allowgold == 2 && !oletct)
@@ -5503,7 +6644,7 @@ void
 fully_identify_obj(otmp)
 struct obj *otmp;
 {
-	if (!rn2(10) && uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "ignorant cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "nevezhestvennyye plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "johil plash") )) {
+	if (!rn2(10) && uarmc && itemhasappearance(uarmc, APP_IGNORANT_CLOAK)) {
 		pline("You are too ignorant, and therefore the identification attempt fails.");
 		return;
 	}
@@ -5536,10 +6677,11 @@ struct obj *otmp;
 }
 
 void
-maybe_fully_identify_obj(otmp)
+maybe_fully_identify_obj(otmp, dumbid)
 struct obj *otmp;
+boolean dumbid;
 {
-	if (!rn2(10) && uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "ignorant cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "nevezhestvennyye plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "johil plash") )) {
+	if (!rn2(10) && uarmc && itemhasappearance(uarmc, APP_IGNORANT_CLOAK)) {
 		pline("You are too ignorant, and therefore the identification attempt fails.");
 		return;
 	}
@@ -5564,12 +6706,12 @@ struct obj *otmp;
 	else if (otmp->oclass == SPBOOK_CLASS && !(otmp->oartifact) && !(otmp->fakeartifact) && rnd(u.idspellbookpenalty) > 2) pline("The spellbook resisted your identification attempt!");
 	else if (otmp->oclass == GEM_CLASS && !(otmp->oartifact) && !(otmp->fakeartifact) && rnd(u.idgempenalty) > 100) pline("The gem resisted your identification attempt!");
 	else if (otmp->oclass == TOOL_CLASS && !(otmp->oartifact) && !(otmp->fakeartifact) && rnd(u.idtoolpenalty) > 5) pline("The tool resisted your identification attempt!");
-      else if (!rn2(3)) makeknown(otmp->otyp);
+      else if (!rn2(3) && !(dumbid && !otmp->ident_bst)) makeknown(otmp->otyp);
     if (otmp->oartifact) discover_artifact((int)otmp->oartifact);
-    if (!rn2(3)) otmp->known = 1;
-    if (!rn2(3)) otmp->dknown = 1;
-    if (!rn2(3)) otmp->bknown = 1;
-    if (!rn2(3)) otmp->rknown = 1;
+    if (!rn2(3) && !(dumbid && !otmp->ident_knw)) otmp->known = 1;
+    if (!rn2(3) && !(dumbid && !otmp->ident_dkn)) otmp->dknown = 1;
+    if (!rn2(3) && !(dumbid && !otmp->ident_bkn)) otmp->bknown = 1;
+    if (!rn2(3) && !(dumbid && !otmp->ident_rkn)) otmp->rknown = 1;
     if (otmp->otyp == EGG && otmp->corpsenm != NON_PM)
 	learn_egg_type(otmp->corpsenm);
 }
@@ -5585,18 +6727,20 @@ struct obj *otmp;
 }
 
 int
-identifyless(otmp)
+identifyless(otmp, dumbid)
 struct obj *otmp;
+boolean dumbid;
 {
-    maybe_fully_identify_obj(otmp);
+    maybe_fully_identify_obj(otmp, dumbid);
     prinv((char *)0, otmp, 0L);
     return 1;
 }
 
 /* menu of unidentified objects; select and identify up to id_limit of them */
 STATIC_OVL void
-menu_identify(id_limit)
+menu_identify(id_limit, dumbid)
 int id_limit;
+boolean dumbid;
 {
     menu_item *pick_list;
     int n, i, first = 1;
@@ -5620,8 +6764,14 @@ identifydialogue:
 
 	if (n > 0) {
 	    if (n > id_limit) n = id_limit;
-	    for (i = 0; i < n; i++, id_limit--)
+	    for (i = 0; i < n; i++, id_limit--) {
+		if (dumbid) {
+			(void) identifyless(pick_list[i].item.a_obj, TRUE);
+		}
+		else {
 		(void) identify(pick_list[i].item.a_obj);
+		}
+	    }
 	    free((void *) pick_list);
 	    mark_synch(); /* Before we loop to pop open another menu */
 	} else {
@@ -5634,9 +6784,10 @@ identifydialogue:
 
 /* dialog with user to identify a given number of items; 0 means all */
 void
-identify_pack(id_limit, wizmodeflag)
+identify_pack(id_limit, wizmodeflag, dumbid)
 int id_limit;
 boolean wizmodeflag;
+boolean dumbid;
 {
     struct obj *obj, *the_obj;
     register struct obj *otmp;
@@ -5659,7 +6810,7 @@ boolean wizmodeflag;
 		for (otmp = obj->cobj; otmp; otmp = otmp->nobj) {
 		    if ( (rn2(5) || wizmodeflag) && not_fully_identified(otmp)) {
 			if (wizmodeflag) (void) identify(otmp);
-			else (void) identifyless(otmp);
+			else (void) identifyless(otmp, FALSE);
 			}
 		}
 
@@ -5679,20 +6830,20 @@ boolean wizmodeflag;
 	    for (obj = invent; obj; obj = obj->nobj)
 		if ( (rn2(5) || wizmodeflag) && not_fully_identified(obj)) {
 			if (wizmodeflag) (void) identify(obj);
-			else (void) identifyless(obj);
+			else (void) identifyless(obj, FALSE);
 		}
 
 	}
     } else {
 	/* identify up to `id_limit' items */
 	n = 0;
-	if (flags.menu_style == MENU_TRADITIONAL)
+	if (flags.menu_style == MENU_TRADITIONAL || InventoryDoesNotGo)
 	    do {
 		n = ggetobj("identify", identify, id_limit, FALSE, (unsigned *)0);
 		if (n < 0) break; /* quit or no eligible items */
 	    } while ((id_limit -= n) > 0);
 	if (n == 0 || n < -1)
-	    menu_identify(id_limit);
+	    menu_identify(id_limit, dumbid);
     }
     update_inventory();
 }
@@ -5799,7 +6950,7 @@ ddoinv()
 	if (!c) return 0;
 	for (otmp = invent; otmp; otmp = otmp->nobj)
 		if (otmp->invlet == c) break;
-	if (otmp) return itemactions(otmp);
+	if (otmp) return itemactions(otmp, FALSE);
 	return 0;
 
 }
@@ -5886,6 +7037,8 @@ boolean want_dump;
 {
 #endif
 	struct obj *otmp;
+	struct obj **oarray;
+	int i, j;
 	char ilet, ret;
 	char *invlet = flags.inv_order;
 	int n, classcount;
@@ -5992,6 +7145,32 @@ boolean want_dump;
 	}
 #endif
 
+	/* count the number of items */
+	for (n = 0, otmp = invent; otmp; otmp = otmp->nobj)
+	  if(!lets || !*lets || index(lets, otmp->invlet)) n++;
+
+	/* Make a temporary array to store the objects sorted */
+	oarray = (struct obj **)alloc(n*sizeof(struct obj*));
+
+	/* Add objects to the array */
+	i = 0;
+	for(otmp = invent; otmp; otmp = otmp->nobj)
+	  if(!lets || !*lets || index(lets, otmp->invlet)) {
+	    if (!(Hallucination || PlayerUninformation) && iflags.sortloot == 'f') {
+	      /* Insert object at correct index */
+	      for (j = i; j; j--) {
+	        if (strcmpi(cxname2(otmp), cxname2(oarray[j-1]))>0) break;
+	        oarray[j] = oarray[j-1];
+	      }
+	      oarray[j] = otmp;
+	      i++;
+	    } else {
+	      /* Just add it to the array */
+	      oarray[i++] = otmp;
+	    }
+	  }
+	/* for end */
+
 	start_menu(win);
 #if defined(ANDROID) && !defined(GOLDOBJ)
 	if(iflags.automenu && allowgold) {
@@ -6014,7 +7193,37 @@ nextclass:
 	classcount = 0;
 	any.a_void = 0;		/* set all bits to zero */
 
+	for(i = 0; i < n; i++) {
+	  otmp = oarray[i];
+	  ilet = otmp->invlet;
+	  if (!flags.sortpack || otmp->oclass == *invlet) {
+	    if (flags.sortpack && !classcount) {
+	      any.a_void = 0;             /* zero */
+	      add_menu(win, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
+	               let_to_name(*invlet, FALSE, FALSE), MENU_UNSELECTED);
+#ifdef DUMP_LOG
+	      if (want_dump)
+	        dump("  ", let_to_name(*invlet, FALSE, FALSE));
+#endif
+	      classcount++;
+	    }
+	    any.a_char = ilet;
+	    add_menu(win, obj_to_glyph(otmp),
+	             &any, ilet, 0, ATR_NONE, doname(otmp),
+	             MENU_UNSELECTED);
+#ifdef DUMP_LOG
+	    if (want_dump) {
+	      char letbuf[7];
+	      sprintf(letbuf, "  %c - ", ilet);
+	      dump(letbuf, doname(otmp));
+	    }
+#endif
+	  }
+	}
+
 	/*if (flags.alphabetinv) ilet = 'a'-1;*/
+
+#if 0 /* due to sortloot */
 
 	for(otmp = invent; otmp; otmp = otmp->nobj) {
 		/*if (!flags.alphabetinv)*/ ilet = otmp->invlet;
@@ -6061,6 +7270,7 @@ nextclass:
 			}
 		}
 	}
+#endif /* if 0 above */
 	if (flags.sortpack) {
 		if (*++invlet) goto nextclass;
 #ifdef WIZARD
@@ -6070,6 +7280,7 @@ nextclass:
 		}
 #endif
 	}
+	free(oarray);
 #ifdef ANDROID
 	if(iflags.automenu && lets) {
 		any.a_void = 0;		/* zero */
@@ -6348,7 +7559,7 @@ dotypeinv()
 	    return 0;
 	}
 	unpaid_count = count_unpaid(invent);
-	if (flags.menu_style != MENU_TRADITIONAL) {
+	if (flags.menu_style != MENU_TRADITIONAL && !InventoryDoesNotGo) {
 	    if (flags.menu_style == MENU_FULL ||
 				flags.menu_style == MENU_PARTIAL) {
 		traditional = FALSE;
@@ -6623,7 +7834,7 @@ boolean picked_some;
 		if (dfeature && !drift && !strcmp(dfeature, surface(u.ux,u.uy)))
 			dfeature = 0;		/* ice already identifed */
 		if (!can_reach_floor()) {
-			pline(Hallucination ? "But it seems the stuff actively tries to evade your grasp!" : "But you can't reach it!");
+			pline(FunnyHallu ? "But it seems the stuff actively tries to evade your grasp!" : "But you can't reach it!");
 			return(0);
 		}
 	}
@@ -6721,20 +7932,20 @@ struct obj *otmp;
 boolean force_touch;
 {
 
-	if (uarmg && (otmp->otyp == CORPSE && touch_petrifies(&mons[otmp->corpsenm])) && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "shitty gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "der'movyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "boktan qo'lqop") ) ) {
+	if (uarmg && itemhasappearance(uarmg, APP_SHITTY_GLOVES) && (otmp->otyp == CORPSE && touch_petrifies(&mons[otmp->corpsenm])) ) {
 		pline("Eek!");
 		badeffect();
 	}
-	if (uarmg && (otmp->otyp == EGG && touch_petrifies(&mons[otmp->corpsenm])) && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "shitty gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "der'movyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "boktan qo'lqop") ) ) {
+	if (uarmg && itemhasappearance(uarmg, APP_SHITTY_GLOVES) && (otmp->otyp == EGG && otmp->corpsenm != PM_PLAYERMON && touch_petrifies(&mons[otmp->corpsenm])) ) {
 		pline("Eek!");
 		badeffect();
 	}
 
-	if ((Blind || force_touch) && (!uarmg || FingerlessGloves) && !Stone_resistance &&
+	if ((Blind || force_touch) && (!uarmg || FingerlessGloves) && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) &&
 		(otmp->otyp == CORPSE && touch_petrifies(&mons[otmp->corpsenm])))
 			return TRUE;
-	if ((Blind || force_touch) && (!uarmg || FingerlessGloves) && !Stone_resistance &&
-		(otmp->otyp == EGG && touch_petrifies(&mons[otmp->corpsenm])))
+	if ((Blind || force_touch) && (!uarmg || FingerlessGloves) && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) &&
+		(otmp->otyp == EGG && otmp->corpsenm != PM_PLAYERMON && touch_petrifies(&mons[otmp->corpsenm])))
 			return TRUE;
 	return FALSE;
 }
@@ -6799,6 +8010,8 @@ mergable(otmp, obj)	/* returns TRUE if obj  & otmp can be merged */
 	    obj->morgcurse != otmp->morgcurse || obj->evilcurse != otmp->evilcurse || obj->bbrcurse != otmp->bbrcurse ||
 	    obj->no_charge != otmp->no_charge ||
 	    obj->selfmade != otmp->selfmade  ||
+	    obj->obrittle != otmp->obrittle ||
+	    obj->obrittle2 != otmp->obrittle2 ||
 	    obj->finalcancel != otmp->finalcancel ||
 	    obj->obroken != otmp->obroken ||
 	    obj->otrapped != otmp->otrapped ||
@@ -6871,6 +8084,15 @@ mergable(otmp, obj)	/* returns TRUE if obj  & otmp can be merged */
 
 	if(obj->oartifact != otmp->oartifact) return FALSE;
 	if(obj->fakeartifact != otmp->fakeartifact) return FALSE;
+
+	/* trying to merge an item flagged as sold onto one that doesn't have the flag will not work --Amy
+	 * it will work the other way round because then the player won't benefit from it :P (yes you old credit cloning
+	 * exploiters, I think of everything, I'm the slex devteam after all!)
+	 * edit: or maybe we'll just make it so that the merged stack has the sold flag */
+	if (obj->objwassold && !otmp->objwassold) {
+		obj->objwassold = TRUE;
+		otmp->objwassold = TRUE;
+	}
 
 	if(obj->known == otmp->known || (otmp->known) ||
 		!objects[otmp->otyp].oc_uses_known) {
@@ -7096,7 +8318,7 @@ long numused;
 		    TRUE);
 	}
 	delobj(otmp);
-	if (at_u && u.uundetected && (hides_under(youmonst.data) || (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "secret helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "sekret shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "yashirin dubulg'a") ) ) || (uarmc && uarmc->oartifact == ART_JANA_S_EXTREME_HIDE_AND_SE) ) )
+	if (at_u && u.uundetected && (hides_under(youmonst.data) || (uarmh && itemhasappearance(uarmh, APP_SECRET_HELMET)) || (uarmc && uarmc->oartifact == ART_JANA_S_EXTREME_HIDE_AND_SE) ) )
 	    u.uundetected = OBJ_AT(u.ux, u.uy);
 }
 
@@ -7442,6 +8664,12 @@ register struct obj *obj;
 	int n;
 	menu_item *selected = 0;
 
+	if (InventoryDoesNotGo && !program_state.gameover) {
+		pline("Not enough memory to create inventory window");
+ 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+		return (struct obj *) 0;
+	}	
+
 	sprintf(tmp,"Contents of %s:", doname(obj));
 
 	if (obj->cobj) {
@@ -7505,18 +8733,19 @@ boolean as_if_seen;
 
 /* Itemactions function stolen from Unnethack. I'll just print info about the item though. --Amy */
 int
-itemactions(obj)
+itemactions(obj, knoweverything)
 struct obj *obj;
+boolean knoweverything;
 {
 
-	if (Hallucination) {
+	if (Hallucination && !knoweverything) {
 
 	pline("%s - This item radiates in an array of beautiful colors. It's very mesmerizing.",xname(obj) );
 
 	return 0;
 	}
 
-	if (PlayerUninformation) {
+	if (PlayerUninformation && !knoweverything) {
 
 	pline("%s - This is the best item in the game if you know how to use it. Good luck making it work!",xname(obj) );
 
@@ -7527,6 +8756,7 @@ struct obj *obj;
 	register int typ = obj->otyp;
 	register struct objclass *ocl = &objects[typ];
 	register int nn = (ocl->oc_name_known && obj->dknown);
+	if (knoweverything) nn = TRUE;
 	register const char *dn = OBJ_DESCR(*ocl);
 
 	switch (obj->oclass) {
@@ -7542,59 +8772,77 @@ struct obj *obj;
 
 			switch (obj->otyp) {
 
-			case ORCISH_DAGGER: 
+			case ORCISH_DAGGER:
 				pline("A crappy dagger that doesn't do much damage. It can be thrown."); break;
-			case DAGGER: 
+			case DAGGER:
 				pline("A basic dagger that doesn't do much damage. It can be thrown."); break;
-			case DROVEN_DAGGER: 
+			case WONDER_DAGGER:
+				pline("A random-material dagger that doesn't do much damage. It can be thrown."); break;
+			case DROVEN_DAGGER:
 				pline("This dagger does a lot of damage but breaks when thrown."); break;
-			case ATHAME: 
+			case ATHAME:
 				pline("A high-quality dagger that can create hard engravings. It can be thrown."); break;
-			case MERCURIAL_ATHAME: 
+			case MERCURIAL_ATHAME:
 				pline("This silver dagger can create hard engravings. It can be thrown."); break;
-			case SILVER_DAGGER: 
+			case SILVER_DAGGER:
 				pline("A dagger that does extra damage to undead. It can be thrown."); break;
-			case ELVEN_DAGGER: 
+			case ELVEN_DAGGER:
 				pline("Elven daggers do slightly more damage than standard daggers. It can be thrown."); break;
-			case DARK_ELVEN_DAGGER: 
+			case DARK_ELVEN_DAGGER:
 				pline("A good dagger that does respectable damage. It can be thrown."); break;
-			case WOODEN_STAKE: 
+			case WOODEN_STAKE:
 				pline("A quite powerful dagger. It can be thrown."); break;
-			case GREAT_DAGGER: 
+			case GREAT_DAGGER:
 				pline("Used to be the strongest dagger in the game, but now gets surpassed by droven daggers. Still stronger than the average dagger though. It can be thrown."); break;
-			case WORM_TOOTH: 
+			case WORM_TOOTH:
 				pline("A crappy knife that can be turned into a very powerful knife if enchanted. It can be thrown."); break;
-			case KNIFE: 
+			case KNIFE:
 				pline("A totally piece of crap weapon. It can be thrown."); break;
-			case SURVIVAL_KNIFE: 
+			case CERAMIC_KNIFE:
+				pline("As long as it's in good condition, this knife will deal respectable damage. It can be thrown."); break;
+			case TENNIS_RACKET:
+				pline("This paddle doesn't do all that much damage, but it has a large to-hit bonus versus bats and birds."); break;
+			case SURVIVAL_KNIFE:
 				pline("A knife that deals extra damage to animals. It can be thrown."); break;
-			case STILETTO: 
+			case UNKNOWN_KNIFE:
+				pline("This knife doesn't do much damage. It can be thrown."); break;
+			case STILETTO:
 				pline("This knife is more likely to hit than a regular knife, but it's still awfully weak. It can be thrown."); break;
-			case SCALPEL: 
+			case SCALPEL:
 				pline("Don't bother with this knife-class weapon. The surgery technique works better if you have it in your inventory, though. It can be thrown."); break;
-			case CRYSKNIFE: 
+			case CRYSKNIFE:
 				pline("A magically enchanted knife that does superb damage. It can be thrown."); break;
-			case TOOTH_OF_AN_ALGOLIAN_SUNTIGER: 
+			case TOOTH_OF_AN_ALGOLIAN_SUNTIGER:
 				pline("This razor-sharp knife cuts meat like butter. It can be thrown."); break;
-			case AXE: 
+			case AXE:
 				pline("A standard axe that does moderate damage. It can be used to chop down trees."); break;
-			case OBSIDIAN_AXE: 
+			case NANO_AXE:
+				pline("A rather strong one-handed axe. It can be used to chop down trees."); break;
+			case OBSIDIAN_AXE:
 				pline("This glass axe does good damage to large monsters. It can be used to chop down trees."); break;
-			case MOON_AXE: 
+			case SHARP_AXE:
+				pline("It's a rather plain one-handed axe. It can be used to chop down trees."); break;
+			case MOON_AXE:
 				pline("This silver axe does more damage than a standard axe and is super-effective versus undead. It can be used to chop down trees."); break;
-			case BATTLE_AXE: 
+			case BATTLE_AXE:
 				pline("A heavy two-handed axe that does moderate damage. It can be used to chop down trees."); break;
-			case DWARVISH_BATTLE_AXE: 
+			case DWARVISH_BATTLE_AXE:
 				pline("The heavy hitter among the axes that can chop down most monsters in a few hits. It can be used to chop down trees."); break;
-			case DWARVISH_MATTOCK: 
+			case DWARVISH_MATTOCK:
 				pline("A two-handed pick-axe that can do a lot of damage. It can be used for digging."); break;
-			case ORCISH_SHORT_SWORD: 
+			case ETERNIUM_MATTOCK:
+				pline("This highly damaging weapon uses the pick-axe skill and needs to be wielded with both hands. It can be used for digging."); break;
+			case ORCISH_SHORT_SWORD:
 				pline("The weakest short sword in the game. It is inferior to other short swords in every way."); break;
-			case SHORT_SWORD: 
+			case SHORT_SWORD:
 				pline("A basic short sword that doesn't deal a lot of damage."); break;
-			case VIBROBLADE: 
+			case SHORT_BLADE:
+				pline("Only marginally stronger than a short sword."); break;
+			case SAND_SWORD:
+				pline("This short sword isn't very powerful."); break;
+			case VIBROBLADE:
 				pline("This object looks like a penis (LOL) and is made of plastic but otherwise it's exactly the same as a bog-standard short sword."); break;
-			case DROVEN_SHORT_SWORD: 
+			case DROVEN_SHORT_SWORD:
 				pline("Ever wanted a short sword that can actually hit armored enemies? Then this is for you. Don't throw it though."); break;
 			case SILVER_SHORT_SWORD: 
 				pline("A basic short sword that doesn't deal a lot of damage. It is effective against undead."); break;
@@ -7606,22 +8854,32 @@ struct obj *obj;
 				pline("If your weapon type of choice reads 'short sword', use this. It outdamages all other short swords in the game."); break;
 			case BROADSWORD: 
 				pline("A standard broadsword. It does more damage than a short sword but less than a long sword."); break;
+			case VOLCANIC_BROADSWORD:
+				pline("A rather good broadsword. Please make sure that you don't throw it, or it'll break."); break;
 			case RUNESWORD: 
 				pline("This weapon is basically a broadsword, with the exact same stats."); break;
 			case BLACK_AESTIVALIS: 
 				pline("A useful broadsword."); break;
 			case WHITE_FLOWER_SWORD: 
 				pline("A wooden broadsword with good damage bonus."); break;
+			case ELEGANT_BROADSWORD:
+				pline("This broadsword does moderate damage."); break;
 			case ELVEN_BROADSWORD: 
 				pline("Far better than a regular broadsword, this weapon has the highest base damage among all broadswords in the game."); break;
 			case LONG_SWORD: 
 				pline("A basic long sword that does respectable damage."); break;
+			case MAIN_SWORD:
+				pline("A random-material long sword."); break;
+			case HEAVY_LONG_SWORD:
+				pline("Apart from its weight and material, this is a regular long sword."); break;
 			case CRYSTAL_SWORD: 
 				pline("A basic long sword that breaks when thrown. Use it in melee instead."); break;
 			case SILVER_LONG_SWORD: 
 				pline("A long sword that does respectable damage, with a bonus against undead."); break;
 			case KATANA: 
 				pline("This Japanese long sword can deal more damage than a regular long sword."); break;
+			case AUTOMATIC_KATANA:
+				pline("It's more damaging than a long sword."); break;
 			case SUGUHANOKEN: 
 				pline("A totally shitty longsword. You should replace this with a real longsword!"); break;
 			case GREAT_HOUCHOU: 
@@ -7630,95 +8888,133 @@ struct obj *obj;
 				pline("The most powerful of the long swords. It can be applied to bash iron bars."); break;
 			case TWO_HANDED_SWORD: 
 				pline("It's heavy and requires both hands, but does quite a lot of damage."); break;
+			case ROMAN_SWORD:
+				pline("This damaging two-handed sword is pretty powerful."); break;
 			case TSURUGI: 
 				pline("A long samurai sword that can only be wielded with both hands. It does lots of damage."); break;
 			case CHAINSWORD: 
 				pline("A golden two-handed sword that deals enormous amounts of damage."); break;
+			case SHADOWBLADE:
+				pline("Two-handed sword with rather good damage output."); break;
+			case ETHER_SAW:
+				pline("A very powerful two-handed sword."); break;
 			case BASTERD_SWORD: 
 				pline("This huge fucking sword can make short work of anything that tries to oppose you. However, you have to wield it with two hands."); break;
 			case DROVEN_GREATSWORD: 
 				pline("It doesn't actually bisect enemies, but it deals a ton and a half of damage. Basically, it's like you were wielding a tank. It requires both hands though."); break;
 			case SCIMITAR: 
 				pline("A light but useful blade, the scimitar can outdamage a standard short sword."); break;
+			case MYTHICAL_SABLE:
+				pline("For a scimitar, this thing actually has quite good damage output."); break;
+			case DESERT_SWORD:
+				pline("This scimitar does mediocre damage."); break;
+			case CHROME_BLADE:
+				pline("A scimitar that's especially useful against small enemies."); break;
 			case BENT_SABLE: 
 				pline("This sharpened scimitar is actually very useful for quickly cutting up your enemies."); break;
 			case HIGH_ELVEN_WARSWORD: 
 				pline("An elven scimitar that does more damage than a regular scimitar and also hits more often."); break;
 			case RAPIER: 
 				pline("A basic saber that's not stronger than a short sword."); break;
+			case ETERNIUM_SABER:
+				pline("It's a saber that doesn't do all that much damage."); break;
 			case IRON_SABER: 
 				pline("It's a saber made of iron that does moderate damage."); break;
+			case CRYPTIC_SABER:
+				pline("Sabers generally don't deal all that much damage, but this one isn't all that bad."); break;
 			case SILVER_SABER: 
 				pline("This saber does moderate damage, but unlike most other weapons it's super-effective against undead."); break;
 			case GOLDEN_SABER: 
 				pline("A rare saber made of pure gold. It can do good damage. It can be applied to bash iron bars."); break;
 			case CLUB: 
 				pline("Don't bother with this weapon. The club just doesn't ever deal any meaningful damage."); break;
-			case AKLYS: 
-				pline("Stronger than a regular club, but still crappy."); break;
-			case BASEBALL_BAT: 
+			case DARKNESS_CLUB:
+				pline("It sure deals more damage than the regular club, but hitting things with it also makes areas dark."); break;
+			case AKLYS:
+				pline("Stronger than a regular club, but still crappy. You can apply it to hit monsters standing two tiles away, with your skill determining the actual maximum range."); break;
+			case BLOW_AKLYS:
+				pline("A club that can be used to bash enemies. You can also apply it to hit monsters standing two tiles away, and your club skill controls the euclidean distance at which it'll be effective."); break;
+			case BASEBALL_BAT:
 				pline("This wooden club does respectable damage for its type."); break;
-			case METAL_CLUB: 
+			case METAL_CLUB:
 				pline("A club made of hard metal. It does solid damage. It can be applied to bash iron bars."); break;
-			case BONE_CLUB: 
+			case BONE_CLUB:
 				pline("A club made of bone that deals just as little damage as a normal club."); break;
-			case SPIKED_CLUB: 
+			case SPIKED_CLUB:
 				pline("This club isn't that bad, for a club at least."); break;
-			case HUGE_CLUB: 
-				pline("Thankfully this club isn't overpowered at all despite dealing a ton and a half of damage per hit."); break;
-			case LOG: 
+			case HUGE_CLUB:
+				pline("Thankfully this club isn't overpowered at all despite dealing a ton and a half of damage per hit, because it's two-handed (it used to be completely broken because back in the day it was one-handed)."); break;
+			case LOG:
 				pline("This gigantic log of wood requires two hands to be used and requires the club skill, but wow does it do a lot of damage or what?"); break;
-			case FLY_SWATTER: 
+			case FLY_SWATTER:
 				pline("This paddle has good to-hit and small damage, but low large damage."); break;
-			case BROOM: 
+			case BROOM:
 				pline("A two-handed paddle that doesn't deal a lot of damage."); break;
-			case MOP: 
+			case TELEPHONE:
+				pline("Yes, you can use this paddle as a melee weapon. If you apply it while its enchantment value is positive, it will lose a point of enchantment and call a demon to help you."); break;
+			case MOP:
 				pline("This two-handed paddle is fairly useless."); break;
-			case SPECIAL_MOP: 
+			case SPECIAL_MOP:
 				pline("Better than an ordinary mop. It's two-handed and uses the paddle skill."); break;
-			case BOAT_OAR: 
+			case BOAT_OAR:
 				pline("Looking for a reason to use the paddle skill? Then this two-handed weapon might be your first choice."); break;
-			case MAGICAL_PAINTBRUSH: 
+			case MAGICAL_PAINTBRUSH:
 				pline("It sure sounds like something special, but it's just a two-handed paddle with low damage output."); break;
-			case FUTON_SWATTER: 
+			case FUTON_SWATTER:
 				pline("A moderately usable paddle."); break;
-			case CARDBOARD_FAN: 
+			case CARDBOARD_FAN:
 				pline("Might as well attack with a trout instead. Just about every weapon in this game does more damage than this paddle!"); break;
-			case OTAMA: 
+			case OTAMA:
 #ifdef PHANTOM_CRASH_BUG
 				pline("Paddle-class weapon that does next to no damage so you're probably better off fighting barehanded."); break;
 #else
 				pline("Good luck figuring out what this is! But I'll help you: I don't know what an 'otama' is supposed to be either, but it's a paddle-class weapon that does next to no damage so you're probably better off fighting barehanded."); break;
 #endif
-			case INSECT_SQUASHER: 
+			case INSECT_SQUASHER:
 				pline("A paddle that does superb damage against small foes but next to no damage against large foes."); break;
-			case SILVER_MACE: 
+			case SILVER_MACE:
 				pline("The main use of this mace is to bash undead, which take extra damage from it."); break;
-			case MACE: 
+			case MACE:
 				pline("A mace. It's quite a weak weapon, actually."); break;
-			case ELVEN_MACE: 
+			case BATLETH:
+				pline("The klingons invented this weapon, and I have no real idea what it's supposed to represent so I decided to make it a mace-class weapon. Its damage output is mediocre."); break;
+			case ELITE_BATLETH:
+				pline("This weapon is better than the regular batleth (yes I know, it's spelled 'bat'leth'), but not actually that strong, and it uses the mace skill."); break;
+			case LEAD_FILLED_MACE:
+				pline("This mace deals much more damage than a regular mace but weighs a whole lot."); break;
+			case ELVEN_MACE:
 				pline("A mace made of wood. It's slightly better than a standard mace."); break;
-			case FLANGED_MACE: 
+			case FLANGED_MACE:
 				pline("This mace does moderate damage but it's nothing to get excited about."); break;
-			case REINFORCED_MACE: 
+			case REINFORCED_MACE:
 				pline("If you want a mace that does respectable damage, use this one."); break;
-			case MORNING_STAR: 
+			case MORNING_STAR:
 				pline("The morning star can be used to whack enemies. Its damage output is mediocre."); break;
-			case BRONZE_MORNING_STAR: 
+			case CALCULATOR:
+				pline("A rather powerful morning star."); break;
+			case BRONZE_MORNING_STAR:
 				pline("This morning star does respectable damage."); break;
-			case SPINED_BALL: 
-				pline("A metal ball that counts as a morning star. It does good damage."); break;
-			case JAGGED_STAR: 
+			case SPINED_BALL:
+				pline("A metal ball that counts as a morning star. It does good damage. You can apply it to hit monsters standing two tiles away, with your skill determining the actual maximum range."); break;
+			case JAGGED_STAR:
 				pline("An improved morning star that actually packs a punch."); break;
-			case DEVIL_STAR: 
+			case SHINY_STAR:
+				pline("Using this morning star on large monsters won't do much, but it's good against small ones."); break;
+			case DEVIL_STAR:
 				pline("The strongest version of the morning star. A very strong one-handed melee weapon. It can be applied to bash iron bars."); break;
-			case FLAIL: 
+			case FLAIL:
 				pline("A basic flail. It doesn't do a lot of damage."); break;
-			case KNOUT: 
+			case WEIGHTED_FLAIL:
+				pline("This flail only does d7 damage per hit."); break;
+			case KNOUT:
 				pline("A better flail that does mediocre damage."); break;
-			case CHAIN_AND_SICKLE: 
-				pline("Forget using this weapon. Even a regular flail is probably better."); break;
-			case TWO_HANDED_FLAIL: 
+			case ETHER_KNOUT:
+				pline("This flail does mediocre damage and has a to-hit bonus, but is made of ether and will slowly contaminate you."); break;
+			case SPIKERACK:
+				pline("A flail that does quite a bit more damage than a regular flail and also has good to-hit, but is likely to degrade when used repeatedly."); break;
+			case CHAIN_AND_SICKLE:
+				pline("You might as well forget using this weapon in melee because even a regular flail is better, but you can apply it to hit monsters standing two tiles away, with your skill determining the actual maximum range."); break;
+			case TWO_HANDED_FLAIL:
 				pline("This flail does quite good damage but at the expense of occupying both of your hands."); break;
 			case OBSID: 
 				pline("A strong flail that does good damage and has good to-hit. It can be applied to bash iron bars."); break;
@@ -7738,6 +9034,8 @@ struct obj *obj;
 				pline("A heavy plateau boot that can be swung at monsters to whack them for mediocre damage. It uses the hammer skill."); break;
 			case HUGGING_BOOT: 
 				pline("This thick winter boot is made of unyielding material, making it a useful weapon for bonking enemies' heads. It uses the hammer skill. It can be applied to bash iron bars."); break;
+			case BLOCK_HEELED_SANDAL:
+				pline("A very beautiful female sandal that can smash enemies' heads. It uses the hammer skill. It can be applied to bash iron bars."); break;
 			case BLOCK_HEELED_COMBAT_BOOT: 
 				pline("A very fleecy lady's boot with a massive block heel. Seems like you can bash enemies' skulls with it. It uses the hammer skill. It can be applied to bash iron bars."); break;
 			case WOODEN_GETA: 
@@ -7750,6 +9048,8 @@ struct obj *obj;
 				pline("This beautiful lilac women's shoe looks very tender. However, the funneled heel can actually cause a lot of damage if it is struck on somebody's head. It uses the hammer skill. It can be applied to bash iron bars."); break;
 			case SPIKED_BATTLE_BOOT: 
 				pline("A heavy boot with spikes made of steel. Excellent for bashing monsters. It uses the hammer skill."); break;
+			case PROSTITUTE_SHOE:
+				pline("A very elegant lady shoe that has a massive heel (mmmmmmmm!) which allows it to be used as a melee weapon. It uses the hammer skill."); break;
 			case QUARTERSTAFF: 
 				pline("The basic quarterstaff is a two-handed weapon that does pitiful damage compared to other two-handers."); break;
 			case SILVER_KHAKKHARA: 
@@ -7762,6 +9062,12 @@ struct obj *obj;
 				pline("This iron quarterstaff does usable damage but it's not great either."); break;
 			case PLATINUM_FIRE_HOOK: 
 				pline("Quarterstaff that does usable damage."); break;
+			case BO_STAFF:
+				pline("A two-handed quarterstaff with medium damage output."); break;
+			case MASSIVE_STAFF:
+				pline("It weighs a ton and is two-handed, plus it uses the quarterstaff skill that's generally not regarded as the strongest melee weapon skill in existence, but it does good damage to make up for it."); break;
+			case CHROME_STAFF:
+				pline("Using this quarterstaff will do moderate damage. It requires two hands."); break;
 			case BATTLE_STAFF: 
 				pline("A metal quarterstaff that does relatively good damage but requires both hands."); break;
 			case IRON_BAR: 
@@ -7774,31 +9080,47 @@ struct obj *obj;
 				pline("A powerful two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
 			case SPETUM: 
 				pline("A finicky two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
-			case RANSEUR: 
+			case RANSEUR:
 				pline("An unreliable two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
-			case BARDICHE: 
+			case POLE_LANTERN:
+				pline("An unwieldy two-handed polearm that can be applied to hit monsters standing three squares away (monsters at a distance of one or two squares are too close to be hit). Using it at point blank range is only useful if you're riding."); break;
+			case NASTYPOLE:
+				pline("A nasty two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
+			case BOHEMIAN_EAR_SPOON:
+				pline("A reliable two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
+			case BARDICHE:
 				pline("A heavy two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
-			case VOULGE: 
+			case LONG_POLE:
+				pline("A very long two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
+			case SHARP_POLE:
+				pline("A sharp two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
+			case VOULGE:
 				pline("A dicey two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
-			case PITCHFORK: 
+			case PITCHFORK:
 				pline("A gardening two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
-			case HALBERD: 
+			case HALBERD:
 				pline("A massive two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
-			case BLACK_HALBERD: 
+			case BLACK_HALBERD:
 				pline("An inverted two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
-			case FAUCHARD: 
+			case FAUCHARD:
 				pline("A mediocre two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
-			case GUISARME: 
+			case GUISARME:
 				pline("A challenging two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
-			case BILL_GUISARME: 
+			case NANO_POLE:
+				pline("A nanoscale two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
+			case LEADBAR:
+				pline("A super-heavy two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
+			case ETERNAL_POLE:
+				pline("A protective two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding. Wielding it grants half physical damage."); break;
+			case BILL_GUISARME:
 				pline("A reinforced two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
-			case LUCERN_HAMMER: 
+			case LUCERN_HAMMER:
 				pline("A ferocious two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
-			case BEC_DE_CORBIN: 
+			case BEC_DE_CORBIN:
 				pline("A strong two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
-			case SICKLE: 
+			case SICKLE:
 				pline("A weak one-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
-			case ELVEN_SICKLE: 
+			case ELVEN_SICKLE:
 				pline("A useful one-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
 			case SCYTHE: 
 				pline("An extra-damaging two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
@@ -7808,10 +9130,14 @@ struct obj *obj;
 				pline("A standard spear. It can be thrown."); break;
 			case DROVEN_SPEAR: 
 				pline("This spear deals great damage but will break if you throw it. It is two-handed."); break;
+			case CERAMIC_SPEAR:
+				pline("This spear does good damage, but will degrade quickly and then its damage output is much worse. It can be thrown."); break;
 			case SILVER_SPEAR: 
 				pline("A spear that does extra damage to undead. It can be thrown."); break;
 			case ELVEN_SPEAR: 
 				pline("A good spear. It can be thrown."); break;
+			case RANDOSPEAR:
+				pline("This spear is made of a random material. It can be thrown."); break;
 			case DWARVISH_SPEAR: 
 				pline("The strongest spear in the game. It can be thrown."); break;
 			case BRONZE_SPEAR: 
@@ -7824,6 +9150,10 @@ struct obj *obj;
 				pline("Weaker than the elven spear. It can be thrown."); break;
 			case JAVELIN: 
 				pline("A basic javelin that doesn't do much damage. It can be thrown."); break;
+			case STACK_JAVELIN:
+				pline("It's a rather weak javelin. It can be thrown."); break;
+			case BRICK_MISSILE:
+				pline("This javelin is rather powerful. It can be thrown."); break;
 			case SPIRIT_THROWER: 
 				pline("A javelin that does good damage. It can be thrown."); break;
 			case TORPEDO: 
@@ -7834,8 +9164,10 @@ struct obj *obj;
 				pline("A relatively damaging trident that does bonus damage versus eels, however it also requires both hands to use."); break;
 			case STYGIAN_PIKE: 
 				pline("A trident from the depths of Hell. Good damage and bonus versus eels."); break;
+			case DIFFICULT_TRIDENT:
+				pline("Very heavy, and it doesn't even deal much more damage than the regular trident."); break;
 			case MANCATCHER: 
-				pline("A very strong trident that does extra damage to eels."); break;
+				pline("A very strong two-handed trident that does extra damage to eels."); break;
 			case RADIOACTIVE_DAGGER:
 				pline("This dagger does extra damage to golems, but it's still only a dagger. It can be thrown. It can be applied to bash iron bars."); break;
 			case SECRETION_DAGGER:
@@ -7860,6 +9192,8 @@ struct obj *obj;
 				pline("An edible broadsword."); break;
 			case ICKY_BLADE:
 				pline("This long sword has increased chance to hit."); break;
+			case FLAME_MOUNTAIN:
+				pline("If you wield this long sword while your other hand is empty (i.e. neither wearing a shield nor wielding a second weapon), it deals extra damage."); break;
 			case GRANITE_IMPALER:
 				pline("It's a rather strong longsword, comparable damage-wise with the katana."); break;
 			case ORGANOBLADE:
@@ -7892,6 +9226,8 @@ struct obj *obj;
 				pline("Made of a different material and otherwise similar to the bog-standard mace."); break;
 			case BRONZE_MACE:
 				pline("It's a mace made of copper, and it doesn't do a lot of damage."); break;
+			case ORNATE_MACE:
+				pline("It's a mace made of gold, and it does only little damage."); break;
 			case MILL_PAIL:
 				pline("A nature-friendly mace that does respectable damage."); break;
 			case BACKHAND_MACE:
@@ -7946,6 +9282,10 @@ struct obj *obj;
 				pline("A forking two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
 			case PIKE:
 				pline("A long two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
+			case DARK_BAR:
+				pline("A darkness-loving two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding. It can also hit squares that you can't actually see."); break;
+			case YITH_TENTACLE:
+				pline("A lovecraftian two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding. Its range is slightly bigger than that of a regular polearm, but wielding it for a prolonged time will increase your sanity."); break;
 			case PHYSICIAN_BAR:
 				pline("A regenerative two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding. Yes, wielding it speeds up your hit point regeneration rate."); break;
 			case HELMET_BEARD:
@@ -7958,6 +9298,8 @@ struct obj *obj;
 				pline("A super-long-range two-handed polearm that can be applied to hit monsters standing two or sometimes even more squares away (need to experiment to find out what range is allowed). Using it at point blank range is only useful if you're riding."); break;
 			case GIANT_SCYTHE:
 				pline("A gigantic two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
+			case GRAIN_SCYTHE:
+				pline("A spliced two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
 			case THRESHER:
 				pline("A humongous two-handed polearm that can be applied to hit monsters standing two squares away. Using it at point blank range is only useful if you're riding."); break;
 			case INKA_SPEAR:
@@ -7978,6 +9320,10 @@ struct obj *obj;
 				pline("Tridents usually suck, but this one in particular sucks bad."); break;
 			case PLOW:
 				pline("It's a relatively useful trident with good to-hit."); break;
+			case SPEC_LANCE:
+				pline("If you're lucky, this lance is made of a useful material. You can apply it to hit monsters standing two squares away, or hit things in melee while riding, which causes you to joust (but then it may occasionally break)."); break;
+			case BRICKLAYER_BAR:
+				pline("Applying this lance at a distance lets you hit monsters, and while riding you can also joust things in melee but it can cause the lance to break."); break;
 			case POKER_STICK:
 				pline("Lances can be applied to hit monsters at a distance, and if you melee things while riding, you can joust monsters but that can cause it to break. This particular type also causes you to teleport uncontrollably, even if you have equipment that would allow you to control your teleportation."); break;
 			case BRONZE_LANCE:
@@ -7987,15 +9333,23 @@ struct obj *obj;
 			case FORBIDDEN_ARROW:
 				pline("An arrow type that can be fired with a bow. If you fire it with a compost bow, you can fire more of them in a single turn."); break;
 			case WILDHILD_BOW:
-				pline("This bow can fire several arrows in a single turn. Firing odor shots from it gives a multishot bonus"); break;
+				pline("This bow can fire several arrows in a single turn. Firing odor shots from it gives a multishot bonus. However, unless you're playing the hussy role, actually hitting things with it will be difficult for you."); break;
+			case META_BOW:
+				pline("The material of this bow is randomized, which doesn't actually affect all that much. Equip some arrows in your quiver and fire away."); break;
+			case WIND_BOW:
+				pline("Wielding this bow makes you very fast, and it can shoot arrows from your quiver."); break;
 			case ODOR_SHOT:
 				pline("These arrows deal extra damage to animals and humanoids because they can't stand the stench. If you fire them with a wildhild bow, you gain a multishot bonus."); break;
 			case BRONZE_ARROW:
 				pline("A highly damaging type of arrow that can be fired from a bow."); break;
+			case WONDER_ARROW:
+				pline("These arrows deal average damage and may be made of a rare material."); break;
 			case PAPER_ARROW:
 				pline("If you don't have real arrows, you can use these weak ones with your bow."); break;
 			case METAL_SLING:
 				pline("A launcher that can shoot rocks and gems."); break;
+			case SNIPESLING:
+				pline("This sling has increased range compared to the regular sling, but equipping it also causes weak sight. Use a portable light source to offset that penalty."); break;
 			case INKA_SLING:
 				pline("This weapon can be used to fire rocks, stones and gems at monsters with high accuracy."); break;
 			case PAPER_SHOTGUN:
@@ -8010,22 +9364,32 @@ struct obj *obj;
 				pline("A slow-firing crossbow that can fire bolts at a distance of 15 squares."); break;
 			case FLEECE_BOLT:
 				pline("A very fleecy crossbow bolt."); break;
+			case MATERIAL_BOLT:
+				pline("Maybe you got lucky and have the randomized material of this crossbow bolt be something useful."); break;
 			case MINERAL_BOLT:
 				pline("This crossbow bolt does slightly more damage than a regular one."); break;
 			case PIN_BOLT:
 				pline("A crossbow bolt that does low damage."); break;
 			case INKA_STINGER:
 				pline("These darts have a high chance to hit, and are meant to be thrown."); break;
+			case RANDOM_DART:
+				pline("Only you will know what material this dart is made of. It's meant to be used as a throwing weapon."); break;
 			case FLIMSY_DART:
 				pline("You can throw these darts at targets, but they have a tendency to fly in the wrong direction."); break;
 			case SOFT_STAR:
 				pline("Uses the shuriken skill. It is made of soft material and therefore does less damage than a real shuriken. Meant to be used for throwing."); break;
 			case TAR_STAR:
 				pline("These shuriken can be thrown at enemies."); break;
+			case CUBIC_STAR:
+				pline("Using these shuriken as a thrown weapon may prove effective against some targets."); break;
+			case WINDMILL_BLADE:
+				pline("It's a particularly damaging shuriken that's also made of noneroding material."); break;
 			case INKA_SHACKLE:
 				pline("A very lovely whip that can cause incredibly soothing pain :) Joking aside, it does relatively good damage and has increased to-hit, but whips are generally a weak type of weapon."); break;
 			case BULLETPROOF_CHAINWHIP:
 				pline("Whips suck, but this one sucks a bit less than the others because it does relatively good damage. It will break if you throw it, so don't do that unless you want to get rid of it."); break;
+			case SEXPLAY_WHIP:
+				pline("Well, do you want to engage in some hot BDSM action? Then this whip is for you. It deals rather good small damage considering that whips are generally sucky, and also has a to-hit bonus. Then again, there might be other weapon types that are more effective."); break;
 			case SECRET_WHIP:
 				pline("It's an incredibly sucky weapon that has good to-hit but does very low damage, however there's a hidden quality to it: while wielding it, you take less physical damage than otherwise."); break;
 			case MARE_TRIDENT: 
@@ -8046,33 +9410,33 @@ struct obj *obj;
 				pline("Apply it to hit monsters from far away or joust monsters with it while riding (and risk breaking it). Unlike other lances, this one can even be applied to hit monsters standing three squares away, but it's more likely to be damaged in the process or cause monsters to speed up/frenzy/snatch your weapon."); break;
 			case FORCE_PIKE: 
 				pline("One of Chris_ANG's creations, this weapon is in fact a lance. Apply it to hit monsters from far away. You can also joust monsters with it while riding, but that may cause it to break."); break;
-			case PARASOL: 
+			case PARASOL:
 				pline("A crappy lance that can be applied to hit monsters from far away or used to joust monsters while riding. The latter can cause it to break but I guess it wouldn't be a huge loss."); break;
-			case UMBRELLA: 
+			case UMBRELLA:
 				pline("You will look like a monumental fool with this 'weapon'. It can be applied to hit monsters from far away, or you can joust monsters while riding and risk breaking it."); break;
-			case ORCISH_BOW: 
+			case ORCISH_BOW:
 				pline("A two-handed bow that is meant to be used in conjunction with quivered arrows to fire at enemies."); break;
-			case BOW: 
+			case BOW:
 				pline("A two-handed bow that is meant to be used in conjunction with quivered arrows to fire at enemies."); break;
-			case ELVEN_BOW: 
+			case ELVEN_BOW:
 				pline("A two-handed bow that is meant to be used in conjunction with quivered arrows to fire at enemies."); break;
-			case DARK_ELVEN_BOW: 
+			case DARK_ELVEN_BOW:
 				pline("A two-handed bow that is meant to be used in conjunction with quivered arrows to fire at enemies. This bow has a small to-hit bonus."); break;
-			case YUMI: 
+			case YUMI:
 				pline("A two-handed bow that is meant to be used in conjunction with quivered arrows to fire at enemies."); break;
-			case HYDRA_BOW: 
-				pline("This bow fires three arrows at once and is therefore very powerful. You need to wield it with both hands though."); break;
-			case ORCISH_ARROW: 
+			case HYDRA_BOW:
+				pline("This bow fires three arrows at once and is therefore very powerful. You need to wield it with both hands though. Also, your to-hit will be lower than it would be with regular bows, because this particular bow is rather unwieldy."); break;
+			case ORCISH_ARROW:
 				pline("The weakest type of arrow. These are meant to be put in a quiver and shot with a bow."); break;
-			case ARROW: 
+			case ARROW:
 				pline("A standard arrow. These are meant to be put in a quiver and shot with a bow."); break;
-			case GOLDEN_ARROW: 
+			case GOLDEN_ARROW:
 				pline("Arrows made of pure gold. They deal significant amounts of damage when shot with a bow."); break;
-			case ANCIENT_ARROW: 
+			case ANCIENT_ARROW:
 				pline("This metal arrow can be fired with a bow to deal good damage to enemies."); break;
-			case SILVER_ARROW: 
+			case SILVER_ARROW:
 				pline("An arrow that does more damage to undead. These are meant to be put in a quiver and shot with a bow."); break;
-			case ELVEN_ARROW: 
+			case ELVEN_ARROW:
 				pline("A good quality arrow that does high amounts of damage. These are meant to be put in a quiver and shot with a bow."); break;
 			case DARK_ELVEN_ARROW: 
 				pline("There are no arrows in the game that deal more damage than this one. These are meant to be put in a quiver and shot with a bow."); break;
@@ -8080,48 +9444,54 @@ struct obj *obj;
 				pline("A high-quality arrow that has a moderate to-hit bonus. These are meant to be put in a quiver and shot with a bow."); break;
 			case SLING: 
 				pline("The sling is what you want to use if you want your thrown rocks to do more than a single point of damage. You can quiver most types of rocks and gems to shoot them with a sling."); break;
-			case CATAPULT: 
-				pline("A much better version of the sling that shoots more rocks at once and also grants significant bonuses to hit. You can quiver rocks and gems to fire."); break;
+			case CATAPULT:
+				pline("A much better version of the sling that shoots more rocks at once, but you'll have shaky to-hit with it. You can quiver rocks and gems to fire. If you shoot regular rocks from it, as opposed to flint stones or other ammo, the multishot bonus is lower."); break;
 			case PISTOL: 
 				pline("This firearm is capable of shooting bullets to deal damage to enemies."); break;
 			case FLINTLOCK: 
 				pline("You can theoretically use this firearm to shoot single bullets at monsters, but I'd advise you to use an actual pistol instead."); break;
+			case BEAM_REFLECTOR_GUN: 
+				pline("It's a pistol with low range, but wielding it grants you reflection. You can shoot bullets with it."); break;
 			case BFG: 
 #ifdef PHANTOM_CRASH_BUG
 				pline("This bad boy will fire a heck of a lot of green beams (BFG ammo) per turn. If you can hit with it, you'll be capable of bringing even the strongest monsters down to their knees."); break;
 #else
 				pline("An atomic weapon of mass destruction, this bad boy will fire a heck of a lot of green beams (BFG ammo) per turn. If you can hit with it, you'll be capable of bringing even the strongest monsters down to their knees."); break;
 #endif
-			case HAND_BLASTER: 
+			case HAND_BLASTER:
 				pline("A low-range energy gun with a fairly good rate of fire."); break;
-			case ARM_BLASTER: 
-				pline("PEW PEW PEW! This gun fires streams of laser ammo at your enemies."); break;
-			case CUTTING_LASER: 
+			case ARM_BLASTER:
+				pline("PEW PEW PEW! This gun fires streams of laser ammo at your enemies, albeit with a low accuracy."); break;
+			case CUTTING_LASER:
 				pline("If you need an energy gun capable of hitting enemies standing up to 3 squares away, this thing might be useful. Don't try to shoot monsters standing any farther away though."); break;
-			case RAYGUN: 
+			case RAYGUN:
 				pline("This energy gun shoots laser ammo at a good rate of fire over medium distances."); break;
-			case SUBMACHINE_GUN: 
-				pline("An automatic firearm that can fire three bullets in a single round of combat."); break;
-			case HEAVY_MACHINE_GUN: 
-				pline("The heavy machine gun requires two hands to use, but it can rip monsters a new one by firing 8 bullets per turn."); break;
-			case RIFLE: 
+			case SUBMACHINE_GUN:
+				pline("An automatic firearm that can fire three bullets in a single round of combat. Its spread makes it slightly harder to hit things with it though."); break;
+			case HEAVY_MACHINE_GUN:
+				pline("The heavy machine gun requires two hands to use, but it can rip monsters a new one by firing 8 bullets per turn. Problem is, it's about as accurate as the Para in Counter-Strike, meaning that unless you have an absurdly high bonus to-hit (e.g. from firearm skill), you'll often miss the target, wasting your ammo."); break;
+			case RIFLE:
 				pline("A two-handed gun with a low rate of fire that shoots single bullets at enemies."); break;
-			case ASSAULT_RIFLE: 
-				pline("Your standard-issue heavy firearm that fires 5 bullets in one turn."); break;
-			case SNIPER_RIFLE: 
+			case ASSAULT_RIFLE:
+				pline("Your standard-issue heavy firearm that fires 5 bullets in one turn. It can be wielded in one hand, strangely enough, but has quite a spread and will thus not always actually hit the target."); break;
+			case KALASHNIKOV:
+				pline("This two-handed russian assault rifle can fire up to 7 bullets per turn, but is even less accurate than the regular assault rifle."); break;
+			case SNIPER_RIFLE:
 				pline("Very slow, two-handed, but highly accurate. It fires single bullets."); break;
-			case SHOTGUN: 
+			case SHOTGUN:
 				pline("A short-range firearm that fires highly damaging (and accurate) shotgun shells."); break;
-			case SAWED_OFF_SHOTGUN: 
+			case SAWED_OFF_SHOTGUN:
 				pline("It's a one-handed shotgun with bad to-hit, but its rate of fire is better than the regular shotgun."); break;
-			case AUTO_SHOTGUN: 
-				pline("This two-handed shotgun is capable of firing several shotgun shells in one round of combat."); break;
+			case AUTO_SHOTGUN:
+				pline("This two-handed shotgun is capable of firing several shotgun shells in one round of combat. It has a rather random to-hit chance though, so not all pellets might hit the target."); break;
 			case ROCKET_LAUNCHER: 
 				pline("The 'big daddy' of firearms, this baby shoots explosive rockets for massive damage. Yeah, baby. It takes awfully long to reload though."); break;
 			case GRENADE_LAUNCHER: 
 				pline("If you want your grenades to pack a bigger punch, fire them with this weapon. The grenade launcher has a low rate of fire though."); break;
 			case BULLET: 
 				pline("A metal bullet that can be fired with pistols, submachine guns, rifles of all kinds, and heavy machine guns."); break;
+			case LEAD_BULLET:
+				pline("Firearm ammo for pistols, SMGs, rifles and machine guns. It may occasionally be re-used when fired."); break;
 			case ANTIMATTER_BULLET: 
 				pline("This bullet does much more damage than regular ones. It must be fired from a pistol, SMG, rifle or heavy MG."); break;
 			case SILVER_BULLET: 
@@ -8136,44 +9506,56 @@ struct obj *obj;
 				pline("Only the BFG can fire this type of ammo. The damage per ammo isn't that high, but wait until you see the # of ammo fired per turn!"); break;
 			case SHOTGUN_SHELL: 
 				pline("This shell does a lot of damage if fired with a shotgun."); break;
-			case ROCKET: 
+			case LEAD_SHOT:
+				pline("You can fire this ammo from a shotgun, and very occasionally you can even pick it back up and use it again."); break;
+			case ROCKET:
 				pline("A highly explosive rocket. It requires a rocket launcher to be used effectively, but the explosion can hit several enemies at once."); break;
-			case FRAG_GRENADE: 
+			case FRAG_GRENADE:
 				pline("You can just arm this bomb and throw it at a monster, but for better results, fire it with a grenade launcher."); break;
-			case GAS_GRENADE: 
+			case GAS_GRENADE:
 				pline("This bomb will explode in a cloud of noxious gas if you arm it. You can also fire it with a grenade launcher."); break;
-			case STICK_OF_DYNAMITE: 
+			case STICK_OF_DYNAMITE:
 				pline("A stick with a fuse that can be armed. Once the fuse is burned out, it detonates to do explosive damage."); break;
-			case CROSSBOW: 
+			case CROSSBOW:
 				pline("The crossbow is a two-handed ranged weapon that fires bolts, doing respectable damage. Put a stack of bolts in your quiver to fire."); break;
-			case DROVEN_CROSSBOW: 
+			case DROVEN_CROSSBOW:
 				pline("A more accurate, one-handed version of the crossbow. Use it to fire bolts at your enemies."); break;
-			case POWER_CROSSBOW: 
-				pline("Two-handed crossbow that can fire more quickly than a regular one."); break;
-			case DEMON_CROSSBOW: 
-				pline("An automatic crossbow that can quiver several bolts in a single turn."); break;
-			case PILE_BUNKER: 
+			case POWER_CROSSBOW:
+				pline("Two-handed crossbow that can fire more quickly than a regular one, but will hit targets less often."); break;
+			case DEMON_CROSSBOW:
+				pline("An automatic crossbow that can quiver several bolts in a single turn, but has rather bad accuracy. Wielding it for a while may occasionally summon hostile demons around you."); break;
+			case PILE_BUNKER:
 				pline("This crossbow can fire a bit faster than a regular crossbow but at the expense of accuracy. It only requires one hand to be wielded."); break;
-			case HELO_CROSSBOW: 
+			case HELO_CROSSBOW:
 				pline("Want to snipe with a crossbow? Now you can! This thing has a huge range."); break;
-			case DROVEN_BOW: 
+			case DROVEN_BOW:
 				pline("A more accurate, one-handed version of the bow. Use it to fire arrows at your enemies."); break;
-			case CROSSBOW_BOLT: 
+			case CROSSBOW_BOLT:
 				pline("This is the ammunition used by crossbows. Put it in your quiver while having a wielded crossbow and fire away. They do solid damage, too."); break;
-			case DROVEN_BOLT: 
+			case DROVEN_BOLT:
 				pline("These glass bolts can be fired with a crossbow, doing more damage than regular bolts, but unfortunately they are very likely to break on impact."); break;
-			case KOKKEN: 
+			case KOKKEN:
 				pline("Silver crossbow ammo. They deal very good damage."); break;
+			case POISON_BOLT:
+				pline("This crossbow bolt is permanently poisoned."); break;
+			case HEAVY_CROSSBOW_BOLT:
+				pline("Crossbow ammunition made of lead."); break;
+			case ETHER_BOLT:
+				pline("You can fire this ammo with a crossbow, and it has increased range compared to regular crossbow bolts."); break;
 			case DROVEN_ARROW: 
 				pline("These glass arrows can be fired with a bow, doing more damage than regular arrows, but unfortunately they are very likely to break on impact."); break;
 			case DART: 
 				pline("Darts are throwing weapons that are often found in stacks. They deal moderate amounts of damage. Don't bother whacking enemies with them though; they're meant to be thrown."); break;
+			case SAND_DART:
+				pline("Throwing these darts at monsters doesn't deal all that much damage."); break;
 			case DART_OF_DISINTEGRATION: 
 				pline("They do more damage than regular darts... much more, in fact. Don't allow the monsters to throw those at you though, unless you want to be disintegrated!"); break;
 			case SPIKE: 
 				pline("A bone dart that can be thrown at enemies."); break;
 			case SHURIKEN: 
 				pline("These razor-sharp throwing stars used to be the only weapon to use the shuriken skill. Throw them at enemies to slice them into tiny bits."); break;
+			case NANO_SHURIKEN:
+				pline("This weapon uses the shuriken skill and is meant to be thrown at enemies."); break;
 			case NEEDLE: 
 				pline("Needles use the shuriken skill and can be thrown to kill enemies."); break;
 			case CALTROP: 
@@ -8188,6 +9570,8 @@ struct obj *obj;
 				pline("A silver version of the boomerang. If you guessed that this weapon still sucks, you are right."); break;
 			case BATARANG: 
 				pline("This weapon cannot stun the little poison ivies, but it can kill them! :D Joking aside, it's a far stronger version of the boomerang but it still flies in that weird circle pattern and rarely hits what you aim for."); break;
+			case DARK_BATARANG:
+				pline("The Joker won't stand a chance if you throw this boomerang at him... provided you hit, because it flies in a weird circle pattern."); break;
 			case BULLWHIP: 
 #ifdef PHANTOM_CRASH_BUG
 				pline("Pitiful damage, and thick-skinned monsters are immune to it. Applying it allows you to perform certain feats though."); break;
@@ -8197,12 +9581,16 @@ struct obj *obj;
 			case STEEL_WHIP: 
 				pline("A metal version of the bullwhip. While far stronger than a regular bullwhip, this weapon is still a whip and you know that whips suck. Steer clear. It can be applied to bash iron bars."); break;
 
+			case ETHER_WHIP:
+				pline("For its base type, this weapon certainly isn't that bad damage-wise... but unfortunately it's made of ether, so you'll be contaminated over time while wielding it, which you probably don't want."); break;
 			case CHAINWHIP: 
 				pline("Forget it! This iron whip does not make a good weapon."); break;
 			case MITHRIL_WHIP: 
 				pline("A whip that doesn't erode, but it doesn't deal any significant damage either."); break;
 			case FLAME_WHIP: 
 				pline("Utterly useless weapon. I guess if you just don't have anything else..."); break;
+			case RAZOR_WHIP: 
+				pline("Yet another random whip-type weapon that does almost no damage."); break;
 			case ROSE_WHIP: 
 				pline("The only use for this wooden weapon is if you want to train your whip skill for some reason. It deals next to no damage."); break;
 
@@ -8221,444 +9609,486 @@ struct obj *obj;
 #else
 		pline("%s - This is a piece of armor. Color: %s. Material: %s. Appearance: %s. Slot: %s. It can be worn for protection (armor class, magic cancellation etc.).",xname(obj), obj->dknown ? c_obj_colors[objects[obj->otyp].oc_color] : "unknown", obj->dknown ? materialnm[objects[obj->otyp].oc_material] : "unknown", obj->dknown ? dn : "unknown", is_shield(obj) ? "shield" : is_helmet(obj) ? "helmet" : is_boots(obj) ? "boots" : is_gloves(obj) ? "gloves" : is_cloak(obj) ? "cloak" : is_shirt(obj) ? "shirt" : is_suit(obj) ? "suit" : "weird slot (this may be a bug)");
 #endif
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "irregular boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "neregulyarnyye sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "tartibsizlik chizilmasin"))))
+
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_IRREGULAR_BOOTS))
 			pline("These boots have weird-shaped high heels, which look a bit like a wedge heel with part of it cut out, which can occasionally cause you to fumble. But while you're wearing them, the turn counter advances at half the normal speed.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "internet helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "vsemirnaya pautina shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "keng dunyo veb-zarbdan"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_INTERNET_HELMET))
 			pline("A special helmet that provides internet access. Watching the webcams can occasionally show you the movement of monsters on the current dungeon level.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "wedge boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "klin sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "xanjar chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_WEDGE_BOOTS))
 			pline("These boots are super-comfortable thanks to their beautifully massive wedge heels!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "winter stilettos") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "zima stilety") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qish sandal chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_WINTER_STILETTOS))
 			pline("The epitome of beauty and elegance, these very high stiletto boots even allow you to walk on ice without slipping.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "clunky heels") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "neuklyuzhiye kabluki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qisqa ko'chirish to'piqlarni"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CLUNKY_HEELS))
 			pline("You notice that these boots are characterized by extra thick, clunky block heels.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "ankle boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "botil'ony") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "bilagi zo'r chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ANKLE_BOOTS))
 			pline("Ankle boots are a type of high-heeled footwear with cone heels.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "block-heeled boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "blok kablukakh sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "blok-o'tish chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BLOCK_HEELED_BOOTS))
 			pline("You love the fleecy block heels of this pair of boots, because they are very kind and gentle.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "vampiric cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "vampir plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sindirishi plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_VAMPIRIC_CLOAK))
 			pline("Wearing this cloak will give you the special effect of resisting drain life effects 1 out of 10 times.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "aluminium helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shlem iz alyuminiya") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "alyuminiy dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ALUMINIUM_HELMET))
 			pline("Prevents telepathy while you wear it.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "shrouded cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "okutana plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kafan plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SHROUDED_CLOAK))
 			pline("Occasionally, this cloak creates a displaced image to fool monsters if you wear it.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "anti-government helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "antipravitel'stvennaya shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "aksil-hukumat dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ANTI_GOVERNMENT_HELMET))
 			pline("Do you hate the government and especially the kops? Now you can put on this helmet, and they will spawn less often and in smaller groups!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "filtered helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "fil'truyut shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "filtrlangan zarbdan"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FILTERED_HELMET))
 			pline("A helmet with a gas filter that protects you a bit from inhaling noxious gases.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "graffiti gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "graffiti perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qo'lqop purkash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GRAFFITI_GLOVES))
 			pline("Beware, these gloves are made of liquid graffiti. They are very slippery. Expect to drop your weapon at inopportune moments.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "vampiric gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "vampiry perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sindirishi qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_VAMPIRIC_GLOVES))
 			pline("You should not wear this pair of gloves if you don't really have to, because they will continuously drain your experience.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "RNG helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shlem gsch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "RNG dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_RNG_HELMET))
 			pline("Very rarely, the RNG will make random bad stuff happen if you put on this helmet.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "mysterious cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "tainstvennyy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sirli plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_MYSTERIOUS_CLOAK))
 			pline("Wearing this cloak grants you Angband-style pseudo identification for the objects in your main inventory!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "ghostly cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "prizrachnyy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "diniy plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GHOSTLY_CLOAK))
 			pline("The spirits of the deceased may be summoned to haunt you while you wear this.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "comfortable gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "udobnyye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qulay qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_COMFORTABLE_GLOVES))
 			pline("A pair of gloves that is really comfortable and causes your prayer timeout to be faster, so you can pray more often.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "complete helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "polnaya shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "to'liq dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_COMPLETE_HELMET))
 			pline("Your entire head will be covered by this helm. This protects you from beheading attacks.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "polnish gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "pol'skiye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "polsha qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_POLNISH_GLOVES))
 			pline("Yes I know, it's called 'polish', but that word is ambiguous... anyway, the #borrow command works better if you wear this pair of gloves.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "velcro boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "lipuchki sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "cirt chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_VELCRO_BOOTS))
 			pline("Warning: This pair of boots will constrict itself around your feet with its velcro lashes, and they will hurt you from time to time while worn. However, if you kick a monster with them, the lashes will scratch up and down the monster's legs, which is a lot of fun. You'll also use the sexy flats skill while wearing them.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "straitjacket cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "smiritel'naya rubashka plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "tor kamzul plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_STRAITJACKET_CLOAK))
 			pline("Don't expect this cloak to come off easily once you put it on.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "battle boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "bitvy sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "urush chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BATTLE_BOOTS))
 			pline("Battle boots power up your kicks to do more damage.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "platform boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "plato sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "platosi chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_PLATFORM_BOOTS))
 			pline("If you kick someone with this pair of beautiful platform boots, you will sometimes stomp their toes, causing the target to be stunned! And to top it off, they use the sexy flats skill!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "plateau boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sapogi na platforme") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "platformalar chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_PLATEAU_BOOTS))
 			pline("You like plateau boots? Of course you do! You can kick monsters with them, which will occasionally cause you to stomp their toes flat (stunning the monster). And you'll also train the sexy flats skill.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "combat boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "boyevyye sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "jangovar chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_COMBAT_BOOTS))
 			pline("This is a pair of boots that improves your kicking prowess: it greatly reduces the chance that your kick is 'clumsy'.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "jungle boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "dzhunglyakh sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "o'rmon chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_JUNGLE_BOOTS))
 			pline("Are you annoyed by the fact that kicking a tree often hurts your legs? Well, with this special footwear that cannot happen any longer!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "clumsy gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "neuklyuzhiye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qo'pol qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CLUMSY_GLOVES))
 			pline("Clumsy gloves are just what they say on the tin. Your ranged weapons will occasionally misfire while wearing these, and have a significant to-hit penalty.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "fin boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "plavnik sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kanatcik chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FIN_BOOTS))
 			pline("You cannot drown while you have these fins around your feet.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "profiled boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "profilirovannyye sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "profilli chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_PROFILED_BOOTS))
 			pline("Profiled soles are lovely, and stepping into dog shit with them is fun because it's so much work to clean them again! :D Well, actually you will speed up if you step into a heap of shit while wearing them. And you will also look so hot that they'll even allow you to train the sexy flats skill.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "hot boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "goryachiye botinki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "issiq chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_HOT_BOOTS))
 			pline("This pair of boots can withstand temperatures of up to 9000 degrees. Wearing them allows you to swim in lava unharmed.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "politician cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "politik plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "siyosatchi plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_POLITICIAN_CLOAK))
 			pline("Nobody likes politicians. So if you dress like one, nobody will like you either.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "angelic cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "angel'skoye plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "farishtalarning plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ANGELIC_CLOAK))
 			pline("This lovely cloak makes you look like an angel! Which has the effect that most other angels will not attack you.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "demonic cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "demonicheskaya plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "jinlarning plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_DEMONIC_CLOAK))
 			pline("Demons are more likely to be peaceful if you don this cloak, because it makes you look like one of them.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "void cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "nedeystvitel'nym plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "haqiqiy emas plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_VOID_CLOAK))
 			pline("The void cloak generates a weak aura of anti-magic around you, making it harder for monsters to cast spells.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "grey-shaded gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sero-zatenennykh perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kulrang-soyali qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GREY_SHADED_GLOVES))
 			pline("Are you into BDSM? If you wear these gloves, your chances of sexual pleasure will go up! You can get your nuts kicked, be whacked over the head with sexy high heels, have your legs scratched up and down until it bleeds etc.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "slippery gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "skol'zkiye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sirg'anchiq qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SLIPPERY_GLOVES))
 			pline("Slippery gloves are similar to slippery cloaks, often allowing you to slip free of monsters' holding attacks.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "petrified cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "okamenela plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qotib plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_PETRIFIED_CLOAK))
 			pline("If you hear the cockatrice's hissing, you will often turn to stone. But this lithic cloak allows you to resist most of the time.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "mirrored gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "zerkal'nyye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "akslantirish qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_MIRRORED_GLOVES))
 			pline("A pair of gloves that's like a mirror. Monsters that try to use their gaze on you will sometimes gaze at the gloves, keeping you safe from the effects.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "visored helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "zabralom shlema") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "soyabon zarbdan"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_VISORED_HELMET))
 			pline("The visor keeps you safe from blindness attacks.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "orange visored helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "oranzhevyy shlem zabralom") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "apelsin soyabon zarbdan"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ORANGE_VISORED_HELMET))
 			pline("Your eyes are protected from blinding attacks while wearing this helmet.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "rainbow boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "raduga sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kamalak chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_RAINBOW_BOOTS))
 			pline("A pair of boots that is so colorful, it alerts every monster to your presence. They also use the sexy flats skill.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "roller boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "rolikovyye botinki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "rolikli chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ROLLER_BOOTS))
 			pline("These boots have roller blades at their soles, which should be able to roll over annoying monsters but unfortunately that isn't implemented. Still, they look very sexy and therefore will train the sexy flats skill.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "snow boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "zimniye sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qor chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SNOW_BOOTS))
 			pline("Walking on ice will not cause you to slip with these boots.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "winter boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sapogi zimniye") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qish chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_WINTER_BOOTS))
 			pline("These boots can walk on any type of ice, no matter how slippery.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "water-pipe helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shlem kal'yannym") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "suv-quvur dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_WATER_PIPE_HELMET))
 			pline("Wanna do the liquid diet conduct? Now you can - while wearing this helmet, every time you quaff anything you'll gain some nutrition!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "godless cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "bezbozhnaya plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "xudosiz plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GODLESS_CLOAK))
 			pline("Wearing this cloak means that praying can anger your god, even if it's actually safe to pray.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "weeb cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "zese plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yaponiya ucube rido"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_WEEB_CLOAK))
 			pline("Only a Mahou Shoujo will benefit from the special effect of this cloak, everyone else isn't Japanese enough. What is the effect? Reduced spellcasting costs! Now your Mahou Shoujo can cast even more spells in the same time!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "riding gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yezda perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kopgina qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_RIDING_GLOVES))
 			pline("Riding your automobile (steed) becomes much easier with this pair of gloves.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "riding boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sapogi dlya verkhovoy yezdy") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kopgina chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_RIDING_BOOTS))
 			pline("You wanna ride a motorcycle? With these boots, you almost cannot fail! They also help when you're trying to ride something else. :-)");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "explosive boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "vzryvnyye sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "portlovchi chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_EXPLOSIVE_BOOTS))
 			pline("DANGER: This pair of boots is filled with TNT. Wearing them for too long will cause them to detonate.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "radio helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "translyatsii shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "uzatuvchi zarbdan"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_RADIO_HELMET))
 			pline("The Dungeons of Doom radio broadcast will sometimes inform you of the location of traps, but the only way to listen to it is by putting on this helm.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "persian boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "persidskiye sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "fors chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_PERSIAN_BOOTS))
 			pline("If you ask this very beautiful pair of leather boots whether you may wear them, they will tell you that yes, you may, but you'll have to allow their long zippers to slit your legs from time to time. They also count as sexy flats because mmmmmmmmmmmm, they look SOOOOO sexy!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "deadly cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "smertel'noy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "o'ldiradigan plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_DEADLY_CLOAK))
 			pline("The deadly cloak will try to kill you while you wear it, but thankfully all it ever does is occasionally causing a small amount of damage.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "jarring cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sotryaseniye plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "g'azablantiradigan plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_JARRING_CLOAK))
 			pline("Something isn't right with this cloak... it emits jarring noises from time to time...");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "hugging boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "obnimat'sya sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "havola etdi chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_HUGGING_BOOTS))
 			pline("They're actually called 'hiking boots', and they love to step into dog shit with their profiled soles. Have fun cleaning them again! By the way, as long as their base type isn't high-heeled, they count as sexy flats.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "brand-new gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sovershenno novyye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yangi qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BRAND_NEW_GLOVES))
 			pline("This pair of gloves is highly resistant to erosion.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "scuba helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "podvodnoye shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "tueplue zarbdan"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SCUBA_HELMET))
 			pline("The ultimate diving equipment. Wearing this helmet will protect your entire inventory from getting wet!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "boxing gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "boks para perchatok") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "boks qo'lqoplari"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BOXING_GLOVES))
 			pline("Practising kung-fu or marital arts? Your chances of successfully fighting off your spouse will go up while wearing these!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "fencing gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ograzhdeniya perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qilichbozlik qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FENCING_GLOVES))
 			pline("If your main weapon type is swords you will want to wear these gloves for bonus damage. This is especially true if you actually are a Fencer.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "fleecy boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "flis sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "tozalamoq chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FLEECY_BOOTS))
 			pline("Your potions will be kept safe from cold because these leather boots are so wonderfully fleecy. Yes, this makes sense! The fleeciness keeps the cold weather out! And they're also so sexy-looking that they count as sexy flats!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "chess boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shakhmatnyye sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shaxmat chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CHESS_BOOTS))
 			pline("You can play chess with the monsters by putting on this pair of boots - well, sort of. It will occasionally prevent monsters from moving diagonally.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "fingerless gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "mitenki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kam qo'lqop barmoq"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FINGERLESS_GLOVES))
 			pline("Unlike other gloves, these will not cover your fingers.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "energizer cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "antidepressant plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "energiya plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ENERGIZER_CLOAK))
 			pline("A cloak full of energy, which allows you to draw on the mystical power of any creature you kill.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "mantle of coat") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "mantiya pal'to") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ko'ylagi mantiya"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_MANTLE_OF_COAT))
 			pline("This cloak type grants extra AC, but also causes nastiness sometimes.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "chilling cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "pugayushchim plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sovutgichli plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CHILLING_CLOAK))
 			pline("Wearing this cloak causes you to be surrounded by frost, and occasionally you'll be frozen.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "bug-tracking helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "oshibka otslezhivaniya shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "hasharotlar-kuzatish dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BUG_TRACKING_HELMET))
 			pline("Monsters will be able to track you if you wear this type of helm, and it especially attracts bugs.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "fatal gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "fatal'nyye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "halokatli qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FATAL_GLOVES))
 			pline("If you wear this pair of gloves, your magnetic items can occasionally experience a case of fatal attraction.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "beautiful heels") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "krasivyye kabluki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "chiroyli ko'chirish to'piqlarni"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BEAUTIFUL_HEELS))
 			pline("Such a lovely pair of high heels! <3 They will greatly increase your charisma when worn because the cone heels are incredibly cuuuuuute, so you should definitely allow them to gently enclose your sweet feet!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "electrostatic cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "elektrostaticheskoye plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "elektrofizikaviy kompyuteringizda ornatilgan plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ELECTROSTATIC_CLOAK))
 			pline("It crackles with electricity, and will damage monsters that attack you in melee. However, sometimes you will be confused or numbed by the voltage.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "weeping helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "placha shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yig'lab dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_WEEPING_HELMET))
 			pline("If you wear this helmet, you will suffer from levelteleportitis. And if you cannot levelport for some reason, it will drain your experience levels instead, ignoring any drain resistance that you might have.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "runic gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "runa rukovitsakh") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "runi qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_RUNIC_GLOVES))
 			pline("Reading a spellbook will increase your spell memory by more than the standard amount if you do it while wearing these gloves.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "roman sandals") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "rimskiye sandalii") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "rim fuqarosi kavushlari"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ROMAN_SANDALS))
 			pline("Sandals are impractical for running. This is especially true for 'gladiator' sandals like these, and therefore you will move a bit slower in them.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "homicidal cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "smertonosnyy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "halokatli plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_HOMICIDAL_CLOAK))
 			pline("Sometimes, while you wear this cloak, new traps are generated on the current dungeon level.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "narrow helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "uzkiy shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "tor dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_NARROW_HELMET))
 			pline("A helmet that constricts your head in a bad way because it's so narrow, making you more susceptible to psychic blasts.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "spanish gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ispanskiy perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ispaniya qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SPANISH_GLOVES))
 			pline("Thumb screws in glove form! They will autocurse if you wear them.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "castlevania boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "zamok vaney sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qal'a vania chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CASTLEVANIA_BOOTS))
 			pline("As if the dungeon wasn't dark enough, these boots will occasionally darken an area while you wear them.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "greek cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "grecheskiy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yunon plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GREEK_CLOAK))
 			pline("This cloak turns everyone into a greek centurion if you wear them. Or, in other words, both you and all monsters will move faster.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "celtic helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kel'tskaya shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "seltik dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CELTIC_HELMET))
 			pline("The Ancient Celts are masters of constructs, and therefore, if you wear them, all newly generated golems will have much more hit points. Useful if you're planning to get some golem pets.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "english gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "angliyskiye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ingliz tili qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ENGLISH_GLOVES))
 			pline("Sniper alert! Your beam spells and wands will have bigger range while wearing this pair of gloves, but because the Amy is stupid, she accidentally gave the bonus to monster-caused beams too... :-P");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "korean sandals") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "koreyskiye sandalii") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "janubiy koreyaning kavushlari"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_KOREAN_SANDALS))
 			pline("If you want to turn into a sweet asian amazon, wear these multicolored sweeties. They make you more resistant to fire and also confer weak displacement, but monsters will hit you more often in melee. Also, wearing them trains the sexy flats skill.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "gentle boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "nezhnyye sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yumshoq chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GENTLE_BOOTS))
 			pline("These boots are soooooo gentle! Wearing them will use the sexy flats skill.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "buckled boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "pryazhkami sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "quyon chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BUCKLED_BOOTS))
 			pline("A pair of boots that counts as sexy flats (as long as its base type isn't high-heeled), because admit it, the buckles look very sexy <3");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "spider boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "pauk sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "o'rgimchak chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SPIDER_BOOTS))
 			pline("Spider webs will not hold you in place as long as you wear this pair of boots.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "camo robe") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kamuflyazhnaya roba") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kamuflaj to'n"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CAMO_ROBE))
 			pline("A robe in urban camo colors that makes you more difficult to spot for your enemies.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "octarine robe") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "vos'moy tsvet khalata") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sakkizinchi rang to'n"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_OCTARINE_ROBE))
 			pline("This robe is imbued with special magic. Sometimes it will send beams back at whoever fired them.");
 
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "forgetful cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "zabyvchiv plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "unutuvchan plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FORGETFUL_CLOAK))
 			pline("You will forget your spells more quickly while wearing this cloak.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "changing cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "izmeneniye plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "o'zgaruvchan plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CHANGING_CLOAK))
 			pline("It causes a weaker form of polymorphitis; wear it at your own risk!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "shell cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "plashch obolochki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qobiq plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SHELL_CLOAK))
 			pline("This cloak provides an antimagic shell that can cause you to sometimes fail when trying to cast a spell, but the same applies to spellcasting monsters.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "chinese cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kitayskiy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "xitoy plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CHINESE_CLOAK))
 			pline("It is labelled 'Arabella's Bank of Crossroads Employee of the Month'.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "polyform cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sopolimer forma plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "belgigacha bo'lgan poli shakli plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_POLYFORM_CLOAK))
 			pline("Very rarely, you may get a controlled polymorph while wearing this cloak. But beware, occasionally it will be an uncontrolled polymorph instead!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "absorbing cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "pogloshchayushchiy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yutucu plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ABSORBING_CLOAK))
 			pline("This cloak absorbs light, and will usually cause monsters to be short-sighted.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "deep cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "glubokiy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "chuqur plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_DEEP_CLOAK))
 			pline("While wearing this cloak, you will occasionally be displaced so monsters have a harder time hitting you, and it can also sometimes prevent level drain effects.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "pink cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "bakh-rozovyy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "portlash-pushti plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_PINK_CLOAK))
 			pline("Yes, it doesn't really make sense, but while wearing this bright pink color, monsters will be reluctant to close in on you.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "birthcloth") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "rozhdeniye tkan'") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "tug'ilgan mato"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BIRTHCLOTH))
 			pline("Do you wanna have children? Then wear this as you're about to have a sexual encounter!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "grass cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "plashch trava") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "o't plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GRASS_CLOAK))
 			pline("It's a very green cloak. So green in fact that green-colored monsters may spontaneously become your pets.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "contaminated coat") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "zagryaznennoye pal'to") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ifloslangan palto"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CONTAMINATED_COAT))
 			pline("This coat is contaminated with botulism spores! If you wear it, you will become deathly ill every once in a while!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "withered cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "uvyadshiye plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shol plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_WITHERED_CLOAK))
 			pline("It's a cloak that shows signs of withering... but strangely enough, that seems to make it much more resilient to damage. After all, if it's already damaged beyond repair, it cannot be damaged any further!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "ignorant cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "nevezhestvennyye plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "johil plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_IGNORANT_CLOAK))
 			pline("You will become an ignorant fool if you put on this cloak. It will autocurse and occasionally cause your item identification attempts to fail.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "avenger cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "mstitel' plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qasoskor plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_AVENGER_CLOAK))
 			pline("Did you watch the 'Avengers' movies? With this cloak, you can become mighty like Thor and do extra damage with hammers, but such power also comes at a cost: you will aggravate monsters and go hungry much more quickly.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "gravity cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "gravitatsionnyy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "agar tortishish kuchi plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GRAVITY_CLOAK))
 			pline("Gravity will randomly warp around you while wearing this cloak, causing you to be stunned and disoriented.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "wishful cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "zhelayemoye za deystvitel'noye plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "istalgan plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_WISHFUL_CLOAK))
 			pline("Your wishes will work even with negative luck as long as you're wearing this cloak.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "poke mongo cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sovat' mongo plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "soktudun mongo plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_POKE_MONGO_CLOAK))
 			pline("It turns you into a smombie, but also causes all pokemon to spawn peaceful most of the time. Sometimes they'll even be generated tame. Beware: if any of your pets dies while you wear it, your deity will get angry!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "levuntation cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "levitatsii plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "havo rido kiygan suzadi"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_LEVUNTATION_CLOAK))
 			pline("There is no actual 'levuntation' effect, but wearing this cloak will make all of your potions unsafe to drink.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "quicktravel cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "bystryy plashch puteshestviya") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "tez safar plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_QUICKTRAVEL_CLOAK))
 			pline("A highly dangerous cloak that will prevent multi-turn actions from being interrupted.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "geek cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "komp'yutershchik plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qani plash"))))
-			pline("If you're a geek or graduate, you will gain the power of Eru Illuvator (sic) by putting it on!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "nurse cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "medsestra plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "hamshira plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GEEK_CLOAK))
+			pline("If you're a software engineer, cracker, geek or graduate, you will gain the power of Eru Illuvator (sic) by putting it on!");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_NURSE_CLOAK))
 			pline("Effects that heal you will be improved while you wear it.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "slexual cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "polovoy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "jinsiy plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SLEXUAL_CLOAK))
 			pline("Wearing it increases the chance of receiving sexual pleasure from nymphs. :-)");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "angband cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "plashch sredizem'ye krepost'") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "o'rta yer qal'a plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ANGBAND_CLOAK))
 			pline("While you wear this cloak, the game will behave like Angband. Just see for yourself.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "fleecy-colored cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "vorsistyye tsvetnoy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "serjun rangli plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FLEECY_COLORED_CLOAK))
 			pline("The colors are very fleecy! <3 Everyone will like you much more, and therefore your charisma will go way up while you wear it!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "anorexia cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yedyat plashch rasstroystvo") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "eb buzilishi plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ANOREXIA_CLOAK))
 			pline("You will suffer from a terrible, life-threatening condition if you wear it. DANGER: anorexia exists in real life too and is just as deadly there. The Amy will not be responsible if you stupidly kill yourself by refusing to eat!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "flash cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "flesh-plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "bir flesh plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FLASH_CLOAK))
 			pline("This cloak will occasionally hit you with a flash of light that causes blindness.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "dnethack cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "podzemeliy i vnezemnyye plashch vzlomat'") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "hamzindon va dunyo bo'lmagan doirasi so'yish plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_DNETHACK_CLOAK))
 			pline("Just in case you felt like SLASH'EM Extended was too easy, this cloak will recalculate a bunch of things to make it harder for you.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "boxing gown") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "plat'ye boks") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "boks libosi"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BOXING_GOWN))
 			pline("Wearing this cloak will make you a better martial artist. However, if you don't have the martial arts skill, you won't receive a bonus.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "jamoasi xavfsizlik plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_TEAM_SPLAT_CLOAK))
 			pline("Gogo junethack team splat! TROPHY GET! :D");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "eldritch cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sverkh'yestestvennyy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "aql bovar qilmaydigan plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ELDRITCH_CLOAK))
 			pline("While wearing this cloak, mundane monsters can sometimes turn into dangerous eldritch abominations.");
 
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "musical helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "muzykal'nyy shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "musiqiy dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_MUSICAL_HELMET))
 			pline("While wearing this helmet, you will be very good at playing music. This means that playing an instrument will train your device skill much faster than usual.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "secret helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sekret shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yashirin dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SECRET_HELMET))
 			pline("Wearing this helmet allows you to hide underneath items by moving onto them.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "inkcoat helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shlem pal'to chernil") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "siyoh palto dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_INKCOAT_HELMET))
 			pline("This helmet is covered with ink, and makes you difficult to spot so monsters may move randomly sometimes.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "knowledgeable helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "znayushchikh shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "bilimdon dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_KNOWLEDGEABLE_HELMET))
 			pline("A helmet that grants you knowledge about the arcane things and improves your spellcasting success chance.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "formula one helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "formula odin shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "formula bir zarbdan"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FORMULA_ONE_HELMET))
 			pline("Racecar drivers usually wear this helm. It will make you a little faster, but all monsters will also be a bit faster if you wear it!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "difficult cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "trudnyy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qiyin plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_DIFFICULT_CLOAK))
 			pline("Wearing this cloak will make the game more difficult by spawning much higher-level monsters.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "gentle cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "nezhnyy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "muloyim plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GENTLE_CLOAK))
 			pline("It's a very lovely cloak that increases your charisma by one point while worn.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "irradiation cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "oblucheniye plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "nurlanish plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_IRRADIATION_CLOAK))
 			pline("This cloak is radioactive and will slowly damage your maximum hit points and mana while worn.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "soft cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "myagkiy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yumshoq plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SOFT_CLOAK))
 			pline("Wearing this cloak will very slightly decrease the amount of physical damage you take.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "excrement cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ekskrementy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "chiqindi plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_EXCREMENT_CLOAK))
 			pline("Don't wear this cloak unless you want to stink like a heap of shit. It causes you to aggravate monsters, and you will be unable to have stealth while you have it on!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "hungry cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "golodnymi plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "chanqoq plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_HUNGRY_CLOAK))
 			pline("This cloak will occasionally make you much more hungry while you wear it. Careful, don't starve to death!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "science cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "nauka plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ilm-fan plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SCIENCE_CLOAK))
 			pline("Scientific modifications allow the wearer of this cloak to cast spells with an increased chance of success.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "guild cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "gil'dii plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "birlik plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GUILD_CLOAK))
 			pline("Wearing this cloak puts you in the Mages Guild, so to speak - you will not forget your spells over time while you have it on.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "erotic boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "eroticheskiye sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "erotik chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_EROTIC_BOOTS))
 			pline("You get all wet and horny when looking at this pair of high heels. In particular, you almost have a spontaneous orgasm when you look at the fleecy block heels.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "sputa boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "mokrota sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sputa chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SPUTA_BOOTS))
 			pline("Think of the sweet block heels your sputa will flow down.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "radiant heels") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "izluchayushchiye kabluki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yorqin ko'chirish to'piqlarni"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_RADIANT_HEELS))
 			pline("These high heels are very colorful! Gotta love the beautiful wedge heels <3");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "turbo boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "turbo sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qidiruvi va turbo chizilmasin"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_TURBO_BOOTS))
 			pline("It's a pair of boots with a built-in turbo that makes you move a bit faster, but certain actions that would usually interrupt you will no longer do so.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "sexy heels") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "seksual'nyye kabluki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "belgila sexy ko'chirish to'piqlarni"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SEXY_HEELS))
 			pline("These high heels are very sexy! In fact, just looking at the cone heels makes you wet!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "stroking boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "poglazhivaya sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "etiklar silay"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_STROKING_BOOTS))
 			pline("You absolutely want to stroke these wonderful high heels. The block heels certainly feel soooooo incredibly soft!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "baxmal qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_VELVET_GLOVES))
 			pline("Wearing this pair of gloves will halve your spellcasting penalty for wearing armor, so if you want to be able to cast in full plate mail, this is the ticket. Also, secret hint! If you happen to find a nastroscha, a rare but possibly dangerous monster, chat to her while wearing these gloves and something good may happen.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "racer gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "gonshchik perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "poygachi qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_RACER_GLOVES))
 			pline("You will be slightly faster than usual while wearing this pair of gloves, but it prevents you from using the quicktravel command so you have to walk everywhere on foot.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "shitty gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "der'movyye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "boktan qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SHITTY_GLOVES))
 			pline("This pair of gloves is not very good; if you try to pick up a petrifying object with them, bad things will happen. Not necessarily petrification, mind you.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "sensor gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sensornyye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "tayinlangan qurilmani qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SENSOR_GLOVES))
 			pline("Use this pair of gloves to be warned of traps that you step on - the sensor will sound an alarm whenever you walk over one.");
 
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "blue sneakers") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "siniye krossovki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ko'k shippak"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BLUE_SNEAKERS))
 			pline("These sneakers look cute, and their rough soles can sometimes prevent you from fumbling. They count as sexy flats.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "colorfade cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "plashch tsveta") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ranglash plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_COLORFADE_CLOAK))
 			pline("Wearing this cloak causes monsters to have no color.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "femmy boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "zhenskiye sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "nazokat etigi"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FEMMY_BOOTS))
 			pline("A high-heeled pair of boots that used to be worn by Femmy. She really likes cone heels, it seems. If you let them enclose your feet, the dungeon will slowly become more feminine.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "dream helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shlem mechty") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "dubulg'a orzu"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_DREAM_HELMET))
 			pline("Pleasant dreams will come to you while you have this helmet on - it allows you to regenerate hit points and mana more quickly while sleeping.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "red sneakers") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "krasnyye krossovki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qizil shippak"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_RED_SNEAKERS))
 			pline("This is a lovely pair of bang-red sneakers. If you kill a monster while wearing them, you will heal up a bit. Of course they also count as sexy flats.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "yellow sneakers") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "zheltyye krossovki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sariq shippak"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_YELLOW_SNEAKERS))
 			pline("An incredibly cute pair of sneakers made of wonderfully soft velvet. But they are actually powerful and increase the damage you do while kicking, plus they're immune to heaps of shit. However, if you ever allow them to get wet, you'll be paralyzed. Wearing them trains the sexy flats skill.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "pink sneakers") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "rozovyye krossovki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "pushti shippak"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_PINK_SNEAKERS))
 			pline("This pair of sneakers looks very female and lovely, and will train your sexy flats skill when worn! However, they also emit a beguiling stench that can affect both you and monsters.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "sharp-edged sandals") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ostrokonechnyye sandalii") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "o'tkir xanjarday kavushlari"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SHARP_EDGED_SANDALS))
 			pline("The heels of this pair of female stiletto sandals are very sharp-edged.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "ski heels") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "lyzhnyye kabluki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "chang'i poshnalar"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SKI_HEELS))
 			pline("A special pair of high-heeled footwear that can walk over snow, which is now actually in the game and causes them to speed up. But they walk on ice just as well :-). However, they have a tendency to step into invisible heaps of shit and might also trigger other traps without you noticing. Their heels aren't really wedge heels but they don't really fit into any other heel category.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "slowing gown") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "zamedlennoye plat'ye") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sekinlashuvi libos"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SLOWING_GOWN))
 			pline("It's very heavy and improves your armor class by an extra 3 points, but also slows you down to half speed.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "foundry cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "liteynyy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "quyish plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FOUNDRY_CLOAK))
 			pline("While wearing this cloak, if you quaff from a fountain you'll get extra nutrition. But quaffing from fountains is like playing russian roulette anyway. Are you foolish enough to do it?");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "fetish heels") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "idol kabluki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "but poshnalar"))))
-			pline("These high heels slow you down greatly, because seriously, they're not meant to be used for walking. After all, stiletto heels with a height of 15 cm are super cumbersome, try it in real life :P They also increase your charisma and allow you to chat to nymphs or farting monsters to pacify them. However, monsters with claw attacks will try to rip you to pieces.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "rubynus helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "rubinovyy shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yoqut asosiy dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FETISH_HEELS))
+			pline("These high heels slow you down greatly when moving around, because seriously, they're not meant to be used for walking. After all, stiletto heels with a height of 15 cm are super cumbersome, try it in real life :P They also increase your charisma and allow you to chat to nymphs or farting monsters to pacify them. However, monsters with claw attacks will try to rip you to pieces.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_RUBYNUS_HELMET))
 			pline("The rubynus material is actually from Elona and increases 'life rating' there. But here, wearing this helmet will instead increase your constitution.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "thinking helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "myslyashchiy shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "fikr dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_THINKING_HELMET))
 			pline("This helmet thinks for you! It improves all of your stats by one. However, it's also rather self-willed and will occasionally cause you to move in an unintended direction.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "silk fingerlings") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shelkovyye mal'ki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ipak va ling, barmoqlar"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SILK_FINGERLINGS))
 			pline("A thin pair of gloves that doesn't cover your fingers. Beware the cockatrice.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "netradiation helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "obluchonnyy shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sof radiatsiya dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_NETRADIATION_HELMET))
 			pline("Made of radioactive material, wearing it for a prolonged time will slowly sap your maximum health. It also has a chance of protecting you from monsters' gaze attacks.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "velvet pumps") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "barkhatnyye nasosy") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "duxoba nasoslar"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_VELVET_PUMPS))
 			pline("Such a lovely, soft pair of high-heeled female pumps! <3 (No, the Amy does not have a shoe fetish at all. She just happens to love cone heels!)");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "hearing cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "plashch dlya slukha") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "eshitish plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_HEARING_CLOAK))
 			pline("If you wear this cloak, listening to the dungeon becomes possible and very occasionally you'll notice a monster being spawned.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "calf-leather sandals") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sandalii iz telyach'yey kozhi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "buzoq-charm kavushlari"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CALF_LEATHER_SANDALS))
 			pline("With this pair of sandals, you can kick your enemies into the shins repeatedly, and your kick will never be clumsy. However, it will also deal considerably less damage. They count as sexy flats.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "velcro sandals") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sandalii na lipuchkakh") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "cirt kavushlari"))))
-			pline("These sandals are a curse if you want to run, because they slow you down. They also don't look very good and reduce your charisma. Plus, you'll be more vulnerable to claw attacks. However, if you kick an enemy, you'll deal extra damage and paralyze the target! Also, despite not actually looking very sexy, they still count as sexy flats.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "spellsucking cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "plashch zaklinaniy") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "so'rib imlo plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_VELCRO_SANDALS))
+			pline("These sandals are a curse if you want to run, because they slow you down if you try to move around. They also don't look very good and reduce your charisma. Plus, you'll be more vulnerable to claw attacks. However, if you kick an enemy, you'll deal extra damage and paralyze the target! Also, despite not actually looking very sexy, they still count as sexy flats.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SPELLSUCKING_CLOAK))
 			pline("This cloak randomly increases or decreases your current amount of mana.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "princess gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "perchatki printsessy") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "malika qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_PRINCESS_GLOVES))
 			pline("Wearing this royal attire increases your charisma and makes lords and princes spawn peaceful more often. However, lowly monsters will hate you and try to scratch or sting you to death.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "uncanny gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sverkh''yestestvennyye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "dahshatli qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_UNCANNY_GLOVES))
 			pline("A pair of gloves that makes your spells both harder to cast and more expensive, but your weapon damage and accuracy will go up.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "strip bandana") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "polosa bandanu") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "bir ip yengil bosh kiyim"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_STRIP_BANDANA))
 			pline("This headgear is so thin that it doesn't protect your head from the mind flayer's tentacles.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "roadmap cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "plashch dorozhnoy karty") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yo'l xaritasi plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ROADMAP_CLOAK))
 			pline("Occasionally, this cloak will reveal some information about the current dungeon level to you.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "storm coat") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shtorm") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "bo'ron palto"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_STORM_COAT))
 			pline("With this cloak, praying to your deity will not always set a prayer timeout. Unfortunately, the game never tells you whether it did or not, though.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "buffalo boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "buyvolovyye sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qo'tos botlarni"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BUFFALO_BOOTS))
 			pline("Thanks to the plateau soles, this pair of boots counts as high heels (technically one could consider them to be wedge heels). Kicking a monster with them will push it back more often, but you will encounter more heaps of shit and you will fully step into them even if you're flying.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "fleeceling cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "pushistyy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "serjunrangli plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FLEECELING_CLOAK))
 			pline("All glyphs have a 1 in 5 chance of being fleecy-colored while you wear this.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "heroine mocassins") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "mokasiny dlya geroini") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qahramoni mokasen"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_HEROINE_MOCASSINS))
 			pline("If you want to be a true heroine, wear these and the damage reduction effect you're getting from having negative AC will be better! And they also look so cute that they'll use the sexy flats skill!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "up-down cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "plashch s verkhnim plashchem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "up-pastga plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_UP_DOWN_CLOAK))
 			pline("This cloak is weird. It supposedly allows you to take off armor worn underneath it, but the cloak will not come off unless you take off the armor first!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "twisted visor helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shlem vitoy shlema") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "buekuemlue soyabon dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_TWISTED_VISOR_HELMET))
 			pline("It protects you from blindness attacks. However, confusion and hallucination will take five times as long to time out!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "occultism gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "perchatki okkul'tizma") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "folbinlik qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_OCCULTISM_GLOVES))
 			pline("A pair of gloves that reduces the amount of mana required for casting occult spells.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "cyanism cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "plashch s tsianom") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ko'k zaharlanish plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CYANISM_CLOAK))
 			pline("Wearing this cloak increases the range of rocks and gems you shoot with your sling.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "heap of shit boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kucha der'movykh sapog") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "boktan etik to'p"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_HEAP_OF_SHIT_BOOTS))
 			pline("The previous owner of this pair of profiled boots stepped into a heap of shit again and again until the soles were completely immersed with the stuff, and as a result you'll aggravate monsters and not be stealthy while wearing them. For some weird reason they will also use the sexy flats skill when worn.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "bluy helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "siniy shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "bluy dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BLUY_HELMET))
 			pline("This helmet attracts blue monsters.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "lolita boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "botinki s lolitoy") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "bosh ketish etigi"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_LOLITA_BOOTS))
 			pline("While wearing these heels, monsters will want to have sex with you. And the Amy will constantly swoon over your very beautiful block heels and want to marry you. <3");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "digger gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kopatel'skiye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kazici qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_DIGGER_GLOVES))
 			pline("This pair of gloves improves your digging speed with tools.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "long-range cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "dlinnyy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "uzoq masofaga plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_LONG_RANGE_CLOAK))
 			pline("If you wear this cloak, beams and breath attacks will have more range, and it applies both ways.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "inverse gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "obratnyye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "teskari qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_INVERSE_GLOVES))
 			pline("Putting on these gloves will invert the enchantment value. If that causes it to become negative, they'll also become heavily cursed!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "weapon light boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "legkiye botinki dlya oruzhiya") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "qurol engil etigi"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_WEAPON_LIGHT_BOOTS))
 			pline("This fleecy-soft pair of leather boots can slit a person's leg full length in a matter of seconds because the tender combat boot heels can cause a lot of damage even though they look very cute. If you kick a monster with them, you deal a ton of extra damage by scratching the enemy with the lovely stiletto heel, but because you do not have the required weapon light to use them, it will increase your sin counter every time until the cops show up and try to arrest you!");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "slaying gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ubiystvennyye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "o'ldirish qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SLAYING_GLOVES))
 			pline("These gloves increase your accuracy and damage by one point each.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "less helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "men'she shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kam dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_LESS_HELMET))
 			pline("Every time you put on this helmet, it will disenchant itself if its enchantment was positive.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "flier cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "plashch letchika") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "uchuvchi plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FLIER_CLOAK))
 			pline("A cloak that allows you to move over water or lava without falling in. Careful: other ground-based hazards can still affect you!");
 
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "rifling power cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "naplechnyy shchit sily") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "miltig'idan tortib, kuch-quvvat plashi"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_RIFLING_POWER_CLOAK))
 			pline("While wearing this cloak, your rifles have a multishot bonus. It works for the regular rifle as well as the hunting rifle, sniper rifle and process card.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "cursed called cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "proklyatyy pod nazvaniyem plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "la'natlangan la'nati"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CURSED_CALLED_CLOAK))
 			pline("A cloak that causes items to be generated cursed more often while you wear it, and may also very occasionally cause your items to become cursed.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "failuncap cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "mantiya s provalom") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "noto'g'ri plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FAILUNCAP_CLOAK))
 			pline("This cloak has the beneficial effect of slightly improving your casting rates even when other effects of that type don't help.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "fourchan cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "chetyrekhchasovoy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "to'rtburchak plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FOURCHAN_CLOAK))
 			pline("Wearing this cloak as an otaku (and only that role) improves your to-hit, damage output, armor class and casting chances.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "inalish cloak") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "glupyy plashch") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ichki plash"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_INALISH_CLOAK))
 			pline("As long as you wear this cloak, sickness effects only have one quarter of the usual chance to make you sick.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "grunter helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shturmovoy shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "go'shtli dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GRUNTER_HELMET))
 			pline("A helmet that increases the chance of sickness-inducing monsters being spawned.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "cloudy helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "oblachnyy shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "bulutli dubulg'a"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CLOUDY_HELMET))
 			pline("Wearing this helmet gives you half physical damage while you're on a cloud tile.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "failuncap helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shlem s provalom") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "noto'g'ri zarbdan"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FAILUNCAP_HELMET))
 			pline("While you wear this helmet, all of your spells are slightly easier to cast, even if their success rate would otherwise be limited.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "breath control helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shlem upravleniya dykhaniyem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "nafasni boshqarish dubulg'asi"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BREATH_CONTROL_HELMET))
 			pline("You may receive sexual pleasure while wearing this helmet, but it can also cause you to take suffocation damage and eventually die.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "gas mask") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "protivogaz") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "gaz niqobi"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GAS_MASK))
 			pline("This randomized helmet was invented by bugsniper because he wants to have something that provides resistance to perfume attacks, which this mask does.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "sages helmet") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "mudryy shlem") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "do'stlar dubulg'asi"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SAGES_HELMET))
 			pline("A wise helmet that displays a few invisible enemies and also offers slight protection from the curse items effect.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "demolition gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "perchatki dlya snosa") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "buzilgan qo'lqoplar"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_DEMOLITION_GLOVES))
 			pline("With a rather low chance, these gloves cause a stick of dynamite to explode underneath you, which can be good because it razes walls but it's also bad because it hurts you.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "failuncap gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "perchatki s perforatsiyey") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "noto'g'ri qo'lqop"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FAILUNCAP_GLOVES))
 			pline("A magic-enhancing pair of gloves that slightly improves your spellcasting success chance, potentially increasing it beyond the normal limit.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "rayductnay gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ruchnyye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "nurli qo'lqoplar"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_RAYDUCTNAY_GLOVES))
 			pline("With this pair of gloves, rays will no longer have their range reduced when they hit something.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "flower gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "tsvetochnyye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "gul qo'lqoplari"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FLOWER_GLOVES))
 			pline("While you're wearing these gloves, %%-class monsters may be spawned peaceful or occasionally even tame.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "gameble gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "geymperskiye perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "o'yinchoq qo'lqoplari"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GAMEBLE_GLOVES))
 			pline("Putting these gloves on will cause the enchantment to either go up or down, decided randomly, and their BUC will change to match.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "bise gloves") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "bi sebe perchatki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "bosh o'pish sportchisi"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BISE_GLOVES))
 			pline("Occasionally these gloves will kiss you, which increases your charisma but also paralyzes you for a few turns.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "orgasm pumps") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "nasosy dlya orgazma") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "orgazm nasoslari"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_ORGASM_PUMPS))
 			pline("Wow, these cone-heeled beauties are SOOOOOOOOOOOO cute!!! <3<3<3");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "worn-out sneakers") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "iznoshennyye krossovki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "eskirib qolgan sport poyafzali"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_WORN_OUT_SNEAKERS))
 			pline("Despite being all torn and damaged, these sneakers still count as sexy flats.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "imaginary heels") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "voobrazhayemyye kabluki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "xayoliy to'pi"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_IMAGINARY_HEELS))
 			pline("This pair of stiletto heels doesn't really exist, it's only an illusion. And therefore, they're mostly immune to item erosion effects.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "noble sandals") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "blagorodnyye sandalii") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "oqlangan sandallar"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_NOBLE_SANDALS))
 			pline("A very elegant pair of cone-heeled sandals that reduces the odds of item-stealing monsters being successful against you, but you become more susceptible to claw attacks while wearing them.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "failuncap shoes") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "s provalom obuv'") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "poyafzal poyafzallari"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FAILUNCAP_SHOES))
 			pline("Wearing this pair of shoes can increase your spellcasting chances beyond the limit.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "flipflops") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shlepki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "sohil shippaklari"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FLIPFLOPS))
 			pline("Wearing flipflops cancels out your ability to swim (if present).");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "rumble boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "gul botinki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yirtqich chiziqlar"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_RUMBLE_BOOTS))
 			pline("Every step you take with these boots alerts monsters to your position.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "high iron boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "vysokiye zheleznyye botinki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "yuqori temir chiziqlar"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_HIGH_IRON_BOOTS))
 			pline("Unlike other boots, this pair fully protects you against leg injury attacks that xans and similar monsters can use.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "doctor claw boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "kolgotki dlya sapog") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "shifokor chiziqlari"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_DOCTOR_CLAW_BOOTS))
 			pline("If you kick an enemy with these boots, it often gets pushed back.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "spooky boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "zhutkiy botinok") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "jingalak botinkalar"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SPOOKY_BOOTS))
 			pline("Occasionally, this pair of boots summons high-level ghosts that attack you.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "feelgood heels") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "chuvstvennyye kabluki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "his-tuyg'ulari baland"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FEELGOOD_HEELS))
 			pline("Such a gentle-soft pair of female cone heels! You can wear them even without having the high heels skill and won't get hit by any bad side effects.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "gentle sneakers") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "nezhnyy krossovki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "nozik poyafzallar"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_GENTLE_SNEAKERS))
 			pline("Occasionally, kicking a monster with this pair of sexy flat sneakers can disarm it.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "plof heels") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "ploskiye kabluki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "buzilgan yurish ovozi to'piqlari"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_PLOF_HEELS))
 			pline("They count as block heels, and while wearing them, stun and paralysis may sometimes time out more quickly. They may also deal extra damage if you kick a monster. But if anyone kicks you, the heels may be damaged.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "princess pumps") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "nasosy printsessy") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "malika nasoslari"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_PRINCESS_PUMPS))
 			pline("A pair of cone-heeled pumps that greatly increases your charisma and makes royal monsters spawn peaceful more often, but monsters with lash, sting or scratch attacks are spawned more often and deal more damage to you while wearing them.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "ballet heels") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "baletnyye kabluki") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "balet poshnali"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_BALLET_HEELS))
 			pline("This pair of stilettos is a trap. They slow you down when you wear them.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "steel toed boots") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "stal'nyye kosolapyy sapogi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "po'latdan yasalgan poyafzal"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_STEEL_TOED_BOOTS))
 			pline("Kicking a monster with these boots deals an extra point of kicking damage.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "marji shoes") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "obuv' marzhi") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "oz maryam poyafzallari"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_MARJI_SHOES))
 			pline("A pair of sexy flats that makes you slightly resistant to damage.");
-		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && ( (!strcmp(OBJ_DESCR(objects[obj->otyp]), "mary janes") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "meri dzheyn") || !strcmp(OBJ_DESCR(objects[obj->otyp]), "meri janes"))))
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_MARY_JANES))
 			pline("These cone heels magically grant resistance to mind flayers' intelligence drain attacks.");
+
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_VOLCANIC_CLOAK))
+			pline("Wearing this cloak makes you resistant to the very bad effects of falling into lava, but even with it, lava will still be VERY BAD, so you shouldn't ever rely on it to get you across a pool of lava.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_DIFFERENT_CLOAK))
+			pline("Certain monsters spawn a bit more often if you wear this.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FUEL_CLOAK))
+			pline("While wearing this cloak, you don't have to pay yendorian fuel tax.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_PURE_CLOAK))
+			pline("If you're wearing this cloak, you have a little extra protection from poison and sickness effects.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_CLOISTER_CLOAK))
+			pline("A cloak that makes it more likely for buried items to exist on a newly generated dungeon level.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SHEMAGH))
+			pline("If you don't know what a shemagh is, it's a type of arabian headgear that protects against sand. This is reflected in-game, where you're immune to sandstorms while wearing it.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_LEAD_HELMET))
+			pline("While wearing this helmet, your carried weight is increased, meaning you can carry less other stuff.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SERRATED_HELMET))
+			pline("If you're attacked by a mind flayer while wearing this helmet, the helmet will retaliate with its spikes.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_TECHNICAL_HELMET))
+			pline("Wearing this helmet increases your techniques' effective level by one, but not beyond 50.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_THICK_BOOTS))
+			pline("A pair of boots that offers full protection against xans.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SAND_ALS))
+			pline("This pair of sandals protects you from the bad effect of sandstorms.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_SHADOWY_HEELS))
+			pline("These cone-heeled lady pumps are almost invisible.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_REFLECTIVE_SLIPPERS))
+			pline("A pair of shoes that counts as sexy flats, and allows you to occasionally reflect beams.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_LEAD_BOOTS))
+			pline("Wearing these boots adds 100 points to the weight of your stuff, so your effective carry capacity will be decreased. Because these boots are rather heavy.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_WEIGHT_ATTACHMENT_BOOTS))
+			pline("These boots will turn out to weigh an additional 500 units if you put them on, and also prevent you from flying.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_FUNGAL_SANDALS))
+			pline("This pair of sandals is infected with fungi, sadly. For some reason they still count as sexy flats though, and while you're wearing them, there's a 1 in 50000 chance per turn that you polymorph into a fungus!");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_PORCELAIN_SANDALS))
+			pline("You shouldn't kick with these sandals, because they will be disenchanted every time and eventually break!");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_PRINTED_SANDALS))
+			pline("This pair of stiletto sandals was created with a 3D printer.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_PRINTED_WEDGES))
+			pline("This pair of wedge sandals was created with a 3D printer.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && itemhasappearance(obj, APP_STANDING_FOOTWEAR))
+			pline("A pair of shoes that's unsuitable for walking, because the wedge heels are so weirdly-shaped. Every once in a while they will cause you to sink into the ground, forcing you to free yourself before you can move again, but on the bright side, monsters may occasionally be scared when they see you in such outerspace heels.");
 
 		if (!nn) pline("Unfortunately you don't know more about it. You will gain more information if you identify this item.");
 		else { switch (obj->otyp) {
@@ -8669,10 +10099,20 @@ struct obj *obj;
 				pline("This is a legendary shirt that used to be worn by Kurt Cobain. Unlike other shirts, it can be safely enchanted when it's at +5."); break;
 			case T_SHIRT: 
 				pline("A shirt that can be worn under a suit of armor. It can be read."); break;
+			case TOILET_ROLL:
+				pline("Yeah I know, this makes no sense... but what did you expect, this is SLEX! It doesn't have to make sense :-P Anyway, this armor piece can be worn in the shirt slot. It can be read."); break;
 			case PRINTED_SHIRT: 
 				pline("It's an extra piece of armor that goes in the shirt slot. It can be read."); break;
+			case METAL_SHIRT:
+				pline("This shirt grants poison resistance when worn. It can be read."); break;
+			case RED_STRING:
+				pline("Not really a shirt, but there's no belt slot so you can equip it as a shirt instead, and it causes your bleeding wounds to close more quickly. It can be read."); break;
 			case WOOLEN_SHIRT: 
 				pline("A shirt that provides cold resistance when worn. It can be read."); break;
+			case YOGA_PANTS: 
+				pline("It's actually a shirt. It can be read."); break;
+			case GREEN_GOWN: 
+				pline("A rather regular shirt, the only interesting thing about it is its green color which doesn't actually change anything. It can be read."); break;
 			case SWIMSUIT: 
 				pline("A plastic shirt that allows you to swim in water. It can be read."); break;
 			case BEAUTIFUL_SHIRT: 
@@ -8685,22 +10125,32 @@ struct obj *obj;
 				pline("A very heavy plate mail that offers less protection than regular plate mail."); break;
 			case RIBBED_PLATE_MAIL:
 				pline("This very strong armor is resistant to rust and corrosion."); break;
+			case WONDER_PLATE:
+				pline("Hmm, I wonder what material this suit of armor is made from. It provides very good armor class and 2 points of magic cancellation."); break;
 			case METAL_LAMELLAR_ARMOR:
 				pline("A relatively good suit of armor that resists erosion."); break;
 			case BAR_CHAIN_MAIL:
 				pline("It's a chain mail that cannot rust, although it's still subject to corrosion."); break;
 			case TAR_CHAIN_MAIL:
 				pline("Chain mail made of lithic material, useful if you want to cast spells and still wear armor."); break;
+			case FULL_LEAD_SUIT:
+				pline("This extremely heavy suit of armor provides a whole lot of armor class, medium magic cancellation, and the very useful contamination resistance property!"); break;
 			case PEACEKEEPER_MAIL:
 				pline("A wooden armor that offers very high armor class and also grants peacevision."); break;
 			case GOTHIC_PLATE_MAIL:
 				pline("This suit offers even more protection than regular plate mail."); break;
+			case NANO_SUIT:
+				pline("A lightweight suit of armor that offers mediocre protection."); break;
 			case EMBOSSED_PLATE_MAIL:
 				pline("A very powerful suit that's superior to regular plate mail and doesn't hinder spellcasting, however it's subject to all erosion effects unless you specifically erodeproof it."); break;
+			case MEDIUM_MITHRIL_COAT:
+				pline("This suit of armor is most probably not made of mithril, but it offers good armor class and 3 points of magic cancellation."); break;
 			case INKA_MITHRIL_COAT:
 				pline("It's misnamed, because the material it is made of isn't actually mithril, but it offers good armor class and 3 points of magic cancellation."); break;
 			case DROVEN_MITHRIL_COAT:
 				pline("A coat that is not made of mithril. Instead, the material is glass, which means that throwing it will cause it to shatter, but why would you do that? It offers good armor class and 3 points of magic cancellation, and due to the fact it's non-metallic, it doesn't hinder spellcasting."); break;
+			case TAPERED_MAIL:
+				pline("This suit is rather mediocre."); break;
 			case SILK_MAIL:
 				pline("A weak suit of armor."); break;
 			case HEAVY_MAIL:
@@ -8733,35 +10183,39 @@ struct obj *obj;
 				pline("This very lovely piece of cloth (which counts as a shirt) offers medium magic cancellation. It can be read."); break;
 			case BODYGLOVE: 
 				pline("Good thing this item is not unbalanced at all. Just a t-shirt that offers sickness resistance and maximum magic cancel-WAIT WHAT OMG I GOTTA WEAR THIS SO BAD!!! It can be read."); break;
-			case STRIPED_SHIRT: 
+			case STRIPED_SHIRT:
 				pline("A shirt that can be worn under a suit of armor. Shopkeepers who see you wearing this will not allow you to enter their shop. It can be read."); break;
-			case RUFFLED_SHIRT: 
+			case RUFFLED_SHIRT:
 				pline("A shirt that can be worn under a suit of armor. If you wear a cursed one, you have a small chance of reviving on death. It can be read."); break;
-			case VICTORIAN_UNDERWEAR: 
+			case VICTORIAN_UNDERWEAR:
 				pline("This wonderful piece of clothing can be worn under a suit of armor to grant 3 points of magic cancellation. If you wear a cursed one, you have a small chance of reviving on death. It can be read."); break;
-			case PLATE_MAIL: 
+			case PLATE_MAIL:
 				pline("A very heavy suit of armor that offers good protection."); break;
-			case FULL_PLATE_MAIL: 
+			case FULL_PLATE_MAIL:
 				pline("This suit of armor covers your whole body and offers great protection, but it's also really heavy."); break;
-			case DROVEN_PLATE_MAIL: 
+			case DROVEN_PLATE_MAIL:
 				pline("This plate mail is light, but it offers less protection than actual plate mail."); break;
-			case PLASTEEL_ARMOR: 
+			case PLASTEEL_ARMOR:
 				pline("A low-weight suit of armor with a good armor value."); break;
-			case CRYSTAL_PLATE_MAIL: 
+			case CRYSTAL_PLATE_MAIL:
 				pline("A very heavy suit of armor that offers good protection."); break;
-			case BRONZE_PLATE_MAIL: 
+			case BRONZE_PLATE_MAIL:
 				pline("This suit of armor is inferior to regular plate mail."); break;
-			case SPLINT_MAIL: 
+			case SPLINT_MAIL:
 				pline("A robust suit of armor that offers good protection."); break;
-			case OLIHARCON_SPLINT_MAIL: 
+			case OLIHARCON_SPLINT_MAIL:
 				pline("This robust suit of armor is made of a rare material whose name nobody can spell correctly (for reference: it's ORICHALCUM); it offers good protection."); break;
-			case BAMBOO_MAIL: 
+			case BAMBOO_MAIL:
 				pline("A relatively weak suit of armor."); break;
-			case SAILOR_BLOUSE: 
+			case LIZARD_SCALE_MAIL:
+				pline("This armor grants petrification resistance, but weak AC."); break;
+			case LIZARD_SCALES:
+				pline("This armor grants petrification resistance, but very weak AC."); break;
+			case SAILOR_BLOUSE:
 				pline("It's light and yet offers some protection."); break;
-			case SAFEGUARD_SUIT: 
+			case SAFEGUARD_SUIT:
 				pline("Almost no AC but it grants you the ability to swim."); break;
-			case FEATHER_ARMOR: 
+			case FEATHER_ARMOR:
 				pline("Believe it or not, this armor actually has magic cancellation in addition to its low amount of AC."); break;
 			case SCHOOL_UNIFORM: 
 				pline("A useless armor that you should wear only if you really can't find anything better."); break;
@@ -8901,6 +10355,16 @@ struct obj *obj;
 				pline("This armor offers great protection as well as poison resistance."); break;
 			case GOLDEN_DRAGON_SCALE_MAIL: 
 				pline("This armor offers great protection as well as sickness resistance."); break;
+			case FEMINISM_DRAGON_SCALE_MAIL: 
+				pline("This armor offers great protection as well as scent view."); break;
+			case CANCEL_DRAGON_SCALE_MAIL: 
+				pline("This armor offers great protection as well as 5 points of magic cancellation."); break;
+			case NEGATIVE_DRAGON_SCALE_MAIL: 
+				pline("This armor offers great protection as well as death resistance."); break;
+			case CORONA_DRAGON_SCALE_MAIL: 
+				pline("This armor offers great protection as well as sustain ability."); break;
+			case HEROIC_DRAGON_SCALE_MAIL: 
+				pline("This armor offers great protection as well as diminished bleeding."); break;
 			case STONE_DRAGON_SCALE_MAIL: 
 				pline("This armor offers great protection as well as petrification resistance."); break;
 			case CYAN_DRAGON_SCALE_MAIL: 
@@ -8961,6 +10425,16 @@ struct obj *obj;
 				pline("This armor offers moderate protection as well as poison resistance."); break;
 			case GOLDEN_DRAGON_SCALES: 
 				pline("This armor offers moderate protection as well as sickness resistance."); break;
+			case FEMINISM_DRAGON_SCALES: 
+				pline("This armor offers moderate protection as well as scent view."); break;
+			case CANCEL_DRAGON_SCALES: 
+				pline("This armor offers moderate protection as well as 5 points of magic cancellation."); break;
+			case NEGATIVE_DRAGON_SCALES: 
+				pline("This armor offers moderate protection as well as death resistance."); break;
+			case CORONA_DRAGON_SCALES: 
+				pline("This armor offers moderate protection as well as sustain ability."); break;
+			case HEROIC_DRAGON_SCALES: 
+				pline("This armor offers moderate protection as well as diminished bleeding."); break;
 			case STONE_DRAGON_SCALES: 
 				pline("This armor offers moderate protection as well as petrification resistance."); break;
 			case CYAN_DRAGON_SCALES: 
@@ -9121,9 +10595,15 @@ struct obj *obj;
 				pline("This cloak increases the range of certain monster attacks. It grants quite good armor class and 3 points of magic cancellation."); break;
 			case UNFAIR_ATTACK_CLOAK:
 				pline("This cloak allows monsters to use unfair attacks on you. It grants great armor class and 7 points of magic cancellation."); break;
+			case CLOAK_OF_BAD_PART:
+				pline("This cloak makes it so that you're in the bad part. It grants mediocre armor class and 3 points of magic cancellation."); break;
 
 			case CLOAK_OF_QUENCHING: 
 				pline("Wearing this cloak grants fire resistance and 3 points of magic cancellation."); break;
+			case CLOAK_OF_COAGULATION:
+				pline("This cloak gives diminished bleeding, which helps when you sustain bleeding damage, and it also has 3 points of magic cancellation."); break;
+			case CLOAK_OF_SCENT:
+				pline("Wearing this cloak lets you smell nearby enemies, and it has a magic cancellation value of 3."); break;
 
 			case CLOAK_OF_AGGRAVATION:
 				pline("Usually generated cursed. It makes monsters come after you directly, but provides 3 points of magic cancellation."); break;
@@ -9244,6 +10724,8 @@ struct obj *obj;
 				pline("This cloak prevents you from polymorphing, so it should actually be called 'cloak of unchanging'. It also grants 3 points of magic cancellation."); break;
 			case CLOAK_OF_SLOW_DIGESTION:
 				pline("It slows your metabolism while also granting MC3."); break;
+			case LORICATED_CLOAK:
+				pline("The material of this cloak is randomized at game start, and it grants 3 points of magic cancellation."); break;
 			case CLOAK_OF_INFRAVISION:
 				pline("If you're not of a race that has intrinsic infravision, you can wear this cloak to get it extrinsically. It also gives MC3 extrinsically, because there is no intrinsic MC. :-P"); break;
 			case CLOAK_OF_BANISHING_FEAR:
@@ -9266,6 +10748,10 @@ struct obj *obj;
 				pline("A cloak that makes you resistant to the base elements while also giving you 3 points of magic cancellation."); break;
 			case PSIONIC_CLOAK:
 				pline("Psi resistance and 3 points of magic cancellation are what you get by wearing this."); break;
+			case SECOND_SKIN:
+				pline("A cloak that gives regeneration, but only low magic cancellation."); break;
+			case CLOAK_OF_FLIGHT:
+				pline("Well there's certainly better cloaks, but at least this one gives flying. It has only low magic cancellation though."); break;
 
 			case AYANAMI_WRAPPING:
 				pline("No defense but low magic cancellation."); break;
@@ -9316,6 +10802,8 @@ struct obj *obj;
 				pline("A basic helmet that gives a little bit of protection."); break;
 			case DWARVISH_IRON_HELM:
 				pline("A good helmet that offers some protection."); break;
+			case BASINET:
+				pline("A rather plain helmet, but its base material is different per game."); break;
 			case DROVEN_HELM:
 				pline("This helmet offers surprisingly good protection."); break;
 			case FEDORA:
@@ -9512,12 +11000,20 @@ struct obj *obj;
 				pline("This helm causes amnesia. It provides very good AC and 3 points of magic cancellation."); break;
 			case HELM_OF_TELEPORTATION:
 				pline("Put it on to get teleportitis. Usually generated cursed."); break;
+			case OILSKIN_COIF:
+				pline("While wearing this helm, you're almost immune to mind flayer tentacles."); break;
+			case HELM_OF_OPAQUE_THOUGHTS:
+				pline("It's a helmet that conveys psi resistance."); break;
+			case HELM_OF_ANTI_MAGIC:
+				pline("Wearing this helmet conveys magic resistance and produces an anti-magic shell."); break;
 			case HELM_OF_TELEPORT_CONTROL:
 				pline("Control your teleports by wearing this helm."); break;
 			case BIGSCRIPT_HELM:
 				pline("This helm causes BIGscript. It provides low AC and no magic cancellation."); break;
 			case QUIZ_HELM:
 				pline("This helm causes quizzes. It provides medium AC and no magic cancellation."); break;
+			case SCENTY_HELMET:
+				pline("A helmet that should probably be spelled 'scentsy helmet' but isn't. Anyway, if you wear it, you'll be able to smell certain types of monsters at a distance."); break;
 			case DIZZY_HELMET:
 				pline("This helm causes map bugs. It provides moderately good AC and medium magic cancellation."); break;
 			case MUTING_HELM:
@@ -9538,6 +11034,8 @@ struct obj *obj;
 				pline("Wearing this helmet conveys 'weak' telepathy that displays monsters close by, and 'good' telepathy that displays all monsters on the level if you are blind."); break;
 			case PLASTEEL_GLOVES:
 				pline("This pair of gloves offers good protection."); break;
+			case ROCKET_GAUNTLETS:
+				pline("A pair of gauntlets that improves your armor class by 2 points."); break;
 			case GAUNTLETS_OF_THE_FORCE:
 				pline("This pair of gloves offers good protection and enhances your ability to use the force."); break;
 			case LEATHER_GLOVES:
@@ -9557,6 +11055,8 @@ struct obj *obj;
 				pline("A pair of gauntlets that allows you to swim in water."); break;
 			case GAUNTLETS_OF_PLUGSUIT:
 				pline("Wearing this pair of gloves does nothing special."); break;
+			case ROGUES_GLOVES:
+				pline("These gloves improve your searching ability by automatically searching for traps and secret doors every turn."); break;
 			case COMMANDER_GLOVES:
 				pline("They sure look good but unfortunately these gloves are actually rather plain."); break;
 			case FIELD_GLOVES:
@@ -9673,6 +11173,8 @@ struct obj *obj;
 				pline("This shield offers very good protection."); break;
 			case FLAME_SHIELD:
 				pline("A heat-resistant shield that offers fire resistance to the wearer."); break;
+			case ANCIENT_SHIELD:
+				pline("It's a rather good shield that has quite high armor class."); break;
 			case ORCISH_GUARD_SHIELD:
 				pline("Similar to a standard orcish shield, this offers good armor class."); break;
 			case SHIELD:
@@ -9683,12 +11185,18 @@ struct obj *obj;
 				pline("A glass shield that reflects beams at who- or whatever shot them."); break;
 			case RAPIRAPI:
 				pline("This is a good shield made of mineral."); break;
+			case HIDE_SHIELD:
+				pline("While this leather shield has relatively bad defense, it's quite good for blocking projectiles."); break;
 			case PAPER_SHIELD:
 				pline("Someone in the chat suggested this shield (if it's you, feel free to remember me so I can give credits). It gives no armor class at all but a high chance to block projectiles."); break;
 			case ICE_SHIELD:
 				pline("A cold-resistant shield that offers cold resistance to the wearer."); break;
 			case LIGHTNING_SHIELD:
 				pline("A shock-resistant shield that offers shock resistance to the wearer."); break;
+			case CHROME_SHIELD:
+				pline("Wearing this shield grants sickness resistance."); break;
+			case ANTISHADOW_SHIELD:
+				pline("If you wear this shield, your sight in dark areas is improved."); break;
 			case VENOM_SHIELD:
 				pline("A poison-resistant shield that offers poison resistance to the wearer."); break;
 			case SHIELD_OF_LIGHT:
@@ -9739,6 +11247,16 @@ struct obj *obj;
 				pline("A shield made from dragon hide that provides poison resistance as well as protection."); break;
 			case GOLDEN_DRAGON_SCALE_SHIELD:
 				pline("A shield made from dragon hide that provides sickness resistance as well as protection."); break;
+			case FEMINISM_DRAGON_SCALE_SHIELD: 
+				pline("A shield made from dragon hide that provides scent view as well as protection."); break;
+			case CANCEL_DRAGON_SCALE_SHIELD: 
+				pline("A shield made from dragon hide that provides 5 points of magic cancellation as well as protection."); break;
+			case NEGATIVE_DRAGON_SCALE_SHIELD: 
+				pline("A shield made from dragon hide that provides death resistance as well as protection."); break;
+			case CORONA_DRAGON_SCALE_SHIELD: 
+				pline("A shield made from dragon hide that provides sustain ability as well as protection."); break;
+			case HEROIC_DRAGON_SCALE_SHIELD: 
+				pline("A shield made from dragon hide that provides diminished bleeding as well as protection."); break;
 			case STONE_DRAGON_SCALE_SHIELD:
 				pline("A shield made from dragon hide that provides petrification resistance as well as protection."); break;
 			case CYAN_DRAGON_SCALE_SHIELD:
@@ -9804,6 +11322,10 @@ struct obj *obj;
 				pline("This footwear prevents you from seeing lit squares if them being lit was the only reason you saw them. They provide mediocre AC and medium magic cancellation."); break;
 			case KILLER_HEELS:
 				pline("This footwear is high-heeled (stilettos that can kill both the wearer and the one that's being kicked by them :D just kidding!) and allows monsters to create more traps. They provide very good AC and 7 points of magic cancellation."); break;
+			case LADY_BOOTS:
+				pline("Mmmmmmmmmmmm <3<3<3 These block-heeled combat boots are soooooooo kind and gentle! They also provide a few points of armor class."); break;
+			case STILETTO_SANDALS:
+				pline("This pair of stiletto heels sadly doesn't have armor class, but it protects you from the bad effects caused by being in sand terrain."); break;
 			case CHECKER_BOOTS:
 				pline("This footwear causes checkerboard vision. They provide excellent AC and 3 points of magic cancellation."); break;
 			case ELVIS_SHOES:
@@ -9818,6 +11340,8 @@ struct obj *obj;
 				pline("This footwear is block-heeled and causes the highscore effect from SPACE WARS that the Amy her roommate invented. They provide excellent AC and 8 points of magic cancellation."); break;
 			case REPEATABLE_BOOTS:
 				pline("This footwear repeats messages. They provide almost no AC and medium magic cancellation."); break;
+			case ITALIAN_HEELS:
+				pline("The manufacturers of this pair of stiletto heels use a different material for making them every time you start a new game."); break;
 			case TRON_BOOTS:
 				pline("This footwear prevents you from moving into the same direction twice in a row. They provide quite good AC and 3 points of magic cancellation."); break;
 			case RED_SPELL_HEELS:
@@ -10045,8 +11569,40 @@ struct obj *obj;
 				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_T].oc_oprop), objects[DUMMY_CLOAK_T].a_ac, objects[DUMMY_CLOAK_T].a_can ); break;
 			case DUMMY_CLOAK_U: 
 				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_U].oc_oprop), objects[DUMMY_CLOAK_U].a_ac, objects[DUMMY_CLOAK_U].a_can ); break;
-			case DUMMY_CLOAK_V: 
+			case DUMMY_CLOAK_V:
 				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_V].oc_oprop), objects[DUMMY_CLOAK_V].a_ac, objects[DUMMY_CLOAK_V].a_can ); break;
+			case DUMMY_CLOAK_W:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_W].oc_oprop), objects[DUMMY_CLOAK_W].a_ac, objects[DUMMY_CLOAK_W].a_can ); break;
+			case DUMMY_CLOAK_X:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_X].oc_oprop), objects[DUMMY_CLOAK_X].a_ac, objects[DUMMY_CLOAK_X].a_can ); break;
+			case DUMMY_CLOAK_Y:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_Y].oc_oprop), objects[DUMMY_CLOAK_Y].a_ac, objects[DUMMY_CLOAK_Y].a_can ); break;
+			case DUMMY_CLOAK_Z:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_Z].oc_oprop), objects[DUMMY_CLOAK_Z].a_ac, objects[DUMMY_CLOAK_Z].a_can ); break;
+			case DUMMY_CLOAK_AA:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_AA].oc_oprop), objects[DUMMY_CLOAK_AA].a_ac, objects[DUMMY_CLOAK_AA].a_can ); break;
+			case DUMMY_CLOAK_AB:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_AB].oc_oprop), objects[DUMMY_CLOAK_AB].a_ac, objects[DUMMY_CLOAK_AB].a_can ); break;
+			case DUMMY_CLOAK_AC:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_AC].oc_oprop), objects[DUMMY_CLOAK_AC].a_ac, objects[DUMMY_CLOAK_AC].a_can ); break;
+			case DUMMY_CLOAK_AD:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_AD].oc_oprop), objects[DUMMY_CLOAK_AD].a_ac, objects[DUMMY_CLOAK_AD].a_can ); break;
+			case DUMMY_CLOAK_AE:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_AE].oc_oprop), objects[DUMMY_CLOAK_AE].a_ac, objects[DUMMY_CLOAK_AE].a_can ); break;
+			case DUMMY_CLOAK_AF:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_AF].oc_oprop), objects[DUMMY_CLOAK_AF].a_ac, objects[DUMMY_CLOAK_AF].a_can ); break;
+			case DUMMY_CLOAK_AG:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_AG].oc_oprop), objects[DUMMY_CLOAK_AG].a_ac, objects[DUMMY_CLOAK_AG].a_can ); break;
+			case DUMMY_CLOAK_AH:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_AH].oc_oprop), objects[DUMMY_CLOAK_AH].a_ac, objects[DUMMY_CLOAK_AH].a_can ); break;
+			case DUMMY_CLOAK_AI:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_AI].oc_oprop), objects[DUMMY_CLOAK_AI].a_ac, objects[DUMMY_CLOAK_AI].a_can ); break;
+			case DUMMY_CLOAK_AJ:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_AJ].oc_oprop), objects[DUMMY_CLOAK_AJ].a_ac, objects[DUMMY_CLOAK_AJ].a_can ); break;
+			case DUMMY_CLOAK_AK:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_AK].oc_oprop), objects[DUMMY_CLOAK_AK].a_ac, objects[DUMMY_CLOAK_AK].a_can ); break;
+			case DUMMY_CLOAK_AL:
+				pline("This cloak is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_CLOAK_AL].oc_oprop), objects[DUMMY_CLOAK_AL].a_ac, objects[DUMMY_CLOAK_AL].a_can ); break;
 
 			case DUMMY_HELMET_A: 
 				pline("This helmet is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_HELMET_A].oc_oprop), objects[DUMMY_HELMET_A].a_ac, objects[DUMMY_HELMET_A].a_can ); break;
@@ -10070,6 +11626,26 @@ struct obj *obj;
 				pline("This helmet is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_HELMET_J].oc_oprop), objects[DUMMY_HELMET_J].a_ac, objects[DUMMY_HELMET_J].a_can ); break;
 			case DUMMY_HELMET_K: 
 				pline("This helmet is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_HELMET_K].oc_oprop), objects[DUMMY_HELMET_K].a_ac, objects[DUMMY_HELMET_K].a_can ); break;
+			case DUMMY_HELMET_L: 
+				pline("This helmet is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_HELMET_L].oc_oprop), objects[DUMMY_HELMET_L].a_ac, objects[DUMMY_HELMET_L].a_can ); break;
+			case DUMMY_HELMET_M: 
+				pline("This helmet is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_HELMET_M].oc_oprop), objects[DUMMY_HELMET_M].a_ac, objects[DUMMY_HELMET_M].a_can ); break;
+			case DUMMY_HELMET_N: 
+				pline("This helmet is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_HELMET_N].oc_oprop), objects[DUMMY_HELMET_N].a_ac, objects[DUMMY_HELMET_N].a_can ); break;
+			case DUMMY_HELMET_O: 
+				pline("This helmet is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_HELMET_O].oc_oprop), objects[DUMMY_HELMET_O].a_ac, objects[DUMMY_HELMET_O].a_can ); break;
+			case DUMMY_HELMET_P: 
+				pline("This helmet is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_HELMET_P].oc_oprop), objects[DUMMY_HELMET_P].a_ac, objects[DUMMY_HELMET_P].a_can ); break;
+			case DUMMY_HELMET_Q: 
+				pline("This helmet is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_HELMET_Q].oc_oprop), objects[DUMMY_HELMET_Q].a_ac, objects[DUMMY_HELMET_Q].a_can ); break;
+			case DUMMY_HELMET_R: 
+				pline("This helmet is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_HELMET_R].oc_oprop), objects[DUMMY_HELMET_R].a_ac, objects[DUMMY_HELMET_R].a_can ); break;
+			case DUMMY_HELMET_S: 
+				pline("This helmet is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_HELMET_S].oc_oprop), objects[DUMMY_HELMET_S].a_ac, objects[DUMMY_HELMET_S].a_can ); break;
+			case DUMMY_HELMET_T: 
+				pline("This helmet is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_HELMET_T].oc_oprop), objects[DUMMY_HELMET_T].a_ac, objects[DUMMY_HELMET_T].a_can ); break;
+			case DUMMY_HELMET_U: 
+				pline("This helmet is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_HELMET_U].oc_oprop), objects[DUMMY_HELMET_U].a_ac, objects[DUMMY_HELMET_U].a_can ); break;
 
 			case DUMMY_GLOVES_A: 
 				pline("This pair of gloves is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_GLOVES_A].oc_oprop), objects[DUMMY_GLOVES_A].a_ac, objects[DUMMY_GLOVES_A].a_can ); break;
@@ -10089,6 +11665,12 @@ struct obj *obj;
 				pline("This pair of gloves is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_GLOVES_H].oc_oprop), objects[DUMMY_GLOVES_H].a_ac, objects[DUMMY_GLOVES_H].a_can ); break;
 			case DUMMY_GLOVES_I: 
 				pline("This pair of gloves is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_GLOVES_I].oc_oprop), objects[DUMMY_GLOVES_I].a_ac, objects[DUMMY_GLOVES_I].a_can ); break;
+			case DUMMY_GLOVES_J: 
+				pline("This pair of gloves is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_GLOVES_J].oc_oprop), objects[DUMMY_GLOVES_J].a_ac, objects[DUMMY_GLOVES_J].a_can ); break;
+			case DUMMY_GLOVES_K: 
+				pline("This pair of gloves is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_GLOVES_K].oc_oprop), objects[DUMMY_GLOVES_K].a_ac, objects[DUMMY_GLOVES_K].a_can ); break;
+			case DUMMY_GLOVES_L: 
+				pline("This pair of gloves is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_GLOVES_L].oc_oprop), objects[DUMMY_GLOVES_L].a_ac, objects[DUMMY_GLOVES_L].a_can ); break;
 
 			case DUMMY_BOOTS_A: 
 				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_A].oc_oprop), objects[DUMMY_BOOTS_A].a_ac, objects[DUMMY_BOOTS_A].a_can ); break;
@@ -10110,10 +11692,44 @@ struct obj *obj;
 				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_I].oc_oprop), objects[DUMMY_BOOTS_I].a_ac, objects[DUMMY_BOOTS_I].a_can ); break;
 			case DUMMY_BOOTS_J: 
 				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_J].oc_oprop), objects[DUMMY_BOOTS_J].a_ac, objects[DUMMY_BOOTS_J].a_can ); break;
-			case DUMMY_BOOTS_K: 
+			case DUMMY_BOOTS_K:
 				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_K].oc_oprop), objects[DUMMY_BOOTS_K].a_ac, objects[DUMMY_BOOTS_K].a_can ); break;
-			case DUMMY_BOOTS_L: 
+			case DUMMY_BOOTS_L:
 				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_L].oc_oprop), objects[DUMMY_BOOTS_L].a_ac, objects[DUMMY_BOOTS_L].a_can ); break;
+			case DUMMY_BOOTS_M:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_M].oc_oprop), objects[DUMMY_BOOTS_M].a_ac, objects[DUMMY_BOOTS_M].a_can ); break;
+			case DUMMY_BOOTS_N:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_N].oc_oprop), objects[DUMMY_BOOTS_N].a_ac, objects[DUMMY_BOOTS_N].a_can ); break;
+			case DUMMY_BOOTS_O:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_O].oc_oprop), objects[DUMMY_BOOTS_O].a_ac, objects[DUMMY_BOOTS_O].a_can ); break;
+			case DUMMY_BOOTS_P:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_P].oc_oprop), objects[DUMMY_BOOTS_P].a_ac, objects[DUMMY_BOOTS_P].a_can ); break;
+			case DUMMY_BOOTS_Q:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_Q].oc_oprop), objects[DUMMY_BOOTS_Q].a_ac, objects[DUMMY_BOOTS_Q].a_can ); break;
+			case DUMMY_BOOTS_R:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_R].oc_oprop), objects[DUMMY_BOOTS_R].a_ac, objects[DUMMY_BOOTS_R].a_can ); break;
+			case DUMMY_BOOTS_S:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_S].oc_oprop), objects[DUMMY_BOOTS_S].a_ac, objects[DUMMY_BOOTS_S].a_can ); break;
+			case DUMMY_BOOTS_T:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_T].oc_oprop), objects[DUMMY_BOOTS_T].a_ac, objects[DUMMY_BOOTS_T].a_can ); break;
+			case DUMMY_BOOTS_U:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_U].oc_oprop), objects[DUMMY_BOOTS_U].a_ac, objects[DUMMY_BOOTS_U].a_can ); break;
+			case DUMMY_BOOTS_V:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_V].oc_oprop), objects[DUMMY_BOOTS_V].a_ac, objects[DUMMY_BOOTS_V].a_can ); break;
+			case DUMMY_BOOTS_W:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_W].oc_oprop), objects[DUMMY_BOOTS_W].a_ac, objects[DUMMY_BOOTS_W].a_can ); break;
+			case DUMMY_BOOTS_X:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_X].oc_oprop), objects[DUMMY_BOOTS_X].a_ac, objects[DUMMY_BOOTS_X].a_can ); break;
+			case DUMMY_BOOTS_Y:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_Y].oc_oprop), objects[DUMMY_BOOTS_Y].a_ac, objects[DUMMY_BOOTS_Y].a_can ); break;
+			case DUMMY_BOOTS_Z:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_Z].oc_oprop), objects[DUMMY_BOOTS_Z].a_ac, objects[DUMMY_BOOTS_Z].a_can ); break;
+			case DUMMY_BOOTS_AA:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_AA].oc_oprop), objects[DUMMY_BOOTS_AA].a_ac, objects[DUMMY_BOOTS_AA].a_can ); break;
+			case DUMMY_BOOTS_AB:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_AB].oc_oprop), objects[DUMMY_BOOTS_AB].a_ac, objects[DUMMY_BOOTS_AB].a_can ); break;
+			case DUMMY_BOOTS_AC:
+				pline("This pair of boots is not randomly generated and only appears under certain rare conditions, but it has properties anyway just in case one does generate (as seen here, since otherwise you wouldn't be reading this). Its main property is %s, but it gives armor class of %d and magic cancellation of %d as well.", enchname(objects[DUMMY_BOOTS_AC].oc_oprop), objects[DUMMY_BOOTS_AC].a_ac, objects[DUMMY_BOOTS_AC].a_can ); break;
 
 			case EVIL_DRAGON_SCALE_MAIL:
 				pline("An extremely sturdy armor that can deflect a heck of a lot of attacks. It also does something very nasty when worn, though..."); break;
@@ -10141,6 +11757,8 @@ struct obj *obj;
 				pline("This suit of armor gives more than double the protection of full plate mail. But that comes at a high price..."); break;
 			case EVIL_LEATHER_ARMOR:
 				pline("Lightweight, doesn't hinder spellcasting, provides the same amount of armor class as a plate mail, but very evil indeed."); break;
+			case EXCITING_ARMOR:
+				pline("A rather weak suit of armor. It does however provide the %s enchantment, which may or may not be useful to you.", enchname(objects[EXCITING_ARMOR].oc_oprop)); break;
 			case SPECIAL_LEATHER_ARMOR:
 				pline("It's a rather weak suit of armor, but it always spawns with an enchantment."); break;
 			case MAGE_PLATE_MAIL:
@@ -10178,6 +11796,8 @@ struct obj *obj;
 				pline("You will hallucinate as long as you wear this ring. Putting it on causes it to autocurse."); break;
 			case RIN_INTRINSIC_LOSS: 
 				pline("This ring can cause intrinsic loss."); break;
+			case RIN_DIMINISHED_BLEEDING:
+				pline("Wearing this ring lets you recover from the bleeding status effect more quickly."); break;
 			case RIN_TRAP_REVEALING: 
 				pline("A very rare ring that grants its wearer the ability to randomly detect traps on the current dungeon level."); break;
 			case RIN_BLOOD_LOSS:
@@ -10214,6 +11834,10 @@ struct obj *obj;
 				pline("This ring can cause blessed items to instantly become cursed."); break;
 			case RIN_ILLITERACY:
 				pline("This ring sometimes causes scrolls to disintegrate while you're trying to pick them up."); break;
+			case RIN_STAT_DECREASE:
+				pline("This ring greatly reduces the soft caps for your stats, making them harder to increase."); break;
+			case RIN_SANITY_TIMEOUT:
+				pline("This ring causes your sanity to increase over time."); break;
 			case RIN_WIMPINESS:
 				pline("This ring makes some calculations assume that you're always experience level 1."); break;
 			case RIN_USING_HAZARD:
@@ -10307,6 +11931,10 @@ struct obj *obj;
 				pline("A very powerful ring that allows you to eat tainted corpses and be hit by sickness attacks without actually getting sick."); break;
 			case RIN_FIRE_RESISTANCE: 
 				pline("You can resist fire if you wear this ring."); break;
+			case RIN_JUMPING:
+				pline("A magical ring that allows you to jump if you wear it."); break;
+			case RIN_ILLNESS:
+				pline("Putting this ring on gives you fatal illness, but taking it off cures fatal illness, reliably. Autocurses when worn, of course."); break;
 			case RIN_FREE_ACTION: 
 				pline("This ring protects you from paralysis and similar effects."); break;
 			case RIN_DISCOUNT_ACTION:
@@ -10358,9 +11986,9 @@ struct obj *obj;
 
 		case IMPLANT_CLASS:
 
-		pline("%s - This is an implant. Color: %s. Material: %s. Appearance: %s. It can be worn for some magical effect and armor class, but they're hard to identify and may autocurse when worn. Also, unless your skill is high enough, you might not be able to take them off even when they're uncursed. If you don't have hands, you get extra bonus AC and intrinsics from wearing one.",xname(obj), obj->dknown ? c_obj_colors[objects[obj->otyp].oc_color] : "unknown", obj->dknown ? materialnm[objects[obj->otyp].oc_material] : "unknown", obj->dknown ? dn : "unknown");
+		pline("%s - This is an implant. Color: %s. Material: %s. Appearance: %s. It can be worn for some magical effect and armor class, but they're hard to identify and may autocurse when worn. Also, unless your skill is high enough, you might not be able to take them off even when they're uncursed. If you don't have hands, you get extra bonus AC and intrinsics from wearing one. Wearing them while having hands gives weaker AC bonuses, and if you're additionally restricted at implants they may actually make your AC worse if you're not in a handless form!",xname(obj), obj->dknown ? c_obj_colors[objects[obj->otyp].oc_color] : "unknown", obj->dknown ? materialnm[objects[obj->otyp].oc_material] : "unknown", obj->dknown ? dn : "unknown");
 
-		if (nn && nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && (uimplant && obj == uimplant) ) pline("As long as you're in a form without hands, wearing this implant grants %s.", enchname(goodimplanteffect(uimplant)) );
+		if (nn && powerfulimplants() && (uimplant && obj == uimplant) ) pline("As long as you're in a form without hands (your current form qualifies), wearing this implant grants %s.", enchname(goodimplanteffect(uimplant)) );
 
 		if (!nn) pline("Unfortunately you don't know more about it. You will gain more information if you identify this item.");
 		else { switch (obj->otyp) {
@@ -10705,6 +12333,73 @@ struct obj *obj;
 				if (!PlayerCannotUseSkills && P_SKILL(P_IMPLANTS) >= P_GRAND_MASTER) pline("An implant that gives %d points of AC and the %s enchantment.", objects[IMPLANT_OF_FREEDOM].a_ac, enchname(objects[IMPLANT_OF_FREEDOM].oc_oprop));
 				else pline("An implant that gives %d points of AC. It also gives an enchantment, but your skill isn't high enough to recognize it.", objects[IMPLANT_OF_FREEDOM].a_ac); break;
 
+			case IMPLANT_OF_QUEEB_BUTT:
+				pline("An implant that gives %d points of AC. It can be charged.", objects[IMPLANT_OF_QUEEB_BUTT].a_ac); break;
+
+			case IMPLANT_OF_BEHOLDING:
+				pline("An implant that gives %d points of AC. It can be charged.", objects[IMPLANT_OF_BEHOLDING].a_ac); break;
+
+			case IMPLANT_OF_DA_GUSHA:
+				pline("An implant that gives %d points of AC. It can be charged.", objects[IMPLANT_OF_DA_GUSHA].a_ac); break;
+
+			case IMPLANT_OF_FINGER_POINTING:
+				pline("An implant that gives %d points of AC. It can be charged.", objects[IMPLANT_OF_FINGER_POINTING].a_ac); break;
+
+			case IMPLANT_OF_TOTAL_NONSENSE:
+				pline("An implant that gives %d points of AC and some unknown nasty trap effect. It can be charged.", objects[IMPLANT_OF_TOTAL_NONSENSE].a_ac); break;
+
+			case IMPLANT_OF_BIG_OL:
+				pline("An implant that gives %d points of AC and some unknown nasty trap effect. It can be charged.", objects[IMPLANT_OF_BIG_OL].a_ac); break;
+
+			case IMPLANT_OF_ANAL_RETENTION:
+				pline("An implant that gives %d points of AC and some unknown nasty trap effect. It can be charged.", objects[IMPLANT_OF_ANAL_RETENTION].a_ac); break;
+
+			case IMPLANT_OF_GALVANIZATION:
+				pline("An implant that gives %d points of AC and some unknown nasty trap effect. It can be charged.", objects[IMPLANT_OF_GALVANIZATION].a_ac); break;
+
+			case IMPLANT_OF_TEN_THOUSAND_THINGS:
+				pline("An implant that gives %d points of AC and the %s enchantment. It can be charged.", objects[IMPLANT_OF_TEN_THOUSAND_THINGS].a_ac, enchname(objects[IMPLANT_OF_TEN_THOUSAND_THINGS].oc_oprop)); break;
+
+			case IMPLANT_OF_TOSSING:
+				pline("An implant that gives %d points of AC and the %s enchantment. It can be charged.", objects[IMPLANT_OF_TOSSING].a_ac, enchname(objects[IMPLANT_OF_TOSSING].oc_oprop)); break;
+
+			case IMPLANT_OF_HEAVY_LUBRICATION:
+				pline("An implant that gives %d points of AC and the %s enchantment. It can be charged.", objects[IMPLANT_OF_HEAVY_LUBRICATION].a_ac, enchname(objects[IMPLANT_OF_HEAVY_LUBRICATION].oc_oprop)); break;
+
+			case IMPLANT_OF_MISANTHROPHY:
+				pline("An implant that gives %d points of AC and the %s enchantment. It can be charged.", objects[IMPLANT_OF_MISANTHROPHY].a_ac, enchname(objects[IMPLANT_OF_MISANTHROPHY].oc_oprop)); break;
+
+			case IMPLANT_OF_CRAP:
+				if (!PlayerCannotUseSkills && P_SKILL(P_IMPLANTS) >= P_GRAND_MASTER) pline("An implant that gives %d points of AC and the %s enchantment. It can be charged.", objects[IMPLANT_OF_CRAP].a_ac, enchname(objects[IMPLANT_OF_CRAP].oc_oprop));
+				else pline("An implant that gives %d points of AC. It also gives an enchantment, but your skill isn't high enough to recognize it. It can be charged.", objects[IMPLANT_OF_CRAP].a_ac); break;
+
+			case IMPLANT_OF_KING_BEEFCAKE:
+				if (!PlayerCannotUseSkills && P_SKILL(P_IMPLANTS) >= P_GRAND_MASTER) pline("An implant that gives %d points of AC and the %s enchantment. It can be charged.", objects[IMPLANT_OF_KING_BEEFCAKE].a_ac, enchname(objects[IMPLANT_OF_KING_BEEFCAKE].oc_oprop));
+				else pline("An implant that gives %d points of AC. It also gives an enchantment, but your skill isn't high enough to recognize it. It can be charged.", objects[IMPLANT_OF_KING_BEEFCAKE].a_ac); break;
+
+			case IMPLANT_OF_PUMPING:
+				if (!PlayerCannotUseSkills && P_SKILL(P_IMPLANTS) >= P_GRAND_MASTER) pline("An implant that gives %d points of AC and the %s enchantment. It can be charged.", objects[IMPLANT_OF_PUMPING].a_ac, enchname(objects[IMPLANT_OF_PUMPING].oc_oprop));
+				else pline("An implant that gives %d points of AC. It also gives an enchantment, but your skill isn't high enough to recognize it. It can be charged.", objects[IMPLANT_OF_PUMPING].a_ac); break;
+
+			case IMPLANT_OF_WANNABE:
+				if (!PlayerCannotUseSkills && P_SKILL(P_IMPLANTS) >= P_GRAND_MASTER) pline("An implant that gives %d points of AC and the %s enchantment. It can be charged.", objects[IMPLANT_OF_WANNABE].a_ac, enchname(objects[IMPLANT_OF_WANNABE].oc_oprop));
+				else pline("An implant that gives %d points of AC. It also gives an enchantment, but your skill isn't high enough to recognize it. It can be charged.", objects[IMPLANT_OF_WANNABE].a_ac); break;
+
+			case IMPLANT_OF_YOUR_MOMMA:
+				if (!PlayerCannotUseSkills && P_SKILL(P_IMPLANTS) >= P_GRAND_MASTER) pline("An implant that gives %d points of AC and the %s enchantment. It can be charged.", objects[IMPLANT_OF_YOUR_MOMMA].a_ac, enchname(objects[IMPLANT_OF_YOUR_MOMMA].oc_oprop));
+				else pline("An implant that gives %d points of AC. It also gives an enchantment, but your skill isn't high enough to recognize it. It can be charged.", objects[IMPLANT_OF_YOUR_MOMMA].a_ac); break;
+
+			case IMPLANT_OF_SWALLOWING:
+				if (!PlayerCannotUseSkills && P_SKILL(P_IMPLANTS) >= P_GRAND_MASTER) pline("An implant that gives %d points of AC and the %s enchantment. It can be charged.", objects[IMPLANT_OF_SWALLOWING].a_ac, enchname(objects[IMPLANT_OF_SWALLOWING].oc_oprop));
+				else pline("An implant that gives %d points of AC. It also gives an enchantment, but your skill isn't high enough to recognize it. It can be charged.", objects[IMPLANT_OF_SWALLOWING].a_ac); break;
+
+			case IMPLANT_OF_MENSTRATING:
+				if (!PlayerCannotUseSkills && P_SKILL(P_IMPLANTS) >= P_GRAND_MASTER) pline("An implant that gives %d points of AC and the %s enchantment. It can be charged.", objects[IMPLANT_OF_MENSTRATING].a_ac, enchname(objects[IMPLANT_OF_MENSTRATING].oc_oprop));
+				else pline("An implant that gives %d points of AC. It also gives an enchantment, but your skill isn't high enough to recognize it. It can be charged.", objects[IMPLANT_OF_MENSTRATING].a_ac); break;
+
+			case IMPLANT_OF_ENFORCING:
+				if (!PlayerCannotUseSkills && P_SKILL(P_IMPLANTS) >= P_GRAND_MASTER) pline("An implant that gives %d points of AC and the %s enchantment. It can be charged.", objects[IMPLANT_OF_ENFORCING].a_ac, enchname(objects[IMPLANT_OF_ENFORCING].oc_oprop));
+				else pline("An implant that gives %d points of AC. It also gives an enchantment, but your skill isn't high enough to recognize it. It can be charged.", objects[IMPLANT_OF_ENFORCING].a_ac); break;
 
 			default: pline("Missing item description (this is a bug). Please tell Amy about the item in question so she can add a description."); break;
 			}
@@ -10790,7 +12485,7 @@ struct obj *obj;
 			case AMULET_OF_BLINDNESS:
 				pline("Wearing this amulet prevents you from seeing. It is usually generated cursed."); break;
 			case AMULET_OF_STRANGULATION:
-				pline("If you wear this amulet, you only have 5 turns to live before it kills you. It is usually generated cursed."); break;
+				pline("If you wear this amulet, you only have 10 turns to live before it kills you. It is usually generated cursed."); break;
 			case AMULET_OF_PREMATURE_DEATH:
 				pline("Wanna die? Wear this! :-P"); break;
 			case AMULET_VERSUS_CURSES:
@@ -10827,6 +12522,8 @@ struct obj *obj;
 				pline("This amulet makes you lose the ability to gain experience."); break;
 			case AMULET_OF_HOSTILITY:
 				pline("This amulet causes all newly generated monsters to be hostile."); break;
+			case AMULET_OF_SANITY_TREBLE:
+				pline("This amulet greatly increases the amount of incoming sanity."); break;
 			case AMULET_OF_EVIL_CRAFTING:
 				pline("This amulet can put evil artifacts into your inventory and force you to equip them."); break;
 			case AMULET_OF_EDIBILITY:
@@ -10862,6 +12559,10 @@ struct obj *obj;
 				pline("This amulet causes metal spells."); break;
 			case AMULET_OF_TECHOUT:
 				pline("This amulet occasionally increases the timeouts of your techniques."); break;
+			case AMULET_OF_BAD_PART:
+				pline("This amulet puts you in the completely bad part."); break;
+			case AMULET_OF_EVIL_VARIANT:
+				pline("This amulet forces you to play in evilvariant mode."); break;
 
 			case AMULET_OF_ANTI_TELEPORTATION:
 				pline("This amulet blocks all of your attempts to self-teleport."); break;
@@ -10891,6 +12592,8 @@ struct obj *obj;
 				pline("A magical amulet that grants energy regeneration if you wear it."); break;
 			case AMULET_OF_INSOMNIA:
 				pline("Considering that this amulet conveys sleep resistance (which is rather mundane), it's quite rare."); break;
+			case AMULET_OF_SCENT:
+				pline("While wearing this amulet, you're magically capable of smelling nearby animals and scent-based monsters."); break;
 			case AMULET_OF_MENTAL_STABILITY:
 				pline("Put on this amulet to get confusion resistance."); break;
 			case AMULET_OF_CONTAMINATION_RESIST:
@@ -11035,6 +12738,12 @@ struct obj *obj;
 				pline("This instrument can shoot bolts of electricity."); break;
 			case FIRE_HORN: 
 				pline("This instrument can shoot bolts of fire."); break;
+			case ETHER_HORN:
+				pline("This instrument can shoot magic missiles."); break;
+			case SHADOW_HORN:
+				pline("This instrument can shoot rays of acid."); break;
+			case CHROME_HORN:
+				pline("This instrument can shoot rays of poison."); break;
 			case HORN_OF_PLENTY: 
 				pline("A magic horn that generates food."); break;
 			case WOODEN_HARP: 
@@ -11057,12 +12766,22 @@ struct obj *obj;
 				pline("This tool is also a weapon that can be thrown. It uses the dart skill."); break;
 			case PICK_AXE: 
 				pline("A tool that can also be used as a weapon. It can be applied for digging."); break;
+			case BRICK_PICK:
+				pline("A rather damaging pick-axe weapon that can be applied for digging."); break;
+			case MYSTERY_PICK:
+				pline("It's slightly better than the regular pick-axe weapon and can also be applied for digging."); break;
+			case NANO_PICK:
+				pline("This weapon does good damage to large monsters and can also be applied for digging."); break;
 			case FISHING_POLE: 
 				pline("This polearm weapon-tool can be applied to catch fish."); break;
 			case GRAPPLING_HOOK: 
 				pline("A flail-type weapon-tool that can be used to pull objects and monsters toward you."); break;
 			case UNICORN_HORN: 
 				pline("The unicorn horn can be used as a two-handed melee weapon that uses its own skill, and applying it can cure a variety of bad effects."); break;
+			case DARK_HORN:
+				pline("It's a two-handed melee weapon that uses the unicorn horn skill, but its main use is to be applied, which can cure some bad effects. Every time you apply it, the area around you is darkened."); break;
+			case ARCANE_HORN:
+				pline("This unicorn horn is a two-handed melee weapon that cannot be applied (unlike the regular unicorn horn). Instead, in order to fix troubles with it, you have to hit a monster in melee with it."); break;
 			case TORCH: 
 				pline("A tool that counts as a club for in-game purposes; unfortunately a lit torch must be wielded in order to work, which makes it a very useless item."); break;
 			case GREEN_LIGHTSABER: 
@@ -11081,8 +12800,14 @@ struct obj *obj;
 				pline("This lightsaber does RNG-determined damage, but it needs to be turned on in order to work. An activated lightsaber is good for engraving."); break;
 			case WHITE_DOUBLE_LIGHTSABER: 
 				pline("A two-handed lightsaber that can be set to double mode in order to do even more damage. It needs to be turned on in order to work, and while activated it is also useful for engraving. It's especially effective against small monsters."); break;
+			case MYSTERY_LIGHTSABER:
+				pline("The material of this lightsaber is randomized on a per-game basis, and it needs to be turned on in order to work. An activated lightsaber is good for engraving."); break;
 			case LASER_SWATTER: 
 				pline("A laser-based fly swatter that uses the paddle skill. If you turn it on, it will do great damage to small monsters."); break;
+			case NANO_HAMMER:
+				pline("This laser-powered hammer deals much more damage if you turn it on, but will eventually run out of power."); break;
+			case LIGHTWHIP:
+				pline("It's a whip, which is generally not considered a good type of melee weapon, but this one is laser-powered. Turn it on to make it into an awesome weapon. However, it'll eventually run out of energy."); break;
 			case EXPENSIVE_CAMERA: 
 				pline("A tool that can be used to photograph monsters."); break;
 			case MIRROR: 
@@ -11134,7 +12859,17 @@ struct obj *obj;
 				pline("Despite seeming so mundane, this tool is actually rare and valuable as it allows you to grease your items. However, grease will wear off quickly and needs to be applied again. You can apply up to three layers of grease to a single item."); break;
 #endif
 			case FIGURINE: 
-				pline("Apply this at an empty location to transform it into a living monster. Please don't apply a figurine at a square containing a monster; doing so will just cause the figurine to break and do nothing!"); break;
+				pline("Apply this at an empty location to transform it into a living monster. Please don't apply a figurine at a square containing a monster; doing so will just cause the figurine to break and do nothing!");
+#ifdef EXTENDED_INFO
+				corpsepager(obj->corpsenm);
+#endif
+				break;
+			case ENERGY_SAP: 
+				pline("If you apply this tool, you'll get effects similar to eating the corpse of the monster it's made of.");
+#ifdef EXTENDED_INFO
+				corpsepager(obj->corpsenm);
+#endif
+				break;
 			case MAGIC_MARKER: 
 #ifdef PHANTOM_CRASH_BUG
 				pline("You can engrave with this tool, or attempt to write scrolls or spellbooks if you have blank ones. Writing items that you know is guaranteed to work."); break;
@@ -11145,6 +12880,8 @@ struct obj *obj;
 				pline("A marker that is useful for writing graffiti on the floor."); break;
 			case SWITCHER:
 				pline("This metal box has a switch that can be pulled. What may happen if you do so?"); break;
+			case SYMBIOTE:
+				pline("An item that allows you to go in symbiosis with a monster, which is done by applying it at a stationary monster. If successful, the monster in question will become your symbiote, allowing you to benefit from its attacks and abilities in a limited fashion. Using it while you already have a symbiote will replace your previous one (which will be removed permanently) with the new one. A successful use of this item will use it up, but if you fail, you can try again (unless the monster gets frenzied, which can happen sometimes)."); break;
 			case INTELLIGENCE_PACK:
 				pline("Using this tool will boost your intelligence by one point (make sure you're not wearing an item that gives sustain ability). If you're of the sustainer race, it boosts your wisdom instead."); break;
 			case MATERIAL_KIT:
@@ -11197,9 +12934,17 @@ struct obj *obj;
 			case TRIPE_RATION: 
 				pline("A ration of dog food that's meant to be eaten by carnivorous pets."); break;
 			case CORPSE: 
-				pline("Corpses can be eaten, but it's not always a good idea to do so. Depending on the type of monster and the age of a corpse, different effects can occur."); break;
+				pline("Corpses can be eaten, but it's not always a good idea to do so. Depending on the type of monster and the age of a corpse, different effects can occur.");
+#ifdef EXTENDED_INFO
+				corpsepager(obj->corpsenm);
+#endif
+				break;
 			case EGG: 
-				pline("Eggs can be eaten, but some of them can also hatch after a while. Eating a stale egg causes vomiting."); break;
+				pline("Eggs can be eaten, but some of them can also hatch after a while. Eating a stale egg causes vomiting.");
+#ifdef EXTENDED_INFO
+				if (obj->known || mvitals[obj->corpsenm].mvflags & MV_KNOWS_EGG) corpsepager(obj->corpsenm);
+#endif
+				break;
 			case MEATBALL: 
 				pline("These provide very little nutrition but can be used for training dogs."); break;
 			case MEAT_STICK: 
@@ -11280,10 +13025,14 @@ struct obj *obj;
 				pline("Soldiers often carry these rations that can be eaten in one turn. For some reason they contain no meat - how can any real-life soldiers even concentrate on their tasks if they ain't getting no real food?"); break;
 			case TIN: 
 #ifdef PHANTOM_CRASH_BUG
-				pline("Open it to see its contents, then decide whether you really want to eat it. They have variable amounts of nutrition."); break;
+				pline("Open it to see its contents, then decide whether you really want to eat it. They have variable amounts of nutrition.");
 #else
-				pline("A tin that may contain some type of food. If you wield a tin opener, you can open it more quickly; after a tin has been opened, you can decide whether you really want to eat it. The nutritional value of a tin is randomized."); break;
+				pline("A tin that may contain some type of food. If you wield a tin opener, you can open it more quickly; after a tin has been opened, you can decide whether you really want to eat it. The nutritional value of a tin is randomized.");
 #endif
+#ifdef EXTENDED_INFO
+				if (obj->known) corpsepager(obj->corpsenm);
+#endif
+				break;
 
 			case SHEAF_OF_STRAW: 
 				pline("This food tastes better if you're a herbivore."); break;
@@ -11391,6 +13140,8 @@ struct obj *obj;
 			pline("An angel may live in this potion.");
 		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && (!strcmp(OBJ_DESCR(objects[obj->otyp]), "endbringer")))
 			pline("DANGER: This potion brings an end. Quaff at your own peril.");
+		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && (!strcmp(OBJ_DESCR(objects[obj->otyp]), "chewable")))
+			pline("You can eat this potion if you want. This will give the effects of inhaling the potion's vapors, which may be different than the quaff effect.");
 		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && (!strcmp(OBJ_DESCR(objects[obj->otyp]), "deadweight")))
 			pline("Occasionally, the act of quaffing this potion forces you to wear some cursed crap.");
 		if (OBJ_DESCR(objects[obj->otyp]) && obj->dknown && (!strcmp(OBJ_DESCR(objects[obj->otyp]), "present")))
@@ -11495,6 +13246,10 @@ struct obj *obj;
 				pline("This potion temporarily makes you resistant to fire."); break;
 			case POT_DIMNESS:
 				pline("Quaffing this potion causes dimness. You might want to throw it at a monster instead."); break;
+			case POT_CURE_INSANITY:
+				pline("This very rare and powerful potion will instantly cure you of your sanity. Yes, this is actually beneficial, because having zero sanity means you're fully healthy. Use this potion when your sanity is so high that you're already seeing things."); break;
+			case POT_SANITY:
+				pline("If you quaff this potion, your sanity will increase. That is a bad thing."); break;
 			case POT_ICE:
 				pline("You will freeze solid if you quaff this potion, which is usually a bad thing. Better use it as a missile to slow down enemies."); break;
 			case POT_FEAR:
@@ -11609,7 +13364,7 @@ struct obj *obj;
 			case SCR_IDENTIFY: 
 				pline("You may identify one or more objects if you use this scroll."); break;
 			case SCR_INVENTORY_ID: 
-				pline("A powerful identify scroll that always identifies everything in your main inventory. Pick up as much as you can before reading it, and move your container's contents in your main inventory too!"); break;
+				pline("A powerful identify scroll that tries to identify everything in your main inventory. Pick up as much as you can before reading it, and move your container's contents in your main inventory too! (Actually, the effect goes into containers, but not into nested containers.)"); break;
 			case SCR_MAGIC_MAPPING: 
 				pline("This scroll can reveal the map of your current dungeon level. However, certain levels are unmappable."); break;
 			case SCR_FLOOD: 
@@ -11645,12 +13400,14 @@ struct obj *obj;
 #else
 				pline("This is a very dangerous scroll that will reverse your movement key's directions PERMANENTLY. The only way to reverse its effect is to read another one, so you should be glad I'm not allowing monsters to read them!"); break;
 #endif
-			case SCR_CREATE_CREATE_SCROLL: 
+			case SCR_CREATE_CREATE_SCROLL:
 				pline("Fairly useless; reading this scroll will recreate it on the ground beneath you. Makes you wonder what the devs were smoking when they invented this item."); break;
-			case SCR_ANTIMAGIC: 
+			case SCR_ANTIMAGIC:
 				pline("This scroll makes you magic resistant for a while. For the entire duration no one can cast spells."); break;
-			case SCR_RESISTANCE: 
+			case SCR_RESISTANCE:
 				pline("Grants temporary resistances to fire, cold, shock, acid and sleep."); break;
+			case SCR_SECURE_CURSE_REMOVAL:
+				pline("Stronger than the regular scroll of remove curse, it allows you to remove all curses on an item of your choice."); break;
 
 			case SCR_GAIN_MANA: 
 				pline("Reading this scroll will increase your max mana."); break;
@@ -11684,6 +13441,10 @@ struct obj *obj;
 #else
 				pline("The best scroll in the game. You will need this to cure the sliming condition, which is difficult to cure otherwise. It can also damage monsters standing next to you, with the side effect of burning you a little."); break;
 #endif
+#ifdef MAIL
+			case SCR_MAIL:
+				pline("This scroll is supposed to contain a message. If the game has been compiled correctly, reading it will display the message."); break;
+#endif
 			case SCR_EARTH:
 				pline("Summons some boulders if read. Beware, they might hit your head and damage you."); break;
 			case SCR_RAGNAROK:
@@ -11714,6 +13475,8 @@ struct obj *obj;
 				pline("A standard healing scroll that behaves similar to healing potions in other role-playing games by restoring some lost hit points. Don't bother trying to blank, cancel or polymorph this scroll, as that doesn't work."); break;
 			case SCR_EXTRA_HEALING:
 				pline("A powerful healing scroll that restores a large amount of lost hit points. Don't bother trying to blank, cancel or polymorph this scroll, as that doesn't work."); break;
+			case SCR_HEAL_OTHER:
+				pline("Reading this scroll heals pets and steeds in a 7x7 area centered on you. If you have a symbiote, it will also be healed. Don't bother trying to blank, cancel or polymorph this scroll, as that doesn't work."); break;
 			case SCR_POWER_HEALING:
 				pline("This scroll completely restores hit points."); break;
 			case SCR_MANA:
@@ -11731,134 +13494,212 @@ struct obj *obj;
 			case SCR_GROUP_SUMMONING:
 				pline("Summons a group of themed monsters for you to fight."); break;
 			case SCR_WORLD_FALL:
-				pline("Also known as 'apocalypse' or 'cataclysm', this scroll wipes out all monsters on the level whose level is lower than yours, and ones with a higher level can sometimes be removed too."); break;
+				pline("Also known as 'apocalypse' or 'cataclysm', this scroll wipes out all monsters on the level whose level is lower than half of your own level, and ones with a higher level can sometimes be removed too."); break;
 			case SCR_RESURRECTION:
 				pline("Reading this scroll grants you an extra life, i.e. you come back to life after death!"); break;
 			case SCR_SUMMON_GHOST:
 				pline("You will summon a player ghost by reading this, which can be extremely dangerous."); break;
 			case SCR_MEGALOAD:
 				pline("A nasty scroll that puts a loadstone in your inventory if anyone reads it."); break;
-			case SCR_VILENESS: 
+			case SCR_HYBRIDIZATION:
+				pline("This rare scroll can add or remove hybrid races."); break;
+			case SCR_BAD_EQUIPMENT:
+				pline("If anyone reads this scroll, you're forced to wear a cursed piece of equipment."); break;
+			case SCR_NASTY_CURSE:
+				pline("Yet another scroll designed to screw you over, allowing this one to be read will put a nasty curse on one of your armor pieces."); break;
+			case SCR_VILENESS:
 				pline("If this is scroll is read, regardless of who is doing the reading, an evil artifact will be put into your inventory. You will then automatically equip it, and if the artifact didn't autocurse anyway, it will get cursed."); break;
-			case SCR_ENRAGE: 
+			case SCR_ENRAGE:
 				pline("Peaceful monsters become hostile, and sometimes your tame pets too, should anyone read this scroll."); break;
-			case SCR_ANTIMATTER: 
+			case SCR_ANTIMATTER:
 				pline("This scroll was put in the game by an evil developer and will damage your entire inventory."); break;
-			case SCR_SUMMON_ELM: 
+			case SCR_SUMMON_ELM:
 				pline("A scroll that can summon a divine minion. Unfortunately, the minion will attack you."); break;
-			case SCR_RELOCATION: 
+			case SCR_RELOCATION:
 				pline("Useful for no-teleport levels, this scroll teleports you to an empty location on the level regardless of things that would normally prevent teleportation."); break;
-			case SCR_IMMOBILITY: 
+			case SCR_IMMOBILITY:
 				pline("This scroll surrounds you with immobile monsters when read."); break;
-			case SCR_FLOODING: 
+			case SCR_FLOODING:
 				pline("Turns large parts of the current level into a lake of water and lava, with associated sea monsters and stuff."); break;
-			case SCR_EGOISM: 
+			case SCR_EGOISM:
 				pline("You will face a bunch of egotype monsters when reading this."); break;
-			case SCR_RUMOR: 
+			case SCR_RUMOR:
 				pline("A scroll that has a rumor written on it."); break;
 			case SCR_ARTIFACT_JACKPOT:
 				pline("This very rare scroll grants you an artifact and then randomizes the base item type of that artifact, so you might end up with something really awesome."); break;
 			case SCR_BOSS_COMPANION:
 				pline("Reading this scroll summons a boss monster. A tame one. Yes, you read that right. You'll get your personal boss monster that fights alongside you."); break;
-			case SCR_MESSAGE: 
+			case SCR_MESSAGE:
 				pline("A scroll that can trigger messages if you read it."); break;
-			case SCR_SIN: 
+			case SCR_TERRAFORMING:
+				pline("This scroll is very useful: it will remove many annoying terrain types that are adjacent to you. How do you know what will be affected? It works on water, trees, ice, farmland, nether mist and so on... It doesn't raze walls though, and furniture (e.g. wagons or fountains) is unaffected. The general rule of thumb is that if the terrain type can replace walls in maze levels, it will be affected."); break;
+			case SCR_INFERIOR_MATERIAL:
+				pline("Allows you to select an item in your open inventory, and changes the material of that base item type to an inferior one (randomly chosen from a pool of available materials). Caveat: It will change the material of ALL instances of that particular base item."); break;
+			case SCR_REGULAR_MATERIAL:
+				pline("Allows you to select an item in your open inventory, and changes the material of that base item type to a regular-quality one, i.e. one that is neither inferior nor superior (randomly chosen from a pool of available materials). Caveat: It will change the material of ALL instances of that particular base item."); break;
+			case SCR_SUPERIOR_MATERIAL:
+				pline("Allows you to select an item in your open inventory, and changes the material of that base item type to a superior one (randomly chosen from a pool of available materials). Caveat: It will change the material of ALL instances of that particular base item."); break;
+			case SCR_ILLUSION:
+				pline("Summons illusory monsters, which are actually quite real."); break;
+			case SCR_EVIL_VARIANT:
+				pline("This scroll will summon monsters from the Evil Variant(TM) for you to fight."); break;
+			case SCR_FEMINISM:
+				pline("Yay, feminism! You absolutely want to read this scroll because then you're either afflicted with a temporary feminism trap effect or summon a bunch of lovely fleecy women! :D"); break;
+			case SCR_SYMBIOSIS:
+				pline("If you read this scroll, you may get a new symbiote. Be aware that you cannot have more than one symbiote at once; reading it while already having one will prompt you whether you want a new one. Also, the symbiote you get is random."); break;
+			case SCR_SIN:
 				pline("Don't read it. That is, unless you want to be hit by a 'deadly sin' effect which is likely to screw your character in some way or another."); break;
-			case SCR_CHARGING: 
+			case SCR_CHARGING:
 #ifdef PHANTOM_CRASH_BUG
 				pline("You can recharge a chargeable item by reading this. Be careful, recharging an item too many times may cause it to explode."); break;
 #else
 				pline("This scroll can be read to charge an object, which must be in your main inventory and of an item type that can be charged, e.g. a wand. Be careful, recharging an item too many times may cause it to explode."); break;
 #endif
-			case SCR_RANDOM_ENCHANTMENT: 
+			case SCR_RANDOM_ENCHANTMENT:
 #ifdef PHANTOM_CRASH_BUG
 				pline("Pick an item to randomly enchant. For best results, use it on a +0 one. Line length restrictions prevent me from elaborating so just trust me on that one."); break;
 #else
 				pline("Using this scroll will allow you to pick an item that you want to have randomly enchanted. The item in question might get a positive or negative enchantment. However, if the item had a positive enchantment before it will first be set to +0 and get enchanted afterwards, so it's probably better to use it on items that are already +0 or worse."); break;
 #endif
-			case SCR_GENOCIDE: 
+			case SCR_GENOCIDE:
 				pline("A powerful magic scroll that can be read to permanently get rid of a monster type and also prevent any more of them to spawn. Not all monster types can be genocided though."); break;
-			case SCR_PUNISHMENT: 
+			case SCR_PUNISHMENT:
 				pline("If you read this scroll, you receive a heavy iron ball that is heavy and will cause you to move slower if you don't pick it up, but the ball can be wielded as a weapon."); break;
-			case SCR_STINKING_CLOUD: 
+			case SCR_STINKING_CLOUD:
 				pline("This scroll prompts you for a location to release a cloud of gas. However, you can't place the cloud in an unlit area or too far away from you."); break;
-			case SCR_TRAP_DETECTION: 
+			case SCR_TRAP_DETECTION:
 				pline("A scroll that shows traps on your current dungeon level if read."); break;
-			case SCR_ACQUIREMENT: 
+			case SCR_ACQUIREMENT:
 				pline("You may wish for an object type if you read this."); break;
-			case SCR_PROOF_ARMOR: 
-				pline("A random worn armor-class item is made erosionproof if you read this."); break;
-			case SCR_PROOF_WEAPON: 
+			case SCR_PROOF_ARMOR:
+				pline("A worn armor-class item of your choice is made erosionproof if you read this."); break;
+			case SCR_PROOF_WEAPON:
 				pline("If you wield a weapon and read this scroll, that weapon will become erosionproof."); break;
-			case SCR_MASS_MURDER: 
+			case SCR_MASS_MURDER:
 				pline("A weaker version of the genocide scroll that only eliminates living monsters of the specified type."); break;
-			case SCR_UNDO_GENOCIDE: 
+			case SCR_UNDO_GENOCIDE:
 				pline("If you already genocided a monster type, you can use this scroll to re-enable it to spawn."); break;
-			case SCR_REVERSE_IDENTIFY: 
+			case SCR_REVERSE_IDENTIFY:
 				pline("A quirky special version of the identify scroll, this thing prompts you to enter the name or description of an object which is then identified."); break;
-			case SCR_WISHING: 
+			case SCR_WISHING:
 				pline("Allows you to wish for an object."); break;
-			case SCR_ASTRALCENSION: 
+			case SCR_ASTRALCENSION:
 				pline("This scroll summons an astral player monster. They can be very well-armed indeed, but if you can take them out you'll be able to take all their equipment and use it for yourself!"); break;
-			case SCR_ARTIFACT_CREATION: 
+			case SCR_ARTIFACT_CREATION:
 				pline("This scroll generates an artifact at your feet. You do want an artifact, right? Read it!"); break;
-			case SCR_CONSECRATION: 
-				pline("You must be standing in a room for this scroll to work. If you do, it will create an altar underneath you."); break;
-			case SCR_ENTHRONIZATION: 
-				pline("This scroll works only if you're in a room, which causes it to create a throne at your current location."); break;
-			case SCR_FOUNTAIN_BUILDING: 
-				pline("If you read this scroll while in a room, a fountain appears below you. Otherwise, nothing happens."); break;
-			case SCR_SINKING: 
-				pline("Doesn't work outside of a room. What it does is building a sink on your current tile."); break;
-			case SCR_WC: 
-				pline("Builds a toilet on your square, but only if that square is in a room."); break;
-			case SCR_LAVA: 
+			case SCR_MISSING_CODE:
+				pline("Reading this scroll enchants your shirt up to a maximum of +20 without risk of evaporation, or creates a new shirt at your feet if you don't have one. But since this scroll is actually supposed to be given to the devteam, which cannot be done in-game because harharhar, reading it will also anger the gods."); break;
+			case SCR_CONSECRATION:
+				pline("You must be standing in a room or corridor for this scroll to work. If you do, it will create an altar underneath you."); break;
+			case SCR_ENTHRONIZATION:
+				pline("This scroll works only if you're in a room or corridor, which causes it to create a throne at your current location."); break;
+			case SCR_MAKE_PENTAGRAM:
+				pline("Stand in a room or corridor when reading this. It will create a pentagram underneath you."); break;
+			case SCR_WELL_BUILDING:
+				pline("If you read this scroll while standing in a room or on a corridor tile, it will transform the tile into a well."); break;
+			case SCR_DRIVING:
+				pline("Creates a wagon on your tile, but only if that tile is a room or corridor."); break;
+			case SCR_TABLE_FURNITURE:
+				pline("This scroll creates a wooden table. You must be standing in a room or corridor for it to work."); break;
+			case SCR_EMBEDDING:
+				pline("Read this scroll while on a room or corridor tile, and it will create an ornately carved bed."); break;
+			case SCR_MATTRESS_SLEEPING:
+				pline("Need to create a mattress? Then read this scroll while standing in a room or corridor!"); break;
+			case SCR_FOUNTAIN_BUILDING:
+				pline("If you read this scroll while in a room or corridor, a fountain appears below you. Otherwise, nothing happens."); break;
+			case SCR_SINKING:
+				pline("Doesn't work outside of a room or corridor. What it does is building a sink on your current tile."); break;
+			case SCR_WC:
+				pline("Builds a toilet on your square, but only if that square is in a room or corridor."); break;
+			case SCR_LAVA:
 				pline("Reading this scroll turns some ordinary floor squares into lava."); break;
-			case SCR_STONING: 
+			case SCR_GRAVE:
+				pline("A scroll that erects grave walls."); break;
+			case SCR_TUNNELS:
+				pline("Normal floor tiles become tunnels if you read this."); break;
+			case SCR_FARMING:
+				pline("Read this scroll to create farmland."); break;
+			case SCR_MOUNTAINS:
+				pline("It doesn't make sense, but this scroll creates underground mountains."); break;
+			case SCR_DIVING:
+				pline("This scroll floods the dungeon with water tunnels."); break;
+			case SCR_CRYSTALLIZATION:
+				pline("Crystal water will flow through the dungeon if you read this."); break;
+			case SCR_MOORLAND:
+				pline("A scroll that creates moorland."); break;
+			case SCR_URINE:
+				pline("If you read this scroll, urine lakes will be created."); break;
+			case SCR_QUICKSAND:
+				pline("Reading this scroll creates quicksand tiles."); break;
+			case SCR_STYX:
+				pline("Read this scroll to create styx rivers."); break;
+			case SCR_SNOW:
+				pline("Normal floor tiles may become snow if you read this scroll."); break;
+			case SCR_ASH:
+				pline("This scroll turns regular floor tiles to ash."); break;
+			case SCR_SAND:
+				pline("A scroll that transforms floor to sand."); break;
+			case SCR_PAVING:
+				pline("Erects paved floor when read."); break;
+			case SCR_HIGHWAY:
+				pline("If you read this scroll, highways will be built on the current dungeon level."); break;
+			case SCR_GRASSLAND:
+				pline("Causes grass to grow."); break;
+			case SCR_NETHER:
+				pline("This scroll creates nether mist."); break;
+			case SCR_STALACTITE:
+				pline("Reading this scroll causes stalactites to shoot out of the ceiling."); break;
+			case SCR_CRYPT:
+				pline("Transforms regular floor to crypt floor."); break;
+			case SCR_BUBBLE_BOBBLE:
+				pline("Read this scroll to create bubble terrain."); break;
+			case SCR_RAIN:
+				pline("This scroll creates a bunch of rain clouds."); break;
+			case SCR_STONING:
 				pline("Read this scroll if you want to become a statue."); break;
-			case SCR_GROWTH: 
+			case SCR_GROWTH:
 				pline("You will create lots of trees if you read this scroll."); break;
-			case SCR_ICE: 
+			case SCR_ICE:
 				pline("Normal floor becomes icy in a radius around you if you read this."); break;
-			case SCR_CLOUDS: 
+			case SCR_CLOUDS:
 				pline("A scroll that can be read to create clouds around you."); break;
-			case SCR_BARRHING: 
+			case SCR_BARRHING:
 				pline("This scroll creates iron bars on empty floor squares in your vicinity."); break;
-			case SCR_LOCKOUT: 
+			case SCR_LOCKOUT:
 				pline("Corridors near you turn into solid rock walls and doors automatically repair and lock themselves if you read this scroll."); break;
-			case SCR_ROOT_PASSWORD_DETECTION: 
+			case SCR_ROOT_PASSWORD_DETECTION:
 				pline("This scroll has the computer's root password written on it, which you can read. It's likely to be useless anyway."); break;
-			case SCR_TRAP_CREATION: 
+			case SCR_TRAP_CREATION:
 				pline("A dangerous scroll that creates traps around you."); break;
-			case SCR_CREATE_TRAP: 
+			case SCR_CREATE_TRAP:
 				pline("Reading this scroll causes a trap to be created underneath you which then triggers."); break;
-			case SCR_NASTINESS: 
+			case SCR_NASTINESS:
 				pline("Don't allow this scroll to be read unless you absolutely want to be hit by nasty trap effects!"); break;
-			case SCR_DEMONOLOGY: 
+			case SCR_DEMONOLOGY:
 				pline("This scroll summons greater demons."); break;
-			case SCR_ELEMENTALISM: 
+			case SCR_ELEMENTALISM:
 				pline("Some creatures from the elemental planes will be summoned if you read this scroll."); break;
-			case SCR_GIRLINESS: 
+			case SCR_GIRLINESS:
 				pline("The dungeon will become more female if you read this scroll. :D"); break;
-			case SCR_SLEEP: 
+			case SCR_SLEEP:
 				pline("Reading this scroll puts you to sleep, leaving you open to monsters attacking you."); break;
-			case SCR_CHAOS_TERRAIN: 
+			case SCR_CHAOS_TERRAIN:
 				pline("Read this scroll to generate chaotic terrain around you."); break;
-			case SCR_WOUNDS: 
+			case SCR_WOUNDS:
 				pline("The opposite of the scroll of healing, reading this thing will damage you."); break;
-			case SCR_BULLSHIT: 
+			case SCR_BULLSHIT:
 				pline("Reading this scroll causes invisible dogs to shit all over the place."); break;
-			case SCR_REPAIR_ITEM: 
+			case SCR_REPAIR_ITEM:
 				pline("If you read this scroll, you may pick an item that will be repaired."); break;
-			case SCR_SUMMON_BOSS: 
+			case SCR_SUMMON_BOSS:
 				pline("Summons a boss monster when read."); break;
-			case SCR_ITEM_GENOCIDE: 
+			case SCR_ITEM_GENOCIDE:
 				pline("A very powerful scroll that prevents a type of item from being generated. If you use it again on another item, the previously genocided one will be able to generate again."); break;
-			case SCR_BLANK_PAPER: 
+			case SCR_BLANK_PAPER:
 				pline("A scroll that doesn't have a magic formula written on it. You may use a magic marker to turn it into another type of scroll."); break;
-			case SCR_ARMOR_SPECIALIZATION: 
+			case SCR_ARMOR_SPECIALIZATION:
 				pline("Read this scroll, then select a worn piece of armor to add an egotype to it! However, know that it won't work if the armor piece in question already has an egotype."); break;
-			case SCR_SECURE_IDENTIFY: 
+			case SCR_SECURE_IDENTIFY:
 				pline("Annoyed that regular identify scrolls fail so often? With this scroll, you can identify an object without any chance of it resisting the identification attempt!"); break;
 
  			default: pline("Missing item description (this is a bug). Please tell Amy about the item in question so she can add a description."); break;
@@ -11874,35 +13715,35 @@ struct obj *obj;
 #else
 		pline("%s - This is a spellbook. Color: %s. Material: %s. Appearance: %s. Spell level: %d. Reading it allows you to learn a new spell permanently, or refresh your memory if you already know the spell.",xname(obj), obj->dknown ? c_obj_colors[objects[obj->otyp].oc_color] : "unknown", obj->dknown ? materialnm[objects[obj->otyp].oc_material] : "unknown", obj->dknown ? dn : "unknown", nn ? objects[obj->otyp].oc_level : 0);
 #endif
-		if (!nn) pline("Unfortunately you don't know more about it. You will gain more information if you identify this item.");
+		if ((!nn) && (!knoweverything)) pline("Unfortunately you don't know more about it. You will gain more information if you identify this item.");
 		else { switch (obj->otyp) {
 
 			case SPE_FORCE_BOLT:
 				pline("A spell that fires an invisible beam. It can damage monsters, items and certain dungeon features."); break;
 			case SPE_CREATE_MONSTER:
-				pline("Casting this spell summons random monsters. Beware, it might also create a trap on the current dungeon level."); break;
+				pline("Casting this spell summons random monsters. Beware, it also backfires sometimes. The summoned monster has a chance of being frenzied too."); break;
 			case SPE_DRAIN_LIFE:
-				pline("This spell drains the life force out of monsters, reducing their level. It also reduces the enchantment of objects it hits."); break;
+				pline("This spell drains the life force out of monsters, sometimes reducing their level. It also reduces the enchantment of objects it hits."); break;
 			case SPE_COMMAND_UNDEAD:
-				pline("A spell that attempts to tame all adjacent undead monsters. They have a chance of resisting, and very rarely they may instead enter a state of frenzy, becoming immune to further taming attempts."); break;
+				pline("A spell that attempts to tame all adjacent undead monsters. They have a chance of resisting, and very rarely they may instead enter a state of frenzy, becoming immune to further taming attempts. Also, the spell may occasionally backfire."); break;
 			case SPE_SUMMON_UNDEAD:
-				pline("Summons an undead monster. Rarely, it also makes a trap on the level."); break;
+				pline("Summons an undead monster. It can also rarely backfire. The summoned monster has a chance of being frenzied too."); break;
 			case SPE_STONE_TO_FLESH:
 				pline("This spell can be cast at items, dungeon features and monsters that are made of stone, turning them into meat."); break;
 			case SPE_HEALING:
 				pline("A basic healing spell that can be used on yourself or on a monster to heal them."); break;
 			case SPE_CURE_BLINDNESS:
-				pline("Casting this spell cures blindness."); break;
+				pline("Casting this spell cures blindness. If you have a long-lasting blindness effect, its duration will merely be reduced. On very rare occasions this spell can backfire."); break;
 			case SPE_CURE_DIM:
-				pline("If you are hit by the dim status effect, this spell will remove the condition."); break;
+				pline("If you are hit by the dim status effect, this spell will remove the condition if its duration was short, or reduce it if it was long. On very rare occasions this spell can backfire."); break;
 			case SPE_CURE_SICKNESS:
-				pline("A powerful spell that cures any food poisoning and illness you might be suffering from."); break;
+				pline("A powerful spell that cures any food poisoning and illness you might be suffering from. But in order to make sure that alternate methods of curing aren't completely useless, every time this spell actually cures something you lose 1 maximum mana."); break;
 			case SPE_CURE_HALLUCINATION:
-				pline("If you successfully cast this spell, your hallucinations will end."); break;
+				pline("If you successfully cast this spell, your hallucinations will end, or at least have their duration reduced. On very rare occasions this spell can backfire."); break;
 			case SPE_CURE_CONFUSION:
-				pline("A spell that can be successfully cast even while confused, and that's also the reason why one would cast it in the first place since it cures the confusion status."); break;
+				pline("A spell that can be successfully cast even while confused, and that's also the reason why one would cast it in the first place since it cures the confusion status. Long-lasting confusion effects will merely be shortened. On very rare occasions this spell can backfire."); break;
 			case SPE_CURE_STUN:
-				pline("By casting this spell, you can get rid of the stun condition."); break;
+				pline("By casting this spell, you can get rid of the stun condition. If you have a long-lasting stun effect, every cast will reduce its duration until it reaches zero. On very rare occasions this spell can backfire."); break;
 			case SPE_GENOCIDE:
 #ifdef PHANTOM_CRASH_BUG
 				pline("Casting this spell might allow you to genocide some monster species. However, it often fails."); break;
@@ -11920,21 +13761,99 @@ struct obj *obj;
 			case SPE_LIGHT:
 				pline("A spell that lights up dark areas."); break;
 			case SPE_DETECT_MONSTERS:
-				pline("Allows you to see some of the monsters on the current dungeon level."); break;
+				pline("Allows you to see some of the monsters on the current dungeon level, but only those who aren't more than 10 squares away."); break;
 			case SPE_DETECT_FOOD:
 				pline("This spell shows you the food items on the current level."); break;
+			case SPE_ORE_MINING:
+				pline("If you cast this spell, stalactites next to you will be removed and may turn into precious gems or worthless glass."); break;
+			case SPE_BOILER_KABOOM:
+				pline("A spell that targets rain clouds in a 3x3 area centered on you. Every such rain cloud boils away in a fiery explosion that may damage you or your items."); break;
+			case SPE_DEFOG:
+				pline("Removes nether mist around you. Every nether mist tile that is removed that way reduces your alignment by 10 and your max alignment by 1."); break;
+			case SPE_SWAP_POSITION:
+				pline("If you cast this spell, the next monster you move into will be displaced instead of attacked. You only have 3 turns after casting it or the effect dissipates."); break;
+			case SPE_SHUFFLE_MONSTER:
+				pline("Targets monsters next to you, which will be pushed around a bit, but not into tiles that would be dangerous to them."); break;
+			case SPE_PET_SYRINGE:
+				pline("Cast this spell to greatly heal all adjacent pets. However, this counts as abusing them."); break;
+			case SPE_BUC_KNOWLEDGE:
+				pline("Cast this spell to find out the BUC (blessed, uncursed or cursed) status of an item in your open inventory without breaking atheist conduct!"); break;
+			case SPE_PREACHING:
+				pline("A spell that improves your alignment record by 5 points, but not beyond the maximum. Casting it breaks atheist conduct."); break;
+			case SPE_RESIST_PARALYSIS:
+				pline("Casting this spell gives temporary discount action, which reduces the average time for which you are paralyzed."); break;
+			case SPE_KEEP_SATIATION:
+				pline("Costs no nutrition to cast, and gives temporary full nutrients, meaning that your belly stays full for a longer time."); break;
+			case SPE_TECH_BOOST:
+				pline("If you use this spell, the effective levels of all your techniques will be temporarily improved!"); break;
+			case SPE_CONTINGENCY:
+				pline("A spell that may let you avert death, but it only lasts for a certain amount of time and the chance to be revived on death is not 100%%."); break;
+			case SPE_AULE_SMITHING:
+				pline("This very powerful spell lets you erosionproof an item of your choice when cast."); break;
+			case SPE_HORSE_HOP:
+				pline("Cast this spell and you'll temporarily be able to jump, but only while riding."); break;
+			case SPE_LINE_LOSS:
+				pline("Every monster that you can see will lose one hit point if you cast this."); break;
+			case SPE_TACTICAL_NUKE:
+				pline("A perilous spell. All monsters in your line of sight and also all those that you see via other means (e.g. telepathy) will lose 10%% of their current health, but you take damage equal to 10%% of your maximum HP, with no warning if that would kill you."); break;
+			case SPE_RAGNAROK:
+				pline("This spell brings an end. Cast it at your own peril. If you do cast it successfully, casting it again will then do nothing for the next 1000 turns."); break;
+			case SPE_ARMOR_SMASH:
+				pline("A rather powerful spell that allows you to destroy the worn armor of an adjacent monster. But artifact armor pieces are immune."); break;
+			case SPE_STRANGLING:
+				pline("Allows you to strangle an adjacent monster, which works especially well against humanoids."); break;
+			case SPE_PARTICLE_CANNON:
+				pline("A very powerful damage-dealing beam spell with great range. If you cast it, you're paralyzed for 5 turns because you have to reload the cannon, and it then requires an additional 45 more turns to become available again."); break;
+			case SPE_ONE_POINT_SHOOT:
+				pline("This spell works only if you have a bullet in your inventory, which will be used up. You then get a target cursor that you can place on a monster, which then takes a lot of damage. If the bullet was positively enchanted, the damage will be even higher. However, you can only use this spell once every 50 turns."); break;
+			case SPE_BLOOD_STREAM:
+				pline("A spell that lets you use your menstruation as a weapon, shooting a stream of blood in a direction that can hit several enemies. However, you take damage equal to up to 20%% of your maximum HP. The damage it deals is higher the less health you have remaining after that loss, and if you're female it deals even more damage."); break;
+			case SPE_SHINING_WAVE:
+				pline("This is a rather expensive spell that requires five times as much mana as you'd expect. It shoots a beam in a direction of your choice that deals great damage. Monsters that resist magic or are sound-based are immune if you're female, resistant if you're male."); break;
+			case SPE_GROUND_STOMP:
+				pline("Stomps the ground if cast, greatly damaging adjacent monsters. However, you'll also be heavily confused for a while and be unable to have confusion resistance. If you somehow manage to successfully cast this spell while confused, it will have no effect."); break;
+			case SPE_DIRECTIVE:
+				pline("Lets you give commands to your pets, although there's a chance that they won't obey you."); break;
+			case SPE_NERVE_POISON:
+				pline("Targets an adjacent monster, which will be poisoned and paralyzed if it fails a resistance check."); break;
+			case SPE_POWDER_SPRAY:
+				pline("A spell that targets all adjacent monsters, which must make a saving throw or be poisoned."); break;
+			case SPE_FIREWORKS:
+				pline("Creates random fire explosions near you when cast."); break;
+			case SPE_AIMBOT_LIGHTNING:
+				pline("If you cast this, you get a target cursor that you can position at any square in your line of sight. A lightning bolt will then shoot out of the tile you picked, but the direction of that lightning is random."); break;
+			case SPE_ENHANCE_BREATH:
+				pline("Casting this buff spell enhances your breath for a while, which requires you to actually be able to breathe via #monster. Regular breaths do extra damage while disintegration breath costs less mana."); break;
+			case SPE_GOUGE_DICK:
+				pline("This spell is only useful if you're currently engulfed by a monster. If that is the case, you will use your penis to gouge a hole in the engulfing monster, paralyzing and heavily damaging it. For some reason this also works if you're female, but then the damage is much lower."); break;
+			case SPE_BODYFLUID_STRENGTHENING:
+				pline("A buff spell that temporarily causes all monsters attacking you in melee to take acid damage."); break;
+			case SPE_GEYSER:
+				pline("You can cast this spell in a direction of your choice, dealing good damage to monsters in a line, but swimming or otherwise water-based ones are immune."); break;
+			case SPE_BUBBLING_HOLE:
+				pline("The bubbling hole spell targets an adjacent monster that you can choose. If possible, the monster will rise through the ceiling to the level above, or if for some reason that doesn't work, the monster will hit its head on the ceiling and take great damage."); break;
+			case SPE_PURIFICATION:
+				pline("Cast this to turn adjacent styx rivers into water."); break;
+			case SPE_ADD_SPELL_MEMORY:
+				pline("Adds 5%% to the memory of a spell that you can choose, but this spell's memory will be drained in the process. This spell only has a low chance of working on a forgotten spell."); break;
+			case SPE_NEXUSPORT:
+				pline("Simulates the effect of being hit by a nexus attack, meaning that you may phase door, teleport, level teleport or have your stats shuffled at random. It can also backfire occasionally."); break;
+			case SPE_GIANT_FOOT:
+				pline("Causes an enormous foot to fall from above, crushing a target adjacent to you. This spell was suggested by jonadab."); break;
+			case SPE_ANTI_TELEPORTATION:
+				pline("If you cast this spell, you activate a temporary 'space retention' status which results in both you and monsters being unable to teleport on the current level. But level teleportation may still be available."); break;
 			case SPE_CLAIRVOYANCE:
 				pline("You can see part of your surroundings by casting this."); break;
 			case SPE_DETECT_UNSEEN:
 				pline("A spell that may detect hidden things close by, e.g. traps or invisible monsters."); break;
 			case SPE_IDENTIFY:
-				pline("Casting this spell allows you to identify some objects in your inventory. Careful: very rarely this spell can backlash, causing random bad effects or occasionally amnesia!"); break;
+				pline("Casting this spell allows you to identify some objects in your inventory, although they usually won't reveal all of their secrets even if you use it repeatedly, because you're meant to also use other methods of identifying your items. Careful: this spell can sometimes backlash, causing random bad effects or occasionally amnesia!"); break;
 			case SPE_DETECT_TREASURE:
-				pline("This spell detects some of the objects on the current level."); break;
+				pline("This spell detects some of the objects on the current level, as long as they're less than 35 squares away from you."); break;
 			case SPE_MAGIC_MAPPING:
-				pline("A spell that reveals fragments of what the current dungeon level looks like, unless it's a non-mappable special level."); break;
+				pline("A spell that reveals fragments of what the current dungeon level looks like in a 25-square radius centered on you, unless it's a non-mappable special level."); break;
 			case SPE_ENTRAPPING:
-				pline("Casting this spell allows you to detect traps on the level, but each cast only reveals a few of them at once."); break;
+				pline("Casting this spell allows you to detect traps on the level, but each cast only reveals a few of them at once and only those close by (not more than 20 squares distant). It may sometimes backfire."); break;
 			case SPE_FINGER:
 				pline("This spell fires an invisible beam that shows you the attributes of monsters hit by it."); break;
 			case SPE_CHEMISTRY:
@@ -11943,7 +13862,7 @@ struct obj *obj;
 #ifdef PHANTOM_CRASH_BUG
 				pline("This spell makes enemies fall over unconscious."); break;
 #else
-				pline("According to the Sporkhack creator, this spell is supposed to be useless. But this is Slash'EM Extended, where it allows you to make enemies fall over unconscious by... well, just see it for yourself. :D"); break;
+				pline("According to the Sporkhack creator, this spell is supposed to be useless. But this is Slash'EM Extended, where it allows you to make enemies fall over unconscious by... well, just see it for yourself. :D Be aware that it will also negatively affect you, though!"); break;
 #endif
 			case SPE_CONFUSE_MONSTER:
 				pline("Your melee attacks can confuse monsters if you cast this spell."); break;
@@ -11964,9 +13883,9 @@ struct obj *obj;
 				pline("A very powerful spell that tries to tame adjacent monsters. Their magic resistance prevents this from working sometimes, and since the spell used to be totally unbalanced, it can also fail if the monster isn't resistant at all. But even that's not enough, and therefore Amy added another failure effect: if you're unlucky, the monster will be frenzied, which means it cannot be tamed at all anymore."); break;
 #endif
 			case SPE_ENCHANT_WEAPON:
-				pline("This spell rarely works, but if it does, it tries to enchant your wielded weapon. Beware, if the weapon in question already has a very high enchantment, it might blow up."); break;
+				pline("This spell rarely works, but if it does, it tries to enchant your wielded weapon. Beware, if the weapon in question already has a very high enchantment, it might blow up. Also, successfully enchanting something reduces your maximum mana by one point."); break;
 			case SPE_ENCHANT_ARMOR:
-				pline("This spell rarely works, but if it does, it tries to enchant a user-selected worn piece of armor. Beware, if the armor in question already has a very high enchantment, it might blow up."); break;
+				pline("This spell rarely works, but if it does, it tries to enchant a user-selected worn piece of armor. Beware, if the armor in question already has a very high enchantment, it might blow up. Also, successfully enchanting something reduces your maximum mana by one point."); break;
 			case SPE_CHARGING:
 				pline("Cast this spell if you want to recharge your objects. Beware, though; occasionally, doing so can have nasty side effects, because otherwise this spell would be too overpowered."); break;
 			case SPE_PROTECTION:
@@ -12018,7 +13937,7 @@ struct obj *obj;
 			case SPE_WARPING:
 				pline("Wanna get out of a sticky situation? This is a possible way, although you won't be able to control your destination. This spell also backlashes fairly frequently, causing undesirable effects."); break;
 			case SPE_TRAP_CREATION:
-				pline("You will create some traps around you by casting this spell."); break;
+				pline("You will create some traps around you by casting this spell. Beware, sometimes the traps will be invisible, in which case you can't detect them and they won't be revealed when triggered. Also, casting it will always cause some random bad effect too."); break;
 			case SPE_STUN_MONSTER:
 				pline("A spell that fires invisible beams to stun monsters."); break;
 			case SPE_CURSE_ITEMS:
@@ -12036,7 +13955,7 @@ struct obj *obj;
 			case SPE_INERTIA:
 				pline("Powerful spell that you can fire at enemies to slow them down."); break;
 			case SPE_TIME:
-				pline("You can 'clock back' enemies with this spell, draining their health and level permanently."); break;
+				pline("You can 'clock back' enemies with this spell, sometimes draining their health and level permanently."); break;
 			case SPE_LEVITATION:
 				pline("This spell allows you to levitate for a while."); break;
 			case SPE_TELEPORT_AWAY:
@@ -12048,7 +13967,7 @@ struct obj *obj;
 			case SPE_MUTATION:
 				pline("A spell that has several uses. Zapping yourself will polymorph you, zapping objects will polymorph them, and if you zap a monster, it will gain mutations. Backlashes occasionally."); break;
 			case SPE_KNOCK:
-				pline("This spell opens things like locked doors or chests."); break;
+				pline("This spell opens things like locked doors or chests. However, you may have to cast it repeatedly for it to do anything, and sometimes you'll get bad effects that mimic trapped containers if you use it to unlock something."); break;
 			case SPE_FLAME_SPHERE:
 				pline("Conjures a flaming sphere that attacks your enemies by exploding and doing some fire damage."); break;
 			case SPE_FREEZE_SPHERE:
@@ -12058,7 +13977,7 @@ struct obj *obj;
 			case SPE_ACID_SPHERE:
 				pline("Conjures an acidic sphere that attacks your enemies by exploding and doing some acid damage."); break;
 			case SPE_WIZARD_LOCK:
-				pline("A spell that fires invisible locking beams, which have an effect only if they hit something lockable. It can also repair broken doors."); break;
+				pline("A spell that fires invisible locking beams, which have an effect only if they hit something lockable. It can also repair broken doors. However, it may also randomly fail and very rarely gives you an effect that mimics trapped containers."); break;
 			case SPE_DIG:
 				pline("Casting this can dig through walls and other obstacles."); break;
 			case SPE_CANCELLATION:
@@ -12070,7 +13989,7 @@ struct obj *obj;
 			case SPE_REPAIR_WEAPON:
 				pline("Casting this spell repairs your weapon."); break;
 			case SPE_PSYBEAM:
-				pline("A spell that zaps monsters with psybeams, dealing damage and confusing everything hit by them. Psi-using monsters are immune."); break;
+				pline("A spell that zaps monsters with psybeams, dealing damage and confusing everything hit by them. Psi-using monsters are immune, and so are mindless or (in)sanity-using ones."); break;
 			case SPE_HYPER_BEAM:
 				pline("Fires a more powerful magic missile."); break;
 			case SPE_MAGIC_MISSILE:
@@ -12090,7 +14009,7 @@ struct obj *obj;
 			case SPE_ACID_STREAM:
 				pline("A spell that does acid damage by hitting monsters with a ray."); break;
 			case SPE_SOLAR_BEAM:
-				pline("Fires a beam of pure solar energy that does a ton and a half of damage to enemies."); break;
+				pline("Fires a beam of pure solar energy that does a ton and a half of damage to enemies; however, darkness-based enemies and ones without sight will resist."); break;
 			case SPE_BLANK_PAPER:
 				pline("This spellbook is blank. You may be able to write on it with a magic marker, turning it into another spellbook."); break;
 			case SPE_BOOK_OF_THE_DEAD:
@@ -12100,7 +14019,7 @@ struct obj *obj;
 			case SPE_AMNESIA:
 				pline("This spellbook causes you to forget stuff."); break;
 			case SPE_KNOW_ENCHANTMENT:
-				pline("Your entire inventory may have their enchantment revealed, so pack as much stuff as you can before casting this spell. However, only 1 in 4 items will actually be affected, and it's predetermined which ones they are, so don't bother trying repeatedly."); break;
+				pline("Your items may have their enchantment revealed, so pack some stuff with unknown enchantment when casting this spell. However, only 1 in 4 items will actually be affected, and it's predetermined which ones they are, so don't bother trying repeatedly. Also, every cast only reveals the enchantment of one item at a time."); break;
 			case SPE_MAGICTORCH:
 				pline("A spell that increases your field of view for a period of time."); break;
 			case SPE_DISPLACEMENT:
@@ -12112,7 +14031,7 @@ struct obj *obj;
 			case SPE_TIME_SHIFT:
 				pline("Casting this spell increases the turn counter by 5. Don't do it if you're doing a speedrun."); break;
 			case SPE_DETECT_ARMOR_ENCHANTMENT:
-				pline("This spell tries to detect the enchantment value of all armor items in your main inventory. It only affects roughly one third of all items though, and repeated casting won't change which ones they are. Either they're revealed on the first cast or this spell doesn't reveal them at all."); break;
+				pline("This spell tries to detect the enchantment value of armor items in your main inventory. It only affects roughly one third of all items though, and repeated casting won't change which ones they are. Also, every cast can only affect one item so if you have a lot of armor, you might have to cast it repeatedly."); break;
 			case SPE_CONFUSE_SELF:
 				pline("Want to confuse yourself? Cast this spell!"); break;
 			case SPE_STUN_SELF:
@@ -12131,19 +14050,19 @@ struct obj *obj;
 			case SPE_DISINTEGRATION:
 				pline("This very powerful spell will fire invisible disintegration beams that can be used to instakill monsters."); break;
 			case SPE_PETRIFY:
-				pline("Cast this spell at monsters to turn them to stone."); break;
+				pline("Cast this spell at monsters to turn them to slow them down, or turn them to stone if they're already slow. If the monster resists petrification, it will be completely unaffected."); break;
 			case SPE_PARALYSIS:
 				pline("You can shoot paralysis beams by casting this spell."); break;
 			case SPE_LEVELPORT:
 				pline("If you cast this spell, you will teleport to a random dungeon level in your current branch. However, it always backlashes after teleporting you, causing nasty side effects! Beware!"); break;
 			case SPE_BANISHING_FEAR:
-				pline("A spell that cures the 'fear' status conditions. At higher spell levels it allows you to resist fear for a period of time."); break;
+				pline("A spell that cures the 'fear' status conditions, unless its duration was very long, then it will only be reduced. At higher spell levels it allows you to resist fear for a period of time. On very rare occasions this spell can backfire."); break;
 			case SPE_CURE_FREEZE:
-				pline("Got hit by the 'freeze' status effect? Cast this spell and it will go away!"); break;
+				pline("Got hit by the 'freeze' status effect? Cast this spell and it may go away! However, long-lsating freeze effects will only have their duration reduced. On very rare occasions this spell can backfire."); break;
 			case SPE_CURE_BURN:
-				pline("This spell will cure you of burns."); break;
+				pline("This spell will cure you of burns. A long-lasting burn status effect will have its duration reduced, but you can cast the spell repeatedly until you're cured. On very rare occasions this spell can backfire."); break;
 			case SPE_CURE_NUMBNESS:
-				pline("A spell that can be cast to cure numbness."); break;
+				pline("A spell that can be cast to cure numbness. If the numbness effect has a short duration, this is guaranteed to work; long-lasting effects will have their duration reduced. On very rare occasions this spell can backfire."); break;
 			case SPE_TIME_STOP:
 				pline("This very powerful spell will stop the flow of time for a brief period."); break;
 			case SPE_STINKING_CLOUD:
@@ -12151,7 +14070,7 @@ struct obj *obj;
 			case SPE_GAIN_LEVEL:
 				pline("An absurdly powerful spell that may increase your character level. However, it often fails."); break;
 			case SPE_MAP_LEVEL:
-				pline("This spell fails most of the time, but if it doesn't, it will reveal the map of the entire level and show most objects as well as traps."); break;
+				pline("This spell fails most of the time, but if it doesn't, it will reveal the map of the entire level (with a few gaps) and show quite some objects as well as traps. When it does work, it has quite a chance of backfiring, and of course it doesn't work at all if the level isn't mappable."); break;
 			case SPE_INFERNO:
 				pline("Fire spell that severely burns enemies, afflicting them with blindness and damaging them in a way that cannot be easily healed."); break;
 			case SPE_ICE_BEAM:
@@ -12197,9 +14116,9 @@ struct obj *obj;
 			case SPE_LYCANTHROPY:
 				pline("Afflicts you with random lycanthropy."); break;
 			case SPE_BUC_RANDOMIZATION:
-				pline("This spell can affect uncursed items in your inventory, turning them into blessed or cursed ones at random."); break;
+				pline("This spell can affect uncursed items in your inventory, turning them into blessed or cursed ones at random. However, it only works on equipped ones."); break;
 			case SPE_LOCK_MANIPULATION:
-				pline("Cast this spell at doors and chests to manipulate their 'locked' status."); break;
+				pline("Cast this spell at doors and chests to manipulate their 'locked' status. You may occasionally get container trap effects though."); break;
 			case SPE_POLYFORM:
 				pline("A completely random polymorph will affect you if you cast this. It can occasionally backfire, and often the duration of this polymorph is not very long."); break;
 			case SPE_MESSAGE:
@@ -12207,7 +14126,7 @@ struct obj *obj;
 			case SPE_RUMOR:
 				pline("Displays a random rumor when cast."); break;
 			case SPE_CURE_RANDOM_STATUS:
-				pline("Can be cast even while confused. It will randomly pick one of these status afflictions to cure, regardless of whether you actually have it: sickness/sliming, hallucination, confusion, stun, burn, freezing, numbness, blindness, dimness or fear."); break;
+				pline("Can be cast even while confused. It will randomly pick one of these status afflictions to cure, regardless of whether you actually have it: sickness/sliming, hallucination, confusion, stun, burn, freezing, numbness, blindness, dimness or fear. Long-lasting ones may just have their duration reduced. Very occasionally it can drain your maximum mana if it cures sliming or sickness."); break;
 			case SPE_RESIST_RANDOM_ELEMENT:
 				pline("Gain a random resistance temporarily by casting this spell!"); break;
 			case SPE_RUSSIAN_ROULETTE:
@@ -12220,6 +14139,8 @@ struct obj *obj;
 				pline("Turns you into a zorkmid or an orange."); break;
 			case SPE_HORRIFY:
 				pline("This spell fires beams that cause monsters to run away from you."); break;
+			case SPE_SYMHEAL:
+				pline("If you're in symbiosis, this spell will heal your symbiote a bit."); break;
 			case SPE_TERROR:
 				pline("Attempts to make all monsters on the level flee from you for a while. However, this spell may rarely cause backlash."); break;
 			case SPE_PHASE_DOOR:
@@ -12229,17 +14150,17 @@ struct obj *obj;
 			case SPE_NEXUS_FIELD:
 				pline("Tries to teleport all monsters adjacent to you away, although they have a chance to resist. It will occasionally backlash by reducing one of your attributes, permanently."); break;
 			case SPE_COMMAND_DEMON:
-				pline("Use this spell if you're surrounded by demons, and they have a chance of becoming peaceful or even tame!"); break;
+				pline("Use this spell if you're surrounded by demons, and they have a chance of becoming peaceful or even tame! Casting this spell may occaisonally backfire though, and occasionally the demons become frenzied instead."); break;
 			case SPE_FIRE_GOLEM:
 				pline("This spell requires you to have a torch to create the golem from, which will be used up. The fire golem will then fight alongside you, and you get experience and credit for its kills, but beware: usually it will turn hostile after a while!"); break;
 			case SPE_DISRUPTION_SHIELD:
 				pline("A spell that allows you to use your mana as health for a while: for the duration of the effect, any damage you take will be subtracted from your mana instead - as long as you have enough mana, that is."); break;
 			case SPE_SPELLBINDER:
-				pline("Casting this spell allows you to cast several spells in the same turn. Every spell that you have can only be cast once per turn, and of course you cannot use those extra castings for another spellbinder, because things need to be sane. :-)"); break;
+				pline("Casting this spell allows you to cast several spells in the same turn. Every spell that you have can only be cast once per turn, and of course you cannot use those extra castings for another spellbinder, because things need to be sane. :-) Also, the spells will require 25%% more mana than usual."); break;
 			case SPE_TRACKER:
 				pline("Teleports you to the last monster that entered the current dungeon level, provided that nothing prevents you from teleporting and there is an empty space next to the monster in question. It will occasionally backfire."); break;
 			case SPE_INERTIA_CONTROL:
-				pline("This spell allows you to choose any of your other known spells, which will be inertia controlled for a while. That way you can automatically cast it while doing other things. Don't move the spell around in your spellcasting menu while inertia control is in effect though, or it will end prematurely!"); break;
+				pline("This spell allows you to choose any of your other known spells, which will be inertia controlled for a while. That way you can automatically cast it while doing other things at a slightly higher mana cost. Don't move the spell around in your spellcasting menu while inertia control is in effect though, or it will end prematurely!"); break;
 			case SPE_CODE_EDITING:
 				pline("Allows you to edit the code of the game ;), err, not really. It detonates all corpses on the current dungeon level, generating fiery explosions that deal damage depending on the dead monster's level."); break;
 			case SPE_FORGOTTEN_SPELL:
@@ -12258,6 +14179,48 @@ struct obj *obj;
 				pline("Generates some ice tiles in your proximity, and reduces your maximum mana by up to 2 points."); break;
 			case SPE_GROW_TREES:
 				pline("It's a powerful spell that lets trees grow near you, but it also reduces your maximum mana by up to 4 points."); break;
+			case SPE_GRAVE:
+				pline("This spell erects grave walls, but also reduces your maximum mana by up to 7 points."); break;
+			case SPE_TUNNELS:
+				pline("A spell that creates tunnels. It may reduce your maximum mana by up to 4 points."); break;
+			case SPE_FARMING:
+				pline("Casting this spell generates farmland, and sometimes reduces your maximum mana by up to 3 points."); break;
+			case SPE_MOUNTAINS:
+				pline("If you cast this spell, mountains will appear. But it might also reduce your maximum mana by up to 7 points."); break;
+			case SPE_DIVING:
+				pline("Creates some water tunnels around you, and reduces your maximum mana by up to 3 points."); break;
+			case SPE_CRYSTALLIZATION:
+				pline("Spawns crystal water tiles, and may reduce your maximum mana by up to 2 points."); break;
+			case SPE_MOORLAND:
+				pline("Transforms some tiles into moorland, and occasionally reduces your maximum mana by up to 2 points."); break;
+			case SPE_URINE:
+				pline("If you somehow want to transform floor tiles into urine, cast this. Rarely it can also reduce your maximum mana by up to 2 points."); break;
+			case SPE_QUICKSAND:
+				pline("Creates shifting sand tiles, and sometimes reduces your maximum mana by up to 3 points."); break;
+			case SPE_STYX:
+				pline("This spell can create styx rivers, and sometimes reduces your maximum mana by up to 2 points."); break;
+			case SPE_SNOW:
+				pline("Creates snow terrain, and has a low chance of reducing your maximum mana by up to 2 points."); break;
+			case SPE_ASH:
+				pline("Transforms regular floor into ash, and may reduce maximum mana by up to 3 points."); break;
+			case SPE_SAND:
+				pline("Creates sand terrain. It may reduce your maximum mana by up to 2 points."); break;
+			case SPE_PAVING:
+				pline("This spell will transform some floor tiles into paved floors, and very occasionally it can also reduce your maximum mana by up to 2 points."); break;
+			case SPE_HIGHWAY:
+				pline("Creates highway terrains, but also reduces your maximum mana by up to 6 points."); break;
+			case SPE_GRASSLAND:
+				pline("An elemental spell that turns regular floor to grassland, with the drawback that every once in a while it can reduce your maximum mana by up to 2 points."); break;
+			case SPE_NETHER_MIST:
+				pline("Creates nether mist terrain, and occasionally reduces your maximum mana by up to 2 points."); break;
+			case SPE_STALACTITE:
+				pline("You can cast this spell to create stalactite terrain, and sometimes it reduces your maximum mana by up to 2 points."); break;
+			case SPE_CRYPT:
+				pline("This spell can transform regular floor to crypt floor. On rare occasions it also reduces your maximum mana by up to 2 points."); break;
+			case SPE_BUBBLE_BOBBLE:
+				pline("A spell that creates floating bubbles as terrain, but it can also reduce your maximum mana by up to 2 points."); break;
+			case SPE_RAIN:
+				pline("Creates rain clouds, if for some odd reason you want to have them on the current dungeon level. Sometimes it also reduces your maximum mana by up to 2 points."); break;
 			case SPE_DRIPPING_TREAD:
 				pline("You can drip the elements for a while if you cast this, although it also costs up to 3 maximum HP. Walking around while the effect is active will generate water, lava, ice or cloud terrain underneath you; at higher skill levels you will be able to control the type of terrain created."); break;
 			case SPE_GEOLYSIS:
@@ -12318,7 +14281,7 @@ struct obj *obj;
 			case SPE_MAGIC_SHIELD:
 				pline("Casting this spell will increase your magic cancellation for a while."); break;
 			case SPE_WORLD_FALL:
-				pline("Cataclysm/apocalypse. It kills all monsters whose level is lower than yours, and can also sometimes kill higher-level ones, but you lose quite a lot of maximum health and mana for casting it and are hit by several bad effects as well as long-lasting nasty trap effects."); break;
+				pline("Cataclysm/apocalypse. It kills all monsters whose level is lower than half of your own, and can also sometimes kill higher-level ones, but you lose quite a lot of maximum health and mana for casting it and are hit by several bad effects as well as long-lasting nasty trap effects."); break;
 			case SPE_ESP:
 				pline("Temporary ESP (telepathy)."); break;
 			case SPE_RADAR:
@@ -12353,6 +14316,14 @@ struct obj *obj;
 				pline("Cures all nasty trap effects, but then also causes various bad effects and gives you intrinsic nastiness, meaning the nasty trap effects will come back to haunt you some more after a while!"); break;
 			case SPE_THRONE_GAMBLE:
 				pline("Replicates the effects of sitting on a throne, although it cannot give a wish of course. This spell can occasionally backfire."); break;
+			case SPE_ATTUNE_MAGIC:
+				pline("Replicates the effects of invoking a pentagram. This spell can occasionally backfire."); break;
+			case SPE_GAIN_SPACT:
+				pline("Casting this spell reduces your maximum health by a random amount up to 100, and teaches you a new technique. If it rolls a technique you already know, well, tough luck!"); break;
+			case SPE_METAL_GUARD:
+				pline("Prevents the next instance of HP loss."); break;
+			case SPE_MAGIC_WHISTLING:
+				pline("Can't seem to find a magic whistle? This spell replicates its effect, by teleporting your pets next to you!"); break;
 			case SPE_BACKFIRE:
 				pline("Well, you probably should not cast this."); break;
 			case SPE_DEMEMORIZE:
@@ -12362,7 +14333,7 @@ struct obj *obj;
 			case SPE_NATURE_BEAM:
 				pline("This spell fires powerful rays of fire, cold, lightning or poison (randomly chosen)."); break;
 			case SPE_WHISPERS_FROM_BEYOND:
-				pline("Tries to identify your entire inventory, because unlike ToME, there is no *Identify* effect in this game. There is no 'sanity' stat either, so it permanently reduces your INT and WIS by one or two instead, and if any of those go below 3, you die instantly!"); break;
+				pline("Tries to identify your entire inventory, because unlike ToME, there is no *Identify* effect in this game. It additionally allows you to secure identify one item without fail. There is no 'sanity' stat either (well actually there is, but who cares that this spell causes it to go up), so it permanently reduces your INT and WIS by one or two instead, and if any of those go below 3, you die instantly!"); break;
 			case SPE_STASIS:
 				pline("Both you and all monsters will be frozen in time until the spell effect ends. Protip: cast it to wait out annoying status effects or regenerate your health without being interrupted."); break;
 			case SPE_CRYOGENICS:
@@ -12398,7 +14369,7 @@ struct obj *obj;
 			case SPE_UNLEVITATE:
 				pline("Probably borderline useless, this spell allows you to stop levitation if it's from a temporary source. It does not get cursed rings or boots of levitation off you, though."); break;
 			case SPE_DETECT_WATER:
-				pline("Tries to detect water sources on the level."); break;
+				pline("Tries to detect water sources on the level. It can only detect those that are at most 30 squares away from you, though."); break;
 			case SPE_APPLY_NAIL_POLISH:
 				pline("A spell that allows you to do your nails! Hopefully you're a woman, because then you'll really like this :-). But even if your character is male, it's just as useful. The more nails you do, the more damage your unarmed attacks can cause, but only if you're not wearing gloves. Being polymorphed into something with claw attacks also allows you to do extra damage."); break;
 			case SPE_ENCHANT:
@@ -12410,9 +14381,9 @@ struct obj *obj;
 			case SPE_SNIPER_BEAM:
 				pline("This offensive spell can hit monsters standing very far away, but the damage is rather low. On the bright side, nothing can resist it."); break;
 			case SPE_CURE_GLIB:
-				pline("If you don't have a towel, you can cast this spell to cure your glibbery hands."); break;
+				pline("If you don't have a towel, you can cast this spell to cure your glibbery hands. However, if you had a long-lasting glib effect, its duration will merely be reduced. On very rare occasions this spell can backfire."); break;
 			case SPE_CURE_MONSTER:
-				pline("If there are monsters adjacent to you that are suffering from confusion, paralysis or other status effects, casting this will cure their afflictions."); break;
+				pline("If there are monsters adjacent to you that are suffering from confusion, paralysis or other status effects, casting this may cure their afflictions."); break;
 			case SPE_MANA_BATTERY:
 				pline("Deletes all wands in your open inventory (so you should make sure you put away all those that you want to keep), and recovers 10 mana for every charge. The idea is from Elona. Yep. Elona introduced this first. What, you say ADOM did? Nope! ADOM stole it from Elona, of course! :P"); break;
 			case SPE_THORNS:
@@ -12442,6 +14413,10 @@ struct obj *obj;
 
 			case WAN_LIGHT: 
 				pline("Zapping this wand will illuminate your surroundings."); break;
+			case WAN_BLEEDING:
+				pline("If anyone zaps this wand, you will bleed. No, you cannot use it on hostile monsters."); break;
+			case WAN_UNDRESSING:
+				pline("Zapping this wand will remove one of your worn pieces of equipment, chosen randomly, but it will never pick a cursed one. If a monster zaps the wand, it will also remove your equipment. There is no way to use it against monsters."); break;
 			case WAN_NOTHING: 
 				pline("A wand that does nothing at all."); break;
 			case WAN_SHARE_PAIN: 
@@ -12497,7 +14472,7 @@ struct obj *obj;
 			case WAN_SPEED_MONSTER:
 				pline("Zapping yourself with this wand gives you permanent intrinsic speed. It can also be zapped at monsters to speed them up."); break;
 			case WAN_HASTE_MONSTER:
-				pline("Zapping yourself with this wand will make you very fast for a while. It can also be zapped at monsters to speed them up."); break;
+				pline("Zapping yourself with this wand will make you very fast for a while. It can also be zapped at monsters to make them very fast permanently."); break;
 			case WAN_STRIKING:
 				pline("A wand that shoots invisible bolts of force to damage enemies, break doors and otherwise interact with the dungeon."); break;
 			case WAN_UNDEAD_TURNING:
@@ -12542,6 +14517,10 @@ struct obj *obj;
 				pline("Your fingers will be unable to hold anything for a while after this wand is zapped. Unfortunately it doesn't remove cursed items though."); break;
 			case WAN_IMMOBILITY:
 				pline("Every time this wand is zapped, a bunch of nonmoving monsters will materialize from nowhere."); break;
+			case WAN_INSANITY:
+				pline("Zapping this wand increases your sanity, which is bad. And it happens regardless of who is doing the zapping, because this is one of the items specifically designed to screw you over."); break;
+			case WAN_BAD_EQUIPMENT:
+				pline("Every time someone zaps this wand, you are forced to wear some cursed item."); break;
 			case WAN_EGOISM:
 				pline("Zapping this wand creates egotype monsters."); break;
 			case WAN_SIN:
@@ -12626,6 +14605,16 @@ struct obj *obj;
 				pline("Every zap of this wand reduces your luck by one point, regardless of who zapped it."); break;
 			case WAN_REMOVE_RESISTANCE:
 				pline("Zapping this wand will remove random intrinsics."); break;
+			case WAN_DISENCHANTMENT:
+				pline("If anyone zaps this wand, your items get disenchanted."); break;
+			case WAN_CHAOS_TERRAIN:
+				pline("With every zap of this wand, the terrain on the current dungeon level becomes more chaotic."); break;
+			case WAN_FLEECY_TERRAIN:
+				pline("Every zap of this wand creates terrain of a specific (but randomized per zap) type!"); break;
+			case WAN_CONTAMINATION:
+				pline("Every zap of this wand increases your contamination."); break;
+			case WAN_TREMBLING:
+				pline("You'll tremble if someone zaps this wand."); break;
 			case WAN_CORROSION:
 				pline("A wand that corrodes some of your inventory if you zap it, and also if someone else zaps it."); break;
 			case WAN_FUMBLING:
@@ -12649,9 +14638,9 @@ struct obj *obj;
 			case WAN_LEVITATION:
 				pline("If anyone zaps this wand, you will levitate, but not at will."); break;
 			case WAN_SPELLBINDER:
-				pline("A wand that allows you to cast up to five spells at once every time you zap it."); break;
+				pline("A wand that allows you to cast up to five spells at once every time you zap it. Be aware, though: the spells will cost 25%% more mana than they ordinarily would."); break;
 			case WAN_INERTIA_CONTROL:
-				pline("Zapping this wand allows you to control the flow of one of your spells (you can select which one), which will automatically be cast once per turn without taking time."); break;
+				pline("Zapping this wand allows you to control the flow of one of your spells (you can select which one), which will automatically be cast once per turn without taking time. This will cost more mana than casting the spell normally, though."); break;
 			case WAN_STERILIZE:
 				pline("Prevents breeding and egg hatching for a while."); break;
 			case WAN_DEBUGGING:
@@ -12659,7 +14648,7 @@ struct obj *obj;
 			case WAN_HYPER_BEAM:
 				pline("An attack wand that fires a very powerful beam. Unfortunately, monsters can still resist it, but if they don't, it deals massive damage."); break;
 			case WAN_PSYBEAM:
-				pline("Fires psychic beams at monsters if zapped. Only monsters that possess psi attacks will resist it, all others take full damage and will also be confused."); break;
+				pline("Fires psychic beams at monsters if zapped. Monsters that possess psi or (in)sanity attacks will resist it, and mindless ones will too; all others take full damage and will also be confused."); break;
 			case WAN_INFERNO:
 				pline("This wand can create permanent engravings and also fires searing hot flames that will damage a monster's maximum hit points as well as blinding it."); break;
 			case WAN_ICE_BEAM:
@@ -12830,6 +14819,12 @@ struct obj *obj;
 				pline("Healthstones are usually generated cursed, but if you carry around noncursed ones your health regeneration will speed up."); break;
 			case TALC:
 				pline("A useless gray stone."); break;
+			case LEAD_CLUMP:
+				pline("This type of sling ammunition does decent damage."); break;
+			case SLING_AMMO:
+				pline("Using this ammo for the sling is definitely better than firing regular rocks."); break;
+			case BONE_FRAGMENT:
+				pline("It's better than a rock, but not as good as a flint stone. You can fire it with a sling to deal damage to monsters."); break;
 			case GRAPHITE:
 				pline("It's a gray stone that doesn't do anything special, but at least it doesn't do anything bad, unlike some other stones..."); break;
 			case VOLCANIC_GLASS_FRAGMENT:
@@ -13203,6 +15198,12 @@ struct obj *obj;
 			    pline("A stone that curses itself and causes your stats to decay over time."); break;
 			case MOVEMORK_STONE:
 			    pline("A stone that curses itself and causes monsters to be generated with movement energy."); break;
+			case SANE_TREBLE_STONE:
+			    pline("A stone that curses itself and causes your sanity to increase much faster."); break;
+			case STATCREASE_STONE:
+			    pline("A stone that curses itself and causes you to have a hard time increasing your stats."); break;
+			case SIMEOUT_STONE:
+			    pline("A stone that curses itself and causes your sanity to increase over time."); break;
 
 			case GRAYOUT_STONE:
 				pline("A stone that curses itself and causes grayout."); break;
@@ -13351,6 +15352,12 @@ struct obj *obj;
 				pline("A stone that curses itself and causes verbalized sound effects."); break;
 			case TIME_USE_STONE:
 				pline("A stone that curses itself and causes every action to take time."); break;
+			case BAD_PART_STONE:
+				pline("A stone that curses itself and causes you to be in the bad part."); break;
+			case COMPLETELY_BAD_PART_STONE:
+				pline("A stone that curses itself and causes you to be in the completely bad part."); break;
+			case EVIL_VARIANT_STONE:
+				pline("A stone that curses itself and causes you to play the evil variant."); break;
 
  			default: pline("Not much is known about this type of gem, but chances are you're looking at a piece of worthless glass. They are, indeed, worthless."); break;
 
@@ -13371,7 +15378,11 @@ struct obj *obj;
 			case BOULDER: 
 				pline("A large boulder that weighs a ton. It can be thrown, provided you're strong enough."); break;
 			case STATUE: 
-				pline("This statue depicts some sort of monster. There may be a way to make it come back to life, or you can smash it to see if it contains items."); break;
+				pline("This statue depicts some sort of monster. There may be a way to make it come back to life, or you can smash it to see if it contains items.");
+#ifdef EXTENDED_INFO
+				corpsepager(obj->corpsenm);
+#endif
+				break;
 
  			default: pline("Missing item description (this is a bug). Please tell Amy about the item in question so she can add a description."); break;
 
@@ -13396,7 +15407,7 @@ struct obj *obj;
 			case REALLY_HEAVY_IRON_BALL: 
 				pline("Rarely found, this flail-class weapon weighs really much but does a ton of damage."); break;
 			case EXTREMELY_HEAVY_IRON_BALL: 
-				pline("The single most damaging weapon in the entire game. Provided you're capable of lifting and wielding it, this extremely heavy flail-class weapon will smack the living daylights out of your enemies."); break;
+				pline("One of the most damaging weapons in the entire game. Provided you're capable of lifting and wielding it, this extremely heavy flail-class weapon will smack the living daylights out of your enemies."); break;
 			case IMPOSSIBLY_HEAVY_IRON_BALL: 
 				pline("You probably won't be able to lift this ball. It seems you somehow managed to get it into your inventory, but now you're probably overburdened and cannot move unless you drop it."); break;
 
@@ -13408,6 +15419,58 @@ struct obj *obj;
 				pline("With this very heavy ball, you can do great damage to monsters if you use it as a melee or thrown weapon. The flail skill is used to determine the damage and chance to hit."); break;
 			case HEAVY_ELYSIUM_BALL: 
 				pline("A ball made of unbreakable material. It does tons of damage on a successful hit, and it uses the flail skill."); break;
+			case HEAVY_BRICK_BALL:
+				pline("It's a ball made of brick material, which can be used as a weapon that depends on the flail skill."); break;
+			case HEAVY_PAPER_BALL:
+				pline("A rather flimsy ball that can be used as a weapon. The associated weapon skill is flail."); break;
+			case HEAVY_CHROME_BALL:
+				pline("This rather heavy ball deals good damage and depends on the flail skill."); break;
+			case HEAVY_NANO_BALL:
+				pline("A very powerful ball made of a rare material, which uses the flail skill."); break;
+			case IMPOSSIBLY_HEAVY_SAND_BALL:
+				pline("I don't know how you managed to get this ultra-heavy item into your inventory, but if you're somehow able to wield it, it uses the flail skill."); break;
+			case HEAVY_METAL_BALL:
+				pline("A nonrusting ball that can be used as a flail-class weapon."); break;
+			case HEAVY_PLASTIC_BALL:
+				pline("Despite being made of a very light material, this ball still weighs a ton and deals good damage in melee. It uses the flail skill."); break;
+			case HEAVY_SHADOW_BALL:
+				pline("Using this ball as a weapon deals great damage, and it depends on the flail skill."); break;
+			case HEAVY_LEAD_BALL:
+				pline("A very heavyweight flail-class weapon."); break;
+			case IMPOSSIBLY_HEAVY_ETHER_BALL:
+				pline("You'll probably want to drop this extremely heavy weapon because it's really unlikely that you can actually swing it."); break;
+			case HEAVY_WAX_BALL:
+				pline("Despite being made of wax, this ball deals d25 damage when used as a flail-class melee weapon."); break;
+			case HEAVY_WOOD_BALL:
+				pline("Ever felt like hitting monsters with a huge ball made of solid wood? Then use this flail-class weapon."); break;
+			case HEAVY_COPPER_BALL:
+				pline("This ball weighs much, but also deals much damage, and depends on the flail skill."); break;
+			case HEAVY_SILVER_BALL:
+				pline("Yeah I know, it's a flail-class weapon that has huge base damage and is made of silver to boot. Go ahead and smash those demons in Gehennom with it!"); break;
+			case IMPOSSIBLY_HEAVY_OBSIDIAN_BALL:
+				pline("Theoretically this ball can be used as a flail weapon, but in practice it weighs much more than the maximum carry capacity so I expect you to not be able to actually equip it."); break;
+			case BULKY_POURPOOR_BALL:
+				pline("A two-handed ball that deals a lot of melee damage. It uses the flail skill."); break;
+			case BULKY_GEMSTONE_BALL:
+				pline("This ball weighs a ton, but can do up to 50 points of damage in a single hit. You have to wield it with both hands, and the flail skill controls its damage bonuses."); break;
+			case BULKY_FLESH_BALL:
+				pline("If you expect this ball to deal little damage because it's made of flesh, you'd better think again... It's a two-handed weapon and uses the flail skill."); break;
+			case BULKY_MITHRIL_BALL:
+				pline("This ball weighs almost as much as the carry cap. That said, if you can wield it with both hands, it will deal enormous damage with every hit, and it depends on the flail skill."); break;
+			case HEAVY_CLOTH_BALL:
+				pline("A ball that deals less damage than a heavy iron ball, but has increased to-hit. It uses the flail skill."); break;
+			case HEAVY_TAR_BALL:
+				pline("If you whack monsters with this heavy ball, you'll deal good damage and enjoy a to-hit bonus. It depends on the flail skill."); break;
+			case HEAVY_SILK_BALL:
+				pline("This ball weighs quite a lot and uses the flail skill. It also has a good to-hit bonus."); break;
+			case HEAVY_LEATHER_BALL:
+				pline("A ball that weighs a whole lot, and doesn't deal as much damage as you'd expect for such a heavy weapon, but its to-hit is improved and it also trains the flail skill."); break;
+			case WONDER_BALL:
+				pline("The material of this flail-class weapon is randomized at game start."); break;
+			case NULL_BALL:
+				pline("A powerful flail-class weapon made of a rather weird material."); break;
+			case LIQUID_BALL:
+				pline("Despite being liquid, this ball can smack enemies over the head and deals good damage. It uses the flail skill."); break;
 
 			case HEAVY_CLAY_BALL: 
 				pline("A very heavy mineral ball that uses the flail skill."); break;
@@ -13464,9 +15527,9 @@ struct obj *obj;
 				pline("This mineral chain is relatively heavy but does moderate damage in melee."); break;
 			case SCOURGE: 
 				pline("A powerful iron chain that also has a considerable weight."); break;
-			case ELYSIUM_SCOURGE: 
+			case ELYSIUM_SCOURGE:
 				pline("A powerful unbreakable chain that also has a considerable weight."); break;
-			case GRANITE_SCOURGE: 
+			case GRANITE_SCOURGE:
 				pline("A powerful mineral chain that also has a considerable weight."); break;
 			case NUNCHIAKU: 
 				pline("This is the second-strongest iron chain in the game that does quite a lot of damage while still being lighter than a heavy iron ball."); break;
@@ -13474,7 +15537,7 @@ struct obj *obj;
 				pline("This is the second-strongest unbreakable chain in the game that does quite a lot of damage while still being lighter than a heavy iron ball."); break;
 			case CONCRETE_NUNCHIAKU: 
 				pline("This is the second-strongest mineral chain in the game that does quite a lot of damage while still being lighter than a heavy iron ball."); break;
-			case HOSTAGE_CHAIN: 
+			case HOSTAGE_CHAIN:
 				pline("An iron chain that weighs the same as a heavy iron ball, yet does more damage."); break;
 			case GLASS_HOSTAGE_CHAIN: 
 				pline("A glass chain that weighs the same as a heavy iron ball, yet does more damage."); break;
@@ -13492,6 +15555,58 @@ struct obj *obj;
 				pline("It's a flail-class weapon that does quite good damage."); break;
 			case NUCLEAR_HOSTAGE_CHAIN:
 				pline("While it weighs a lot, this type of flail does very good damage if you swing it."); break;
+			case BRICK_CHAIN:
+				pline("A basic brick chain that doesn't do much damage."); break;
+			case PAPER_CHAIN:
+				pline("This paper chain is relatively heavy but does moderate damage in melee."); break;
+			case CHROME_SCOURGE:
+				pline("A powerful chrome chain that also has a considerable weight."); break;
+			case NANO_NUNCHIAKU:
+				pline("This is the second-strongest nano chain in the game that does quite a lot of damage while still being lighter than a heavy iron ball."); break;
+			case SAND_HOSTAGE_CHAIN:
+				pline("A sand chain that weighs the same as a heavy iron ball, yet does more damage."); break;
+			case METAL_CHAIN:
+				pline("A basic metal chain that doesn't do much damage."); break;
+			case PLASTIC_CHAIN:
+				pline("This plastic chain is relatively heavy but does moderate damage in melee."); break;
+			case SHADOW_SCOURGE:
+				pline("A powerful shadowy chain that also has a considerable weight."); break;
+			case LEAD_NUNCHIAKU:
+				pline("This is the second-strongest lead chain in the game that does quite a lot of damage while still being lighter than a heavy iron ball."); break;
+			case ETHER_HOSTAGE_CHAIN:
+				pline("An ether chain that weighs the same as a heavy iron ball, yet does more damage."); break;
+			case WAX_CHAIN:
+				pline("A basic wax chain that doesn't do much damage."); break;
+			case WOOD_CHAIN:
+				pline("This wooden chain is relatively heavy but does moderate damage in melee."); break;
+			case COPPER_SCOURGE:
+				pline("A powerful copper chain that also has a considerable weight."); break;
+			case SILVER_NUNCHIAKU:
+				pline("This is the second-strongest silver chain in the game that does quite a lot of damage while still being lighter than a heavy iron ball."); break;
+			case OBSIDIAN_HOSTAGE_CHAIN:
+				pline("An obsidian chain that weighs the same as a heavy iron ball, yet does more damage."); break;
+			case POURPOOR_LASH:
+				pline("This two-handed chain does little damage."); break;
+			case GEMSTONE_LASH:
+				pline("This two-handed chain does moderate damage."); break;
+			case FLESH_LASH:
+				pline("This two-handed chain does good damage."); break;
+			case MITHRIL_LASH:
+				pline("This two-handed chain does great damage."); break;
+			case CLOTH_CHAIN:
+				pline("A basic cloth chain that does very little damage, but has increased to-hit."); break;
+			case TAR_CHAIN:
+				pline("This tar chain is relatively heavy but does mediocre damage in melee and has increased to-hit."); break;
+			case SILK_SCOURGE:
+				pline("A relatively powerful silk chain that also has a considerable weight and increased to-hit."); break;
+			case LEATHER_NUNCHIAKU:
+				pline("This is the third-strongest leather chain in the game that does a good amount damage while still being lighter than a heavy iron ball. It has increased to-hit."); break;
+			case WONDER_CHAIN:
+				pline("A chain with a randomized material that does a medium amount of damage."); break;
+			case NULL_CHAIN:
+				pline("A chain made of mysterious material that does a medium amount of damage."); break;
+			case LIQUID_CHAIN:
+				pline("A chain made of liquid material that does a medium amount of damage."); break;
 
  			default: pline("Missing item description (this is a bug). Please tell Amy about the item in question so she can add a description."); break;
 
@@ -15400,7 +17515,7 @@ struct obj *obj;
 				case ART_HEAVEN_S_CALL_TO_ARMS:
 					pline("Artifact specs: Has no special effect beyond its base item."); break;
 				case ART_BIMMEL_BIMMEL:
-					pline("Artifact specs: applying it tries to tame all 'x' adjacent to you, but they get a resistance roll."); break;
+					pline("Artifact specs: applying it tries to tame all 'x' adjacent to you, but they get a resistance roll and may also be frenzied instead."); break;
 				case ART_SCRABBLE_BABBLE:
 					pline("Artifact specs: engraving with it will only consume charges 1 out of 10 turns."); break;
 				case ART_I_THE_SAGE:
@@ -16646,6 +18761,8 @@ struct obj *obj;
 					pline("Artifact specs: +50 damage to elder priests. Sever that asshole's tentacles with the pretty high heel!"); break;
 				case ART_CURE_HASSIA_COURSE:
 					pline("Artifact specs: riding a steed that is equipped with this saddle will increase both your own and the steed's HP regeneration rate."); break;
+				case ART_ROCK_SOLID_SEAT:
+					pline("Artifact specs: cannot be disintegrated."); break;
 				case ART_WESTERN_FRANKISH_COURSE:
 					pline("Artifact specs: riding a steed that is equipped with this saddle gives teleportitis and levelteleportitis, plus teleport control for both."); break;
 				case ART_AMY_S_SEX_TOY:
@@ -16800,6 +18917,440 @@ struct obj *obj;
 					pline("Artifact specs: if someone produces soft farting noises while you wear them, you'll be healed, and you resist confusion and sleep, but you also have your items stolen more often and they may even teleport out of your inventory."); break;
 				case ART_CLICHE_WEAR:
 					pline("Artifact specs: resist fire, cold, sleep, shock and poison when worn, but monsters whose attacks can damage items will spawn more often."); break;
+				case ART_DIRGE:
+					pline("Artifact specs: Diiiiiiiiiiiiiirge (DIRGE) :D +5 to-hit and +2 damage, drain resistance when wielded, does extra poison damage to targets, chaotic. A chaotic knight may receive it by dipping a long sword in a fountain or doing a same-race sacrifice while wielding a regular long sword."); break;
+				case ART_KEOLEWA:
+					pline("Artifact specs: +5 to-hit and +6 damage, neutral. Originally from Sporkhack and meant for the caveman, but here everyone can use it."); break;
+				case ART_SWORD_OF_BHELEU:
+					pline("Artifact specs: +10 to-hit and +10 damage to crossaligned monsters, petrification resistance when wielded, does extra poison damage to targets, disables your poison resistance, chaotic."); break;
+				case ART_RING_OF_P_HUL:
+					pline("Artifact specs: regeneration and sickness resistance when worn, neutral. In K2's Evilhack variant, this is the barbarian quest artifact; the fact that its base item type is superfluous for a barbarian is probably intentional because their original quest artifact was also rather useless."); break;
+				case ART_REALLY_COOL_SHIRT:
+					pline("Artifact specs: warning and acts as a luckstone when worn. Congratulations, you returned all three scrolls of missing code to the devteam... just kidding :D"); break;
+
+				case ART_HELIOKOPIS_S_KEYBOARD_CURS:
+					pline("Artifact specs: magic resistance and suppresses --More-- prompts when worn."); break;
+				case ART_SATAN_S_FINAL_TRICK:
+					pline("Artifact specs: nastiness when worn."); break;
+				case ART_ARABELLA_S_DICINATOR:
+					pline("Artifact specs: oh my god it grants teleport control, disintegration resistance, very fast speed, invisibility and see invisible when worn, plus keen memory to top it off! Who cares about other effects? Those are all the ones you ever need!"); break;
+				case ART_KING_OF_PORN:
+					pline("Artifact specs: discount action when worn, and prevents you from resisting seduction attacks."); break;
+				case ART_UNICORN_DRILL:
+					pline("Artifact specs: polymorph control and drain resistance when wielded, chaotic."); break;
+				case ART_AUTOMATICALLY_METAL:
+					pline("Artifact specs: while you wear it, all metallic items are immune to erosion and all non-metallic items are susceptible to every form of erosion. This amulet automatically becomes metallic if it isn't already when you put it on."); break;
+				case ART_YVONNE_S_MODEL_AMBITION:
+					pline("Artifact specs: stealth, cold and shock resistance as well as +2 charisma when worn."); break;
+				case ART_VERSION_CONTROL:
+					pline("Artifact specs: autocurses when worn, but every time you put it on you can freely add or remove the evilvariant and soviet hybrid races."); break;
+				case ART_AEGIS:
+					pline("Artifact specs: petrification resistance when worn, provides partial resistance from gaze attacks."); break;
+				case ART_EGRID_BUG:
+					pline("Artifact specs: +5 to-hit and +2 damage; drain resistance, black spells, de-light and cursed parts when wielded, displays all x-class monsters and prevents them from moving diagonally. Chaotic."); break;
+				case ART_TRIDENT_OF_POSEIDON:
+					pline("Artifact specs: +5 to-hit and +10 damage to swimming monsters, magical breathing and swimming when wielded and protects your items from getting wet. Chaotic."); break;
+				case ART_PEDIATRIC_GAWKING_GANGS:
+					pline("Artifact specs: psi resistance, discount action and telepathy when worn, lawful, cellar child quest artifact."); break;
+				case ART_MESSAGE_MEGAPHONE:
+					pline("Artifact specs: magic resistance when carried, makes monsters flee when used at the cost of 5 alignment and 1 max alignment, chaotic, demagogue quest artifact."); break;
+				case ART_TEAM_FORTRESS_GL:
+					pline("Artifact specs: lots of multishot bonus, magic resistance when wielded, stealth when carried, lawful, grenadonin quest artifact."); break;
+				case ART_MARKER_OF_SAFE_SPEECH:
+					pline("Artifact specs: half spell damage when carried, can potentially be recharged more than once, chaotic, social justice warrior quest artifact."); break;
+				case ART_STAHNGNIR_S_GIANT_CRUSHER:
+					pline("Artifact specs: +5 to-hit and double damage, petrification resistance when wielded, telepathy when carried, neutral, walscholar quest artifact."); break;
+				case ART_WEAKITE_THRUST:
+					pline("Artifact specs: can be applied through walls, weak sight, de-light and nolite effects when wielded."); break;
+				case ART_DIZZY_METAL_STORM:
+					pline("Artifact specs: jumping, silver spells and manler effect when wielded, allows the player to displace monsters by walking into them (use the F command if you want to attack them in melee)."); break;
+				case ART_PAYBACK_TIME:
+					pline("Artifact specs: can be applied to hit monsters standing 3 squares away, or even 4 if the distance isn't too big."); break;
+				case ART_FLAILMOUSE:
+					pline("Artifact specs: +24 to-hit and +2 damage, can be invoked for untrapping, lawful, software engineer quest artifact."); break;
+				case ART_ROTATING_THROUGH:
+					pline("Artifact specs: +5 to-hit and +8 damage, ESP when wielded, can be invoked for conflict, chaotic, cracker quest artifact."); break;
+				case ART_SUPERCLEAN_AWAYWIPER:
+					pline("Artifact specs: +30 to-hit and +10 damage, fire resistance when wielded, shock resistance when carried, can be invoked for object detection, neutral, janitor quest artifact."); break;
+				case ART_PIN_RACKET:
+					pline("Artifact specs: +4 to-hit and +12 damage, warning, half physical damage and AC bonus when wielded, lawful, space marine quest artifact."); break;
+				case ART_THUNDERSTRIKE:
+					pline("Artifact specs: +5 to-hit and +18 damage to shock-susceptible targets, teleport control and shock resistance when wielded, can be invoked for light area, chaotic, stormboy quest artifact."); break;
+				case ART_EYEHANDER:
+					pline("Artifact specs: +5 increase damage and accuracy when worn, ESP when carried, can be invoked for death gaze, chaotic, yautja quest artifact."); break;
+				case ART_WORLD_LEAGUE_HITTER:
+					pline("Artifact specs: +50 to-hit and +2 damage, reflection and acts as a luckstone when wielded, neutral, quarterback quest artifact."); break;
+				case ART_PSIGUN:
+					pline("Artifact specs: psi resistance, half spell damage and energy regeneration when wielded, regeneration when carried, can be invoked to create ammo, lawful, psyker quest artifact."); break;
+				case ART_CONTROLLER_HAT:
+					pline("Artifact specs: searching, warning and undead warning when worn, can be invoked for taming, lawful, empath quest artifact."); break;
+				case ART_RED_PIN:
+					pline("Artifact specs: +10 to-hit and +26 damage to fire-susceptible targets, stealth and fire resistance when wielded, hallucination resistance when carried, can be invoked to summon fire elementals, neutral, mastermind quest artifact."); break;
+				case ART_BUS_ERROR:
+					pline("Artifact specs: +10 to-hit and +10 drain life damage, can drain levels from targets, acid resistance when wielded, stealth and AC bonus when carried, can be invoked for phasing, lawful, weirdboy quest artifact."); break;
+				case ART_ROCKET_IMPULSE:
+					pline("Artifact specs: speed, magical breathing, 10 extra points of AC, half physical damage and x-ray vision when worn, teleport control when carried, can be invoked for energy boost, lawful, astronaut quest artifact."); break;
+				case ART_GAYSECT:
+					pline("Artifact specs: acts as a luckstone when wielded, can bisect enemies, chaotic, cyberninja quest artifact."); break;
+				case ART_VOICESHUTTER:
+					pline("Artifact specs: +10 to-hit and +20 damage to shock-susceptible targets, deafness, shock resistance and stealth when wielded, can be invoked for level teleport, lawful, dissident quest artifact."); break;
+				case ART_SNAKELASH:
+					pline("Artifact specs: +2 to-hit and +14 damage, poison and sickness resistance when wielded, deals extra poison damage to enemies, can be invoked for healing, chaotic, xelnaga quest artifact."); break;
+
+				case ART_ANNOYING_DOG_WHISTLE:
+					pline("Artifact specs: +4 to-hit and +12 damage, gives a magic whistle effect whenever you hit something with it. Demo originally suggested making it possible to turn that effect off but this version of the artifact always whistles, whether you want it or not."); break;
+				case ART_ZOMBIEBANE:
+					pline("Artifact specs: +5 to-hit and double damage to zombie-class monsters. Any monster that dies while you are wielding it, even if it's killed by something else, will not be able to resurrect on its own."); break;
+				case ART_PETROGENERATION:
+					pline("Artifact specs: regeneration and energy regeneration when worn."); break;
+				case ART_KONRAD_S_ATTACK:
+					pline("Artifact specs: +5 to-hit and +12 damage."); break;
+				case ART_SYLVIE_S_INVENTION:
+					pline("Artifact specs: +2 to-hit and +2 damage, allows you to occasionally avoid missile attacks while wielded."); break;
+				case ART_PROTECTION_RACKET:
+					pline("Artifact specs: +6 damage and protection bonus when wielded."); break;
+				case ART_MULTIJUICE:
+					pline("Artifact specs: It can potentially be used several times."); break;
+				case ART_KEITH_S_UNDEROOS:
+					pline("Artifact specs: poison resistance when worn and gives a large boost to your spellcasting success chances, but they won't go over the natural limit."); break;
+				case ART_FLOWERBANE:
+					pline("Artifact specs: +5 to-hit and double damage to %%-class monsters and they will randomly lose turns."); break;
+				case ART_RHORN:
+					pline("Artifact specs: +6 to-hit and +14 damage, and gives you a passive level-dependant thorns effect that damages monsters."); break;
+				case ART_TRANSMEMORIZER:
+					pline("Artifact specs: keen memory when worn."); break;
+				case ART_HEV_SUIT:
+					pline("Artifact specs: poison, sickness and contamination resistance when worn."); break;
+				case ART_TOO_MANY_AFFIXES:
+					pline("Artifact specs: +3 constitution when worn and allows you to gain experience twice as fast."); break;
+				case ART_REALSTEAL:
+					pline("Artifact specs: Improves the effectivity of the #borrow command, which no one ever uses."); break;
+				case ART_LEPRE_LUCK:
+					pline("Artifact specs: teleportitis and acts as a luckstone when worn."); break;
+				case ART_TEH_PHYSIQUE:
+					pline("Artifact specs: increases strength, constitution, dexterity and charisma by 10 when worn but reduces intelligence and wisdom by 10."); break;
+				case ART_VERY_MEMORY:
+					pline("Artifact specs: keen memory when worn."); break;
+				case ART_RUSSIA_S_SALVO:
+					pline("Artifact specs: +10 to-hit and +8 damage."); break;
+				case ART_BELKAR_S_WARPOPORTATION:
+					pline("Artifact specs: teleportitis and polymorphitis when worn. Jonadab invented this artifact but didn't specify who the hell Belkar is supposed to be."); break;
+				case ART_RELIABLE_TRINSICS:
+					pline("Artifact specs: full nutrients, poison and stun resistance when worn."); break;
+				case ART_DRAGONHIDE_ARMER:
+					pline("Artifact specs: cold and fire resistance when worn."); break;
+				case ART_WHOOSHZHOOSH:
+					pline("Artifact specs: if you cast a spell while wielding them, you'll temporarily get intrinsic speed."); break;
+				case ART_BILE_PATCH:
+					pline("Artifact specs: acid resistance when worn."); break;
+				case ART_DO_NOT_FORGET_GRACE:
+					pline("Artifact specs: +5 strength and +10 dexterity when worn, lawful."); break;
+				case ART_PERPETUAL_MEMORY:
+					pline("Artifact specs: if you quaff it, its effect lasts for a much longer time than usual."); break;
+				case ART_RNG_S_EXTRAVAGANZA:
+					pline("Artifact specs: putting it on while it's at +0 will set it to a random value from -9 to +9 (inclusive)."); break;
+				case ART_IME_SPEW:
+					pline("Artifact specs: fleecescript, flicker strips, quad attacks and you take double damage when worn."); break;
+				case ART_ETERNAL_SORENESS:
+					pline("Artifact specs: permanent inertia when worn, and whenever you kill a monster there's a small chance that your maximum health increases."); break;
+				case ART_FULLGREASE:
+					pline("Artifact specs: while wearing it, items in your open inventory will occasionally become greased."); break;
+				case ART_BUCKET_HOUSE:
+					pline("Artifact specs: diarrhea, slow digestion and hunger when worn."); break;
+				case ART_CORONATION_CULMINATION:
+					pline("Artifact specs: replicates the effects of being crowned when worn, and the culmination is that if you put it on for the first time, you also get an additional skill slot. The latter part is inspired by the variant that calls itself 3.6.0. Oh, and it also creates a random artifact gift that can possibly unlock skills."); break;
+				case ART_RESTROOM_DRENCHING:
+					pline("Artifact specs: disables regeneration when worn but increases your speed the more wounded you are. If you're female, the bonus is bigger."); break;
+				case ART_DEINE_MUDDA:
+					pline("Artifact specs: displays random 'your momma' jokes when worn. If you're in a form without hands or otherwise capable of getting bonuses from its enchantment, every point of enchantment will improve your AC by 5 points instead of the standard 1."); break;
+				case ART_HAIR_BRACKET:
+					pline("Artifact specs: no specialties."); break;
+				case ART_DICEROLLER_S_KIT:
+					pline("Artifact specs: can be used several times and changes the material after every use."); break;
+				case ART_MATERIAL_RAIN:
+					pline("Artifact specs: using it will randomly change some item materials."); break;
+				case ART_NEW_OVERCAST:
+					pline("Artifact specs: if you use it, the material contained will also be applied to some randomly selected items."); break;
+				case ART_SCENTFOLD:
+					pline("Artifact specs: scent view when worn."); break;
+				case ART_EXTRA_HEAVY_BULLET:
+					pline("Artifact specs: +8 damage."); break;
+				case ART_ARENA_LITTER:
+					pline("Artifact specs: +5 to-hit and +2 damage."); break;
+				case ART_BAD_HITTER_BOY:
+					pline("Artifact specs: -d20 to-hit and +14 damage."); break;
+				case ART_SVEN_S_GARBAGE_BOOSTER:
+					pline("Artifact specs: hitting a monster with it causes it to bleed."); break;
+				case ART_GIANT_MEAT_STICK:
+					pline("Artifact specs: +10 damage, hunger and full nutrition when wielded."); break;
+				case ART_VARIANT_SOURCE_PACKAGE:
+					pline("Artifact specs: clairvoyance when wielded."); break;
+				case ART_DIFFERENT_TIMER:
+					pline("Artifact specs: +6 to-hit and +8 damage."); break;
+				case ART_WALLER_SMACK:
+					pline("Artifact specs: +3 to-hit and +12 damage, lawful."); break;
+				case ART_CYCLE_WHACK_WHACK:
+					pline("Artifact specs: double attacks if you're riding."); break;
+				case ART_FUYER_BREV:
+					pline("Artifact specs: +20 to-hit and +40 damage to F-class monsters, displays all fungi while wielded."); break;
+				case ART_GOLDIFICATION:
+					pline("Artifact specs: creates zorkmids whenever you kill a monster, neutral."); break;
+				case ART_SOFTRASH:
+					pline("Artifact specs: +6 to-hit and double damage."); break;
+				case ART_ZERO_NOTION:
+					pline("Artifact specs: +1 to-hit and double damage."); break;
+				case ART_GEOLOGY_RULES_THE_WORLD:
+					pline("Artifact specs: while wielded, your pick-axe skill trains three times as fast."); break;
+				case ART_YES__HIT_IT_MORE_OFTEN:
+					pline("Artifact specs: +15 to-hit and +2 damage."); break;
+				case ART_SCIENCE_POWER:
+					pline("Artifact specs: +10 damage."); break;
+				case ART_EQUALITY_TWIN:
+					pline("Artifact specs: +8 to-hit and +8 damage."); break;
+				case ART_HERITAGE_DIGGER:
+					pline("Artifact specs: +12 damage, petrification resistance when wielded, lawful."); break;
+				case ART_SANDY_OASES:
+					pline("Artifact specs: +5 to-hit and +10 damage to fire-susceptible monsters."); break;
+				case ART_H__S_BRITTLE_REPLICA:
+					pline("Artifact specs: +12 to-hit and +12 damage, but since this is actually a replica of a real sword, it will shatter after using it a couple of times."); break;
+				case ART_DAEDRA_SEEKER:
+					pline("Artifact specs: +6 to-hit and +8 damage, displays ampersands while wielded."); break;
+				case ART_PERNICIOUS_GRID:
+					pline("Artifact specs: +6 to-hit and +10 damage, poison resistance and free action while wielded."); break;
+				case ART_TODAY_S_REPAIR:
+					pline("Artifact specs: +4 to-hit and +4 damage, technicality while wielded."); break;
+				case ART_HALLOW_MOONFALL:
+					pline("Artifact specs: does extra poison damage, sight bonus when wielded, chaotic."); break;
+				case ART_NEED_ELITE_UPGRADE:
+					pline("Artifact specs: its enchantment will occasionally go up if you hit something with it."); break;
+				case ART_DEATHWRECKER:
+					pline("Artifact specs: +10 damage, stun resistance when wielded."); break;
+				case ART_PEREGRINE_OF_NIGHT:
+					pline("Artifact specs: +5 to-hit and +6 damage, ESP and echolocation when wielded."); break;
+				case ART_BOARDED_SHELF:
+					pline("Artifact specs: if you successfully use enchant weapon on it, it gains 5 extra points of enchantment."); break;
+				case ART_QUEUE_STAFF:
+					pline("Artifact specs: +6 to-hit and +12 damage, does extra poison damage."); break;
+				case ART_MANA_EATER:
+					pline("Artifact specs: +4 to-hit and +10 damage, manaleech when wielded."); break;
+				case ART_QUICKER_RHEOLOGY:
+					pline("Artifact specs: very fast speed and swimming when wielded."); break;
+				case ART_CANTONESE_SMACK:
+					pline("Artifact specs: +16 damage."); break;
+				case ART_PRICKER_SMACKER:
+					pline("Artifact specs: +5 to-hit and +6 damage."); break;
+				case ART_ARABELLA_S_BLACK_PRONG:
+					pline("Artifact specs: Man, this thing's great! It has +8 to-hit and +2 damage, and also grants diminished bleeding and increased skill training! It may have some other effects but who cares about those?"); break;
+				case ART_CRASH_JOUST:
+					pline("Artifact specs: +10 damage when jousting a target, and the jousted target will occasionally be paralyzed for a few turns."); break;
+				case ART_LULWY_S_TRICK:
+					pline("Artifact specs: shock resistance when wielded, and also makes you move another little bit faster."); break;
+				case ART_PARABLE_AMMUNITION:
+					pline("Artifact specs: +18 damage."); break;
+				case ART_CASING_BUCKSHOT:
+					pline("Artifact specs: +30 damage."); break;
+				case ART_BECOMING_GREENER:
+					pline("Artifact specs: +5 to-hit and +2 damage."); break;
+				case ART_MESHERABANE:
+					pline("Artifact specs: +10 to-hit and +40 damage to F-class monsters, +d40 damage to Elona monsters."); break;
+				case ART_MANYFOLT_SHOTS:
+					pline("Artifact specs: +5 to-hit and +6 damage. The typo was originally unintended but was deemed too funny to fix."); break;
+				case ART_TECHNICAL_WONDER:
+					pline("Artifact specs: +4 to-hit and +10 damage."); break;
+				case ART_CLAYFACE_S_FEAR:
+					pline("Artifact specs: +8 to-hit and +14 damage. However, Clayface is actually immune to batarangs :P"); break;
+				case ART_HARMONY_VIRGIN:
+					pline("Artifact specs: +6 to-hit and +12 damage to shock-susceptible monsters, discount action when wielded and prevents you from contracting STDs."); break;
+				case ART_ONYX_MANTLE:
+					pline("Artifact specs: disintegration resistance when worn."); break;
+				case ART_ASTEROID_BELT:
+					pline("Artifact specs: half physical and spell damage when worn."); break;
+				case ART_REQUIRED_POWER_PLANT_GEAR:
+					pline("Artifact specs: increases armor class by 5 points and grants technicality as well as resistances to fire, poison and sickness when worn."); break;
+				case ART_STABLE_EXOSKELETON:
+					pline("Artifact specs: half physical damage when worn and improves your AC by 10 points."); break;
+				case ART_TERRIFYING_LOSS:
+					pline("Artifact specs: blood loss and resist fear when worn."); break;
+				case ART_PHEROMONE_CASE:
+					pline("Artifact specs: perfume monsters spawn more often while you're wearing it, because they're attracted by the sexual pheromones."); break;
+				case ART_NO_REDUCTION_ALLOWED:
+					pline("Artifact specs: sustain ability when worn."); break;
+				case ART_I_IN_THE_SKY:
+					pline("Artifact specs: flying when worn, chaotic."); break;
+				case ART_LISA_S_BUCKLED_BEAUTIES:
+					pline("Artifact specs: disintegration resistance and discount action when worn. They also have pretty metallic buckles."); break;
+				case ART_KRISTIN_S_CHEATS:
+					pline("Artifact specs: stun resistance and free action when worn, neutral. They're known to cheat by continuing to attack even after they're supposedly defeated."); break;
+				case ART_JOHANNA_S_RED_CHARM:
+					pline("Artifact specs: fire resistance and can walk in lava while you're wearing them, +5 charisma and +1 to all other stats. They're soooooooo beautiful and leather-soft! You gotta admit that wine red is a really pretty color for a pair of lady boots!"); break;
+				case ART_DORA_S_SCRATCHY_HEELS:
+					pline("Artifact specs: sickness resistance when worn and kicking a monster causes it to bleed, improves charisma by 3 and strength/dexterity by 1 but reduces wisdom and intelligence by 2 and makes your armor class worse by 5, chaotic."); break;
+				case ART_ELENA_S_CHALLENGE:
+					pline("Artifact specs: half physical damage when worn, and kicking a male monster with them rarely forces it to make a saving throw or become tame. They also autocurse when worn and give random bad effects as well as random nastytrap effects while worn, so decide for yourself whether they're worth wearing."); break;
+				case ART_KATI_S_IRRESISTIBLE_STILET:
+					pline("Artifact specs: improves charisma by 5 and armor class as well as damage output by 2 and also grants diminished bleeding while worn, chaotic. Their heels are very cuuuuute but also incredibly sharp-edged and can cause great damage to unprotected skin!"); break;
+				case ART_VERENA_S_DUELING_SANDALS:
+					pline("Artifact specs: +10 charisma and you deal +d10 damage with hammer shoes while wearing them, because Verena loves to slam her stiletto heels on the enemy's head. Neutral."); break;
+				case ART_IMPOSSIBLE_CATWALK:
+					pline("Artifact specs: cold resistance, free action and discount action when worn, improves charisma by 10 and can walk on ice and snow, but since running with them is basically impossible, they disable the speed in/extrinsic."); break;
+				case ART_CORGON_S_RING:
+					pline("Artifact specs: magic, lightning and sickness resistance when worn, increases your carry capacity by 100, disables speed. Chaotic."); break;
+				case ART_JANA_S_DIMINISHER:
+					pline("Artifact specs: flying and unbreathing when worn. You don't know if it does anything else though."); break;
+				case ART_WALT_VERSUS_ANNA:
+					pline("Artifact specs: autocurses when worn, causes farting and perfume monsters to spawn more often because Anna will keep sending them, and kicking a diggable wall may occasionally cause it (the wall, not the amulet!) to crumble and become walkable floor."); break;
+				case ART_SUE_LYN_S_SEX_GAME:
+					pline("Artifact specs: while wearing it, you can chat to monsters that produce squeaky farting noises to tame them. If you have enough zorkmids in your open inventory, you can even tame them."); break;
+				case ART_REJUVENATION_BY_GATE:
+					pline("Artifact specs: regeneration while worn, causes inertia to time out more quickly."); break;
+				case ART_INCREDIBLY_SEXY_SQUEAKING:
+					pline("Artifact specs: unbreathing while worn, and putting it on while it's -4 or better will disenchant it by 5 points and summon a tame farting monster."); break;
+				case ART_FOOKING_TANK:
+					pline("Artifact specs: 10 extra points of AC when worn."); break;
+				case ART_DARKSIGHT_HELM:
+					pline("Artifact specs: blindness resistance when worn and increases your sight range by 2 points."); break;
+				case ART_AA_S_CRASHING_TRAGEDY:
+					pline("Artifact specs: 5 extra points of AC and random nasty trap effects when worn."); break;
+				case ART_KITE_ME:
+					pline("Artifact specs: reflection when worn."); break;
+				case ART_PRADA_S_DEVIL_WEAR:
+					pline("Artifact specs: all ampersands have 90%% chance of spawning peaceful, autocurses, DYWYPI problem, autopilot and death ray resistance when worn, chaotic."); break;
+				case ART_LENA_S_PEACE_OFFERING:
+					pline("Artifact specs: +5 to-hit and +6 damage, peacevision when wielded."); break;
+				case ART_SELF_PROTECTION_IMPLEMENT:
+					pline("Artifact specs: +12 damage and diminished bleeding when wielded."); break;
+				case ART_SUICIDAL_UNIQUE:
+					pline("Artifact specs: +4 to-hit and +4 damage."); break;
+				case ART_ONCE_IN_A_BLUE_MOON:
+					pline("Artifact specs: +5 to-hit and +4 damage. If you wield it while it's both a Friday the 13th and a new moon, your luck is maxxed."); break;
+				case ART_SORTIE_A_GAUCHE:
+					pline("Artifact specs: +8 to-hit and +6 damage. If you wield it while riding, you're capable of reaching the ground even without sufficient riding skill."); break;
+				case ART_ETRUSCIAN_SWIMMING_LESSON:
+					pline("Artifact specs: +2 to-hit and +12 damage, swimming, makes you thick-skinned but also slows you down slightly due to all the fat. Hahaha."); break;
+				case ART_MISSING_UNIQUE_ITEM:
+					pline("Artifact specs: no specialties. Seems that someone simply forgot to give an effect to this item."); break;
+				case ART_GLACIERDALE:
+					pline("Artifact specs: +8 to-hit and +10 damage to cold-susceptible monsters, cold resistance while wielded and allows you to walk on snow and ice unharmed and protects your potions from cold."); break;
+				case ART_JONADAB_S_VEHEMENCE:
+					pline("Artifact specs: +10 damage."); break;
+				case ART_SIGNO_ONE:
+					pline("Artifact specs: +6 to-hit and +2 damage, psi resistance when wielded."); break;
+				case ART_MOLOCH_S_PERSONAL_PHONE:
+					pline("Artifact specs: +6 to-hit and +2 damage, applying it will call hostile demon lords, chaotic."); break;
+				case ART_KLINGON_COMMANDER_S_ARMS:
+					pline("Artifact specs: +10 to-hit and +14 damage to shock-susceptible monsters, chaotic."); break;
+				case ART_PRICK_BEARER_S_RANSOM:
+					pline("Artifact specs: causes the target to bleed, and killing a monster while wielding it produces zorkmids."); break;
+				case ART_TEXAS_INSTRUMENTS_XS:
+					pline("Artifact specs: +12 to-hit and +12 damage."); break;
+				case ART_FULL_LEAD_A_FAST_BEING:
+					pline("Artifact specs: +10 damage, occasionally gives you temporary very fast speed."); break;
+				case ART_SAXS_BEAUTY:
+					pline("Artifact specs: resist fire, cold, shock, poison and psi when wielded."); break;
+				case ART_YVONNE_S_HONOR:
+					pline("Artifact specs: +8 to-hit and +12 damage to cold-susceptible monsters, resist cold, shock and fear when wielded. They're also made of a velvety-soft blue color and Amy actually has them in real life."); break;
+				case ART_MILLICENT_S_CONE:
+					pline("Artifact specs: +6 to-hit and +8 damage, lawful."); break;
+				case ART_MARTHA_S_FOREIGN_GOER:
+					pline("Artifact specs: +4 to-hit and +4 damage, causes bleeding damage to monsters, and increases the chance that foocubuses want to have sex with you. Chaotic."); break;
+				case ART_TOMMY_S_DEFERRED_HEEL:
+					pline("Artifact specs: +10 to-hit and +12 damage, monsters are always spawned hostile while you wield it. These prostitute shoes belong to a girl that is a deferred feature in GTA San Andreas, but by modding you can make her spawn."); break;
+				case ART_MARITAL_ACTION:
+					pline("Artifact specs: +10 to-hit and +16 damage to @-class monsters."); break;
+				case ART_HIT_EM_REALLY_HARD:
+					pline("Artifact specs: +14 damage."); break;
+				case ART_STOP_EVADING_ME:
+					pline("Artifact specs: +14 to-hit and +2 damage, reduces the odds that monsters dodge your thrusts."); break;
+				case ART_PROJECTION_FAULTER:
+					pline("Artifact specs: +8 damage."); break;
+				case ART_JOUSTER_POWER:
+					pline("Artifact specs: stun resistance when wielded, greatly increases jousting damage."); break;
+				case ART_GAME_KNOWLEDGE_CHEAT_SHEET:
+					pline("Artifact specs: clairvoyance and echolocation when wielded."); break;
+				case ART_APEC_PRODUCTION:
+					pline("Artifact specs: +3 to-hit and +2 damage. This superior crossbow ammo was made by the APEC Company (Ammunition Producers Exploiting their Customers)."); break;
+				case ART_APEC_EXPLOIT:
+					pline("Artifact specs: +3 to-hit and +2 damage. This superior crossbow ammo was made by the APEC Company (Ammunition Producers Exploiting their Customers)."); break;
+				case ART_NEZ_SPECIAL_OFFER:
+					pline("Artifact specs: +8 to-hit and +6 damage, also causes monsters to bleed on a hit."); break;
+				case ART_MISTY_S_MELEE_PLEASURE:
+					pline("Artifact specs: +8 to-hit and +14 damage against male monsters, +5 charisma and fire resistance when wielded, prevents you from contracting STDs. A little close combat with your future bride obligingly/pleasingly? :-)"); break;
+				case ART_CORPORAL_DIGGING:
+					pline("Artifact specs: +8 damage."); break;
+				case ART_COLONEL_PROUDSTER:
+					pline("Artifact specs: +5 to-hit and +10 damage. If you apply it while it's out of charges and you have at least 10000 zorkmids in your inventory, it gains 750 extra charges at the cost of 10k dollars."); break;
+				case ART_COMMON_SHOTTER:
+					pline("Artifact specs: +8 damage."); break;
+				case ART_BOWSER_S_FUN_ARENA:
+					pline("Artifact specs: fire resistance when worn and protects your scrolls, potions and books from fire."); break;
+				case ART_BILLS_PAID:
+					pline("Artifact specs: sight bonus when worn. After all, you've paid your bills, so you don't have to suffer from a shortage of electricity."); break;
+				case ART_FINDING_THYSELF:
+					pline("Artifact specs: while wearing it, your spirituality skill trains five times as fast."); break;
+				case ART_SALADIN_S_DESERT_FOX:
+					pline("Artifact specs: fire resistance and full nutrients when worn, allows you to deal more damage with swords of all kinds, and trying to pray will occasionally warn you if it wouldn't be safe to do so."); break;
+				case ART_JAMILA_S_BELIEF:
+					pline("Artifact specs: protects you from converters and wouwou taunts, and slowly improves your alignment record while wearing it. But if you ever take it off for any reason, you take a massive alignment hit."); break;
+				case ART_SLIPPING_SUCKING:
+					pline("Artifact specs: sustain ability when worn."); break;
+				case ART_INERT_GREAVES:
+					pline("Artifact specs: half physical damage and 4 extra points of AC when worn."); break;
+				case ART_DESERT_MEDITATION:
+					pline("Artifact specs: keen memory when worn."); break;
+				case ART_GORGEOUS_VEIL_MODEL:
+					pline("Artifact specs: invisibility and ESP when worn, chaotic."); break;
+				case ART_SUBLEVEL_FLOODING:
+					pline("Artifact specs: occasionally causes flooding."); break;
+				case ART_USE_THE_NORMALNESS_TURNS:
+					pline("Artifact specs: regeneration, drain resistance and wereform effect when worn."); break;
+				case ART_UNFELLABLE_TREE:
+					pline("Artifact specs: if you're burrowed while wearing them, you have 20 extra points of AC and resist fire, cold, shock, sleep, confusion, stoning and disintegration."); break;
+				case ART_FREE_EXTRA_CANCEL:
+					pline("Artifact specs: improves your magic cancellation by 1 when worn."); break;
+				case ART_NICE_CYAN_COLOR:
+					pline("Artifact specs: fear resistance when worn."); break;
+				case ART_LOOK_HOW_IT_BLOCKS:
+					pline("Artifact specs: +20%% chance to block."); break;
+				case ART_SCIENTIFIC_SYMBIONT_KIT:
+					pline("Artifact specs: can potentially be used multiple times."); break;
+				case ART_XOM_S_SCROLLINATOR:
+					pline("Artifact specs: unlike a regular symbiote item, it doesn't let you pick a monster but gives you a random one instead. Warning: there is no confirmation if you already have a symbiote - it will erase whichever symbiote you have at the time of using."); break;
+				case ART_HEALTHY_PARASITE:
+					pline("Artifact specs: adds a big health boost to the new symbiote."); break;
+				case ART_HOLDEN_MIDDLE_POST:
+					pline("Artifact specs: the monster that you've used it on will persist."); break;
+				case ART_TASTY_TAME_NASTY:
+					pline("Artifact specs: conflict and aggravate monster when worn."); break;
+				case ART_LAUGHTERSNEE:
+					pline("Artifact specs: +8 damage, resist confusion and stun, displacement, lawful."); break;
+				case ART_NENYA:
+					pline("Artifact specs: unchanging and warning when worn, causes elves to generate peaceful, lawful."); break;
+				case ART_HOLOGRAPHIC_VOID_LILY:
+					pline("Artifact specs: energy regeneration, half spell damage and reflection when carried, can be invoked for summon undead, chaotic, cartomancer quest artifact."); break;
+				case ART_SHARUR:
+					pline("Artifact specs: +5 to-hit and +10 damage, warning and magic resistance when wielded, lawful, dragonmaster quest artifact. Unlike Splicehack this thing doesn't have an invocation, because what's the point of a quest artifact that is destroyed when you invoke it???"); break;
+				case ART_SCOOBA_COOBA:
+					pline("Artifact specs: protects your items from getting wet and allows you to swim in lava unharmed when worn, neutral, fjorde quest artifact."); break;
+				case ART_TOO_LATE_PRIZE:
+					pline("Artifact specs: can be invoked for summon water elemental, lawful, practicant quest artifact. It's too late for this prize to be useful, but hey, at least you have it now."); break;
+				case ART_MEANCANE:
+					pline("Artifact specs: +8 to-hit and +14 damage, disintegration resistance and free action when wielded, chaotic, emera quest artifact."); break;
+				case ART_CLEAN_MAULER:
+					pline("Artifact specs: +10 to-hit and +20 damage, can always hit things that require a +4 weapon to hit, dulls quickly, neutral, tosser quest artifact."); break;
+				case ART_NOBREAK:
+					pline("Artifact specs: +20 to-hit and +10 damage, will lose enchantment when it would have broken from applying it at range, lawful, aklyst quest artifact."); break;
+				case ART_FERTILIZATOR:
+					pline("Artifact specs: creates random sling ammo whenever it trashes a corpse, lawful, mill swallower quest artifact."); break;
+				case ART_HUNGERHEALER:
+					pline("Artifact specs: passively increases your hunger and heals your symbiote while being in your inventory, lawful, symbiant quest artifact."); break;
+				case ART_FLAGELLATOR:
+					pline("Artifact specs: +10 damage, 1 in 5000 chance to polymorph you into a neuter monster when wielded, doesn't drop when you polymorph into something without hands, neutral, genderstarist quest artifact."); break;
+				case ART_MAJOR_PRESENCE:
+					pline("Artifact specs: +2 to-hit and damage when worn, neutral, combatant quest artifact."); break;
+				case ART_PORKMAN_S_BALLS_OF_STEEL:
+					pline("Artifact specs: regeneration, energy regeneration, silver spells and makes you vulnerable to silver weapons when wielded, chaotic. Porkman, the maniac who streaked SLEX, went ahead and created a 'variant' of SLEX which makes everything piss easy and adds this artifact, except it has no downsides there, every artifact extrinsic in the book, double damage and to top it off it can be NAMED after you wished for the base item. But this is SLEX, where things are and continue to be balanced."); break;
+				case ART_OVERRATED_FACE_PROTECTION:
+					pline("Artifact specs: fear resistance and weak sight when worn. It does not protect against corona, just improves your subjective feeling of fearlessness so that you neglect the social distancing (which does not protect against corona either though)."); break;
 
 				default:
 					pline("Missing artifact description (this is a bug). Tell Amy about it, including the name of the artifact in question, so she can add it!"); break;

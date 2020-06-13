@@ -190,6 +190,40 @@ STATIC_OVL NEARDATA const char *tech_names[] = {
 	"star digging",
 	"starwars friends",
 	"use the force luke",
+	"wonder yonder",
+	"zap em",
+	"card trick",
+	"skillomorph",
+	"shotty blast",
+	"ammo upgrade",
+	"laser power",
+	"big daddy",
+	"shut that bitch up",
+	"s-pressing",
+	"meltee",
+	"woman noises",
+	"extra long squeak",
+	"sexual hug",
+	"sex change",
+	"even more ammo",
+	"doubleself",
+	"polyfix",
+	"squeaky repair",
+	"bulletreuse",
+	"extracharge",
+	"terrain cleanup",
+	"symbiosis",
+	"adjust symbiote",
+	"heal symbiote",
+	"boost symbiote",
+	"powerbiosis",
+	"implanted symbiosis",
+	"assume symbiote",
+	"generate offspring",
+	"undertow",
+	"definalize",
+	"anti inertia",
+	"grenades of course",
 	"jedi jump",
 	"charge saber",
 	"telekinesis",
@@ -205,6 +239,8 @@ static const struct innate_tech
 		       {   0, 0, 0} },
 	lad_tech[] = { {   1, T_ATTIRE_CHARM, 1},
 		       {   0, 0, 0} },
+	gee_tech[] = { {   15, T_ZAP_EM, 1},
+		       {   0, 0, 0} },
 	fnc_tech[] = { {   1, T_CRIT_STRIKE, 1},
 		       {   1, T_EDDY_WIND, 1},
 		       {   0, 0, 0} },
@@ -212,6 +248,7 @@ static const struct innate_tech
 		       {   4, T_CONCENTRATING, 1},
 		       {   8, T_IRON_SKIN, 1},
 		       {   10, T_SHIELD_BASH, 1},
+		       {   18, T_ZAP_EM, 1},
 		       {   0, 0, 0} },
 	sex_tech[] = { {   1, T_ATTIRE_CHARM, 1},
 		       {   1, T_POKE_BALL, 1},
@@ -219,7 +256,8 @@ static const struct innate_tech
 		       {   0, 0, 0} },
 	zoo_tech[] = { {   12, T_SUMMON_PET, 1},
 		       {   0, 0, 0} },
-	jes_tech[] = { {   30, T_EGG_BOMB, 1},
+	jes_tech[] = { {   10, T_CARD_TRICK, 1},
+			 {   30, T_EGG_BOMB, 1},
 		       {   0, 0, 0} },
 	stu_tech[] = { {   1, T_LIQUID_LEAP, 1},
 		       {   1, T_JEDI_JUMP, 1},
@@ -233,6 +271,8 @@ static const struct innate_tech
 		       {   0, 0, 0} },
 	ana_tech[] = { {   1, T_CREATE_AMMO, 1},
 		       {   1, T_DECONTAMINATE, 1},
+		       {   10, T_SKILLOMORPH, 1},
+			 {  20, T_TERRAIN_CLEANUP, 1},
 		       {   0, 0, 0} },
 	lib_tech[] = { {   1, T_RESEARCH, 1},
 		       {   20, T_RECHARGE, 1},
@@ -246,15 +286,18 @@ static const struct innate_tech
 		       {   7, T_RESEARCH, 1},
 		       {   10, T_POKE_BALL, 1},
 		       {   20, T_SUMMON_PET, 1},
+		       {   25, T_CARD_TRICK, 1},
 		       {   0, 0, 0} },
 	ama_tech[] = { {   1, T_FLURRY, 1},
 		       {   1, T_PRACTICE, 1},
 		       {   5, T_CRIT_STRIKE, 1},
 		       {   15, T_VANISH, 1},
 		       {   18, T_CONCENTRATING, 1},
+		       {   20, T_SKILLOMORPH, 1},
 		       {   25, T_ATTIRE_CHARM, 1},
 		       {   0, 0, 0} },
 	art_tech[] = { {   10, T_DIAMOND_BARRIER, 1},
+			 {   15, T_TERRAIN_CLEANUP, 1},
 		       {   18, T_POLYFORM, 1},
 		       {   20, T_BLOOD_RITUAL, 1},
 		       {   0, 0, 0} },
@@ -273,8 +316,10 @@ static const struct innate_tech
 	bul_tech[] = { {   6, T_IRON_SKIN, 1},
 		       {   0, 0, 0} },
 
-	sta_tech[] = { {   12, T_DECONTAMINATE, 1},
+	sta_tech[] = { {   4, T_SKILLOMORPH, 1},
+			 {   12, T_DECONTAMINATE, 1},
 		       {   16, T_DIAMOND_BARRIER, 1},
+		       {   20, T_ZAP_EM, 1},
 		       {   0, 0, 0} },
 
 	ord_tech[] = { {   1, T_PRACTICE, 1},
@@ -336,7 +381,43 @@ static const struct innate_tech
 		       {   0, 0, 0} },
 	drd_tech[] = { {   7, T_ENT_S_POTION, 1},
 		       {   0, 0, 0} },
+	sof_tech[] = { {   5, T_ZAP_EM, 1},
+			 {   10, T_TINKER, 1},
+		       {   0, 0, 0} },
+	jan_tech[] = { {   1, T_IRON_SKIN, 1},
+		       {   1, T_CONCENTRATING, 1},
+			 {   1, T_TERRAIN_CLEANUP, 1},
+		       {   20, T_ZAP_EM, 1},
+		       {   0, 0, 0} },
+	sma_tech[] = { {   1, T_CREATE_AMMO, 1},
+		       {   10, T_PRACTICE, 1},
+		       {   12, T_ZAP_EM, 1},
+		       {   15, T_CHARGE_SABER, 1},
+		       {   0, 0, 0} },
+	sto_tech[] = { {   1, T_BERSERK, 1},
+		       {   1, T_ZAP_EM, 1},
+		       {   5, T_SKILLOMORPH, 1},
+		       {   10, T_KIII, 1},
+		       {   12, T_DOUBLE_THROWNAGE, 1},
+		       {   15, T_VANISH, 1},
+		       {   20, T_SIGIL_TEMPEST, 1},
+		       {   24, T_EDDY_WIND, 1},
+		       {   0, 0, 0} },
+	cra_tech[] = { {   1, T_ZAP_EM, 1},
+			 {   10, T_CARD_TRICK, 1},
+			 {   15, T_RESEARCH, 1},
+		       {   20, T_RECHARGE, 1},
+		       {   30, T_DOUBLE_TROUBLE, 1},
+		       {   0, 0, 0} },
 	fir_tech[] = { {   12, T_RECHARGE, 1},
+		       {   0, 0, 0} },
+	yau_tech[] = { {   2, T_BLOOD_RITUAL, 1},
+			 {   8, T_CRIT_STRIKE, 1},
+		       {   10, T_SIGIL_DISCHARGE, 1},
+		       {   12, T_CHI_HEALING, 1},
+		       {   15, T_ZAP_EM, 1},
+		       {   18, T_DRAW_ENERGY, 1},
+		       {   25, T_TELEKINESIS, 1},
 		       {   0, 0, 0} },
 	gam_tech[] = { {   1, T_CONCENTRATING, 1},
 		       {   13, T_LUCKY_GAMBLE, 1},
@@ -367,6 +448,17 @@ static const struct innate_tech
 		       {   0, 0, 0} },
 	mid_tech[] = { {   1, T_RAGE, 1},
 		       {   0, 0, 0} },
+	psy_tech[] = { {   1, T_ZAP_EM, 1},
+			 {   2, T_TURN_UNDEAD, 1},
+			 {   7, T_REINFORCE, 1},
+			 {   12, T_E_FIST, 1},
+			 {   12, T_SIGIL_CONTROL, 1},
+			 {   15, T_SPIRITUALITY_CHECK, 1},
+			 {   18, T_DRAW_ENERGY, 1},
+			 {   20, T_SPIRIT_BOMB, 1},
+			 {   24, T_BLESSING, 1},
+			 {   28, T_SUMMON_PET, 1},
+		       {   0, 0, 0} },
 	spa_tech[] = { {   1, T_REINFORCE, 1},
 			 {   5, T_RESEARCH, 1},
 			 {   6, T_RECHARGE, 1},
@@ -379,17 +471,82 @@ static const struct innate_tech
 	cam_tech[] = { {   12, T_CREATE_AMMO, 1},
 			 {   26, T_RECHARGE, 1},
 		       {   0, 0, 0} },
+	qua_tech[] = { {   12, T_ZAP_EM, 1},
+		       {   0, 0, 0} },
 	gan_tech[] = { {   1, T_CREATE_AMMO, 1},
 		       {   1, T_LUCKY_GAMBLE, 1},
 		       {   0, 0, 0} },
+	emp_tech[] = { {   1, T_SURGERY, 1},
+		       {   1, T_REINFORCE, 1},
+		       {   1, T_HEAL_HANDS, 1},
+		       {   1, T_CALM_STEED, 1},
+		       {   3, T_CHI_HEALING, 1},
+		       {   5, T_TURN_UNDEAD, 1},
+		       {   7, T_DRAW_BLOOD, 1},
+		       {   8, T_ZAP_EM, 1},
+		       {   10, T_DRAW_ENERGY, 1},
+		       {   15, T_SPIRITUALITY_CHECK, 1},
+		       {   20, T_ATTIRE_CHARM, 1},
+		       {   20, T_ENT_S_POTION, 1},
+		       {   25, T_REVIVE, 1},
+		       {   30, T_WONDERSPELL, 1},
+		       {   0, 0, 0} },
 	nuc_tech[] = { {   1, T_DECONTAMINATE, 1},
 		       {   0, 0, 0} },
+	mam_tech[] = { {   1, T_REINFORCE, 1},
+		       {   1, T_RESEARCH, 1},
+		       {   1, T_ZAP_EM, 1},
+		       {   10, T_CONCENTRATING, 1},
+		       {   10, T_POWER_SURGE, 1},
+		       {   15, T_WONDERSPELL, 1},
+		       {   18, T_TELEKINESIS, 1},
+		       {   0, 0, 0} },
 	sco_tech[] = { {   25, T_DIAMOND_BARRIER, 1},
+		       {   0, 0, 0} },
+	wal_tech[] = { {   1, T_DIAMOND_BARRIER, 1},
+		       {   0, 0, 0} },
+	wei_tech[] = { {   2, T_POLYFORM, 1},
+			 {   3, T_SIGIL_DISCHARGE, 1},
+			 {   4, T_G_SLAM, 1},
+			 {   7, T_FLURRY, 1},
+			 {   8, T_LUCKY_GAMBLE, 1},
+			 {   9, T_SUMMON_TEAM_ANT, 1},
+			 {   10, T_CARD_TRICK, 1},
+		       {   11, T_CALM_STEED, 1},
+		       {   17, T_RAISE_ZOMBIES, 1},
+		       {   18, T_DIAMOND_BARRIER, 1},
+		       {   19, T_CHI_STRIKE, 1},
+		       {   22, T_ZAP_EM, 1},
+		       {   23, T_BLITZ, 1},
+		       {   24, T_EVISCERATE, 1},
+		       {   29, T_WORLD_FALL, 1},
+		       {   30, T_TURN_UNDEAD, 1},
 		       {   0, 0, 0} },
 	loc_tech[] = { {   15, T_DIAMOND_BARRIER, 1},
 		       {   0, 0, 0} },
 	roc_tech[] = { {   1, T_EGG_BOMB, 1},
 		       {   1, T_FLURRY, 1},
+		       {   0, 0, 0} },
+	cel_tech[] = { {   10, T_TERRAIN_CLEANUP, 1},
+		       {   0, 0, 0} },
+	ast_tech[] = { {   5, T_FLURRY, 1},
+			 {   6, T_SIGIL_CONTROL, 1},
+			 {   8, T_SHIELD_BASH, 1},
+			 {   10, T_REINFORCE, 1},
+			 {   10, T_ZAP_EM, 1},
+			 {   12, T_RESEARCH, 1},
+			 {   18, T_SIGIL_TEMPEST, 1},
+			 {   18, T_CHARGE_SABER, 1},
+			 {   20, T_TINKER, 1},
+			 {   20, T_WORLD_FALL, 1},
+			 {   24, T_DECONTAMINATE, 1},
+		       {   24, T_SURGERY, 1},
+		       {   24, T_DRAW_ENERGY, 1},
+			 {   25, T_SIGIL_DISCHARGE, 1},
+			 {   25, T_SKILLOMORPH, 1},
+			 {   28, T_TERRAIN_CLEANUP, 1},
+			 {   29, T_BLINK, 1},
+		       {   30, T_LIQUID_LEAP, 1},
 		       {   0, 0, 0} },
 	dea_tech[] = { {   1, T_WORLD_FALL, 1},
 		       {   1, T_RECHARGE, 1},
@@ -400,6 +557,8 @@ static const struct innate_tech
 	cav_tech[] = { {   1, T_PRIMAL_ROAR, 1},
 		       {   10, T_SHIELD_BASH, 1},
 		       {   20, T_POLYFORM, 1},
+		       {   0, 0, 0} },
+	dem_tech[] = { {   1, T_PRIMAL_ROAR, 1},
 		       {   0, 0, 0} },
 	sli_tech[] = { {   1, T_LIQUID_LEAP, 1},
 		       {   4, T_SPIRITUALITY_CHECK, 1},
@@ -472,6 +631,39 @@ static const struct innate_tech
 		       {   1, T_SHIELD_BASH, 1},
 		       {   0, 0, 0} },
 
+	car_tech[] = { {   1, T_CARD_TRICK, 1},
+		       {   15, T_LUCKY_GAMBLE, 1},
+		       {   0, 0, 0} },
+
+	dra_tech[] = { {   10, T_PRIMAL_ROAR, 1},
+		       {   20, T_CALM_STEED, 1},
+		       {   30, T_SUMMON_PET, 1},
+		       {   0, 0, 0} },
+
+	com_tech[] = { {   2, T_SHIELD_BASH, 1},
+			 {   11, T_KIII, 1},
+		       {   15, T_CONCENTRATING, 1},
+		       {   20, T_G_SLAM, 1},
+		       {   25, T_SPIRIT_BOMB, 1},
+		       {   0, 0, 0} },
+
+	fjo_tech[] = { {   5, T_SURGERY, 1},
+		       {   10, T_LIQUID_LEAP, 1},
+		       {   20, T_REINFORCE, 1},
+		       {   25, T_BOOZE, 1},
+		       {   0, 0, 0} },
+
+	pra_tech[] = { {   1, T_RESEARCH, 1},
+		       {   15, T_VANISH, 1},
+		       {   25, T_RECHARGE, 1},
+		       {   0, 0, 0} },
+
+	eme_tech[] = { {   10, T_RAGE, 1},
+		       {   0, 0, 0} },
+
+	sym_tech[] = { {   12, T_TERRAIN_CLEANUP, 1},
+		       {   0, 0, 0} },
+
 	kor_tech[] = { {   1, T_DOUBLE_THROWNAGE, 1},
 		       {   0, 0, 0} },
 
@@ -489,6 +681,7 @@ static const struct innate_tech
 			 {   5, T_WARD_COLD, 1},
 			 {   8, T_REINFORCE, 1},
 			 {   10, T_WARD_ELEC, 1},
+			 {   12, T_TERRAIN_CLEANUP, 1},
 			 {   15, T_WARD_FIRE, 1},
 			 {   20, T_ENT_S_POTION, 1},
 		       {   0, 0, 0} },
@@ -502,7 +695,8 @@ static const struct innate_tech
 		       {   24, T_SPIRIT_BOMB, 1},
 		       {   0, 0, 0} },
 
-	jus_tech[] = { {   12, T_CONCENTRATING, 1},
+	jus_tech[] = { {   8, T_ZAP_EM, 1},
+			 {   12, T_CONCENTRATING, 1},
 		       {   16, T_SHIELD_BASH, 1},
 		       {   0, 0, 0} },
 
@@ -608,6 +802,7 @@ static const struct innate_tech
 		       {  9, T_WARD_COLD, 1},
 		       {  10, T_RAISE_ZOMBIES, 1},
 		       {  11, T_LUCKY_GAMBLE, 1},
+		       {  12, T_ZAP_EM, 1},
 		       {  13, T_WARD_ELEC, 1},
 	  	       {   15, T_CREATE_AMMO, 1},
 	  	       {   16, T_E_FIST, 1},
@@ -649,6 +844,7 @@ static const struct innate_tech
 	aug_tech[] = { {   1, T_TELEKINESIS, 1},
 		       {   5, T_WONDERSPELL, 1},
 		       {   10, T_SPIRITUALITY_CHECK, 1},
+		       {   15, T_CARD_TRICK, 1},
 		       {   20, T_DIAMOND_BARRIER, 1},
 		       {   0, 0, 0} },
 	elp_tech[] = { {   1, T_FLURRY, 1},
@@ -662,6 +858,23 @@ static const struct innate_tech
 		       {   18, T_CONCENTRATING, 1},
 		       {   30, T_BLOOD_RITUAL, 1},
 		       {   0, 0, 0} },
+	cyb_tech[] = { {   1, T_KIII, 1},
+		       {   5, T_ZAP_EM, 1},
+		       {   6, T_SHIELD_BASH, 1},
+		       {   8, T_CUTTHROAT, 1},
+		       {   10, T_CHARGE_SABER, 1},
+		       {   12, T_CRIT_STRIKE, 1},
+		       {   18, T_IRON_SKIN, 1},
+		       {   18, T_CONCENTRATING, 1},
+		       {   30, T_BLOOD_RITUAL, 1},
+		       {   0, 0, 0} },
+	gro_tech[] = { {   1, T_KIII, 1},
+		       {   1, T_CREATE_AMMO, 1},
+		       {   6, T_SHIELD_BASH, 1},
+		       {   18, T_IRON_SKIN, 1},
+		       {   18, T_CONCENTRATING, 1},
+		       {   30, T_BLOOD_RITUAL, 1},
+		       {   0, 0, 0} },
 	nin_tech[] = { {   5, T_DOUBLE_THROWNAGE, 1},
 		       {   25, T_EDDY_WIND, 1},
 		       {   0, 0, 0} },
@@ -670,9 +883,26 @@ static const struct innate_tech
 	tra_tech[] = { {   1, T_ATTIRE_CHARM, 1},
 		       {   17, T_SUMMON_PET, 1},
 		       {   0, 0, 0} },
-	kur_tech[] = { {   1, T_ATTIRE_CHARM, 1},
+	kur_tech[] = { {   1, T_ATTIRE_CHARM, 1}, /* also used for prostitute */
 		       {   0, 0, 0} },
-	mas_tech[] = { {   1, T_DIAMOND_BARRIER, 1},
+	dis_tech[] = { {   5, T_BERSERK, 1},
+		       {  8, T_DAZZLE, 1},
+		       {  10, T_RAGE, 1},
+		       {  15, T_ZAP_EM, 1},
+		       {   0, 0, 0} },
+	mas_tech[] = { {   1, T_DIAMOND_BARRIER, 1}, /* mason */
+		       {   0, 0, 0} },
+	xel_tech[] = { {   6, T_EVISCERATE, 1},
+			 {   8, T_CRIT_STRIKE, 1},
+			 {   9, T_DASH, 1},
+			 {   10, T_ZAP_EM, 1},
+			 {   10, T_BLOOD_RITUAL, 1},
+			 {   12, T_RESEARCH, 1},
+			 {   18, T_TELEKINESIS, 1},
+		       {  20, T_REINFORCE, 1},
+		       {  24, T_POLYFORM, 1},
+		       {  25, T_EGG_BOMB, 1},
+		       {  30, T_SKILLOMORPH, 1},
 		       {   0, 0, 0} },
 	trs_tech[] = { {   1, T_ATTIRE_CHARM, 1},
 		       {   17, T_SUMMON_PET, 1},
@@ -680,6 +910,7 @@ static const struct innate_tech
 	act_tech[] = { {   1, T_REINFORCE, 1},
 		       {  5, T_VANISH, 1},
 		       {  10, T_DAZZLE, 1},
+			 {  25, T_TERRAIN_CLEANUP, 1},
 		       {   0, 0, 0} },
 	top_tech[] = { {   1, T_ATTIRE_CHARM, 1},
 		       {  10, T_CREATE_AMMO, 1},
@@ -794,11 +1025,22 @@ static const struct innate_tech
 			 {   10, T_BLOOD_RITUAL, 1},
 		       {   15, T_SECURE_IDENTIFY, 1},
 		       {   0, 0, 0} },
+	and_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+			 {   10, T_CREATE_AMMO, 1},
+			 {   15, T_SKILLOMORPH, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+			 {   20, T_CHARGE_SABER, 1},
+		       {   0, 0, 0} },
 	dvp_tech[] = { {   1, T_APPRAISAL, 1},
 		       {   1, T_PANIC_DIGGING, 1},
 		       {   1, T_PHASE_DOOR, 1},
 		       {   1, T_INVOKE_DEITY, 1},
 		       {   1, T_RESET_TECHNIQUE, 1},
+		       {   1, T_SKILLOMORPH, 1},
+			 {   1, T_TERRAIN_CLEANUP, 1},
 			 {   5, T_RESEARCH, 1},
 			 {   10, T_DIAMOND_BARRIER, 1},
 		       {   15, T_SECURE_IDENTIFY, 1},
@@ -832,6 +1074,13 @@ static const struct innate_tech
 		       {   1, T_PHASE_DOOR, 1},
 		       {   1, T_INVOKE_DEITY, 1},
 		       {   1, T_WARD_ELEC, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   0, 0, 0} },
+	jav_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   1, T_DOUBLE_THROWNAGE, 1},
 		       {   15, T_SECURE_IDENTIFY, 1},
 		       {   0, 0, 0} },
 	wis_tech[] = { {   1, T_APPRAISAL, 1},
@@ -927,6 +1176,14 @@ static const struct innate_tech
 		       {   15, T_SECURE_IDENTIFY, 1},
 		       {   20, T_CRIT_STRIKE, 1},
 		       {   0, 0, 0} },
+	fay_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   10, T_BLINK, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   20, T_DRAW_ENERGY, 1},
+		       {   0, 0, 0} },
 	alc_tech[] = { {   1, T_RESEARCH, 1},
 		       {   1, T_TINKER, 1},
 		       {   1, T_APPRAISAL, 1},
@@ -939,7 +1196,6 @@ static const struct innate_tech
 		       {   25, T_DRAW_ENERGY, 1},
 		       {   30, T_EGG_BOMB, 1},
 		       {   0, 0, 0} },
-
 	ung_tech[] = { {   1, T_WORLD_FALL, 1},
 		       {   1, T_APPRAISAL, 1},
 		       {   1, T_PANIC_DIGGING, 1},
@@ -1029,6 +1285,20 @@ static const struct innate_tech
 		       {   25, T_JEDI_JUMP, 1},
 		       {   0, 0, 0} },
 
+	ret_tech[] = { {   1, T_REINFORCE, 1},
+		       {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   5, T_RESEARCH, 1},
+		       {   10, T_ZAP_EM, 1},
+		       {   10, T_CONCENTRATING, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   20, T_POWER_SURGE, 1},
+		       {   25, T_WONDERSPELL, 1},
+		       {   30, T_TELEKINESIS, 1},
+		       {   0, 0, 0} },
+
 	nor_tech[] = { {   1, T_BERSERK, 1},
 		       {   1, T_APPRAISAL, 1},
 		       {   1, T_PANIC_DIGGING, 1},
@@ -1055,6 +1325,16 @@ static const struct innate_tech
 		       {   12, T_DOUBLE_THROWNAGE, 1},
 		       {   15, T_SECURE_IDENTIFY, 1},
 		       {   0, 0, 0} },
+	kla_tech[] = { {   1, T_SUMMON_TEAM_ANT, 1},
+		       {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   15, T_CRIT_STRIKE, 1},
+		       {   20, T_TELEKINESIS, 1},
+		       {   25, T_SPIRIT_BOMB, 1},
+		       {   0, 0, 0} },
 	kob_tech[] = { {   1, T_APPRAISAL, 1},
 		       {   1, T_PANIC_DIGGING, 1},
 		       {   1, T_PHASE_DOOR, 1},
@@ -1077,12 +1357,32 @@ static const struct innate_tech
 		       {   1, T_INVOKE_DEITY, 1},
 		       {   15, T_SECURE_IDENTIFY, 1},
 		       {   0, 0, 0} },
+	ton_tech[] = { {   1, T_DASH, 1},
+		       {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   6, T_SHIELD_BASH, 1},
+		       {   10, T_IRON_SKIN, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   20, T_POKE_BALL, 1},
+		       {   0, 0, 0} },
 	hmo_tech[] = { {   1, T_BERSERK, 1},
 		       {   1, T_APPRAISAL, 1},
 		       {   1, T_PANIC_DIGGING, 1},
 		       {   1, T_PHASE_DOOR, 1},
 		       {   1, T_INVOKE_DEITY, 1},
 		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   0, 0, 0} },
+	zru_tech[] = { {   1, T_BERSERK, 1},
+		       {   1, T_PUMMEL, 1},
+		       {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   10, T_PRIMAL_ROAR, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   20, T_RAGE, 1},
 		       {   0, 0, 0} },
 	lyc_tech[] = { {   1, T_EVISCERATE, 1},
 		       {   1, T_APPRAISAL, 1},
@@ -1177,6 +1477,15 @@ static const struct innate_tech
 		       {   1, T_PANIC_DIGGING, 1},
 		       {   0, 0, 0,} },
 
+	woo_tech[] = { {   12, T_JEDI_JUMP, 1},
+		       {   20, T_CHARGE_SABER, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   0, 0, 0,} },
+
 	bat_tech[] = { {   1, T_APPRAISAL, 1},
 		       {   1, T_PANIC_DIGGING, 1},
 		       {   1, T_PHASE_DOOR, 1},
@@ -1197,10 +1506,18 @@ static const struct innate_tech
 		       {   1, T_PANIC_DIGGING, 1},
 		       {   1, T_PHASE_DOOR, 1},
 		       {   1, T_INVOKE_DEITY, 1},
+		       {   5, T_CARD_TRICK, 1},
 		       {   10, T_DOUBLE_TROUBLE, 1},
 		       {   15, T_SECURE_IDENTIFY, 1},
 		       {   20, T_WONDERSPELL, 1},
 		       {   30, T_RESET_TECHNIQUE, 1},
+		       {   0, 0, 0} },
+
+	man_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   10, T_SKILLOMORPH, 1},
 		       {   0, 0, 0} },
 
 	jel_tech[] = { {   1, T_DRAW_ENERGY, 1},
@@ -1253,6 +1570,14 @@ static const struct innate_tech
 		       {   15, T_SECURE_IDENTIFY, 1},
 		       {   0, 0, 0} },
 
+	tme_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   1, T_CREATE_AMMO, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   0, 0, 0} },
+
 	inc_tech[] = { {   1, T_APPRAISAL, 1},
 		       {   1, T_PANIC_DIGGING, 1},
 		       {   1, T_PHASE_DOOR, 1},
@@ -1274,6 +1599,7 @@ static const struct innate_tech
 		       {   1, T_PHASE_DOOR, 1},
 		       {   1, T_INVOKE_DEITY, 1},
 		       {   1, T_RECHARGE, 1},
+			 {   12, T_TERRAIN_CLEANUP, 1},
 		       {   15, T_SECURE_IDENTIFY, 1},
 		       {   0, 0, 0} },
 
@@ -1317,6 +1643,21 @@ static const struct innate_tech
 		       {   15, T_SECURE_IDENTIFY, 1},
 		       {   0, 0, 0} },
 
+	out_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+			 {   6, T_EVISCERATE, 1},
+			 {   10, T_ZAP_EM, 1},
+			 {   12, T_CRIT_STRIKE, 1},
+			 {   15, T_DASH, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+			 {   18, T_TELEKINESIS, 1},
+			 {   20, T_RESEARCH, 1},
+		       {   20, T_REINFORCE, 1},
+		       {   30, T_SKILLOMORPH, 1},
+		       {   0, 0, 0} },
+
 	trp_tech[] = { {   1, T_APPRAISAL, 1},
 		       {   1, T_PANIC_DIGGING, 1},
 		       {   1, T_PHASE_DOOR, 1},
@@ -1324,6 +1665,14 @@ static const struct innate_tech
 		       {   11, T_RECHARGE, 1},
 		       {   15, T_SECURE_IDENTIFY, 1},
 		       {   28, T_SPIRITUALITY_CHECK, 1},
+		       {   0, 0, 0} },
+
+	ira_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   12, T_CREATE_AMMO, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
 		       {   0, 0, 0} },
 
 	una_tech[] = { {   1, T_APPRAISAL, 1},
@@ -1375,6 +1724,125 @@ static const struct innate_tech
 		       {   15, T_SECURE_IDENTIFY, 1},
 		       {   0, 0, 0} },
 
+	egy_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   1, T_ZAP_EM, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   0, 0, 0} },
+
+	nem_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   20, T_WORLD_FALL, 1},
+		       {   0, 0, 0} },
+
+	cup_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   10, T_ATTIRE_CHARM, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   0, 0, 0} },
+
+	bac_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   15, T_WORLD_FALL, 1},
+		       {   20, T_POKE_BALL, 1},
+		       {   25, T_DECONTAMINATE, 1},
+		       {   0, 0, 0} },
+
+	cer_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   5, T_PRIMAL_ROAR, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   0, 0, 0} },
+
+	kst_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   6, T_FLURRY, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   16, T_TERRAIN_CLEANUP, 1},
+		       {   22, T_DIAMOND_BARRIER, 1},
+		       {   0, 0, 0} },
+
+	vie_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   15, T_CREATE_AMMO, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   20, T_SPIRIT_BOMB, 1},
+		       {   0, 0, 0} },
+
+	mog_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   1, T_BERSERK, 1},
+		       {   5, T_DOUBLE_THROWNAGE, 1},
+		       {   10, T_FLURRY, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   20, T_EDDY_WIND, 1},
+		       {   25, T_BLOOD_RITUAL, 1},
+		       {   0, 0, 0} },
+
+	per_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   1, T_CALM_STEED, 1},
+		       {   5, T_WARD_FIRE, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   20, T_SPIRITUALITY_CHECK, 1},
+		       {   0, 0, 0} },
+
+	bov_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   14, T_SUMMON_PET, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   28, T_BLOOD_RITUAL, 1},
+		       {   0, 0, 0} },
+
+	mac_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   12, T_CALM_STEED, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   0, 0, 0} },
+
+	crt_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   1, T_CALM_STEED, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   20, T_TERRAIN_CLEANUP, 1},
+		       {   0, 0, 0} },
+
+	rus_tech[] = { {   1, T_APPRAISAL, 1},
+		       {   1, T_PANIC_DIGGING, 1},
+		       {   1, T_PHASE_DOOR, 1},
+		       {   1, T_INVOKE_DEITY, 1},
+		       {   10, T_SKILLOMORPH, 1},
+		       {   10, T_CONCENTRATING, 1},
+		       {   15, T_SECURE_IDENTIFY, 1},
+		       {   18, T_BOOZE, 1},
+		       {   0, 0, 0} },
+
 	def_tech[] = { {   1, T_APPRAISAL, 1}, /* everyone is supposed to get this --Amy */
 		       {   1, T_PANIC_DIGGING, 1},
 		       {   1, T_PHASE_DOOR, 1},
@@ -1392,7 +1860,6 @@ static const struct innate_tech
 #define techt_inuse(tech)       tech_list[tech].t_inuse
 #define techtout(tech)        tech_list[tech].t_tout
 #define techlev(tech)         (u.ulevel - tech_list[tech].t_lev)
-#define techlevX(tech)         (Technicality ? (((u.ulevel - tech_list[tech].t_lev) * 4 / 3) + 3) : (u.ulevel - tech_list[tech].t_lev))
 #define techid(tech)          tech_list[tech].t_id
 #define techname(tech)        (tech_names[techid(tech)])
 #define techlet(tech)  \
@@ -1456,7 +1923,34 @@ void * roomcnt;
 
 	/* Get rid of stone at x, y */
 	levl[x][y].typ = CORR;
-	unblock_point(x,y);
+	blockorunblock_point(x,y);
+	if (!(levl[x][y].wall_info & W_HARDGROWTH)) levl[x][y].wall_info |= W_EASYGROWTH;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+terraincleanup(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (Is_waterlevel(&u.uz)) return;
+
+	if (levl[x][y].typ < GRAVEWALL)
+		return;
+	if (levl[x][y].typ >= SDOOR && levl[x][y].typ <= SCORR)
+		return;
+	if ((levl[x][y].wall_info & W_NONDIGGABLE) != 0)
+		return;
+	if (levl[x][y].typ == DRAWBRIDGE_UP || levl[x][y].typ == DRAWBRIDGE_DOWN)
+		return;
+	if (levl[x][y].typ >= DOOR && levl[x][y].typ <= STRAWMATTRESS)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	/* Get rid of stone at x, y */
+	levl[x][y].typ = CORR;
+	blockorunblock_point(x,y);
 	if (!(levl[x][y].wall_info & W_HARDGROWTH)) levl[x][y].wall_info |= W_EASYGROWTH;
 	newsym(x,y);
 }
@@ -1503,6 +1997,8 @@ learntech(tech, mask, tlevel)
 	int i;
 	const struct innate_tech *tp;
 
+	if (istechless && tlevel >= 0) return; /* tough luck... --Amy */
+
 	i = get_tech_no(tech);
 	if (tlevel > 0) {
 	    if (i < 0) {
@@ -1520,7 +2016,7 @@ learntech(tech, mask, tlevel)
 		tech_list[i].t_intrinsic = 0;
 	    }
 	    else if (tech_list[i].t_intrinsic & mask) {
-		impossible("Tech already known.");
+		pline("Tech already known."); /* can happen with recursion --Amy */
 		return;
 	    }
 	    if (mask == FROMOUTSIDE) {
@@ -1536,39 +2032,42 @@ learntech(tech, mask, tlevel)
 	     * would certainly find out that you can use secure identify indefinitely that way... --Amy */
 	}
 	else if (tlevel < 0) {
+
 	    if (i < 0 || !(tech_list[i].t_intrinsic & mask)) {
-		impossible("Tech not known.");
+		pline("Tech not known."); /* can happen with recursion --Amy */
 		return;
 	    }
-	    tech_list[i].t_intrinsic &= ~mask;
-	    if (!(tech_list[i].t_intrinsic & INTRINSIC)) {
-		if (tech_list[i].t_inuse)
-		    aborttech(tech);
-		tech_list[i].t_id = NO_TECH;
-		return;
-	    }
-	    /* Re-calculate lowest t_lev */
-	    if (tech_list[i].t_intrinsic & FROMOUTSIDE)
-		tlevel = tech_list[i].t_intrinsic & OUTSIDE_LEVEL;
-	    if (tech_list[i].t_intrinsic & FROMEXPER) {
-		for(tp = role_tech(); tp->tech_id; tp++)
-		    if (tp->tech_id == tech)
-			break;
-		if (!tp->tech_id)
-		    impossible("No inate technique for role?");
-		else if (tlevel < 0 || tp->ulevel - tp->tech_lev < tlevel)
-		    tlevel = tp->ulevel - tp->tech_lev;
-	    }
-	    if (tech_list[i].t_intrinsic & FROMRACE) {
-		for(tp = race_tech(); tp->tech_id; tp++)
-		    if (tp->tech_id == tech)
-			break;
-		if (!tp->tech_id)
-		    impossible("No inate technique for race?");
-		else if (tlevel < 0 || tp->ulevel - tp->tech_lev < tlevel)
-		    tlevel = tp->ulevel - tp->tech_lev;
-	    }
-	    tech_list[i].t_lev = tlevel;
+	    if (techlev(i) < 1) {
+			tech_list[i].t_intrinsic &= ~mask;
+			if (!(tech_list[i].t_intrinsic & INTRINSIC)) {
+				if (tech_list[i].t_inuse)
+					aborttech(tech);
+				tech_list[i].t_id = NO_TECH;
+				return;
+			}
+			/* Re-calculate lowest t_lev */
+			if (tech_list[i].t_intrinsic & FROMOUTSIDE)
+				tlevel = tech_list[i].t_intrinsic & OUTSIDE_LEVEL;
+			if (tech_list[i].t_intrinsic & FROMEXPER) {
+				for(tp = role_tech(); tp->tech_id; tp++)
+					if (tp->tech_id == tech)
+						break;
+				if (!tp->tech_id)
+					impossible("No inate technique for role?");
+				else if (tlevel < 0 || tp->ulevel - tp->tech_lev < tlevel)
+					tlevel = tp->ulevel - tp->tech_lev;
+			}
+			if (tech_list[i].t_intrinsic & FROMRACE) {
+				for(tp = race_tech(); tp->tech_id; tp++)
+					if (tp->tech_id == tech)
+						break;
+				if (!tp->tech_id)
+					impossible("No inate technique for race?");
+				else if (tlevel < 0 || tp->ulevel - tp->tech_lev < tlevel)
+					tlevel = tp->ulevel - tp->tech_lev;
+			}
+			tech_list[i].t_lev = tlevel;
+		}
 	}
 	else
 	    impossible("Invalid Tech Level!");
@@ -1587,10 +2086,12 @@ gettech(tech_no)
 
 	for (ntechs = i = 0; i < MAXTECH; i++)
 	    if (techid(i) != NO_TECH) ntechs++;
-	if (ntechs == 0)  {
+
+	/* display the menu anyway, because of vibrating square stuff --Amy */
+/*	if (ntechs == 0)  {
             You("don't know any techniques right now.");
 	    return FALSE;
-	}
+	}*/
 	if (flags.menu_style == MENU_TRADITIONAL) {
             if (ntechs == 1)  strcpy(lets, "a");
             else if (ntechs < 27)  sprintf(lets, "a-%c", 'a' + ntechs - 1);
@@ -1662,7 +2163,7 @@ dotechmenu(how, tech_no)
 	    if (techid(i) == NO_TECH)
 		continue;
 	    tlevel = techlev(i);
-	    if (!techtout(i) && tlevel > 0) {
+	    if (tlevel > 0 && (wizard || !techtout(i)) ) {
 		/* Ready to use */
 		techs_useable++;
 		prefix = "";
@@ -1672,10 +2173,10 @@ dotechmenu(how, tech_no)
 		any.a_int = 0;
 	    }
 #ifdef WIZARD
-	    if (wizard) 
-		if (!iflags.menu_tab_sep)			
-		    sprintf(buf, "%s%-*s %2d%c%c%c   %s(%i)",
-			    prefix, longest, techname(i), tlevel,
+	    if (wizard || RngeTechInsight) 
+		if (!iflags.menu_tab_sep)
+		    sprintf(buf, "%s%-*s %2d%c%c%c%c  %s(%i)",
+			    prefix, longest, techname(i), tlevel, ((techtout(i) || (tlevel <= 0)) ? '*' : ' '),
 			    tech_list[i].t_intrinsic & FROMEXPER ? 'X' : ' ',
 			    tech_list[i].t_intrinsic & FROMRACE ? 'R' : ' ',
 			    tech_list[i].t_intrinsic & FROMOUTSIDE ? 'O' : ' ',
@@ -1688,8 +2189,8 @@ dotechmenu(how, tech_no)
 			    techtout(i) > 100 ? "Reloading" : "Soon",
 			    techtout(i));
 		else
-		    sprintf(buf, "%s%s\t%2d%c%c%c\t%s(%i)",
-			    prefix, techname(i), tlevel,
+		    sprintf(buf, "%s%s\t%2d%c%c%c%c\t%s(%i)",
+			    prefix, techname(i), tlevel, ((techtout(i) || (tlevel <= 0)) ? '*' : ' '),
 			    tech_list[i].t_intrinsic & FROMEXPER ? 'X' : ' ',
 			    tech_list[i].t_intrinsic & FROMRACE ? 'R' : ' ',
 			    tech_list[i].t_intrinsic & FROMOUTSIDE ? 'O' : ' ',
@@ -1703,9 +2204,9 @@ dotechmenu(how, tech_no)
 			    techtout(i));
 	    else
 #endif
-	    if (!iflags.menu_tab_sep)			
-		sprintf(buf, "%s%-*s %5d   %s",
-			prefix, longest, techname(i), tlevel,
+	    if (!iflags.menu_tab_sep)
+		sprintf(buf, "%s%-*s %5d%c  %s",
+			prefix, longest, techname(i), tlevel, ((techtout(i) || (tlevel <= 0)) ? '*' : ' '),
 			tech_inuse(techid(i)) ? "Active" :
 			tlevel <= 0 ? "Beyond recall" :
 			can_limitbreak() ? "LIMIT" :
@@ -1714,8 +2215,8 @@ dotechmenu(how, tech_no)
 			techtout(i) > 1000 ? "Not Ready" :
 			techtout(i) > 100 ? "Reloading" : "Soon");
 	    else
-		sprintf(buf, "%s%s\t%5d\t%s",
-			prefix, techname(i), tlevel,
+		sprintf(buf, "%s%s\t%5d%c\t%s",
+			prefix, techname(i), tlevel, ((techtout(i) || (tlevel <= 0)) ? '*' : ' '),
 			tech_inuse(techid(i)) ? "Active" :
 			tlevel <= 0 ? "Beyond recall" :
 			can_limitbreak() ? "LIMIT" :
@@ -1725,7 +2226,7 @@ dotechmenu(how, tech_no)
 			techtout(i) > 100 ? "Reloading" : "Soon");
 
 	    add_menu(tmpwin, NO_GLYPH, &any,
-		    techtout(i) ? 0 : let, 0, ATR_NONE, buf, MENU_UNSELECTED);
+		    (tlevel <= 0) ? 0 : (techtout(i) && !wizard) ? 0 : let, 0, ATR_NONE, buf, MENU_UNSELECTED);
 	    if (let++ == 'z') let = 'A';
 	    if (let == 'Z') let = 'a';
 	}
@@ -2077,7 +2578,7 @@ dotech()
 			break;
 
 		case T_WORLD_FALL:
-			pline("A very powerful technique that will instakill all non-unique monsters on the current dungeon level whose monster level is lower than the technique's level. Sometimes it will also kill higher-level monsters.");
+			pline("A very powerful technique that will instakill all non-unique monsters on the current dungeon level whose monster level is lower than half the technique's level. Sometimes it will also kill higher-level monsters.");
 			break;
 
 		case T_CREATE_AMMO:
@@ -2460,12 +2961,148 @@ dotech()
 			pline("Fires digging rays in all eight directions.");
 			break;
 
+		case T_WONDER_YONDER:
+			pline("Teaches you a random spell when used, but also causes long-lasting inertia and some random bad effects.");
+			break;
+
+		case T_ZAP_EM:
+			pline("Tries to tame adjacent evilvariant monsters (use the pokedex to look for the 'Origin: Evil variant' bit). They can try to resist via monster magic resistance though.");
+			break;
+
+		case T_CARD_TRICK:
+			pline("Inspired by Splicehack, this technique lets you choose a scroll in your open inventory for a chance to duplicate it. The higher the cost of writing the scroll in question with a magic marker, the lower the chance that your duplication attempt works, but higher technique levels will increase the chance of success. Scrolls that cannot be written with a magic marker, e.g. wishing, can never be duplicated with this technique because that would be too powerful, and artifact scrolls are impossible too.");
+			break;
+
+		case T_SKILLOMORPH:
+			pline("Lets you pick a skill in which you're not restricted, and trains it by a few points. This lets you bypass the RNG limitations that might have made a skill impossible to train, meaning that repeatedly using this technique may allow you to reach skill levels that you can't otherwise reach, but of course you can't go over the cap displayed in the #enhance screen.");
+			break;
+
+		case T_SHOTTY_BLAST:
+			pline("Creates shotgun shells out of thin air.");
+			break;
+
+		case T_AMMO_UPGRADE:
+			pline("This technique requires you to wield firearm ammo, which will be enhanced in enchantment value and BUC. Remember that like everything that can affect a stack of items, big stacks of ammo (more than 25 ammos in one stack) have a chance to resist depending on the exact stack size.");
+			break;
+
+		case T_LASER_POWER:
+			pline("Creates laser gun ammo out of thin air.");
+			break;
+
+		case T_BIG_DADDY:
+			pline("This powerful technique creates a rocket launcher with ammo out of thin air.");
+			break;
+
+		case T_SHUT_THAT_BITCH_UP:
+			pline("A technique that lasts for a couple of turns and allows your firearm ammos to stop time if they hit a female enemy.");
+			break;
+
+		case T_S_PRESSING:
+			pline("This technique works only if there's no trap on your current location. It also requires 500 points of nutrition. If you fulfill those requirements, you create a trap at your location that can only affect hostile monsters and deals damage relative to your squeaking skill and technique level. However, only monsters that didn't see you create the trap can trigger it and they can also only ever trigger it while they're outside of your line of sight!");
+			break;
+
+		case T_MELTEE:
+			pline("Shoots acid rays in all directions and may destroy iron bars.");
+			break;
+
+		case T_WOMAN_NOISES:
+			pline("If you use this technique, hostile monsters in a certain radius around you have to make a saving throw or be affected by several bad effects.");
+			break;
+
+		case T_EXTRA_LONG_SQUEAK:
+			pline("After using this technique, it will stay active for a while and protect you from farting effects, and additionally all nearby hostile male monsters will have to make a saving throw each turn or take damage.");
+			break;
+
+		case T_SEXUAL_HUG:
+			pline("This technique tames an adjacent male monster. It has a 1 in 5 chance of taming boss monsters.");
+			break;
+
+		case T_SEX_CHANGE:
+			pline("Well DUH :D Using it will change your sex from male to female or the other way around!");
+			break;
+
+		case T_EVEN_MORE_AMMO:
+			pline("You must be wielding firearm ammo to use this technique, and if you do, its stack size will increase.");
+			break;
+
+		case T_DOUBLESELF:
+			pline("Only player characters that are currently polymorphed into a monster can use this technique, and if you do so, you'll spawn a tame monster of the same type as your current polymorph form.");
+			break;
+
+		case T_POLYFIX:
+			pline("Using this technique lets you select a hazy item in your open inventory, which will become un-hazy so it won't polymorph back into the original item.");
+			break;
+
+		case T_SQUEAKY_REPAIR:
+			pline("This technique creates a fart trap on your current location and triggers it, but only if there was no trap on your location. If the trap was successfully made, you then get to repair an item of your choice in your main inventory.");
+			break;
+
+		case T_BULLETREUSE:
+			pline("Using this technique makes your firearm ammo reusable for a while, i.e. ammos that you shot may drop on the ground and be re-used, although most of the time they'll still be mulched.");
+			break;
+
+		case T_EXTRACHARGE:
+			pline("This technique lets you pick a wand in your open inventory and add a charge to it without incrementing the recharge counter and without the chance of blowing up the wand, but caution: the wand must be one that can be recharged indefinitely. Using it on one that can only be recharged once (e.g. wand of wishing) will not work.");
+			break;
+
 		case T_STARWARS_FRIENDS:
 			pline("A technique that tries to tame all adjacent monsters which are from Castle of the Winds or joke monsters, but they get a resistance roll. Also, one tame such monster is generated from thin air.");
 			break;
 
 		case T_USE_THE_FORCE_LUKE:
 			pline("This technique lasts for a period of time and increases the damage of the #force command while active.");
+			break;
+
+		case T_TERRAIN_CLEANUP:
+			pline("This powerful technique removes most annoying terrain from the eight squares surrounding you: water, trees, ice, farmland, nether mist and so on... It doesn't raze walls though, and furniture (e.g. wagons or fountains) is unaffected. The general rule of thumb is that if the terrain type can replace walls in maze levels, it will be affected.");
+			break;
+
+		case T_SYMBIOSIS:
+			pline("The basic symbiosis technique, using this will create a symbiote item out of thin air with which you can then perform symbiosis. It's probably a good idea to use this technique whenever you can, as it allows you to slowly but steadily build up a supply of symbiote items for later use.");
+			break;
+
+		case T_ADJUST_SYMBIOTE:
+			pline("Adjusts the aggressivity of your symbiotes, which is a global value that persists even if you switch to a different symbiote. Higher aggressivity means that your symbiote's attacks trigger more often, and damage that you would normally take is redirected to the symbiote more often.");
+			break;
+
+		case T_HEAL_SYMBIOTE:
+			pline("Damages you by half of your current HP and transfers that amount of hit points to your symbiote, but if that causes it to be overhealed, the extra points will just go to waste.");
+			break;
+
+		case T_BOOST_SYMBIOTE:
+			pline("Whenever you use this technique, your symbiote's maximum health will increase. However, there is a cap of 500 HP for the symbiote.");
+			break;
+
+		case T_POWERBIOSIS:
+			pline("Activating this technique temporarily allows your symbiote to deal double damage and take half damage.");
+			break;
+
+		case T_UNDERTOW:
+			pline("Allows you to try to drown a monster. For that to work, either you or the monster needs to be on a water square (can be a pool, moat, watery tunnel or crystal water) and the monster may not be unbreathing of course.");
+			break;
+
+		case T_DEFINALIZE:
+			pline("If you're annoyed by all the finalized items that you cannot polymorph, blank or cancel, this technique allows you to remove the finalized flag from one item.");
+			break;
+
+		case T_ANTI_INERTIA:
+			pline("Useful when you're slowed down by inertia, because it reduces the amount of time for which you're slowed.");
+			break;
+
+		case T_GRENADES_OF_COURSE:
+			pline("Creates frag grenades or gas grenades.");
+			break;
+
+		case T_IMPLANTED_SYMBIOSIS:
+			pline("This technique lasts for quite a while when you use it. While active, you benefit from the more powerful implant effects as long as you're in symbiosis, and if your implant is positively enchanted, your symbiote will take less damage based on the exact enchantment value.");
+			break;
+
+		case T_ASSUME_SYMBIOTE:
+			pline("Polymorphs you into the base monster type of your current symbiote. Doing that causes your symbiote to persist, so don't worry about it dying from this tech - it just makes it so that both you and your symbiote are of the same species. What's more, you will be able to move around as long as you still have the symbiote, even though symbiotes are characterized by the fact that they're nonmoving monsters.");
+			break;
+
+		case T_GENERATE_OFFSPRING:
+			pline("If you use this technique while having a symbiote, you will lay an egg of the symbiote's monster type that will hatch tame after a while.");
 			break;
 
 		default:
@@ -2541,7 +3178,7 @@ int tech_no;
 	    pline("This technique is already active!");
 	    return (0);
 	}
-        if (techtout(tech_no) && !can_limitbreak()) {
+        if (techtout(tech_no) /*&& !can_limitbreak()*/) {
 	    You("have to wait %s before using your technique again.",
                 (techtout(tech_no) > 100) ?
                         "for a while" : "a little longer");
@@ -2551,7 +3188,7 @@ int tech_no;
                 return(0);
         }
 
-	if (TechTrapEffect || u.uprops[TECHBUG].extrinsic || have_techniquestone()) {
+	if ((TechTrapEffect || u.uprops[TECHBUG].extrinsic || have_techniquestone()) && rn2(10)) {
 
 		pline("Unfortunately, nothing happens.");
 		techtout(tech_no) = rnz(5000);
@@ -2591,17 +3228,17 @@ int tech_no;
 		    return(0);
 		} else if((ACURR(A_INT) + ACURR(A_WIS)) < rnd(60)) {
 			pline("Nothing in your pack looks familiar.");
-                    t_timeout = rnz(1000);
+                    t_timeout = rnz(2000);
 		    break;
 		} else if(invent) {
 			You("examine your possessions.");
-			identify_pack((int) ((techlevX(tech_no) / 10) + 1), 0);
+			identify_pack((int) ((techlevX(tech_no) / 10) + 1), 0, 0);
 		} else {
 			/* KMH -- fixed non-compliant string */
 		    You("are already quite familiar with the contents of your pack.");
 		    break;
 		}
-                t_timeout = rnz(2000);
+                t_timeout = rnz(5000);
 		break;
             case T_EVISCERATE:
 		/* only when empty handed, in human form */
@@ -2641,12 +3278,18 @@ int tech_no;
 		break;
             case T_INVOKE_DEITY: /* ask for healing if your alignment record is positive --Amy */
 
+			if (Race_if(PM_MACTHEIST)) {
+				pline("As an atheist, you cannot use such a technique.");
+				return 0;
+			}
+
 			if (u.ualign.record < 0) {
 
 				if ( (Inhell && !Race_if(PM_HERETIC) ) || flags.gehenna ) {
-					pline("%s is inaccessible, and %s decides to smite you!",u_gname(), Role_if(PM_GANG_SCHOLAR) ? "Anna" : "Moloch" );
+					pline("%s is inaccessible, and %s decides to smite you!",u_gname(), Role_if(PM_GANG_SCHOLAR) ? "Anna" : Role_if(PM_WALSCHOLAR) ? "Anna" : "Moloch" );
 					u.ublesscnt += rnz(-u.ualign.record);
 					if (Role_if(PM_GANG_SCHOLAR)) losehp(rnz(-u.ualign.record), "annoying Anna", KILLED_BY);
+					else if (Role_if(PM_WALSCHOLAR)) losehp(rnz(-u.ualign.record), "annoying Anna", KILLED_BY);
 					else losehp(rnz(-u.ualign.record), "annoying Moloch", KILLED_BY);
 				} else {
 					pline("%s smites you for your sins!",u_gname() );
@@ -2664,7 +3307,7 @@ int tech_no;
 			} 
 
 			else if ( (Inhell && !Race_if(PM_HERETIC) ) || flags.gehenna ) {
-				pline("%s is inaccessible, and %s decides to smite you!",u_gname(), Role_if(PM_GANG_SCHOLAR) ? "Anna" : "Moloch" );
+				pline("%s is inaccessible, and %s decides to smite you!",u_gname(), Role_if(PM_GANG_SCHOLAR) ? "Anna" : Role_if(PM_WALSCHOLAR) ? "Anna" : "Moloch" );
 				u.ublesscnt += rnz(monster_difficulty() + 1 );
 				losehp(rnz(monster_difficulty() + 1 ), "trying to contact their deity in Gehennom", KILLED_BY);
 /* Trying to invoke a deity in Gehennom is never a good idea... */
@@ -2683,6 +3326,11 @@ int tech_no;
 			}
 
 			u.uconduct.gnostic++;	/* you just tried to access your god */
+			if (Race_if(PM_MAGYAR)) {
+				You_feel("bad about breaking the atheist conduct.");
+				badeffect();
+			}
+			use_skill(P_SPIRITUALITY, Role_if(PM_PRIEST) ? 10 : 2);
                 t_timeout = rnz(3000);
 		break;
             case T_APPRAISAL:
@@ -2698,6 +3346,12 @@ int tech_no;
                         You("examine %s.", doname(uwep));
                                 uwep->known = TRUE;
                                 You("discover it is %s",doname(uwep));
+
+			if (Race_if(PM_GERTEUT) && is_poisonable(uwep) && !stack_too_big(uwep)) {
+				Your("%s is poisoned.", doname(uwep));
+				uwep->opoisoned = TRUE;
+			}
+
                 t_timeout = rnz(200);
 		}
 		break;
@@ -2749,8 +3403,8 @@ secureidchoice:
 
 			}
 
-			if (u.glassgolemdown) t_timeout = rnz(5000);
-			else t_timeout = rnz(10000);
+			if (u.glassgolemdown) t_timeout = rnz(10000);
+			else t_timeout = rnz(20000);
 		break;
 
             case T_PRACTICE:
@@ -2867,11 +3521,11 @@ secureidchoice:
 
 
                         pline("%s gets tamer.", Monnam(u.usteed));
-                        tamedog(u.usteed, (struct obj *) 0, FALSE);
+                        tamedog(u.usteed, (struct obj *) 0, FALSE); /* caveat: you might be riding a non-tame monster */
 
 				while (calmedX == 0) { /* remove the stupid bug that caused this tech to do nothing --Amy */
 
-				if (u.usteed->mtame < 20) u.usteed->mtame++;
+				if (u.usteed && u.usteed->mtame < 20) u.usteed->mtame++;
 
 				if (techlevX(tech_no) < rnd(50)) calmedX++; /* high level tech has high chance of extra tameness */
 
@@ -2958,7 +3612,7 @@ secureidchoice:
 			else {
 			    int tmp = 0;
 
-			    if (rn2(5) < (techlevX(tech_no)/10 + 1)) {
+			    if (rn2(8) < (techlevX(tech_no)/10 + 1)) {
 				You("sever %s head!", s_suffix(mon_nam(mtmp)));
 				tmp = mtmp->mhp;
 			    } else {
@@ -3005,7 +3659,7 @@ secureidchoice:
 			obj->bknown=1;
 			pline("The aura fades.");
 		}
-		t_timeout = rnz(1500);
+		t_timeout = rnz(7500);
 		break;
 	    case T_E_FIST: 
 	    	blitz_e_fist();
@@ -3157,6 +3811,7 @@ secureidchoice:
             case T_SIGIL_TEMPEST: 
 		/* Have enough power? */
 		num = 50 - techlevX(tech_no);
+		if (num < 10) num = 10;
 		if (u.uen < num) {
 			You("don't have enough power to invoke the sigil! You need at least %d!",num);
 			return (0);
@@ -3173,6 +3828,7 @@ secureidchoice:
             case T_SIGIL_CONTROL:
 		/* Have enough power? */
 		num = 30 - techlevX(tech_no)/2;
+		if (num < 10) num = 10;
 		if (u.uen < num) {
 			You("don't have enough power to invoke the sigil! You need at least %d!",num);
 			return (0);
@@ -3189,6 +3845,7 @@ secureidchoice:
             case T_SIGIL_DISCHARGE:
 		/* Have enough power? */
 		num = 100 - techlevX(tech_no)*2;
+		if (num < 10) num = 10;
 		if (u.uen < num) {
 			You("don't have enough power to invoke the sigil! You need at least %d!",num);
 			return (0);
@@ -3244,6 +3901,7 @@ secureidchoice:
 		    return 0;
 		}
             	num = 100 - techlevX(tech_no); /* WAC make this depend on mon? */
+			if (num < 25) num = 25;
             	if ((Upolyd && u.mh <= num) || (!Upolyd && u.uhp <= num)){
 		    You("don't have the strength to perform revivification!");
 		    return 0;
@@ -3263,11 +3921,14 @@ secureidchoice:
 		}
             	if (Upolyd) u.mh -= num;
             	else u.uhp -= num;
-		t_timeout = rnz(1500);
+		t_timeout = rnz(5000);
             	break;
 	    case T_WARD_FIRE:
 		/* Already have it intrinsically? */
-		if (HFire_resistance & FROMOUTSIDE) return (0);
+		if (HFire_resistance & FROMOUTSIDE) {
+			You("are already fire resistant.");
+			return (0);
+		}
 
 		You("invoke the ward against flame!");
 		HFire_resistance += rn1(100,50);
@@ -3277,7 +3938,10 @@ secureidchoice:
 	    	break;
 	    case T_WARD_COLD:
 		/* Already have it intrinsically? */
-		if (HCold_resistance & FROMOUTSIDE) return (0);
+		if (HCold_resistance & FROMOUTSIDE) {
+			You("are already cold resistant.");
+			return (0);
+		}
 
 		You("invoke the ward against ice!");
 		HCold_resistance += rn1(100,50);
@@ -3287,7 +3951,10 @@ secureidchoice:
 	    	break;
 	    case T_WARD_ELEC:
 		/* Already have it intrinsically? */
-		if (HShock_resistance & FROMOUTSIDE) return (0);
+		if (HShock_resistance & FROMOUTSIDE) {
+			You("are already shock resistant.");
+			return (0);
+		}
 
 		You("invoke the ward against lightning!");
 		HShock_resistance += rn1(100,50);
@@ -3307,7 +3974,8 @@ secureidchoice:
 		You("are holding %s.", doname(uwep));
 		if (yn("Start tinkering on this?") != 'y') return(0);
 		You("start working on %s",doname(uwep));
-		delay=-150 + techlevX(tech_no);
+		delay = -150 + techlevX(tech_no);
+		if (delay > -100) delay = -100;
 		set_occupation(tinker, "tinkering", 0);
 		t_timeout = rnz(200);
 		break;
@@ -3325,7 +3993,7 @@ secureidchoice:
 		}
 		u.uhpmax += num;
 		u.uhp += num;
-		t_timeout = rnz(1500);
+		t_timeout = rnz(5000);
 		break;	    
 	    case T_BLINK:
 	    	You_feel("the flow of time slow down.");
@@ -3421,6 +4089,12 @@ secureidchoice:
 	          		t_timeout = rnz(50);
 				break;
 		    }
+		    if (obj && obj->mstartinventC && !(obj->oartifact) && !(obj->fakeartifact && !rn2(10)) && rn2(10) && !stack_too_big(obj) ) {
+				You("vaporize %s %s!", s_suffix(mon_nam(mtmp)), xname(obj));
+				delobj(obj);
+	          		t_timeout = rnz(50);
+				break;
+		    }
 
 		    switch (roll) {
 			case 2:
@@ -3462,7 +4136,7 @@ secureidchoice:
 				    xname(obj));
 			    if (obj->otyp == CORPSE &&
 				    touch_petrifies(&mons[obj->corpsenm]) &&
-				    (!uarmg || FingerlessGloves) && !Stone_resistance &&
+				    (!uarmg || FingerlessGloves) && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) &&
 				    !(poly_when_stoned(youmonst.data) &&
 					polymon(PM_STONE_GOLEM))) {
 				char kbuf[BUFSZ];
@@ -3538,7 +4212,7 @@ secureidchoice:
 	    	if (!doblitz()) return (0);		
 		u.combostrike = 0;
 		u.comboactive = FALSE;
-                t_timeout = rnz(1500);
+                t_timeout = rnz(5000);
 	    	break;
             case T_PUMMEL:
 	    	if ((uwep && !(Role_if(PM_SUPERMARKET_CASHIER) && (uwep->otyp == TIN_OPENER || uwep->otyp == BUDO_NO_SASU) )) || (u.twoweap && uswapwep)) {
@@ -3554,7 +4228,7 @@ secureidchoice:
 			return(0);
 		}
             	if (!blitz_pummel()) return(0);
-                t_timeout = rnz(1500);
+                t_timeout = rnz(2000);
 		break;
             case T_G_SLAM:
 	    	if ((uwep && !(Role_if(PM_SUPERMARKET_CASHIER) && (uwep->otyp == TIN_OPENER || uwep->otyp == BUDO_NO_SASU) )) || (u.twoweap && uswapwep)) {
@@ -3579,7 +4253,7 @@ secureidchoice:
 			return(0);
 		}
             	if (!blitz_dash()) return(0);
-                t_timeout = rnz(75);
+                t_timeout = rnz(500);
 		break;
             case T_POWER_SURGE:
             	if (!blitz_power_surge()) return(0);
@@ -3643,7 +4317,7 @@ secureidchoice:
 		if (u.uexp > 0)
 		    u.uexp = newuexp(u.ulevel - 1);
 		}
-		otmp = mksobj(POT_VAMPIRE_BLOOD, FALSE, FALSE);
+		otmp = mksobj(POT_VAMPIRE_BLOOD, FALSE, FALSE, FALSE);
 		if (otmp) {
 			otmp->cursed = obj->cursed;
 			otmp->blessed = obj->blessed;
@@ -3661,7 +4335,7 @@ secureidchoice:
 		}
 		if (!jump((techlevX(tech_no)/5)+1)) return 0;
 		u.uen -= 25;
-		t_timeout = rnz(50);
+		t_timeout = rnz(500);
 		break;
 	    case T_POKE_BALL:
 
@@ -3692,7 +4366,7 @@ secureidchoice:
 				pline("Gotcha! %s was caught!", mon_nam(mtmp));
 				(void) tamedog(mtmp, (struct obj *) 0, TRUE);
 				caught++;
-				t_timeout = rnz(1000);
+				t_timeout = rnz(3000);
 				}
 
 			else if ( (mtmp->m_lev > (2 * techlevX(tech_no)) || rn2(4) ) && mtmp->m_lev > techlevX(tech_no) && caught == 0 && ( (!is_pokemon(mtmp->data) && (!mtmp->egotype_pokemon) ) || rn2(2) ) )
@@ -3719,7 +4393,7 @@ secureidchoice:
 					pline("Gotcha! %s was caught!", mon_nam(mtmp));
 					(void) tamedog(mtmp, (struct obj *) 0, TRUE);
 					caught++;
-					t_timeout = rnz(1000);
+					t_timeout = rnz(3000);
 
 					}
 				}
@@ -3730,11 +4404,14 @@ secureidchoice:
 		if (caught == 0) pline("The ball expodes in midair!");
 /* This is an intentional typo, derived from another roguelike. Do you know which one it is? --Amy*/
 
-		t_timeout = rnz(1000);
+		t_timeout = rnz(3000);
 		break;
 	    case T_SUMMON_TEAM_ANT:
 
-		    pline("Go Team Ant!");
+		{
+		int maxchance = techlevX(tech_no);
+		if (maxchance > 50) maxchance = 50;
+		pline("Go Team Ant!");
 
 		int caughtY;
 		caughtY = 0;
@@ -3746,15 +4423,21 @@ secureidchoice:
 		/*mtmp->mtame = 10;*/
 	      /*maybe_tameX(mtmp);*/
 		(void) tamedog(mtmp, (struct obj *) 0, TRUE);
-		if (techlevX(tech_no) < rnd(50)) caughtY++;
+		if (maxchance < rnd(75)) caughtY++;
 		}
 
 		/* A high level Insectoid character can create quite the army of insects sometimes. --Amy */
 
-		t_timeout = rnz(1000);
+		}
+
+		t_timeout = rnz(5000);
 		break;
 
 	    case T_DOUBLE_TROUBLE:	/* inspired by Khor */
+
+		{
+		int maxchance = techlevX(tech_no);
+		if (maxchance > 45) maxchance = 45;
 
 		pline("Double Trouble...");
 
@@ -3774,10 +4457,12 @@ secureidchoice:
 	 	      mtmp = makemon((struct permonst *)0, u.ux, u.uy, NO_MM_FLAGS);
 			if (mtmp) (void) tamedog(mtmp, (struct obj *) 0, TRUE);
 
-			if ((techlevX(tech_no)) < rnd(50)) familiardone = 1;
+			if (maxchance < rnd(50)) familiardone = 1;
 		}
 
-		t_timeout = rnz(5000);
+		}
+
+		t_timeout = rnz(10000);
 		break;
 
 	    case T_ATTIRE_CHARM:
@@ -3800,7 +4485,7 @@ secureidchoice:
 		    for (k = -1; k <= 1; k++) for(l = -1; l <= 1; l++) {
 			if (!isok(u.ux + k, u.uy + l)) continue;
 			if ( ((mtmp3 = m_at(u.ux + k, u.uy + l)) != 0) && mtmp3->mtame == 0 && mtmp3->isshk == 0 && mtmp3->isgd 			== 0 && mtmp3->ispriest == 0 && mtmp3->isminion == 0 && mtmp3->isgyp == 0
-&& mtmp3->data != &mons[PM_SHOPKEEPER] && mtmp3->data != &mons[PM_BLACK_MARKETEER] && mtmp3->data != &mons[PM_ALIGNED_PRIEST] && mtmp3->data != &mons[PM_HIGH_PRIEST] && mtmp3->data != &mons[PM_DNETHACK_ELDER_PRIEST_TM_] && mtmp3->data != &mons[PM_GUARD]
+&& mtmp3->data != &mons[PM_SHOPKEEPER] && mtmp3->data != &mons[PM_MASTER_SHOPKEEPER] && mtmp3->data != &mons[PM_ELITE_SHOPKEEPER] && mtmp3->data != &mons[PM_BLACK_MARKETEER] && mtmp3->data != &mons[PM_ALIGNED_PRIEST] && mtmp3->data != &mons[PM_MASTER_PRIEST] && mtmp3->data != &mons[PM_ELITE_PRIEST] && mtmp3->data != &mons[PM_HIGH_PRIEST] && mtmp3->data != &mons[PM_DNETHACK_ELDER_PRIEST_TM_] && mtmp3->data != &mons[PM_GUARD] && mtmp3->data != &mons[PM_MASTER_GUARD] && mtmp3->data != &mons[PM_ELITE_GUARD]
 			&& mtmp3->mnum != quest_info(MS_NEMESIS) && !(mtmp3->data->geno & G_UNIQ) && caughtX == 0)
 
 				/* gotta write a huge function for this now --Amy */
@@ -3812,7 +4497,7 @@ secureidchoice:
 				pline("%s is charmed, and wants to be your friend!", mon_nam(mtmp3));
 				(void) tamedog(mtmp3, (struct obj *) 0, TRUE);
 				if (techlevX(tech_no) < rnd(100)) caughtX++;
-				t_timeout = rnz(2000);
+				t_timeout = rnz(5000);
 				}
 
 			else pline("%s is too stupid to fully appreciate you!", mon_nam(mtmp3));
@@ -3820,29 +4505,37 @@ secureidchoice:
 			} /* monster is catchable loop */
 		    } /* for loop */
 
-		t_timeout = rnz(2000);
+		/* signature technique of some roles, but too OP for others --Amy */
+		if (Role_if(PM_TRANSVESTITE) || Role_if(PM_TOPMODEL) || Role_if(PM_TRANSSYLVANIAN) || Role_if(PM_FAILED_EXISTENCE)) t_timeout = rnz(5000);
+		else t_timeout = rnz(25000);
 		break;
+
 	    case T_WORLD_FALL:
 
 		You("scream \"EYGOORTS-TOGAAL, JEZEHH!\"");
-/* Actually, it's "To win the game you must kill me, John Romero" recorded backwards.
-   When I was little, I always thought it said "Eygoorts-togaal, jezehh". --Amy */
-				{
-			    register struct monst *mtmp, *mtmp2;
+		/* Actually, it's "To win the game you must kill me, John Romero" recorded backwards.
+		 * When I was little, I always thought it said "Eygoorts-togaal, jezehh". --Amy */
+		{
+			int wflvl = ((techlevX(tech_no)) / 2);
+			if (wflvl < 1) wflvl = 1;
 
-				num = 0;
+			register struct monst *mtmp, *mtmp2;
 
-			    for (mtmp = fmon; mtmp; mtmp = mtmp2) {
+			num = 0;
+
+			for (mtmp = fmon; mtmp; mtmp = mtmp2) {
 				mtmp2 = mtmp->nmon;
-				if ( ((mtmp->m_lev < techlevX(tech_no)) || (!rn2(4) && mtmp->m_lev < (2 * techlevX(tech_no)))) && mtmp->mnum != quest_info(MS_NEMESIS) && !(mtmp->data->geno & G_UNIQ) ) { mondead(mtmp);
-						num++;
-						}
-			    }
-	pline("Eliminated %d monster%s.", num, plur(num));
+				if ( ((mtmp->m_lev < wflvl) || (!rn2(4) && mtmp->m_lev < (2 * wflvl))) && mtmp->mnum != quest_info(MS_NEMESIS) && !(mtmp->data->geno & G_UNIQ) ) {
+					mondead(mtmp);
+					num++;
+					}
 			}
+			pline("Eliminated %d monster%s.", num, plur(num));
+		}
 
-		t_timeout = rnz(10000);
+		t_timeout = rnz(100000);
 		break;
+
 	    case T_CREATE_AMMO:
 
 	    {
@@ -3886,15 +4579,29 @@ secureidchoice:
 
 		}
 
+		if (Role_if(PM_SPACE_MARINE)) {
+			pline("You can choose from these kinds of ammo: blaster bolts or bullets.");
+			if (yn("Do you want to create blaster bolts?") == 'y') ammotype = 2;
+			else ammotype = 1;
+		}
+
+		if (Role_if(PM_GRENADONIN)) ammotype = 6; /* grenades */
+
+		if (Race_if(PM_TURMENE)) {
+			pline("You can also make shotgun shells instead of regular ammo.");
+			if (yn("Do you want to create shotgun shells?") == 'y') ammotype = 3;
+		}
+
 	    You("make some ammo for your gun.");
 
 		struct obj *uammo;
 
-		if (ammotype == 5) uammo = mksobj(BFG_AMMO, TRUE, FALSE);
-		else if (ammotype == 4) uammo = mksobj(ROCKET, TRUE, FALSE);
-		else if (ammotype == 3) uammo = mksobj(SHOTGUN_SHELL, TRUE, FALSE);
-		else if (ammotype == 2) uammo = mksobj(BLASTER_BOLT, TRUE, FALSE);
-		else uammo = mksobj(BULLET, TRUE, FALSE);
+		if (ammotype == 6) uammo = mksobj(rn2(2) ? GAS_GRENADE : FRAG_GRENADE, TRUE, FALSE, FALSE);
+		else if (ammotype == 5) uammo = mksobj(BFG_AMMO, TRUE, FALSE, FALSE);
+		else if (ammotype == 4) uammo = mksobj(ROCKET, TRUE, FALSE, FALSE);
+		else if (ammotype == 3) uammo = mksobj(SHOTGUN_SHELL, TRUE, FALSE, FALSE);
+		else if (ammotype == 2) uammo = mksobj(BLASTER_BOLT, TRUE, FALSE, FALSE);
+		else uammo = mksobj(BULLET, TRUE, FALSE, FALSE);
 		if (uammo) {
 			uammo->quan = techlevX(tech_no);
 			/* gunner really specializes in ranged weapons, so needs a big bonus --Amy */
@@ -3914,13 +4621,44 @@ secureidchoice:
 			stackobj(uammo);
 		}
 
+		if (Role_if(PM_GRENADONIN) && u.ulevel >= 10) {
+
+			if (!u.grenadoninlauncher && !rn2(5)) {
+				u.grenadoninlauncher = TRUE;
+				uammo = mksobj(GRENADE_LAUNCHER, TRUE, FALSE, FALSE);
+				if (uammo) {
+					uammo->known = uammo->dknown = uammo->bknown = uammo->rknown = 1;
+					dropy(uammo);
+					stackobj(uammo);
+					pline("There's your grenade launcher!");
+				}
+			}
+
+			if (!rn2(10)) {
+				uammo = mksobj(STICK_OF_DYNAMITE, TRUE, FALSE, FALSE);
+				if (uammo) {
+					uammo->quan = techlevX(tech_no) - 9;
+					if (uammo->quan < 1) uammo->quan = 1;
+					if (uarmc && uarmc->oartifact == ART_ARABELLA_S_WEAPON_STORAGE) uammo->quan *= 2;
+					uammo->quan /= 3;
+					if (uammo->quan < 1) uammo->quan = 1; /* fail safe */
+					uammo->known = uammo->dknown = uammo->bknown = uammo->rknown = 1;
+					uammo->owt = weight(uammo);
+					dropy(uammo);
+					stackobj(uammo);
+				}
+
+			}
+
+		}
+
 		if (uarmh && uarmh->oartifact == ART_TURKISH_EMPIRE) {
-			uammo = mksobj(ROCKET, TRUE, FALSE);
+			uammo = mksobj(ROCKET, TRUE, FALSE, FALSE);
 			if (uammo) {
 				uammo->quan = techlevX(tech_no);
 				if (uarmc && uarmc->oartifact == ART_ARABELLA_S_WEAPON_STORAGE) uammo->quan *= 2;
 				uammo->quan /= 10;
-				if (uammo->quan < 0) uammo->quan = 1; /* fail safe */
+				if (uammo->quan < 1) uammo->quan = 1; /* fail safe */
 				uammo->known = uammo->dknown = uammo->bknown = uammo->rknown = 1;
 				uammo->owt = weight(uammo);
 				dropy(uammo);
@@ -3929,8 +4667,9 @@ secureidchoice:
 
 		}
 
-	      t_timeout = rnz(500);
-	      break;
+		if (Role_if(PM_DOOM_MARINE) || Role_if(PM_GUNNER)) t_timeout = rnz(500);
+		else t_timeout = rnz(2500);
+	 	break;
 
 	    }
 
@@ -3944,7 +4683,7 @@ secureidchoice:
 
 		while (caughtZ == 0) {
 
-			uegg = mksobj(EGG, FALSE, FALSE);
+			uegg = mksobj(EGG, FALSE, FALSE, FALSE);
 			if (uegg) {
 				uegg->spe = 0;
 				uegg->quan = 1;
@@ -3956,21 +4695,26 @@ secureidchoice:
 				dropy(uegg);
 				stackobj(uegg);
 			}
-			if (techlevX(tech_no) < rnd(100)) caughtZ++;
+			if (techlevX(tech_no) < rnd(500)) caughtZ++;
 
 		}
 
-	      t_timeout = rnz(2000);
+	      t_timeout = rnz(10000);
 	      break;
 
 	    case T_BOOZE:
 
-	    You("procure some refreshing drinks.");
+		{
+		int maxchance = techlevX(tech_no);
+		if (maxchance > 50) maxchance = 50;
 
-	    make_confused(HConfusion + d(3,8), FALSE);
+		You("procure some refreshing drinks.");
+
+		make_confused(HConfusion + d(3,8), FALSE);
 		healup(Role_if(PM_DRUNK) ? rnz(20 + u.ulevel) : 1, 0, FALSE, FALSE);
 		u.uhunger += 20;
 		if (Race_if(PM_CLOCKWORK_AUTOMATON)) u.uhunger += 200;
+		if (Race_if(PM_RUSMOT)) u.uhunger += 100;
 		if (Role_if(PM_DRUNK)) u.uhunger += 100;
 		newuhs(FALSE);
 		exercise(A_WIS, FALSE);
@@ -3981,14 +4725,17 @@ secureidchoice:
 
 		while (caughtW == 0) {
 
-			udrink = mksobj(POT_BOOZE, TRUE, FALSE);
+			udrink = mksobj(POT_BOOZE, TRUE, FALSE, FALSE);
 			if (udrink) {
 				udrink->known = udrink->dknown = 1;
+				udrink->finalcancel = 1; /* goddamn it, these aren't supposed to be free holy water... */
 				dropy(udrink);
 				stackobj(udrink);
 			}
-			if (techlevX(tech_no) < rnd(50)) caughtW++;
+			if (maxchance < rnd(75)) caughtW++;
 			if (!rn2(10) && caughtW > 0) caughtW = 0;
+
+		}
 
 		}
 
@@ -3996,7 +4743,7 @@ secureidchoice:
 	      break;
 
 	    case T_IRON_SKIN:
-		num = 1 + techlevX(tech_no);
+		num = 9 + techlevX(tech_no);
 	    	techt_inuse(tech_no) = num + 1;
 		pline("Your skin becomes harder.");
 
@@ -4024,7 +4771,7 @@ secureidchoice:
 		pline("You summon a pet.");
 		(void) make_familiar((struct obj *)0, u.ux, u.uy, FALSE);
 
-	      t_timeout = rnz(5000);
+	      t_timeout = rnz(10000);
 	      break;
 
 	    case T_DOUBLE_THROWNAGE:
@@ -4060,11 +4807,17 @@ chargingchoice:
 		}
 		recharge(otmpC, 0);
 
-	      t_timeout = rnz(7500);
+	      t_timeout = rnz(15000);
 	      break;
 		}
 
 	    case T_SPIRITUALITY_CHECK:
+
+		if (Race_if(PM_MACTHEIST)) {
+			pline("As an atheist, you cannot use such a technique.");
+			return 0;
+		}
+
 		if (can_pray(FALSE) && !u.ugangr) pline("You can safely pray!");
 		else {
 			pline("You can not safely pray.");
@@ -4074,6 +4827,11 @@ chargingchoice:
 			if (u.ualign.record < 0) pline("Your alignment record is negative.");
 		}
 		u.uconduct.gnostic++;	/* you just communicated with your god */
+		if (Race_if(PM_MAGYAR)) {
+			You_feel("bad about breaking the atheist conduct.");
+			badeffect();
+		}
+		use_skill(P_SPIRITUALITY, Role_if(PM_PRIEST) ? 25 : 5);
 
 	      t_timeout = rnz(2000);
 	      break;
@@ -4131,7 +4889,7 @@ chargingchoice:
 		if (ABASE(A_CHA) < ATTRMIN(A_CHA)) ABASE(A_CHA) = ATTRMIN(A_CHA);
 		AMAX(A_CHA) = ABASE(A_CHA);
 
-		if (!rn2(4)) makewish();
+		if (!rn2(4)) makewish(TRUE);
 		else othergreateffect();
 
 	      t_timeout = rnz(25000);
@@ -4191,7 +4949,7 @@ chargingchoice:
 
 	    case T_WONDERSPELL:
 		wonderspell();
-	      t_timeout = rnz(5000);
+	      t_timeout = rnz(10000);
 		break;
 
 	    case T_SWAP_WEAPON:
@@ -4215,7 +4973,7 @@ resetretrying:
 					if (yn("Make this technique usable again?") == 'y') {
 						techtout(numtechs) = 0;
 						pline("The timeout on your %s technique has been set to zero.", techname(numtechs));
-						t_timeout = rnz(50000);
+						t_timeout = rnz(Race_if(PM_DEVELOPER) ? 50000 : 200000);
 						goto resettechdone;
 					}
 				}
@@ -4244,12 +5002,12 @@ resettechdone:
 			if (DEADMONSTER(nexusmon)) continue;
 			if (resist(nexusmon, SPBOOK_CLASS, 0, NOTELL)) continue;
 			if ((distu(nexusmon->mx, nexusmon->my)) > silentoceandist) continue;
-			nexusmon->mcan = 1;
+			nexusmon->mcan = 1; /* don't cancel egotypes */
 		}
 
 		num = 10 + (techlevX(tech_no) * 5);
 	    	techt_inuse(tech_no) = num + 1;
-		t_timeout = rnz(2000);
+		t_timeout = rnz(5000);
 
 		}
 
@@ -4342,6 +5100,7 @@ resettechdone:
 
 			pline("Force field activated!");
 			num = 50 + (techlevX(tech_no) * 3);
+			if (Race_if(PM_PLAYER_ATLANTEAN)) num *= 2;
 		    	techt_inuse(tech_no) = num + 1;
 			t_timeout = rnz(4000);
 			break;
@@ -4368,7 +5127,7 @@ resettechdone:
 				pline("Your stick seems very sharp now.");
 			} else pline("Your stick seems as sharp as it was before.");
 
-			t_timeout = rnz(4000);
+			t_timeout = rnz(7500);
 			break;
 
 		case T_BUG_SPRAY:
@@ -4425,14 +5184,14 @@ resettechdone:
 
 			if (stack_too_big(obj)) {
 				pline("The stack was too big! Nothing happens.");
-				t_timeout = rnz(1500);
+				t_timeout = rnz(5000);
 				break;
 			}
 
 			curse(obj);
 			pline("Okay, that object is cursed now.");
 
-			t_timeout = rnz(1500);
+			t_timeout = rnz(5000);
 			break;
 
 		case T_ACQUIRE_STEED:
@@ -4452,17 +5211,22 @@ resettechdone:
 			    for (k = -1; k <= 1; k++) for(l = -1; l <= 1; l++) {
 				if (!isok(u.ux + k, u.uy + l)) continue;
 				if ( ((mtmp3 = m_at(u.ux + k, u.uy + l)) != 0) && mtmp3->mtame == 0 && mtmp3->isshk == 0 && mtmp3->isgd == 0 && mtmp3->ispriest == 0 && mtmp3->isminion == 0 && mtmp3->isgyp == 0
-&& mtmp3->data != &mons[PM_SHOPKEEPER] && mtmp3->data != &mons[PM_BLACK_MARKETEER] && mtmp3->data != &mons[PM_ALIGNED_PRIEST] && mtmp3->data != &mons[PM_HIGH_PRIEST] && mtmp3->data != &mons[PM_DNETHACK_ELDER_PRIEST_TM_] && mtmp3->data != &mons[PM_GUARD]
+&& mtmp3->data != &mons[PM_SHOPKEEPER] && mtmp3->data != &mons[PM_MASTER_SHOPKEEPER] && mtmp3->data != &mons[PM_ELITE_SHOPKEEPER] && mtmp3->data != &mons[PM_BLACK_MARKETEER] && mtmp3->data != &mons[PM_ALIGNED_PRIEST] && mtmp3->data != &mons[PM_MASTER_PRIEST] && mtmp3->data != &mons[PM_ELITE_PRIEST] && mtmp3->data != &mons[PM_HIGH_PRIEST] && mtmp3->data != &mons[PM_DNETHACK_ELDER_PRIEST_TM_] && mtmp3->data != &mons[PM_GUARD] && mtmp3->data != &mons[PM_MASTER_GUARD] && mtmp3->data != &mons[PM_ELITE_GUARD]
 			&& mtmp3->mnum != quest_info(MS_NEMESIS) && !(mtmp3->data->geno & G_UNIQ) && caughtX == 0)
 
 				{
 
 					if (mtmp3->data->mlet == S_QUADRUPED || mtmp3->data->mlet == S_UNICORN || mtmp3->data->mlet == S_ANGEL || mtmp3->data->mlet == S_CENTAUR || mtmp3->data->mlet == S_DRAGON || mtmp3->data->mlet == S_JABBERWOCK || mtmp3->data->mlet == S_ZOUTHERN) {
-						if (!(resist(mtmp3, RING_CLASS, 0, NOTELL) && resist(mtmp3, RING_CLASS, 0, NOTELL) && resist(mtmp3, RING_CLASS, 0, NOTELL) && !(((rnd(30 - ACURR(A_CHA))) < 4) && resist(mtmp3, RING_CLASS, 0, NOTELL) && resist(mtmp3, RING_CLASS, 0, NOTELL) && resist(mtmp3, RING_CLASS, 0, NOTELL)) )) {
+						if (!(resist(mtmp3, RING_CLASS, 0, NOTELL) && resist(mtmp3, RING_CLASS, 0, NOTELL) && resist(mtmp3, RING_CLASS, 0, NOTELL))) {
 							pline("%s is successfully tamed!", mon_nam(mtmp3));
 							(void) tamedog(mtmp3, (struct obj *) 0, TRUE);
 							if (techlevX(tech_no) < rnd(100)) caughtX++;
-							t_timeout = rnz(3000);
+							t_timeout = rnz(5000);
+						} else if ( ((rnd(30 - ACURR(A_CHA))) < 4) && (!resist(mtmp3, RING_CLASS, 0, NOTELL) || !resist(mtmp3, RING_CLASS, 0, NOTELL) || !resist(mtmp3, RING_CLASS, 0, NOTELL)) ) {
+							pline("%s is successfully tamed!", mon_nam(mtmp3));
+							(void) tamedog(mtmp3, (struct obj *) 0, TRUE);
+							if (techlevX(tech_no) < rnd(100)) caughtX++;
+							t_timeout = rnz(5000);
 						} else {
 							pline("%s resists the taming attempt!", mon_nam(mtmp3));
 						}
@@ -4472,7 +5236,7 @@ resettechdone:
 			    } /* for loop */
 
 			}
-			t_timeout = rnz(3000);
+			t_timeout = rnz(5000);
 
 			break;
 
@@ -4482,7 +5246,7 @@ resettechdone:
 				struct obj *usaddling;
 
 				pline("A saddle is created!");
-				usaddling = mksobj(rn2(2) ? LEATHER_SADDLE : INKA_SADDLE, TRUE, FALSE);
+				usaddling = mksobj(rn2(2) ? LEATHER_SADDLE : INKA_SADDLE, TRUE, FALSE, FALSE);
 				if (usaddling) {
 					usaddling->quan = 1;
 					usaddling->known = usaddling->dknown = usaddling->bknown = usaddling->rknown = 1;
@@ -4517,7 +5281,7 @@ resettechdone:
 				heelidentity = (PLASTEEL_BOOTS + rn2(LEVITATION_BOOTS - PLASTEEL_BOOTS + 1) );
 				trycnt++;
 			}
-			heelses1 = mksobj(heelidentity, TRUE, FALSE);
+			heelses1 = mksobj(heelidentity, TRUE, FALSE, FALSE);
 			if (heelses1) {
 				heelses1->quan = 1;
 				heelses1->known = heelses1->dknown = heelses1->bknown = heelses1->rknown = 1;
@@ -4533,7 +5297,7 @@ resettechdone:
 					heelidentity = (PLASTEEL_BOOTS + rn2(LEVITATION_BOOTS - PLASTEEL_BOOTS + 1) );
 					trycnt++;
 				}
-				heelses2 = mksobj(heelidentity, TRUE, FALSE);
+				heelses2 = mksobj(heelidentity, TRUE, FALSE, FALSE);
 				if (heelses2) {
 					heelses2->quan = 1;
 					heelses2->known = heelses2->dknown = heelses2->bknown = heelses2->rknown = 1;
@@ -4547,7 +5311,7 @@ resettechdone:
 					heelidentity = (PLASTEEL_BOOTS + rn2(LEVITATION_BOOTS - PLASTEEL_BOOTS + 1) );
 					trycnt++;
 				}
-				heelses3 = mksobj(heelidentity, TRUE, FALSE);
+				heelses3 = mksobj(heelidentity, TRUE, FALSE, FALSE);
 				if (heelses3) {
 					heelses3->quan = 1;
 					heelses3->known = heelses3->dknown = heelses3->bknown = heelses3->rknown = 1;
@@ -4565,7 +5329,7 @@ resettechdone:
 					heelidentity = (PLASTEEL_BOOTS + rn2(LEVITATION_BOOTS - PLASTEEL_BOOTS + 1) );
 					trycnt++;
 				}
-				heelses4 = mksobj(heelidentity, TRUE, FALSE);
+				heelses4 = mksobj(heelidentity, TRUE, FALSE, FALSE);
 				if (heelses4) {
 					heelses4->quan = 1;
 					heelses4->known = heelses4->dknown = heelses4->bknown = heelses4->rknown = 1;
@@ -4579,7 +5343,7 @@ resettechdone:
 					heelidentity = (PLASTEEL_BOOTS + rn2(LEVITATION_BOOTS - PLASTEEL_BOOTS + 1) );
 					trycnt++;
 				}
-				heelses5 = mksobj(heelidentity, TRUE, FALSE);
+				heelses5 = mksobj(heelidentity, TRUE, FALSE, FALSE);
 				if (heelses5) {
 					heelses5->quan = 1;
 					heelses5->known = heelses5->dknown = heelses5->bknown = heelses5->rknown = 1;
@@ -4597,7 +5361,7 @@ resettechdone:
 					heelidentity = (PLASTEEL_BOOTS + rn2(LEVITATION_BOOTS - PLASTEEL_BOOTS + 1) );
 					trycnt++;
 				}
-				heelses6 = mksobj(heelidentity, TRUE, FALSE);
+				heelses6 = mksobj(heelidentity, TRUE, FALSE, FALSE);
 				if (heelses6) {
 					heelses6->quan = 1;
 					heelses6->known = heelses6->dknown = heelses6->bknown = heelses6->rknown = 1;
@@ -4611,7 +5375,7 @@ resettechdone:
 					heelidentity = (PLASTEEL_BOOTS + rn2(LEVITATION_BOOTS - PLASTEEL_BOOTS + 1) );
 					trycnt++;
 				}
-				heelses7 = mksobj(heelidentity, TRUE, FALSE);
+				heelses7 = mksobj(heelidentity, TRUE, FALSE, FALSE);
 				if (heelses7) {
 					heelses7->quan = 1;
 					heelses7->known = heelses7->dknown = heelses7->bknown = heelses7->rknown = 1;
@@ -4625,7 +5389,7 @@ resettechdone:
 					heelidentity = (PLASTEEL_BOOTS + rn2(LEVITATION_BOOTS - PLASTEEL_BOOTS + 1) );
 					trycnt++;
 				}
-				heelses8 = mksobj(heelidentity, TRUE, FALSE);
+				heelses8 = mksobj(heelidentity, TRUE, FALSE, FALSE);
 				if (heelses8) {
 					heelses8->quan = 1;
 					heelses8->known = heelses8->dknown = heelses8->bknown = heelses8->rknown = 1;
@@ -4639,7 +5403,7 @@ resettechdone:
 					heelidentity = (PLASTEEL_BOOTS + rn2(LEVITATION_BOOTS - PLASTEEL_BOOTS + 1) );
 					trycnt++;
 				}
-				heelses9 = mksobj(heelidentity, TRUE, FALSE);
+				heelses9 = mksobj(heelidentity, TRUE, FALSE, FALSE);
 				if (heelses9) {
 					heelses9->quan = 1;
 					heelses9->known = heelses9->dknown = heelses9->bknown = heelses9->rknown = 1;
@@ -4653,7 +5417,7 @@ resettechdone:
 					heelidentity = (PLASTEEL_BOOTS + rn2(LEVITATION_BOOTS - PLASTEEL_BOOTS + 1) );
 					trycnt++;
 				}
-				heelses10 = mksobj(heelidentity, TRUE, FALSE);
+				heelses10 = mksobj(heelidentity, TRUE, FALSE, FALSE);
 				if (heelses10) {
 					heelses10->quan = 1;
 					heelses10->known = heelses10->dknown = heelses10->bknown = heelses10->rknown = 1;
@@ -4865,7 +5629,7 @@ heelschoice:
 			}
 heelschosen:
 			pline("There might be something waiting for you on the %s...", surface(u.ux, u.uy));
-			t_timeout = rnz(3000);
+			t_timeout = rnz(7500);
 			break;
 
 		case T_BEAUTY_CHARM:
@@ -4991,7 +5755,7 @@ heelschosen:
 				pline("Your boomerang is well-enchanted.");
 			} else pline("Your boomerang is moderately enchanted.");
 
-			t_timeout = rnz(4000);
+			t_timeout = rnz(10000);
 			break;
 
 		case T_BATMAN_ARSENAL:
@@ -5000,7 +5764,7 @@ heelschosen:
 				struct obj *uboomerang;
 
 				pline("A boomerang is created!");
-				uboomerang = mksobj(rn2(3) ? BOOMERANG : rn2(2) ? BATARANG : SILVER_CHAKRAM, TRUE, FALSE);
+				uboomerang = mksobj(rn2(3) ? BOOMERANG : !rn2(3) ? BATARANG : rn2(2) ? DARK_BATARANG : SILVER_CHAKRAM, TRUE, FALSE, FALSE);
 				if (uboomerang) {
 					uboomerang->quan = 1;
 					uboomerang->known = uboomerang->dknown = uboomerang->bknown = uboomerang->rknown = 1;
@@ -5011,7 +5775,7 @@ heelschosen:
 
 			}
 
-			t_timeout = rnz(2500);
+			t_timeout = rnz(5000);
 			break;
 
 		case T_JOKERBANE:
@@ -5041,7 +5805,7 @@ heelschosen:
 
 			}
 
-			t_timeout = rnz(5000);
+			t_timeout = rnz(10000);
 			break;
 
 		case T_DOMINATE:
@@ -5061,7 +5825,7 @@ heelschosen:
 		    for (k = -1; k <= 1; k++) for(l = -1; l <= 1; l++) {
 			if (!isok(u.ux + k, u.uy + l)) continue;
 			if ( ((mtmp3 = m_at(u.ux + k, u.uy + l)) != 0) && mtmp3->mtame == 0 && mtmp3->isshk == 0 && mtmp3->isgd == 0 && mtmp3->ispriest == 0 && mtmp3->isminion == 0 && mtmp3->isgyp == 0
-&& mtmp3->data != &mons[PM_SHOPKEEPER] && mtmp3->data != &mons[PM_BLACK_MARKETEER] && mtmp3->data != &mons[PM_ALIGNED_PRIEST] && mtmp3->data != &mons[PM_HIGH_PRIEST] && mtmp3->data != &mons[PM_DNETHACK_ELDER_PRIEST_TM_] && mtmp3->data != &mons[PM_GUARD]
+&& mtmp3->data != &mons[PM_SHOPKEEPER] && mtmp3->data != &mons[PM_MASTER_SHOPKEEPER] && mtmp3->data != &mons[PM_ELITE_SHOPKEEPER] && mtmp3->data != &mons[PM_BLACK_MARKETEER] && mtmp3->data != &mons[PM_ALIGNED_PRIEST] && mtmp3->data != &mons[PM_MASTER_PRIEST] && mtmp3->data != &mons[PM_ELITE_PRIEST] && mtmp3->data != &mons[PM_HIGH_PRIEST] && mtmp3->data != &mons[PM_DNETHACK_ELDER_PRIEST_TM_] && mtmp3->data != &mons[PM_GUARD] && mtmp3->data != &mons[PM_MASTER_GUARD] && mtmp3->data != &mons[PM_ELITE_GUARD]
 			&& mtmp3->mnum != quest_info(MS_NEMESIS) && !(mtmp3->data->geno & G_UNIQ) && caughtX == 0)
 
 			{
@@ -5070,7 +5834,7 @@ heelschosen:
 					pline("%s is dominated!", mon_nam(mtmp3));
 					(void) tamedog(mtmp3, (struct obj *) 0, TRUE);
 					if (techlevX(tech_no) < rnd(100)) caughtX++;
-					t_timeout = rnz(2000);
+					t_timeout = rnz(10000);
 				}
 
 				else pline("%s can't be dominated with this method!", mon_nam(mtmp3));
@@ -5078,7 +5842,7 @@ heelschosen:
 			} /* monster is catchable loop */
 		    } /* for loop */
 
-			t_timeout = rnz(2000);
+			t_timeout = rnz(10000);
 
 			}
 
@@ -5227,7 +5991,7 @@ incarnationfinish:
 				getlin("What do you want to identify?", buf);
 				if (buf[0] == 0) continue;
 				oldgold = u.ugold;
-				otmp = readobjnam(buf, (struct obj *)0, TRUE);
+				otmp = readobjnam(buf, (struct obj *)0, TRUE, FALSE);
 				if (u.ugold != oldgold) {
 					pline("Don't you date cheat me again! -- Your fault!");
 					/* Make them pay */
@@ -5243,6 +6007,9 @@ incarnationfinish:
 			strcpy(buf,xname(otmp));
 			makeknown(otmp->otyp);
 			pline("The %s is a %s.",buf,xname(otmp));
+			if (Has_contents(otmp))
+				delete_contents(otmp);
+			obfree(otmp,(struct obj *) 0);
 		}
 revid_end:
 		pline("You also learn the identity of some other objects:");
@@ -5252,13 +6019,13 @@ revid_end:
 			makeknown(j);
 			pline("%s (%s).", obj_descr[j].oc_name, obj_descr[j].oc_descr);
 		}
-		t_timeout = rnz(10000);
+		t_timeout = rnz(20000);
 
 		break;
 
 	    case T_DETECT_TRAPS:
 		trap_detect((struct obj *)0);
-		t_timeout = rnz(5000);
+		t_timeout = rnz(20000);
 		break;
 
 	    case T_DIRECTIVE:
@@ -5359,11 +6126,19 @@ revid_end:
 		}
 
 		if (P_SKILL(P_PETKEEPING) >= P_EXPERT) {
-			pline("Currently your pets can%s attack monsters.", u.petattackenemies ? "" : "'t");
+			pline("Currently your pets can%s attack%s monsters.", u.petattackenemies ? "" : "'t", u.petattackenemies == 2 ? " both hostile and peaceful" : u.petattackenemies == 1 ? " only hostile" : "");
 			if (yn("Change it?") == 'y') {
-				if (u.petattackenemies) u.petattackenemies = 0;
-				else u.petattackenemies = 1;
-				pline("Your pets can%s attack monsters now.", u.petattackenemies ? "" : "'t");
+				pline("You got the following options: make the pet attack everything, make it attack only hostile monsters, or prevent it from attacking anything.");
+				if (yn("Do you want your pets to attack everything?") == 'y') {
+					u.petattackenemies = 2;
+					pline("Your pets can attack all monsters now.");
+				} else if (yn("Do you want your pets to only attack hostile creatures?") == 'y') {
+					u.petattackenemies = 1;
+					pline("Your pets can attack hostile monsters now, but will leave peaceful ones alone.");
+				} else if (yn("Do you want your pets to not attack any monsters?") == 'y') {
+					u.petattackenemies = 0;
+					pline("Your pets can't attack monsters now.");
+				}
 			}
 		}
 
@@ -5423,13 +6198,24 @@ revid_end:
 			if (wearimplant->otyp >= IMPLANT_OF_ABSORPTION && wearimplant->otyp <= IMPLANT_OF_PROSPERITY) {
 				objects[wearimplant->otyp].a_ac = rnd(10);
 			}
+			if (wearimplant->otyp >= IMPLANT_OF_QUEEB_BUTT && wearimplant->otyp <= IMPLANT_OF_FINGER_POINTING) {
+				objects[wearimplant->otyp].a_ac = rnd(10);
+			}
 
 			if (wearimplant->otyp >= IMPLANT_OF_QUICKENING && wearimplant->otyp <= IMPLANT_OF_BLITZEN) {
 				objects[wearimplant->otyp].a_ac = rnd(8);
 				objects[wearimplant->otyp].oc_oprop = randnastyenchantment();
 			}
+			if (wearimplant->otyp >= IMPLANT_OF_TOTAL_NONSENSE && wearimplant->otyp <= IMPLANT_OF_GALVANIZATION) {
+				objects[wearimplant->otyp].a_ac = rnd(8);
+				objects[wearimplant->otyp].oc_oprop = randnastyenchantment();
+			}
 
 			if (wearimplant->otyp >= IMPLANT_OF_IRE && wearimplant->otyp <= IMPLANT_OF_FREEDOM) {
+				objects[wearimplant->otyp].a_ac = rnd(5);
+				objects[wearimplant->otyp].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+			}
+			if (wearimplant->otyp >= IMPLANT_OF_TEN_THOUSAND_THINGS && wearimplant->otyp <= IMPLANT_OF_ENFORCING) {
 				objects[wearimplant->otyp].a_ac = rnd(5);
 				objects[wearimplant->otyp].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 			}
@@ -5439,14 +6225,14 @@ revid_end:
 			pline("All done - your implant got re-initialized! Its base AC value got rerolled, and if it was a type that had a random enchantment, that was re-randomized as well. The bonus you'll get from wearing it while in a form without hands has also been changed.");
 		}
 
-		t_timeout = rnz(5000);
+		t_timeout = rnz(10000);
 		break;
 
 	    case T_TIME_STOP:
 
 		pline((Role_if(PM_SAMURAI) || Role_if(PM_NINJA)) ? "Jikan ga teishi shimashita." : "Time has stopped.");
 		TimeStopped += (5 + rnd(6));
-		t_timeout = rnz(15000);
+		t_timeout = rnz(25000);
 		break;
 
 	    case T_STAT_RESIST:
@@ -5467,10 +6253,10 @@ revid_end:
 		if (uwep && !(uwep->cursed)) {
 			uwep->bknown = TRUE;
 			pline("Your lightsaber wasn't cursed to begin with, and therefore nothing happens.");
-			t_timeout = rnz(500);
+			t_timeout = rnz(5000);
 			break;
 		}
-		t_timeout = rnz(500);
+		t_timeout = rnz(5000);
 		if (uwep) {
 			pline("Your lightsaber is surrounded by a holy aura.");
 			uncurse(uwep, TRUE);
@@ -5508,7 +6294,7 @@ revid_end:
 			}
 			savewornmask = wearrobe->owornmask;
 			setworn((struct obj *)0, wearrobe->owornmask);
-			t_timeout = rnz(5000);
+			t_timeout = rnz(10000);
 
 			wearrobe->enchantment = randenchantment();
 			pline("Your robe's special enchantment was randomized.");
@@ -5536,7 +6322,7 @@ revid_end:
 		}
 		num = 20 + (techlevX(tech_no) * 3);
 	    	techt_inuse(tech_no) = num + 1;
-		t_timeout = rnz(2000);
+		t_timeout = rnz(3000);
 		pline("Your lightsabers start attacking rapidly at the cost of accuracy.");
 		break;
 
@@ -5591,7 +6377,7 @@ revid_end:
 				if (psychmonst->mhp < 1) {
 					pline("%s dies!", Monnam(psychmonst));
 					xkilled(psychmonst,0);
-				}
+				} else wakeup(psychmonst); /* monster becomes hostile */
 
 			}
 
@@ -5602,7 +6388,7 @@ revid_end:
 	    case T_INTENSIVE_TRAINING:
 
 		pline("You train your attributes...");
-		adjattrib(rn2(A_MAX), 1, -1);
+		adjattrib(rn2(A_MAX), 1, -1, TRUE);
 		t_timeout = rnz(7500);
 		break;
 
@@ -5690,8 +6476,9 @@ revid_end:
 			int tmp = 50 + rnd(techlevX(tech_no) * 4);
 			hurtmon(mtmp, tmp);
 		}
+		if (mtmp && !DEADMONSTER(mtmp) && mtmp->mpeaceful && !mtmp->mtame) mtmp->mpeaceful = 0; /* monster becomes hostile */
 
-	      t_timeout = rnz(1500);
+	      t_timeout = rnz(2500);
 
 	      break;
 
@@ -5734,6 +6521,11 @@ revid_end:
 		setmnotwielded(mtmp, obj);
 
 		if (obj && obj->mstartinventB && !(obj->oartifact) && !(obj->fakeartifact && timebasedlowerchance()) && (!rn2(4) || (rn2(100) < u.equipmentremovechance) || !timebasedlowerchance() ) && !stack_too_big(obj) ) {
+			You("vaporize %s %s!", s_suffix(mon_nam(mtmp)), xname(obj));
+			delobj(obj);
+			t_timeout = rnz(1000);
+			break;
+		} else if (obj && obj->mstartinventC && !(obj->oartifact) && !(obj->fakeartifact && !rn2(10)) && rn2(10) && !stack_too_big(obj) ) {
 			You("vaporize %s %s!", s_suffix(mon_nam(mtmp)), xname(obj));
 			delobj(obj);
 			t_timeout = rnz(1000);
@@ -5786,6 +6578,7 @@ revid_end:
 					mtmp3->mstrategy &= ~STRAT_WAITFORU;
 					mtmp3->mconf = TRUE;
 					pline("%s becomes dizzy from the smell!", Monnam(mtmp3));
+					if (mtmp3->mpeaceful && !mtmp3->mtame) mtmp3->mpeaceful = 0; /* monster becomes hostile */
 				}
 		}
 
@@ -5803,13 +6596,37 @@ revid_end:
 
 		pline("You try to erect barriers!");
 
+		if (Role_if(PM_WALSCHOLAR)) {
+			register struct obj *waldiamond;
+
+			waldiamond = carrying(DIAMOND);
+
+			if (!waldiamond) {
+				pline("But you don't have a diamond to create them...");
+				break;
+			}
+
+			if (waldiamond) {
+				if (waldiamond->quan > 1) {
+					waldiamond->quan--;
+					waldiamond->owt = weight(waldiamond);
+				}
+				else useup(waldiamond);
+				You("use a diamond to create the barriers.");
+			}
+
+		}
+
 		{
 
 			int diamondradius = 1;
 
+			if (Role_if(PM_WALSCHOLAR)) diamondradius = 3; /* can't reduce, unlike mason */
+
 			if (Role_if(PM_MASON)) {
 
-				diamondradius = (techlevX(tech_no) / 5);
+				diamondradius = rounddiv(techlevX(tech_no), 5);
+				if ((techlevX(tech_no), 5) > 4) diamondradius++; /* fix off-by-one error --Amy */
 				if (diamondradius < 1) diamondradius = 1;
 
 				if (diamondradius > 1) pline("The maximum possible radius for the diamond barrier is %d, but you may opt to choose a smaller radius if you want.", diamondradius);
@@ -5835,7 +6652,7 @@ revid_end:
 
 					if (levl[u.ux + k][u.uy + l].typ != DOOR) levl[u.ux + k][u.uy + l].typ = GRAVEWALL;
 					else doorlockX(u.ux + k, u.uy + l, TRUE);
-					block_point(u.ux + k, u.uy + l);
+					blockorunblock_point(u.ux + k, u.uy + l);
 					newsym(u.ux + k, u.uy + l);
 
 				}
@@ -5844,6 +6661,11 @@ revid_end:
 
 		}
 		vision_recalc(0);
+
+		if (Role_if(PM_WALSCHOLAR)) {
+			u.walscholarpass += (rnd(50) + rnd(techlevX(tech_no) * 5) );
+			pline("For a while, you can freely pass through grave walls!");
+		}
 
 	      t_timeout = Role_if(PM_MASON) ? rnz(1000) : rnz(5000);
 
@@ -5875,7 +6697,7 @@ revid_end:
 
 			struct obj *uroub;
 
-			uroub = mksobj(rnd_class(ROBE, ROBE_OF_WEAKNESS), TRUE, FALSE);
+			uroub = mksobj(rnd_class(ROBE, ROBE_OF_WEAKNESS), TRUE, FALSE, FALSE);
 
 			if (uroub) {
 				dropy(uroub);
@@ -5885,7 +6707,7 @@ revid_end:
 
 			}
 
-			t_timeout = rnz(7500);
+			t_timeout = rnz(15000);
 			break;
 
 		case T_INTRINSIC_SACRIFICE:
@@ -5955,8 +6777,10 @@ revid_end:
 				if ((mtmp->mhp -= xtmp) <= 0 || !mtmp->m_lev) {
 					pline("%s dies!", Monnam(mtmp));
 					xkilled(mtmp,0);
-				} else
+				} else {
 					mtmp->m_lev--;
+					wakeup(mtmp); /* monster becomes hostile */
+				}
 			}
 
 			t_timeout = rnz(10000);
@@ -5971,7 +6795,7 @@ revid_end:
 			uwep->rknown = 1;
 			pline("Alright - your weapon is erosionproof now.");
 
-			t_timeout = rnz(5000);
+			t_timeout = rnz(10000);
 			break;
 
 		case T_POWERFUL_AURA:
@@ -5996,7 +6820,7 @@ revid_end:
 				uwep->spe++;
 			}
 
-			t_timeout = rnz(3000);
+			t_timeout = rnz(6000);
 			break;
 
 		case T_CLONE_JAVELIN:
@@ -6048,7 +6872,7 @@ revid_end:
 				break;
 			}
 
-			num = 200 + (techlevX(tech_no) * 10);
+			num = 50 + (techlevX(tech_no) * 3);
 		    	techt_inuse(tech_no) = num + 1;
 			pline("Escrobism started - your bare hands or lightsaber will temporarily deal extra damage while you are wearing a robe.");
 
@@ -6087,7 +6911,7 @@ revid_end:
 
 			struct obj *uammo;
 
-			uammo = mksobj(CROSSBOW_BOLT, TRUE, FALSE);
+			uammo = mksobj(CROSSBOW_BOLT, TRUE, FALSE, FALSE);
 			if (uammo) {
 				uammo->quan = rnd(20 + (2 * techlevX(tech_no)));
 				uammo->known = uammo->dknown = uammo->bknown = uammo->rknown = 1;
@@ -6097,6 +6921,927 @@ revid_end:
 			}
 
 			lesshungry(200);
+
+			t_timeout = rnz(4000);
+			break;
+
+		case T_WONDER_YONDER:
+
+			{
+				int inerduration = rnz(1000);
+				int nastyfects = rnd(5);
+				u.uprops[DEAC_FAST].intrinsic += inerduration;
+				u.inertia += inerduration;
+				You_feel("lethargic...");
+				while (nastyfects > 0) {
+					nastyfects--;
+					badeffect();
+				}
+
+			}
+			wonderspell();
+			t_timeout = rnz(15000);
+			break;
+
+		case T_CARD_TRICK:
+cardtrickchoice:
+			otmp = getobj(all_count, "duplicate");
+			if (!otmp) {
+				if (yn("Really exit with no object selected?") == 'y')
+					pline("You just wasted the opportunity to duplicate a scroll.");
+				else goto cardtrickchoice;
+				pline("A feeling of loss comes over you.");
+				break;
+
+			}
+			if (otmp) {
+				if (otmp->oclass != SCROLL_CLASS) {
+					pline("That isn't a scroll, and therefore the card trick was wasted.");
+					t_timeout = rnz(10000);
+					break;
+				}
+				if (otmp->oartifact) {
+					pline("Artifact scrolls cannot be duplicated, and therefore the card trick was wasted.");
+					t_timeout = rnz(10000);
+					break;
+				}
+
+				int cardpotency = 50 + techlevX(tech_no);
+				if (rnd(cardpotency) > writecost(otmp)) {
+					pline("Success! You managed to duplicate the scroll.");
+					otmp->quan++;
+				} else {
+					pline("Unfortunately your attempt to duplicate the scroll failed.");
+				}
+
+			}
+			t_timeout = rnz(10000);
+			break;
+
+		case T_SKILLOMORPH:
+
+			additionalskilltraining();
+			t_timeout = rnz(10000);
+			break;
+
+		case T_SHOTTY_BLAST:
+
+			You("make some shotgun shells.");
+
+			{
+
+			struct obj *uammo;
+
+			uammo = mksobj(SHOTGUN_SHELL, TRUE, FALSE, FALSE);
+			if (uammo) {
+				uammo->quan = 5 + (techlevX(tech_no) / 3);
+				if (uammo->quan < 1) uammo->quan = 1;
+				if (uarmc && uarmc->oartifact == ART_ARABELLA_S_WEAPON_STORAGE) uammo->quan *= 2;
+				uammo->known = uammo->dknown = uammo->bknown = uammo->rknown = 1;
+				uammo->owt = weight(uammo);
+				dropy(uammo);
+				stackobj(uammo);
+			}
+
+			}
+
+			t_timeout = rnz(5000);
+			break;
+
+		case T_AMMO_UPGRADE:
+
+			if (!uwep) {
+				pline("You're not wielding anything!");
+				break;
+			}
+			if (uwep && !is_bullet(uwep)) {
+				pline("You're not wielding firearm ammo!");
+				break;
+			}
+			if (uwep && is_bullet(uwep)) {
+				You("try to upgrade your ammo.");
+				if (stack_too_big(uwep)) {
+					t_timeout = rnz(4000);
+					pline("But the stack size was too big, and therefore it failed.");
+					break;
+
+				} else {
+					if (uwep->cursed) uncurse(uwep, TRUE);
+					else if (!uwep->cursed && !uwep->blessed) bless(uwep);
+					if (uwep->spe < 2) uwep->spe++;
+					else if (uwep->spe < 10 && uwep->spe > 1 && !rn2(uwep->spe)) uwep->spe++;
+				}
+			}
+
+			t_timeout = rnz(10000);
+			break;
+
+		case T_LASER_POWER:
+
+			You("make some laser ammo.");
+
+			{
+
+			struct obj *uammo;
+
+			if (!rn2(100)) uammo = mksobj(LASER_BEAM, TRUE, FALSE, FALSE);
+			else if (!rn2(10)) uammo = mksobj(HEAVY_BLASTER_BOLT, TRUE, FALSE, FALSE);
+			else uammo = mksobj(BLASTER_BOLT, TRUE, FALSE, FALSE);
+			if (uammo) {
+				uammo->quan = 10 + techlevX(tech_no);
+				if (uammo->quan < 1) uammo->quan = 1;
+				if (uarmc && uarmc->oartifact == ART_ARABELLA_S_WEAPON_STORAGE) uammo->quan *= 2;
+				uammo->known = uammo->dknown = uammo->bknown = uammo->rknown = 1;
+				uammo->owt = weight(uammo);
+				dropy(uammo);
+				stackobj(uammo);
+			}
+
+			}
+
+			t_timeout = rnz(7500);
+			break;
+
+		case T_BIG_DADDY:
+
+			You("make a rocket launcher.");
+
+			{
+
+			struct obj *uammo;
+
+			uammo = mksobj(ROCKET_LAUNCHER, TRUE, FALSE, FALSE);
+			if (uammo) {
+				uammo->known = uammo->dknown = uammo->bknown = uammo->rknown = 1;
+				dropy(uammo);
+				stackobj(uammo);
+			}
+
+			uammo = mksobj(ROCKET, TRUE, FALSE, FALSE);
+			if (uammo) {
+				uammo->quan = 5 + (techlevX(tech_no) / 3);
+				if (uammo->quan < 1) uammo->quan = 1;
+				if (uarmc && uarmc->oartifact == ART_ARABELLA_S_WEAPON_STORAGE) uammo->quan *= 2;
+				uammo->known = uammo->dknown = uammo->bknown = uammo->rknown = 1;
+				uammo->owt = weight(uammo);
+				dropy(uammo);
+				stackobj(uammo);
+			}
+
+			}
+
+			t_timeout = rnz(25000);
+			break;
+
+		case T_SHUT_THAT_BITCH_UP:
+
+			num = 20 + (techlevX(tech_no) * 3);
+		    	techt_inuse(tech_no) = num + 1;
+			pline("Your firearms can temporarily shut up bitches upon hitting them.");
+
+			t_timeout = rnz(15000);
+			break;
+
+		case T_S_PRESSING:
+
+			if (t_at(u.ux, u.uy)) {
+				pline("There is a trap at your location, and therefore the attempt fails!");
+				t_timeout = rnz(2000);
+				break;
+			}
+			if (u.uhunger < 500) {
+				You("don't have enough nutrition, and therefore the attempt fails!");
+				t_timeout = rnz(2000);
+				break;
+			}
+			{
+				struct trap *ttrap;
+				ttrap = maketrap(u.ux, u.uy, S_PRESSING_TRAP, 0);
+				if (ttrap && !ttrap->hiddentrap) {
+					ttrap->tseen = 1;
+					ttrap->madeby_u = 1;
+				}
+			}
+			/* launch_otyp is set in trap.c and controls the trap's strength --Amy */
+			You("laid a trap.");
+			u.uhunger -= 500; /* not "morehungry", not affected by full nutrients */
+
+			if (practicantterror) {
+				pline("%s thunders: 'You shitty practicant lass! Your act of shitting up my laboratory will not be tolerated! Now you pay 5000 zorkmids and clean away your shit, got it?'", noroelaname());
+				fineforpracticant(5000, 0, 0);
+
+			}
+
+			{
+				register struct monst *nexusmon, *nextmon;
+
+				for(nexusmon = fmon; nexusmon; nexusmon = nextmon) {
+				    nextmon = nexusmon->nmon;
+				    if (DEADMONSTER(nexusmon)) continue;
+				    if (canseemon(nexusmon)) nexusmon->spressingseen = TRUE;
+
+				}
+			}
+			use_skill(P_SQUEAKING, rnd(5));
+
+			t_timeout = rnz(2000);
+			break;
+
+		case T_MELTEE:
+
+			{
+			int melteestrength = 1;
+			if (techlevX(tech_no) > 9) melteestrength += (techlevX(tech_no) / 10);
+
+			if (practicantterror) {
+				pline("%s thunders: 'What do you think you're doing here, peeing in my laboratory? That makes 10000 zorkmids, and your mirror is confiscated too to make you hopefully repent your deeds!'", noroelaname());
+				fineforpracticant(10000, 0, 0);
+				u.uprops[DEAC_REFLECTING].intrinsic += 10000;
+			}
+
+		    	techt_inuse(tech_no) = 1;
+			buzz(17, melteestrength, u.ux, u.uy, -1, 0);
+			buzz(17, melteestrength, u.ux, u.uy, 1, 0);
+			buzz(17, melteestrength, u.ux, u.uy, -1, 1);
+			buzz(17, melteestrength, u.ux, u.uy, 1, 1);
+			buzz(17, melteestrength, u.ux, u.uy, 0, 1);
+			buzz(17, melteestrength, u.ux, u.uy, -1, -1);
+			buzz(17, melteestrength, u.ux, u.uy, 1, -1);
+			buzz(17, melteestrength, u.ux, u.uy, 0, -1);
+		    	techt_inuse(tech_no) = 0;
+
+			}
+
+			use_skill(P_SQUEAKING, rnd(10));
+			t_timeout = rnz(5000);
+			break;
+
+		case T_WOMAN_NOISES:
+
+			You("make very female noises!");
+			{
+				register struct monst *nexusmon, *nextmon;
+
+				for(nexusmon = fmon; nexusmon; nexusmon = nextmon) {
+				    nextmon = nexusmon->nmon; /* trap might kill mon */
+				    if (DEADMONSTER(nexusmon)) continue;
+				    if (nexusmon->mpeaceful || nexusmon->mtame) continue;
+				    if (resist(nexusmon, SPBOOK_CLASS, 0, NOTELL)) continue;
+				    if (resist(nexusmon, SPBOOK_CLASS, 0, NOTELL)) continue;
+
+				    if (distu(nexusmon->mx, nexusmon->my) > rnd(50)) continue;
+
+					/* doesn't anger peaceful ones - not a bug --Amy */
+					pline("%s cannot resist!", Monnam(nexusmon));
+					monflee(nexusmon, rnd(20), FALSE, TRUE);
+					if (nexusmon->mblinded < 100) nexusmon->mblinded += 20;
+					nexusmon->mcansee = 0;
+					nexusmon->mstun = TRUE;
+					nexusmon->mconf = TRUE;
+
+					if (!resists_drain(nexusmon) && !resist(nexusmon, SPBOOK_CLASS, 0, NOTELL)) {
+						pline("%s shudders in dread!", Monnam(nexusmon));
+						nexusmon->mhpmax -= rnd(10);
+						if (nexusmon->mhpmax < 1) nexusmon->mhpmax = 1;
+						if (nexusmon->mhp > nexusmon->mhpmax) nexusmon->mhp = nexusmon->mhpmax;
+						nexusmon->m_enmax -= rnd(10);
+						if (nexusmon->m_enmax < 0) nexusmon->m_enmax = 0;
+						if (nexusmon->m_en > nexusmon->m_enmax) nexusmon->m_en = nexusmon->m_enmax;
+						if (nexusmon->m_lev > 0) nexusmon->m_lev--;
+						if (nexusmon->m_lev > 0 && !rn2(4)) nexusmon->m_lev--;
+					}
+
+				}
+			}
+
+			if (practicantterror) {
+				pline("%s rings out: 'Your irritating noises are disturbing the other practicants, so here's a warning for you to not do that again and I also receive 50 zorkmids from you.'", noroelaname());
+				fineforpracticant(50, 0, 0);
+			}
+
+			use_skill(P_SQUEAKING, rnd(10));
+			t_timeout = rnz(5000);
+			break;
+
+		case T_EXTRA_LONG_SQUEAK:
+
+			num = 20 + techlevX(tech_no);
+		    	techt_inuse(tech_no) = num + 1;
+			pline("Your butt starts squeaking.");
+			use_skill(P_SQUEAKING, rnd(25));
+			t_timeout = rnz(5000);
+			break;
+
+		case T_SEXUAL_HUG:
+
+			if (u.uswallow) {
+				pline("Did you seriously expect to be able to hug a monster that has engulfed you?");
+				return 0;
+			}
+
+			{
+
+			int k, l, caughtX;
+			struct monst *mtmp3;
+			caughtX = 0;
+			pline("You try to hug the monsters next to you!");
+
+		    for (k = -1; k <= 1; k++) for(l = -1; l <= 1; l++) {
+			if (!isok(u.ux + k, u.uy + l)) continue;
+			if ( ((mtmp3 = m_at(u.ux + k, u.uy + l)) != 0) && mtmp3->mtame == 0 && mtmp3->isshk == 0 && mtmp3->isgd == 0 && mtmp3->ispriest == 0 && mtmp3->isminion == 0 && mtmp3->isgyp == 0
+&& mtmp3->data != &mons[PM_SHOPKEEPER] && mtmp3->data != &mons[PM_MASTER_SHOPKEEPER] && mtmp3->data != &mons[PM_ELITE_SHOPKEEPER] && mtmp3->data != &mons[PM_BLACK_MARKETEER] && !mtmp3->iswiz && mtmp3->data != &mons[PM_WIZARD_OF_YENDOR] && mtmp3->data != &mons[PM_ALIGNED_PRIEST] && mtmp3->data != &mons[PM_MASTER_PRIEST] && mtmp3->data != &mons[PM_ELITE_PRIEST] && mtmp3->data != &mons[PM_HIGH_PRIEST] && !is_rider(mtmp3->data) && !is_deadlysin(mtmp3->data) && mtmp3->data != &mons[PM_DNETHACK_ELDER_PRIEST_TM_] && mtmp3->data != &mons[PM_GUARD] && mtmp3->data != &mons[PM_MASTER_GUARD] && mtmp3->data != &mons[PM_ELITE_GUARD]
+			&& mtmp3->mnum != quest_info(MS_NEMESIS) && !(rn2(5) && mtmp3->data->geno & G_UNIQ) && caughtX == 0)
+
+			{
+
+				if (humanoid(mtmp3->data) && !mtmp3->female) {
+					pline("%s is infatuated with you and asks to become your slave!", mon_nam(mtmp3));
+					(void) tamedog(mtmp3, (struct obj *) 0, TRUE);
+					if (techlevX(tech_no) < rnd(100)) caughtX++;
+					t_timeout = rnz(20000);
+				}
+
+				else pline("%s brushes you away.", mon_nam(mtmp3));
+
+			} /* monster is catchable loop */
+		    } /* for loop */
+
+			}
+
+			if (practicantterror) {
+				pline("%s thunders: 'You've molested the male practicants! That's 5000 zorkmids on the spot and I told all of them that you're a mean sexual predator. Do that again and you'll receive hall exclusion.'", noroelaname());
+				fineforpracticant(5000, 0, 0);
+				HateTrapEffect += 10000;
+			}
+
+			t_timeout = rnz(20000);
+			break;
+
+		case T_SEX_CHANGE:
+
+			Your("gender is changed!");
+			change_sex();
+
+			if (practicantterror) {
+				pline("%s thunders: 'That type of surgery is dangerous! You've practiced it without adhering to standard safety precautions, meaning there's now a fine of 20000 zorkmids and I'll also collect any money you gain from now on to teach you a lesson!'", noroelaname());
+				fineforpracticant(20000, 0, 0);
+				BankTrapEffect |= FROMOUTSIDE;
+			}
+
+			t_timeout = rnz(10000);
+			break;
+
+		case T_EVEN_MORE_AMMO:
+
+			if (!uwep) {
+				pline("You're not wielding anything!");
+				break;
+			}
+			if (uwep && !is_bullet(uwep)) {
+				pline("You're not wielding firearm ammo!");
+				break;
+			}
+			if (uwep && is_bullet(uwep)) {
+				if (uwep->otyp == BULLET || uwep->otyp == SILVER_BULLET || uwep->otyp == LEAD_BULLET || uwep->otyp == ANTIMATTER_BULLET || uwep->otyp == BLASTER_BOLT || uwep->otyp == HEAVY_BLASTER_BOLT || uwep->otyp == LASER_BEAM) {
+					uwep->quan += (20 + techlevX(tech_no));
+					pline("The amount of ammo was increased!");
+				} else if (uwep->otyp == BFG_AMMO) {
+					uwep->quan += (80 + (techlevX(tech_no) * 5));
+					pline("The amount of ammo was increased!");
+				} else if (uwep->otyp == SHOTGUN_SHELL || uwep->otyp == LEAD_SHOT) {
+					uwep->quan += (10 + (techlevX(tech_no) / 2));
+					pline("The amount of ammo was increased!");
+				} else if (uwep->otyp == ROCKET) {
+					uwep->quan += (1 + (techlevX(tech_no) / 5));
+					pline("The amount of ammo was increased!");
+				} else {
+					pline("The ammo you're wielding cannot be duplicated. Sorry. Please try some other type of ammo.");
+					break;
+				}
+			}
+			t_timeout = rnz(8000);
+			break;
+
+		case T_DOUBLESELF:
+
+			if (!Upolyd) {
+				pline("That doesn't work if you're not polymorphed.");
+				break;
+			}
+			You("try to clone yourself!");
+			cloneu();
+			t_timeout = rnz(20000);
+			break;
+
+		case T_POLYFIX:
+
+polyfixchoice:
+			otmp = getobj(all_count, "polyfix");
+			if (!otmp) {
+				if (yn("Really exit with no object selected?") == 'y')
+					pline("You just wasted the opportunity to polyfix an item.");
+				else goto polyfixchoice;
+				pline("A feeling of loss comes over you.");
+				break;
+
+			}
+			if (otmp) {
+				if (!is_hazy(otmp)) {
+					pline("That item wasn't hazy, and therefore nothing happens.");
+				} else if (!stack_too_big(otmp)) {
+					stop_timer(UNPOLY_OBJ, (void *) otmp);
+					otmp->oldtyp = STRANGE_OBJECT;
+					pline("%s is no longer hazy.", Yname2(otmp));
+				} else pline("The stack was too big, and therefore nothing happens.");
+
+			}
+
+			t_timeout = rnz(5000);
+			break;
+
+		case T_SQUEAKY_REPAIR:
+
+			if (t_at(u.ux, u.uy)) {
+				pline("There is a trap at your location, and therefore the attempt fails!");
+				t_timeout = rnz(8000);
+				break;
+			}
+			{
+				struct trap *ttrap;
+				ttrap = maketrap(u.ux, u.uy, FART_TRAP, 0);
+				if (ttrap) {
+					dotrap(ttrap, 0);
+
+					pline("You may repair a damaged item.");
+repairitemchoice:
+					otmp = getobj(all_count, "magically repair");
+					if (!otmp) {
+						if (yn("Really exit with no object selected?") == 'y')
+							pline("You just wasted the opportunity to repair your items.");
+						else goto repairitemchoice;
+						pline("A feeling of loss comes over you.");
+						t_timeout = rnz(8000);
+						break;
+					} else if (stack_too_big(otmp)) {
+						pline("The stack was too big, and therefore the attempt failed.");
+					} else if (otmp && greatest_erosion(otmp) > 0) {
+						pline("Your %s is in perfect condition again!", xname(otmp));
+						if (otmp->oeroded > 0) { otmp->oeroded = 0; }
+						if (otmp->oeroded2 > 0) { otmp->oeroded2 = 0; }
+
+					} else pline("Your %s is still as undamaged as ever.", xname(otmp));
+
+				} else pline("For some unknown reason, the attempt failed.");
+			}
+			use_skill(P_SQUEAKING, rnd(20));
+			t_timeout = rnz(8000);
+			break;
+
+		case T_BULLETREUSE:
+
+			num = 100 + (techlevX(tech_no) * 5);
+		    	techt_inuse(tech_no) = num + 1;
+			pline("Your ammo can temporarily be reused.");
+			t_timeout = rnz(10000);
+			break;
+
+		case T_TERRAIN_CLEANUP:
+
+			pline("You try to clean up annoying terrain.");
+			int maderoomX = 0;
+
+			do_clear_areaX(u.ux, u.uy, 1, terraincleanup, (void *)&maderoomX);
+
+			if (maderoomX) pline("Some annoying terrain was cleaned up!");
+			else pline("There was nothing to clean up...");
+
+			t_timeout = rnz(8000);
+
+			break;
+
+		case T_SYMBIOSIS:
+
+			{
+				struct obj *usymbioteitem;
+
+				pline("A symbiote is created!");
+				usymbioteitem = mksobj(SYMBIOTE, TRUE, FALSE, FALSE);
+				if (usymbioteitem) {
+					usymbioteitem->quan = 1;
+					usymbioteitem->known = usymbioteitem->dknown = usymbioteitem->bknown = usymbioteitem->rknown = 1;
+					usymbioteitem->owt = weight(usymbioteitem);
+					dropy(usymbioteitem);
+					stackobj(usymbioteitem);
+				}
+
+			}
+
+			/* symbiant and goauld can use it more often... but they're too different, and therefore
+			 * being a goauld symbiant doesn't reduce the timeout by more :P --Amy */
+			t_timeout = rnz(Role_if(PM_SYMBIANT) ? 4000 : Race_if(PM_GOAULD) ? 4000 : 20000);
+			break;
+
+		case T_ADJUST_SYMBIOTE:
+
+			/* intentional that you can use this even while not having a symbiote --Amy */
+			if (P_SKILL(P_SYMBIOSIS) >= P_SKILLED) {
+
+				pline("Currently your symbiote's aggressiveness is %d%%.", u.symbioteaggressivity);
+
+				int lowerbound, higherbound;
+				lowerbound = 25;
+				higherbound = 25;
+
+				switch (P_SKILL(P_SYMBIOSIS)) {
+					case P_SKILLED:
+						lowerbound = 20;
+						higherbound = 33;
+						break;
+					case P_EXPERT:
+						lowerbound = 15;
+						higherbound = 40;
+						break;
+					case P_MASTER:
+						lowerbound = 12;
+						higherbound = 50;
+						break;
+					case P_GRAND_MASTER:
+						lowerbound = 10;
+						higherbound = 60;
+						break;
+					case P_SUPREME_MASTER:
+						lowerbound = 5;
+						higherbound = 75;
+						break;
+					default:
+						lowerbound = 25;
+						higherbound = 25;
+						break;
+				}
+
+				pline("You can set the aggressivity to values between %d%% and %d%% (inclusive).", lowerbound, higherbound);
+				if (lowerbound <= 5 && yn("Set the aggressivity to 5%%?") == 'y') {
+					u.symbioteaggressivity = 5;
+					pline("Your symbiote's aggressivity is 5%% now.");
+				} else if (lowerbound <= 10 && yn("Set the aggressivity to 10%%?") == 'y') {
+					u.symbioteaggressivity = 10;
+					pline("Your symbiote's aggressivity is 10%% now.");
+				} else if (lowerbound <= 12 && yn("Set the aggressivity to 12%%?") == 'y') {
+					u.symbioteaggressivity = 12;
+					pline("Your symbiote's aggressivity is 12%% now.");
+				} else if (lowerbound <= 15 && yn("Set the aggressivity to 15%%?") == 'y') {
+					u.symbioteaggressivity = 15;
+					pline("Your symbiote's aggressivity is 15%% now.");
+				} else if (lowerbound <= 20 && yn("Set the aggressivity to 20%%?") == 'y') {
+					u.symbioteaggressivity = 20;
+					pline("Your symbiote's aggressivity is 20%% now.");
+				} else if (yn("Set the aggressivity to 25%%?") == 'y') {
+					u.symbioteaggressivity = 25;
+					pline("Your symbiote's aggressivity is 25%% now.");
+				} else if (higherbound >= 33 && yn("Set the aggressivity to 33%%?") == 'y') {
+					u.symbioteaggressivity = 33;
+					pline("Your symbiote's aggressivity is 33%% now.");
+				} else if (higherbound >= 40 && yn("Set the aggressivity to 40%%?") == 'y') {
+					u.symbioteaggressivity = 40;
+					pline("Your symbiote's aggressivity is 40%% now.");
+				} else if (higherbound >= 50 && yn("Set the aggressivity to 50%%?") == 'y') {
+					u.symbioteaggressivity = 50;
+					pline("Your symbiote's aggressivity is 50%% now.");
+				} else if (higherbound >= 60 && yn("Set the aggressivity to 60%%?") == 'y') {
+					u.symbioteaggressivity = 60;
+					pline("Your symbiote's aggressivity is 60%% now.");
+				} else if (higherbound >= 75 && yn("Set the aggressivity to 75%%?") == 'y') {
+					u.symbioteaggressivity = 75;
+					pline("Your symbiote's aggressivity is 75%% now.");
+				} else pline("Your symbiote's aggressivity remains %d%%.", u.symbioteaggressivity);
+
+			} else pline("Unfortunately your symbiosis skill is too low to use this ability.");
+
+			t_timeout = rnz(500);
+
+			break;
+
+		case T_HEAL_SYMBIOTE:
+
+			if (!uactivesymbiosis) {
+				pline("You don't have a symbiote, so you can't heal it either!");
+				break;
+			}
+			if (u.uhp < ((u.uhpmax / 2) + 1)) {
+				pline("Your health is too low!");
+				break;
+			}
+			if (u.uhpmax < 5) { /* arbitrary */
+				pline("Your health is too low!");
+				break;
+			}
+			u.uhp -= (u.uhpmax / 2);
+			u.usymbiote.mhp += (u.uhpmax / 2);
+			if (u.usymbiote.mhp > u.usymbiote.mhpmax) u.usymbiote.mhp = u.usymbiote.mhpmax;
+			flags.botl = TRUE;
+			You("sap some of your health, and transfer it to your symbiote!");
+
+			t_timeout = rnz(2000);
+			break;
+
+		case T_BOOST_SYMBIOTE:
+
+			if (!uactivesymbiosis) {
+				pline("You can't boost a nonexistant symbiote!");
+				break;
+			}
+
+			u.usymbiote.mhpmax += rnd(8);
+			if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
+			if (flags.showsymbiotehp) flags.botl = TRUE;
+			Your("symbiote's health is improved!");
+
+			t_timeout = rnz(4000);
+			break;
+
+		case T_GRENADES_OF_COURSE:
+
+			You("make some grenades.");
+
+			{
+
+			struct obj *uammo;
+
+			if (!rn2(2)) uammo = mksobj(FRAG_GRENADE, TRUE, FALSE, FALSE);
+			else uammo = mksobj(GAS_GRENADE, TRUE, FALSE, FALSE);
+			if (uammo) {
+				uammo->quan = 5 + (techlevX(tech_no) / 5);
+				if (Role_if(PM_GRENADONIN)) uammo->quan *= 5;
+				if (uammo->quan < 1) uammo->quan = 1;
+				if (uarmc && uarmc->oartifact == ART_ARABELLA_S_WEAPON_STORAGE) uammo->quan *= 2;
+				uammo->known = uammo->dknown = uammo->bknown = uammo->rknown = 1;
+				uammo->owt = weight(uammo);
+				dropy(uammo);
+				stackobj(uammo);
+			}
+
+			}
+
+			t_timeout = rnz(20000);
+			break;
+
+		case T_UNDERTOW:
+			if (!getdir((char *)0)) return 0;
+			if (u.uswallow) {
+				pline("You're way too busy right now!");
+				return (0);
+			}
+			if (!isok(u.ux, u.uy)) {
+				pline("It seems that you're in a location where you're not allowed to be...");
+				return (0);
+			}
+			if (!isok(u.ux + u.dx, u.uy + u.dy)) {
+				pline("You try to drown an invisible barrier, which fails (predictably).");
+				/* make the player pay for the attempt --Amy */
+				t_timeout = rnz(8000);
+				break;
+			}
+			if (levl[u.ux][u.uy].typ != POOL && levl[u.ux][u.uy].typ != MOAT && levl[u.ux][u.uy].typ != WATER && levl[u.ux][u.uy].typ != WATERTUNNEL && levl[u.ux][u.uy].typ != CRYSTALWATER && levl[u.ux + u.dx][u.uy + u.dy].typ != POOL && levl[u.ux + u.dx][u.uy + u.dy].typ != MOAT && levl[u.ux + u.dx][u.uy + u.dy].typ != WATER && levl[u.ux + u.dx][u.uy + u.dy].typ != WATERTUNNEL && levl[u.ux + u.dx][u.uy + u.dy].typ != CRYSTALWATER) {
+				pline("You can't drown someone here!");
+				return (0);
+			}
+
+			mtmp = m_at(u.ux + u.dx, u.uy + u.dy);
+			if (!mtmp) {
+				You("grasp at nothing.");
+				/* splicehack would return 0 here, but I won't let you use the tech to
+				 *  scan the area for monsters --Amy */
+				t_timeout = rnz(8000);
+				break;
+			}
+			if (!sticks(mtmp->data)) {
+				u.ustuck = mtmp;
+				pline("You wrap up %s with your tail and pull him/her/them/it into the depths with you!", Monnam(mtmp));
+				if (!is_swimmer(mtmp->data) && !amphibious(mtmp->data)) {
+						You("attempt to drown %s...", mon_nam(mtmp));
+						hurtmon(mtmp, (!rn2(5) && (techlevX(tech_no) > mtmp->m_lev) && (techlevX(tech_no) >= 10)) ? mtmp->mhp : (rnd(techlevX(tech_no)) * 5) );
+				} else {
+						pline("%s does not drown!", Monnam(mtmp));
+				}
+				if (mtmp && !DEADMONSTER(mtmp)) wakeup(mtmp); /* monster becomes hostile */
+			} else {
+				You("cannot get a grip on %s!", mon_nam(mtmp));
+			}
+
+			t_timeout = rnz(8000);
+			break;
+
+		case T_DEFINALIZE:
+
+definalizechoice:
+			otmp = getobj(all_count, "definalize");
+			if (!otmp) {
+				if (yn("Really exit with no object selected?") == 'y')
+					pline("You just wasted the opportunity to definalize an item.");
+				else goto definalizechoice;
+				pline("A feeling of loss comes over you.");
+				break;
+
+			}
+			if (otmp) {
+				if (!otmp->finalcancel) {
+					pline("That item wasn't finalized, and therefore nothing happens.");
+				} else if (!stack_too_big(otmp)) {
+					otmp->finalcancel = FALSE;
+					pline("%s is no longer finalized.", Yname2(otmp));
+				} else pline("The stack was too big, and therefore nothing happens.");
+
+			}
+
+			t_timeout = rnz(50000);
+			break;
+
+		case T_ANTI_INERTIA:
+			if (!u.inertia) You("weren't slowed by inertia and therefore nothing happens.");
+			else {
+				if (u.inertia < 200) {
+					u.inertia -= 100;
+					if (u.inertia < 0) u.inertia = 0;
+					Your("inertia counter was reduced by 100.");
+					if (!u.inertia) pline("You've been cured of inertia.");
+				} else if (u.inertia < 1000) {
+					u.inertia /= 2;
+					Your("inertia counter was reduced, and amounts to %d turns now.", u.inertia);
+				} else {
+					u.inertia -= 500;
+					Your("inertia counter was reduced by 500.");
+				}
+			}
+			if (u.inertia < 0) u.inertia = 0; /* fail safe */
+
+			t_timeout = rnz(5000);
+			break;
+
+		case T_POWERBIOSIS:
+
+			if (!uactivesymbiosis) {
+				pline("Without a symbiote, this technique won't do anything.");
+				break;
+			}
+
+			num = 50 + (techlevX(tech_no) * 2);
+		    	techt_inuse(tech_no) = num + 1;
+			pline("Your symbiote becomes super-powerful for a while!");
+
+			t_timeout = rnz(6000);
+			break;
+
+		case T_IMPLANTED_SYMBIOSIS:
+
+			if (!uactivesymbiosis && !uimplant) {
+				pline("You know that this technique requires both an implant and a symbiote. You currently have neither, and therefore very obviously nothing happens!");
+				break;
+			}
+			if (!uactivesymbiosis) {
+				pline("While you do have an implant, you lack a symbiote! Get one first if you want to use this technique!");
+				break;
+			}
+			if (!uimplant) {
+				pline("No implant found! You must equip one if you want to use this technique!");
+				break;
+			}
+
+			num = 1000 + (techlevX(tech_no) * 50);
+		    	techt_inuse(tech_no) = num + 1;
+			pline("Your implant boosts your symbiote!");
+
+			t_timeout = rnz(7500);
+			break;
+
+		case T_ASSUME_SYMBIOTE:
+
+			if (!uactivesymbiosis) {
+				pline("What are you trying to do, polymorph into your symbiote while not actually having one?");
+				if (FunnyHallu) pline("If you thought this would turn you into a missingno, bad luck - the dev team thinks of everything.");
+				break;
+			}
+
+			You_feel("one with your symbiote.");
+			u.wormpolymorph = u.usymbiote.mnum;
+
+			polyself(FALSE);
+
+		      t_timeout = rnz(10000);
+			break;
+
+		case T_GENERATE_OFFSPRING:
+
+			if (!uactivesymbiosis) {
+				pline("This requires a symbiote.");
+				break;
+			}
+
+			{
+				struct obj *uegg;
+
+				You("lay a symbiote egg.");
+				uegg = mksobj(EGG, FALSE, FALSE, FALSE);
+				if (uegg) {
+					uegg->spe = 1; /* "laid by you" */
+					uegg->quan = 1;
+					uegg->owt = weight(uegg);
+					uegg->corpsenm = egg_type_from_parent(u.usymbiote.mnum, FALSE);
+					uegg->known = uegg->dknown = 1;
+					attach_egg_hatch_timeout(uegg);
+					dropy(uegg);
+					stackobj(uegg);
+				}
+			}
+
+		      t_timeout = rnz(10000);
+
+			break;
+
+		case T_EXTRACHARGE:
+
+extrachargechoice:
+			otmp = getobj(all_count, "extracharge");
+			if (!otmp) {
+				if (yn("Really exit with no object selected?") == 'y')
+					pline("You just wasted the opportunity to extracharge a wand.");
+				else goto extrachargechoice;
+				pline("A feeling of loss comes over you.");
+				t_timeout = rnz(20000);
+				break;
+			}
+			if (otmp) {
+				if (otmp->oclass != WAND_CLASS) {
+					pline("You selected something that isn't a wand, and therefore the charge dissipates.");
+					t_timeout = rnz(20000);
+					break;
+				} else {
+					switch (otmp->otyp) {
+
+						case WAN_WISHING:
+						case WAN_CHARGING:
+						case WAN_ACQUIREMENT:
+						case WAN_GAIN_LEVEL:
+						case WAN_INCREASE_MAX_HITPOINTS:
+							pline("That wand is too powerful, and therefore the charge dissipates.");
+							t_timeout = rnz(20000);
+							break;
+						default:
+							if (otmp->spe > 125) { /* very unlikely to ever happen --Amy */
+								pline("That wand already has the maximum amount of charges stored.");
+							} else {
+								otmp->spe++;
+								pline("Success! Your wand gained an additional charge.");
+							}
+					}
+				}
+			}
+
+			t_timeout = rnz(20000);
+			break;
+
+		case T_ZAP_EM:
+
+			{
+
+			if (u.uswallow) {
+				pline("You can't tame an engulfer with this technique.");
+				return 0;
+			}
+
+			int k, l, caughtX;
+			struct monst *mtmp3;
+			caughtX = 0;
+			pline("You try to tame evil monsters!");
+
+			    for (k = -1; k <= 1; k++) for(l = -1; l <= 1; l++) {
+				if (!isok(u.ux + k, u.uy + l)) continue;
+				if ( ((mtmp3 = m_at(u.ux + k, u.uy + l)) != 0) && mtmp3->mtame == 0 && mtmp3->isshk == 0 && mtmp3->isgd == 0 && mtmp3->ispriest == 0 && mtmp3->isminion == 0 && mtmp3->isgyp == 0
+&& mtmp3->data != &mons[PM_SHOPKEEPER] && mtmp3->data != &mons[PM_MASTER_SHOPKEEPER] && mtmp3->data != &mons[PM_ELITE_SHOPKEEPER] && mtmp3->data != &mons[PM_BLACK_MARKETEER] && mtmp3->data != &mons[PM_ALIGNED_PRIEST] && mtmp3->data != &mons[PM_MASTER_PRIEST] && mtmp3->data != &mons[PM_ELITE_PRIEST] && mtmp3->data != &mons[PM_HIGH_PRIEST] && mtmp3->data != &mons[PM_DNETHACK_ELDER_PRIEST_TM_] && mtmp3->data != &mons[PM_GUARD] && mtmp3->data != &mons[PM_MASTER_GUARD] && mtmp3->data != &mons[PM_ELITE_GUARD]
+			&& mtmp3->mnum != quest_info(MS_NEMESIS) && !(mtmp3->data->geno & G_UNIQ) && caughtX == 0)
+
+				{
+
+					if (is_evilpatchmonster(mtmp3->data)) {
+						if (!(resist(mtmp3, RING_CLASS, 0, NOTELL) && resist(mtmp3, RING_CLASS, 0, NOTELL))) {
+							pline("%s is successfully tamed!", mon_nam(mtmp3));
+							(void) tamedog(mtmp3, (struct obj *) 0, TRUE);
+							if (techlevX(tech_no) < rnd(100)) caughtX++;
+							t_timeout = rnz(4000);
+
+						} else if ( ((rnd(30 - ACURR(A_CHA))) < 4) && (!resist(mtmp3, RING_CLASS, 0, NOTELL) || !resist(mtmp3, RING_CLASS, 0, NOTELL)) ) {
+							pline("%s is successfully tamed!", mon_nam(mtmp3));
+							(void) tamedog(mtmp3, (struct obj *) 0, TRUE);
+							if (techlevX(tech_no) < rnd(100)) caughtX++;
+							t_timeout = rnz(4000);
+						} else {
+							pline("%s resists the taming attempt!", mon_nam(mtmp3));
+						}
+					} else pline("%s cannot be tamed by this method!", mon_nam(mtmp3));
+
+				} /* monster is catchable loop */
+			    } /* for loop */
+
+			}
 
 			t_timeout = rnz(4000);
 			break;
@@ -6152,7 +7897,7 @@ revid_end:
 			for (k = -1; k <= 1; k++) for(l = -1; l <= 1; l++) {
 				if (!isok(u.ux + k, u.uy + l)) continue;
 				if ( ((mtmp3 = m_at(u.ux + k, u.uy + l)) != 0) && mtmp3->mtame == 0 && mtmp3->isshk == 0 && mtmp3->isgd == 0 && mtmp3->ispriest == 0 && mtmp3->isminion == 0 && mtmp3->isgyp == 0
-&& mtmp3->data != &mons[PM_SHOPKEEPER] && mtmp3->data != &mons[PM_BLACK_MARKETEER] && mtmp3->data != &mons[PM_ALIGNED_PRIEST] && mtmp3->data != &mons[PM_HIGH_PRIEST] && mtmp3->data != &mons[PM_DNETHACK_ELDER_PRIEST_TM_] && mtmp3->data != &mons[PM_GUARD]
+&& mtmp3->data != &mons[PM_SHOPKEEPER] && mtmp3->data != &mons[PM_MASTER_SHOPKEEPER] && mtmp3->data != &mons[PM_ELITE_SHOPKEEPER] && mtmp3->data != &mons[PM_BLACK_MARKETEER] && mtmp3->data != &mons[PM_ALIGNED_PRIEST] && mtmp3->data != &mons[PM_MASTER_PRIEST] && mtmp3->data != &mons[PM_ELITE_PRIEST] && mtmp3->data != &mons[PM_HIGH_PRIEST] && mtmp3->data != &mons[PM_DNETHACK_ELDER_PRIEST_TM_] && mtmp3->data != &mons[PM_GUARD] && mtmp3->data != &mons[PM_MASTER_GUARD] && mtmp3->data != &mons[PM_ELITE_GUARD]
 			&& mtmp3->mnum != quest_info(MS_NEMESIS) && !(rn2(5) && (mtmp3->data->geno & G_UNIQ))) {
 
 				if (mtmp3->mfrenzied) continue;
@@ -6199,6 +7944,10 @@ revid_end:
 						    madechoice = 1; sabertype = 2; }
 					else if (yn("Do you want to switch to a laser swatter?")=='y') {
 						    madechoice = 1; sabertype = 3; }
+					else if (yn("Do you want to switch to a nano hammer?")=='y') {
+						    madechoice = 1; sabertype = 4; }
+					else if (yn("Do you want to switch to a lightwhip?")=='y') {
+						    madechoice = 1; sabertype = 5; }
 
 				}
 
@@ -6208,17 +7957,23 @@ revid_end:
 				}
 
 				if (sabertype == 1) {
-					switch (rnd(6)) {
+					switch (rnd(7)) {
 						case 1: uwep->otyp = GREEN_LIGHTSABER; break;
 						case 2: uwep->otyp = BLUE_LIGHTSABER; break;
 						case 3: uwep->otyp = RED_LIGHTSABER; break;
 						case 4: uwep->otyp = YELLOW_LIGHTSABER; break;
 						case 5: uwep->otyp = VIOLET_LIGHTSABER; break;
 						case 6: uwep->otyp = WHITE_LIGHTSABER; break;
+						case 7: uwep->otyp = MYSTERY_LIGHTSABER; break;
 					}
 				} else if (sabertype == 2) {
 					uwep->otyp = rn2(2) ? RED_DOUBLE_LIGHTSABER : WHITE_DOUBLE_LIGHTSABER;
-				} else uwep->otyp = LASER_SWATTER;
+				} else if (sabertype == 3) {
+					uwep->otyp = LASER_SWATTER;
+				} else if (sabertype == 4) {
+					uwep->otyp = NANO_HAMMER;
+				} else /* sabertype == 5 */
+					uwep->otyp = LIGHTWHIP;
 
 				pline("Your lightsaber warps, and changes into a different one!");
 				/* known problem: you can pick the form that your lightsaber already has */
@@ -6250,7 +8005,7 @@ revid_end:
 			    for (k = -1; k <= 1; k++) for(l = -1; l <= 1; l++) {
 				if (!isok(u.ux + k, u.uy + l)) continue;
 				if ( ((mtmp3 = m_at(u.ux + k, u.uy + l)) != 0) && mtmp3->mtame == 0 && mtmp3->isshk == 0 && mtmp3->isgd == 0 && mtmp3->ispriest == 0 && mtmp3->isminion == 0 && mtmp3->isgyp == 0
-&& mtmp3->data != &mons[PM_SHOPKEEPER] && mtmp3->data != &mons[PM_BLACK_MARKETEER] && mtmp3->data != &mons[PM_ALIGNED_PRIEST] && mtmp3->data != &mons[PM_HIGH_PRIEST] && mtmp3->data != &mons[PM_DNETHACK_ELDER_PRIEST_TM_] && mtmp3->data != &mons[PM_GUARD]
+&& mtmp3->data != &mons[PM_SHOPKEEPER] && mtmp3->data != &mons[PM_MASTER_SHOPKEEPER] && mtmp3->data != &mons[PM_ELITE_SHOPKEEPER] && mtmp3->data != &mons[PM_BLACK_MARKETEER] && mtmp3->data != &mons[PM_ALIGNED_PRIEST] && mtmp3->data != &mons[PM_MASTER_PRIEST] && mtmp3->data != &mons[PM_ELITE_PRIEST] && mtmp3->data != &mons[PM_HIGH_PRIEST] && mtmp3->data != &mons[PM_DNETHACK_ELDER_PRIEST_TM_] && mtmp3->data != &mons[PM_GUARD] && mtmp3->data != &mons[PM_MASTER_GUARD] && mtmp3->data != &mons[PM_ELITE_GUARD]
 			&& mtmp3->mnum != quest_info(MS_NEMESIS) && !(mtmp3->data->geno & G_UNIQ) )
 
 				{
@@ -6384,7 +8139,7 @@ revid_end:
 		  }
 
 		  You("pick up an object from the %s.", surface(cc.x,cc.y));
-		  (void) pickup_object(otmp, Race_if(PM_LEVITATOR) ? otmp->quan : 1L, TRUE);
+		  (void) pickup_object(otmp, Race_if(PM_LEVITATOR) ? otmp->quan : 1L, TRUE, FALSE);
 		  newsym(cc.x, cc.y);
 		  t_timeout = rnz(250);
 		} else {
@@ -6405,7 +8160,7 @@ revid_end:
 	      You("start charging %s.", the(xname(uwep)));
 	      delay=-10;
 	      set_occupation(charge_saber, "charging", 0);
-	      t_timeout = rnz(500);
+	      t_timeout = rnz(2500);
 	      break;
 	    default:
 	    	pline ("Error!  No such effect (%i)", tech_no);
@@ -6418,6 +8173,7 @@ revid_end:
 			use_skill(P_TECHNIQUES, 1);
 		}
 		if (timeoutamount >= 1 && (timeoutamount > rn2(1000))) use_skill(P_TECHNIQUES, 1);
+		u.cnd_techcount++;
 	  }
 
 	  if (!PlayerCannotUseSkills) {
@@ -6463,7 +8219,7 @@ revid_end:
 
 		if (uamul && uamul->oartifact == ART_TYRANITAR_S_QUEST && !rn2(2)) techtout(tech_no) = 0;
 
-		if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_NO_ABNORMAL_FUTURE) techtout(tech_no) /= 4;
+		if (powerfulimplants() && uimplant && uimplant->oartifact == ART_NO_ABNORMAL_FUTURE) techtout(tech_no) /= 4;
 
 		if (techid(tech_no) == T_ASIAN_KICK) {
 
@@ -6590,6 +8346,15 @@ tech_timeout()
 		    case T_RAGE:
 			Your("anger cools.");
 			break;
+		    case T_SHUT_THAT_BITCH_UP:
+			You("can no longer shut up bitches.");
+			break;
+		    case T_EXTRA_LONG_SQUEAK:
+			pline("Your butt has stopped squeaking.");
+			break;
+		    case T_BULLETREUSE:
+			pline("Your ammo can no longer be reused.");
+			break;
 		    case T_CONCENTRATING:
 			You("stop concentrating.");
 			break;
@@ -6646,6 +8411,12 @@ tech_timeout()
 			break;
 		    case T_ESCROBISM:
 			pline("Escrobism is no longer active.");
+			break;
+		    case T_POWERBIOSIS:
+			pline("Your symbiote's awesome power fades.");
+			break;
+		    case T_IMPLANTED_SYMBIOSIS:
+			pline("The boost granted to your symbiote by your implant has been used up.");
 			break;
 		    case T_PIRATE_BROTHERING:
 			pline("Your pirate brothering ability deactivates.");
@@ -6783,11 +8554,19 @@ int tmp;
 static const struct 	innate_tech *
 role_tech()
 {
+	if (Race_if(PM_YUGGER)) return ((struct innate_tech *) 0); /* none */
+
 	switch (Role_switch) {
 		case PM_ARCHEOLOGIST:	return (arc_tech);
 		case PM_GOFF:	return (gof_tech);
 		case PM_DRUID:	return (drd_tech);
+		case PM_SOFTWARE_ENGINEER:	return (sof_tech);
+		case PM_CRACKER:	return (cra_tech);
+		case PM_STORMBOY:	return (sto_tech);
+		case PM_SPACE_MARINE:	return (sma_tech);
+		case PM_JANITOR:	return (jan_tech);
 		case PM_FIREFIGHTER:	return (fir_tech);
+		case PM_YAUTJA:	return (yau_tech);
 		case PM_GAMER:	return (gam_tech);
 		case PM_GLADIATOR:	return (gla_tech);
 		case PM_AMAZON:	return (ama_tech);
@@ -6804,6 +8583,7 @@ role_tech()
 		case PM_BLOODSEEKER:	return (blo_tech);
 		case PM_BLEEDER:	return (ble_tech);
 		case PM_CAVEMAN:	return (cav_tech);
+		case PM_DEMAGOGUE:	return (dem_tech);
 		case PM_DQ_SLIME:	return (sli_tech);
 		case PM_ERDRICK:	return (erd_tech);
 		case PM_BARD:	return (brd_tech);
@@ -6812,7 +8592,10 @@ role_tech()
 		case PM_TRANSVESTITE:	return (tra_tech);
 		case PM_PROSTITUTE:	return (kur_tech);
 		case PM_KURWA:	return (kur_tech);
+		case PM_DISSIDENT:	return (dis_tech);
 		case PM_MASON:	return (mas_tech);
+		case PM_XELNAGA:	return (xel_tech);
+		case PM_MASTERMIND:	return (mam_tech);
 		case PM_TRANSSYLVANIAN:	return (trs_tech);
 		case PM_TOPMODEL:	return (top_tech);
 		case PM_FAILED_EXISTENCE:	return (fai_tech);
@@ -6832,6 +8615,8 @@ role_tech()
 		case PM_CHAOS_SORCEROR: 		return (cha_tech);
 		case PM_JESTER: 		return (jes_tech);
 		case PM_LADIESMAN: 		return (lad_tech);
+		case PM_GEEK: 		return (gee_tech);
+		case PM_GRADUATE: 		return (gee_tech);
 		case PM_SEXYMATE: 		return (sex_tech);
 		case PM_ZOOKEEPER: 		return (zoo_tech);
 		case PM_MEDIUM: 		return (med_tech);
@@ -6844,6 +8629,8 @@ role_tech()
 		case PM_FEAT_MASTER: 		return (stu_tech);
 		case PM_DOLL_MISTRESS: 		return (dol_tech);
 		case PM_MIDGET:		return (mid_tech);
+		case PM_PSYKER:		return (psy_tech);
+		case PM_QUARTERBACK:		return (qua_tech);
 		case PM_GUNNER: 		return (gun_tech);
 		case PM_DOOM_MARINE: 		return (mar_tech);
 		case PM_ANACHRONIST: 		return (ana_tech);
@@ -6852,10 +8639,13 @@ role_tech()
 		case PM_SAIYAN: 		return (sai_tech);
 		case PM_PSION: 		return (psi_tech);
 		case PM_SCIENTIST: 		return (sci_tech);
+		case PM_ASTRONAUT: 		return (ast_tech);
+		case PM_CELLAR_CHILD: 		return (cel_tech);
 		case PM_DEATH_EATER: 		return (dea_tech);
 		case PM_DIVER: 		return (div_tech);
 		case PM_POKEMON: 		return (pok_tech);
 		case PM_NUCLEAR_PHYSICIST: 		return (nuc_tech);
+		case PM_EMPATH: 		return (emp_tech);
 		case PM_GANGSTER: 		return (gan_tech);
 		case PM_ROCKER: 		return (roc_tech);
 		case PM_NECROMANCER:	return (nec_tech);
@@ -6870,9 +8660,13 @@ role_tech()
 		case PM_SPACEWARS_FIGHTER:		return (spa_tech);
 		case PM_CAMPERSTRIKER:		return (cam_tech);
 		case PM_LOCKSMITH:		return (loc_tech);
+		case PM_WEIRDBOY:		return (wei_tech);
 		case PM_GANG_SCHOLAR:		return (sco_tech);
+		case PM_WALSCHOLAR:		return (wal_tech);
 		case PM_ROGUE:		return (rog_tech);
 		case PM_SAMURAI:	return (sam_tech);
+		case PM_CYBERNINJA:	return (cyb_tech);
+		case PM_GRENADONIN:	return (gro_tech);
 		case PM_NINJA:	return (nin_tech);
 		case PM_TOURIST:	return (tou_tech);
 		case PM_UNDEAD_SLAYER:	return (und_tech);
@@ -6884,6 +8678,13 @@ role_tech()
 		case PM_VALKYRIE:	return (val_tech);
 		case PM_WIZARD:		return (wiz_tech);
 		case PM_YEOMAN:		return (yeo_tech);
+		case PM_CARTOMANCER:		return (car_tech);
+		case PM_DRAGONMASTER:		return (dra_tech);
+		case PM_COMBATANT:		return (com_tech);
+		case PM_FJORDE:		return (fjo_tech);
+		case PM_PRACTICANT:		return (pra_tech);
+		case PM_EMERA:		return (eme_tech);
+		case PM_SYMBIANT:		return (sym_tech);
 		default: 		return ((struct innate_tech *) 0);
 	}
 }
@@ -6895,6 +8696,7 @@ race_tech()
 		case PM_DOPPELGANGER:	return (dop_tech);
 		case PM_DWARF:		return (dwa_tech);
 		case PM_ELF:
+		case PM_PLAYER_MYRKALFR:
 		case PM_DROW:		return (elf_tech);
 		case PM_CURSER:		return (cur_tech);
 		case PM_CLOCKWORK_AUTOMATON:		return (clk_tech);
@@ -6902,6 +8704,8 @@ race_tech()
 		case PM_FENEK:		return (fen_tech);
 		case PM_LOWER_ENT:		return (ent_tech);
 		case PM_NORD:		return (nor_tech);
+		case PM_RETICULAN:		return (ret_tech);
+		case PM_OUTSIDER:		return (out_tech);
 		case PM_LICH_WARRIOR:		return (lic_tech);
 		case PM_ALBAE:		return (alb_tech);
 		case PM_VORTEX:		return (vor_tech);
@@ -6910,40 +8714,57 @@ race_tech()
 		case PM_ANCIPITAL:		return (anc_tech);
 		case PM_DEEP_ELF:		return (dee_tech);
 		case PM_DEVELOPER:		return (dvp_tech);
+		case PM_PLAYER_ANDROID:		return (and_tech);
 		case PM_FAWN:		return (faw_tech);
 		case PM_PLAYER_GREMLIN:		return (gre_tech);
 		case PM_STICKER:		return (sti_tech);
 		case PM_THUNDERLORD:		return (thu_tech);
+		case PM_JAVA:		return (jav_tech);
 		case PM_WISP:		return (wis_tech);
 		case PM_ROHIRRIM:		return (roh_tech);
 		case PM_PLAYER_SALAMANDER:		return (sal_tech);
 		case PM_SATRE:		return (sat_tech);
+		case PM_KORONST:		return (kst_tech);
+		case PM_RUSMOT:		return (rus_tech);
+		case PM_CARTHAGE:		return (crt_tech);
+		case PM_MACTHEIST:		return (mac_tech);
+		case PM_BOVER:		return (bov_tech);
+		case PM_PERVERT:		return (per_tech);
+		case PM_MONGUNG:		return (mog_tech);
+		case PM_VIETIS:		return (vie_tech);
 		case PM_WEAPONIZED_DINOSAUR:		return (din_tech);
 		case PM_BURNINATOR:		return (bur_tech);
 		case PM_KOBOLT:		return (kob_tech);
 		case PM_OGRO:		return (ogr_tech);
+		case PM_PLAYER_FAIRY:		return (fay_tech);
 		case PM_BATMAN:		return (bat_tech);
 		case PM_HUMANOID_CENTAUR:		return (cen_tech);
 		case PM_BORG:		return (bor_tech);
+		case PM_WOOKIE:		return (woo_tech);
 		case PM_RODNEYAN:		return (rod_tech);
 		case PM_TURTLE:		return (tur_tech);
+		case PM_TURMENE:		return (tme_tech);
 		case PM_JELLY:		return (jel_tech);
 		case PM_HUMANOID_DRYAD:		return (dry_tech);
 		case PM_UNGENOMOLD:		return (ung_tech);
 		case PM_PLAYER_UNICORN:		return (uni_tech);
 		case PM_UNMAGIC_FISH:		return (unm_tech);
 		case PM_MOULD:		return (mou_tech);
+		case PM_MANSTER:		return (man_tech);
 		case PM_OCTOPODE:		return (oct_tech);
 		case PM_INKA:		return (ink_tech);
 		case PM_ARGONIAN:		return (arg_tech);
 		case PM_ARMED_COCKATRICE:		return (coc_tech);
 		case PM_INSECTOID:		return (ins_tech);
+		case PM_KLACKON:		return (kla_tech);
 		case PM_MUMMY:		return (mum_tech);
 		case PM_KHAJIIT:	return (kha_tech);
 		case PM_WEAPON_CUBE:	return (gel_tech);
+		case PM_TONBERRY:	return (ton_tech);
 		case PM_HOBBIT:		return (hob_tech);
 		case PM_HUMAN_WEREWOLF:	return (lyc_tech);
 		case PM_HUMAN_MONKEY:	return (hmo_tech);
+		case PM_PLAYER_ZRUTY:	return (zru_tech);
 		case PM_VAMPIRE:	return (vam_tech);
 		case PM_SUCKING_FIEND:	return (vam_tech);
 		case PM_VAMGOYLE:	return (vam_tech);
@@ -6960,9 +8781,15 @@ race_tech()
 		case PM_VENTURE_CAPITALIST:	return (ven_tech);
 		case PM_TRANSFORMER:	return (trf_tech);
 		case PM_WEAPON_TRAPPER:	return (trp_tech);
+		case PM_IRAHA:	return (ira_tech);
 		case PM_SPRIGGAN:	return (spr_tech);
 		case PM_VEELA:	return (vee_tech);
 		case PM_WARPER:	return (wrp_tech);
+		case PM_EGYMID:	return (egy_tech);
+		case PM_NEMESIS:	return (nem_tech);
+		case PM_CUPID:	return (cup_tech);
+		case PM_PLAYER_CERBERUS:	return (cer_tech);
+		case PM_BACTERIA:	return (bac_tech);
 		case PM_UNALIGNMENT_THING:	return (una_tech);
 		default: 		/*return ((struct innate_tech *) 0)*/return (def_tech);
 	}
@@ -7028,7 +8855,7 @@ int monnum;
 STATIC_PTR int
 charge_saber()
 {
-	int i, tlevel;
+	int i, tlevel, yourmana, manamultiply, calchelpvar, effectlevel;
 	if(delay) {
 		delay++;
 		return(1);
@@ -7042,15 +8869,61 @@ charge_saber()
 	}
 	if (tlevel >= 10 && !rn2(5)){
 		You("manage to channel the force perfectly!");
-		uwep->age+=1500; // Jackpot!
+		uwep->age += 1500; // Jackpot!
 	} else
 		You("channel the force into %s.", the(xname(uwep)));
 
-	// yes no return above, it's a bonus :)
-	uwep->age+=u.uen*(( (techlevX(T_CHARGE_SABER) + rnd(5 + techlevX(T_CHARGE_SABER)) ) /rnd(10))+3); /* improved results by Amy */
-	u.uen=0;
-	flags.botl=1;
+	/* it was simply too strong... arbitrarily lower the amount you'll get --Amy */
+	yourmana = u.uen;
+	manamultiply = 0;
+	while (yourmana > 99) {
+		manamultiply++;
+		yourmana -= 100;
+	}
+	yourmana = u.uen;
+	while (manamultiply > 0) {
+		calchelpvar = (yourmana - (manamultiply * 100));
+		if (calchelpvar < 1) goto manacalccomplete;
+		yourmana -= rnd(calchelpvar);
+		manamultiply--;
+
+	}
+manacalccomplete:
+	if (yourmana < 1) yourmana = 1; /* fail safe, shouldn't happen */
+
+	if (techlevX(T_CHARGE_SABER) < 1) {
+		pline("Your ability to charge the saber is beyond recall, and therefore nothing happens.");
+		return(0);
+	}
+	effectlevel = rno(techlevX(T_CHARGE_SABER));
+
+	/* yes no return above, it's a bonus :) */
+	uwep->age += (yourmana * (( (effectlevel + rnd(5 + effectlevel) ) / rnd(10)) + rno(3)));
+	/* improved results by Amy */
+
+	u.uen = 0;
+	flags.botl = 1;
 	return(0);
+}
+
+int
+techlevX(tech)
+int tech;
+{
+	int finaltechlevel = (u.ulevel - tech_list[tech].t_lev);
+	if (StrongTechnicality) {
+		finaltechlevel *= 4;
+		finaltechlevel /= 3;
+		finaltechlevel += 10;
+	} else if (Technicality) {
+		finaltechlevel *= 4;
+		finaltechlevel /= 3;
+		finaltechlevel += 3;
+	}
+	if (uarmh && itemhasappearance(uarmh, APP_TECHNICAL_HELMET)) finaltechlevel++;
+
+	if (finaltechlevel > 50) finaltechlevel = 50; /* fail safe */
+	return finaltechlevel;
 }
 
 /*WAC tinker code*/
@@ -7083,7 +8956,7 @@ tinker()
 		/* object downgrade  - But for now,  nothing :) */
 	}
 
-	setuwep(otmp, FALSE);
+	setuwep(otmp, FALSE, TRUE);
 	You("now hold %s!", doname(otmp));
 	return(0);
 }
@@ -7640,7 +9513,8 @@ blitz_power_surge()
 	num = 50 + (2 * techlevX(tech_no));
     	techt_inuse(tech_no) = num + 1;
 	u.uenmax += num;
-	u.uen = u.uenmax;
+	u.uen += num;
+	if (u.uen > u.uenmax) u.uen = u.uenmax;
 	return 1;
 }
 
@@ -7690,6 +9564,33 @@ blitz_spirit_bomb()
 	return 1;
 }
 
+/* for bad effects: add d50000 turns of timeout to a random tech */
+void
+eviltechincrease()
+{
+	int i, thisone, choicenumber;
+
+	thisone = -1;
+	choicenumber = 0;
+
+	for (i = 0; i < MAXTECH; i++) {
+
+		if (tech_list[i].t_id == NO_TECH) break;
+
+		if (!choicenumber || (!rn2(choicenumber + 1))) {
+			thisone = i;
+		}
+		choicenumber++;
+
+	}
+
+	if (choicenumber > 0 && thisone >= 0) {
+		techtout(thisone) += rnd(50000);
+		pline("Your %s technique is put on a lengthy timeout!", techname(thisone));
+	}
+
+}
+
 void
 techcapincrease(increaseamount)
 int increaseamount;
@@ -7712,6 +9613,7 @@ int increaseamount;
 
 	/* make this effect actually matter --Amy */
 	if (!rn2(2) && choicenumber > 1) increaseamount *= choicenumber;
+	increaseamount *= rnd(5);
 
 	if (choicenumber > 0 && thisone >= 0) {
 		techtout(thisone) += increaseamount;

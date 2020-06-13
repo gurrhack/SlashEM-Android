@@ -223,7 +223,7 @@ fnd:
 	}
 
 	/* make something interesting happen */
-	if(!(guard = makemon(&mons[PM_GUARD], x, y, NO_MM_FLAGS))) return;
+	if(!(guard = makemon((level_difficulty() > 39) ? &mons[PM_ELITE_GUARD] : (level_difficulty() > 19) ? &mons[PM_MASTER_GUARD] : &mons[PM_GUARD], x, y, NO_MM_FLAGS))) return;
 	guard->isgd = 1;
 	guard->mpeaceful = 1;
 	set_malign(guard);
@@ -250,7 +250,15 @@ fnd:
 	    mongone(guard);
 	    return;
 	}
-    if((Role_if(PM_CONVICT) || Role_if(PM_MURDERER) || Race_if(PM_ALBAE)) && !Upolyd) {
+
+	/* janitors on duty get a free pass; since there is no janitor uniform, they always count as on duty :D --Amy */
+	if (Role_if(PM_JANITOR)) {
+		verbalize("Oh, you're the janitor, I see. Now go and make that vault floor sparkle!");
+		mongone(guard);
+		return;
+	}
+
+    if((Role_if(PM_CONVICT) || Role_if(PM_MURDERER) || Race_if(PM_ALBAE) || Race_if(PM_PLAYER_DYNAMO)) && !Upolyd) {
         setmangry(guard);
         verbalize("I saw your pic on the wanted poster!");
 		if (!MON_WEP(guard)) {
@@ -278,11 +286,11 @@ fnd:
 
 	if (u.ualign.type == A_LAWFUL &&
 	    /* ignore trailing text, in case player includes character's rank */
-	    strncmpi(buf, plname, (int) strlen(plname)) != 0 && strncmpi(buf, plalias, (int) strlen(plalias)) != 0) {
+	    strncmpi(buf, plname, (int) strlen(plname)) != 0 && (!plalias[0] || strncmpi(buf, plalias, (int) strlen(plalias)) != 0) ) {
 		adjalign(-1);		/* Liar! */
 	}
 
-	if (!rn2(10) || (strncmpi(buf, plname, (int) strlen(plname)) != 0 && strncmpi(buf, plalias, (int) strlen(plalias)) != 0) ) {
+	if (!rn2(10) || (strncmpi(buf, plname, (int) strlen(plname)) != 0 && (!plalias[0] || strncmpi(buf, plalias, (int) strlen(plalias)) != 0)) ) {
 		boolean rumoristrue = rn2(2);
 		verbalize("I don't believe you. We will have to do a quiz to verify your identity.");
 		verbalize("You will now tell me whether the following rumor is true or not!");
@@ -567,11 +575,12 @@ letknow:
 			    "are confronted by an angry %s.",
 			    g_monnam(grd));
 
+			u.cnd_kopsummonamount++;
 			copcnt = rnd(monster_difficulty() ) + 1;
 			if (rn2(5)) copcnt = (copcnt / (rnd(4) + 1)) + 1;
 			if (Role_if(PM_CAMPERSTRIKER)) copcnt *= (rn2(5) ? 2 : rn2(5) ? 3 : 5);
 
-			if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "anti-government helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "antipravitel'stvennaya shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "aksil-hukumat dubulg'a") ) ) {
+			if (uarmh && itemhasappearance(uarmh, APP_ANTI_GOVERNMENT_HELMET) ) {
 				copcnt = (copcnt / 2) + 1;
 			}
 
@@ -580,7 +589,7 @@ letknow:
 			}
 
 		      while(--copcnt >= 0) {
-				(void) makemon(mkclass(S_KOP,0), grd->mx, grd->my, MM_ANGRY|MM_ADJACENTOK);
+				(void) makemon(mkclass(S_KOP,0), grd->mx, grd->my, MM_ANGRY|MM_ADJACENTOK|MM_FRENZIED);
 
 				if (!rn2(100)) {
 

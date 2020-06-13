@@ -536,7 +536,7 @@ static const char *random_mesg[] = {
 	"Mairzy Doats And Dozy Doats And Liddle Lamzy Divey A kiddley divey too, wouldn't you?",
 	"Madam, I may be drunk, but you are ugly, and in the morning I shall be sober.",
 	"Outside of a dog, a book is a man's best friend.",
-	"Inside of a dog, it's too dark to read." ,
+	"Inside of a dog, it's too dark to read.",
 	"You are superior in only one aspect. You are better at dying.",
 	"No McFly ever amounted to anything in the history of Hill Valley!",
 	"You've got to ask yourself one question: 'Do I feel lucky?' Well, do ya, punk?",
@@ -615,7 +615,7 @@ static const char *random_mesg[] = {
 	"We will BUILD heroes!", /* THE PROTOMEN */
 		"If you replace the working parts, you get a different machine.",
 		"If you destroy the working parts, what you get is a broken machine.",
-	"Never tell me the odds!" /* Starwars */,
+	"Never tell me the odds!", /* Starwars */
 	"Needle-like the new log to know that SlashEM Extended are you ...",
 	"http://nethackwiki.com/wiki/Slash%27EM_Extended I will not cease to poison by carbon monoxide",
 	"after opportunity to kill Cthulhu Geenome lightsaber, playing for the Khajiit-transsexual talk about that in other games is the freedom to choose make me laugh only",
@@ -668,8 +668,8 @@ static const char *random_mesg[] = {
 	"@ <--- You are here.",
 	
 	"Jesus was here 2/15/57 B.C.", /* Family Guy */
-	"If you have time to read this, you should get to the down stairs immediately!" /* Zelda 3 */
-	"Gary was here! Ash is a loser!" /* Pokemon */
+	"If you have time to read this, you should get to the down stairs immediately!", /* Zelda 3 */
+	"Gary was here! Ash is a loser!", /* Pokemon */
 	
 	"I see you...",
 		"...do you see me?",
@@ -962,6 +962,22 @@ static const char *random_mesg[] = {
 	"Vanilla Nethack getting BORING? Doing soko mazes in your sleep and while sitting on the train? Want a CHANGE? Try.... LAGOBAN! Do Sokoban from a server halfway around the planet, and bounce your signal off a server in yet another country while you're doing it! Make sure your wifi router is no closer than 40m from your current position for the full experience!",
 	"A fortune cookie told me if you try to set message history to before you were born, it angers your god!",
 	"GOOGL EM: Greased Outlandish Opportunist's Guide to Legends: Extended Magic",
+	"At the Shoeshop 69, 00420 Bundletown, Fleecyland",
+	"In the next was at the cover a schiessmaschine, which shot continuing, resounds.",
+	"Please brush your feet before entering the Dungeons of Doom. Sincerely, Moloch.",
+	"what's an anagram of Banach-Tarski? Banach-Tarski Banach-Tarski.",
+	"Well you are sometimes really stupid! And sometimes very! And sometimes small! And sometimes very!",
+	"that girl is called hole-girl-ass with me and is sow-super shit. and above all, i and my friend simply threw her about 18 found eggs next to the tree! har-har!",
+	"the most humans create super mario land 5 up to the end boss of the last world 8-4, but that is completely fast and (almost) only with fireballs defeatable. that is the all-heaviest end boss of the mario-luigi-games. har-har!",
+	"nobody except me has super mario land 5 completely finished, but i have in 8-4 always fireballs when i'm at the end boss. so somehow the game is sow easy. har-har!",
+	"i have the game 'super mario land 5' completely finished until world 8-4, and that i finished too, and even the sow-heavy end boss on which you have to jump 10 times. har-har!",
+	"crapshoot noun, North American - The chance of finding a secret door or corridor in NetHack with a new character.",
+	"DEMO casts SEGFAULT! It's super effective! THRONE-POOFING CODE fainted! DNETHACK was defeated!",
+	"slexxx <--- nethack porn", /* by K2 */
+	"Whoops, by reading this message you've contracted corona virus!",
+	"This space is definitely not infected with covid-19 yet.",
+	"know when to hold em, know when to fold em, know when to pork'em, know when to run", /* by porkman */
+	"The engraving you have just started reading is the engraving you have just finished reading.",
 
 };
 
@@ -1075,8 +1091,8 @@ can_reach_floor()
 {
 	return (boolean)(!u.uswallow &&
 			/* Restricted/unskilled riders can't reach the floor */
-			!(u.usteed && !(nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) && (PlayerCannotUseSkills || P_SKILL(P_RIDING) < P_BASIC) ) &&
-			 (!Levitation || is_table(u.ux, u.uy) ||
+			!(u.usteed && !(uwep && uwep->oartifact == ART_SORTIE_A_GAUCHE) && !(powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) && (PlayerCannotUseSkills || P_SKILL(P_RIDING) < P_BASIC) ) &&
+			 ((!Levitation || StrongLevitation) || is_table(u.ux, u.uy) ||
 			  Is_airlevel(&u.uz) || Is_waterlevel(&u.uz)));
 }
 #endif /* OVLB */
@@ -1212,7 +1228,7 @@ register xchar x,y,cnt;
 
 	/* Burned Elbereth engravings will no longer be truly permanent. --Amy */
 
-		pline(Hallucination ? "Flaming words rising up into the air... this must be MAGIC!" : "Suddenly, the burned engraving disappears into the ether!");
+		pline(FunnyHallu ? "Flaming words rising up into the air... this must be MAGIC!" : "Suddenly, the burned engraving disappears into the ether!");
 	    del_engr(ep);
 	    ep = (struct engr *)0;
 
@@ -1222,7 +1238,7 @@ register xchar x,y,cnt;
 
 	/* scare monster scrolls might randomly disappear --Amy */
 
-		if (!rn2(10)) pline(issoviet ? "Vy chuvstvuyete nekotoruyu ekstremal'nuyu zharu! Popytka Soveta SSSR sokhranit' ispug monstr svitkov obratnyy effekt, kha-kha-kha!" : Hallucination ? "You get a hot feeling! Maybe some sexy girls are around here somewhere?" : "You sense some sort of heat for a moment!");
+		if (!rn2(10)) pline(issoviet ? "Vy chuvstvuyete nekotoruyu ekstremal'nuyu zharu! Popytka Soveta SSSR sokhranit' ispug monstr svitkov obratnyy effekt, kha-kha-kha!" : FunnyHallu ? "You get a hot feeling! Maybe some sexy girls are around here somewhere?" : "You sense some sort of heat for a moment!");
 		(void) burn_floor_paper(x, y, TRUE, FALSE); /* The actual chance of this removing the scroll is about 3%. */
 
 	}
@@ -1300,6 +1316,7 @@ boolean read_it; /* Read any sensed engraving */
 	    if (sensed && !read_it &&
 			    flags.suppress_alert < FEATURE_NOTICE_VER(0,0,7)) {
 		pline("Use \"r.\" to read it.");
+		if(flags.run > 0) nomul(0, 0, FALSE);
 	    } else if (sensed && read_it) {
 #endif
 	    	char *et;
@@ -1318,7 +1335,7 @@ boolean read_it; /* Read any sensed engraving */
 
 		You("%s: \"%s\".",
 		      (Blind) ? "feel the words" : "read",  et);
-		if(flags.run > 1) nomul(0, 0, FALSE);
+		if(flags.run > 0) nomul(0, 0, FALSE);
 		return TRUE;
 	    }
 	}
@@ -1542,6 +1559,114 @@ doengrave()
 
 	}
 
+	/* from *shudder* Nethack 3.6 - if the wand could explode when zapped, it can also explode when engraved --Amy */
+	if (otmp && otmp->oclass == WAND_CLASS) {
+		if(otmp->otyp == WAN_MISFIRE) {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);  /* the wand blows up in your face! */
+			exercise(A_STR, FALSE);
+			return(0);
+		}
+
+		else if(otmp->cursed && !rn2(5)) {
+			/* WAC made this rn2(5) from rn2(100)*/
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);  /* the wand blows up in your face! */
+			exercise(A_STR, FALSE);
+			return(1);
+		}
+
+		/* evil patch idea by jonadab: eroded wands have a chance of exploding */
+		else if ( (otmp->oeroded > 2 || (otmp->oeroded2 > 2 && !(objects[(otmp)->otyp].oc_material == MT_COMPOST) ) ) && !rn2(5) ) {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);  /* the wand blows up in your face! */
+			exercise(A_STR, FALSE);
+			return(1);
+		}
+		else if ( (otmp->oeroded > 1 || (otmp->oeroded2 > 1 && !(objects[(otmp)->otyp].oc_material == MT_COMPOST) ) ) && !rn2(20) ) {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);  /* the wand blows up in your face! */
+			exercise(A_STR, FALSE);
+			return(1);
+		}
+		else if ( (otmp->oeroded > 0 || (otmp->oeroded2 > 0 && !(objects[(otmp)->otyp].oc_material == MT_COMPOST) ) ) && !rn2(80) ) {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);  /* the wand blows up in your face! */
+			exercise(A_STR, FALSE);
+			return(1);
+		}
+
+		/* evil patch idea by jondab: zapping a wand while impaired can cause it to explode */
+		else if ( Stunned && !rn2(StrongStun_resist ? 2000 : Stun_resist ? 200 : 20) ) {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);
+			exercise(A_STR, FALSE);
+			return(1);
+		}
+		else if ( Confusion && !rn2(StrongConf_resist ? 15000 : Conf_resist ? 1500 : 150) ) {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);
+			exercise(A_STR, FALSE);
+			return(1);
+		}
+		else if ( Numbed && !rn2(500) ) {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);
+			exercise(A_STR, FALSE);
+			return(1);
+		}
+		else if ( Feared && !rn2(500) ) {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);
+			exercise(A_STR, FALSE);
+			return(1);
+		}
+		else if ( Frozen && !rn2(30) ) {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);
+			exercise(A_STR, FALSE);
+			return(1);
+		}
+		else if ( Burned && !rn2(300) ) {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);
+			exercise(A_STR, FALSE);
+			return(1);
+		}
+		else if ( Dimmed && !rn2(1000) ) {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);
+			exercise(A_STR, FALSE);
+			return(1);
+		}
+		else if ( Blind && !rn2(200) ) {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);
+			exercise(A_STR, FALSE);
+			return(1);
+		}
+		else if ((MagicDeviceEffect || u.uprops[MAGIC_DEVICE_BUG].extrinsic || have_magicdevicestone()) && !rn2(10)) {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);
+			exercise(A_STR, FALSE);
+			return(1);
+		}
+
+		else if(otmp->otyp == WAN_WONDER && !rn2(100)) {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);  /* the wand blows up in your face! */
+			exercise(A_STR, FALSE);
+			return(1);
+	    /* WAC wands of lightning will also explode in your face*/
+		} else if ((otmp->otyp == WAN_LIGHTNING || otmp->otyp == SPE_LIGHTNING) && (Underwater) && (!otmp->blessed))   {
+			pline("%s suddenly explodes!", The(xname(otmp)));
+			wand_explode(otmp, FALSE);	/* the wand blows up in your face! */
+			exercise(A_STR, FALSE);
+			return(1);
+		}
+
+	} /* wand can explode check */
+
 	/* There's no reason you should be able to write with a wand
 	 * while both your hands are tied up.
 	 */
@@ -1697,9 +1822,16 @@ doengrave()
 		    case WAN_CHARGING:
 		    case WAN_CURSE_ITEMS:
 		    case WAN_AMNESIA:
+		    case WAN_BLEEDING:
+		    case WAN_UNDRESSING:
+		    case WAN_DISENCHANTMENT:
+		    case WAN_CONTAMINATION:
+		    case WAN_TREMBLING:
 		    case WAN_BAD_LUCK:
 		    case WAN_REMOVE_RESISTANCE:
 		    case WAN_CORROSION:
+		    case WAN_CHAOS_TERRAIN:
+		    case WAN_FLEECY_TERRAIN:
 		    case WAN_FUMBLING:
 		    case WAN_TIDAL_WAVE:
 		    case WAN_SUMMON_ELM:
@@ -1710,6 +1842,8 @@ doengrave()
 		    case WAN_FINGER_BENDING:
 		    case WAN_LYCANTHROPY:
 		    case WAN_IMMOBILITY:
+		    case WAN_INSANITY:
+		    case WAN_BAD_EQUIPMENT:
 		    case WAN_EGOISM:
 		    case WAN_SIN:
 			zapnodir(otmp);
@@ -2184,7 +2318,7 @@ doengrave()
 	    case VENOM_CLASS:
 #ifdef WIZARD
 		/*if (wizard) {*/
-		    pline(Hallucination ? "That would require some huge hands as it's just smearing big letters everywhere." : "Writing a poison pen letter??"); /* why the heck was this wizard-mode only??? --Amy */
+		    pline(FunnyHallu ? "That would require some huge hands as it's just smearing big letters everywhere." : "Writing a poison pen letter??"); /* why the heck was this wizard-mode only??? --Amy */
 		    break;
 		/*}*/
 #endif
@@ -4316,7 +4450,7 @@ static const char *epitaphs[] = {
 	"Did you see him passing by?", /* Dark Souls 3 */
 		"The world began without knowledge, and without knowledge will it end.", /* Dark Souls */
 		"Fear not the dark, my friend. And let the feast begin.",
-	"For every hero commemorated, a thousand martyrs die unmourned and unremembered." /*Warhammer 40k*/
+	"For every hero commemorated, a thousand martyrs die unmourned and unremembered.", /*Warhammer 40k*/
 	"FIQ:  One step from divinity.",
 		"FIQ:  Debugging dNethack, one iron ball to the face at a time.",
 		"FIQ, killed by a clockwork bug.",
@@ -4335,7 +4469,7 @@ static const char *epitaphs[] = {
 	"I beat you in the human race.", /*Fable*/
 	"Nobody expects the Spanish Inquisition!", /*Monty Python*/
 	"Omnes una manet nox", /*One night awaits us all*/
-	"I wake. I work. I sleep. I die." /*Alpha Centauri*/
+	"I wake. I work. I sleep. I die.", /*Alpha Centauri*/
 	"I suddenly have a LOT of regrets.", /*Water Phoenix King is very quoteable...*/
 	"You either die a hero, or you live long enough to see yourself become the villain.", /* Batman, the Dark Knight */
 	"What can men do against such reckless hate?", /* the Lord of the Rings (Two Towers movie) */
@@ -4446,7 +4580,7 @@ static const char *epitaphs[] = {
 	"Slash'EM Extended combines both of these traits into one variant and cranks them both up to eleven and then some, so starting with that one would definitely be jumping in at the deep end of the lava pool, with a heavy iron ball shackled to each ankle.", /* ditto */
 	"Tried to polymorph into a yellow mold in Burphack to cure the zombification disease and got a SIGFPE.",
 	"Died from whacking a wall in Rodney's Tower with my katana. What the hell?",
-	"GAH the CURSED resistance change in Rodney's Tower made it so that I lost strength from eating a poisonous corpse even though I was resistant from eating a killer bee earlier! And as a result, my strength was so trashy that I died when a lone soldier ant appeared!"
+	"GAH the CURSED resistance change in Rodney's Tower made it so that I lost strength from eating a poisonous corpse even though I was resistant from eating a killer bee earlier! And as a result, my strength was so trashy that I died when a lone soldier ant appeared!",
 	"Tried to play the newest version of Rodney's Tower and got annoyed to death by all the annoyance factors.",
 	"Tried to do Sokoban in Rodney's Tower, using autotravel to skip past boring walking segments, and OF COURSE it pushed a boulder into a corner. I then committed sudoku because I don't want to have the travelto command trashed. It should work normally, dammit!",
 	"Something in Rodney's Tower used a scroll of summoning, and even though the monster reading it was standing very far away, the minotaur appeared right next to me and owned me. Yet another scroll that can randomly end your game! Genius!",
@@ -4763,6 +4897,449 @@ static const char *epitaphs[] = {
 	"I bought an antibundling shield but I think I got fleeced.",
 	"somehow I don't think of variant paranoia as applying to SLEX because the variant actually IS out to get you!", /* by ais523 */
 	"Where does the insidious woman picture put?",
+	"All this, because of a dream?",
+	"Why are they doing this?",
+	"I thought these religions had nothing to do with each other!?",
+	"Lolth, help me!",
+	"I can't control my arms!",
+	"I can't stop!  Look out!!",
+	"Cut me lose, please!",
+	"It's so dark!",
+	"Free me!",
+	"Lolth, why have you forsaken me!?",
+	"It was waiting for us!",
+	"Kill me!  Please, just kill me...",
+	"Could you tell me where the Amulet of Yendor is?",
+	"I must leave now!",
+	"I tried to catch an Entei and it used roar and now it's forever unobtainable, hence I suicided.",
+	"Cursed are you who calls me forth. I damn you to bear my sign and my flames, alone in this world of darkness!",
+	"Sometimes, what was broken cannot be restored.",
+	"By your hand was this done, therefore you shall be stained by my blood.",
+	"Phanto from Super Mario Bros 2 is a sow retard and I wish I could genocide his ass.",
+	"Evil f-u-c-k-i-t!",
+	"I hope you visit again some time.",
+	"Free me from this place, and I and my brood shall fight for your cause.",
+	"God does not exist. After all, he allowed the holocaust to happen, and if he really existed and cared about humans he'd have conjured divine lightning to kill all the fucking nazis before they can do their evil deeds.",
+	"None shall rest until my vengeance is complete.",
+	"Here lies Vera, calm and placid...",
+	"You see here a python corpse. You feel that python is dead.",
+	"i think i'm lost, hehe",
+	"they're coming to get me",
+	"tango down",
+	"this is a strange world you've got here",
+	"i keep hearing about the 'etherwind' and the horrible things that come with it...is it really true?",
+	"1 killed. Who is next?",
+	"Oh no. Not that!",
+	"Arrrrgh! My one weakpoint...",
+	"For the Demon King: Eddie Murphy!",
+	"The nightmare continues.",
+	"The maid jumps up and down",
+	"I've been canned!",
+	"She died by the bullet and then there were none.",
+	"Unbelievably,I lose.",
+	"Guess I flunked it.",
+	"I should have quit while I was ahead.",
+	"maydey meydey",
+	"This was a mismanaged venture.",
+	"This just ain't my day.",
+	"I can say this all day. Let me vote! This is a national disgrace! Let me vo-", /* Red Dead Redemption 2 */
+	"RIP suffragette, beaten up by Arthur Morgan.",
+	"RIP suffragette, she got rolled over by a train.",
+	"RIP suffragette, she got eaten by an alligator.",
+	"RIP suffragette, she got dropped in a mine shaft and fed to the devil.",
+	"Ruat coelum, fiat iustitia. Ecce, lex rex!", /* by Porkman */
+	"Satan's Flaming Bollocks!", /* ditto */
+	"Here lies Antichthon. Crushed underneath an express train from HELL.", /* with 50-odd egotypes */
+	"if you play slex, you *are* a dickhead", /* by porkman */
+	"Oh no! The brain drain!",
+	"Spork Astral hits! You feel your game fading away...", /* by aosdict, after K2 suffered an astral splat :( */
+	"After 20 hours of playing bigslex I suddenly ran into a damms and died in two turns. Fuck that stupid game, why the hell are level 90 outta depth crap monsters spawning in sokoban and randomly ending my run.",
+	"I lost the run to RNG, dude!",
+	"Fucking game bugs. The loadstone that the lich put into my inventory weighed 21600 units and of course my blessing technique was on timeout.",
+	"Argh, tender jesses are overpowered. How the heck do you handle them?",
+	"Why does the game constantly spawn lulu asses, anyway?",
+	"Are you SURE that's a wand of wishing?",
+	"Croesus?  Who's he?",
+	"Who knows, how moves the people nowadays is? They are capable and kill one because allegedly a turning place belongs to them!",
+	"I died in the cutscene! What the actual fuck!",
+	"I'm out of water. I have no water? I HAVE NO FUCKING WATER??? There is no goddamn water left in my F.L.U.D.D.!",
+	"I hate this stupid game *so* much.",
+	"TAPE MEASURER! Who could ever need a tape measurer? GARBAGE!",
+	"I tried to speedrun real life, but got stuck at the relationship section of the run.",
+	"The most important part is not dying... wait what? NO! I DIED!",
+	"Damn, I only have one hit point left! Well then, I guess I'll start randomly quaffing potions. Let's try the effervescent potion first.",
+	"Uhh I think I'm gonna die in a couple of turns. Might as well read my unidentified scrolls, maybe one of them will save me. I'll start with the one labeled YO I PLAYED THE GAME AND DIED TO SOME UTTER BULLSHIT.",
+	"Oh no, the mind flayer is going to kill me on its next turn because my intelligence was just reduced to 3! I think I'll zap this californium wand at it, maybe it's an attack wand that kills it!",
+	"Engrave-testing wands is stupid, I'd much rather find out what they are by zapping them at myself. Let's see what this cavorite wand will do...",
+	"What? You're supposed to engrave-test wands? That's stupid, a much better method is to break them since that way you'll identify some of the types that give no message upon engraving. Here, hold my beer while I break-test this ribbed wand...",
+	"Josefine killed me with her velcro sneakers while I was unconscious from smelling her sweaty feet!",
+	"Here lies someone who absolutely wanted to find out how far Lydia's lady pumps will go if one lets them. Well, it turns out that they can actually cause death by bleeding from terrible leg scratches.",
+	"This fool was just standing there without retaliating while Katia scratched her block heels over his leg again and again until he died from loss of blood.",
+	"This grave contains yet another poor victim of a pair of stiletto heels that managed to split his skull by beating on it repeatedly.",
+	"Hey, I know the best way to get away from an annoying monster! I'll just start teleporting randomly! That certainly isn't going to land me in a more dang-",
+	"Dammit, if this potion of healing doesn't heal at least as much as the rate at which the monsters are dealing damage to me I'll be dead.",
+	"Noooooooo! That Amy bitch fixed my favorite exploit from an older slex version and therefore the new version sucks! I will only ever play games that don't fix obvious loopholes, because I can't handle a game that is actually challenging!",
+	"Whaaaaat you made black dragon breath cost 100 mana? This is fucking unplayable, and I will go back to an older slex version now because I'm such a filthy heretic.",
+	"omg ever since amy changed it so that digestion attacks dont always instakill monsters the game has become very sucky, why even play",
+	"What? You actually die instantly if you spend too much time inside a purple worm?",
+	"Say what, you're not supposed to hit mirror patches with a cockatrice corpse?",
+	"Yeah uhh I was made deathly sick and don't know what a scroll of cure is, I just punched random buttons instead of familiarizing myself with my starting inventory before I started playing.",
+	"What? The scroll of healing doesn't heal sickness??? What even IS this?",
+	"Wait what? That can HAPPEN? In vanilla such a bullshit death would have been unthinkable!",
+	"I wanted to grab Bowser's tail but missed, and ended up falling into a pool of lava.",
+	"Yay I actually got a VC crash, that makes me so happy.",
+	"Lost the run to a fucking cartridge tilt.",
+	"Damn, why did the stupid game crash instead of simply loading the next area???",
+	"Yeah uhh, the game just loaded and loaded and didn't actually get done with it, so I suspected that it had frozen and killed it.",
+	"Oh damn, why did that wand have to be out of charges just now.",
+	"The annoying thing with bows is that you constantly run out of arrows! How are you even supposed to play an archer role?",
+	"The elder priest used an aimbot and a wallhack!",
+	"I tried to do wizard farming but the wizards just kept casting slow on me until I was so slow that they proceeded to actually kill me.",
+	"Damn, the thief speedup bug is back! Quick, everyone, run for your lives, children and women first!",
+	"Man this is such a stupid bug, the thief tried to unsuccessfully steal my money four times in a row but then he suddenly ninetuple-turned me and I died from full HP.",
+	"Why does the game put up warning messages and then freeze if I cast sleep monster, leave the level that the sleeping monster was on, and return after a while?",
+	"What is wrong with the game developer? I didn't feel like picking up every stupid item on the floor, so eventually a lot of crap accumulated from killed monsters but I didn't expect the game to run out of memory if there are too many items!",
+	"Why are the 19BE trips capable of magically attracting teleports?",
+	"Stupid level bug, why can't that one go on vacation for once.",
+	"Why did you save the game while engulfed? Some genius you are!",
+	"Amy, I'd advise you to remove all your stupid monsters and leave only the ones from vanilla, SLASH'EM and dnethack in the game.",
+	"Umm, guys?  You know I just cast epic-level Hour of Silence, right?  None of your spells have any effect whatsoever.",
+	"evilhack is 'with a purpose but balanced and challenging' evil. slex is 'bwaaaaaah i'm on acid I smell purple lets add n to the x things weeee' evil", /* by K2; obviously I disagree with him on that one, because I view slex as very balanced (yes, seriously! just because the game is unfair and tries to kill player characters doesn't automatically mean it's unbalanced) --Amy */
+	"I didn't know cats could break the illiterate conduct.", /* by Hekik */
+	"Boss bug. That's all I'm saying.",
+	"This is so stupid, if you warp to the black moorland and explore in any direction you'll immediately encounter at least 4-5 bosses and also a bunch of champions, so you end up getting owned with no chance!",
+	"What the hell, why does the monster blizzard spell deal 600+ damage even though I'm cold resistant???",
+	"Wow, the beautifully sharp claws really expenditure-feasted my soso.",
+	"A SEVERE ERROR HAS OCCURRED - my merc is gone, his equipment is gone, EVERYTHING is gone! So I decided to suicide my character.",
+	"Suddenly the game crashed and produced a broken save. I tried to load it again but failed, so I hex-edited it but then trying to load it resulted in an error message saying that my merc had impossibly high stats. How the hell am I supposed to fix that???",
+	"SUCK! I died to an upper-crazy hi-jork even though that's certainly not capable of dealing so much damage in one hit!",
+	"I died on purpose because I had wasted my character's skill points on the wrong skills, so I just stood next to a bunch of carrion birds to check how long I survive if I don't fight back.",
+	"The assassin role SUXXX OVER ALL!",
+	"My merc was so stupid and cast inferno 50 times at a lightning-enchanted boss that stood right next to me, so I got hit-recovery-locked by the lightnings and died.",
+	"An urdar slammed shut.",
+	"I got defeated by an exploding barrel! Because I absolutely wanted to see what the death message would be if you die to that. It was close though, I'd almost have died to a hungry dead potato instead!",
+	"A shaman boss who thought he was Colenzo offed me.",
+	"I didn't run away from the dung soldiers' lightnings, but simply bashed away.",
+	"Mage boss. I guess I don't need to say anything else.",
+	"An army of pleased shamans with fanaticism boss. They showed me how to defeat an opponent, only that the one who was defeated was ME.",
+	"Man, I have no idea how I died! I just wanted to re-summon my grizzly because he had died, when all of a sudden about 5 champions appear and all shoot arrows at me and they all hit - DEAD from 2000+ HP! I can't believe it... now I have to start all over again with a new char!",
+	"I was fighting the armorer and it seemed to be going well, but when he was down to half health he suddenly started to chase after me and was already as fast as a car. I'm trying to lose him and run up a stair but remain hanging, the guy hits me, bam, dead. That was stupid.",
+	"There's not much to say other than that the enemy was lightning enchanted.",
+	"I was stupid enough to engage the rogue captain at experience level 3. After the first arrow I had lost less than half of my HP so I didn't expect the next arrow to kill me.",
+	"My necromancer was busted by the cops because I didn't watch out. Why do I have to undergo hit recovery for half an hour when I get hit, anyway?",
+	"This is impossible. I had lightning resistance and over 400 HP, and died to two or three lightnings from a death beetle. From full health.",
+	"There were hundreds of black souls and stygian dolls and I ran out of healing potions. I was hoping to just run through between them but it didn't work out.",
+	"The dungeon is a murderous place! Even with good fire resistance you're still not adequately protected from the soul deadmaker shaman's flamethrower!",
+	"Due to the weird vipers standing in the way, I was unable to move away from the wall of fire in time!",
+	"Due to my armor being too heavy, I was unable to evade any attacks!",
+	"I lost to a fire enchanted Ruth, because I thought I could survive with sufficient fire resistance. Apparently you can't.",
+	"Well, without a merc the necro can do nothing, and he also never has magic resistance despite a shield that gave fire and lightning resistance.",
+	"There were a lot of light worm champions, so I wanted to finish them off with my sword, but suddenly the boss whom everyone knows came with super-many minion spiders and cursed me, and then I couldn't get away in time. Maybe experience level 23 was too low after all?",
+	"I was quite stupid to not run out of the ultra fire wall despite seeing that it's there.",
+	"The corpse collision bug shouldn't happen just in the situation where an extra strong cellar master is standing right in front of you and you can't whirl due to lack of mana.",
+	"Totally the many bears, deamon steeds and suchlike, and the resurrection bill for my merc was too expensive.",
+	"I died to the absolute boss of the entire game, in a single hit despite having over 600 HP, maxxed lightning and poison resistance and over 900 AC. Well at least it was a beautiful death because a girl killed me!",
+	"I died to cheap opponents! Why the hell does the healing potion take half a century to heal me?",
+	"It's not very easy to run through an army of duriels and turbo clubmans if you only have one hand to control your character because the other hand is busy holding the phone.",
+	"weird, why do rock worm champions do so much damage? There probably tunes which not!",
+	"why does the barricade have so much health? and why does my girlfriend have so little? and above all, why can't I just whirl through barricades and other obstacles!",
+	"Oh no, I even had one hit point left! But if my guy continues whirling instead of stopping to heal, no wonder I die...",
+	"The works, I had no fire absorb and you can guess what happened next. Man, this is annoying! I saw the ultra fire storm! Why did I walk into it?",
+	"I died because the wood head does totally much damage and the chance to avoid the much damage is close to zero.",
+	"I died due to the mistake of getting too close to a sand warrior that controlled all three elements.",
+	"Suddenly Duriel did a charge attack and killed me. All the time he didn't do one while the valkyrie was still alive!",
+	"Yet again I died to wig sheep champs, when I tried to get to a yellow light bulb.",
+	"My ama had way too little health to survive such a super-cold-damage leap attack.",
+	"usually I finish off all the sparkers with negative lightning resistance but this time it did not go!",
+	"I died in the city of the condemned potatoes because, what else, there were too many mages and also 2 bosses of other annoyers.",
+	"weird, despite 500 HP and good resistances I didn't see any red in the life orb after one inferno, and the next hit killed me.",
+	"I died to a bug! But there were so many bugs that the entire screen was filled with them and of course I couldn't block any attacks due to missing a shield!",
+	"For once I DIDN'T die to a mage in the city of the condemned potatoes! Instead I died to a super rocket from a black muzzle boss that I couldn't evade due to a bug!",
+	"Oh no, so you can actually die to iron maiden after all! This never happened to me before!",
+	"man, this is annoying! It wasn't even the upper-strong one! I wonder whether the upper-strong one would have killed me from full HP!",
+	"How are you supposed to evade the spell ammos without stamina? Right! Not at all! Instead one must allow themselves to get hit because evading is impossible!",
+	"It was stupid of me to expect being able to survive more than one hit.",
+	"Three suicide bombers all exploded at me and I died.",
+	"Died to an upper-bad multisparker! What are you supposed to do if the lightnings shoot at you faster than a Ferrari?",
+	"Died to a priest.",
+	"Oh no, I had already killed the armorer! But then hundreds of badguys appeared from nowhere!",
+	"Yet again a multisparker killed me, who was additionally capable of shooting cooling rockets.",
+	"I died to upper wimps! But I didn't manage to get away from them in time!",
+	"My F2 hotkey wasn't set to 'summon golem' as I had thought, but to 'aging'! So I didn't have a golem to protect me from the GTS boss with fanaticism, who then proceeded to one-shot me.",
+	"I died to a single super rocket, because the choice muzzle does totally much damage. All the previous runs he didn't even hit me at all!",
+	"Damn, I died because the boss narrowly hit me just before I could warp away via portal.",
+	"Dead because the boss was capable of teleporting!",
+	"Might aura, what the hell are you supposed to do about that.",
+	"That weird potato guy who firecrackers completely weird cold. I had too little health and therefore died very quickly. And of course my crossbow never hit him either.",
+	"After the nose enchantment explosion I only had about 3 HP left, and then the last remaining green zombie hit me of course. I shouldn't be playing this character if I'm so wimpy to die to that.",
+	"Totally the many beer drinkers and duriels, which cannot be defeated if you only do 11-13 times 11 (at most) damage.",
+	"Cause of death? Because the beautiful Ruth's had a boss with way too many HP.",
+	"upper-many enemy types in all corridors, so I couldn't town portal out anymore. But if I were to use it to warp back in I'd die instantly, and again through the grave mill is no fun, so I delete this char!",
+	"Due to the wall being in the way, I couldn't run out of the ultra fire wall!",
+	"If that red whore would at least have died to my poison gas, I'd go on playing! But because I no longer have a girlfriend now, I fire a function in golden status!",
+	"Because my brother was faster than me, I had to delete my character!",
+	"I lasted for quite a while! But the stupid Duriel always headshots me, what the hell are you supposed to do about that?",
+	"Man, the minions are so stupid! And why do the stupid healing potions just not work? And where did the hundreds of enemies come from? Now I'm dead because of a smaller grotesque! The Ro-asking would now say 'Hea! Lol!'",
+	"I overestimated my abilities.",
+	"suddenly the Talic used a stupid combat command cry, and then all three grandpas hammered on me at once, and even though they were not cursed I lost 1200 HP in an instant. Actually all three of them should have been wimps. So, everyone, watch out: those guys are mean!",
+	"The buddy was dead, and then there were completely many flayer annoyies and suchlike, and there I couldn't do anything. And the town portal wasn't usable once again.",
+	"Suddenly the elephant used an earthquake and I was almost dead, and then I was so stupid and ran into an inferno with negative fire resistance.",
+	"I killed myself with an amulet! The level 6 raise skeleton effect took off 34 of my HP with every cast, just like that, and the mastery I had on the same amulet didn't work!",
+	"The level 4 traps were meaner than expected. They constantly fired super rockets and then there were the ultra fire traps as well, what the hell could I have done there.",
+	"Killed by Horazon, what else, because the assie made a firewall. There was nothing I could have done about that.",
+	"I was dead before the game had loaded the area I ported to. There was a steel beetle boss who died immediately to my minions and took me with him, that's something I can't do anything about.",
+	"what the hell are you supposed to do if the entire screen is full of storm callers and all have fanaticism and are blocking the portal.",
+	"because the upper-bad council bosses had even worse hydras and fully the bad 'extra annoying' and then still holy cold weather. There you can do nothing at all.",
+	"Because the hugging-jessica was so wimpy and died twice in one minute, and I only had enough money to repeat her once, I surrendered. I mean, there's nothing I can do about the hostile girlfriends. That said, I might theoretically have done it, but it would have sucked in any case.",
+	"I even survived the holy static field, but then that guy had such a stupid fire explosion and of course I had way too little HP so I died yet again.",
+	"because the cave speeders were so super bad and showed me where it long-goes, I lost.",
+	"because I cannot leave a wo rune lying on the ground, I had to grab it despite monsters beating on me from all sides, and then I died just as I wanted to ESC out of the game.",
+	"There's nothing you can do when fighting Mephisto. I think his attacks should be made weaker.",
+	"I had too little health and was shot by evil archers.",
+	"How much damage did THAT do? Not even in the regular version of the game the fire nova does so much, and I even made it weaker! There genuinely tunes which not!",
+	"after a battle with devilish potato shamans I was down to single-digit HP. Normally that's no problem, normally you press the '1' button and have HP again! But if the hand that presses the '1' button cannot reach for that button and you have to click on the healing potions with the mouse, you need to be lucky that the arrow doesn't hit you, and in this case it obviously did hit!",
+	"If this dungeon hadn't crashed the first time, I wouldn't have encountered menises at all, and then I could have done it!",
+	"Man, why is 'got immured' not a valid cause of death? There's nothing you can do, as there were way too many stygian dolls and even more shamans, so I just didn't have a chance.",
+	"I turned on the wrong aura and was immured by the dog generator and got killed.",
+	"if you become super slow and from farther away fully bad fireballs are shot at you, there's nothing that you can do at all.",
+	"there one can do nothing at all. Actually Bremm Sparkfist is bad enough because he has conviction! One should remove the lightning enchantment, that's for sure!",
+	"Huuuuuuuuuuuuuuuuuuuuuuh, so he was upper strong... actually I should have realized because the merc can't be dead instantly to a wimpy champion. But just before I could go through the portal, I died.",
+	"the explosion is overpowered... But the suicide attack was the only chance to rescue the buddy! Otherwise he would have been arrested!",
+	"bah, that goooooooooooooooooes not at all... I think the cave speeders fly out or are changed into something that only comes in the kagero dungeon! But the upper wimp healing potions are also still way too weak, those should also be improved!",
+	"oh no, always that stuuuuuuuuuuuuupid explosion... wanted to run away, but the explosion range was too overpowered, just like the damage... I would have been better off in werebear form I guess.",
+	"I only had one HP left, so I was almost dead, but then I was really dead because the mean fire took off my last HP.",
+	"before the pope was even visible on the screen, he already used a multishot blizzard and I was dead on the spot.",
+	"so many mean traps at once and then also a refuge Uhlert, so you certainly don't get the idea to stop. There it's almost guaranteed that you're hit by at least one ice arrow trap.",
+	"guess what... it was the second blizzard that was shot at my paladin, too. I didn't lose just my buddy but also a hugging valkyrie.",
+	"huuuuuuuuuuuuh... so that does over 600 damage in one shot? Okay. Thank you for coming. Either you don't encounter roller coasters or you can do nothing at all. I really had over 600 HP and was dead instantly. Why don't they just shoot an orbital laser that instakills you no matter how many HP you have?",
+	"there were way too many pellet mages and they shredded me in seconds because my resistances are way too low.",
+	"Okay, so that's a thorns aura! Am I supposed to kill him with the box fist now or what? Or am I supposed to use a grenade launcher that requires 10 hits for a fallen because 9 of them don't deal damage?",
+	"there was a leftover trap bug, and it caused my immediate death. Only after I died I saw what had killed me.",
+	"well super, what am I supposed to do there. Actually I didn't plan for the grenade launcher shooters to come there, so due to a bug both types of shooters could come and that is simply too hard. I mean, the area was hard enough already, so this should be changed such that only the fire arrow shooters come.",
+	"the sand warrior didn't take all that long to remove me with his lightnings.",
+	"because there were so many mean baddies, I was immured and could only use the upper-wimpy arm chest that has to shoot at least ten times for a single opponent.",
+	"died because the annoyxplosion apparently did over 300 damage. But at least all the badguys that were there are also gone.",
+	"at least this mercenary bug didn't appear for eons. Actually I should view it as a 'feature' from now on: if you're so bad and let the mercenary die too often, it can happen that he's dead for real. But why does it always happen in act 5 near Baal?",
+	"the menises transformed me into parts shortly before I could go through the portal.",
+	"the MG shooter was way too good and therefore won against me.",
+	"had picked myself back up not even a minute ago, and then the new overpowered poison princes come and first make the buddy in less than one second away and then me, because I'm not resistant and have less than 300 HP.",
+	"such an old error, the gives it not at all... but why does it aaaaaaaaaaalways only happen when I'm playing a barbarian? Is it because I had a helmet with +2 leap attack?",
+	"the boss of the demented shamans was so mean and scored a single hit kill, which means he dealt over 500 damage in one hit. I don't even want to know what bad combo he had, all I can imagine is extra strong and then still holy statics fields.",
+	"the clanoutern had too many elemental enchantments and always stunned me when I wanted to run away.",
+	"that's not something you can tell me that this does only 30-60 damage. That's really something you can't tell me.",
+	"the shamans are just way too good! If my brother pretends only once that they were only 'pseudo-improved', I'll demand that he plays this version at once!",
+	"there were suddenly at least ten guys with rocket launchers, and I didn't want to do an emergency exit in order to not have to play through all the stupid way again, and therefore I'm dead now.",
+	"the Lister barely got me away because he's so mean. Apparently it was the poison that killed me. Man, is the poison enchantment mean! How much do we bet that the buddy is once again not revivable now?",
+	"I fire a fuuuuuuuuuuuuuuuuuuuuuuuuuunction! Oh, and I also won the bet, as was to be expected. Now wuerd I times say, that I take out the poison enchantment (what else is there to do)?",
+	"wanted to try out how it feels to get the hands kicked bloodily by the friendly bundle-Elif.",
+	"actually that was stupid of me. Now I'm dead because of freeze sphere, because I had thought the trap was dead already.",
+	"the nec even survived two giga freeze spheres, but then there was another such trap in the chest and at first I didn't even realize I had opened a trap, when I was already dead.",
+	"I attacked the annoying trap, and I would even have finished it off but the golem was hit too often and so the trap still gunned me down.",
+	"the freeze sphere ball hit me and I was dead instantly, with 283 HP and some cold resistance mind you.",
+	"there such a baddie did a suicide attack and some other baddie gave me the remainder.",
+	"degree so, I wanted through the town portal and was away-made by the consul boss.",
+	"I tried to talk to the mercenary vendor NPC and the game just ceased and desisted, with no message.",
+	"The bugged Diablo 2's in town caused the game to crash. Argh.",
+	"Man, it seems there's always a rock worm queen in a specific place of the chaos sanctuary and the game always crashes whenever I go near it! How do I generate a new map where that beast isn't there?",
+	"the bundle-Elif her sneakers hit more often than my h-hydrogen, and therefore my necro bled due to the wounds that the lovely Elif-flax opened.",
+	"the trap owned me, i.e. apparently it was the thunder nova that took off my last HP. But that wouldn't have happened without the rocket launcher traps.",
+	"That gives it not, I've never seen it happen that one strains in town! Otherwise as does the mercenary just have 0 HP and lives! I wonder if that only happens for the guy from act 5?",
+	"the golem was somehow not where I summoned him, and therefore the Horazon just shot me over. Can't do anything about that.",
+	"the refuge boss killed me right away, but actually I should have survived that with half of my maximum HP... I should have aged him! Can someone tell me why I didn't do that?",
+	"yeah yeah, I know, with level 36 you don't enter the kagero, but what am I supposed to do if the fifth act is so easy? Additionally I'd have defeated the ice arrow archers if I had been able to get out of the room again, because then they'd have lost to my poison creeper, all of them!",
+	"lost because of the cold explosion. And yeah, I know I'm upper wimpy, but at least the dead dictator is also dead.",
+	"I didn't even see the arrows. But I realized that they hit me by reading the message, which said 'They died - far ones with pressure on ESC'.",
+	"THEY DIED - far ones with pressure on ESC",
+	"GAME OVER - return of Ganon",
+	"the gatling gun rattled too quickly and my cold resistance was too bad and I overestimated my char's abilities.",
+	"the buddy refused to find the way. And I stand before the Horazon guy and hammer on him and just keep missing.",
+	"Buuuuuuuuuug! The game should be modified such that one isn't constantly underleveled.",
+	"because the prayer aura eteeeeeeeeeernally slowly recovers my HP, I used an upper wimp healing potion (there was no red left in my life orb), which obviously didn't do anything. Then I wanted to use a reju and it also made 'gulp-gulp-gulp', but I was dead anyway and afterwards the reju was still in my inventory.",
+	"the buddy simply fell over after Radament was dead already, and the buddy wasn't green. No idea how that works. But he was still in the red range before.",
+	"and yet again the buddy fell over, when there were no opponents left, and again he wasn't green. But it only seems to happen for Radament-type opponents, because previously he barely managed to win against some annihilators and then he was completely badly in the red range.",
+	"the consul finished me off.",
+	"MLEB boss. That happened so quickly, not even a fuller reju would have helped there.",
+	"Boss bug! There I just say BUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUG! I just wanted to do an emergency exit but I was already dead. Bug, is all I'm saying. That is a single old error. Let's see if I can't do something about that, can't be that all bosses are so overpowered...",
+	"I'm just too slow with the emergency exit. Therefore the mage boss with holy cold weather gunned me down together with the condemned ones.",
+	"bah, one can stop make nothing, if the buddy is extra stupid and there's constantly the boss bug.",
+	"the buddy allowed himself to be killed and then I still was so stupid and ran into a menis army.",
+	"Suicide type makes it so that there was no red in my life orb anymore, and all five fireballs that came from the left hit me. Not even a healing potion 5 can do something against that.",
+	"I had thought the fanatic triad wouldn't ever deal damage anyway.",
+	"the pellet archers were too good.",
+	"upper-many feature types in all corridors, and because of the blood racquets was also nothing with through-running. Therefore: Game over!",
+	"Multishot pellet archer, and that his freezing arrows hit all three of course, from that close.",
+	"Yeeeeeeeeah, I still quickly collected the Wirret's leg before the argonaut away-made me!",
+	"shortly before level 5, the upper wimp healing potions were just too slow-assey and the fire resistance doesn't work ever anyway.",
+	"the one suicide type made it so that there was no red left in the orb and the next one killed me because I was immured.",
+	"just as a yellow strengthened pike dropped, everything went totally fast... at least the sub ghost that away-made me died at the same time.",
+	"the ice arrow archers kill one always instantly... annoying! but oh well, can one stop nothing make.",
+	"lightning enchanted thick potato, and I realized too late that healing potions aren't fast enough. So I want to use a reju, but like always there's the total bug that I'm dead while it makes 'gulp-gulp-gulp'. The reju is now - who would have expected it - still in my inventory.",
+	"too many melee mages. Actually I wanted to run away and let the spirit tank (yes, I have a thorn spirit), but annoying hit recovery lock...",
+	"bah, that with the reju simply sucks... hmmmmmm... I think I know so slowly what is loosely there... LAAAAAAAAAAAAAG! Because the game is adjusted such that everything is registered half a second later, the reju quaffs itself later too!",
+	"I know, one may not be so wimpy and when you die in act 2 normal you should be penalized by having to start over from the very beginning... but ey! What can I do about it that the healing potions of course take themselves half a second later again and you can't charge from so close?",
+	"it annoys simply fully if you still don't have good lightning resistance at that point.",
+	"apparently the sniper assie pierced or so... the golem definitely stood before him and he shot both the golem and me at once.",
+	"bah, that deserts perhaps times on... Single hit kill in normal with 1000+ HP... o-ver-po-wered! Why do the suaels have so many lines anyway?",
+	"Noooooooooooooo... Single Hit Kill after Baal by a suicide type...",
+	"I didn't even see the grandpa take a swing at me, but I was just suddenly dead. Well, if you only have 1500 HP and are cursed...",
+	"constantly clicked beside it, therefore I didn't get back to town and was busted by the cop champion instead. But at least I got the waypoint.",
+	"I know, I'm upper wimpy: died to the cold explosion. And it was because it hit twice again. Only the second hit was deadly.",
+	"well, if you have negative resistances and the shaman is lightning and cold enchantment... after the first arrow I barely had any red left in my life orb, then the next arrow comes and I try to dodge, but the arrow is there already and kills me.",
+	"yet again such a weird shaman... that a champion can take off over 400 in one shot? *be confused*",
+	"so what of cheaty. If the arrow hits the mercenary or another minion, it never kills in one shot, but my character is always killed in one shot. If even the mercenary dies in one shot, the arrow would deal twice as much damage as the mercenary has HP in case it hits me. Of course I'm always dead instantly, there one can simply nothing A T A L L do.",
+	"lightning and cold enchanted boss, and my resistances are in the cellar so it didn't last long.",
+	"baaaaaah, I idiot hit the wrong button... FUCK! I'd have slaughtered all the nerve heads if I hadn't been so stupid!",
+	"because of the steel beetle there was absolutely no red to be seen in the life orb, but I quickly paused. Then I thought 'so, I'll unpause now and immediately use a few rejus, then I make the two boss baddies away', but I was immediately dead before I could use the reju.",
+	"static fielded all the time, but the shaman boss with nose enchanted and something else shot down the mercenary wimp and then hit me, and I didn't have much HP remaining. So I quickly tried to run behind the wall to get to safety but I think I was cold weathered and therefore got shot instead.",
+	"err, how quickly did that go... was just a couple wimpy dungeon lords?!",
+	"probably I knocked the Miriam her cube away (yet again the second time in a row...) and the Bettina her aura somehow doubly static fielded every time, and the rejus were out quickly and three-healing potions were too slow.",
+	"Huuuuuuuuuuuuuuuuh, huuh huuh huuh, huuuuuuuuuuh, huuhhuuhhuuhhuuhhuuuuuuuuuuuuuuuuuuuuh huuuuuuuuuuuuuh, the flying scimitar killed me, even though that can do nothing... with those one probably needs to watch out really well or take ranged weapons, which a barbarian never has...",
+	"They died because of chain thunderbolt!",
+	"Man, the chain thunderbolt is fully overpowered if the enemy uses it... the types belong into the kagero and not in storyline areas! That's something I noticed now!",
+	"got flooded and had no chance at all.",
+	"yet again got uber flooded... o nou, and I already wasted all my healing potions!",
+	"is stop already stupid if you have no, and I mean really NO, item that grants resistances.",
+	"I was down to 2 HP and there was like always the Reju-gulp-gulp-gulp-bug. Actually I still live. :-P",
+	"the wimpy baal taunt made me away, those probably got much meaner too now... actually stupid of me, but no matter. At least now I know that one has to really watch out with those and may not simply stand there!",
+	"baaaaaaaaaaaah... Reju-gulp-gulp-gulp-bug... actually I quaffed the reju and saved myself. :-P",
+	"degree so been too slow with the emergency exit. What's up with that anyway, menises on level 1, there one is fully powerless... annoyance!",
+	"all of a sudden the spider assie again made correctly fast and because he was extra strong and my shotgun doesn't do enough damage, he still has one pixel of health left and I have none.",
+	"the boss hit me even though the wall was in his way, and I only had 15 HP remaining. So of course I wanted to run away quickly, but the mean spectre flew over the wall and killed me.",
+	"Yeah, at least the cave error that killed me still died to poison! Harharharharharharharharharharharharharhar!",
+	"been too slow with the emergency exit and overestimated my abilities totally. Somehow I always die way too much when playing necros, this cannot be that I'm so bad at the game...",
+	"eeeeeeeeeeeeeeeeeeh... Single hit kill... slowly I'm beginning to wonder if I should really keep playing this role, maybe I should rather roll a different char...",
+	"there I just couldn't do nothing at all anymore. Such rockets always hit from so close and pull off completely much, therefore: Game over!",
+	"hmm, somehow I'm of the opinion that the MG types are quite OP...",
+	"that is completely bad! Actually I rejued myself, but the bone beetle still offed me even though I had lots of health left!",
+	"I had 170 HP left. A single shot and I croaked. Now I'm curious what their normal damage output is, certainly about 17 or so... well at least the girlfriend still quickly killed the nerve head type *after* I was already dead! So if their base damage isn't at least 30, oh wait, I can answer that myself... okay. Bugfix = new character. This one attacked way too slowly anyway and had much too upper-slow-ass hit recovery.",
+	"dead-made because of an amok-running yardie - one such suicide dwarf got me and I was down to 85 HP, and because my druid just automatically transformed back into a druid the next explosion killed me instead of bringing me down to 1.",
+	"I didn't watch out and therefore the wig sheep with multishot overwhelmed me... that went completely beautifully fast, I was down to 1 HP and in the next instant to 0. Hmm, maybe I should start over if I'm that wimpy? But on the other hand I didn't see wig sheep bosses for ages in the dark forest, maybe that's why I rarely died there...",
+	"eeeeeeeeh... I thought dying with experience level 8 was early, but I was too stupid to not use any healing potions and suddenly the pas op came charging and shot me instantly...",
+	"I think I should make a real character... 47%% chance to block cannot save you if you don't have enough HP.",
+	"eeeeeeeeh, is thaaaaaaaaaaat annoying... the rejus were out and he always only used the stupid red breath and without stamina you can't go out of the way!",
+	"that was practically a single hit kill, even if it wasn't the suicide type that killed me. Boah, is that version of the game imba... thankfully the recent version isn't like that anymore! Now I also understand why my brother always said the old version was so imba! Because it is!",
+	"died to curiosity - I thought I might have a chance against the refuge Uhlerts...",
+	"if that wasn't a Reju-gulp-gulp-gulp-bug...",
+	"the stuuuuuuuuuuuuuuuuuuuuuuupid portal never appeared where I wanted it, and I was fully stunlocked and the potions stop didn't last forever.",
+	"weird, there was still one HP displayed, but I was dead anyway... bug with the display maybe? in any case the archer boss with spirit hits and lightning enchantment defeated me.",
+	"Rejugulpgulpgulpbug like always, but even if the reju had taken itself I'd probably still have died. Maybe I should the boss - right, idea! the boss could come to the kagero dungeon! Because it's okay if a boss with power comes there!",
+	"Single hit kill, probably the air death had such a gas to critically hit me.",
+	"the mean rock worm egg killed me... was the stupid thing cold enchanted maybe? In any case my life orb emptied so fast, I couldn't even say WTF!",
+	"Mercenary bug, and the veras servant made me completely slow-assey and all the uncurseable enemies then showed it to me. When I was dead already I wanted to use a reju and like always it made 'gulp-gulp-gulp', but I was dead all the time.",
+	"Shitty bugs! One cannot die in town! Give me back my 100 zorkmids, you accursed game! As if it wasn't bad enough that the game froze a little bit ago when I used shock field... today is really Friday the 13th, I'm starting to believe in the bad luck!",
+	"no mana for prayer and the finger that presses 1 was way too slow. Because I actually had my left hand between my legs wanking off while the carrion bird claws hacked me up, not realizing that they were actually deadly.",
+	"bah, the annoying d-e-a-t-h had so much luck to single hit kill me... now in hindsight it turned out that those their boss was cold enchanted!",
+	"overpowered nose enchantment bug explosion! Which buggard smoker assie thought that up? I should have realized back then how to implement the bugfix, because then lowrate would also have it!",
+	"Mercenary dead, no rejus left, boss with extra fast and cold enchantment and the upper wimp healing potions never go anyway. I'd really like to program it such that those work correctly.",
+	"as far as I know the boss of the hell cats had spirit hits and the poison of that does damage so quickly that the game doesn't realize one cannot die in town.",
+	"been overwhelmed by the boss group and been too slow with the rejus. Weird that they deal so much damage if the boss is only magic resistant...",
+	"Moved shaman boss with death combination, that went abnormally fast... I want my old armor back! Because the new one has way too few resistances and everything!",
+	"I was insta-dead because of a boss of the devious girls with extra fast cursed, actually I wanted to redeem a teleport right away but one stop cannot react so quickly.",
+	"in the moment where a load of ice errors was around me the armor went at the ass, apparently... it had only 1 dur all the time and was somehow displayed red already, but then in the crucial moment it didn't have durability anymore! Now in hindsight my suspicion is that items with over 100 dur will bug the display, just like in D1 where Griswold couldn't always repair such items!",
+	"Baal taunt champions forced me to run past everything and I remained hanging at Juen flax. Of course a soso doesn't survive such a load of immolation arrows.",
+	"it displayed 'Direct hit!' - as far as I know that was a chaos ice trap... since when do they take off so much health?",
+	"baaaaaaah, the baddie suicided... eeeeeeeeeh... is perhaps times annoying!",
+	"realized too late that the shaman had multishot and extra strong!",
+	"blaaaaaaaah... overpowered thunder nova, and I had actually done an emergency exit already but because of the buggard smoker assies their LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG it of course realized only half a second later that I had pressed ESC long ago already!",
+	"murderous stairs trap with extra strong mana burn cop boss, who stood so stupidly that I couldn't go anywhere, and he had way too much luck, the bastard, because the one cop that blocked the way just barely didn't die quickly enough!",
+	"blaaaaaaaaaaaaah... the boss with death combination cheated... he was dead and I was down to 1 because of his nova, but then the nova cheated me away because like always it hit completely often!",
+	"eeeeeeeeeeeeeeeh... Single hit kill... slowly I'm beginning to realize that the wimpy druid isn't ready for hell...",
+	"two immolation arrows from up close, which obviously both hit and it was over immediately. There one can simply make nothing, because who expects that a boss comes out of nowhere? Now in hindsight I saw that the boss was extra fast, no wonder I didn't see it coming!",
+	"small sand maggot with death combination and conviction, I was immediately down to 13 HP, then down to 1, and quickly tried to use some rejus but it didn't go, instead I was down to 0 of course and the damn muck cattle just has a pixel of health left! Condemned still times!",
+	"is perhaps times buggy...",
+	"the grand vizier was extra annoying and suddenly made fully fast and owned me!",
+	"baaaaaaaaaah, just shortly before I could use the portal a pyro came out of nowhere and blasted my one green HP away... baaaaaaaaaaaaaaaaaah... who makes it so stu-u-upid that the portal takes hours until it finally develops? Baaaaaaaaah...",
+	"Boss bug... let's see if I even create it to away-collect myself again...",
+	"baaaaaaaaaah, there was a second boss... that was lightning enchanted and extra strong, no wonder I died so quickly! But actually I had done an emergency exit and because of the buggard smoker assies their LAAAAAAAAAAAAAAAAAG it didn't realize that I had loooooooooooooooooooooooooooooooong pressed ESC!",
+	"OMG, suddenly something fully hit me and I was almost dead, and before I could use a reju I was completely dead. There were shaman minions and apparently the boss shot from eternally far away and also hit me, and he was lightning enchanted and my resistance is rock bottom!",
+	"blaaaaaaaaah, such a shit however too... the stupid bow always selected some dumb man types and therefore my guy didn't run! And even though I used fully the many upper wimp rejus, the bastard assiebassies quickly made me away even though I had LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONG pressed ESC!",
+	"the portal was blocked and I pressed ESC as always... SHITTY SMOKER ASSIES of Buggard! Actually the game paused and I left before I died! Such a SHIT however too!",
+	"forgot that I had negative resistances to gloams...",
+	"Single hit kill by a MG type with single hit kill enchantment from two screens afar.",
+	"the bastard of a council boss single hit killed me...",
+	"Eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerror! If I click the town portal the guy has to please go through it, and if I press 4 and it makes 'gulp-gulp-gulp', please hit points have to be there again instead of a red screen being displayed!",
+	"Steam mages. Before I realized that it gets fire-dangerous I was already dead, so I couldn't quickly quaff a reju.",
+	"the bastard killed me with ultra charring in less than a second because I have no absorption.",
+	"one-hitted. Such things happen.",
+	"I was fighting a fully bad fire golem boss with 'specially strongly' and would have defeated him too, but then a boss of the devious girls with nose enchantment came and at first I pressed 3 because like always I was so stupid and thought healing potions could still fix things. Then I was dead and still tried to press 4 but of course it was too late already.",
+	"one-hitted by a demented shaman, no idea what overes he had. Probably upper strong.",
+	"that went way too fast, because that is too overpowered and the duriels are also way too good.",
+	"Reju-gulp-gulp-gulp-bug! But even without the upper bug I would have been dead, because a single reju can of course change nothing if five KSK types come out of nowhere. GAME OVER! And I was soooooo close to finishing the kagero...",
+	"Single hit kill via boss with 'specially strongly nose enchantment', that his first hit already almost killed me and I hammered on keys because of course I forgot that healing potions work as rejus now. But even though I was already full after that, he instantly killed me in one hit. Can one stop nothing make.",
+	"Boss of the dark creature tinies with spirit hits, nose enchantment and holy cold weather and boss of the elbow contractors with extra strong cursed and aura enchantment, and the aura was prospering, and my teleport didn't go off quickly enough and the upper wimp healing potions were way too slow. So the assies assied me away. In hindsight it turned out: one screen farther there was another bell back boss with conviction! That explains quite a bit!",
+	"didn't notice that the spider got a might aura from another boss while I fought a boss of the fanaticians, and got one-hitted.",
+	"WETEEFF??? I had full HP and there was a steel beetle boss with multishot and enchanted nose, and I stood half a screen away, but completely suddenly I was simply dead, from full to zero, with no warning. Even though I actually have quite good resistances.",
+	"Bah, the single hit kills are perhaps times overpowered, so much that may not take off at all...",
+	"bleh, when there's stop no condemned bastard healing potion in there anymore...",
+	"eh, I thought the times were past where the ultra charring simply times takes off over 1000 HP in a second. Is the guy's fire resistance really so bad that he dies to that so fast???",
+	"blah, actually the werebear should have protected me from the overpowered explosion, also I have maxed fire resistance and the bug enchantment bug is actually fixed...",
+	"Grenade launcher boss with extra strong cursed and nose enchantment. What wantsye there already largely make, huh. And I even again ran away as druid, because of course I was transformed back, but then something hit me again and I was dead instantly.",
+	"Single hit kill by a sniper boss with extra strong. It does however surprise me that they take off so much...",
+	"baeaep, is yes bugged...",
+	"Single hit kill, boeoeoeoeoeoeoeoep...",
+	"With so many NDEs it was clear that the mage baddies would get me eventually.",
+	"Sure that his static field takes off so much.",
+	"jesus kicking is broken", /* by Demo; kicking Jesus is really overpowered because he won't fight back */
+	"There is a strange bug in nethack. Sometimes it seems when you have the amulet and go upstairs in Gehennom, you instead go a level down again, and this happens randomly so you have to do it over and over and over and over and over and over again. Surely this cannot be intended??? I mean who would think of something that stupid?", /* by stenno */
+	"slex is for people who just hate themselves or feel they deserve punishment for something", /* by K2 */
+	"At last this character died, so I can finally roll a new one. Thanks RNG!",
+	"I got so bored with this character that I was hoping a monster would kill me, but it just didn't want to happen, so I threw my char away on purpose by eating Envy's corpse. Because I'm such a noob who would actually forfeit the chance to score a SLEX ascension for such a petty reason.",
+
+	/* here we have a bunch of hilarious quotes, I don't know of a good place to put them so for now they're gravestone inscriptions --Amy */
+	"This is markedly different from the most popular RPG series of all time like Final Fantasy, Diablolo, The Legend of Zelda, where players regularly fight against monsters with resistances or immunities regularly.",
+	"Claim that it's obvious that weapons that affect 'most' monsters are as good as weapons that affect 'all' monsters: Claim rejected. I've coached multiple people in playing nethack and they are all confused by this.", /* "I've coached multiple people in playing nethack and they are all confused by the fact that I don't know how to coach people." :P */
+	"Further it is not typical of an RPG to have a energy type weapon and have so few monsters resistant to that type of energy. Nethack is an outlier in that. You are wrong.",
+	"Simply because people agree to do the article this way doesn't mean that's how it should be done.",
+	"I am well aware that Vorpal Blade can behead most monsters, but it's not a good compliment to resistant monsters since many can't be affected by Vorpal Blade's behaading attack. Sorry, you are still wrong.", /* What is "behaading"? */
+	"Having meandering sentences jumping from topic to topic as the current entry does, and not putting sentences under topic headings isn't just what wikipedia does, you lean that in your 1st grade English class. It's proper communication.",
+	"I'm sure you thought that frost brand was a good weapon. You just didn't know that Frost brand (and other 'most' weapons) were nearly just as good as 'all' weapons.", /* err yeah, can someone please translate this sentence into plain English? */
+	"Okay, first off, gauntlets of power are never a mid tier wish, for any player they are a top tier wish for many, many classes.", /* yeah sure, tell that to the lieutenant with a wand of death that kills you because you didn't wish for SDSM or CoMR instead! */
+	"BTW I got gauntlets of power with a monk once and it was the absolute nuts. So not sure what you're on about here.", /* Uhh no? Monks don't ever deal meaningful damage in vanilla because when they ported the role from slashem they somehow decided to trash the martial arts skill? */
+	"Certainly there are other circumstances where GOP is not a good idea, if you are a monk who's been fortunate enough to get a lot of attack spells and a ring of slow digestion (maybe wish for magicbane?).",
+	"DO YOU WANT TO DO THIS BRO? BECAUSE IT'S THUNDERDOME TIME! I'M GOING TO MAKE IT SHORTER THAN YOUR ARTICLE AND CONTAIN MORE INFORMATION. CAN YOU HANDLE THAT? WHAT WILL YOUR EXCUSE BE THEN?", /* SHUT UP MR SHOUTY :P */
+	"Okay I failed at the thunderdome challenge. Endless shame is mine. But I've gotten down to 1381 words to the current article's 992. There is no more concise left to be had.",
+	"It's absolutely hell on wheels, and I feel there needs to be a sign up around Orcus that says HE LOOKS EASY BUT HE CAN SUMMON FRIENDS THAT WILL MAKE YOU WISH YOU WERE NEVER BORN!", /* dude just git gud at the game bro */
+	"First of all the need for consensus is not listed in your rules. I'll say that again in all caps so you don't miss it. THE NEED FOR CONSENSUS IS NOT IN YOUR RULES. One more time. THE NEED FOR CONSENSUS, THAT IS, HAVING ADMINS AGREE TO AN EDIT, IS NOT IN YOUR RULES.", /* The need to ban trolls is also not in the rules. */
+	"The Administrators will not permit any substantial edit (one that goes beyond grammar, punctuation etc) without full consensus from the group of editors whether regardless of the truth value contained in the edit.", /* well don't behave like an idiot and don't do stupid edits I guess? would probably help things */
+
+	"well, who knows how moves the variants nowadays is, they are capable of making it so that zapping the bag with cancel will also blow it up",
+	"slex is the variant where you ask amy how to cure stuff and what to wish for and wtf just killed you?",
+	"argh far myaratmo snarg! Warrh! P = NP!",
+	"Sigh, yet another pointless death that could have been avoided if these adventurers just read up on OSHA compliance before entering. They all claim they've been heralded from birth, you'd think they could spare a couple days to gear up properly.",
+	"SLEX is what you would get if playing vanilla NetHack while high." /* supposedly by FIQ */
+	"SUCH A SHITTE!",
+	"Around to shorten helps only full processor power lay.",
+	"upper shitty lay!",
+	"ziratha: Finder of stupid way to die #2014", /* trying to quicktravel while sinking in lava */
+	"whenever you wish for an artifact you instead get a pink tutu and high heels if you're male, or a flannel shirt if you are female. that's how you make artiwishing gay", /* by Demo */
+	"There most probably is no god, but if there is, at best he doesn't care about us humans and at worst he's laughing his ass off at our ineptitude.",
+	"playing slex is like going in vacation to hell", /* by Demo */
+	"F you are your game and the dragon you rode in on! This $hit SUCKS WHy is there a fire elemental on Dl2 ahfgakjhg akjhajkhga;pkdhgAljkg;lkgjh", /* by amateurhour I think? */
+	"I never said that SLEX would be easy, or that it wouldn't have pitfalls for unwary players to stumble into.",
+	"'unbalanced', you keep using that word... I don't think it means what you think it means",
+	"Bro, the entire game is like crawling inside a lunatic's head. Even the maps look like someone threw up a bag of skittles. Everything about it is traumatizing.", /* by someone on 4chan */
+	"This fool thought he could ignore the safety precautions, ended up getting infected with corona virus, and died.",
+	"Apparently corona ignores face masks now.",
+	"Huh... so it is possible to contract corona after all. Seems like I'm the one unlucky fool who actually managed to get it by meeting other people.",
+	"Why make a tournament for such a broken mess of a variant? Better fix all the bugs first and obtain save stability :P",
+	"oh whoops, we only added some monsters, didn't think that would break save compatibility... sorry!",
+	"I fell and cheated on NetHack!",
+	"Oops, I think I cheated! Sorry, my mistake, didn't mean to!",
+	"Oh no, here I go cheating again!",
+	"no, I totally didn't intentionally hang up when that mumak's second attack would have procced to kill me, my internet connection dropped!",
+	"I keep hitting the 'cheat' key on my keyboard. Sorry.",
+	"I did something that MIIIIIIIGHT be cheating, but ACKSHUALLY isn't cheating!!!",
+	"Can I discover a new bug and then it's not cheating?",
+	"Wow, yay, great game design. Very hard difficulty just makes all hostile monsters have 8x as much HP! That's... so incredibly well-designed, I can't believe it!",
+	"Telling me to play very easy difficulty when I complain about the impossibility to have pets steal from shops is incredibly arrogant.",
+	"Here lies Sid, ascended... and cracked his skull on the ceiling.",
+	"Time Capsule: Do not open until T:4283852",
+	"Here, we buried the variant that was impossible to ascend despite there being a tournament held that would award money to those who ascend it.",
+	"RIP wand of wishing (0:3), killed by the wand of wishing (0:8) and the developers whining that players please don't use more than three charges.",
+	"Wait, the elder priest is immune to time stop???",
+	"Huh. Didn't think the random backfires from the map level spell could be that bad.",
+	"RIP tender yellow-blonde practicant lass, crushed under the weight of Noroela's cruel dictatorship when she ultimately ran out of money with which to pay the fines.",
+	"Amy, even a fresh slex compile has this problem!!!",
 
 };
 

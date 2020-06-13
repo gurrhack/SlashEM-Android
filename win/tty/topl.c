@@ -40,6 +40,11 @@ tty_doprev_message()
 	return 0;
 	}
 
+	if (AutomaticMorePrompt) {
+	pline("No, sorry, you can't review earlier messages.");
+	return 0;
+	}
+
     if ((iflags.prevmsg_window != 's') && !ttyDisplay->inread) { /* not single */
         if(iflags.prevmsg_window == 'f') { /* full */
             prevmsg_win = create_nhwindow(NHW_MENU);
@@ -230,6 +235,8 @@ more()
     /* avoid recursion -- only happens from interrupts */
     if(ttyDisplay->inmore++)
 	return;
+    if (iflags.debug_fuzzer)
+	return;
 
 	if (youmonst.data && !program_state.in_impossible && !program_state.in_paniclog && !program_state.panicking && !program_state.gameover
 
@@ -237,7 +244,10 @@ more()
 && !program_state.exiting
 #endif
 
-	&& AutomaticMorePrompt) return;
+	&& automore_active() && (u.automorefuckthisshit == TRUE) ) {
+		ttyDisplay->inmore = 0;
+		return;
+	}
 
     if(ttyDisplay->toplin) {
 	tty_curs(BASE_WINDOW, cw->curx+1, cw->cury);
@@ -432,7 +442,7 @@ char def;
 
 	do {	/* loop until we get valid input */
 	    q = lowc(readchar());
-	    if (q == '\020' && !MenuIsBugged && !YouHaveBigscript && !LLMMessages && !SpellColorRed && !PlayerHearsMessages && !MessagesSuppressed && !RotThirteenCipher) { /* ctrl-P */
+	    if (q == '\020' && !MenuIsBugged && !AutomaticMorePrompt && !YouHaveBigscript && !LLMMessages && !SpellColorRed && !PlayerHearsMessages && !MessagesSuppressed && !RotThirteenCipher) { /* ctrl-P */
 		if (iflags.prevmsg_window != 's') {
 		    int sav = ttyDisplay->inread;
 		    ttyDisplay->inread = 0;

@@ -18,52 +18,6 @@
 	((mndx) == urace.malenum || \
 	 (urace.femalenum != NON_PM && (mndx) == urace.femalenum))
 
-#define PN_POLEARMS		(-1)
-#define PN_SABER		(-2)
-#define PN_HAMMER		(-3)
-#define PN_WHIP			(-4)
-#define PN_PADDLE		(-5)
-#define PN_FIREARMS		(-6)
-#define PN_ATTACK_SPELL		(-7)
-#define PN_HEALING_SPELL	(-8)
-#define PN_DIVINATION_SPELL	(-9)
-#define PN_ENCHANTMENT_SPELL	(-10)
-#define PN_PROTECTION_SPELL	(-11)
-#define PN_BODY_SPELL		(-12)
-#define PN_OCCULT_SPELL		(-13)
-#define PN_ELEMENTAL_SPELL		(-14)
-#define PN_CHAOS_SPELL		(-15)
-#define PN_MATTER_SPELL		(-16)
-#define PN_BARE_HANDED		(-17)
-#define PN_HIGH_HEELS		(-18)
-#define PN_GENERAL_COMBAT		(-19)
-#define PN_SHIELD		(-20)
-#define PN_BODY_ARMOR		(-21)
-#define PN_TWO_HANDED_WEAPON		(-22)
-#define PN_POLYMORPHING		(-23)
-#define PN_DEVICES		(-24)
-#define PN_SEARCHING		(-25)
-#define PN_SPIRITUALITY		(-26)
-#define PN_PETKEEPING		(-27)
-#define PN_MISSILE_WEAPONS		(-28)
-#define PN_TECHNIQUES		(-29)
-#define PN_IMPLANTS		(-30)
-#define PN_SEXY_FLATS		(-31)
-#define PN_SHII_CHO		(-32)
-#define PN_MAKASHI		(-33)
-#define PN_SORESU		(-34)
-#define PN_ATARU		(-35)
-#define PN_SHIEN		(-36)
-#define PN_DJEM_SO		(-37)
-#define PN_NIMAN		(-38)
-#define PN_JUYO		(-39)
-#define PN_VAAPAD		(-40)
-#define PN_WEDI		(-41)
-#define PN_MARTIAL_ARTS		(-42)
-#define PN_RIDING		(-43)
-#define PN_TWO_WEAPONS		(-44)
-#define PN_LIGHTSABER		(-45)
-
 #ifndef OVLB
 
 STATIC_DCL NEARDATA const short skill_names_indices[];
@@ -94,6 +48,7 @@ STATIC_OVL NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
 	PN_TWO_HANDED_WEAPON,	PN_POLYMORPHING,	PN_DEVICES,
 	PN_SEARCHING,	PN_SPIRITUALITY,	PN_PETKEEPING,
 	PN_MISSILE_WEAPONS,	PN_TECHNIQUES,	PN_IMPLANTS,	PN_SEXY_FLATS,
+	PN_MEMORIZATION,	PN_GUN_CONTROL,	PN_SQUEAKING,	PN_SYMBIOSIS,
 	PN_SHII_CHO,	PN_MAKASHI,	PN_SORESU,
 	PN_ATARU,	PN_SHIEN,	PN_DJEM_SO,
 	PN_NIMAN,	PN_JUYO,	PN_VAAPAD,	PN_WEDI,
@@ -136,6 +91,10 @@ STATIC_OVL NEARDATA const char * const odd_skill_names[] = {
     "techniques",
     "implants",
     "sexy flats",
+    "memorization",
+    "gun control",
+    "squeaking",
+    "symbiosis",
     "form I (Shii-Cho)",
     "form II (Makashi)",
     "form III (Soresu)",
@@ -199,6 +158,10 @@ doread()
 	boolean cant_see = Blind;
 	struct obj otemp;
 
+	/* cartomancer can sometimes keep a scroll after reading it --Amy */
+	boolean cartokeep = FALSE;
+	int cartochance = 0;
+
 	*cp++ = ALL_CLASSES;
 	*cp++ = ALLOW_FLOOROBJ;
 	if (!u.uswallow && ep && ep->engr_txt[0])
@@ -231,7 +194,7 @@ doread()
 		return 0;
 	    }
 	    if (scroll->where != OBJ_INVENT || !(scroll->owornmask & W_RING)) {
-		pline(Hallucination ? "The writing is so small, you'd need to take a closer look..." : "Perhaps you should put it on first.");
+		pline(FunnyHallu ? "The writing is so small, you'd need to take a closer look..." : "Perhaps you should put it on first.");
 		return 0;
 	    }
 	    if (scroll->dknown && objects[scroll->otyp].oc_name_known)
@@ -281,8 +244,8 @@ doread()
 	    else useupf(scroll, 1L);
 	    return(1);
 	} else if (scroll->otyp == T_SHIRT || scroll->otyp == HAWAIIAN_SHIRT || scroll->otyp == BLACK_DRESS
-	|| scroll->otyp == STRIPED_SHIRT || scroll->otyp == BODYGLOVE || scroll->otyp == BAD_SHIRT || scroll->otyp == CHANTER_SHIRT || scroll->otyp == KYRT_SHIRT || scroll->otyp == WOOLEN_SHIRT
-	|| scroll->otyp == BEAUTIFUL_SHIRT || scroll->otyp == PETA_COMPLIANT_SHIRT || scroll->otyp == RADIOACTIVE_UNDERGARMENT
+	|| scroll->otyp == STRIPED_SHIRT || scroll->otyp == BODYGLOVE || scroll->otyp == BAD_SHIRT || scroll->otyp == CHANTER_SHIRT || scroll->otyp == KYRT_SHIRT || scroll->otyp == WOOLEN_SHIRT || scroll->otyp == METAL_SHIRT || scroll->otyp == RED_STRING || scroll->otyp == YOGA_PANTS || scroll->otyp == GREEN_GOWN
+	|| scroll->otyp == BEAUTIFUL_SHIRT || scroll->otyp == PETA_COMPLIANT_SHIRT || scroll->otyp == TOILET_ROLL || scroll->otyp == RADIOACTIVE_UNDERGARMENT
 	|| scroll->otyp == PRINTED_SHIRT || scroll->otyp == BATH_TOWEL
 	|| scroll->otyp == PLUGSUIT || scroll->otyp == SWIMSUIT || scroll->otyp == MEN_S_UNDERWEAR
 	|| scroll->otyp == VICTORIAN_UNDERWEAR || scroll->otyp == RUFFLED_SHIRT) {
@@ -816,6 +779,64 @@ doread()
 	"whoa boy I did that 'slex with amy' thing last night, i got bundled twice. i think i fleecied 3 times!", /* by K2 */
 	"After years of research, I have developed the ultimate counter to bundling: eldnubeldnubeldnub :D", /* aosdict I think? */
 	"Demo: making slex more retarded, one bad idea at a time.", /* he said that himself because I keep implementing stuff he suggests :D */
+	"do these yoga pants make my butt look big? no your butt makes your butt look big", /* by K2 */
+	"here have a potion on me buddy!",
+	"i'm siyenne! nice to meet you!",
+	"i'm really a friendly fairy! don't listen to what they're saying about me",
+	"i'm actually kind of shy, but i'm hoping talking to people will help make me more approachable!",
+	"the crown on my head? oh, i'm not royalty, i just thought it looked cute",
+	"i'm a fairy, but i'm really more of a butterfly i guess--i have a second pair of arms but i can't use them here...that's what the empty sleeves are for",
+	"i'm rather pale...i don't get out much",
+	"Even the God of Chaos cowers beneath my power!",
+	"Do I have something on my face?",
+	"You don't wanna play hardball with me.",
+	"This is not proper corporate attire.",
+	"Do you want me?",
+	"I may just be a flunky - but I'm real spunky.",
+	"I am Najelith of the wind. Asking helps.",
+	"I may be small, but I'm also tough.",
+	"I'm No. 2!",
+	"Votes for Women - Abolish Discrimination Against Half Of Every Home", /* Red Dead Redemption 2 */
+	"You're asking if the apocalypse will happen soon? Well, here's a newsflash: it has already happened and right now we're dealing with the aftermath!",
+	"The forced draft for men is sexism at its finest.",
+	"418 I'm a Teapot. The resulting entity body MAY be short and stout. Tip me over and pour me out.", /* by attie; she wants actual teapot items with labels, but I'm taking the easy way out :P */
+	"Transsylvanian Teacher Darts Club",
+	"I got the first official notdnethack ascension! *oink oink*", /* Porkman :D */
+	"v qe qe qe qe qd qd qd qd qf qf qf qf qg qg qg qg #quit", /* by Demo */
+	"I haven't watched Game of THrones and I don't care", /* by Elronnd IIRC */
+	"I should become a SLEX developer so I can inflect EVIL upon the world.", /* by NCommander */
+	"I own your stuff now. fight me", /* by bhaak */
+	"Say YES to plastic! Glass can break. Plastic persists forever and for always in the seas.",
+	"Why did I explain the joke? Now it's not funny anymore you dummy!",
+	"Good day, I'm Amy from the slexomatic institute. Would you like to take a survey? It will take about 6 minutes. First question: do you like high heels?",
+	"Hello, I'd like to take a survey about your customer satisfaction with the 'Deutsche Bahn'. First question: Do you like the word 'delay'?",
+	"What? You're saying you want the game to be realistic? Man, I play games to escape from reality for a while, not to try to emulate reality as accurately as possible!",
+	"I'm not burdened by a too low carry capacity and I won't play any variant that doesn't have slex-level carry caps for the player character. Because I want to spend my time actually PLAYING the game, not doing a tedious inventory management chore that is more work than the work I'm getting PAID to do in real life.",
+	"My car has 400 HP and a filter gear shift!",
+	"I want to be hurt by the estellen zippers!",
+	"I am Connor MacLeod of the Clan MacLeod. I was born in 1518 in the village of Glenfinnan on the shores of Loch Shiel. And I am immortal.",
+	"hewy, you wanna come over to my place? we can netflix and smite",
+	"slip-on ass mummy rapping and we will be good to go", /* by someone who watched Tone's stream with subtitles */
+	"Women are goddesses that have been created to drive men insane.", /* I (Amy) saw an actual RL t-shirt that said this */
+	"I haven't watched One Piece, and therefore I'm controlling two devil fruits because I don't know that that's impossible.",
+	"I petition that the gender star be renamed to gender snowflake",
+	"the game is an acid trip where weapons become shoes and monsters become glitchymissingnos", /* by bug_sniper */
+	"My cuten lovenails are nothing special, they just mean that I like the color purple.",
+	"why does nethack have a tendency to attract dysfunctional people and programmer?", /* by bhaak */
+	"can I get a wand of reverse wishing that makes something you have go poof?", /* by Demo */
+	"basing a variant on SLEX and then removing all of SLEX specifics is almost as stupid as basing your variant on NitroHack without assessing the shitty code quality of NitroHack first", /* by bhaak */
+	"I'm not afraid of corona virus",
+	"I'm immune to corona virus!",
+	"You can get closer than 1.50 m to me if you want, because I don't believe in corona hysteria anyway.",
+	"Could I cheat and argue that it was not on purpose?",
+	"I've decided that it would be unethical to cheat in this scenario.",
+	"I'll never play in a NetHack tournament where the prizes are real money. This isn't Diablo 3, after all.",
+	"Are you trying to bribe me with 5 euros to be a beta tester for your shit variant? Because fuck you, I'm not going to stoop that low. Go find some other fool to playtest your garbage.",
+	"Rock 'n Mole",
+	"Yendor Alchemical Academy, Class of '47",
+	"Zombies aren't so tough. I'm more scared of an archon apocalypse.",
+	"I only play SLEX, developed by Amy. Variants of SLEX developed by others are too easy, ascending those would mean nothing to me.",
+	"I used all 8 charges in the wand of wishing despite the developers pleading me to pretend it only had 3!",
 
 	    };
 	    char buf[BUFSZ];
@@ -868,6 +889,9 @@ doread()
 	/* Actions required to win the game aren't counted towards conduct */
 	if (scroll->otyp != SPE_BOOK_OF_THE_DEAD &&
 		scroll->otyp != SPE_BLANK_PAPER &&
+#ifdef MAIL
+		scroll->otyp != SCR_MAIL &&
+#endif
 		scroll->otyp != SCR_BLANK_PAPER)
 	    u.uconduct.literate++;
 
@@ -883,6 +907,294 @@ doread()
 	    return(study_book(scroll));
 	}
 	scroll->in_use = TRUE;	/* scroll, not spellbook, now being read */
+
+	if (Role_if(PM_CARTOMANCER) && scroll) {
+		cartochance = 0;
+
+		switch (scroll->otyp) { /* values depend on how much they cost to write, see write.c --Amy */
+
+			case SCR_STANDARD_ID:
+			case SCR_WOUNDS:
+			case SCR_RUMOR:
+			case SCR_MESSAGE:
+				cartochance = 40;
+				if (!PlayerCannotUseSkills) switch (P_SKILL(P_DEVICES)) {
+					case P_BASIC: cartochance = 42; break;
+					case P_SKILLED: cartochance = 44; break;
+					case P_EXPERT: cartochance = 46; break;
+					case P_MASTER: cartochance = 48; break;
+					case P_GRAND_MASTER: cartochance = 50; break;
+					case P_SUPREME_MASTER: cartochance = 52; break;
+					default: break;
+				}
+				break;
+			case SCR_HEALING:
+			case SCR_LIGHT:
+			case SCR_GOLD_DETECTION:
+			case SCR_FOOD_DETECTION:
+			case SCR_TRAP_DETECTION:
+			case SCR_MAGIC_MAPPING:
+			case SCR_AMNESIA:
+			case SCR_INSTANT_AMNESIA:
+			case SCR_FIRE:
+			case SCR_SLEEP:
+			case SCR_EARTH:
+			case SCR_CURE_BLINDNESS:
+			case SCR_ROOT_PASSWORD_DETECTION:
+			case SCR_GRASSLAND:
+				cartochance = 35;
+				if (!PlayerCannotUseSkills) switch (P_SKILL(P_DEVICES)) {
+					case P_BASIC: cartochance = 37; break;
+					case P_SKILLED: cartochance = 39; break;
+					case P_EXPERT: cartochance = 41; break;
+					case P_MASTER: cartochance = 43; break;
+					case P_GRAND_MASTER: cartochance = 45; break;
+					case P_SUPREME_MASTER: cartochance = 47; break;
+					default: break;
+				}
+				break;
+			case SCR_MANA:
+			case SCR_DESTROY_ARMOR:
+			case SCR_DESTROY_WEAPON:
+			case SCR_BAD_EFFECT:
+			case SCR_CREATE_MONSTER:
+			case SCR_CREATE_VICTIM:
+			case SCR_SUMMON_UNDEAD:
+			case SCR_PUNISHMENT:
+			case SCR_NASTINESS:
+			case SCR_SYMMETRY:
+			case SCR_CREATE_CREATE_SCROLL:
+			case SCR_PROOF_ARMOR:
+			case SCR_PROOF_WEAPON:
+			case SCR_CRYPT:
+			case SCR_PAVING:
+			case SCR_INFERIOR_MATERIAL:
+			case SCR_CONFUSE_MONSTER:
+			case SCR_PHASE_DOOR:
+				cartochance = 30;
+				if (!PlayerCannotUseSkills) switch (P_SKILL(P_DEVICES)) {
+					case P_BASIC: cartochance = 32; break;
+					case P_SKILLED: cartochance = 33; break;
+					case P_EXPERT: cartochance = 35; break;
+					case P_MASTER: cartochance = 36; break;
+					case P_GRAND_MASTER: cartochance = 38; break;
+					case P_SUPREME_MASTER: cartochance = 40; break;
+					default: break;
+				}
+				break;
+			case SCR_IDENTIFY:
+			case SCR_STONING:
+			case SCR_BULLSHIT:
+			case SCR_SCARE_MONSTER:
+			case SCR_SNOW:
+			case SCR_SAND:
+			case SCR_NETHER:
+				cartochance = 28;
+				if (!PlayerCannotUseSkills) switch (P_SKILL(P_DEVICES)) {
+					case P_BASIC: cartochance = 30; break;
+					case P_SKILLED: cartochance = 31; break;
+					case P_EXPERT: cartochance = 33; break;
+					case P_MASTER: cartochance = 34; break;
+					case P_GRAND_MASTER: cartochance = 36; break;
+					case P_SUPREME_MASTER: cartochance = 37; break;
+					default: break;
+				}
+				break;
+			case SCR_ASH:
+			case SCR_BUBBLE_BOBBLE:
+			case SCR_RAIN:
+			case SCR_TAMING:
+			case SCR_TELEPORTATION:
+			case SCR_FLOOD:
+			case SCR_LAVA:
+			case SCR_GRAVE:
+			case SCR_DIVING:
+			case SCR_CRYSTALLIZATION:
+			case SCR_QUICKSAND:
+			case SCR_STYX:
+			case SCR_URINE:
+			case SCR_MOORLAND:
+			case SCR_TUNNELS:
+			case SCR_FARMING:
+			case SCR_BARRHING:
+			case SCR_STALACTITE:
+			case SCR_GROWTH:
+			case SCR_ICE:
+			case SCR_ILLUSION:
+			case SCR_FEMINISM:
+			case SCR_EVIL_VARIANT:
+			case SCR_ENRAGE:
+			case SCR_FROST:
+			case SCR_CLOUDS:
+			case SCR_DETECT_WATER:
+			case SCR_CHAOS_TERRAIN:
+			case SCR_TELE_LEVEL:
+			case SCR_WARPING:
+			case SCR_IMMOBILITY:
+			case SCR_MASS_MURDER:
+			case SCR_TRAP_CREATION:
+			case SCR_CREATE_TRAP:
+			case SCR_GROUP_SUMMONING:
+			case SCR_UNDO_GENOCIDE:
+			case SCR_RANDOM_ENCHANTMENT:
+			case SCR_BAD_EQUIPMENT:
+			case SCR_HEAL_OTHER:
+			case SCR_REGULAR_MATERIAL:
+				cartochance = 25;
+				if (!PlayerCannotUseSkills) switch (P_SKILL(P_DEVICES)) {
+					case P_BASIC: cartochance = 27; break;
+					case P_SKILLED: cartochance = 28; break;
+					case P_EXPERT: cartochance = 30; break;
+					case P_MASTER: cartochance = 31; break;
+					case P_GRAND_MASTER: cartochance = 33; break;
+					case P_SUPREME_MASTER: cartochance = 35; break;
+					default: break;
+				}
+				break;
+			case SCR_STINKING_CLOUD:
+			case SCR_ENCHANT_ARMOR:
+			case SCR_REMOVE_CURSE:
+			case SCR_ENCHANT_WEAPON:
+			case SCR_CHARGING:
+			case SCR_GIRLINESS:
+			case SCR_FLOODING:
+			case SCR_EGOISM:
+			case SCR_ERASURE:
+			case SCR_ANTIMATTER:
+			case SCR_MEGALOAD:
+			case SCR_WONDER:
+			case SCR_GEOLYSIS:
+			case SCR_OFFLEVEL_ITEM:
+			case SCR_REPAIR_ITEM:
+			case SCR_EXTRA_HEALING:
+			case SCR_MOUNTAINS:
+			case SCR_HIGHWAY:
+			case SCR_SYMBIOSIS:
+				cartochance = 20;
+				if (!PlayerCannotUseSkills) switch (P_SKILL(P_DEVICES)) {
+					case P_BASIC: cartochance = 21; break;
+					case P_SKILLED: cartochance = 22; break;
+					case P_EXPERT: cartochance = 23; break;
+					case P_MASTER: cartochance = 24; break;
+					case P_GRAND_MASTER: cartochance = 25; break;
+					case P_SUPREME_MASTER: cartochance = 26; break;
+					default: break;
+				}
+				break;
+			case SCR_RESISTANCE:
+			case SCR_GENOCIDE:
+			case SCR_CURE:
+			case SCR_SIN:
+			case SCR_ARMOR_SPECIALIZATION:
+			case SCR_SUMMON_BOSS:
+			case SCR_SUMMON_ELM:
+			case SCR_DEMONOLOGY:
+			case SCR_ELEMENTALISM:
+			case SCR_TRAP_DISARMING:
+			case SCR_FLOOD_TIDE:
+			case SCR_EBB_TIDE:
+			case SCR_MATERIAL_CHANGE:
+			case SCR_CREATE_FACILITY:
+			case SCR_SUMMON_GHOST:
+			case SCR_GREATER_MANA_RESTORATION:
+			case SCR_NASTY_CURSE:
+			case SCR_TERRAFORMING:
+				cartochance = 15;
+				if (!PlayerCannotUseSkills) switch (P_SKILL(P_DEVICES)) {
+					case P_BASIC: cartochance = 16; break;
+					case P_SKILLED: cartochance = 17; break;
+					case P_EXPERT: cartochance = 18; break;
+					case P_MASTER: cartochance = 19; break;
+					case P_GRAND_MASTER: cartochance = 20; break;
+					case P_SUPREME_MASTER: cartochance = 21; break;
+					default: break;
+				}
+				break;
+			case SCR_GAIN_MANA:
+			case SCR_LOCKOUT:
+			case SCR_WARD:
+			case SCR_CREATE_ALTAR:
+			case SCR_WARDING:
+			case SCR_RELOCATION:
+			case SCR_VILENESS:
+			case SCR_CREATE_FAMILIAR:
+			case SCR_ITEM_GENOCIDE:
+			case SCR_POWER_HEALING:
+			case SCR_REVERSE_IDENTIFY:
+			case SCR_SUPERIOR_MATERIAL:
+				cartochance = 10;
+				if (!PlayerCannotUseSkills) switch (P_SKILL(P_DEVICES)) {
+					case P_BASIC: cartochance = 11; break;
+					case P_SKILLED: cartochance = 12; break;
+					case P_EXPERT: cartochance = 13; break;
+					case P_MASTER: cartochance = 14; break;
+					case P_GRAND_MASTER: cartochance = 15; break;
+					case P_SUPREME_MASTER: cartochance = 16; break;
+					default: break;
+				}
+				break;
+			case SCR_CONSECRATION:
+			case SCR_BOSS_COMPANION:
+			case SCR_ANTIMAGIC:
+			case SCR_SECURE_CURSE_REMOVAL:
+			case SCR_INVENTORY_ID:
+			case SCR_SKILL_UP:
+			case SCR_ALTER_REALITY:
+			case SCR_SECURE_IDENTIFY:
+			case SCR_HYBRIDIZATION:
+			case SCR_RAGNAROK:
+				cartochance = 5;
+				if (!PlayerCannotUseSkills) switch (P_SKILL(P_DEVICES)) {
+					case P_BASIC: cartochance = 6; break;
+					case P_SKILLED: cartochance = 7; break;
+					case P_EXPERT: cartochance = 8; break;
+					case P_MASTER: cartochance = 9; break;
+					case P_GRAND_MASTER: cartochance = 10; break;
+					case P_SUPREME_MASTER: cartochance = 11; break;
+					default: break;
+				}
+				break;
+			/* this bit is meant for hypothetical 100 ink scrolls, in case we add any --Amy
+				cartochance = 1;
+				if (!PlayerCannotUseSkills) switch (P_SKILL(P_DEVICES)) {
+					case P_BASIC: cartochance = 1; break;
+					case P_SKILLED: cartochance = 1; break;
+					case P_EXPERT: cartochance = 2; break;
+					case P_MASTER: cartochance = 2; break;
+					case P_GRAND_MASTER: cartochance = 3; break;
+					case P_SUPREME_MASTER: cartochance = 4; break;
+					default: break;
+				}
+				break; */
+			case SCR_WORLD_FALL:
+			case SCR_ASTRALCENSION:
+			case SCR_ARTIFACT_CREATION:
+			case SCR_MISSING_CODE:
+			case SCR_ARTIFACT_JACKPOT:
+			case SCR_RESURRECTION:
+			case SCR_ENTHRONIZATION:
+			case SCR_WELL_BUILDING:
+			case SCR_DRIVING:
+			case SCR_TABLE_FURNITURE:
+			case SCR_EMBEDDING:
+			case SCR_MATTRESS_SLEEPING:
+			case SCR_MAKE_PENTAGRAM:
+			case SCR_FOUNTAIN_BUILDING:
+			case SCR_SINKING:
+			case SCR_CREATE_SINK:
+			case SCR_WC:
+				cartochance = 1;
+				break;
+			default:
+				cartochance = 0;
+				break;
+
+		}
+
+		if (cartochance > 0 && (rn2(100) < cartochance) ) cartokeep = TRUE;
+
+	} /* cartomancer dupe chance check */
+
 	if(scroll->oartifact == ART_MARAUDER_S_MAP) {
 		if(Blind) {
 			pline("Being blind, you cannot see the %s.", the(xname(scroll)));
@@ -890,21 +1202,34 @@ doread()
 		}
 		pline("You examine %s.", the(xname(scroll)));
 	} else if(scroll->otyp != SCR_BLANK_PAPER) {
-	  if(Blind)
-	    pline("As you %s the formula on it, the scroll disappears.",
-			is_silent(youmonst.data) ? "cogitate" : "pronounce");
-	  else
-	    pline("As you read the scroll, it disappears.");
-	  if(confused) {
-	    if (Hallucination)
-		pline("Being so trippy, you screw up...");
-	    else
-		pline("Being confused, you mis%s the magic words...",
-			is_silent(youmonst.data) ? "understand" : "pronounce");
-	  }
+
+	  if (cartokeep) {
+		  You("manage to duplicate the scroll!");
+		  if(confused) {
+		    if (FunnyHallu)
+			pline("Being so trippy, you screw up...");
+		    else
+			pline("Being confused, you mis%s the magic words...",
+				is_silent(youmonst.data) ? "understand" : "pronounce");
+		    u.cnd_confusedscrollread++;
+		} /* confused reading */
+	  } else {
+		  if(Blind)
+		    pline("As you %s the formula on it, the scroll disappears.", is_silent(youmonst.data) ? "cogitate" : "pronounce");
+		  else
+		    pline("As you read the scroll, it disappears.");
+		  if(confused) {
+		    if (FunnyHallu)
+			pline("Being so trippy, you screw up...");
+		    else
+			pline("Being confused, you mis%s the magic words...",
+				is_silent(youmonst.data) ? "understand" : "pronounce");
+		    u.cnd_confusedscrollread++;
+		} /* confused reading */
+	   } /* cartokeep check */
 	}
 
-	if (CurseuseEffect || u.uprops[CURSEUSE_EFFECT].extrinsic || have_curseusestone() ) curse(scroll);
+	if (CurseAsYouUse && scroll && scroll->otyp != CANDELABRUM_OF_INVOCATION && scroll->otyp != SPE_BOOK_OF_THE_DEAD && scroll->otyp != BELL_OF_OPENING) curse(scroll);
 
 	/*
 	 * When reading scrolls of teleportation off the floor special
@@ -927,6 +1252,8 @@ doread()
 	}
 
 	if (scroll && scroll->oclass == SCROLL_CLASS && scroll->otyp != SCR_CREATE_CREATE_SCROLL && !(scroll->oartifact == ART_MARAUDER_S_MAP)) {
+
+		u.cnd_scrollcount++;
 
 		use_skill(P_DEVICES,1);
 		if (Race_if(PM_FAWN)) {
@@ -962,7 +1289,7 @@ doread()
 			use_skill(spell_skilltype(scroll->otyp), 
 				(scroll->blessed ? 2 : 1));
 		}
-		if(scroll->otyp != SCR_BLANK_PAPER && scroll->oartifact != ART_MARAUDER_S_MAP &&
+		if(!cartokeep && scroll->otyp != SCR_BLANK_PAPER && scroll->oartifact != ART_MARAUDER_S_MAP &&
 		  scroll->otyp != SCR_TELEPORTATION && scroll->otyp != SCR_ANTIMATTER && scroll->otyp != SCR_BAD_EFFECT && scroll->otyp != SCR_SIN && scroll->otyp != SCR_TELE_LEVEL && scroll->otyp != SCR_WARPING) {
 		    if (carried(scroll)) useup(scroll);
 		    else if (mcarried(scroll)) m_useup(scroll->ocarry, scroll);
@@ -1031,6 +1358,9 @@ struct obj *obj;
 	if (obj->oclass == RING_CLASS)
 	    return (boolean)(objects[obj->otyp].oc_charged &&
 			(obj->known || objects[obj->otyp].oc_uname));
+	if (obj->oclass == IMPLANT_CLASS)
+	    return (boolean)(objects[obj->otyp].oc_charged &&
+			(obj->known || objects[obj->otyp].oc_uname));
 	if (is_lightsaber(obj))
 	    return TRUE;
 	if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP || obj->otyp == BRASS_LANTERN) return TRUE;
@@ -1087,7 +1417,7 @@ int curse_bless;
 	    n = (int)obj->recharged;
 	    if (n > 0 && (obj->otyp == WAN_WISHING || obj->otyp == WAN_CHARGING || obj->otyp == WAN_ACQUIREMENT || obj->otyp == WAN_GAIN_LEVEL || obj->otyp == WAN_INCREASE_MAX_HITPOINTS ||
 		/* no unlimited recharging of wands of charging --Amy */
-		    ((n * n * n > rn2(7*7*7) && !(obj->oartifact == ART_EXTRA_CONTROL) ) && !rn2( Role_if(PM_WANDKEEPER) ? 10 : 2) ))) {	/* recharge_limit */
+		    ((n * n * n > rn2(7*7*7) && !(obj->oartifact == ART_EXTRA_CONTROL && Role_if(PM_FORM_CHANGER)) ) && ( Role_if(PM_WANDKEEPER) ? !rn2(10) : rn2(3)) ))) {	/* recharge_limit */
 		Your("%s vibrates violently, and explodes!",xname(obj));
 		wand_explode(obj, FALSE);
 		return;
@@ -1099,7 +1429,7 @@ int curse_bless;
 	    if (is_cursed) {
 		stripspe(obj);
 	    } else {
-		int lim = (obj->otyp == WAN_WISHING) ? 2 : (obj->otyp == WAN_GENOCIDE) ? 4 : (obj->otyp == WAN_GAIN_LEVEL) ? 5 : (obj->otyp == WAN_INCREASE_MAX_HITPOINTS) ? 6 : ( (obj->otyp == WAN_CHARGING || obj->otyp == WAN_ACQUIREMENT ) ) ? 3 : ( (obj->otyp == WAN_PARALYSIS || obj->otyp == WAN_DISINTEGRATION || obj->otyp == WAN_DISINTEGRATION_BEAM || obj->otyp == WAN_STONING || obj->otyp == WAN_INERTIA || obj->otyp == WAN_TIME || obj->otyp == WAN_IDENTIFY || obj->otyp == WAN_REMOVE_CURSE || obj->otyp == WAN_TIME_STOP || obj->otyp == WAN_TELE_LEVEL || obj->otyp == WAN_ENTRAPPING || obj->otyp == WAN_MAGIC_MAPPING || obj->otyp == WAN_CREATE_FAMILIAR ) ) ? 5 : (obj->otyp == WAN_ENLIGHTENMENT || obj->otyp == WAN_TRAP_DISARMING || obj->otyp == WAN_CANCELLATION || obj->otyp == WAN_POLYMORPH || obj->otyp == WAN_MUTATION || obj->otyp == WAN_CHARGING) ? 7 : (obj->otyp == WAN_VENOM_SCATTERING) ? 20 : (objects[obj->otyp].oc_dir == IMMEDIATE) ? (12 + n) : (objects[obj->otyp].oc_dir != NODIR) ? (10 + n) : (20 + n);
+		int lim = (obj->otyp == WAN_WISHING) ? 2 : (obj->otyp == WAN_GENOCIDE) ? 4 : (obj->otyp == WAN_GAIN_LEVEL) ? 5  : (obj->otyp == WAN_BAD_EQUIPMENT) ? 7 : (obj->otyp == WAN_INCREASE_MAX_HITPOINTS) ? 6 : ( (obj->otyp == WAN_CHARGING || obj->otyp == WAN_ACQUIREMENT ) ) ? 3 : ( (obj->otyp == WAN_PARALYSIS || obj->otyp == WAN_DISINTEGRATION || obj->otyp == WAN_DISINTEGRATION_BEAM || obj->otyp == WAN_STONING || obj->otyp == WAN_INERTIA || obj->otyp == WAN_TIME || obj->otyp == WAN_IDENTIFY || obj->otyp == WAN_REMOVE_CURSE || obj->otyp == WAN_TIME_STOP || obj->otyp == WAN_TELE_LEVEL || obj->otyp == WAN_ENTRAPPING || obj->otyp == WAN_MAGIC_MAPPING || obj->otyp == WAN_CREATE_FAMILIAR ) ) ? 5 : (obj->otyp == WAN_ENLIGHTENMENT || obj->otyp == WAN_TRAP_DISARMING || obj->otyp == WAN_CANCELLATION || obj->otyp == WAN_POLYMORPH || obj->otyp == WAN_MUTATION) ? 7 : (obj->otyp == WAN_VENOM_SCATTERING) ? 20 : (objects[obj->otyp].oc_dir == IMMEDIATE) ? (12 + n) : (objects[obj->otyp].oc_dir != NODIR) ? (10 + n) : (20 + n);
 
 		n = (lim == 2) ? 2 : (lim == 3) ? 3 : (is_blessed ? rn1(5, lim + 1 - 5) : rnd(lim) ) ;
 		/*if (!is_blessed) {enspe = rnd(n); n = enspe;}*/ /* no longer needed */
@@ -1108,7 +1438,7 @@ int curse_bless;
 		if (is_blessed && obj->spe < n && rn2(3) ) obj->spe = n;
 		}
 
-		if (Role_if(PM_WANDKEEPER) && obj->spe < 100) obj->spe += ((obj->otyp == WAN_WISHING) ? 1 : (obj->otyp == WAN_CHARGING || obj->otyp == WAN_ACQUIREMENT ) ? rnd(3) : (obj->otyp == WAN_GENOCIDE) ? rnd(4) : (obj->otyp == WAN_GAIN_LEVEL) ? rnd(5) : (obj->otyp == WAN_INCREASE_MAX_HITPOINTS) ? rnd(6) : rnd(10));
+		if (Role_if(PM_WANDKEEPER) && obj->spe < 100) obj->spe += ((obj->otyp == WAN_WISHING) ? 1 : (obj->otyp == WAN_CHARGING || obj->otyp == WAN_BAD_EQUIPMENT || obj->otyp == WAN_ACQUIREMENT ) ? rnd(3) : (obj->otyp == WAN_GENOCIDE) ? rnd(4) : (obj->otyp == WAN_GAIN_LEVEL) ? rnd(5) : (obj->otyp == WAN_INCREASE_MAX_HITPOINTS) ? rnd(6) : rnd(10));
 
 		/* let's make charging a bit more useful, considering wands spawn with less charges now --Amy */
 		/*else*/ obj->spe += obj->recharged; /* cannot be higher than 1 for wishing/charging anyway */
@@ -1117,11 +1447,16 @@ int curse_bless;
 		    wand_explode(obj, FALSE);
 		    return;
 		}*/
+		u.cnd_chargingcount++;
 		if (obj->spe >= lim) p_glow2(obj, NH_BLUE);
 		else p_glow1(obj);
 	    }
 
 	} else if (obj->oclass == SPBOOK_CLASS) {
+
+		/* some books are so powerful that charging them gives much fewer charges (similar to wand of wishing) --Amy */
+		boolean fewchargesadded = FALSE;
+		if (obj->otyp == SPE_TIME || obj->otyp == SPE_GAIN_LEVEL || obj->otyp == SPE_MAP_LEVEL || obj->otyp == SPE_INERTIA || obj->otyp == SPE_CHARGING || obj->otyp == SPE_GENOCIDE || obj->otyp == SPE_GODMODE || obj->otyp == SPE_CHARACTER_RECURSION || obj->otyp == SPE_PETRIFY || obj->otyp == SPE_ACQUIREMENT || obj->otyp == SPE_THRONE_GAMBLE || obj->otyp == SPE_WISHING || obj->otyp == SPE_WORLD_FALL || obj->otyp == SPE_REROLL_ARTIFACT || obj->otyp == SPE_ATTUNE_MAGIC || obj->otyp == SPE_GAIN_SPACT || obj->otyp == SPE_CLONE_MONSTER || obj->otyp == SPE_TIME_STOP || obj->otyp == SPE_ALTER_REALITY || obj->otyp == SPE_AULE_SMITHING) fewchargesadded = TRUE;
 
 	    if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
 	    	pline("%s", nothing_happens);
@@ -1154,27 +1489,25 @@ int curse_bless;
 	     *	14 :  63.29   99.32
 	     */
 	    n = (int)obj->recharged;
-	    if (n > 0 && rn2(2) && (n * n * n > rn2(7*7*7))) {	/* recharge_limit */
+	    if (n > 0 && (Role_if(PM_LIBRARIAN) ? !rn2(10) : Role_if(PM_INTEL_SCRIBE) ? !rn2(10) : rn2(3)) && (n * n * n > rn2(7*7*7))) {	/* recharge_limit */
 		Your("%s crumbles to dust!", xname(obj));
 		useup(obj);
 		    return;
 		}
-	    /* didn't crumble, so possibly increment the recharge count */
-	    if (!rn2(2)) obj->recharged = (unsigned)(n + 1);
+	    /* didn't crumble, so increment the recharge count */
+	    obj->recharged = (unsigned)(n + 1);
 
 	    /* now handle the actual recharging */
 	    if (is_cursed) {
 		stripspe(obj);
   	    } else {
-		int lim = (objects[obj->otyp].oc_dir != NODIR) ? 8 : 15;
-
-		n = rn1(5, lim + 1 - 5);
-		if (!is_blessed) n = rnd(n);
-
-		if (obj->spe < n) obj->spe = n;
-		else obj->spe++;
-		if (obj->spe >= lim) p_glow2(obj, NH_BLUE);
+		if (fewchargesadded) n = (is_blessed) ? rnd(2) : 1;
+		else n = (is_blessed) ? rnd(5) : rnd(3);
+		obj->spe += n;
+		if (obj->spe > 100) obj->spe = 100; /* upper limit */
+		if (obj->spe >= 5) p_glow2(obj, NH_BLUE);
 		else p_glow1(obj);
+		u.cnd_chargingcount++;
 	    }
 
 	} else if (obj->oclass == RING_CLASS &&
@@ -1192,16 +1525,35 @@ int curse_bless;
 		useup(obj);
 		losehp(s, "exploding ring", KILLED_BY_AN);
 	    } else {
-		long mask = is_on ? (obj == uleft ? LEFT_RING :
-				     RIGHT_RING) : 0L;
+		long mask = is_on ? (obj == uleft ? LEFT_RING : RIGHT_RING) : 0L;
 		Your("%s spins %sclockwise for a moment.",
 		     xname(obj), s < 0 ? "counter" : "");
 		/* cause attributes and/or properties to be updated */
 		if (is_on) Ring_off(obj);
 		obj->spe += s;	/* update the ring while it's off */
+		if (s > 0) u.cnd_chargingcount++;
 		if (is_on) setworn(obj, mask), Ring_on(obj);
 		/* oartifact: if a touch-sensitive artifact ring is
 		   ever created the above will need to be revised  */
+	    }
+
+	} else if (obj->oclass == IMPLANT_CLASS && objects[obj->otyp].oc_charged) {
+
+	    int s = is_blessed ? rnd(3) : is_cursed ? -rnd(2) : rnd(2);
+
+	    if (((obj->spe > rn2(7) && obj->spe > rn2(7) && obj->spe > rn2(7)) || (obj->spe <= -5 && obj->spe <= -5)) && !rn2(4)) {
+		Your("%s %s momentarily, then %s.", xname(obj), otense(obj,"pulsate"), otense(obj,"fade"));
+		obj->spe = 0;
+
+	    } else {
+		if (((obj->spe + s) < 8) || !rn2(3)) { /* make it hard to reach ultra-high enchantment values --Amy */
+			Your("%s spins %sclockwise for a moment.", xname(obj), s < 0 ? "counter" : "");
+			obj->spe += s;	/* we don't need to take it off because it just affects AC and poly'd stuff */
+			if (s > 0) u.cnd_chargingcount++;
+		} else {
+			Your("%s seems unchanged.", xname(obj));
+		}
+
 	    }
 
 	} else if (obj->oclass == TOOL_CLASS) {
@@ -1218,22 +1570,29 @@ int curse_bless;
 		else if (is_blessed) obj->spe += rnd(30);
 		else obj->spe += 10;
 		if (obj->spe > 100) obj->spe = 100;
+		if (!is_cursed) u.cnd_chargingcount++;
+
 		break;
 	    case MAGIC_MARKER:
+		if (practicantterror) {
+			pline("%s thunders: 'That's fraud, you're supposed to buy a new ink cartridge like everyone else when your pen is empty! That makes 5000 zorkmids!'", noroelaname());
+			fineforpracticant(5000, 0, 0);
+		}
+		/* fall through */
 	    case FELT_TIP_MARKER:
 	    case TINNING_KIT:
 	    case BINNING_KIT:
 	    case EXPENSIVE_CAMERA:
 
 		n = (int)obj->recharged;
-		if (n > 0 && rn2(2) && (n * n * n > rn2(9*9*9))) {
+		if (n > 0 && rn2(3) && (n * n * n > rn2(9*9*9))) {
 			Your("%s glows violently and evaporates!", xname(obj));
 			useup(obj);
 		    return;
 		}
 
 		if (is_cursed) stripspe(obj);
-		else if (rechrg && obj->otyp == MAGIC_MARKER) {	/* previously recharged */
+		else if (rechrg && obj->otyp == MAGIC_MARKER && !(obj->oartifact == ART_MARKER_OF_SAFE_SPEECH && Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) ) {	/* previously recharged */
 		    obj->recharged = 1;	/* override increment done above */
 		    if (obj->spe < 3)
 			Your("marker seems permanently dried out.");
@@ -1255,7 +1614,8 @@ int curse_bless;
 			else
 				obj->spe += n;
 
-		    p_glow2(obj, NH_BLUE);
+			p_glow2(obj, NH_BLUE);
+			u.cnd_chargingcount++;
 		} else {
 		    n = rnd(20);		/* 10..20 */
 		    if (rn2(2)) n += rnd(30);
@@ -1266,7 +1626,8 @@ int curse_bless;
 			else
 				obj->spe += n;
 
-		    p_glow2(obj, NH_WHITE);
+			p_glow2(obj, NH_WHITE);
+			u.cnd_chargingcount++;
 		}
 		break;
 	    case OIL_LAMP:
@@ -1287,6 +1648,7 @@ int curse_bless;
 		    }
 		    else obj->age += 1500;
 		    p_glow2(obj, NH_BLUE);
+			u.cnd_chargingcount++;
 		} else {
 		    obj->spe = 1;
 		    obj->age += 750;
@@ -1295,10 +1657,12 @@ int curse_bless;
 				pline("Vasha legkaya sablya ne zaryazhena pravil'no, potomu chto tip ledyanogo bloka nenavidit Emi i vse izmeneniya, kotoryye ona proizvodit. Yasno, chto slesh ikh vsegda budet vonyuchey kuchey der'ma.");
 		    }
 		    p_glow1(obj);
+			u.cnd_chargingcount++;
 		}
 		break;
 	    case GREEN_LIGHTSABER:
 	    case BLUE_LIGHTSABER:
+	    case MYSTERY_LIGHTSABER:
 	    case VIOLET_LIGHTSABER:
 	    case WHITE_LIGHTSABER:
 	    case YELLOW_LIGHTSABER:
@@ -1306,6 +1670,8 @@ int curse_bless;
 	    case RED_DOUBLE_LIGHTSABER:
 	    case WHITE_DOUBLE_LIGHTSABER:
 	    case LASER_SWATTER:
+	    case NANO_HAMMER:
+	    case LIGHTWHIP:
 
 		if (is_cursed) {
 		    if (obj->lamplit) {
@@ -1322,6 +1688,7 @@ int curse_bless;
 		    }
 		    else obj->age += 1500;
 		    p_glow2(obj, NH_BLUE);
+			u.cnd_chargingcount++;
 		} else {
 		    obj->age += 750;
 		    if (issoviet && obj->age > 1500) {
@@ -1329,12 +1696,13 @@ int curse_bless;
 				pline("Vasha legkaya sablya ne zaryazhena pravil'no, potomu chto tip ledyanogo bloka nenavidit Emi i vse izmeneniya, kotoryye ona proizvodit. Yasno, chto slesh ikh vsegda budet vonyuchey kuchey der'ma.");
 		    }
 		    p_glow1(obj);
+			u.cnd_chargingcount++;
 		}
 		break;
 	    case CRYSTAL_BALL:
 
 		n = (int)obj->recharged;
-		if (n > 0 && rn2(2) && (n * n * n > rn2(9*9*9))) {
+		if (n > 0 && rn2(3) && (n * n * n > rn2(9*9*9))) {
 			Your("%s glows violently and evaporates!", xname(obj));
 			useup(obj);
 		    return;
@@ -1344,9 +1712,11 @@ int curse_bless;
 		else if (is_blessed) {
 		    obj->spe = 6;
 		    p_glow2(obj, NH_BLUE);
+			u.cnd_chargingcount++;
 		} else {
 		    if (obj->spe < 5) {
 			obj->spe++;
+			u.cnd_chargingcount++;
 			p_glow1(obj);
 		    } else {
 				pline("%s", nothing_happens);
@@ -1357,14 +1727,37 @@ int curse_bless;
 		    }
 		}
 		break;
-	    case HORN_OF_PLENTY:
-	    case BAG_OF_TRICKS:
+
 	    case CAN_OF_GREASE:
 	    case LUBRICANT_CAN:
+
+		n = (int)obj->recharged;
+		if (n > 0 && rn2(3) && (n * n * n > rn2(9*9*9))) {
+			Your("%s glows violently and evaporates!", xname(obj));
+			useup(obj);
+		    return;
+		}
+
+		if (is_cursed) stripspe(obj);
+		else if (is_blessed) {
+			obj->spe += rnd(30);
+			if (obj->spe > 100) obj->spe = 100;
+			p_glow2(obj, NH_BLUE);
+			u.cnd_chargingcount++;
+		} else {
+			obj->spe += rnd(20);
+			if (obj->spe > 100) obj->spe = 100;
+			p_glow1(obj);
+			u.cnd_chargingcount++;
+		}
+		break;
+
+	    case HORN_OF_PLENTY:
+	    case BAG_OF_TRICKS:
 	    case CHEMISTRY_SET:
 
 		n = (int)obj->recharged;
-		if (n > 0 && rn2(2) && (n * n * n > rn2(9*9*9))) {
+		if (n > 0 && rn2(3) && (n * n * n > rn2(9*9*9))) {
 			Your("%s glows violently and evaporates!", xname(obj));
 			useup(obj);
 		    return;
@@ -1377,21 +1770,26 @@ int curse_bless;
 
 		    if (obj->spe > 117) obj->spe = 117;
 		    p_glow2(obj, NH_BLUE);
+			u.cnd_chargingcount++;
 		} else {
 		    obj->spe += rnd(5);
 		    if (obj->spe > 117) obj->spe = 117;
 		    p_glow1(obj);
+			u.cnd_chargingcount++;
 		}
 		break;
 	    case MAGIC_FLUTE:
 	    case MAGIC_HARP:
 	    case FROST_HORN:
 	    case TEMPEST_HORN:
+	    case CHROME_HORN:
+	    case SHADOW_HORN:
+	    case ETHER_HORN:
 	    case FIRE_HORN:
 	    case DRUM_OF_EARTHQUAKE:
 
 		n = (int)obj->recharged;
-		if (n > 0 && rn2(2) && (n * n * n > rn2(9*9*9))) {
+		if (n > 0 && rn2(3) && (n * n * n > rn2(9*9*9))) {
 			Your("%s glows violently and evaporates!", xname(obj));
 			useup(obj);
 		    return;
@@ -1403,10 +1801,12 @@ int curse_bless;
 		    obj->spe += d(2,4);
 		    if (obj->spe > 20) obj->spe = 20;
 		    p_glow2(obj, NH_BLUE);
+			u.cnd_chargingcount++;
 		} else {
 		    obj->spe += rnd(4);
 		    if (obj->spe > 20) obj->spe = 20;
 		    p_glow1(obj);
+			u.cnd_chargingcount++;
 		}
 		break;
 	    default:
@@ -1540,8 +1940,9 @@ forget_objects(percent)
 	int i, count;
 	int indices[NUM_OBJECTS];
 
-	if (Keen_memory && rn2(20)) return;
-	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_UNFORGETTABLE_EVENT && rn2(10)) return;
+	if (Keen_memory && rn2(StrongKeen_memory ? 20 : 4)) return;
+	if (powerfulimplants() && uimplant && uimplant->oartifact == ART_UNFORGETTABLE_EVENT && rn2(10)) return;
+	if (Role_if(PM_MASTERMIND) && mastermindsave()) return;
 
 	if (isfriday) {
 		percent *= 2;
@@ -1588,8 +1989,9 @@ forget_map(howmuch)
 	/*if (In_sokoban(&u.uz) && rn2(20) )
 	    return;*/
 
-	if (Keen_memory && rn2(20)) return;
-	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_UNFORGETTABLE_EVENT && rn2(10)) return;
+	if (Keen_memory && rn2(StrongKeen_memory ? 20 : 4)) return;
+	if (powerfulimplants() && uimplant && uimplant->oartifact == ART_UNFORGETTABLE_EVENT && rn2(10)) return;
+	if (Role_if(PM_MASTERMIND) && mastermindsave()) return;
 
 	known = TRUE;
 	for(zx = 0; zx < COLNO; zx++) for(zy = 0; zy < ROWNO; zy++)
@@ -1613,7 +2015,12 @@ maprot()
 		if (percentage > 100) percentage = 100;
 	}
 
-	if (Keen_memory && rn2(20)) {
+	if (Role_if(PM_MASTERMIND) && mastermindsave()) {
+		percentage /= 10;
+		if (percentage < 1) return;
+	}
+
+	if (Keen_memory && rn2(StrongKeen_memory ? 20 : 4)) {
 		percentage /= 10;
 		if (percentage < 1) return;
 	}
@@ -1634,8 +2041,9 @@ forget_traps()
 {
 	register struct trap *trap;
 
-	if (Keen_memory && rn2(20)) return;
-	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_UNFORGETTABLE_EVENT && rn2(10)) return;
+	if (Keen_memory && rn2(StrongKeen_memory ? 20 : 4)) return;
+	if (powerfulimplants() && uimplant && uimplant->oartifact == ART_UNFORGETTABLE_EVENT && rn2(10)) return;
+	if (Role_if(PM_MASTERMIND) && mastermindsave()) return;
 
 	/* forget all traps (except the one the hero is in :-) */
 	for (trap = ftrap; trap; trap = trap->ntrap)
@@ -1662,8 +2070,9 @@ forget_levels(percent)
 		if (percent > 100) percent = 100;
 	}
 
-	if (Keen_memory && rn2(20)) return;
-	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_UNFORGETTABLE_EVENT && rn2(10)) return;
+	if (Keen_memory && rn2(StrongKeen_memory ? 20 : 4)) return;
+	if (powerfulimplants() && uimplant && uimplant->oartifact == ART_UNFORGETTABLE_EVENT && rn2(10)) return;
+	if (Role_if(PM_MASTERMIND) && mastermindsave()) return;
 
 	if (percent <= 0 || percent > 100) {
 	    impossible("forget_levels: bad percent %d", percent);
@@ -1723,6 +2132,8 @@ int howmuch;
 	if (u.contamination && u.contamination < 1000) {
 		decontaminate(100);
 	}
+
+	u.cnd_amnesiacount++;
 
 	reducesanity(100);
 
@@ -1831,9 +2242,6 @@ void * poolcnt;
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
 		return;
 
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
-		return;
-
 	(*(int *)poolcnt)++;
 
 	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
@@ -1865,6 +2273,33 @@ void * roomcnt;
 
 	/* Get rid of a lava pool at x, y */
 	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+terraincleanupA(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (Is_waterlevel(&u.uz)) return;
+
+	if (levl[x][y].typ < GRAVEWALL)
+		return;
+	if (levl[x][y].typ >= SDOOR && levl[x][y].typ <= SCORR)
+		return;
+	if ((levl[x][y].wall_info & W_NONDIGGABLE) != 0)
+		return;
+	if (levl[x][y].typ == DRAWBRIDGE_UP || levl[x][y].typ == DRAWBRIDGE_DOWN)
+		return;
+	if (levl[x][y].typ >= DOOR && levl[x][y].typ <= STRAWMATTRESS)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	/* Get rid of stone at x, y */
+	levl[x][y].typ = CORR;
+	blockorunblock_point(x,y);
+	if (!(levl[x][y].wall_info & W_HARDGROWTH)) levl[x][y].wall_info |= W_EASYGROWTH;
 	newsym(x,y);
 }
 
@@ -1910,9 +2345,6 @@ void * poolcnt;
 
 	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
-		return;
-
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
 		return;
 
 	(*(int *)poolcnt)++;
@@ -1989,9 +2421,6 @@ void * poolcnt;
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
 		return;
 
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
-		return;
-
 	(*(int *)poolcnt)++;
 
 	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
@@ -2036,9 +2465,1626 @@ void * roomcnt;
 
 	/* Get rid of stone at x, y */
 	levl[x][y].typ = CORR;
-	unblock_point(x,y);
+	blockorunblock_point(x,y);
 	if (!(levl[x][y].wall_info & W_HARDGROWTH)) levl[x][y].wall_info |= W_EASYGROWTH;
 	newsym(x,y);
+}
+
+STATIC_PTR void
+undo_graveflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != GRAVEWALL)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	blockorunblock_point(x,y);
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_graveflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = GRAVEWALL;
+			del_engr_at(randomx, randomy);
+			blockorunblock_point(randomx,randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = GRAVEWALL;
+		del_engr_at(x, y);
+		blockorunblock_point(x,y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_tunnelflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != TUNNELWALL)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+	blockorunblock_point(x,y);
+}
+
+STATIC_PTR void
+do_tunnelflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = TUNNELWALL;
+			del_engr_at(randomx, randomy);
+			blockorunblock_point(randomx,randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = TUNNELWALL;
+		del_engr_at(x, y);
+		blockorunblock_point(x,y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_farmflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != FARMLAND)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+	blockorunblock_point(x,y);
+}
+
+STATIC_PTR void
+do_farmflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = FARMLAND;
+			del_engr_at(randomx, randomy);
+			blockorunblock_point(randomx,randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = FARMLAND;
+		del_engr_at(x, y);
+		blockorunblock_point(x,y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_mountainflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != MOUNTAIN)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+	blockorunblock_point(x,y);
+}
+
+STATIC_PTR void
+do_mountainflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = MOUNTAIN;
+			del_engr_at(randomx, randomy);
+			blockorunblock_point(randomx,randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = MOUNTAIN;
+		del_engr_at(x, y);
+		blockorunblock_point(x,y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_watertunnelflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != WATERTUNNEL)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+	blockorunblock_point(x,y);
+}
+
+STATIC_PTR void
+do_watertunnelflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = WATERTUNNEL;
+			del_engr_at(randomx, randomy);
+			blockorunblock_point(randomx,randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = WATERTUNNEL;
+		del_engr_at(x, y);
+		blockorunblock_point(x,y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_crystalwaterflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != CRYSTALWATER)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_crystalwaterflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = CRYSTALWATER;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = CRYSTALWATER;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_moorflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != MOORLAND)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_moorflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = MOORLAND;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = MOORLAND;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_urineflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != URINELAKE)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_urineflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = URINELAKE;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = URINELAKE;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_shiftingsandflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != SHIFTINGSAND)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_shiftingsandflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = SHIFTINGSAND;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = SHIFTINGSAND;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_styxflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != STYXRIVER)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_styxflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = STYXRIVER;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = STYXRIVER;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_snowflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != SNOW)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_snowflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = SNOW;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = SNOW;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_ashflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != ASH)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_ashflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = ASH;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = ASH;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_sandflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != SAND)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_sandflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = SAND;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = SAND;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_pavementflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != PAVEDFLOOR)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_pavementflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = PAVEDFLOOR;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = PAVEDFLOOR;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_highwayflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != HIGHWAY)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_highwayflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = HIGHWAY;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = HIGHWAY;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_grassflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != GRASSLAND)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_grassflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = GRASSLAND;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = GRASSLAND;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_nethermistflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != NETHERMIST)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_nethermistflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = NETHERMIST;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = NETHERMIST;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_stalactiteflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != STALACTITE)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_stalactiteflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = STALACTITE;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = STALACTITE;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_cryptflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != CRYPTFLOOR)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+}
+
+STATIC_PTR void
+do_cryptflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = CRYPTFLOOR;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = CRYPTFLOOR;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_bubbleflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != BUBBLES)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+	blockorunblock_point(x,y);
+}
+
+STATIC_PTR void
+do_bubbleflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = BUBBLES;
+			del_engr_at(randomx, randomy);
+			blockorunblock_point(randomx,randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = BUBBLES;
+		del_engr_at(x, y);
+		blockorunblock_point(x,y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+undo_raincloudflood(x, y, roomcnt)
+int x, y;
+void * roomcnt;
+{
+	if (levl[x][y].typ != RAINCLOUD)
+		return;
+
+	(*(int *)roomcnt)++;
+
+	levl[x][y].typ = ROOM;
+	newsym(x,y);
+	blockorunblock_point(x,y);
+}
+
+STATIC_PTR void
+do_raincloudflood(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+
+	if (In_sokoban(&u.uz) && rn2(5)) return;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && !MON_AT(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+
+			levl[randomx][randomy].typ = RAINCLOUD;
+			del_engr_at(randomx, randomy);
+			blockorunblock_point(randomx,randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = RAINCLOUD;
+		del_engr_at(x, y);
+		blockorunblock_point(x,y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
 }
 
 STATIC_PTR void
@@ -2073,7 +4119,7 @@ void * poolcnt;
 			else {
 				if (levl[randomx][randomy].typ != DOOR) levl[randomx][randomy].typ = STONE;
 				else levl[randomx][randomy].typ = CROSSWALL;
-				block_point(randomx,randomy);
+				blockorunblock_point(randomx,randomy);
 				if (!(levl[randomx][randomy].wall_info & W_EASYGROWTH)) levl[randomx][randomy].wall_info |= W_HARDGROWTH;
 				del_engr_at(randomx, randomy);
 
@@ -2093,16 +4139,13 @@ void * poolcnt;
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].wall_info & W_NONDIGGABLE) != 0 || (levl[x][y].typ != CORR && levl[x][y].typ != ROOM && (levl[x][y].typ != DOOR || levl[x][y].doormask != D_NODOOR) ))
 		return;
 
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
-		return;
-
 	(*(int *)poolcnt)++;
 
 	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
 		/* Put a wall at x, y */
 		if (levl[x][y].typ != DOOR) levl[x][y].typ = STONE;
 		else levl[x][y].typ = CROSSWALL;
-		block_point(x,y);
+		blockorunblock_point(x,y);
 		if (!(levl[x][y].wall_info & W_EASYGROWTH)) levl[x][y].wall_info |= W_HARDGROWTH;
 		del_engr_at(x, y);
 
@@ -2129,7 +4172,7 @@ void * roomcnt;
 
 	/* Get rid of a lava pool at x, y */
 	levl[x][y].typ = ROOM;
-	unblock_point(x,y);
+	blockorunblock_point(x,y);
 	if (!(levl[x][y].wall_info & W_HARDGROWTH)) levl[x][y].wall_info |= W_EASYGROWTH;
 	newsym(x,y);
 }
@@ -2162,7 +4205,7 @@ void * poolcnt;
 		randomy = rn2(ROWNO);
 		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
 			levl[randomx][randomy].typ = TREE;
-			block_point(randomx,randomy);
+			blockorunblock_point(randomx,randomy);
 			if (!(levl[randomx][randomy].wall_info & W_EASYGROWTH)) levl[randomx][randomy].wall_info |= W_HARDGROWTH;
 			del_engr_at(randomx, randomy);
 	
@@ -2179,15 +4222,12 @@ void * poolcnt;
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR))
 		return;
 
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
-		return;
-
 	(*(int *)poolcnt)++;
 
 	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
 		/* Put a pool at x, y */
 		levl[x][y].typ = TREE;
-		block_point(x,y);
+		blockorunblock_point(x,y);
 		if (!(levl[x][y].wall_info & W_EASYGROWTH)) levl[x][y].wall_info |= W_HARDGROWTH;
 		del_engr_at(x, y);
 
@@ -2258,9 +4298,6 @@ void * poolcnt;
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR))
 		return;
 
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
-		return;
-
 	(*(int *)poolcnt)++;
 
 	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
@@ -2291,7 +4328,7 @@ void * roomcnt;
 
 	/* Get rid of a cloud at x, y */
 	levl[x][y].typ = ROOM;
-	unblock_point(x,y);
+	blockorunblock_point(x,y);
 	newsym(x,y);
 }
 
@@ -2321,7 +4358,7 @@ void * poolcnt;
 		randomy = rn2(ROWNO);
 		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
 			levl[randomx][randomy].typ = CLOUD;
-			block_point(randomx,randomy);
+			blockorunblock_point(randomx,randomy);
 			del_engr_at(randomx, randomy);
 	
 			if ((mtmp = m_at(randomx, randomy)) != 0) {
@@ -2337,15 +4374,12 @@ void * poolcnt;
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR))
 		return;
 
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
-		return;
-
 	(*(int *)poolcnt)++;
 
 	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
 		/* Put a pool at x, y */
 		levl[x][y].typ = CLOUD;
-		block_point(x,y);
+		blockorunblock_point(x,y);
 		del_engr_at(x, y);
 
 		if ((mtmp = m_at(x, y)) != 0) {
@@ -2371,7 +4405,7 @@ void * roomcnt;
 
 	/* Get rid of bars at x, y */
 	levl[x][y].typ = ROOM;
-	unblock_point(x,y);
+	blockorunblock_point(x,y);
 	newsym(x,y);
 }
 
@@ -2403,7 +4437,7 @@ void * poolcnt;
 		randomy = rn2(ROWNO);
 		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
 			levl[randomx][randomy].typ = IRONBARS;
-			block_point(randomx,randomy);
+			blockorunblock_point(randomx,randomy);
 			del_engr_at(randomx, randomy);
 	
 			if ((mtmp = m_at(randomx, randomy)) != 0) {
@@ -2419,15 +4453,12 @@ void * poolcnt;
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR))
 		return;
 
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
-		return;
-
 	(*(int *)poolcnt)++;
 
 	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
 		/* Put a pool at x, y */
 		levl[x][y].typ = IRONBARS;
-		block_point(x,y);
+		blockorunblock_point(x,y);
 		del_engr_at(x, y);
 
 		if ((mtmp = m_at(x, y)) != 0) {
@@ -2470,7 +4501,7 @@ void * poolcnt;
 		randomy = rn2(ROWNO);
 		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
 			levl[randomx][randomy].typ = randomwalltype();
-			block_point(randomx,randomy);
+			blockorunblock_point(randomx,randomy);
 			if (!(levl[randomx][randomy].wall_info & W_EASYGROWTH)) levl[randomx][randomy].wall_info |= W_HARDGROWTH;
 			del_engr_at(randomx, randomy);
 	
@@ -2487,15 +4518,12 @@ void * poolcnt;
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR))
 		return;
 
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
-		return;
-
 	(*(int *)poolcnt)++;
 
 	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
 		/* Put a pool at x, y */
 		levl[x][y].typ = randomwalltype();
-		block_point(x,y);
+		blockorunblock_point(x,y);
 		if (!(levl[x][y].wall_info & W_EASYGROWTH)) levl[x][y].wall_info |= W_HARDGROWTH;
 		del_engr_at(x, y);
 
@@ -2540,7 +4568,7 @@ register struct obj	*sobj;
 	if (sobj->otyp == SCR_COPYING) {
 
 		struct obj *wonderscroll;
-		wonderscroll = mkobj(SCROLL_CLASS,FALSE);
+		wonderscroll = mkobj(SCROLL_CLASS,FALSE, FALSE);
 		if (wonderscroll) sobj->otyp = wonderscroll->otyp;
 		if (sobj->otyp == GOLD_PIECE) sobj->otyp = SCR_RUMOR; /* minimalist fix */
 		if (wonderscroll) obfree(wonderscroll, (struct obj *)0);
@@ -2691,6 +4719,29 @@ enchantarmorchoice:
 			}
 			else if (!(otmp->prmcurse) && !(otmp->hvycurse) && !(otmp->morgcurse || otmp->evilcurse || otmp->bbrcurse) ) otmp->prmcurse = otmp->hvycurse = otmp->cursed = otmp->morgcurse = otmp->evilcurse = otmp->bbrcurse = otmp->stckcurse = 0;
 
+			if (sobj->blessed) {
+				otmp->spe++;
+				otmp->blessed = 1;
+			}
+			otmp->known = 1;
+			setworn(otmp, W_ARM);
+			break;
+		}
+		if (s >= 0 && otmp->otyp == LIZARD_SCALES) {
+			Your("%s merges and hardens!", xname(otmp));
+			setworn((struct obj *)0, W_ARM);
+			otmp->otyp = LIZARD_SCALE_MAIL;
+
+			if ((otmp->morgcurse || otmp->evilcurse || otmp->bbrcurse) && !rn2(100) ) {
+				otmp->prmcurse = otmp->hvycurse = otmp->cursed = otmp->morgcurse = otmp->evilcurse = otmp->bbrcurse = otmp->stckcurse = 0;
+			}
+			else if (otmp->prmcurse && !(otmp->morgcurse || otmp->evilcurse || otmp->bbrcurse) && !rn2(10) ) {
+				otmp->prmcurse = otmp->hvycurse = otmp->cursed = otmp->morgcurse = otmp->evilcurse = otmp->bbrcurse = otmp->stckcurse = 0;
+			}
+			else if (!(otmp->prmcurse) && otmp->hvycurse && !(otmp->morgcurse || otmp->evilcurse || otmp->bbrcurse) && !rn2(3) ) {
+				otmp->prmcurse = otmp->hvycurse = otmp->cursed = otmp->morgcurse = otmp->evilcurse = otmp->bbrcurse = otmp->stckcurse = 0;
+			}
+			else if (!(otmp->prmcurse) && !(otmp->hvycurse) && !(otmp->morgcurse || otmp->evilcurse || otmp->bbrcurse) ) otmp->prmcurse = otmp->hvycurse = otmp->cursed = otmp->morgcurse = otmp->evilcurse = otmp->bbrcurse = otmp->stckcurse = 0;
 
 			if (sobj->blessed) {
 				otmp->spe++;
@@ -2700,6 +4751,7 @@ enchantarmorchoice:
 			setworn(otmp, W_ARM);
 			break;
 		}
+
 		Your("%s %s%s%s%s for a %s.",
 			xname(otmp),
 		        s == 0 ? "violently " : nul,
@@ -2712,6 +4764,7 @@ enchantarmorchoice:
 			otmp->blessed = sobj->blessed;
 		if (s) {
 			otmp->spe += s;
+			if (Race_if(PM_SPARD) && s > 0) otmp->spe++;
 			known = otmp->known;
 		}
 		/* sometimes, enchanting armor pieces may give them an actual magical enchantment --Amy */
@@ -2731,6 +4784,13 @@ enchantarmorchoice:
 			Your("%s suddenly %s %s.",
 				xname(otmp), otense(otmp, "vibrate"),
 				Blind ? "again" : "unexpectedly");
+
+		if (practicantterror && otmp && otmp->spe >= 5 && !u.pract_enchantarmor) {
+			pline("%s rings out: 'I told you that you may not disguise as a tank! Just for that it costs 1000 zorkmids and 1000 stones now.'", noroelaname());
+			fineforpracticant(1000, 1000, 0);
+			u.pract_enchantarmor = TRUE;
+		}
+
 		break;
 	    }
 	case SCR_REPAIR_ITEM:
@@ -2745,8 +4805,9 @@ repairitemchoice:
 			pline("A feeling of loss comes over you.");
 			break;
 		}
-
-		if (otmp && confused) {
+		if (otmp && stack_too_big(otmp)) {
+			pline("The stack was too big and therefore didn't get repaired!");
+		} else if (otmp && confused) {
 			if (!Blind) {
 				pline("Your %s looks like it might fall apart if you sneeze at it!",xname(otmp));
 			}
@@ -2953,7 +5014,7 @@ proofarmorchoice:
 
 			pline("The spell effect backlashes!");
 
-		    switch (rn2(17)) {
+		    if (!obsidianprotection()) switch (rn2(17)) {
 		    case 0:
 		    case 1:
 		    case 2:
@@ -3034,7 +5095,7 @@ proofarmorchoice:
 	      break;
 
 	case SCR_ALTER_REALITY:
-		alter_reality();
+		alter_reality(0);
 
 	      break;
 
@@ -3089,6 +5150,32 @@ proofarmorchoice:
 				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
 			} else pline("Unfortunately, you feel no different than before.");
 
+			if (Race_if(PM_RUSMOT)) {
+				if (P_MAX_SKILL(skillimprove) == P_ISRESTRICTED) {
+					unrestrict_weapon_skill(skillimprove);
+					pline("You can now learn the %s skill.", P_NAME(skillimprove));
+				} else if (P_MAX_SKILL(skillimprove) == P_UNSKILLED) {
+					unrestrict_weapon_skill(skillimprove);
+					P_MAX_SKILL(skillimprove) = P_BASIC;
+					pline("You can now learn the %s skill.", P_NAME(skillimprove));
+				} else if (rn2(2) && P_MAX_SKILL(skillimprove) == P_BASIC) {
+					P_MAX_SKILL(skillimprove) = P_SKILLED;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(4) && P_MAX_SKILL(skillimprove) == P_SKILLED) {
+					P_MAX_SKILL(skillimprove) = P_EXPERT;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(10) && P_MAX_SKILL(skillimprove) == P_EXPERT) {
+					P_MAX_SKILL(skillimprove) = P_MASTER;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(100) && P_MAX_SKILL(skillimprove) == P_MASTER) {
+					P_MAX_SKILL(skillimprove) = P_GRAND_MASTER;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(200) && P_MAX_SKILL(skillimprove) == P_GRAND_MASTER) {
+					P_MAX_SKILL(skillimprove) = P_SUPREME_MASTER;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else pline("Unfortunately, you feel no different than before.");
+			}
+
 		}
 
 	      break;
@@ -3098,13 +5185,13 @@ proofarmorchoice:
 	case SCR_REMOVE_CURSE:
 	    {	register struct obj *obj;
 		if(confused) {
-		    if (Hallucination)
+		    if (FunnyHallu)
 			You_feel("the power of the Force against you!");
 		    else
 			You_feel("like you need some help.");
 			if (PlayerHearsSoundEffects) pline(issoviet ? "Vashe der'mo tol'ko chto proklinal." : "Woaaaaaa-AAAH!");
 		} else {
-		    if (Hallucination)
+		    if (FunnyHallu)
 			You_feel("in touch with the Universal Oneness.");
 		    else
 			You_feel("like someone is helping you.");
@@ -3123,6 +5210,7 @@ proofarmorchoice:
 
 			/* Scroll of remove curse will completely decontaminate you --Amy */
 			if (u.contamination && !(sobj->otyp == SPE_REMOVE_CURSE)) decontaminate(u.contamination);
+			if (uinsymbiosis && !(sobj->otyp == SPE_REMOVE_CURSE && rn2(5))) uncursesymbiote(FALSE);
 
 		    for (obj = invent; obj; obj = obj->nobj) {
 			long wornmask;
@@ -3191,12 +5279,18 @@ proofarmorchoice:
 		break;
 	    }
 	case SPE_CREATE_MONSTER:
+		{
 		if (confused) break;
 
-		(void) makemon((struct permonst *)0, u.ux, u.uy, MM_NOSPECIALS);
-		if (!rn2(4)) makerandomtrap();
+		(void) makemon((struct permonst *)0, u.ux, u.uy, MM_NOSPECIALS|MM_ANGRY|MM_FRENZIED);
+		if (!rn2(4)) {
+			pline("The spell backfires!");
+			badeffect();
+		}
 
 		u.aggravation = 0;
+
+		}
 
 		break;
 	case SCR_CREATE_MONSTER:
@@ -3248,14 +5342,14 @@ proofarmorchoice:
 
 		pline("A gray stone appears from nowhere!");
 
-		ldstone = mksobj_at(LOADSTONE, u.ux, u.uy, TRUE, FALSE);
+		ldstone = mksobj_at(LOADSTONE, u.ux, u.uy, TRUE, FALSE, FALSE);
 		if (ldstone) {
 			ldstone->quan = 1L;
 			ldstone->owt = weight(ldstone);
 			if (!Blind) ldstone->dknown = 1;
 			if (ldstone) {
 			      pline("The stone automatically wanders into your knapsack!");
-				(void) pickup_object(ldstone, 1L, TRUE);
+				(void) pickup_object(ldstone, 1L, TRUE, TRUE);
 			}
 		}
 
@@ -3267,6 +5361,32 @@ proofarmorchoice:
 		known = TRUE;
 
 		bad_artifact();
+
+		break;
+
+	case SCR_HYBRIDIZATION:
+		known = TRUE;
+
+		/* cursed always adds one, blessed has 75% chance of removing one, uncursed 50% of either */
+		if (sobj->cursed) changehybridization(2);
+		else if (sobj->blessed) {
+			changehybridization(rn2(4) ? 1 : 2);
+		}
+		else changehybridization(0);
+
+		break;
+
+	case SCR_NASTY_CURSE:
+		known = TRUE;
+
+		nastytrapcurse();
+
+		break;
+
+	case SCR_BAD_EQUIPMENT:
+		known = TRUE;
+
+		bad_equipment(0);
 
 		break;
 
@@ -3296,7 +5416,240 @@ proofarmorchoice:
 		known = TRUE;
 
 		pline("%s", fauxmessage());
-		if (!rn2(3)) pline("%s", fauxmessage());
+		u.cnd_plineamount++;
+		if (!rn2(3)) {
+			pline("%s", fauxmessage());
+			u.cnd_plineamount++;
+		}
+
+		break;
+
+	case SCR_ILLUSION:
+		known = TRUE;
+
+	    {
+		coord cc;
+		int cnt = rnd(6);
+		if (confused) cnt += rno(6);
+		if (sobj->cursed) cnt += rno(3);
+
+		if (Aggravate_monster) {
+			u.aggravation = 1;
+			reset_rndmonst(NON_PM);
+		}
+
+		while(cnt--) {
+
+			makemon(illusionmon(), u.ux, u.uy, NO_MM_FLAGS);
+
+		}
+	    }
+		pline("Some monsters from the Illusory Castle are summoned!");
+
+		u.aggravation = 0;
+
+		break;
+
+	case SCR_EVIL_VARIANT:
+		known = TRUE;
+
+	    {
+		coord cc;
+		int cnt = rnd(6);
+		if (confused) cnt += rno(6);
+		if (sobj->cursed) cnt += rno(3);
+
+		if (Aggravate_monster) {
+			u.aggravation = 1;
+			reset_rndmonst(NON_PM);
+		}
+
+		while(cnt--) {
+
+			makemon(specialtensmon(341), u.ux, u.uy, NO_MM_FLAGS); /* M5_EVIL */
+
+		}
+	    }
+		pline("Some monsters from the Evil Variant are summoned!");
+
+		u.aggravation = 0;
+
+		break;
+
+	case SCR_FEMINISM:
+		known = TRUE;
+
+		if (!rn2(2)) {
+			randomfeminismtrap(rnz( (level_difficulty() + 2) * rnd(50)));
+			break;
+		}
+
+	    {
+		coord cc;
+		int cnt = rnd(6);
+		if (confused) cnt += rno(6);
+		if (sobj->cursed) cnt += rno(3);
+
+		if (Aggravate_monster) {
+			u.aggravation = 1;
+			reset_rndmonst(NON_PM);
+		}
+
+		while(cnt--) {
+
+			makemon(specialtensmon(!rn2(50) ? 369 : !rn2(20) ? 333 : !rn2(3) ? 38 : !rn2(2) ? 39 : 40), u.ux, u.uy, NO_MM_FLAGS); /* AD_FEMI, MS_STENCH, and the three MS_FART_foo */
+
+		}
+	    }
+		pline("Several women appear from nowhere!");
+
+		u.aggravation = 0;
+
+		break;
+
+	case SCR_TERRAFORMING:
+		known = TRUE;
+
+		{
+			int maderoomX = 0;
+
+			do_clear_areaX(u.ux, u.uy, 1, terraincleanupA, (void *)&maderoomX);
+
+			if (maderoomX) pline("Some annoying terrain was cleaned up!");
+			else pline("There was nothing to clean up...");
+
+		}
+
+		break;
+
+	case SCR_INFERIOR_MATERIAL:
+		known = TRUE;
+
+		pline("You have found a scroll of inferior material!");
+
+materialchoice1:
+		{
+			struct obj *otmpC = getobj(all_count, "change the material of");
+			if (!otmpC) {
+				if (yn("Really exit with no object selected?") == 'y')
+					pline("You just wasted the opportunity to change an item's material.");
+				else goto materialchoice1;
+				break;
+			}
+			if ((otmpC->otyp == GOLD_PIECE) || (otmpC->otyp == STRANGE_OBJECT) || (otmpC->otyp == AMULET_OF_YENDOR) || (otmpC->otyp == CANDELABRUM_OF_INVOCATION) || (otmpC->otyp == BELL_OF_OPENING) || (otmpC->otyp == SPE_BOOK_OF_THE_DEAD) || (objects[otmpC->otyp].oc_prob < 1)) {
+				pline("The material of that item cannot be changed!");
+				break;
+			} else {
+				int changematerial;
+				switch (rnd(14)) {
+					case 1: changematerial = MT_LIQUID; break;
+					case 2: changematerial = MT_WAX; break;
+					case 3: changematerial = MT_VEGGY; break;
+					case 4: changematerial = MT_FLESH; break;
+					case 5: changematerial = MT_PAPER; break;
+					case 6: changematerial = MT_CLOTH; break;
+					case 7: changematerial = MT_LEATHER; break;
+					case 8: changematerial = MT_IRON; break;
+					case 9: changematerial = MT_PLASTIC; break;
+					case 10: changematerial = MT_TAR; break;
+					case 11: changematerial = MT_SECREE; break;
+					case 12: changematerial = MT_POURPOOR; break;
+					case 13: changematerial = MT_SAND; break;
+					case 14: changematerial = MT_CERAMIC; break;
+					default: changematerial = MT_PAPER; break;
+				}
+				objects[otmpC->otyp].oc_material = changematerial;
+				pline("Success! The item's material got changed.");
+
+			}
+		}
+
+		break;
+
+	case SCR_REGULAR_MATERIAL:
+		known = TRUE;
+
+		pline("You have found a scroll of regular material!");
+
+materialchoice2:
+		{
+			struct obj *otmpC = getobj(all_count, "change the material of");
+			if (!otmpC) {
+				if (yn("Really exit with no object selected?") == 'y')
+					pline("You just wasted the opportunity to change an item's material.");
+				else goto materialchoice2;
+				break;
+			}
+			if ((otmpC->otyp == GOLD_PIECE) || (otmpC->otyp == STRANGE_OBJECT) || (otmpC->otyp == AMULET_OF_YENDOR) || (otmpC->otyp == CANDELABRUM_OF_INVOCATION) || (otmpC->otyp == BELL_OF_OPENING) || (otmpC->otyp == SPE_BOOK_OF_THE_DEAD) || (objects[otmpC->otyp].oc_prob < 1)) {
+				pline("The material of that item cannot be changed!");
+				break;
+			} else {
+				int changematerial;
+				switch (rnd(15)) {
+					case 1: changematerial = MT_MYSTERIOUS; break;
+					case 2: changematerial = MT_WOOD; break;
+					case 3: changematerial = MT_BONE; break;
+					case 4: changematerial = MT_METAL; break;
+					case 5: changematerial = MT_COPPER; break;
+					case 6: changematerial = MT_GLASS; break;
+					case 7: changematerial = MT_GEMSTONE; break;
+					case 8: changematerial = MT_MINERAL; break;
+					case 9: changematerial = MT_SILK; break;
+					case 10: changematerial = MT_COMPOST; break;
+					case 11: changematerial = MT_BRICK; break;
+					case 12: changematerial = MT_SHADOWSTUFF; break;
+					case 13: changematerial = MT_OBSIDIAN; break;
+					case 14: changematerial = MT_LEAD; break;
+					case 15: changematerial = MT_CHROME; break;
+					default: changematerial = MT_METAL; break;
+				}
+				objects[otmpC->otyp].oc_material = changematerial;
+				pline("Success! The item's material got changed.");
+
+			}
+		}
+
+		break;
+
+	case SCR_SUPERIOR_MATERIAL:
+		known = TRUE;
+
+		pline("You have found a scroll of superior material!");
+
+materialchoice3:
+		{
+			struct obj *otmpC = getobj(all_count, "change the material of");
+			if (!otmpC) {
+				if (yn("Really exit with no object selected?") == 'y')
+					pline("You just wasted the opportunity to change an item's material.");
+				else goto materialchoice3;
+				break;
+			}
+			if ((otmpC->otyp == GOLD_PIECE) || (otmpC->otyp == STRANGE_OBJECT) || (otmpC->otyp == AMULET_OF_YENDOR) || (otmpC->otyp == CANDELABRUM_OF_INVOCATION) || (otmpC->otyp == BELL_OF_OPENING) || (otmpC->otyp == SPE_BOOK_OF_THE_DEAD) || (objects[otmpC->otyp].oc_prob < 1)) {
+				pline("The material of that item cannot be changed!");
+				break;
+			} else {
+				int changematerial;
+				switch (rnd(11)) {
+					case 1: changematerial = MT_DRAGON_HIDE; break;
+					case 2: changematerial = MT_SILVER; break;
+					case 3: changematerial = MT_GOLD; break;
+					case 4: changematerial = MT_PLATINUM; break;
+					case 5: changematerial = MT_MITHRIL; break;
+					case 6: changematerial = MT_VIVA; break;
+					case 7: changematerial = MT_INKA; break;
+					case 8: changematerial = MT_ARCANIUM; break;
+					case 9: changematerial = MT_ETERNIUM; break;
+					case 10: changematerial = MT_ETHER; break;
+					case 11: changematerial = MT_NANOMACHINE; break;
+					default: changematerial = MT_MITHRIL; break;
+				}
+				objects[otmpC->otyp].oc_material = changematerial;
+				pline("Success! The item's material got changed.");
+
+			}
+
+		}
 
 		break;
 
@@ -3334,14 +5687,14 @@ proofarmorchoice:
 					break;
 				    case 1: /* sleep */
 					if (multi >= 0) {
-					    if (Sleep_resistance && rn2(20)) {pline("You yawn."); break;}
+					    if (Sleep_resistance && rn2(StrongSleep_resistance ? 20 : 5)) {pline("You yawn."); break;}
 					    fall_asleep(-rnd(10), TRUE);
 					    You("are put to sleep!");
 					}
 					break;
 				    case 2: /* paralyse */
 					if (multi >= 0) {
-					    if (Free_action && rn2(20)) {
+					    if (Free_action && rn2(StrongFree_action ? 100 : 20)) {
 						You("momentarily stiffen.");            
 					    } else {
 						You("are frozen!");
@@ -3357,7 +5710,7 @@ proofarmorchoice:
 					else You("pause momentarily.");
 					break;
 				    case 4: /* drain Dex */
-					adjattrib(A_DEX, -rn1(1,1), 0);
+					adjattrib(A_DEX, -rn1(1,1), 0, TRUE);
 					break;
 				    case 5: /* steal teleportitis */
 					if(HTeleportation & INTRINSIC) {
@@ -3398,7 +5751,7 @@ proofarmorchoice:
 
 				      otmpii = otmpi->nobj;
 
-					if (!rn2(itemportchance) && !(objects[otmpi->otyp].oc_material == BONE && rn2(10)) && !stack_too_big(otmpi) ) {
+					if (!rn2(itemportchance) && !(objects[otmpi->otyp].oc_material == MT_BONE && rn2(10)) && !stack_too_big(otmpi) ) {
 
 						if (otmpi->owornmask & W_ARMOR) {
 						    if (otmpi == uskin) {
@@ -3439,6 +5792,7 @@ proofarmorchoice:
 
 						dropx(otmpi);
 					      if (otmpi->where == OBJ_FLOOR) rloco(otmpi);
+						u.cnd_itemportcount++;
 					}
 
 				    }
@@ -3470,7 +5824,7 @@ proofarmorchoice:
 					if(u.uen > u.uenmax) u.uen = u.uenmax;
 				}
 				if (!rn2(4)) {
-					if(!Drain_resistance || !rn2(4) )
+					if(!Drain_resistance || !rn2(StrongDrain_resistance ? 16 : 4) )
 					    losexp("life drainage", FALSE, TRUE);
 					else You_feel("woozy for an instant, but shrug it off.");
 				}
@@ -3500,7 +5854,7 @@ proofarmorchoice:
 				    u.ulycn = PM_WERECOW;
 				} else {
 					if (multi >= 0) {
-					    if (Sleep_resistance && rn2(20)) break;
+					    if (Sleep_resistance && rn2(StrongSleep_resistance ? 20 : 5)) break;
 					    fall_asleep(-rnd(10), TRUE);
 					    You("are put to sleep!");
 					}
@@ -3523,11 +5877,13 @@ proofarmorchoice:
 			    case 10:
 			    case 11:
 			    case 12:
-				water_damage(invent, FALSE, FALSE);
+				if ((!StrongSwimming || !rn2(10)) && (!StrongMagical_breathing || !rn2(10))) {
+					water_damage(invent, FALSE, FALSE);
+				}
 				break;
 			    case 13:
 				if (multi >= 0) {
-				    if (Free_action && rn2(20)) {
+				    if (Free_action && rn2(StrongFree_action ? 100 : 20)) {
 					You("momentarily stiffen.");            
 				    } else {
 					You("are frozen!");
@@ -3539,7 +5895,7 @@ proofarmorchoice:
 				}
 				break;
 			    case 14:
-				if (Hallucination)
+				if (FunnyHallu)
 					pline("What a groovy feeling!");
 				else
 					You(Blind ? "%s and get dizzy..." :
@@ -3569,6 +5925,7 @@ proofarmorchoice:
 	
 				    if (objD && drain_item(objD)) {
 					Your("%s less effective.", aobjnam(objD, "seem"));
+					u.cnd_disenchantamount++;
 					if (PlayerHearsSoundEffects) pline(issoviet ? "Vse, chto vy vladeyete budet razocharovalsya v zabveniye, kha-kha-kha!" : "Klatsch!");
 				    }
 				}
@@ -3666,7 +6023,10 @@ proofarmorchoice:
 
 	case SPE_SUMMON_UNDEAD:
 		if (confused) break;
-		if (!rn2(10)) makerandomtrap();
+		if (!rn2(10)) {
+			pline("The spell backfires!");
+			badeffect();
+		}
 
 	case SCR_SUMMON_UNDEAD:        
 	    {
@@ -3687,24 +6047,24 @@ proofarmorchoice:
 #endif
 		    switch (rn2(10)+1) {
 		    case 1:
-			mtmp = makemon(mkclass(S_VAMPIRE,0), u.ux, u.uy, (sobj->otyp == SPE_SUMMON_UNDEAD) ? MM_NOSPECIALS : NO_MM_FLAGS);
+			mtmp = makemon(mkclass(S_VAMPIRE,0), u.ux, u.uy, (sobj->otyp == SPE_SUMMON_UNDEAD) ? MM_NOSPECIALS|MM_ANGRY|MM_FRENZIED : NO_MM_FLAGS);
 			break;
 		    case 2:
 		    case 3:
 		    case 4:
 		    case 5:
-			mtmp = makemon(mkclass(S_ZOMBIE,0), u.ux, u.uy, (sobj->otyp == SPE_SUMMON_UNDEAD) ? MM_NOSPECIALS : NO_MM_FLAGS);
+			mtmp = makemon(mkclass(S_ZOMBIE,0), u.ux, u.uy, (sobj->otyp == SPE_SUMMON_UNDEAD) ? MM_NOSPECIALS|MM_ANGRY|MM_FRENZIED : NO_MM_FLAGS);
 			break;
 		    case 6:
 		    case 7:
 		    case 8:
-			mtmp = makemon(mkclass(S_MUMMY,0), u.ux, u.uy, (sobj->otyp == SPE_SUMMON_UNDEAD) ? MM_NOSPECIALS : NO_MM_FLAGS);
+			mtmp = makemon(mkclass(S_MUMMY,0), u.ux, u.uy, (sobj->otyp == SPE_SUMMON_UNDEAD) ? MM_NOSPECIALS|MM_ANGRY|MM_FRENZIED : NO_MM_FLAGS);
 			break;
 		    case 9:
-			mtmp = makemon(mkclass(S_GHOST,0), u.ux, u.uy, (sobj->otyp == SPE_SUMMON_UNDEAD) ? MM_NOSPECIALS : NO_MM_FLAGS);
+			mtmp = makemon(mkclass(S_GHOST,0), u.ux, u.uy, (sobj->otyp == SPE_SUMMON_UNDEAD) ? MM_NOSPECIALS|MM_ANGRY|MM_FRENZIED : NO_MM_FLAGS);
 			break;
 		    case 10:
-			mtmp = makemon(mkclass(S_WRAITH,0), u.ux, u.uy, (sobj->otyp == SPE_SUMMON_UNDEAD) ? MM_NOSPECIALS : NO_MM_FLAGS);
+			mtmp = makemon(mkclass(S_WRAITH,0), u.ux, u.uy, (sobj->otyp == SPE_SUMMON_UNDEAD) ? MM_NOSPECIALS|MM_ANGRY|MM_FRENZIED : NO_MM_FLAGS);
 			break;
 		    }
 		    /* WAC Give N a shot at controlling the beasties
@@ -3799,7 +6159,7 @@ proofarmorchoice:
 							}
 						}
 
-						if (untamingchance > rnd(10) && !((rnd(30 - ACURR(A_CHA))) < 4) ) {
+						if (untamingchance > rnd(10) && !(Role_if(PM_DRAGONMASTER) && uarms && Is_dragon_shield(uarms) && mtmp2->data->mlet == S_DRAGON) && !((rnd(30 - ACURR(A_CHA))) < 4) ) {
 
 							mtmp2->mtame = mtmp2->mpeaceful = 0;
 							if (mtmp2->mleashed) { m_unleash(mtmp2,FALSE); }
@@ -3850,7 +6210,7 @@ proofarmorchoice:
 			monstercolor = rnd(15);
 			do { monstercolor = rnd(15); } while (monstercolor == CLR_BLUE);
 		} else {
-			monstercolor = rnd(359);
+			monstercolor = rnd(376);
 		}
 
 		while(cnt--) {
@@ -4220,7 +6580,7 @@ newboss:
 			else {incr_itimeout(&HSleep_resistance, 100);}
 		}
 		else {
-			if(Sleep_resistance) You("yawn.");
+			if(Sleep_resistance && (StrongSleep_resistance || rn2(10)) ) You("yawn.");
 			else {You("fall asleep!");
 			if (sobj->cursed) fall_asleep(-50, FALSE);
 			else if (sobj->blessed) fall_asleep(-10, FALSE);
@@ -4293,6 +6653,7 @@ newboss:
 
 			}
 		}
+		(void) doredraw();
 		break;
 	case SCR_TAMING:
 		if (u.uswallow) {
@@ -4343,7 +6704,7 @@ newboss:
 		    }
 		}
 
-		if (!rn2(20)) {
+		if (!rn2(5)) {
 			pline("The spell backfires!");
 			badeffect();
 		}
@@ -4387,10 +6748,10 @@ newboss:
 			/*if (!madepool && stilldry)
 				break;*/
 			if (madepool)
-				pline(Hallucination ?
+				pline(FunnyHallu ?
 						"It's getting a little bit tight in here!" :
 						"Walls and obstacles shoot up from the ground!" );
-			else pline(Hallucination ?
+			else pline(FunnyHallu ?
 						"You hear a grating that reminds you of Chinese water torture!" :
 						"You see dust particles flying around." );
 
@@ -4438,9 +6799,954 @@ newboss:
 			if (!madepool && stilldry)
 				break;
 			if (madepool)
-				pline(Hallucination ?
+				pline(FunnyHallu ?
 						"Wow, that's, like, TOTALLY HOT, dude!" :
 						"A stream of lava surges through the area!" );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_GRAVE:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_graveflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("The grave walls are dug out.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_graveflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"Hans Walt has hidden the diamonds here! Are you a badass enough hussy to steal them?" :
+						"Hans Walt erects grave walls!" );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_TUNNELS:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_tunnelflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("It seems that the tunnels have collapsed and the debris was cleared.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_tunnelflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"The course is driving through a tunnel and therefore your mobile phone does not go!" :
+						"It seems that construction workers have carved tunnels through the rock." );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_FARMING:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_farmflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("Old Mac Donald bought the farm.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_farmflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"The Greens are forcing new nature preservation laws upon you!" :
+						"All the local farmers are claiming land on this dungeon level." );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_MOUNTAINS:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_mountainflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("The mountains start to crumble.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_mountainflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"The Amy her roommate uses a wing-tufted facial expression on you! :-)" :
+						"Strange... the underground dungeon seems to become mountainous." );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_DIVING:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_watertunnelflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("The bulldozers have transformed the water tunnels into regular terrain.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_watertunnelflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"Deep sea diving challenge! You must collect 50 clams in three minutes or lose the game automatically!" :
+						"Watery tunnels are erected!" );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_CRYSTALLIZATION:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_crystalwaterflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("You sense a lack of crystal water.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_crystalwaterflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"Due to the laws of physics, the water flows upward." :
+						"Crystallized water appears on the ceiling." );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_MOORLAND:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_moorflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("You no longer smell the swampy mud.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_moorflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"Watch out, the swamp holes are like shifting sand - you drown if you fall into them." :
+						"The dungeon gets swampy." );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_URINE:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_urineflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("At last, that urine stench is gone.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_urineflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"Holy crap, you get to watch Mira create her 'swimming pools' firsthand..." :
+						"Mira pees all over the dungeon." );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_QUICKSAND:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_shiftingsandflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("You no longer need to fear the quicksand.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_shiftingsandflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"Uh-oh, on one side you have a cube and there's a cute asian girl on the other! Both of them are deadly!" :
+						"Deadly sandholes appear." );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_STYX:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_styxflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("You sense the removal of contaminated water.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_styxflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"A constant 'Jason... Jason... Jason...' chant is audible in the distance..." :
+						"Hellish green water flows into the dungeon!" );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_SNOW:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_snowflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("It stops snowing.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_snowflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"A hailstorm! Quick, find a shelter, because otherwise the hailstones will get bigger and bigger until they crush you!" :
+						"It starts snowing!" );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_ASH:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_ashflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("The ash solidifies permanently.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_ashflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"Mehrunes Dagon has opened yet another gate to Oblivion!" :
+						"The floor becomes red." );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_SAND:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_sandflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("The desert is pushed back.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_sandflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"Oh no, you're stranded in the desert and your water reserves are depleted! This is the end!" :
+						"Soft sand appears in the dungeon." );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_PAVING:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_pavementflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("The pavement turns into normal floor.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_pavementflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"Holy shit there are paved roads and large fountains and whoa you absolutely need to play part 2 of this game!" :
+						"Suddenly there are paved roads everywhere!" );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_HIGHWAY:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_highwayflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("The highway is deconstructed.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_highwayflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"DUDE! The secret entrance to the right is open! RUN, it will close in 100 turns!" :
+						"Highways are being built all over the dungeon!" );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_GRASSLAND:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_grassflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("The grass wilts.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_grassflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"You sense the presence of a bunch of spies." :
+						"You feel the grass grow." );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_NETHER:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_nethermistflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("The nether mist dissipates.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_nethermistflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"Suddenly Galadriel throws you into the void, and you need to defeat Melkor before you can come back." :
+						"Purple mist appears." );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_STALACTITE:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_stalactiteflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("A bunch of stalactites is broken off.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_stalactiteflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"Team Piercer is attacking, even though they're actually rather rare." :
+						"Stalactites shoot out of the ceiling!" );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_CRYPT:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_cryptflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("The crypt gets reconsecrated.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_cryptflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"Argh! In your stupidity, you forgot to get the torch and now the crypts are completely dark!" :
+						"Seems you're in the crypt now." );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_BUBBLE_BOBBLE:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_bubbleflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("The bubbles pop.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_bubbleflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"There are some air bubbles... maybe you can reach higher places with them?" :
+						"Floating bubbles appear!" );
+			known = TRUE;
+			break;
+		}
+
+	break;
+
+	case SCR_RAIN:
+		known = TRUE;
+		if (confused) {
+			int maderoom = 0;
+			do_clear_areaX(u.ux, u.uy, 4+2*bcsign(sobj),
+					undo_raincloudflood, (void *)&maderoom);
+			if (maderoom) {
+				known = TRUE;
+				pline("It stops raining.");
+			}
+		} else {
+			int madepool = 0;
+			int stilldry = -1;
+			int x,y,safe_pos=0;
+			int radius = 5-2*bcsign(sobj);
+			if (!rn2(3)) radius += rnd(4);
+			if (!rn2(10)) radius += rnd(6);
+			if (!rn2(25)) radius += rnd(8);
+			if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+				do_clear_areaX(u.ux, u.uy, radius, do_raincloudflood,
+						(void *)&madepool);
+
+			/* check if there are safe tiles around the player */
+			for (x = u.ux-1; x <= u.ux+1; x++) {
+				for (y = u.uy - 1; y <= u.uy + 1; y++) {
+					if (x != u.ux && y != u.uy &&
+					    goodpos(x, y, &youmonst, 0)) {
+						safe_pos++;
+					}
+				}
+			}
+
+			/* we do not put these on the player's position. */
+			if (!madepool && stilldry)
+				break;
+			if (madepool)
+				pline(FunnyHallu ?
+						"Suddenly, rain starts to pour down from the sky." :
+						"It starts to rain." );
 			known = TRUE;
 			break;
 		}
@@ -4476,7 +7782,7 @@ newboss:
 			if (!madepool && stilldry)
 				break;
 			if (madepool)
-				pline(Hallucination ?
+				pline(FunnyHallu ?
 						"Whoa, swimming pools and stuff!" :
 						"The dungeon is flooded!" );
 			known = TRUE;
@@ -4494,7 +7800,7 @@ newboss:
 			if (!isok(u.ux + i, u.uy + j)) continue;
 			if (levl[u.ux + i][u.uy + j].typ == ROOM || levl[u.ux + i][u.uy + j].typ == CORR) {
 				levl[u.ux + i][u.uy + j].typ = TREE;
-				block_point(u.ux + i,u.uy + j);
+				blockorunblock_point(u.ux + i,u.uy + j);
 				if (!(levl[u.ux + i][u.uy + j].wall_info & W_EASYGROWTH)) levl[u.ux + i][u.uy + j].wall_info |= W_HARDGROWTH;
 				del_engr_at(u.ux + i, u.uy + j);
 	
@@ -4541,7 +7847,7 @@ newboss:
 			if (!madepool && stilldry)
 				break;
 			if (madepool)
-				pline(Hallucination ?
+				pline(FunnyHallu ?
 						"Uh... everything is so... green!?" :
 						"You see trees growing out of the ground!" );
 			known = TRUE;
@@ -4587,7 +7893,7 @@ newboss:
 			if (!madepool && stilldry)
 				break;
 			if (madepool)
-				pline(Hallucination ?
+				pline(FunnyHallu ?
 						"Damn, this is giving you the chills!" :
 						"The floor crackles with ice!" );
 			known = TRUE;
@@ -4604,12 +7910,13 @@ newboss:
 
 		} else {
 
-		    if (!Stone_resistance &&
+		    if ((!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) &&
 			!(poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))) {
 			if (!Stoned) {
 				if (Hallucination && rn2(10)) pline("You are already stoned.");
 				else {
 					Stoned = Race_if(PM_EROSATOR) ? 3 : 7;
+					u.cnd_stoningcount++;
 					pline("You start turning to stone!");
 				}
 			}
@@ -4659,7 +7966,7 @@ newboss:
 			if (!madepool && stilldry)
 				break;
 			if (madepool)
-				pline(Hallucination ?
+				pline(FunnyHallu ?
 						"Wow! Floating clouds..." :
 						"Foggy clouds appear out of thin air!" );
 			known = TRUE;
@@ -4705,7 +8012,7 @@ newboss:
 			if (!madepool && stilldry)
 				break;
 			if (madepool)
-				pline(Hallucination ?
+				pline(FunnyHallu ?
 						"Aw shit, this feels like being in a jail!" :
 						"Iron bars shoot up from the ground!" );
 			known = TRUE;
@@ -4745,7 +8052,7 @@ newboss:
 			if (!madepool && stilldry)
 				break;
 			if (madepool)
-				pline(Hallucination ?
+				pline(FunnyHallu ?
 						"Oh wow, look at all the stuff that is happening around you!" :
 						"What the heck is happening to the dungeon?!" );
 			known = TRUE;
@@ -4920,10 +8227,10 @@ newboss:
 			if (!madepool && stilldry)
 				break;
 			if (madepool)
-				pline(Hallucination ?
+				pline(FunnyHallu ?
 						"A totally gnarly wave comes in!" :
 						"A flood surges through the area!" );
-			if (!stilldry && !Wwalking && !Flying && !Levitation)
+			if (!stilldry && !Wwalking && !Race_if(PM_KORONST) && !Flying && !Levitation)
 				drown();
 			known = TRUE;
 			break;
@@ -4945,7 +8252,7 @@ newboss:
 				(is_undead(mtmp->data) || mtmp->egotype_undead) )
 			    if (!rn2(2)) maybe_tame(mtmp, sobj);
 
-			    else if (!rn2(25) && !((rnd(30 - ACURR(A_CHA))) < 4) && !mtmp->mfrenzied && !mtmp->mtame) {
+			    else if (!rn2(15) && !((rnd(30 - ACURR(A_CHA))) < 4) && !mtmp->mfrenzied && !mtmp->mtame) {
 				pline("Instead of being tamed, %s enters a state of frenzy!", mon_nam(mtmp));
 				mtmp->mpeaceful = 0;
 				mtmp->mfrenzied = 1;
@@ -4953,6 +8260,12 @@ newboss:
 
 		    }
 		}
+
+		if (!rn2(10)) {
+			pline("The spell backfires!");
+			badeffect();
+		}
+
 		break;
 	case SCR_ITEM_GENOCIDE:
 		You("have found a scroll of item genocide!");
@@ -4967,7 +8280,7 @@ retry:
 		/* If confused, you will always genocide something, and you won't know what. --Amy 
 		 * Sometimes it also happens if the scroll was cursed. */
 
-		otmpY = (confused || (sobj->cursed && rn2(2) )) ? mkobj(RANDOM_CLASS, TRUE) : readobjnam(buf, &nothing, TRUE);
+		otmpY = (confused || (sobj->cursed && rn2(2) )) ? mkobj(RANDOM_CLASS, TRUE, FALSE) : readobjnam(buf, &nothing, TRUE, FALSE);
 		if (!otmpY) {
 		    pline("Nothing fitting that description exists in the game.");
 		    if (++tries < 5) goto retry;
@@ -4988,7 +8301,11 @@ retry:
 			else pline("In your confusion, you genocided some item. But you forgot what it is.");
 		}
 
-		if (otmpY) obfree(otmpY, (struct obj *)0);
+		if (otmpY) {
+			if (Has_contents(otmpY))
+				delete_contents(otmpY);
+			obfree(otmpY, (struct obj *)0);
+		}
 
 		break;
 
@@ -5041,9 +8358,12 @@ retry:
 		int num;
 	      register struct monst *mtmp, *mtmp2;
 		num = 0;
+		int wflvl = (u.ulevel / 2);
+		if (wflvl < 1) wflvl = 1;
+
 		for (mtmp = fmon; mtmp; mtmp = mtmp2) {
 			mtmp2 = mtmp->nmon;
-			if ( ((mtmp->m_lev < u.ulevel) || (!rn2(4) && mtmp->m_lev < (2 * u.ulevel))) && mtmp->mnum != quest_info(MS_NEMESIS) && !(mtmp->data->geno & G_UNIQ) && (!sobj->cursed || rn2(2) ) ) {
+			if ( ((mtmp->m_lev < wflvl) || (!rn2(4) && mtmp->m_lev < (2 * wflvl))) && mtmp->mnum != quest_info(MS_NEMESIS) && !(mtmp->data->geno & G_UNIQ) && (!sobj->cursed || rn2(2) ) ) {
 				mondead(mtmp);
 				num++;
 			}
@@ -5056,7 +8376,7 @@ retry:
 	case SCR_TELEPORTATION:
 		if(confused || sobj->cursed) 
 			{
-		      if (!flags.lostsoul && !flags.uberlostsoul && !(flags.wonderland && !(u.wonderlandescape)) && !(u.uprops[STORM_HELM].extrinsic) && !(In_bellcaves(&u.uz)) && !(In_subquest(&u.uz)) && !(In_voiddungeon(&u.uz)) && !(In_netherrealm(&u.uz))) level_tele();
+		      if (!flags.lostsoul && !flags.uberlostsoul && !(flags.wonderland && !(u.wonderlandescape)) && !(iszapem && !(u.zapemescape)) && !(u.uprops[STORM_HELM].extrinsic) && !(In_bellcaves(&u.uz)) && !(In_subquest(&u.uz)) && !(In_voiddungeon(&u.uz)) && !(In_netherrealm(&u.uz))) level_tele();
 			else pline("You try to teleport, but fail!");
 			}
 		else {
@@ -5091,19 +8411,28 @@ retry:
 		}
 		break;
 	case SCR_TELE_LEVEL:
-	      if (!flags.lostsoul && !flags.uberlostsoul && !(flags.wonderland && !(u.wonderlandescape)) && !(u.uprops[STORM_HELM].extrinsic) && !(In_bellcaves(&u.uz)) && !(In_subquest(&u.uz)) && !(In_voiddungeon(&u.uz)) && !(In_netherrealm(&u.uz))) level_tele();
+	      if (!flags.lostsoul && !flags.uberlostsoul && !(flags.wonderland && !(u.wonderlandescape)) && !(iszapem && !(u.zapemescape)) && !(u.uprops[STORM_HELM].extrinsic) && !(In_bellcaves(&u.uz)) && !(In_subquest(&u.uz)) && !(In_voiddungeon(&u.uz)) && !(In_netherrealm(&u.uz))) level_tele();
 		else pline("Hmm... that level teleport scroll didn't do anything.");
 		known = TRUE;
 		break;
 	case SCR_WARPING:
 		known = TRUE;
-		if (u.uevent.udemigod || u.uhave.amulet || CannotTeleport || (u.usteed && mon_has_amulet(u.usteed))) { pline("You shudder for a moment."); (void) safe_teleds(FALSE); break;}
+		if (((u.uevent.udemigod || u.uhave.amulet) && !u.freeplaymode) || CannotTeleport || (u.usteed && mon_has_amulet(u.usteed))) { pline("You shudder for a moment."); (void) safe_teleds(FALSE); break;}
 
-		if (flags.lostsoul || flags.uberlostsoul || (flags.wonderland && !(u.wonderlandescape)) || u.uprops[STORM_HELM].extrinsic || In_bellcaves(&u.uz) || In_subquest(&u.uz) || In_voiddungeon(&u.uz) || In_netherrealm(&u.uz)) { 
+		if (flags.lostsoul || flags.uberlostsoul || (flags.wonderland && !(u.wonderlandescape)) || (iszapem && !(u.zapemescape)) || u.uprops[STORM_HELM].extrinsic || In_bellcaves(&u.uz) || In_subquest(&u.uz) || In_voiddungeon(&u.uz) || In_netherrealm(&u.uz)) { 
 			pline("You're unable to warp!"); break;}
+
+		/* restore the "no cyanide rule"... this is a simple y/n prompt because if you're read-identifying unknown
+		 * scrolls already, it's your own damn fault if you then somehow think it's a good idea to skip past the
+		 * prompt. If you're not gonna read the scroll effects anyway, why bother reading random ones in the first
+		 * place? You're supposed to read what's on the screen when use-testing consumables :P --Amy */
+		if (!confused) {
+			if (yn_function("You have found a scroll of warping! Do you want to warp to a random dungeon level?", "yn", 'y') == 'n') break;
+		}
 
 		make_stunned(HStun + 2, FALSE); /* to suppress teleport control that you might have */
 
+		u.cnd_banishmentcount++;
 		if (rn2(2)) {(void) safe_teleds(FALSE); goto_level(&medusa_level, TRUE, FALSE, FALSE); }
 		else {(void) safe_teleds(FALSE); goto_level(&portal_level, TRUE, FALSE, FALSE); }
 
@@ -5139,6 +8468,13 @@ retry:
 		goto id;
 	case SCR_IDENTIFY:
 		/* known = TRUE; */
+
+		if (evilfriday && sobj->cursed && confused) { /* thanks Porkman */
+			forget(rnd(10));
+			You("forget everything else while identifying this as an identify scroll.");
+			break;
+		}
+
 		if (sobj->cursed) { /* Credits go to TvTropes for creating this joke. The player doesn't actually die. --Amy */
 			pline("You fall below the bottom of the page! You die...");
 			if (isevilvariant) {
@@ -5163,7 +8499,7 @@ retry:
 		makeknown(SCR_IDENTIFY);
 	id:
 		if(invent && !confused) {
-		    identify_pack(cval, 0);
+		    identify_pack(cval, 0, sobj->otyp == SPE_IDENTIFY ? TRUE : FALSE);
 		}
 		if (!rn2(5) && sobj->otyp == SPE_IDENTIFY) {
 			pline("The spell backlashes!");
@@ -5182,7 +8518,7 @@ retry:
 		else useupf(sobj, 1L);
 
 		if(invent && !confused) {
-		    identify_pack(0, 0);
+		    identify_pack(0, 0, 0);
 		}
 		return(1);
 	case SCR_STANDARD_ID: /* always identifies exactly one item --Amy */
@@ -5193,7 +8529,7 @@ retry:
 		else useupf(sobj, 1L);
 
 		if(invent) {
-		    identify_pack(1, 0);
+		    identify_pack(1, 0, 0);
 		}
 		return(1);
 	case SCR_HEALING: /* a basic healing item that can be used to - who would have guessed? - cure wounds! --Amy */
@@ -5215,6 +8551,76 @@ retry:
 		You_feel("fully healed!");
 			u.uhp = u.uhpmax;
 			if (Upolyd) u.mh = u.mhmax;
+		break;
+	case SCR_HEAL_OTHER:
+		makeknown(SCR_HEAL_OTHER);
+		pline("A healing aura surrounds you...");
+
+		int healamount = (rnd(50) + 30 + rnz(u.ulevel * 3));
+		if (uarmc && itemhasappearance(uarmc, APP_NURSE_CLOAK)) healamount *= 2;
+		if (uarmh && uarmh->oartifact == ART_SEXYNESS_HAS_A_NAME) {
+			healamount *= 2;
+			if (Role_if(PM_HEALER)) healamount *= 2;
+		}
+		if (uwep && uwep->oartifact == ART_HEALHEALHEALHEAL) {
+			healamount *= 2;
+			if (Role_if(PM_HEALER)) healamount *= 2;
+		}
+		if (uarmf && uarmf->oartifact == ART_KATIE_MELUA_S_FLEECINESS) {
+			healamount *= 2;
+			if (Role_if(PM_HEALER)) healamount *= 2;
+		}
+		if (RngeNursery) healamount *= 2;
+
+		if (uactivesymbiosis) {
+			Your("symbiote seems healthier!");
+			u.usymbiote.mhp += (rnd(50) + 30 + rnz(u.ulevel * 3));
+			if (u.usymbiote.mhp > u.usymbiote.mhpmax) u.usymbiote.mhp = u.usymbiote.mhpmax;
+			if (u.ualign.type == A_LAWFUL) adjalign(1);
+		}
+		{
+
+			int i, j, bd = confused ? 6 : 4;
+			struct monst *frostmon;
+
+			for (i = -bd; i <= bd; i++) for(j = -bd; j <= bd; j++) {
+				if (!isok(u.ux + i, u.uy + j)) continue;
+				if ((frostmon = m_at(u.ux + i, u.uy + j)) != 0) {
+					if (frostmon->mtame) {
+						frostmon->mfrozen = 0;
+						frostmon->msleeping = 0;
+						frostmon->masleep = 0;
+						frostmon->mcanmove = 1;
+						frostmon->mflee = 0;
+						frostmon->mcansee = 1;
+						frostmon->mblinded = 0;
+						frostmon->mstun = 0;
+						frostmon->mconf = 0;
+						pline("%s is cured.", Monnam(frostmon));
+						frostmon->mhp += (rnd(50) + 30 + rnz(u.ulevel * 3));
+						if (frostmon->mhp > frostmon->mhpmax) frostmon->mhp = frostmon->mhpmax;
+						if (u.ualign.type == A_LAWFUL) adjalign(1);
+					}
+					if (u.usteed && frostmon == u.usteed) { /* double healing! */
+						frostmon->mfrozen = 0;
+						frostmon->msleeping = 0;
+						frostmon->masleep = 0;
+						frostmon->mcanmove = 1;
+						frostmon->mflee = 0;
+						frostmon->mcansee = 1;
+						frostmon->mblinded = 0;
+						frostmon->mstun = 0;
+						frostmon->mconf = 0;
+						pline("%s is cured.", Monnam(frostmon));
+						frostmon->mhp += (rnd(50) + 30 + rnz(u.ulevel * 3));
+						if (frostmon->mhp > frostmon->mhpmax) frostmon->mhp = frostmon->mhpmax;
+						if (u.ualign.type == A_LAWFUL) adjalign(1);
+					}
+				}
+			}
+
+		}
+
 		break;
 	case SCR_WOUNDS:
 		makeknown(SCR_WOUNDS);
@@ -5332,7 +8738,7 @@ randenchchoice:
 				HHalf_physical_damage &= ~TIMEOUT;
 				You_feel("less protected!");
 			} else {
-				if (Hallucination)
+				if (FunnyHallu)
 					You_feel("like a tough motherfucker!");
 				else
 					You("are resistant to normal damage.");
@@ -5356,7 +8762,7 @@ randenchchoice:
 			} else {
 				incr_itimeout(&HHalf_spell_damage, rnd(500));
 				if (sobj->blessed) incr_itimeout(&HHalf_spell_damage, rnd(500));
-				if (Hallucination)
+				if (FunnyHallu)
 					pline("Let the casting commence!");
 				else
 					You_feel("a sense of spell knowledge.");
@@ -5367,11 +8773,12 @@ randenchchoice:
 	case SCR_MAGIC_MAPPING:
 		if (level.flags.nommap) {
 		    Your("mind is filled with crazy lines!");
-		    if (Hallucination)
+		    if (FunnyHallu)
 			pline("Wow!  Modern art.");
 		    else
 			Your("%s spins in bewilderment.", body_part(HEAD));
 		    make_confused(HConfusion + rnd(30), FALSE);
+		    if (!rn2(3)) badeffect();
 		    break;
 		}
 		if (sobj->blessed && !(sobj->oartifact == ART_MARAUDER_S_MAP)) {
@@ -5440,7 +8847,7 @@ randenchchoice:
 		known = TRUE;
 		forget(	(!sobj->blessed ? ALL_SPELLS : 0) |
 			(!confused || sobj->cursed ? ALL_MAP : 0) );
-		if (Hallucination) /* Ommmmmm! */
+		if (FunnyHallu) /* Ommmmmm! */
 			Your("mind releases itself from mundane concerns.");
 		else if (!strncmpi(plname, "Maud", 4) || !strncmpi(plalias, "Maud", 4))
 			pline("As your mind turns inward on itself, you forget everything else.");
@@ -5455,7 +8862,7 @@ randenchchoice:
 		/* not known! You forget about this scroll while reading it :D --Amy */
 		forget(	(!sobj->blessed ? ALL_SPELLS : 0) |
 			(!confused || sobj->cursed ? ALL_MAP : 0) );
-		if (Hallucination) /* Ommmmmm! */
+		if (FunnyHallu) /* Ommmmmm! */
 			Your("mind releases itself from mundane concerns.");
 		else if (!strncmpi(plname, "Maud", 4) || !strncmpi(plalias, "Maud", 4))
 			pline("As your mind turns inward on itself, you forget everything else.");
@@ -5535,8 +8942,7 @@ randenchchoice:
 			    register struct monst *mtmp;
 
 	    	    	    /* Make the object(s) */
-	    	    	    otmp2 = mksobj(confused ? ROCK : BOULDER,
-	    	    	    		FALSE, FALSE);
+	    	    	    otmp2 = mksobj(confused ? ROCK : BOULDER, FALSE, FALSE, FALSE);
 	    	    	    if (!otmp2) continue;  /* Shouldn't happen */
 
 				if(!rn2(8)) {
@@ -5601,8 +9007,7 @@ randenchchoice:
 		    struct obj *otmp2;
 
 		    /* Okay, _you_ write this without repeating the code */
-		    otmp2 = mksobj(confused ? ROCK : BOULDER,
-				FALSE, FALSE);
+		    otmp2 = mksobj(confused ? ROCK : BOULDER, FALSE, FALSE, FALSE);
 		    if (!otmp2) break;
 
 			if(!rn2(8)) {
@@ -5652,9 +9057,9 @@ randenchchoice:
 			if (sobj->blessed) {
 				if (u.ugangr) {
 					u.ugangr--;
-					if (u.ugangr) pline("%s seems %s.", u_gname(), Hallucination ? "groovy" : "slightly mollified");
-					else pline("%s seems %s.", u_gname(), Hallucination ? "cosmic (not a new fact)" : "mollified");
-				} else pline("%s seems %s.", u_gname(), Hallucination ? "high above the clouds" : "content");
+					if (u.ugangr) pline("%s seems %s.", u_gname(), FunnyHallu ? "groovy" : "slightly mollified");
+					else pline("%s seems %s.", u_gname(), FunnyHallu ? "cosmic (not a new fact)" : "mollified");
+				} else pline("%s seems %s.", u_gname(), FunnyHallu ? "high above the clouds" : "content");
 			} else if (sobj->cursed) {
 				u.ugangr++;
 				prayer_done();
@@ -5796,7 +9201,7 @@ armorspecchoice:
 					getlin("What do you want to identify?",buf);
 					if (buf[0] == 0) continue;
 					oldgold = u.ugold;
-					otmp = readobjnam(buf, (struct obj *)0, TRUE);
+					otmp = readobjnam(buf, (struct obj *)0, TRUE, FALSE);
 					if (u.ugold != oldgold) {
 pline("Don't you date cheat me again! -- Your fault!");
 						/* Make them pay */
@@ -5812,6 +9217,9 @@ pline("Don't you date cheat me again! -- Your fault!");
 				strcpy(buf,xname(otmp));
 				makeknown(otmp->otyp);
 				pline("The %s is a %s.",buf,xname(otmp));
+				if (Has_contents(otmp))
+					delete_contents(otmp);
+				obfree(otmp,(struct obj *) 0);
 				/*if (otmp->oartifact) artifact_unexist(otmp);*/
 			}
 		}
@@ -5880,7 +9288,7 @@ rerollX:
 				acqo->otyp = rnd_class(AMULET_OF_CHANGE,AMULET_OF_VULNERABILITY);
 				break;
 			case IMPLANT_CLASS:
-				acqo->otyp = rnd_class(IMPLANT_OF_ABSORPTION,IMPLANT_OF_FREEDOM);
+				acqo->otyp = rnd_class(IMPLANT_OF_ABSORPTION,IMPLANT_OF_ENFORCING);
 				break;
 		}
 
@@ -5902,6 +9310,24 @@ rerollX:
 			} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_GRAND_MASTER) {
 				P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_SUPREME_MASTER;
 			}
+			if (Race_if(PM_RUSMOT)) {
+				if (P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_ISRESTRICTED) {
+				    unrestrict_weapon_skill(get_obj_skill(acqo, TRUE));
+				} else if (P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_UNSKILLED) {
+					unrestrict_weapon_skill(get_obj_skill(acqo, TRUE));
+					P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_BASIC;
+				} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_BASIC) {
+					P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_SKILLED;
+				} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_SKILLED) {
+					P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_EXPERT;
+				} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_EXPERT) {
+					P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_MASTER;
+				} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_MASTER) {
+					P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_GRAND_MASTER;
+				} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_GRAND_MASTER) {
+					P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_SUPREME_MASTER;
+				}
+			}
 
 		    discover_artifact(acqo->oartifact);
 
@@ -5912,6 +9338,59 @@ rerollX:
 			pline("An artifact appeared beneath you!");
 		}
 		else pline("Opportunity knocked, but nobody was home.  Bummer.");
+
+		break;
+
+	case SCR_SYMBIOSIS:
+		known = TRUE;
+
+		if (confused) {
+
+			if (!uactivesymbiosis) {
+				pline(FunnyHallu ? "Something nonexistant would have been affected but couldn't." : "The scroll of symbiosis fails to do anything.");
+				break;
+			}
+
+			if (sobj->cursed) {
+				u.shutdowntime += 1000;
+				Your("symbiote was shut down!");
+				if (flags.showsymbiotehp) flags.botl = TRUE;
+			} else {
+				if (sobj->blessed) {
+					u.usymbiote.mhpmax += rnd(8);
+					if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
+				}
+				u.usymbiote.mhp = u.usymbiote.mhpmax;
+				if (flags.showsymbiotehp) flags.botl = TRUE;
+				Your("symbiote was healed!");
+			}
+
+		} else {
+			if (sobj->cursed && uinsymbiosis) {
+				u.shutdowntime = 0;
+				u.usymbiote.active = 0;
+				u.usymbiote.mnum = PM_PLAYERMON;
+				u.usymbiote.mhp = 0;
+				u.usymbiote.mhpmax = 0;
+				u.usymbiote.cursed = u.usymbiote.hvycurse = u.usymbiote.prmcurse = u.usymbiote.bbcurse = u.usymbiote.morgcurse = u.usymbiote.evilcurse = u.usymbiote.stckcurse = 0;
+				if (flags.showsymbiotehp) flags.botl = TRUE;
+				u.cnd_symbiotesdied++;
+			}
+
+			if (uinsymbiosis) {
+				getlin("You have found a scroll of symbiosis! Do you want to replace your current symbiote with a random new one? [yes/no]", buf);
+				(void) lcase (buf);
+				if (!(strcmp (buf, "yes")) ) {
+					getrandomsymbiote(sobj->blessed);
+					break;
+				} else {
+					You("decided to not get a random new symbiote.");
+					break;
+				}
+			}
+
+			getrandomsymbiote(sobj->blessed);
+		}
 
 		break;
 
@@ -5953,11 +9432,11 @@ newbossC:
 	case SCR_WISHING:
 		known = TRUE;
 		pline("You have found a scroll of wishing!");
-		if ((sobj->cursed || (!sobj->blessed && Luck+rn2(5) < 0)) && !RngeWishImprovement && !(uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "wishful cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "zhelayemoye za deystvitel'noye plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "istalgan plash") )) ) {
+		if ((sobj->cursed || (!sobj->blessed && Luck+rn2(5) < 0)) && !RngeWishImprovement && !(uarmc && itemhasappearance(uarmc, APP_WISHFUL_CLOAK)) ) {
 			makenonworkingwish();
 			break;
 		}
-		makewish();
+		makewish(TRUE);
 		break;
 
 	case SCR_RAGNAROK:
@@ -5971,6 +9450,7 @@ newbossC:
 		known = TRUE;
 		{
 			register struct monst *offmon;
+newoffmon:
 			if ((offmon = makemon((struct permonst *)0, 0, 0, NO_MM_FLAGS)) != 0) {
 
 				register int inventcount = inv_cnt();
@@ -5982,18 +9462,21 @@ newbossC:
 					while (inv_cnt() && inventcount) {
 						char bufof[BUFSZ];
 						bufof[0] = '\0';
-						steal(offmon, bufof, TRUE);
+						steal(offmon, bufof, TRUE, TRUE);
 						inventcount--;
 					}
 
 				}
 
 				mdrop_special_objs(offmon); /* make sure it doesn't tele to an unreachable place with the book of the dead or something */
-				if (u.uevent.udemigod) break;
-				else u_teleport_monB(offmon, TRUE);
+				if (u.uevent.udemigod && !u.freeplaymode) break;
+				else u_teleport_monB(offmon, FALSE);
 				pline("Some of your possessions have been stolen!");
 
-			} else pline("Somehow you feel that you just averted a major crisis.");
+			} else {
+				if (rn2(1000)) goto newoffmon;
+				else pline("Somehow you feel that you just averted a major crisis.");
+			}
 
 		}
 		break;
@@ -6015,40 +9498,34 @@ newbossC:
 		create_mplayers(1, TRUE);
 		break;
 
+	case SCR_MISSING_CODE:
+
+		if (uarmu) {
+			if (uarmu->spe < 20) {
+				uarmu->spe++;
+				Your("shirt glows for a moment.");
+			} else pline("The code malfunctioned.");
+		} else {
+			struct obj *uroub;
+
+			uroub = mksobj(T_SHIRT, TRUE, FALSE, FALSE);
+
+			if (uroub) {
+				dropy(uroub);
+				stackobj(uroub);
+				pline("A shirt appeared at your %s!", makeplural(body_part(FOOT)));
+			} else pline("The build has errored.");
+
+		}
+
+		u.ugangr++;
+		You_hear("thunder in the distance...");
+
+		break;
+
 	case SCR_ARTIFACT_CREATION:
 		known = TRUE;
-
-		boolean havegiftsohgod = u.ugifts;
-
-		if (!havegiftsohgod) u.ugifts++;
-
-		acqo = mk_artifact((struct obj *)0, !rn2(3) ? A_CHAOTIC : rn2(2) ? A_NEUTRAL : A_LAWFUL, TRUE);
-		if (acqo) {
-		    dropy(acqo);
-
-			if (P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_ISRESTRICTED) {
-			    unrestrict_weapon_skill(get_obj_skill(acqo, TRUE));
-			} else if (P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_UNSKILLED) {
-				unrestrict_weapon_skill(get_obj_skill(acqo, TRUE));
-				P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_BASIC;
-			} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_BASIC) {
-				P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_SKILLED;
-			} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_SKILLED) {
-				P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_EXPERT;
-			} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_EXPERT) {
-				P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_MASTER;
-			} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_MASTER) {
-				P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_GRAND_MASTER;
-			} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_GRAND_MASTER) {
-				P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_SUPREME_MASTER;
-			}
-
-		    discover_artifact(acqo->oartifact);
-
-			if (!havegiftsohgod) u.ugifts--;
-			pline("An artifact appeared beneath you!");
-		}
-		else pline("Opportunity knocked, but nobody was home.  Bummer.");
+		giftartifact();
 
 		break;
 
@@ -6058,71 +9535,12 @@ newbossC:
 		int acquireditem;
 		acquireditem = 0;
 		pline("You have found a scroll of acquirement!");
-		if ((sobj->cursed || (!sobj->blessed && Luck+rn2(5) < 0)) && !RngeWishImprovement && !(uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "wishful cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "zhelayemoye za deystvitel'noye plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "istalgan plash") )) ) {
+		if ((sobj->cursed || (!sobj->blessed && Luck+rn2(5) < 0)) && !RngeWishImprovement && !(uarmc && itemhasappearance(uarmc, APP_WISHFUL_CLOAK)) ) {
 			pline("Unfortunately, nothing happens.");
 			break;
 		}
 
-		pline("Pick an item type that you want to acquire. The prompt will loop until you actually make a choice.");
-
-		while (acquireditem == 0) { /* ask the player what they want --Amy */
-
-		/* Yeah, I know this is less elegant than DCSS. But hey, it's a scroll of acquirement! */
-
-			if (yn("Do you want to acquire a random item?")=='y') {
-				    acqo = mkobj_at(RANDOM_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a weapon?")=='y') {
-				    acqo = mkobj_at(WEAPON_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire an armor?")=='y') {
-				    acqo = mkobj_at(ARMOR_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a ring?")=='y') {
-				    acqo = mkobj_at(RING_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire an amulet?")=='y') {
-				    acqo = mkobj_at(AMULET_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire an implant?")=='y') {
-				    acqo = mkobj_at(IMPLANT_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a tool?")=='y') {
-				    acqo = mkobj_at(TOOL_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire some food?")=='y') {
-				    acqo = mkobj_at(FOOD_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a potion?")=='y') {
-				    acqo = mkobj_at(POTION_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a scroll?")=='y') {
-				    acqo = mkobj_at(SCROLL_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a spellbook?")=='y') {
-				    acqo = mkobj_at(SPBOOK_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a wand?")=='y') {
-				    acqo = mkobj_at(WAND_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire some coins?")=='y') {
-				    acqo = mkobj_at(COIN_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a gem?")=='y') {
-				    acqo = mkobj_at(GEM_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a boulder or statue?")=='y') {
-				    acqo = mkobj_at(ROCK_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a heavy iron ball?")=='y') {
-				    acqo = mkobj_at(BALL_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire an iron chain?")=='y') {
-				    acqo = mkobj_at(CHAIN_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a splash of venom?")=='y') {
-				    acqo = mkobj_at(VENOM_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-
-		}
-		if (!acqo) {
-			pline("Unfortunately it failed.");
-			break;
-		}
-
-		/* special handling to prevent wands of wishing or similarly overpowered items --Amy */
-
-		if (acqo->otyp == GOLD_PIECE) acqo->quan = rnd(1000);
-		if (acqo->otyp == MAGIC_LAMP || acqo->otyp == TREASURE_CHEST) { acqo->otyp = OIL_LAMP; acqo->age = 1500L; }
-		if (acqo->otyp == MAGIC_MARKER) acqo->recharged = 1;
-	    while(acqo->otyp == WAN_WISHING || acqo->otyp == WAN_POLYMORPH || acqo->otyp == WAN_MUTATION || acqo->otyp == WAN_ACQUIREMENT)
-		acqo->otyp = rnd_class(WAN_LIGHT, WAN_PSYBEAM);
-	    while (acqo->otyp == SCR_WISHING || acqo->otyp == SCR_RESURRECTION || acqo->otyp == SCR_ACQUIREMENT || acqo->otyp == SCR_ENTHRONIZATION || acqo->otyp == SCR_FOUNTAIN_BUILDING || acqo->otyp == SCR_SINKING || acqo->otyp == SCR_WC)
-		acqo->otyp = rnd_class(SCR_CREATE_MONSTER, SCR_BLANK_PAPER);
-
-		pline("Something appeared on the ground just beneath you!");
+		acquireitem();
 
 		break;
 
@@ -6135,6 +9553,79 @@ newbossC:
 		known = TRUE;
 		pline("You build a throne.");
 		levl[u.ux][u.uy].typ = THRONE;
+
+		break;
+
+	case SCR_MAKE_PENTAGRAM:
+
+		if (levl[u.ux][u.uy].typ != ROOM && levl[u.ux][u.uy].typ != CORR) {
+			You_feel("claustrophobic!");
+			break;
+		}
+		known = TRUE;
+		pline("Suddenly a pentagram is inscribed on the floor!");
+		if (FunnyHallu) pline("USEITUSEITUSEITUSEITUSEIT!"); /* thanks Antichthon :D */
+		levl[u.ux][u.uy].typ = PENTAGRAM;
+
+		break;
+
+	case SCR_WELL_BUILDING:
+
+		if (levl[u.ux][u.uy].typ != ROOM && levl[u.ux][u.uy].typ != CORR) {
+			You_feel("claustrophobic!");
+			break;
+		}
+		known = TRUE;
+		pline("You build a well.");
+		levl[u.ux][u.uy].typ = WELL;
+
+		break;
+
+	case SCR_DRIVING:
+
+		if (levl[u.ux][u.uy].typ != ROOM && levl[u.ux][u.uy].typ != CORR) {
+			You_feel("claustrophobic!");
+			break;
+		}
+		known = TRUE;
+		pline("You build a wagon.");
+		levl[u.ux][u.uy].typ = WAGON;
+
+		break;
+
+	case SCR_TABLE_FURNITURE:
+
+		if (levl[u.ux][u.uy].typ != ROOM && levl[u.ux][u.uy].typ != CORR) {
+			You_feel("claustrophobic!");
+			break;
+		}
+		known = TRUE;
+		pline("You build a wooden table.");
+		levl[u.ux][u.uy].typ = WOODENTABLE;
+
+		break;
+
+	case SCR_EMBEDDING:
+
+		if (levl[u.ux][u.uy].typ != ROOM && levl[u.ux][u.uy].typ != CORR) {
+			You_feel("claustrophobic!");
+			break;
+		}
+		known = TRUE;
+		pline("You build an ornately carved bed.");
+		levl[u.ux][u.uy].typ = CARVEDBED;
+
+		break;
+
+	case SCR_MATTRESS_SLEEPING:
+
+		if (levl[u.ux][u.uy].typ != ROOM && levl[u.ux][u.uy].typ != CORR) {
+			You_feel("claustrophobic!");
+			break;
+		}
+		known = TRUE;
+		pline("You build a rude straw mattress.");
+		levl[u.ux][u.uy].typ = STRAWMATTRESS;
 
 		break;
 
@@ -6215,7 +9706,7 @@ newbossC:
 		} else {
 			al = u.ualign.type;
 		}
-		pline("Pronouncing arcane formulas, you consecrate the altar to %s.",(al == A_NONE) ? (Role_if(PM_GANG_SCHOLAR) ? "Anna" : "Moloch") : align_gname(al));
+		pline("Pronouncing arcane formulas, you consecrate the altar to %s.",(al == A_NONE) ? (Role_if(PM_GANG_SCHOLAR) ? "Anna" : Role_if(PM_WALSCHOLAR) ? "Anna" : "Moloch") : align_gname(al));
 		levl[u.ux][u.uy].typ = ALTAR;
 		levl[u.ux][u.uy].altarmask = Align2amask(al);
 		x = (al == ual) ? 1 : ((al == A_NONE) ? -3 : -1);
@@ -6255,7 +9746,7 @@ newbossC:
 			struct obj *createdscroll;
 			pline("Now that's weird.");
 		    	known = FALSE;
-		    	createdscroll = mksobj_at(SCR_CREATE_CREATE_SCROLL, u.ux, u.uy, FALSE, FALSE);
+		    	createdscroll = mksobj_at(SCR_CREATE_CREATE_SCROLL, u.ux, u.uy, FALSE, FALSE, FALSE);
 			if (createdscroll) {
 			    	createdscroll->blessed = sobj->blessed;
 			    	createdscroll->cursed = sobj->cursed;
@@ -6265,6 +9756,47 @@ newbossC:
 			    	createdscroll->evilcurse = sobj->evilcurse;
 			    	createdscroll->bbrcurse = sobj->bbrcurse;
 			    	createdscroll->stckcurse = sobj->stckcurse;
+			}
+		}
+
+		break;
+
+	case SCR_SECURE_CURSE_REMOVAL: /* by bug_sniper */
+
+		if (confused) {
+			You_feel("as if you need some help.");
+			if (PlayerHearsSoundEffects) pline(issoviet ? "Vashe der'mo tol'ko chto proklinal." : "Woaaaaaa-AAAH!");
+			rndcurse();
+			break;
+		}
+
+		{
+			register struct obj *secrem;
+			pline("You found a scroll of secure curse removal.");
+			known = TRUE;
+secremchoice:
+			secrem = getobj(all_count, "uncurse");
+			if (!secrem) {
+				if (yn("Really exit with no object selected?") == 'y')
+					pline("You just wasted the opportunity to remove curses from an item.");
+				else goto secremchoice;
+				pline("Oh well, if you don't wanna...");
+			} else {
+				if (stack_too_big(secrem)) {
+					pline("The stack was too big! Nothing happens.");
+				} else {
+					if (sobj->cursed) {
+						curse(secrem);
+						curse(secrem);
+						curse(secrem);
+						pline("Your %s is surrounded by an ice-cold aura.", xname(secrem));
+						secrem->bknown = TRUE;
+					} else {
+						secrem->cursed = secrem->hvycurse = secrem->prmcurse = secrem->morgcurse = secrem->evilcurse = secrem->bbrcurse = secrem->stckcurse = 0;
+						pline("Your %s is surrounded by a warm aura.", xname(secrem));
+						secrem->bknown = TRUE;
+					}
+				}
 			}
 		}
 
@@ -6332,6 +9864,7 @@ newbossC:
 	case SCR_ROOT_PASSWORD_DETECTION:
 
 		if (sobj->oartifact == ART_ERASE_ALL_DATA) {
+			u.datadeletedefer = 1;
 			datadeleteattack();
 			pline("Congratulations, now all your data has been erased. Well done!");
 			break;
@@ -6367,7 +9900,7 @@ newbossC:
 		break;
 	}
 	default:
-		impossible("What weird effect is this? (%u)", sobj->otyp);
+		impossible("What weird effect is this? (%ld)", sobj->otyp);
 	}
 	return(0);
 }
@@ -6521,6 +10054,8 @@ register boolean on;
 {
 	char is_lit;	/* value is irrelevant; we use its address
 			   as a `not null' flag for set_lit() */
+
+	if (!on && shadowprotection()) return;
 
 	if (rn2(10)) {
 		do_clear_area(u.ux,u.uy, 7, set_lit, (void *)(on ? &is_lit : (char *)0));
@@ -7084,7 +10619,7 @@ int how;
 	    if (!(mons[mndx].geno & G_UNIQ) &&
 		    !(mvitals[mndx].mvflags & (G_GENOD | G_EXTINCT)))
 		for (i = rn1(3, 4); i > 0; i--) {
-		    if (!makemon(ptr, u.ux, u.uy, NO_MINVENT))
+		    if (!makemon(ptr, u.ux, u.uy, NO_MINVENT|MM_ANGRY|MM_FRENZIED|MM_XFRENZIED))
 			break;	/* couldn't make one */
 		    ++cnt;
 		    if (mvitals[mndx].mvflags & G_EXTINCT)
@@ -7098,6 +10633,27 @@ int how;
 			pline("Oh wait, actually something bad happens...");
 			badeffect();
 		}
+	    }
+	    /* Amy addition: revgeno can be really powerful, so let's add backlashes... */
+	    if (!rn2(3)) {
+		int aggroamount = rnd(6);
+		if (isfriday) aggroamount *= 2;
+		u.aggravation = 1;
+		reset_rndmonst(NON_PM);
+		while (aggroamount) {
+
+			u.cnd_aggravateamount++;
+			makemon((struct permonst *)0, u.ux, u.uy, MM_ANGRY|MM_FRENZIED);
+			aggroamount--;
+			if (aggroamount < 0) aggroamount = 0;
+		}
+		u.aggravation = 0;
+		pline("Several monsters come out of a portal.");
+		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+
+	    }
+	    if (!rn2(10)) {
+		badeffect();
 	    }
 	}
 }
@@ -7143,29 +10699,29 @@ register struct obj	*sobj;
 
     struct obj *otmp;
 	/* KMH -- Punishment is still okay when you are riding */
-	/* KMH -- Punishment is still okay when you are riding */
 	You("are being punished for your misbehavior!");
+	u.cnd_punishmentcount++;
 
-	if (Is_waterlevel(&u.uz)) return; /* otherwise it crashes for some weird reason --Amy */
+	/*if (Is_waterlevel(&u.uz)) return;*/ /* otherwise it crashes for some weird reason --Amy */
 
 
-	if(Punished){
+	if(Punished){ /* very heavy iron ball */
 		Your("iron ball gets heavier.");
-		uball->owt += 300 * (1 + sobj->cursed); /*ball weight increases by 300 now --Amy*/
+		uball->owt += 600 * (1 + sobj->cursed); /*ball weight increases by 600 now --Amy*/
 		return;
 	}
 	if (amorphous(youmonst.data) || is_whirly(youmonst.data) || unsolid(youmonst.data)) {
 		pline("A ball and chain appears, then falls away.");
-		dropy(mkobj(BALL_CLASS, TRUE));
+		dropy(mkobj(BALL_CLASS, TRUE, FALSE));
 		return;
 	}
-	setworn(mkobj(CHAIN_CLASS, TRUE), W_CHAIN);
+	setworn(mkobj(CHAIN_CLASS, TRUE, FALSE), W_CHAIN);
     if (((otmp = carrying(HEAVY_IRON_BALL)) != 0) &&(otmp->oartifact ==
      ART_IRON_BALL_OF_LIBERATION)) {
         setworn(otmp, W_BALL);
         Your("%s chains itself to you!", xname(otmp));
     } else {
-	setworn(mkobj(BALL_CLASS, TRUE), W_BALL);
+	setworn(mkobj(BALL_CLASS, TRUE, FALSE), W_BALL);
     }
 	/*uball->spe = 1;*/		/* special ball (see save) */
 
@@ -7173,7 +10729,7 @@ register struct obj	*sobj;
 	 *  Place ball & chain if not swallowed.  If swallowed, the ball &
 	 *  chain variables will be set at the next call to placebc().
 	 */
-	if (!u.uswallow) {
+	if (!u.uswallow && isok(u.ux, u.uy)) {
 	    placebc();
 	    if (Blind) set_bc(1);	/* set up ball and chain variables */
 	    newsym(u.ux,u.uy);		/* see ball&chain if can't see self */
@@ -7188,25 +10744,26 @@ punishx()
 	/* KMH -- Punishment is still okay when you are riding */
 	You("are being punished for your misbehavior!");
 
-	if (Is_waterlevel(&u.uz)) return; /* otherwise it crashes for some weird reason --Amy */
+	/*if (Is_waterlevel(&u.uz)) return;*/ /* otherwise it crashes for some weird reason --Amy */
+	u.cnd_punishmentcount++;
 
-	if(Punished){
+	if(Punished){ /* very heavy iron ball */
 		Your("iron ball gets heavier.");
-		uball->owt += 300;
+		uball->owt += 600;
 		return;
 	}
 	if (amorphous(youmonst.data) || is_whirly(youmonst.data) || unsolid(youmonst.data)) {
 		pline("A ball and chain appears, then falls away.");
-		dropy(mkobj(BALL_CLASS, TRUE));
+		dropy(mkobj(BALL_CLASS, TRUE, FALSE));
 		return;
 	}
-	setworn(mkobj(CHAIN_CLASS, TRUE), W_CHAIN);
+	setworn(mkobj(CHAIN_CLASS, TRUE, FALSE), W_CHAIN);
     if (((otmp = carrying(HEAVY_IRON_BALL)) != 0) &&(otmp->oartifact ==
      ART_IRON_BALL_OF_LIBERATION)) {
         setworn(otmp, W_BALL);
         Your("%s chains itself to you!", xname(otmp));
     } else {
-	setworn(mkobj(BALL_CLASS, TRUE), W_BALL);
+	setworn(mkobj(BALL_CLASS, TRUE, FALSE), W_BALL);
     }
 	/*uball->spe = 1;*/		/* special ball (see save) */
 
@@ -7214,7 +10771,7 @@ punishx()
 	 *  Place ball & chain if not swallowed.  If swallowed, the ball &
 	 *  chain variables will be set at the next call to placebc().
 	 */
-	if (!u.uswallow) {
+	if (!u.uswallow && isok(u.ux, u.uy) ) {
 	    placebc();
 	    if (Blind) set_bc(1);	/* set up ball and chain variables */
 	    newsym(u.ux,u.uy);		/* see ball&chain if can't see self */
@@ -7232,7 +10789,7 @@ unpunish()
 	dealloc_obj(savechain);
 	/*uball->spe = 0;*/
 	setworn((struct obj *)0, W_BALL);
-	if (!rn2(5)) mkobj_at(CHAIN_CLASS, u.ux, u.uy, FALSE); /* maybe make a chain, since the original one disappeared --Amy */
+	if (!rn2(5)) mkobj_at(CHAIN_CLASS, u.ux, u.uy, FALSE, FALSE); /* maybe make a chain, since the original one disappeared --Amy */
 
 }
 
@@ -7247,8 +10804,8 @@ boolean revival;
 {
 
 	/* SHOPKEEPERS can be revived now */
-	if (*mtype==PM_GUARD || (*mtype==PM_SHOPKEEPER && !revival)
-	     || *mtype==PM_ALIGNED_PRIEST || *mtype==PM_ANGEL) {
+	if (*mtype==PM_GUARD || *mtype==PM_MASTER_GUARD || *mtype==PM_ELITE_GUARD || (*mtype==PM_SHOPKEEPER && !revival) || (*mtype==PM_MASTER_SHOPKEEPER && !revival) || (*mtype==PM_ELITE_SHOPKEEPER && !revival)
+	     || *mtype==PM_ALIGNED_PRIEST || *mtype==PM_MASTER_PRIEST || *mtype==PM_ELITE_PRIEST || *mtype==PM_ANGEL) {
 		*mtype = PM_HUMAN_ZOMBIE;
 		return TRUE;
 	} else if (*mtype==PM_LONG_WORM_TAIL) {	/* for create_particular() */
@@ -7256,6 +10813,162 @@ boolean revival;
 		return TRUE;
 	}
 	return FALSE;
+}
+
+/* Terrain-altering wands; they have their functions here, because I'm a very bad programmer :P --Amy */
+void
+wandofchaosterrain()
+{
+	int madepool = 0;
+	int stilldry = -1;
+	int x,y,safe_pos=0;
+	int radius = 3 + rn2(5);
+	if (!rn2(3)) radius += rnd(4);
+	if (!rn2(10)) radius += rnd(6);
+	if (!rn2(25)) radius += rnd(8);
+	if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+		do_clear_areaX(u.ux, u.uy, radius, do_terrainflood,
+				(void *)&madepool);
+
+	/* check if there are safe tiles around the player */
+	for (x = u.ux-1; x <= u.ux+1; x++) {
+		for (y = u.uy - 1; y <= u.uy + 1; y++) {
+			if (x != u.ux && y != u.uy &&
+			    goodpos(x, y, &youmonst, 0)) {
+				safe_pos++;
+			}
+		}
+	}
+
+	/* we do not put these on the player's position. */
+	if (!madepool && stilldry)
+		return;
+	if (madepool)
+		pline(FunnyHallu ?
+				"Oh wow, look at all the stuff that is happening around you!" :
+				"What the heck is happening to the dungeon?!" );
+	return;
+
+}
+
+void
+wandoffleecyterrain()
+{
+	int terraintype = rnd(29);
+
+	int madepool = 0;
+	int stilldry = -1;
+	int x,y,safe_pos=0;
+	int radius = 3 + rn2(5);
+	if (!rn2(3)) radius += rnd(4);
+	if (!rn2(10)) radius += rnd(6);
+	if (!rn2(25)) radius += rnd(8);
+	if (radius > MAX_RADIUS) radius = MAX_RADIUS;
+
+	switch (terraintype) {
+
+		case 1:
+			do_clear_areaX(u.ux, u.uy, radius, do_flood, (void *)&madepool);
+			break;
+		case 2:
+			do_clear_areaX(u.ux, u.uy, radius, do_lavaflood, (void *)&madepool);
+			break;
+		case 3:
+			do_clear_areaX(u.ux, u.uy, radius, do_graveflood, (void *)&madepool);
+			break;
+		case 4:
+			do_clear_areaX(u.ux, u.uy, radius, do_tunnelflood, (void *)&madepool);
+			break;
+		case 5:
+			do_clear_areaX(u.ux, u.uy, radius, do_farmflood, (void *)&madepool);
+			break;
+		case 6:
+			do_clear_areaX(u.ux, u.uy, radius, do_mountainflood, (void *)&madepool);
+			break;
+		case 7:
+			do_clear_areaX(u.ux, u.uy, radius, do_watertunnelflood, (void *)&madepool);
+			break;
+		case 8:
+			do_clear_areaX(u.ux, u.uy, radius, do_crystalwaterflood, (void *)&madepool);
+			break;
+		case 9:
+			do_clear_areaX(u.ux, u.uy, radius, do_moorflood, (void *)&madepool);
+			break;
+		case 10:
+			do_clear_areaX(u.ux, u.uy, radius, do_urineflood, (void *)&madepool);
+			break;
+		case 11:
+			do_clear_areaX(u.ux, u.uy, radius, do_shiftingsandflood, (void *)&madepool);
+			break;
+		case 12:
+			do_clear_areaX(u.ux, u.uy, radius, do_styxflood, (void *)&madepool);
+			break;
+		case 13:
+			do_clear_areaX(u.ux, u.uy, radius, do_snowflood, (void *)&madepool);
+			break;
+		case 14:
+			do_clear_areaX(u.ux, u.uy, radius, do_ashflood, (void *)&madepool);
+			break;
+		case 15:
+			do_clear_areaX(u.ux, u.uy, radius, do_sandflood, (void *)&madepool);
+			break;
+		case 16:
+			do_clear_areaX(u.ux, u.uy, radius, do_pavementflood, (void *)&madepool);
+			break;
+		case 17:
+			do_clear_areaX(u.ux, u.uy, radius, do_highwayflood, (void *)&madepool);
+			break;
+		case 18:
+			do_clear_areaX(u.ux, u.uy, radius, do_grassflood, (void *)&madepool);
+			break;
+		case 19:
+			do_clear_areaX(u.ux, u.uy, radius, do_nethermistflood, (void *)&madepool);
+			break;
+		case 20:
+			do_clear_areaX(u.ux, u.uy, radius, do_stalactiteflood, (void *)&madepool);
+			break;
+		case 21:
+			do_clear_areaX(u.ux, u.uy, radius, do_cryptflood, (void *)&madepool);
+			break;
+		case 22:
+			do_clear_areaX(u.ux, u.uy, radius, do_bubbleflood, (void *)&madepool);
+			break;
+		case 23:
+			do_clear_areaX(u.ux, u.uy, radius, do_raincloudflood, (void *)&madepool);
+			break;
+		case 24:
+			do_clear_areaX(u.ux, u.uy, radius, do_lockflood, (void *)&madepool);
+			break;
+		case 25:
+			do_clear_areaX(u.ux, u.uy, radius, do_treeflood, (void *)&madepool);
+			break;
+		case 26:
+			do_clear_areaX(u.ux, u.uy, radius, do_iceflood, (void *)&madepool);
+			break;
+		case 27:
+			do_clear_areaX(u.ux, u.uy, radius, do_cloudflood, (void *)&madepool);
+			break;
+		case 28:
+			do_clear_areaX(u.ux, u.uy, radius, do_barflood, (void *)&madepool);
+			break;
+		case 29:
+			do_clear_areaX(u.ux, u.uy, radius, do_terrainflood, (void *)&madepool);
+			break;
+
+	}
+
+	/* check if there are safe tiles around the player */
+	for (x = u.ux-1; x <= u.ux+1; x++) {
+		for (y = u.uy - 1; y <= u.uy + 1; y++) {
+			if (x != u.ux && y != u.uy &&
+			    goodpos(x, y, &youmonst, 0)) {
+				safe_pos++;
+			}
+		}
+	}
+
+	pline("Some changes in terrain are happening.");
+	return;
 }
 
 #ifdef WIZARD

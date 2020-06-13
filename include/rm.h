@@ -130,7 +130,7 @@
 #define IS_DRAWBRIDGE(typ) ((typ) == DRAWBRIDGE_UP || (typ) == DRAWBRIDGE_DOWN)
 #define IS_FURNITURE(typ) ((typ) >= STAIRS && (typ) <= STRAWMATTRESS)
 #define IS_AIR(typ)	((typ) >= AIR && (typ) <= RAINCLOUD)
-#define IS_SOFT(typ)	( ((typ) >= AIR && (typ) <= RAINCLOUD) || IS_POOL(typ))
+#define IS_SOFT(typ)	( ((typ) >= AIR && (typ) <= RAINCLOUD) || (typ) == SAND || (typ) == SNOW || (typ) == GRASSLAND || IS_POOL(typ))
 #define IS_GRAVEWALL(typ)	((typ) == GRAVEWALL)
 #define IS_TUNNELWALL(typ)	((typ) == TUNNELWALL)
 #define IS_ROCKWALL(typ)	((typ) == ROCKWALL)
@@ -747,49 +747,88 @@
 #define S_elder_tentacling_trap	547
 #define S_footerer_trap	548
 
-#define S_timerun_trap		549
+#define S_bad_part_trap		549
+#define S_completely_bad_part_trap		550
+#define S_evil_variant_trap		551
+
+#define S_grave_wall_trap		552
+#define S_tunnel_trap		553
+#define S_farmland_trap		554
+#define S_mountain_trap		555
+#define S_water_tunnel_trap		556
+#define S_crystal_flood_trap		557
+#define S_moorland_trap		558
+#define S_urine_trap		559
+#define S_shifting_sand_trap		560
+#define S_styx_trap		561
+#define S_pentagram_trap		562
+#define S_snow_trap		563
+#define S_ash_trap		564
+#define S_sand_trap		565
+#define S_pavement_trap		566
+#define S_highway_trap		567
+#define S_grassland_trap		568
+#define S_nether_mist_trap		569
+#define S_stalactite_trap		570
+#define S_cryptfloor_trap		571
+#define S_bubble_trap		572
+#define S_rain_cloud_trap		573
+#define S_item_nastification_trap		574
+#define S_sanity_increase_trap		575
+#define S_psi_trap		576
+#define S_gay_trap		577
+#define S_sarah_trap		578
+#define S_claudia_trap		579
+#define S_ludgera_trap		580
+#define S_kati_trap		581
+#define S_sanity_treble_trap		582
+#define S_stat_decrease_trap		583
+#define S_simeout_trap		584
+#define S_spressing_trap		585
+
+#define S_timerun_trap		586
 
 /* end traps, begin special effects */
 
-#define S_vbeam		550	/* The 4 zap beam symbols.  Do NOT separate. */
-#define S_hbeam		551	/* To change order or add, see function     */
-#define S_lslant	552	/* zapdir_to_glyph() in display.c.	    */
-#define S_rslant	553
-#define S_digbeam	554	/* dig beam symbol */
-#define S_flashbeam	555	/* camera flash symbol */
-#define S_boomleft	556	/* thrown boomerang, open left, e.g ')'    */
-#define S_boomright	557	/* thrown boomerand, open right, e.g. '('  */
-#define S_ss1		558	/* 4 magic shield glyphs */
-#define S_ss2		559
-#define S_ss3		560
-#define S_ss4		561
+#define S_vbeam		587	/* The 4 zap beam symbols.  Do NOT separate. */
+#define S_hbeam		588	/* To change order or add, see function     */
+#define S_lslant	589	/* zapdir_to_glyph() in display.c.	    */
+#define S_rslant	590
+#define S_digbeam	591	/* dig beam symbol */
+#define S_flashbeam	592	/* camera flash symbol */
+#define S_boomleft	593	/* thrown boomerang, open left, e.g ')'    */
+#define S_boomright	594	/* thrown boomerand, open right, e.g. '('  */
+#define S_ss1		595	/* 4 magic shield glyphs */
+#define S_ss2		596
+#define S_ss3		597
+#define S_ss4		598
 
 /* The 8 swallow symbols.  Do NOT separate.  To change order or add, see */
 /* the function swallow_to_glyph() in display.c.			 */
-#define S_sw_tl		562	/* swallow top left [1]			*/
-#define S_sw_tc		563	/* swallow top center [2]	Order:	*/
-#define S_sw_tr		564	/* swallow top right [3]		*/
-#define S_sw_ml		565	/* swallow middle left [4]	1 2 3	*/
-#define S_sw_mr		566	/* swallow middle right [6]	4 5 6	*/
-#define S_sw_bl		567	/* swallow bottom left [7]	7 8 9	*/
-#define S_sw_bc		568	/* swallow bottom center [8]		*/
-#define S_sw_br		569	/* swallow bottom right [9]		*/
+#define S_sw_tl		599	/* swallow top left [1]			*/
+#define S_sw_tc		600	/* swallow top center [2]	Order:	*/
+#define S_sw_tr		601	/* swallow top right [3]		*/
+#define S_sw_ml		602	/* swallow middle left [4]	1 2 3	*/
+#define S_sw_mr		603	/* swallow middle right [6]	4 5 6	*/
+#define S_sw_bl		604	/* swallow bottom left [7]	7 8 9	*/
+#define S_sw_bc		605	/* swallow bottom center [8]		*/
+#define S_sw_br		606	/* swallow bottom right [9]		*/
 
-#define S_explode1	570	/* explosion top left			*/
-#define S_explode2	571	/* explosion top center			*/
-#define S_explode3	572	/* explosion top right		 Ex.	*/
-#define S_explode4	573	/* explosion middle left		*/
-#define S_explode5	574	/* explosion middle center	 /-\	*/
-#define S_explode6	575	/* explosion middle right	 |@|	*/
-#define S_explode7	576	/* explosion bottom left	 \-/	*/
-#define S_explode8	577	/* explosion bottom center		*/
-#define S_explode9	578	/* explosion bottom right		*/
+#define S_explode1	607	/* explosion top left			*/
+#define S_explode2	608	/* explosion top center			*/
+#define S_explode3	609	/* explosion top right		 Ex.	*/
+#define S_explode4	610	/* explosion middle left		*/
+#define S_explode5	611	/* explosion middle center	 /-\	*/
+#define S_explode6	612	/* explosion middle right	 |@|	*/
+#define S_explode7	613	/* explosion bottom left	 \-/	*/
+#define S_explode8	614	/* explosion bottom center		*/
+#define S_explode9	615	/* explosion bottom right		*/
   
 /* end effects */
   
-#define MAXPCHARS	579 	/* maximum number of mapped characters */
+#define MAXPCHARS	616 	/* maximum number of mapped characters */
 #define MAXDCHARS	75	/* maximum of mapped dungeon characters */
-#define MAXTCHARS	475	/* maximum of mapped trap characters */
+#define MAXTCHARS	512	/* maximum of mapped trap characters */
 #define MAXECHARS       29      /* maximum of mapped effects characters */
 #define MAXEXPCHARS	9	/* number of explosion characters */
 
@@ -1110,6 +1149,8 @@ struct levelflags {
 	Bitfield(has_ruinedchurch, 1);
 	Bitfield(has_gamecorner, 1);
 	Bitfield(has_illusionroom, 1);
+	Bitfield(has_robbercave, 1);
+	Bitfield(has_sanitationcentral, 1);
 
 	Bitfield(has_swamp, 1);
 	Bitfield(noteleport,1);

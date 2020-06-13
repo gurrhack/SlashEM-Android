@@ -109,7 +109,7 @@ register int x, y;
 	register struct obj *otmp;
 
 	if (occupied(x, y)) return;
-	if (rn2( !((moves + u.monstertimefinish) % 3357 ) ? 5 : !((moves + u.monstertimefinish) % 357 ) ? 10 : 20)) return;
+	if (rn2(20)) return;
 
 	whatisit = rnd(330);
 
@@ -260,10 +260,10 @@ register int x, y;
 	case 130:
 	make_grave(x, y, (char *) 0);
 	/* Possibly fill it with objects */
-	if (!rn2(3)) (void) mkgold(0L, x, y);
+	if (!rn2(5)) (void) mkgold(0L, x, y);
 	for (tryct = rn2(2 + rn2(4)); tryct; tryct--) {
 		if (timebasedlowerchance()) {
-		    otmp = mkobj(rn2(3) ? COIN_CLASS : RANDOM_CLASS, TRUE);
+		    otmp = mkobj(rn2(3) ? COIN_CLASS : RANDOM_CLASS, TRUE, FALSE);
 		    if (!otmp) return;
 		    curse(otmp);
 		    otmp->ox = x;
@@ -567,15 +567,30 @@ selecttrap:
 	    if (!Race_if(PM_DEVELOPER) && !rn2(issoviet ? 2 : 3)) rtrap = rnd(rn2(3) ? ANTI_MAGIC : POLY_TRAP);
 	    switch (rtrap) {
 	     case HOLE:		/* no random holes on special levels */
+	     case S_PRESSING_TRAP:
 	     case MAGIC_PORTAL:	goto selecttrap;
 			break;
+	     case NUPESELL_TRAP:
+			if (In_sokoban(&u.uz) && rn2(100)) goto selecttrap;
+			break;
 	     case SHAFT_TRAP:
-	     case TRAPDOOR:	if (!Can_dig_down(&u.uz) && !Is_stronghold(&u.uz) ) goto selecttrap;
+	     case TRAPDOOR:
+			if (In_sokoban(&u.uz) && rn2(10)) goto selecttrap;
+			if (!Can_dig_down(&u.uz) && !Is_stronghold(&u.uz) ) goto selecttrap;
 			break;
 
 	     case CURRENT_SHAFT:
+			if (In_sokoban(&u.uz) && rn2(10)) goto selecttrap;
 			if (!Can_dig_down(&u.uz) && !Is_stronghold(&u.uz) ) goto selecttrap;
 			if (rn2(3)) goto selecttrap;
+			break;
+	     case PIT:
+	     case SPIKED_PIT:
+	     case GIANT_CHASM:
+	     case SHIT_PIT:
+	     case MANA_PIT:
+	     case ACID_PIT:
+			if (In_sokoban(&u.uz) && rn2(10)) goto selecttrap;
 			break;
 
 	     case LEVEL_TELEP:	if (level.flags.noteleport || Is_knox(&u.uz) || Is_blackmarket(&u.uz) || Is_aligned_quest(&u.uz) || In_endgame(&u.uz) || In_sokoban(&u.uz) )  goto selecttrap;
@@ -716,6 +731,24 @@ selecttrap:
 			break;
 	     case TIMERUN_TRAP:
 			if (!Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 15 : 30 )) goto selecttrap;
+			break;
+		case SANITY_TREBLE_TRAP:
+			if (!Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 25 : 51 )) goto selecttrap;
+			break;
+		case STAT_DECREASE_TRAP:
+			if (!Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 10 : 20 )) goto selecttrap;
+			break;
+		case SIMEOUT_TRAP:
+			if (!Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 50 : 100 )) goto selecttrap;
+			break;
+	     case BAD_PART_TRAP:
+			if (!Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 10 : 20 )) goto selecttrap;
+			break;
+	     case COMPLETELY_BAD_PART_TRAP:
+			if (!Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 26 : 52 )) goto selecttrap;
+			break;
+	     case EVIL_VARIANT_TRAP:
+			if (!Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 500 : 1000 )) goto selecttrap;
 			break;
 
 	     case INTRINSIC_LOSS_TRAP:
@@ -1487,26 +1520,45 @@ selecttrap:
 		    case OUTTA_DEPTH_TRAP:
 			if (rn2(evilfriday ? 10 : 50) && !NastyTrapNation) goto selecttrap;
 			break;
+		    case ITEM_NASTIFICATION_TRAP:
+			if (rn2(evilfriday ? 20 : 200) && !NastyTrapNation) goto selecttrap;
+			break;
+		    case GAY_TRAP:
+			if (rn2(evilfriday ? 10 : 50) && !NastyTrapNation) goto selecttrap;
+			break;
 		    case BOON_TRAP:
 			if (rn2(200)) goto selecttrap;
 			break;
 		    case ANOXIC_PIT:
+			if (In_sokoban(&u.uz) && rn2(10)) goto selecttrap;
 			if ((rn2(3) && !evilfriday) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case ARABELLA_SPEAKER:
 			if (rn2(10) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case FEMMY_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case MADELEINE_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case MARLENA_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap;
+			break;
+		    case SARAH_TRAP:
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap;
+			break;
+		    case CLAUDIA_TRAP:
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap;
+			break;
+		    case LUDGERA_TRAP:
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap;
+			break;
+		    case KATI_TRAP:
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case ANASTASIA_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case TOXIC_VENOM_TRAP:
 			if (rn2(evilfriday ? 2 : 7) && !NastyTrapNation) goto selecttrap;
@@ -1518,46 +1570,46 @@ selecttrap:
 			if (rn2(evilfriday ? 2 : 5) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case JESSICA_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(10) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(10) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case SOLVEJG_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(10) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(10) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case WENDY_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case KATHARINA_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(10) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(10) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case ELENA_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(10) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(10) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case THAI_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(10) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(10) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case ELIF_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(10) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(10) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case NADJA_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(20) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(20) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case SANDRA_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(15) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(15) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case NATALJE_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(50) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(50) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case JEANETTA_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case YVONNE_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case MAURAH_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(10) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(10) && !NastyTrapNation) goto selecttrap;
 			break;
 		    case MELTEM_TRAP:
-			if (!Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap;
+			if (!Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap;
 			break;
 
 		    case PREMATURE_DEATH_TRAP:
@@ -1646,7 +1698,10 @@ selecttrap2:
 	    rtrap = rnd(TRAPNUM-1);
 	    if (!Race_if(PM_DEVELOPER) && !rn2(issoviet ? 2 : 3)) rtrap = rnd(rn2(3) ? ANTI_MAGIC : POLY_TRAP);
 		if (rtrap == HOLE && !Is_stronghold(&u.uz) ) goto selecttrap2;
+		if (In_sokoban(&u.uz) && rn2(10) && (rtrap == HOLE || rtrap == TRAPDOOR || rtrap == SHAFT_TRAP || rtrap == CURRENT_SHAFT || rtrap == PIT || rtrap == SPIKED_PIT || rtrap == GIANT_CHASM || rtrap == SHIT_PIT || rtrap == MANA_PIT || rtrap == ANOXIC_PIT || rtrap == ACID_PIT)) goto selecttrap2;
+		if (In_sokoban(&u.uz) && rn2(100) && rtrap == NUPESELL_TRAP) goto selecttrap2;
 		if (rtrap == MAGIC_PORTAL) goto selecttrap2;
+		if (rtrap == S_PRESSING_TRAP) goto selecttrap2;
 		if (rtrap == TRAPDOOR && !Can_dig_down(&u.uz) && !Is_stronghold(&u.uz) ) goto selecttrap2;
 		if (rtrap == SHAFT_TRAP && !Can_dig_down(&u.uz) && !Is_stronghold(&u.uz) ) goto selecttrap2;
 		if (rtrap == CURRENT_SHAFT && !Can_dig_down(&u.uz) && !Is_stronghold(&u.uz) ) goto selecttrap2;
@@ -1703,6 +1758,13 @@ selecttrap2:
 	      if (rtrap == STAIRS_TRAP && !Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 5 : 11 )) goto selecttrap2;
 	      if (rtrap == UNINFORMATION_TRAP && !Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 2 : 3 )) goto selecttrap2;
 	      if (rtrap == TIMERUN_TRAP && !Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 15 : 30 )) goto selecttrap2;
+	      if (rtrap == SANITY_TREBLE_TRAP && !Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 25 : 51 )) goto selecttrap2;
+	      if (rtrap == STAT_DECREASE_TRAP && !Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 10 : 20 )) goto selecttrap2;
+	      if (rtrap == SIMEOUT_TRAP && !Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 50 : 100 )) goto selecttrap2;
+
+		if (rtrap == BAD_PART_TRAP && !Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 10 : 20 )) goto selecttrap2;
+		if (rtrap == COMPLETELY_BAD_PART_TRAP && !Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 26 : 52 )) goto selecttrap2;
+		if (rtrap == EVIL_VARIANT_TRAP && !Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 500 : 1000 )) goto selecttrap2;
 
 	      if (rtrap == INTRINSIC_LOSS_TRAP && !Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 6 : 12 )) goto selecttrap2;
 	      if (rtrap == BLOOD_LOSS_TRAP && !Role_if(PM_CAMPERSTRIKER) && !NastyTrapNation && rn2(Role_if(PM_SPACEWARS_FIGHTER) ? 9 : 18 )) goto selecttrap2;
@@ -1948,30 +2010,36 @@ selecttrap2:
 	      if (rtrap == NEMESIS_TRAP && rn2(evilfriday ? 10 : 50) && !NastyTrapNation) goto selecttrap2;
 	      if (rtrap == STREW_TRAP && rn2(evilfriday ? 5 : 30) && !NastyTrapNation) goto selecttrap2;
 	      if (rtrap == OUTTA_DEPTH_TRAP && rn2(evilfriday ? 10 : 50) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == GAY_TRAP && rn2(evilfriday ? 10 : 50) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == ITEM_NASTIFICATION_TRAP && rn2(evilfriday ? 20 : 200) && !NastyTrapNation) goto selecttrap2;
 	      if (rtrap == BOON_TRAP && rn2(200)) goto selecttrap2;
 	      if (rtrap == ANOXIC_PIT && (rn2(3) && !evilfriday) && !NastyTrapNation) goto selecttrap2;
 	      if (rtrap == ARABELLA_SPEAKER && rn2(10) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == FEMMY_TRAP && !Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == MADELEINE_TRAP && !Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == MARLENA_TRAP && !Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == ANASTASIA_TRAP && !Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == FEMMY_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == MADELEINE_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == MARLENA_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == SARAH_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == CLAUDIA_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == LUDGERA_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == KATI_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == ANASTASIA_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap2;
 	      if (rtrap == TOXIC_VENOM_TRAP && rn2(evilfriday ? 2 : 7) && !NastyTrapNation) goto selecttrap2;
 	      if (rtrap == INSANITY_TRAP && rn2(evilfriday ? 10 : 100) && !NastyTrapNation) goto selecttrap2;
 	      if (rtrap == MADNESS_TRAP && rn2(evilfriday ? 2 : 5) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == JESSICA_TRAP && !Role_if(PM_FEMINIST) && rn2(10) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == SOLVEJG_TRAP && !Role_if(PM_FEMINIST) && rn2(10) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == WENDY_TRAP && !Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == KATHARINA_TRAP && !Role_if(PM_FEMINIST) && rn2(10) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == ELENA_TRAP && !Role_if(PM_FEMINIST) && rn2(10) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == THAI_TRAP && !Role_if(PM_FEMINIST) && rn2(10) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == ELIF_TRAP && !Role_if(PM_FEMINIST) && rn2(10) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == NADJA_TRAP && !Role_if(PM_FEMINIST) && rn2(20) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == SANDRA_TRAP && !Role_if(PM_FEMINIST) && rn2(15) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == NATALJE_TRAP && !Role_if(PM_FEMINIST) && rn2(50) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == JEANETTA_TRAP && !Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == YVONNE_TRAP && !Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == MAURAH_TRAP && !Role_if(PM_FEMINIST) && rn2(10) && !NastyTrapNation) goto selecttrap2;
-	      if (rtrap == MELTEM_TRAP && !Role_if(PM_FEMINIST) && rn2(5) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == JESSICA_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(10) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == SOLVEJG_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(10) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == WENDY_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == KATHARINA_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(10) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == ELENA_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(10) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == THAI_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(10) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == ELIF_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(10) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == NADJA_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(20) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == SANDRA_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(15) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == NATALJE_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(50) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == JEANETTA_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == YVONNE_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == MAURAH_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(10) && !NastyTrapNation) goto selecttrap2;
+	      if (rtrap == MELTEM_TRAP && !Role_if(PM_FEMINIST) && !Role_if(PM_EMERA) && rn2(5) && !NastyTrapNation) goto selecttrap2;
 
 	      if (rtrap == PREMATURE_DEATH_TRAP && rn2(evilfriday ? 10 : 200) && !NastyTrapNation) goto selecttrap2;
 	      if (rtrap == RAGNAROK_TRAP && rn2(evilfriday ? 64 : 640) && !NastyTrapNation) goto selecttrap2;
@@ -2019,6 +2087,30 @@ makerandomtrap()
 
 		if (x && y && isok(x, y) && (levl[x][y].typ > DBWALL) && !(t_at(x, y)) ) {
 			(void) maketrap(x, y, rtrap, 100);
+			break;
+			}
+
+	}
+}
+
+/* make an invisible trap on some random empty location --Amy */
+void
+makeinvisotrap()
+{
+
+	int rtrap;
+	rtrap = randomtrap();
+	int tryct = 0;
+	int x, y;
+	register struct trap *ttmp;
+
+	for (tryct = 0; tryct < 2000; tryct++) {
+		x = rn1(COLNO-3,2);
+		y = rn2(ROWNO);
+
+		if (x && y && isok(x, y) && (levl[x][y].typ > DBWALL) && !(t_at(x, y)) ) {
+			ttmp = maketrap(x, y, rtrap, 100);
+			if (ttmp) ttmp->hiddentrap = TRUE;
 			break;
 			}
 
@@ -2307,34 +2399,6 @@ boolean anywhere;
 
 	/* Allow rooms to be closer together. For warper race characters this will be the case even more often. --Amy */
 
-	if (!((moves + u.monstertimefinish) % (iswarper ? 7 : 19) )) {
-
-		xlim = xlim - 1;
-		ylim = ylim - 1;
-
-	}
-
-	if (!((moves + u.monstertimefinish) % (iswarper ? 13 : 91) )) {
-
-		xlim = xlim - 2;
-		ylim = ylim - 2;
-
-	}
-
-	if (!((moves + u.monstertimefinish) % (iswarper ? 19 : 464) )) {
-
-		xlim = xlim - 5;
-		ylim = ylim - 5;
-
-	}
-
-	if (!((moves + u.monstertimefinish) % (iswarper ? 29 : 2209) )) {
-
-		xlim = xlim - 10;
-		ylim = ylim - 10;
-
-	}
-
 	if (anywhere) {
 
 		xlim = xlim - rnd(10);
@@ -2416,34 +2480,6 @@ boolean anywhere;
 
 	/*if (anywhere) pline("anywhere!");*/
 
-	if (!((moves + u.monstertimefinish) % (iswarper ? 7 : 19) )) {
-
-		xlim = xlim - 1;
-		ylim = ylim - 1;
-
-	}
-
-	if (!((moves + u.monstertimefinish) % (iswarper ? 13 : 91) )) {
-
-		xlim = xlim - 2;
-		ylim = ylim - 2;
-
-	}
-
-	if (!((moves + u.monstertimefinish) % (iswarper ? 19 : 464) )) {
-
-		xlim = xlim - 5;
-		ylim = ylim - 5;
-
-	}
-
-	if (!((moves + u.monstertimefinish) % (iswarper ? 29 : 2209) )) {
-
-		xlim = xlim - 10;
-		ylim = ylim - 10;
-
-	}
-
 	if (anywhere) {
 
 		xlim = xlim - rnd(10);
@@ -2499,6 +2535,19 @@ boolean anywhere;
 			if (vault)
 			    dx = dy = 1;
 			else {
+#ifdef BIGSLEX
+				dx = 2 + rn2((hx-lx > 28) ? 20 : 12);
+				dy = 2 + rn2(6);
+
+				if (!rn2(500) && trycnt < 200) dx += rnd(160);
+				if (!rn2(500) && trycnt < 200) dy += rnd(48);
+
+				if (!rn2(50) && trycnt < 200) dx += rnd(80);
+				if (!rn2(50) && trycnt < 200) dy += rnd(24);
+
+				if (!rn2(5) && trycnt < 200) dx += rnd(30);
+				if (!rn2(5) && trycnt < 200) dy += rnd(10);
+#else
 				dx = 2 + rn2((hx-lx > 28) ? 12 : 8);
 				dy = 2 + rn2(4);
 
@@ -2510,7 +2559,7 @@ boolean anywhere;
 
 				if (!rn2(10) && trycnt < 200) dx += rnd(20);
 				if (!rn2(10) && trycnt < 200) dy += rnd(6);
-
+#endif
 
 				/*if(dx*dy > 50)
 				    dy = 50/dx;*/
@@ -3093,9 +3142,9 @@ struct mkroom	*croom;
 	    c = 0;
 
 	if (!c)
-	    otmp = mkobj_at(RANDOM_CLASS, x, y, !named);
+	    otmp = mkobj_at(RANDOM_CLASS, x, y, !named, FALSE);
 	else if (o->id != -1)
-	    otmp = mksobj_at(o->id, x, y, TRUE, !named);
+	    otmp = mksobj_at(o->id, x, y, TRUE, !named, FALSE);
 	else {
 	    /*
 	     * The special levels are compiled with the default "text" object
@@ -3112,7 +3161,7 @@ struct mkroom	*croom;
 		mkgold(0L, x, y);
 		otmp = g_at(x,y);
 	    } else
-		otmp = mkobj_at(oclass, x, y, !named);
+		otmp = mkobj_at(oclass, x, y, !named, FALSE);
 	}
 
 	if (!otmp) return;
@@ -3528,9 +3577,9 @@ schar ftyp, btyp;
 			crm->fleecycolor = randomcolouur;
 
 			if(/*nxcor && */!rn2(ishaxor ? 38 : 75))
-				(void) mksobj_at(BOULDER, xx, yy, TRUE, FALSE);
+				(void) mksobj_at(BOULDER, xx, yy, TRUE, FALSE, FALSE);
 			else if(/*nxcor &&*/ !rn2(ishaxor ? 20 : 40) && timebasedlowerchance())
-				(void) mkobj_at(0, xx, yy, TRUE);
+				(void) mkobj_at(0, xx, yy, TRUE, FALSE);
 			else if(/*nxcor &&*/ !rn2(ishaxor ? 50 : 100)){ 
 			    char buf[BUFSZ];
 				const char *mesg = random_engraving(buf);
@@ -3540,7 +3589,7 @@ schar ftyp, btyp;
 		    else if(/*nxcor &&*/ !rn2(ishaxor ? 150 : 300) && !(depth(&u.uz) == 1 && In_dod(&u.uz) && rn2(3)) && !(depth(&u.uz) == 2 && In_dod(&u.uz) && rn2(2)) ) 
 				(void) maketrap(xx, yy, rndtrap(), 100);
 		    else if(/*nxcor &&*/ !rn2(ishaxor ? 100 : 200)) {
-				if (!ishomicider) (void) makemon((struct permonst *)0, xx, yy, NO_MM_FLAGS);
+				if (!ishomicider) (void) makemon((struct permonst *)0, xx, yy, MM_MAYSLEEP);
 				else makerandomtrap_at(xx, yy);
 				}
 		    else if(/*nxcor &&*/ !rn2(ishaxor ? 10 : 20)) 
@@ -3665,10 +3714,6 @@ corridor	*c;
 	boolean specialcorridor = 0;
 	if (!rn2(iswarper ? 50 : 500)) specialcorridor = 1;
 
-	if (!(u.monstertimefinish % 327) && !rn2(iswarper ? 10 : 50)) specialcorridor = 1;
-
-	if (!((moves + u.monstertimefinish) % 5337 )) specialcorridor = 1;
-
 	if (c->src.room == -1) {
 		sort_rooms();
 		fix_stair_rooms();
@@ -3725,10 +3770,10 @@ boolean prefilled;
 	register int tryct = 0;
 	register struct obj *otmp;
 
-	if (croom && croom->rtype == OROOM && !rn2( ((isironman || RngeIronmanMode || In_netherrealm(&u.uz)) && depth(&u.uz) > 1) ? 1 : ((isironman || RngeIronmanMode || In_netherrealm(&u.uz)) && depth(&u.uz) < 2) ? 10 : Role_if(PM_CAMPERSTRIKER) ? 50 : 5000) ) {
+	if (croom && croom->rtype == OROOM && !rn2( ((isironman || RngeIronmanMode || In_netherrealm(&u.uz)) && (depth(&u.uz) > 1 && !(iszapem && In_spacebase(&u.uz) && (dunlev(&u.uz) == 1))) ) ? 1 : ((isironman || RngeIronmanMode || In_netherrealm(&u.uz)) && depth(&u.uz) < 2) ? 10 : Role_if(PM_CAMPERSTRIKER) ? 50 : 5000) ) {
 
 retryrandtype:
-		switch (rnd(100)) {
+		switch (rnd(102)) {
 
 			case 1: croom->rtype = COURT; break;
 			case 2: croom->rtype = SWAMP; break;
@@ -3834,6 +3879,8 @@ retryrandtype:
 			case 98: croom->rtype = RAMPAGEROOM; break;
 			case 99: croom->rtype = GAMECORNER; break;
 			case 100: croom->rtype = ILLUSIONROOM; break;
+			case 101: croom->rtype = ROBBERCAVE; break;
+			case 102: croom->rtype = SANITATIONCENTRAL; break;
 
 		}
 
@@ -3973,7 +4020,7 @@ retryrandtype:
 
 	if (croom->rtype == RANDOMROOM) {
 
-		switch (rnd(80)) {
+		switch (rnd(82)) {
 
 			case 1: croom->rtype = COURT; break;
 			case 2: croom->rtype = SWAMP; break;
@@ -4055,6 +4102,8 @@ retryrandtype:
 			case 78: croom->rtype = RAMPAGEROOM; break;
 			case 79: croom->rtype = GAMECORNER; break;
 			case 80: croom->rtype = ILLUSIONROOM; break;
+			case 81: croom->rtype = ROBBERCAVE; break;
+			case 82: croom->rtype = SANITATIONCENTRAL; break;
 
 		}
 
@@ -4074,17 +4123,17 @@ retryrandtype:
 		case VAULT:
 		    for (x=croom->lx;x<=croom->hx;x++)
 			for (y=croom->ly;y<=croom->hy;y++)
-			    (void) mkgold((long)rn1(abs(depth(&u.uz))*100, 51), x, y);
+			    (void) mkgold((long)rn1(abs(depth(&u.uz))*20, 501), x, y);
 			if (!rn2(5)) { /* sporkhack code */
 				/* it's an aquarium!  :) */
 				level.flags.vault_is_aquarium = TRUE;
 				create_feature(0,0,croom,POOL);
 				create_feature(1,1,croom,POOL);
 				if (!rn2(3)) {
-					(void)makemon(mkclass(S_EEL,0),croom->lx,croom->ly,NO_MM_FLAGS);
+					(void)makemon(mkclass(S_EEL,0),croom->lx,croom->ly, MM_MAYSLEEP);
 				}
 				if (!rn2(3)) {
-					(void)makemon(mkclass(S_EEL,0),croom->hx,croom->hy,NO_MM_FLAGS);
+					(void)makemon(mkclass(S_EEL,0),croom->hx,croom->hy, MM_MAYSLEEP);
 				}
 			}
 			else if (!rn2(100)) { /* evil patch idea by jonadab - cursed vaults filled with L */
@@ -4097,14 +4146,14 @@ retryrandtype:
 				HighlevelStatus += 1; /* and make the high-level ones more likely to spawn (ugly hack #2) */
 				reset_rndmonst(NON_PM);
 
-				mtmp = makemon(mkclass(S_LICH,0),croom->lx,croom->ly,NO_MM_FLAGS);
+				mtmp = makemon(mkclass(S_LICH,0),croom->lx,croom->ly, MM_MAYSLEEP);
 				if (mtmp) mtmp->msleeping = 1;
-				mtmp = makemon(mkclass(S_LICH,0),croom->hx,croom->hy,NO_MM_FLAGS);
+				mtmp = makemon(mkclass(S_LICH,0),croom->hx,croom->hy, MM_MAYSLEEP);
 				if (mtmp) mtmp->msleeping = 1;
-				if (rn2(2)) {mtmp = makemon(mkclass(S_LICH,0),croom->hx,croom->ly,NO_MM_FLAGS);
+				if (rn2(2)) {mtmp = makemon(mkclass(S_LICH,0),croom->hx,croom->ly, MM_MAYSLEEP);
 				if (mtmp) mtmp->msleeping = 1;
 				}
-				if (rn2(2)) {mtmp = makemon(mkclass(S_LICH,0),croom->lx,croom->hy,NO_MM_FLAGS);
+				if (rn2(2)) {mtmp = makemon(mkclass(S_LICH,0),croom->lx,croom->hy, MM_MAYSLEEP);
 				if (mtmp) mtmp->msleeping = 1;
 				}
 
@@ -4155,6 +4204,8 @@ retryrandtype:
 	    case TROUBLEZONE:
 	    case WEAPONCHAMBER:
 	    case HELLPIT:
+	    case ROBBERCAVE:
+	    case SANITATIONCENTRAL:
 	    case FEMINISMROOM:
 	    case MEADOWROOM:
 	    case COOLINGCHAMBER:
@@ -4203,20 +4254,15 @@ retryrandtype:
 		if((levl[sx][sy].typ == ROOM || levl[sx][sy].typ == CORR) && !t_at(sx,sy) ) {
 		    if((sx+sy)%2) {
 			levl[sx][sy].typ = POOL;
-			if(!eelct || !rn2(4)) {
+			if(!eelct || !rn2(10)) {
 			    /* mkclass() won't do, as we might get kraken */
 /* comment by Amy - low-level players shouldn't move close to water anyway, so I will totally spawn everything here! */
-			    (void) makemon(rn2(5) ? mkclass(S_EEL,0)
-						  : rn2(5) ? &mons[PM_GIANT_EEL]
-						  : rn2(2) ? &mons[PM_PIRANHA]
-						  : &mons[PM_ELECTRIC_EEL],
-						sx, sy, NO_MM_FLAGS);
+			    (void) makemon(mkclass(S_EEL,0), sx, sy, NO_MM_FLAGS);
 			    eelct++;
 			}
 		    } else
-			if(!rn2(4))	/* swamps tend to be moldy */
-			    (void) makemon(mkclass(S_FUNGUS,0),
-						sx, sy, NO_MM_FLAGS);
+			if(!rn2(10))	/* swamps tend to be moldy */
+			    (void) makemon(mkclass(S_FUNGUS,0), sx, sy, NO_MM_FLAGS);
 		}
 
 	}
@@ -4293,7 +4339,7 @@ retryrandtype:
 
 		}
 
-		if (!rn2(3)) (void) mksobj_at(BOULDER, sx, sy, TRUE, FALSE);
+		if (!rn2(3)) (void) mksobj_at(BOULDER, sx, sy, TRUE, FALSE, FALSE);
 		if (!rn2(3)) (void) maketrap(sx, sy, rndtrap(), 100);
 
 		} /* for loop */
@@ -4318,7 +4364,7 @@ retryrandtype:
 		} /* for loop */
 
 		if (somexy(croom, &mm)) {
-			  (void) mksobj_at(TREASURE_CHEST, mm.x, mm.y, TRUE, FALSE);
+			  (void) mksobj_at(TREASURE_CHEST, mm.x, mm.y, TRUE, FALSE, FALSE);
 		}
 
 	}
@@ -4409,7 +4455,7 @@ retryrandtype:
 
 		for(sx = croom->lx; sx <= croom->hx; sx++)
 		for(sy = croom->ly; sy <= croom->hy; sy++) {
-			(void) mksobj_at(rnd_class(RIGHT_MOUSE_BUTTON_STONE, NASTY_STONE), sx, sy, TRUE, FALSE);
+			(void) mksobj_at(rnd_class(RIGHT_MOUSE_BUTTON_STONE, NASTY_STONE), sx, sy, TRUE, FALSE, FALSE);
 		}
 
 	}
@@ -4435,11 +4481,11 @@ retryrandtype:
 
 		  if (!rn2(10)) {
 			  if (somexy(croom, &mm))
-				  (void) mksobj_at(TREASURE_CHEST, mm.x, mm.y, TRUE, FALSE);
+				  (void) mksobj_at(TREASURE_CHEST, mm.x, mm.y, TRUE, FALSE, FALSE);
 
 			while (!rn2(2)) {
 			  if (somexy(croom, &mm))
-				  (void) mksobj_at(TREASURE_CHEST, mm.x, mm.y, TRUE, FALSE);
+				  (void) mksobj_at(TREASURE_CHEST, mm.x, mm.y, TRUE, FALSE, FALSE);
 			}
 		  }
 
@@ -4461,10 +4507,10 @@ retryrandtype:
 
 					make_grave(sx, sy, (char *) 0);
 					/* Possibly fill it with objects */
-					if (!rn2(3)) (void) mkgold(0L, sx, sy);
+					if (!rn2(5)) (void) mkgold(0L, sx, sy);
 					for (tryct = rn2(2 + rn2(4)); tryct; tryct--) {
 						if (timebasedlowerchance()) {
-						    otmp = mkobj(rn2(3) ? COIN_CLASS : RANDOM_CLASS, TRUE);
+						    otmp = mkobj(rn2(3) ? COIN_CLASS : RANDOM_CLASS, TRUE, FALSE);
 						    if (!otmp) return;
 						    curse(otmp);
 						    otmp->ox = sx;
@@ -4478,10 +4524,10 @@ retryrandtype:
 
 			/*else*/ if (!rn2(Role_if(PM_CAMPERSTRIKER) ? 5 : 10))	(void) maketrap(sx, sy, typ2, 100);
 
-			if (!rn2(1000)) 	(void) mksobj_at(SWITCHER, sx, sy, TRUE, FALSE);
-			if (!rn2(Role_if(PM_CAMPERSTRIKER) ? 25 : 100)) 	(void) mksobj_at(UGH_MEMORY_TO_CREATE_INVENTORY, sx, sy, TRUE, FALSE);
+			if (!rn2(1000)) 	(void) mksobj_at(SWITCHER, sx, sy, TRUE, FALSE, FALSE);
+			if (!rn2(Role_if(PM_CAMPERSTRIKER) ? 25 : 100)) 	(void) mksobj_at(UGH_MEMORY_TO_CREATE_INVENTORY, sx, sy, TRUE, FALSE, FALSE);
 
-			if (!rn2(Role_if(PM_CAMPERSTRIKER) ? 20 : 40)) 	(void) makemon(insidemon(), sx, sy, MM_ADJACENTOK);
+			if (!rn2(Role_if(PM_CAMPERSTRIKER) ? 20 : 40)) 	(void) makemon(insidemon(), sx, sy, MM_ADJACENTOK|MM_ANGRY);
 		}
 
 	}
@@ -4493,7 +4539,7 @@ retryrandtype:
 
 		  if (!rn2(30)) {
 			  if (somexy(croom, &mm))
-				  (void) mksobj_at(TREASURE_CHEST, mm.x, mm.y, TRUE, FALSE);
+				  (void) mksobj_at(TREASURE_CHEST, mm.x, mm.y, TRUE, FALSE, FALSE);
 		  }
 
 		for(sx = croom->lx; sx <= croom->hx; sx++)
@@ -4526,12 +4572,12 @@ retryrandtype:
 		for(sy = croom->ly; sy <= croom->hy; sy++)
 		    if(rn2(2)) 
 			{
-			    struct obj *sobj = mksobj_at(STATUE, sx, sy, TRUE, FALSE);
+			    struct obj *sobj = mksobj_at(STATUE, sx, sy, TRUE, FALSE, FALSE);
 
 			    if (sobj && !rn2(3) ) {
 				for (i = rn2(2 + rn2(4)); i; i--)
 					if (timebasedlowerchance()) {
-					    (void) add_to_container(sobj, mkobj(RANDOM_CLASS, FALSE));
+					    (void) add_to_container(sobj, mkobj(RANDOM_CLASS, FALSE, FALSE));
 					}
 				sobj->owt = weight(sobj);
 			    }
@@ -4598,6 +4644,12 @@ retryrandtype:
 		break;
 	    case HELLPIT:
 		level.flags.has_hellpit = TRUE;
+		break;
+	    case ROBBERCAVE:
+		level.flags.has_robbercave = TRUE;
+		break;
+	    case SANITATIONCENTRAL:
+		level.flags.has_sanitationcentral = TRUE;
 		break;
 	    case FEMINISMROOM:
 		level.flags.has_feminismroom = TRUE;
@@ -4897,7 +4949,7 @@ room *r, *pr;
 		 * DLC - this can fail if corridors are added to this room
 		 * at a later point.  Currently no good way to fix this.
 		 */
-		if( (aroom->rtype != OROOM || !rn2( ((isironman || RngeIronmanMode || In_netherrealm(&u.uz)) && depth(&u.uz) > 1) ? 1 : ((isironman || RngeIronmanMode || In_netherrealm(&u.uz)) && depth(&u.uz) < 2) ? 10 : Role_if(PM_CAMPERSTRIKER) ? 50 : 5000) ) && r->filled) fill_room(aroom, FALSE);
+		if( (aroom->rtype != OROOM || !rn2( ((isironman || RngeIronmanMode || In_netherrealm(&u.uz)) && (depth(&u.uz) > 1 && !(iszapem && In_spacebase(&u.uz) && (dunlev(&u.uz) == 1))) ) ? 1 : ((isironman || RngeIronmanMode || In_netherrealm(&u.uz)) && depth(&u.uz) < 2) ? 10 : Role_if(PM_CAMPERSTRIKER) ? 50 : 5000) ) && r->filled) fill_room(aroom, FALSE);
 	}
 }
 
@@ -5054,6 +5106,7 @@ dlb *fd;
 	corridor	tmpcor;
 	room**		tmproom;
 	int		i, j;
+	coord mm;
 
 	load_common_data(fd, SP_LEV_ROOMS);
 
@@ -5264,40 +5317,10 @@ dlb *fd;
 		create_corridor(&tmpcor);
 	}
 
-	specdungeoninit();
-
-	/* make rivers if possible --Amy */
-	if (!rn2(50) && !In_endgame(&u.uz) && !Invocation_lev(&u.uz) ) mkrivers();
-	if (!rn2(250) && !In_endgame(&u.uz) && !Invocation_lev(&u.uz) ) mkrivers();
-
-	if (ishaxor) {
-		if (!rn2(50) && !In_endgame(&u.uz) && !Invocation_lev(&u.uz) ) mkrivers();
-		if (!rn2(250) && !In_endgame(&u.uz) && !Invocation_lev(&u.uz) ) mkrivers();
-	}
-
-	if (isaquarian && !In_endgame(&u.uz) && !Invocation_lev(&u.uz) ) mkrivers();
-	if (RngeRivers && !In_endgame(&u.uz) && !Invocation_lev(&u.uz) ) mkrivers();
-
-	if (!rn2(50) && !In_endgame(&u.uz) && !Invocation_lev(&u.uz) ) mkrandrivers();
-	if (!rn2(250) && !In_endgame(&u.uz) && !Invocation_lev(&u.uz) ) mkrandrivers();
-
-	if (ishaxor) {
-		if (!rn2(50) && !In_endgame(&u.uz) && !Invocation_lev(&u.uz) ) mkrandrivers();
-		if (!rn2(250) && !In_endgame(&u.uz) && !Invocation_lev(&u.uz) ) mkrandrivers();
-	}
-
-	if (isaquarian && !In_endgame(&u.uz) && !Invocation_lev(&u.uz) ) mkrandrivers();
-	if (RngeRivers && !In_endgame(&u.uz) && !Invocation_lev(&u.uz) ) mkrandrivers();
-
-	if ((isroommate || !rn2(100) || (!rn2(30) && !(u.monstertimefinish % 987) ) || (!rn2(10) && !(u.monstertimefinish % 9787) ) ) && (depth(&u.uz) > 1 || !rn2(10)) && !Is_branchlev(&u.uz) && !In_endgame(&u.uz)) {
-
-		mkroommateroom(0);
-		if (!rn2(5)) {
-			mkroommateroom(0);
-			while (!rn2(3)) mkroommateroom(0);
-
-		}
-
+	/* chance to create Ludios portal, by Amy */
+	if (In_dod(&u.uz)) {
+		mazexy_all(&mm);
+		if (isok(mm.x, mm.y)) mk_knox_portal(mm.x, mm.y);
 	}
 
 	return TRUE;
@@ -5318,8 +5341,9 @@ int humidity;
 	    x = rn1(x_maze_max - 3, 3);
 	    y = rn1(y_maze_max - 3, 3);
 	    if (--tryct < 0) break;	/* give up */
-	} while (!(x % 2) || !(y % 2) || Map[x][y] ||
-		 !is_ok_location((schar)x, (schar)y, humidity));
+	} while (Map[x][y] || !is_ok_location((schar)x, (schar)y, humidity));
+	/* Amy edit: used to also check for "!(x % 2) || !(y % 2) ||"... we want all tiles to have a chance of
+	 * getting stuff though, so that players can't simply avoid certain squares to never step on a trap */
 
 	m->x = (xchar)x,  m->y = (xchar)y;
 }
@@ -5367,8 +5391,6 @@ dlb *fd;
 
     int specialcorridor;
     if (!rn2(iswarper ? 50 : 500)) specialcorridor = rnd(2);
-    if (!(u.monstertimefinish % 347) && !rn2(iswarper ? 10 : 50)) specialcorridor = rnd(2);
-    if (!((moves + u.monstertimefinish) % 4257 )) specialcorridor = rnd(2);
 
     (void) memset((void *)&Map[0][0], 0, sizeof Map);
     load_common_data(fd, SP_LEV_MAZE);
@@ -5418,7 +5440,11 @@ dlb *fd;
 	    case BOTTOM:    ystart = y_maze_max-ysize-1;		break;
 	}
 	if (!(xstart % 2)) xstart++;
+#ifdef BIGSLEX
+	if ((ystart % 2)) ystart++;
+#else
 	if (!(ystart % 2)) ystart++;
+#endif
 	if ((ystart < 0) || (ystart + ysize > ROWNO)) {
 	    /* try to move the start a bit */
 	    ystart += (ystart > 0) ? -2 : 2;
@@ -5616,7 +5642,7 @@ dlb *fd;
 		troom = &rooms[nroom];
 
 		/* mark rooms that must be filled, but do it later */
-		if (tmpregion.rtype != OROOM || !rn2( ((isironman || RngeIronmanMode || In_netherrealm(&u.uz)) && depth(&u.uz) > 1) ? 1 : ((isironman || RngeIronmanMode || In_netherrealm(&u.uz)) && depth(&u.uz) < 2) ? 10 : Role_if(PM_CAMPERSTRIKER) ? 50 : 5000) )
+		if (tmpregion.rtype != OROOM || !rn2( ((isironman || RngeIronmanMode || In_netherrealm(&u.uz)) && (depth(&u.uz) > 1 && !(iszapem && In_spacebase(&u.uz) && (dunlev(&u.uz) == 1))) ) ? 1 : ((isironman || RngeIronmanMode || In_netherrealm(&u.uz)) && depth(&u.uz) < 2) ? 10 : Role_if(PM_CAMPERSTRIKER) ? 50 : 5000) )
 		    mustfill[nroom] = (prefilled ? 2 : 1);
 
 		if(tmpregion.rirreg) {
@@ -5925,38 +5951,54 @@ dlb *fd;
 
     if (nwalk_sav && (mapcount > (int) (mapcountmax / 10))) {
 	    mapfact = (int) ((mapcount * 100L) / mapcountmax);
+#ifdef BIGSLEX
+	    for(x = rnd((int) (30 * mapfact) / 100); x; x--) {
+#else
 	    for(x = rnd((int) (20 * mapfact) / 100); x; x--) {
+#endif
 		if (timebasedlowerchance()) {
 		    maze1xy(&mm, DRY);
-		    (void) mkobj_at(rn2(2) ? GEM_CLASS : RANDOM_CLASS, mm.x, mm.y, TRUE);
+		    (void) mkobj_at(rn2(2) ? GEM_CLASS : RANDOM_CLASS, mm.x, mm.y, TRUE, FALSE);
 		}
 	    }
 	    for(x = rnd((int) (12 * mapfact) / 100); x; x--) {
 		    maze1xy(&mm, DRY);
-		    (void) mksobj_at(BOULDER, mm.x, mm.y, TRUE, FALSE);
+		    (void) mksobj_at(BOULDER, mm.x, mm.y, TRUE, FALSE, FALSE);
 	    }
+#ifdef BIGSLEX
+	    for (x = rn2(40); x; x--) 	{ 
+#else
 	    for (x = rn2(20); x; x--) 	{ 
+#endif
 		    maze1xy(&mm, DRY);
 			    char buf[BUFSZ];
 				const char *mesg = random_engraving(buf);
 			    make_engr_at(mm.x, mm.y, mesg, 0L, (xchar)0);
 			}
-	    for (x = rn2(2); x; x--) { if (depth(&u.uz) > depth(&medusa_level)) {
+	    for (x = rn2(2); x; x--) { if (!(iszapem && !(u.zapemescape)) && (depth(&u.uz) > depth(&medusa_level))) {
 		maze1xy(&mm, DRY);
-		if (!ishomicider) (void) makemon(&mons[PM_MINOTAUR], mm.x, mm.y, NO_MM_FLAGS);
+		if (!ishomicider) (void) makemon(&mons[PM_MINOTAUR], mm.x, mm.y, MM_MAYSLEEP);
 		else makerandomtrap_at(mm.x, mm.y);
 		} /* cause they would be outta depth when mazes are generated at a shallow level --Amy */
 	    }
+#ifdef BIGSLEX
+	    for(x = rnd((int) (24 * mapfact) / 100); x; x--) {
+#else
 	    for(x = rnd((int) (12 * mapfact) / 100); x; x--) {
+#endif
 		    maze1xy(&mm, WET|DRY);
-		    if (!ishomicider) (void) makemon((struct permonst *) 0, mm.x, mm.y, NO_MM_FLAGS);
+		    if (!ishomicider) (void) makemon((struct permonst *) 0, mm.x, mm.y, MM_MAYSLEEP);
 		    else makerandomtrap_at(mm.x, mm.y);
 	    }
 	    for(x = rn2((int) (15 * mapfact) / 100); x; x--) {
 		    maze1xy(&mm, DRY);
 		    (void) mkgold(0L,mm.x,mm.y);
 	    }
+#ifdef BIGSLEX
+	    for(x = rn2((int) (30 * mapfact) / 100); x; x--) {
+#else
 	    for(x = rn2((int) (15 * mapfact) / 100); x; x--) {
+#endif
 		    int trytrap;
 
 		    maze1xy(&mm, DRY);
@@ -5969,38 +6011,54 @@ dlb *fd;
 	    }
 
 		if (ishaxor) {
+#ifdef BIGSLEX
+	    for(x = rnd((int) (30 * mapfact) / 100); x; x--) {
+#else
 	    for(x = rnd((int) (20 * mapfact) / 100); x; x--) {
+#endif
 		if (timebasedlowerchance()) {
 		    maze1xy(&mm, DRY);
-		    (void) mkobj_at(rn2(2) ? GEM_CLASS : RANDOM_CLASS, mm.x, mm.y, TRUE);
+		    (void) mkobj_at(rn2(2) ? GEM_CLASS : RANDOM_CLASS, mm.x, mm.y, TRUE, FALSE);
 		}
 	    }
 	    for(x = rnd((int) (12 * mapfact) / 100); x; x--) {
 		    maze1xy(&mm, DRY);
-		    (void) mksobj_at(BOULDER, mm.x, mm.y, TRUE, FALSE);
+		    (void) mksobj_at(BOULDER, mm.x, mm.y, TRUE, FALSE, FALSE);
 	    }
+#ifdef BIGSLEX
+	    for (x = rn2(40); x; x--) 	{ 
+#else
 	    for (x = rn2(20); x; x--) 	{ 
+#endif
 		    maze1xy(&mm, DRY);
 			    char buf[BUFSZ];
 				const char *mesg = random_engraving(buf);
 			    make_engr_at(mm.x, mm.y, mesg, 0L, (xchar)0);
 			}
-	    for (x = rn2(2); x; x--) { if (depth(&u.uz) > depth(&medusa_level)) {
+	    for (x = rn2(2); x; x--) { if (!(iszapem && !(u.zapemescape)) && (depth(&u.uz) > depth(&medusa_level))) {
 		maze1xy(&mm, DRY);
-		if (!ishomicider) (void) makemon(&mons[PM_MINOTAUR], mm.x, mm.y, NO_MM_FLAGS);
+		if (!ishomicider) (void) makemon(&mons[PM_MINOTAUR], mm.x, mm.y, MM_MAYSLEEP);
 		else makerandomtrap_at(mm.x, mm.y);
 		} /* cause they would be outta depth when mazes are generated at a shallow level --Amy */
 	    }
+#ifdef BIGSLEX
+	    for(x = rnd((int) (24 * mapfact) / 100); x; x--) {
+#else
 	    for(x = rnd((int) (12 * mapfact) / 100); x; x--) {
+#endif
 		    maze1xy(&mm, WET|DRY);
-		    if (!ishomicider) (void) makemon((struct permonst *) 0, mm.x, mm.y, NO_MM_FLAGS);
+		    if (!ishomicider) (void) makemon((struct permonst *) 0, mm.x, mm.y, MM_MAYSLEEP);
 		    else makerandomtrap_at(mm.x, mm.y);
 	    }
 	    for(x = rn2((int) (15 * mapfact) / 100); x; x--) {
 		    maze1xy(&mm, DRY);
 		    (void) mkgold(0L,mm.x,mm.y);
 	    }
+#ifdef BIGSLEX
+	    for(x = rn2((int) (30 * mapfact) / 100); x; x--) {
+#else
 	    for(x = rn2((int) (15 * mapfact) / 100); x; x--) {
+#endif
 		    int trytrap;
 
 		    maze1xy(&mm, DRY);
@@ -6014,8 +6072,6 @@ dlb *fd;
 		}
 
     }
-
-	specdungeoninit();
 
 	/* make rivers if possible --Amy */
 	if (!rn2(50) && !In_endgame(&u.uz) ) mkrivers();
@@ -6040,7 +6096,7 @@ dlb *fd;
 	if (isaquarian && !In_endgame(&u.uz) && !Invocation_lev(&u.uz) ) mkrandrivers();
 	if (RngeRivers && !In_endgame(&u.uz) && !Invocation_lev(&u.uz) ) mkrandrivers();
 
-	if ((isroommate || !rn2(100) || (!rn2(30) && !(u.monstertimefinish % 987) ) || (!rn2(10) && !(u.monstertimefinish % 9787) ) ) && (depth(&u.uz) > 1 || !rn2(10)) && !Is_branchlev(&u.uz) && !In_endgame(&u.uz)) {
+	if ((isroommate || !rn2(100)) && ((depth(&u.uz) > 1 && !(iszapem && In_spacebase(&u.uz) && (dunlev(&u.uz) == 1))) || !rn2(10)) && !Is_branchlev(&u.uz) && !In_endgame(&u.uz)) {
 
 		mkroommateroom(0);
 		if (!rn2(5)) {
@@ -6049,6 +6105,12 @@ dlb *fd;
 
 		}
 
+	}
+
+	/* chance to create Ludios portal, by Amy */
+	if (In_dod(&u.uz)) {
+		mazexy_all(&mm);
+		if (isok(mm.x, mm.y)) mk_knox_portal(mm.x, mm.y);
 	}
 
     return TRUE;

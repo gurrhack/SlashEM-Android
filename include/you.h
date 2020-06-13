@@ -28,6 +28,12 @@ struct RoleAdvance {
 	xchar hifix, hirnd;	/* gained per level >= urole.xlev */
 };
 
+struct symbiotemon {
+	boolean active;
+	int mnum;	/* permanent monster index number */
+	int mhp, mhpmax;
+	boolean cursed, hvycurse, prmcurse, bbcurse, morgcurse, evilcurse, stckcurse;
+};
 
 struct u_have {
 	Bitfield(amulet,1);	/* carrying Amulet	*/
@@ -87,7 +93,7 @@ struct Role {
 	const char *intermed;	/* quest intermediate goal (from questpgr.c) */
 
 	/*** Indices of important monsters and objects ***/
-	short malenum,		/* index (PM_) as a male (botl.c) */
+	int malenum,		/* index (PM_) as a male (botl.c) */
 	      femalenum,	/* ...or as a female (NON_PM == same) */
 		undeadmalenum,	/* index (PM_) as an undead */
 		undeadfemalenum,	/* mainly for bones files --Amy */
@@ -172,7 +178,7 @@ struct Race {
 	struct RoleName individual; /* individual as a noun ("man", "elf") */
 
 	/*** Indices of important monsters and objects ***/
-	short malenum,		/* PM_ as a male monster */
+	int malenum,		/* PM_ as a male monster */
 	      femalenum,	/* ...or as a female (NON_PM == same) */
 	      mummynum,		/* PM_ as a mummy */
 	      zombienum;	/* PM_ as a zombie */
@@ -223,12 +229,12 @@ struct Gender {
 				/* increment to 3 if you allow neuter roles */
 
 extern const struct Gender genders[];	/* table of available genders */
-#define uhe()	(genders[flags.female ? 1 : 0].he)
-#define uhim()	(genders[flags.female ? 1 : 0].him)
-#define uhis()	(genders[flags.female ? 1 : 0].his)
-#define mhe(mtmp)	(genders[pronoun_gender(mtmp)].he)
-#define mhim(mtmp)	(genders[pronoun_gender(mtmp)].him)
-#define mhis(mtmp)	(genders[pronoun_gender(mtmp)].his)
+#define uhe()	(Role_if(PM_GENDERSTARIST) ? "he/she/it" : genders[flags.female ? 1 : 0].he)
+#define uhim()	(Role_if(PM_GENDERSTARIST) ? "him/her/it" : genders[flags.female ? 1 : 0].him)
+#define uhis()	(Role_if(PM_GENDERSTARIST) ? "his/her/its" : genders[flags.female ? 1 : 0].his)
+#define mhe(mtmp)	(Role_if(PM_GENDERSTARIST) ? "he/she/it" : genders[pronoun_gender(mtmp)].he)
+#define mhim(mtmp)	(Role_if(PM_GENDERSTARIST) ? "him/her/it" : genders[pronoun_gender(mtmp)].him)
+#define mhis(mtmp)	(Role_if(PM_GENDERSTARIST) ? "his/her/its" : genders[pronoun_gender(mtmp)].his)
 
 
 /*** Unified structure specifying alignment information ***/
@@ -343,7 +349,7 @@ struct you {
 #define A_CURRENT	0
 	aligntyp ualignbase[CONVERT];	/* for ualign conversion record */
 	schar uluck, moreluck, moreluckpts;		/* luck and luck bonus */
-#define Luck	(flags.dudley ? -13 : issuxxor ? -13 : (uleft && uleft->otyp == RIN_DOOM) ? -13 : (uright && uright->otyp == RIN_DOOM) ? -13 : (Role_if(PM_FAILED_EXISTENCE) && ((u.uluck + u.moreluck + Role_if(PM_AUGURER) ) > 0) ) ? 0 : (uarmh && uarmh->otyp == HELM_OF_BEGINNER_S_LUCK && flags.beginner) ? 13 : (u.uluck + u.moreluck + Role_if(PM_AUGURER) )) /* credits to the Dudley's Dungeon guys --Amy */
+#define Luck	(flags.dudley ? -13 : issuxxor ? -13 : (uleft && uleft->otyp == RIN_DOOM) ? -13 : (uright && uright->otyp == RIN_DOOM) ? -13 : (Role_if(PM_FAILED_EXISTENCE) && ((u.uluck + u.moreluck + Role_if(PM_AUGURER) ) > 0) ) ? 0 : (uwep && uwep->oartifact == ART_ONCE_IN_A_BLUE_MOON && flags.friday13 && flags.moonphase == NEW_MOON) ? 13 :  (uarmh && uarmh->otyp == HELM_OF_BEGINNER_S_LUCK && flags.beginner) ? 13 : (u.uluck + u.moreluck + Role_if(PM_AUGURER) )) /* credits to the Dudley's Dungeon guys --Amy */
 #define LUCKADD		3	/* added value when carrying luck stone */
 #define LUCKMAX		10	/* on moonlit nights 11 */
 #define LUCKMIN		(-10)
@@ -353,7 +359,7 @@ struct you {
 
 	schar	udaminc;		/* Additional damage bonus */
 	int udamincxtra;
-	schar	uac;
+	int	uac;
 
 	uchar	uspellprot;		/* protection by SPE_PROTECTION */
 	uchar	usptime;		/* #moves until uspellprot-- */
@@ -383,7 +389,7 @@ struct you {
 	struct permonst *tensionmonsterspecB; 	/* for mixed tension rooms */
 	int next_check; 	/* attrib.c check */
 
-	int urmaxlvl;		/* for asgardian race */
+	int urmaxlvl;		/* for rodneyan race */
 	int urmaxlvlB;		/* for cyborg role */
 	int urmaxlvlC;		/* for binder role */
 	int urmaxlvlD;		/* for bard role */
@@ -393,6 +399,10 @@ struct you {
 	int urmaxlvlH;		/* for mystic role */
 	int urmaxlvlI;		/* for DQ slime combined with green slime race */
 	int urmaxlvlJ;		/* for anachronounbinder role */
+	int urmaxlvlK;		/* for SJW role */
+	int urmaxlvlL;		/* for asgardian race */
+	int urmaxlvlM;		/* for missingno race */
+	int urmaxlvlN;		/* for extra skill slots */
 	int urmaxlvlUP;		/* for determining whether levelups refill your HP and Pw */
 	int xtralevelmult;	/* multiplier that determines how much EXP you need to advance again if at XL30 */
 	int uhereticgodinit;
@@ -583,6 +593,13 @@ struct you {
 	int alwayscurseditem9;
 	int alwayscurseditem10;
 
+	int spellbookbias1;	/* spell school that is slightly more common */
+	int spellbookbias2;
+	int spellbookbias3;
+	int spellbookchance1;
+	int spellbookchance2;
+	int spellbookchance3;
+
 	int menoraget;
 	int bookofthedeadget;
 	int silverbellget;
@@ -637,6 +654,9 @@ struct you {
 
 	int fumbleduration;	/* for wand of fumbling */
 	int antimagicshell;	/* for scroll of antimagic */
+
+	int soviettemporary;	/* for fleecey light */
+	int evilvartemporary;	/* for fleecey light */
 
 	boolean artifactprotection;	/* because NHTNG's protection code is faulty */
 
@@ -871,6 +891,338 @@ struct you {
 	boolean nastinator227;
 	boolean nastinator228;
 	boolean nastinator229;
+	boolean nastinator230;
+	boolean nastinator231;
+	boolean nastinator232;
+	boolean nastinator233;
+	boolean nastinator234;
+	boolean nastinator235;
+
+	/* SJW role - I wonder if there'd be an easier way to do this... --Amy */
+	int sjwL1E1;
+	int sjwL2E1;
+	int sjwL3E1;
+	int sjwL4E1;
+	int sjwL5E1;
+	int sjwL5E2;
+	int sjwL6E1;
+	int sjwL6E2;
+	int sjwL7E1;
+	int sjwL7E2;
+	int sjwL8E1;
+	int sjwL8E2;
+	int sjwL9E1;
+	int sjwL9E2;
+	int sjwL10E1;
+	int sjwL10E2;
+	int sjwL10E3;
+	int sjwL11E1;
+	int sjwL11E2;
+	int sjwL11E3;
+	int sjwL12E1;
+	int sjwL12E2;
+	int sjwL12E3;
+	int sjwL13E1;
+	int sjwL13E2;
+	int sjwL13E3;
+	int sjwL14E1;
+	int sjwL14E2;
+	int sjwL14E3;
+	int sjwL15E1;
+	int sjwL15E2;
+	int sjwL15E3;
+	int sjwL15E4;
+	int sjwL16E1;
+	int sjwL16E2;
+	int sjwL16E3;
+	int sjwL16E4;
+	int sjwL17E1;
+	int sjwL17E2;
+	int sjwL17E3;
+	int sjwL17E4;
+	int sjwL18E1;
+	int sjwL18E2;
+	int sjwL18E3;
+	int sjwL18E4;
+	int sjwL19E1;
+	int sjwL19E2;
+	int sjwL19E3;
+	int sjwL19E4;
+	int sjwL20E1;
+	int sjwL20E2;
+	int sjwL20E3;
+	int sjwL20E4;
+	int sjwL20E5;
+	int sjwL21E1;
+	int sjwL21E2;
+	int sjwL21E3;
+	int sjwL21E4;
+	int sjwL21E5;
+	int sjwL22E1;
+	int sjwL22E2;
+	int sjwL22E3;
+	int sjwL22E4;
+	int sjwL22E5;
+	int sjwL23E1;
+	int sjwL23E2;
+	int sjwL23E3;
+	int sjwL23E4;
+	int sjwL23E5;
+	int sjwL24E1;
+	int sjwL24E2;
+	int sjwL24E3;
+	int sjwL24E4;
+	int sjwL24E5;
+	int sjwL25E1;
+	int sjwL25E2;
+	int sjwL25E3;
+	int sjwL25E4;
+	int sjwL25E5;
+	int sjwL25E6;
+	int sjwL26E1;
+	int sjwL26E2;
+	int sjwL26E3;
+	int sjwL26E4;
+	int sjwL26E5;
+	int sjwL26E6;
+	int sjwL27E1;
+	int sjwL27E2;
+	int sjwL27E3;
+	int sjwL27E4;
+	int sjwL27E5;
+	int sjwL27E6;
+	int sjwL28E1;
+	int sjwL28E2;
+	int sjwL28E3;
+	int sjwL28E4;
+	int sjwL28E5;
+	int sjwL28E6;
+	int sjwL29E1;
+	int sjwL29E2;
+	int sjwL29E3;
+	int sjwL29E4;
+	int sjwL29E5;
+	int sjwL29E6;
+	int sjwL30E1;
+	int sjwL30E2;
+	int sjwL30E3;
+	int sjwL30E4;
+	int sjwL30E5;
+	int sjwL30E6;
+	int sjwL30E7;
+	int sjwL31E1;
+	int sjwL31E2;
+	int sjwL31E3;
+	int sjwL31E4;
+	int sjwL31E5;
+	int sjwL31E6;
+	int sjwL31E7;
+	int sjwL32E1;
+	int sjwL32E2;
+	int sjwL32E3;
+	int sjwL32E4;
+	int sjwL32E5;
+	int sjwL32E6;
+	int sjwL32E7;
+	int sjwL33E1;
+	int sjwL33E2;
+	int sjwL33E3;
+	int sjwL33E4;
+	int sjwL33E5;
+	int sjwL33E6;
+	int sjwL33E7;
+	int sjwL34E1;
+	int sjwL34E2;
+	int sjwL34E3;
+	int sjwL34E4;
+	int sjwL34E5;
+	int sjwL34E6;
+	int sjwL34E7;
+	int sjwL35E1;
+	int sjwL35E2;
+	int sjwL35E3;
+	int sjwL35E4;
+	int sjwL35E5;
+	int sjwL35E6;
+	int sjwL35E7;
+	int sjwL36E1;
+	int sjwL36E2;
+	int sjwL36E3;
+	int sjwL36E4;
+	int sjwL36E5;
+	int sjwL36E6;
+	int sjwL36E7;
+	int sjwL37E1;
+	int sjwL37E2;
+	int sjwL37E3;
+	int sjwL37E4;
+	int sjwL37E5;
+	int sjwL37E6;
+	int sjwL37E7;
+	int sjwL38E1;
+	int sjwL38E2;
+	int sjwL38E3;
+	int sjwL38E4;
+	int sjwL38E5;
+	int sjwL38E6;
+	int sjwL38E7;
+	int sjwL39E1;
+	int sjwL39E2;
+	int sjwL39E3;
+	int sjwL39E4;
+	int sjwL39E5;
+	int sjwL39E6;
+	int sjwL39E7;
+	int sjwL40E1;
+	int sjwL40E2;
+	int sjwL40E3;
+	int sjwL40E4;
+	int sjwL40E5;
+	int sjwL40E6;
+	int sjwL40E7;
+	int sjwL41E1;
+	int sjwL41E2;
+	int sjwL41E3;
+	int sjwL41E4;
+	int sjwL41E5;
+	int sjwL41E6;
+	int sjwL41E7;
+	int sjwL42E1;
+	int sjwL42E2;
+	int sjwL42E3;
+	int sjwL42E4;
+	int sjwL42E5;
+	int sjwL42E6;
+	int sjwL42E7;
+	int sjwL43E1;
+	int sjwL43E2;
+	int sjwL43E3;
+	int sjwL43E4;
+	int sjwL43E5;
+	int sjwL43E6;
+	int sjwL43E7;
+	int sjwL44E1;
+	int sjwL44E2;
+	int sjwL44E3;
+	int sjwL44E4;
+	int sjwL44E5;
+	int sjwL44E6;
+	int sjwL44E7;
+	int sjwL45E1;
+	int sjwL45E2;
+	int sjwL45E3;
+	int sjwL45E4;
+	int sjwL45E5;
+	int sjwL45E6;
+	int sjwL45E7;
+	int sjwL46E1;
+	int sjwL46E2;
+	int sjwL46E3;
+	int sjwL46E4;
+	int sjwL46E5;
+	int sjwL46E6;
+	int sjwL46E7;
+	int sjwL47E1;
+	int sjwL47E2;
+	int sjwL47E3;
+	int sjwL47E4;
+	int sjwL47E5;
+	int sjwL47E6;
+	int sjwL47E7;
+	int sjwL48E1;
+	int sjwL48E2;
+	int sjwL48E3;
+	int sjwL48E4;
+	int sjwL48E5;
+	int sjwL48E6;
+	int sjwL48E7;
+	int sjwL49E1;
+	int sjwL49E2;
+	int sjwL49E3;
+	int sjwL49E4;
+	int sjwL49E5;
+	int sjwL49E6;
+	int sjwL49E7;
+	int sjwL50E1;
+	int sjwL50E2;
+	int sjwL50E3;
+	int sjwL50E4;
+	int sjwL50E5;
+	int sjwL50E6;
+	int sjwL50E7;
+	int sjwL51E1;
+	int sjwL51E2;
+	int sjwL51E3;
+	int sjwL51E4;
+	int sjwL51E5;
+	int sjwL51E6;
+	int sjwL51E7;
+	int sjwL52E1;
+	int sjwL52E2;
+	int sjwL52E3;
+	int sjwL52E4;
+	int sjwL52E5;
+	int sjwL52E6;
+	int sjwL52E7;
+	int sjwL53E1;
+	int sjwL53E2;
+	int sjwL53E3;
+	int sjwL53E4;
+	int sjwL53E5;
+	int sjwL53E6;
+	int sjwL53E7;
+	int sjwL54E1;
+	int sjwL54E2;
+	int sjwL54E3;
+	int sjwL54E4;
+	int sjwL54E5;
+	int sjwL54E6;
+	int sjwL54E7;
+	int sjwL55E1;
+	int sjwL55E2;
+	int sjwL55E3;
+	int sjwL55E4;
+	int sjwL55E5;
+	int sjwL55E6;
+	int sjwL55E7;
+	int sjwL56E1;
+	int sjwL56E2;
+	int sjwL56E3;
+	int sjwL56E4;
+	int sjwL56E5;
+	int sjwL56E6;
+	int sjwL56E7;
+	int sjwL57E1;
+	int sjwL57E2;
+	int sjwL57E3;
+	int sjwL57E4;
+	int sjwL57E5;
+	int sjwL57E6;
+	int sjwL57E7;
+	int sjwL58E1;
+	int sjwL58E2;
+	int sjwL58E3;
+	int sjwL58E4;
+	int sjwL58E5;
+	int sjwL58E6;
+	int sjwL58E7;
+	int sjwL59E1;
+	int sjwL59E2;
+	int sjwL59E3;
+	int sjwL59E4;
+	int sjwL59E5;
+	int sjwL59E6;
+	int sjwL59E7;
+
+	int dorian4;
+	int dorian8;
+	int dorian12;
+	int dorian16;
+	int dorian20;
+	int dorian24;
+	int dorian28;
+
+	int feminizeffect; /* for feminizer race to decide which feminism trap effect is currently active */
 
 	char	starlit1[BUFSZ];
 	char	starlit2[BUFSZ];
@@ -892,6 +1244,7 @@ struct you {
 	char	strandomfungusb[BUFSZ];
 	char	strandomfungusc[BUFSZ];
 	char	strandomfungusd[BUFSZ];
+	char	strandomfungusdx[BUFSZ];
 	char	strandomfunguse[BUFSZ];
 	char	strandomfungusf[BUFSZ];
 	char	strandomfungusg[BUFSZ];
@@ -908,6 +1261,7 @@ struct you {
 
 	char	aliasname[PL_NSIZ];
 
+	int graundweight;		/* increased encumbrance that times out very slowly */
 
 	int randomquestlevels;	/* chance to get quest levels instead of random ones */
 
@@ -916,6 +1270,8 @@ struct you {
 	int hangupparalysis;	/* saved paralysis counter so you *really* cannot cheat */
 
 	int youaredead;		/* if you hang up at a prompt before an instadeath, i.e. sickness */
+	int youarereallydead;	/* if you hang up at something like mind flayer instadeath, where life saving doesn't work */
+	int datadeletedefer;	/* if you hang up at a pending data delete, you ch3at0r */
 
 	int negativeprotection;	/* AD_NPRO - deduct this amount from the player's AC */
 	int tremblingamount;	/* AD_TREM - reduces player's to-hit and spellcasting chances */
@@ -941,16 +1297,23 @@ struct you {
 	int impossibleproperty;	/* evil patch idea by jonadab - a property that you simply cannot get in this game */
 	int nonextrinsicproperty;
 	int nonintrinsicproperty;
+	int nondoubleproperty;
 
 	boolean temprecursion; /* temporary recursion trap */
 	int oldrecursionrole;
 	int oldrecursionrace;
 	int temprecursiontime;
 
+	boolean demagoguerecursion; /* demagogue special ability */
+	int demagoguerecursiontime;
+	int demagogueabilitytimer;
+
 	boolean totter;	/* scroll of symmetry toggles this */
 
 	int nurseextracost;	/* for chat-to-nurses functionality */
 	int nursedecontamcost;	/* ditto */
+	int nursesymbiotecost;
+	int nurseshutdowncost;
 
 #ifdef NOARTIFACTWISH
 	int usacrifice;                 /* number of sacrifices so far */
@@ -986,6 +1349,10 @@ struct you {
 	int unimanturns;
 	int uvaapadturns;
 	int uwediturns;
+	int umemorizationturns;
+	int uguncontrolturns;
+	int usymbiosisslowturns;
+	int usymbiosisfastturns;
 	int	umortality;		/* how many times you died */
 	int ugrave_arise; /* you die and become something aside from a ghost */
 	time_t	ubirthday;		/* real world time when game began */
@@ -1006,6 +1373,11 @@ struct you {
 	int latetrainingtimer;
 	int lavtrainingskill; /* is untrainable unless at least X turns have passed */
 	int lavtrainingtimer;
+	int slowtrainingskill; /* becomes harder to train the higher it already is */
+
+	int invistrapchance; /* percentage chance for a random trap to be generated invisible */
+	int xdifftrapchance; /* percentage chance for a random trap to have arbitrarily inflated difficulty */
+	int shopitemreduction; /* percentage chance for shop items to not exist */
 
 	int drippingtread;
 	int drippingtreadtype;
@@ -1108,13 +1480,14 @@ struct you {
 	boolean vibratingsquarefind;	/* player stepped on the VS for the first time */
 
 	boolean wonderlandescape;	/* wonderland mode player made it to the portal */
+	boolean zapemescape;	/* zapm mode player made it to the portal */
 
 	int felidlives;	/* set to 9 at game start even if you're not a felid, because recursion is a thing */
 
 	int homosexual;	/* starts at 0 = undefined; 1 = hetero, 2 = homo, defined when you have intercourse with a foocubus */
 
 	boolean petcollectitems; /* variables for directive technique */
-	boolean petattackenemies;
+	int petattackenemies;
 	boolean petcaneat;
 	boolean petcanfollow;
 
@@ -1129,6 +1502,8 @@ struct you {
 	int hussyhurtturn;
 	int hussykillturn;
 	int hussyperfume;
+
+	int irahapoison;
 
 	int snaildigging;
 
@@ -1165,7 +1540,346 @@ struct you {
 
 	boolean seesilverspell;
 
+	boolean polyprotected;
+
+	boolean wingyellowhack;
+
+	boolean captchahack;
+
+	boolean explodewandhack;
+
+	int sokosolveboulder;
+	int sokosolveuntrap;
+
+	int artifactaffinity;	/* to check how much (or not) you use your quest artifact */
+	int artifinitythreshold;	/* highest value reached */
+
+	int durirepaircost;
+	int durienchantcost;
+	int duriarticostevil;
+	int duriarticostnormal;
+	int durirequest;
+	int duriworking;
+
+	int cellargravate;
+
+	int walscholarpass;
+
+	boolean grenadoninlauncher;
+
+	boolean mushroompoles;
+	boolean mushroompoleused;
+
+	boolean automorefuckthisshit;	/* gah */
+
+	boolean dungeongrowthhack;	/* to circumvent goddamn savegame errors */
+
+	boolean katitrapocc;	/* checking whether you have the occupation */
+
+	boolean howtoenhanceskills;	/* the first time you can enhance a skill, the game tells you how */
+
+	boolean roommatehack;	/* to allow monsters to spawn inside walls */
+
+	boolean metalguard;	/* for metal guard spell */
+
+	boolean coronationculmination;	/* for a certain artifact */
+
+	boolean youhavememorized;	/* one-time message for memorization skill */
+	boolean juyofleeing;	/* control whether your juyo skill increases the odds that a monster flees */
+
+	int garbagecleaned;	/* for janitor role */
+	int garbagetrucktime;	/* ditto */
+
+	int mojibakecount;	/* hack for pager.c */
+
+	int swappositioncount;	/* for the swap position spell */
+	int contingencyturns;	/* how long you have until contingency spell runs out */
+	int horsehopturns;	/* how long you can use the horse hop spell effect */
+	int ragnarokspelltimeout;	/* timer that counts down until you can use the spell again */
+	int breathenhancetimer;	/* how long you have until enhance breath spell runs out */
+	int bodyfluideffect;	/* how long you have until bodyfluid strengthening spell runs out */
+	int antitelespelltimeout;	/* how long you have until anti-teleportation spell runs out */
+
+	int tsloss_str;	/* temporarily lost stats, from e.g. AD_DEBU */
+	int tsloss_dex;
+	int tsloss_con;
+	int tsloss_wis;
+	int tsloss_int;
+	int tsloss_cha;
+
+	int lightsabermax1;	/* your highest value you ever had in a lightsaber form */
+	int lightsabermax2;
+	int lightsabermax3;
+	int lightsabermax4;
+	int lightsabermax5;
+	int lightsabermax6;
+	int lightsabermax7;
+	int lightsabermax8;
+	int lightsabermax9;
+	int lightsabermax10;
+
+	int pervertsex;	/* pervert needs to have sex often enough or get debuffs */
+	int pervertpray;	/* same for praying (and yes, the gods can still get angry :P) */
+
+	boolean fungalsandals;
+
+	int gaugetimer;	/* one point shoot and particle cannon require 50 turns to reload */
+
+	int stoogedepth;	/* occasionally the three stooges will spawn */
+
+	int funnyhalluroll;	/* how much sanity you need to have in order to get funny hallu messages */
+
+	boolean udrowning;	/* you fell in the water but didn't instadie */
+
+	boolean zapem_mode;	/* decided at game start: true if you're a ZAPM role or used the ZAPM birth option */
+	boolean riderhack;	/* to prevent you from easily removing riders */
+
+	boolean freeplaymode;	/* set to 1 if you ascend and decide to go on playing */
+	boolean freeplaytransit;	/* set to 1 if you're supposed to be transported back to dlvl1 and hang up or so */
+	boolean freeplayplanes;	/* set to 1 once you visit the sanctum and thereby re-enable the ability to visit the planes */
+
+	boolean keythief;	/* did the player use certain keys on Vlad's? if yes, give a reward once */
+	boolean keynocturn;
+	boolean keyaccess;
+	boolean keygauntlet;
+
+	/* extra statistics: some of these display with #conduct, others only at the end of your game --Amy */
+	int cnd_applycount;	/* how often you applied items */
+	int cnd_unihorncount;	/* how often you benefitted from a unicorn horn effect */
+	int cnd_markercount;	/* how many items you created with magic markers */
+	int cnd_chemistrycount;	/* how many items you created with the chemistry set */
+	int cnd_quaffcount;	/* how many potions you quaffed */
+	int cnd_zapcount;		/* how many wands you zapped */
+	int cnd_scrollcount;	/* how many scrolls you read */
+	int cnd_spellbookcount;	/* how many spellbooks you read successfully */
+	int cnd_spellcastcount;	/* how many spells you successfully cast */
+	int cnd_spellfailcount;	/* how many times you failed to cast a spell */
+	int cnd_forgottenspellcount;	/* how many times you cast a forgotten spell */
+	int cnd_invokecount;	/* how many times you invoked an artifact that had an actual invoke effect */
+	int cnd_techcount;	/* how many times you used a technique that had a nonzero timeout */
+	int cnd_phasedoorcount;	/* how many times you phase doored */
+	int cnd_teleportcount;	/* how many times you teleported */
+	int cnd_telelevelcount;	/* how many times you levelported */
+	int cnd_branchportcount;	/* how many times you branchported */
+	int cnd_banishmentcount;	/* how many times you were banished */
+	int cnd_punishmentcount;	/* how many times you got punished */
+	int cnd_petdeathcount;	/* how many of your pets died */
+	int cnd_amnesiacount;	/* how many times you suffered from amnesia */
+	int cnd_maxalignment;	/* the maximum positive alignment you ever had */
+	int cnd_minalignment;	/* the minimum negative alignment you ever had */
+	int cnd_maxsanity;	/* the maximum amount of sanity you ever had */
+	int cnd_maxcontamination;	/* the maximum amount of contamination you ever had */
+	int cnd_searchtrapcount;	/* how many traps you found via searching */
+	int cnd_searchsecretcount;	/* how many secret doors and corridors you found via searching */
+	int cnd_fartingcount;	/* how many times you heard farting noises */
+	int cnd_crappingcount;	/* how many times you heard crapping noises */
+	int cnd_conversioncount;	/* how many times you were subjected to converting taunts */
+	int cnd_wouwoucount;	/* how many times you heard wouwou taunts */
+	int cnd_perfumecount;	/* how many times you inhaled perfume */
+	int cnd_supermancount;	/* how many times you heard superman taunts */
+	int cnd_nutkickamount;	/* how many times you were kicked in the nuts */
+	int cnd_breastripamount;	/* how many times your breasts were violated */
+	int cnd_saveamount;	/* how many times you saved the game */
+	int cnd_ragnarokamount;	/* how many times ragnarok was caused */
+	int cnd_datadeleteamount;	/* how many times your data got deleted */
+	int cnd_curseitemsamount;	/* how many times you got hit with the curse items effect */
+	int cnd_nastytrapamount;	/* how many times you triggered a nasty trap */
+	int cnd_feminismtrapamount;	/* how many times you triggered a feminism trap */
+	int cnd_plineamount;	/* how many random plines you read */
+	int cnd_aggravateamount;	/* how many times monsters came out of portals */
+	int cnd_eatrinsicamount;	/* how often you got intrinsics from eating corpses */
+	int cnd_shkserviceamount;	/* how many times you purchased shopkeeper services */
+	int cnd_kopsummonamount;	/* how often shopkeepers, watchmen etc. called the kops */
+	int cnd_captchaamount;	/* how many captchas you solved */
+	int cnd_captchafail;	/* how many times you failed to solve a captcha */
+	int cnd_quizamount;	/* how many quiz questions you answered correctly */
+	int cnd_quizfail;		/* how many times you failed to answer a quiz question */
+	int cnd_alterrealityamount;	/* how many times reality was altered */
+	int cnd_unlockamount;	/* how many times you unlocked something with an unlocking tool */
+	int cnd_altarconvertamount;	/* how many times you converted an altar to another deity */
+	int cnd_itemstealamount;	/* how many times your items were stolen */
+	int cnd_poisonamount;	/* how many times you were poisoned */
+	int cnd_nursehealamount;	/* how many extra HP you got from nurse dancing */
+	int cnd_nurseserviceamount;	/* how many times you purchased nurse services */
+	int cnd_elberethamount;	/* how many times an Elbereth engraving scared a monster */
+	int cnd_disenchantamount;	/* how many times your items got disenchanted */
+	int cnd_permstatdamageamount;	/* how many times your stats got permanently damaged */
+	int cnd_shoedamageamount;	/* how many times you got hurt with female shoes */
+	int cnd_farmlandremoved;	/* how many farmland tiles you removed via #force */
+	int cnd_nethermistremoved;	/* how many nether mist tiles you dissipated by killing lawful monsters */
+	int cnd_ammomulched;	/* how many of your ranged weapon ammos (excluding bullets) were mulched */
+	int cnd_gunpowderused;	/* how many bullets, grenades etc. you used */
+	int cnd_chargingcount;	/* how often you recharged items */
+	int cnd_offercount;	/* how many corpses you offered to the gods */
+	int cnd_forcecount;	/* how many times you used #force on a monster */
+	int cnd_kickmonstercount;	/* how often you kicked a monster */
+	int cnd_kicklockcount;	/* how often you kicked doors, containers etc. */
+	int cnd_fumbled;	/* how many times you fumbled */
+	int cnd_wandwresting;	/* how many wands you wrested */
+	int cnd_firedestroy;	/* how many of your items were destroyed by fire */
+	int cnd_colddestroy;	/* how many of your items were destroyed by cold */
+	int cnd_shockdestroy;	/* how many of your items were destroyed by shock */
+	int cnd_poisondestroy;	/* how many of your items were destroyed by poison */
+	int cnd_diggingamount;	/* how many walls or holes you dug */
+	int cnd_gravewallamount;	/* how many grave walls you dug out */
+	int cnd_treechopamount;	/* how many trees you chopped down */
+	int cnd_barbashamount;	/* how many iron bars you bashed down */
+	int cnd_fountainamount;	/* how many times you quaffed or dipped a fountain */
+	int cnd_throneamount;	/* how many times you sat on a throne */
+	int cnd_sinkamount;	/* how many times you quaffed, dipped or dropped rings down a sink */
+	int cnd_toiletamount;	/* how many times you quaffed, sit, dipped or dropped amulets down a toilet */
+	int cnd_pentagramamount;	/* how many times you invoked a pentagram */
+	int cnd_wellamount;	/* how many times you quaffed from a well */
+	int cnd_poisonedwellamount;	/* how many times you quaffed from a poisoned well */
+	int cnd_bedamount;	/* how many times you slept in a bed */
+	int cnd_mattressamount;	/* how many times you slept on a mattress */
+	int cnd_criticalcount;	/* how many critical hits you landed */
+	int cnd_stealamount;	/* how many $ worth of items you stole */
+	int cnd_monsterdigamount;	/* how many tiles were dug out by monsters */
+	int cnd_untrapamount;	/* how many times you untrapped a trap successfully */
+	int cnd_longingamount;	/* how many longing messages you had to read */
+	int cnd_symbiotesdied;	/* how many of your symbiotes died */
+	int cnd_sickfoodpois;	/* how many times you got sick from food poisoning */
+	int cnd_sickillness;	/* how many times you got sick from illness */
+	int cnd_slimingcount;	/* how many times you got slimed */
+	int cnd_stoningcount;	/* how many times you got stoned */
+	int cnd_polybreak;	/* how many of your armor pieces broke due to bad polymorphs */
+	int cnd_monpotioncount;	/* how many potions were quaffed by monsters */
+	int cnd_monscrollcount;	/* how many scrolls were read by monsters */
+	int cnd_monwandcount;	/* how many wands were zapped by monsters */
+	int cnd_demongates;	/* how often monsters gated in demons */
+	int cnd_demonlordgates;	/* how many demon lords got gated in */
+	int cnd_demonprincegates;	/* how many demon princes got gated in */
+	int cnd_artiblastcount;	/* how often you were blasted by an artifact */
+	int cnd_moneatmetal;	/* how many items were eaten by metallivorous monsters */
+	int cnd_moneatstone;	/* how many items were eaten by lithivorous monsters */
+	int cnd_moneatorganic;	/* how many items were eaten by organivorous monsters */
+	int cnd_moneatall;	/* how many items were eaten by allivorous monsters */
+	int cnd_unidentifycount;	/* how many times your items unidentified themselves */
+	int cnd_dehydratedcount;	/* how many times you were dehydrated */
+	int cnd_luckrollovercount;	/* how many times your luck rolled over */
+	int cnd_confusedscrollread;	/* how many times you got the confused scroll effect */
+	int cnd_nonworkpotioncount;	/* how many times your potions didn't work */
+	int cnd_stairstrapcount;	/* how many stairs traps you encountered */
+	int cnd_intrinsiclosscount;	/* how many intrinsics you lost */
+	int cnd_traprevealcount;	/* how many traps you revealed magically */
+	int cnd_badeffectcount;	/* how often you got bad effects */
+	int cnd_reallybadeffectcount;	/* how often you got really bad effects */
+	int cnd_itemportcount;	/* how many of your items were teleported away */
+	int cnd_bonescount;	/* how many bones levels you found */
+	int cnd_mommacount;	/* how often your momma was insulted */
+	int cnd_badequipcount;	/* how often you were forced to wear bad equipment */
+	int cnd_badarticount;	/* how often you were forced to wear bad artifacts */
+	int cnd_badheelcount;	/* how often you were forced to wear bad high heels */
+	int cnd_appearanceshufflingcount;	/* how often the randomized item appearances got shuffled */
+	int cnd_mysteriousforcecount;	/* how often you got hit by the mysterious force */
+	int cnd_manlergetcount;	/* now often the manler caught you */
+	int cnd_wandbreakcount;	/* how many wands you broke */
+	int cnd_alchemycount;	/* how often you did alchemy */
+	int cnd_weaponbreakcount;	/* how many opponents' weapons you broke/cut */
+	int cnd_newmancount;	/* how often you felt like a new man */
+	int cnd_eggcount;	/* how many eggs hatched */
+	int cnd_wipecount;	/* how often you successfully use the #wipe command */
+	int cnd_acquirementcount;	/* how often you use acquirement */
+	int cnd_cannibalcount;	/* how often you ate your own race without permission (i.e. caveman doesn't count) */
+	int cnd_ringtrinsiccount;	/* how often you actually gain effects from eating jewelry */
+	int cnd_potionthrowyoucount;	/* how many potions have been thrown by you */
+	int cnd_potionthrowmoncount;	/* how many potions have been thrown by monsters */
+	int cnd_overlevelcount;	/* how many times you leveled past XL30 */
+	int cnd_vomitingcount;	/* how many times you vomited */
+
+	struct symbiotemon usymbiote;	/* for the symbiosis skill */
+	int symbioteaggressivity;	/* how often your symbiote attacks or takes damage */
+	boolean symbiotedmghack;	/* make something damage you even if you have a symbiote */
+	int shutdowntime;	/* for nurse's shutdown symbiote service */
+
+	/* practicant role: has to pay a fine sometimes */
+	int practicantpenalty;	/* how many zorkmids you have to pay */
+	int practicanttime;	/* how much time you have until you need to have paid */
+	int practicantseverity;	/* gets higher the more often you refuse to pay */
+	int practicantstones;	/* do you have to pay in rocks? if so, set this variable */
+	int practicantarrows;	/* do you have to pay in arrows? if so, set this variable */
+	int practicantcash;	/* how many zorkmids your nemesis has collected - this decreases over time because she spends the money on clothing, perfume and expensive crap, the bitch :P when you kill her, you get back the amount she didn't spend yet */
+
+	/* individual fines for practicant: <crime> = <amount to pay> */
+	boolean pract_toomanykills;	/* killed 1000 monsters = 1000 zorkmids */
+	boolean pract_toomanykills2;	/* killed 2000 monsters = 2000 zorkmids */
+	boolean pract_toomanykills3;	/* killed 3000 monsters = 4000 zorkmids */
+	boolean pract_toomanykills4;	/* killed 4000 monsters = pay 1000 zorkmids once every 5000 turns */
+	int pract_conv1timer;	/* timer for the above */
+	boolean pract_toomuchmoney;	/* carried 10k zorkmids out in the open = 5000 zorkmids */
+	boolean pract_toomanysacs;	/* sacrificed 10 corpses = 1000 zorkmids */
+	boolean pract_toomanysacs2;	/* sacrificed 20 corpses = 2000 zorkmids */
+	boolean pract_toomanysacs3;	/* sacrificed 30 corpses = pay 1000 zorkmids once every 5000 turns */
+	int pract_conv2timer;	/* timer for the above */
+	boolean pract_altarconvert;	/* converted an altar = 2000 zorkmids */
+	boolean pract_enchantarmor;	/* enchant an armor piece to +5 or higher = 1000 zorkmids and 1000 stones */
+	boolean pract_toomucharmor;	/* wear armor pieces in all seven slots with all of them at least +2 = 3000 zorkmids, and disenchant all those armor pieces by one point each */
+	boolean pract_bosskill;	/* killed a boss monster (other than the nemesis) = 10000 zorkmids */
+	boolean pract_mrstone;	/* obtained stone of magic resistance = 6000 zorkmids */
+	boolean pract_wow;	/* tried to zap a wand of wishing = nothing happens and the wand is set to 1:-1 */
+	boolean pract_altartest;	/* tested 10 items on altars = amnesia */
+	int pract_altartestamount;	/* so we can count those 10 items */
+	boolean pract_fastform;	/* ride or be polyd into speed 25 or faster monster = frenzied trebuchet dragon spawns */
+	boolean pract_fastregen;	/* have both intrinsic and extrinsic regen at the same time = intrinsic blood loss */
+	boolean pract_toomuchrange;	/* wield a sniper rifle = pay all money you have out in the open or in containers */
+	boolean pract_enhancing;	/* enhanced at least 30 times = lose 10 random intrinsics */
+	int pract_enhanceamount;	/* so we can count those 30 times */
+	boolean pract_shopkeepers;	/* killed at least 5 shopkeepers = 8000 zorkmids */
+	int pract_shopkeepercount;	/* so we can count them */
+	boolean pract_peacedisturb;	/* killed at least 20 shopkeepers, watchmen, temple priests or guards = pay 2000 zorkmids once every 5000 turns */
+	int pract_disturbcount;	/* so we can count them */
+	int pract_conv3timer;	/* timer for the above */
+	/* any shoplifting also gives 2x the value of stolen goods as fine */
+	boolean pract_gottoonear;	/* spent at least 500 turns on the quest goal level = 50 zorkmids */
+	int pract_tooneartimer;	/* timer for the above */
+	boolean pract_gottoonear2;	/* spent at least 1000 turns on the quest goal level = 100 zorkmids */
+	boolean pract_gottoonear3;	/* spent at least 1500 turns on the quest goal level = 200 zorkmids */
+	boolean pract_gottoonear4;	/* spent at least 2000 turns on the quest goal level = 1000 zorkmids */
+	boolean pract_idling;	/* issued a wait command that takes at least 50 turns = 400 zorkmids */
+	int pract_idlingtimer;	/* the above can happen again after 1k turns have passed */
+	boolean pract_waterfreeze;	/* froze at least 5 water tiles = 20 arrows and 1000 zorkmids */
+	int pract_frozentiles;	/* so we can count them */
+	boolean pract_oremining;	/* used the ore mining spell to raze a stalactite = 1000 zorkmids */
+	boolean pract_forbiddenskill;	/* be at least basic in two-handed sword or pick-axe = 2000 zorkmids, and reduce player's nutrition by 2000 */
+	boolean pract_espionage;	/* have in/extrinsic detect monsters = 20000 zorkmids */
+	boolean pract_magicresistance;	/* have intrinsic magic resistance = 2000 zorkmids every 5000 turns */
+	int pract_conv4timer;	/* timer for the above */
+	boolean pract_trespassing;	/* be met by the nemesis (see quest.txt) = 2000 zorkmids */
+	boolean pract_trespassing2;	/* be met by the nemesis again (see quest.txt) = 4000 zorkmids; every future occurrence of the relevant quest text is another 5000 */
+	boolean pract_artitheft;	/* nemesis finds out that you stole the quest artifact = 50000 zorkmids */
+	boolean pract_nofines;	/* didn't get any fine in 10000 turns = 1000 zorkmids */
+	int pract_finetimer;	/* timer for the above */
+	boolean pract_bullets;	/* 100 bullets fired = 2000 zorkmids */
+	boolean pract_bullets2;	/* 200 bullets fired = 4000 zorkmids */
+	boolean pract_bullets3;	/* 300 bullets fired = 8000 zorkmids and rnz(5000) turns of low skill */
+	boolean pract_heavymg;	/* equip a heavy MG = 1000 zorkmids and 1000 stones */
+	boolean pract_wodzap;	/* zap wand of death = 10000 zorkmids */
+	boolean pract_fodzap;	/* cast finger of death = 25000 zorkmids and rnz(5000) turns of muteness */
+	boolean pract_oilspill;	/* dilute oil in a pool = 10000 zorkmids and +1000 long-lasting wight */
+	boolean pract_fatalcontamination;	/* be fatally contaminated = 10000 zorkmids and disables poison resistance for 20000 turns */
+	boolean pract_sanity;	/* have over 900 sanity = 2000 zorkmids */
+	boolean pract_sanity2;	/* have over 9000 sanity = 20000 zorkmids */
+	boolean pract_lowscore;	/* less than 10k score after 10k turns = 2000 zorkmids */
+	boolean pract_lotsofhp;	/* have over 500 max HP = monster spawns with scroll of offlevel item and levelports */
+	boolean pract_lotsofmp;	/* have over 500 max Pw = ragnarok will happen eventually */
+	boolean pract_procrastinate;	/* if the nemesis is still not dead by a certain point, ragnarok happens */
+	int pract_procrastinatetimer;	/* timer for the above */
+	boolean pract_expertguncontrol;	/* have gun control on expert = can decide whether to lose all skills or spawn a boss */
+	boolean pract_void;	/* entered the void = 5 turns to leave, otherwise kops and demon lords can spawn */
+	int pract_voidtimer;	/* turn at which you may no longer be in the void */
+	boolean pract_voidinitial;	/* whether the initial spawn of badguys for the above has happened */
+
+	/* killing the nemesis would result in another fine but she's dead at that point so you no longer care :P */
+
 };	/* end of `struct you' */
+
+/* is the player in symbiosis? make extra sure the monster is set up correctly --Amy */
+#define uinsymbiosis	(u.usymbiote.active && u.usymbiote.mnum > PM_PLAYERMON && u.usymbiote.mnum < NUMMONS)
+#define uactivesymbiosis	(u.usymbiote.active && !u.shutdowntime && u.usymbiote.mnum > PM_PLAYERMON && u.usymbiote.mnum < NUMMONS)
+
+/* is the player a practicant who has to pay fines? (only the case when nemesis is still alive) */
+#define practicantterror	((Role_if(PM_PRACTICANT) || isbeacher) && !quest_status.killed_nemesis)
 
 #define Upolyd (u.umonnum != u.umonster)
 

@@ -217,7 +217,7 @@ boolean ghostly, frozen;
 		 * to new player's clock.  Assumption: new player arrived
 		 * immediately after old player died.
 		 */
-		if (ghostly && !frozen && !age_is_relative(otmp))
+		if (ghostly && !frozen && !age_is_relative(otmp) && !is_lightsaber(otmp))
 		    otmp->age = monstermoves - omoves + otmp->age;
 
 		/* get contents of a container or statue */
@@ -363,6 +363,7 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	/* discover is actually flags.explore */
 	boolean remember_discover = discover;
 	struct obj *otmp;
+	struct obj *bc_obj;
 	int uid;
 
 	mread(fd, (void *) &uid, sizeof uid);
@@ -380,6 +381,8 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	flags.bypasses = 0;	/* never use the saved value of bypasses */
 	if (remember_discover) discover = remember_discover;
 
+	monst_globals_init();
+
 	role_init();	/* Reset the initial role, gender, and alignment */
 
 #ifdef AMII_GRAPHICS
@@ -393,6 +396,49 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	/* reload random monster*/
 
 	const char *tname; /* bugfix by Chris_ANG */
+
+	{
+		int monstcursor = PM_PLAYERMON + 1;
+		while (monstcursor < NUMMONS) {
+			tname = mons[monstcursor].mname;
+			mread(fd, (void *) &mons[monstcursor], sizeof(struct permonst));
+			mons[monstcursor].mname = tname;
+			monstcursor++;
+		}
+
+		mons[PM_SUIKUN_X].mname = u.strpokshamblert;
+		mons[PM_HOUOU_X].mname = u.strpokshamblertp;
+		mons[PM_INTERHACK_HORROR_X].mname = u.strshamblerx;
+		mons[PM_NHTNG_HORROR_X].mname = u.strshamblerxa;
+		mons[PM_PETROGRAPHY_HORROR_X].mname = u.strshamblerza;
+		mons[PM_STONE_COLD_HORROR_X].mname = u.strshamblerz;
+		mons[PM_MISNAMED_STARLIT_SKY].mname = u.starlit1;
+		mons[PM_WRONG_NAMED_STARLIT_SKY].mname = u.starlit2;
+		mons[PM_ERRONEOUS_STARLIT_SKY].mname = u.starlit3;
+		mons[PM_UNKNOWN_MIMIC_X].mname = u.strandommimic;
+		mons[PM_UNKNOWN_PERMAMIMIC_X].mname = u.strandommimicb;
+		mons[PM_COLORLESS_MOLD_X].mname = u.strandomfungus;
+		mons[PM_COLORLESS_FUNGUS_X].mname = u.strandomfungusb;
+		mons[PM_COLORLESS_PATCH_X].mname = u.strandomfungusc;
+		mons[PM_COLORLESS_FORCE_FUNGUS_X].mname = u.strandomfungusd;
+		mons[PM_COLORLESS_WORT_X].mname = u.strandomfungusd;
+		mons[PM_COLORLESS_FORCE_PATCH_X].mname = u.strandomfunguse;
+		mons[PM_COLORLESS_WARP_FUNGUS_X].mname = u.strandomfungusf;
+		mons[PM_COLORLESS_WARP_PATCH_X].mname = u.strandomfungusg;
+		mons[PM_COLORLESS_STALK_X].mname = u.strandomfungush;
+		mons[PM_COLORLESS_SPORE_X].mname = u.strandomfungusi;
+		mons[PM_COLORLESS_MUSHROOM_X].mname = u.strandomfungusj;
+		mons[PM_COLORLESS_GROWTH_X].mname = u.strandomfungusk;
+		mons[PM_COLORLESS_COLONY_X].mname = u.strandomfungusl;
+		mons[PM_KRONG_SEPHIRAH_X].mname = u.strandomkopb;
+		mons[PM_ADULT_TATZELWORM_X].mname = u.strandomdragonb;
+		mons[PM_ADULT_AMPHITERE_X].mname = u.strandomdragonc;
+		mons[PM_BABY_TATZELWORM_X].mname = u.strandombdragonb;
+		mons[PM_BABY_AMPHITERE_X].mname = u.strandombdragonc;
+
+	}
+
+	/*
 	tname = mons[PM_NITROHACK_HORROR].mname;
 	mread(fd, (void *) &mons[PM_NITROHACK_HORROR], sizeof(struct permonst));
 	mons[PM_NITROHACK_HORROR].mname = tname;
@@ -402,6 +448,12 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	tname = mons[PM_DNETHACK_HORROR].mname;
 	mread(fd, (void *) &mons[PM_DNETHACK_HORROR], sizeof(struct permonst));
 	mons[PM_DNETHACK_HORROR].mname = tname;
+	tname = mons[PM_BEGINNER_HORROR].mname;
+	mread(fd, (void *) &mons[PM_BEGINNER_HORROR], sizeof(struct permonst));
+	mons[PM_BEGINNER_HORROR].mname = tname;
+	tname = mons[PM_NOOB_HORROR].mname;
+	mread(fd, (void *) &mons[PM_NOOB_HORROR], sizeof(struct permonst));
+	mons[PM_NOOB_HORROR].mname = tname;
 	tname = mons[PM_NETHACKBRASS_HORROR].mname;
 	mread(fd, (void *) &mons[PM_NETHACKBRASS_HORROR], sizeof(struct permonst));
 	mons[PM_NETHACKBRASS_HORROR].mname = tname;
@@ -708,7 +760,7 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	tname = mons[PM_UNKNOWN_PERMAMIMIC_X].mname;
 #endif
 	mread(fd, (void *) &mons[PM_UNKNOWN_PERMAMIMIC_X], sizeof(struct permonst));
-	mons[PM_UNKNOWN_MIMIC_X].mname = u.strandommimicb;
+	mons[PM_UNKNOWN_PERMAMIMIC_X].mname = u.strandommimicb;
 #ifdef STUPIDRANDOMMONSTERBUG
 	mons[PM_UNKNOWN_PERMAMIMIC_X].mname = tname;
 #endif
@@ -743,6 +795,9 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	tname = mons[PM_COLORLESS_FORCE_FUNGUS].mname;
 	mread(fd, (void *) &mons[PM_COLORLESS_FORCE_FUNGUS], sizeof(struct permonst));
 	mons[PM_COLORLESS_FORCE_FUNGUS].mname = tname;
+	tname = mons[PM_COLORLESS_WORT].mname;
+	mread(fd, (void *) &mons[PM_COLORLESS_WORT], sizeof(struct permonst));
+	mons[PM_COLORLESS_WORT].mname = tname;
 	tname = mons[PM_COLORLESS_FORCE_PATCH].mname;
 	mread(fd, (void *) &mons[PM_COLORLESS_FORCE_PATCH], sizeof(struct permonst));
 	mons[PM_COLORLESS_FORCE_PATCH].mname = tname;
@@ -793,6 +848,12 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	mons[PM_COLORLESS_FORCE_FUNGUS_X].mname = u.strandomfungusd;
 #ifdef STUPIDRANDOMMONSTERBUG
 	mons[PM_COLORLESS_FORCE_FUNGUS_X].mname = tname;
+	tname = mons[PM_COLORLESS_WORT_X].mname;
+#endif
+	mread(fd, (void *) &mons[PM_COLORLESS_WORT_X], sizeof(struct permonst));
+	mons[PM_COLORLESS_WORT_X].mname = u.strandomfungusd;
+#ifdef STUPIDRANDOMMONSTERBUG
+	mons[PM_COLORLESS_WORT_X].mname = tname;
 	tname = mons[PM_COLORLESS_FORCE_PATCH_X].mname;
 #endif
 	mread(fd, (void *) &mons[PM_COLORLESS_FORCE_PATCH_X], sizeof(struct permonst));
@@ -855,6 +916,9 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	tname = mons[PM_NONDESCRIPT_FORCE_FUNGUS].mname;
 	mread(fd, (void *) &mons[PM_NONDESCRIPT_FORCE_FUNGUS], sizeof(struct permonst));
 	mons[PM_NONDESCRIPT_FORCE_FUNGUS].mname = tname;
+	tname = mons[PM_NONDESCRIPT_WORT].mname;
+	mread(fd, (void *) &mons[PM_NONDESCRIPT_WORT], sizeof(struct permonst));
+	mons[PM_NONDESCRIPT_WORT].mname = tname;
 	tname = mons[PM_NONDESCRIPT_FORCE_PATCH].mname;
 	mread(fd, (void *) &mons[PM_NONDESCRIPT_FORCE_PATCH], sizeof(struct permonst));
 	mons[PM_NONDESCRIPT_FORCE_PATCH].mname = tname;
@@ -1033,6 +1097,13 @@ unsigned int *stuckid, *steedid;	/* STEED */
 #ifdef STUPIDRANDOMMONSTERBUG
 	mons[PM_BABY_AMPHITERE_X].mname = tname;
 #endif
+
+	tname = mons[PM_SPLICED_AMALGAMATION].mname;
+	mread(fd, (void *) &mons[PM_SPLICED_AMALGAMATION], sizeof(struct permonst));
+	mons[PM_SPLICED_AMALGAMATION].mname = tname;
+	tname = mons[PM_SPLICED_BAD_CLONE].mname;
+	mread(fd, (void *) &mons[PM_SPLICED_BAD_CLONE], sizeof(struct permonst));
+	mons[PM_SPLICED_BAD_CLONE].mname = tname;
 
 	tname = mons[PM_PUPURIN].mname;
 	mread(fd, (void *) &mons[PM_PUPURIN], sizeof(struct permonst));
@@ -1422,6 +1493,9 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	tname = mons[PM_RANDOMIZER_DRACONIAN].mname;
 	mread(fd, (void *) &mons[PM_RANDOMIZER_DRACONIAN], sizeof(struct permonst));
 	mons[PM_RANDOMIZER_DRACONIAN].mname = tname;
+	tname = mons[PM_CENTAUR_RENGER].mname;
+	mread(fd, (void *) &mons[PM_CENTAUR_RENGER], sizeof(struct permonst));
+	mons[PM_CENTAUR_RENGER].mname = tname;
 
 	tname = mons[PM_ROUGH_TERESA_S_GENTLE_SOFT_SNEAKER].mname;
 	mread(fd, (void *) &mons[PM_ROUGH_TERESA_S_GENTLE_SOFT_SNEAKER], sizeof(struct permonst));
@@ -1444,6 +1518,7 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	tname = mons[PM_FANNY_S_LOVELY_WINTER_BOOT].mname;
 	mread(fd, (void *) &mons[PM_FANNY_S_LOVELY_WINTER_BOOT], sizeof(struct permonst));
 	mons[PM_FANNY_S_LOVELY_WINTER_BOOT].mname = tname;
+	*/
 
 	if(u.uhp <= 0 && (!Upolyd || u.mh <= 0)) {
 	    u.ux = u.uy = 0;	/* affects pline() [hence You()] */
@@ -1461,6 +1536,13 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	restore_timers(fd, RANGE_GLOBAL, FALSE, 0L);
 	restore_light_sources(fd);
 	invent = restobjchn(fd, FALSE, FALSE);
+	bc_obj = restobjchn(fd, FALSE, FALSE);
+	while (bc_obj) {
+		struct obj *nobj = bc_obj->nobj;
+		if (bc_obj->owornmask) setworn(bc_obj, bc_obj->owornmask);
+		bc_obj->nobj = (struct obj *)0;
+		bc_obj = nobj;
+	}
 	migrating_objs = restobjchn(fd, FALSE, FALSE);
 	migrating_mons = restmonchn(fd, FALSE);
 	mread(fd, (void *) mvitals, sizeof(mvitals));
@@ -1489,9 +1571,10 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	   applied or wielded it, so be conservative and assume the former */
 	otmp = uwep;	/* `uwep' usually init'd by setworn() in loop above */
 	uwep = 0;	/* clear it and have setuwep() reinit */
-	setuwep(otmp,FALSE);	/* (don't need any null check here) */
+	setuwep(otmp,FALSE,FALSE);	/* (don't need any null check here) */
+	/* Amy edit: autocursing shit shouldn't autocurse here! */
 	/* KMH, balance patch -- added fishing pole */
-	if (!uwep || uwep->otyp == PICK_AXE || uwep->otyp == CONGLOMERATE_PICK || uwep->otyp == BRONZE_PICK || uwep->otyp == GRAPPLING_HOOK ||
+	if (!uwep || uwep->otyp == PICK_AXE || uwep->otyp == CONGLOMERATE_PICK || uwep->otyp == MYSTERY_PICK || uwep->otyp == BRONZE_PICK || uwep->otyp == BRICK_PICK || uwep->otyp == NANO_PICK || uwep->otyp == GRAPPLING_HOOK ||
 		     uwep->otyp == FISHING_POLE)
 	    unweapon = TRUE;
 
@@ -1548,18 +1631,34 @@ unsigned int stuckid, steedid;	/* STEED */
 {
 	register struct monst *mtmp;
 
+	/* Amy edit: why the hell is this a panic?! that makes the save impossible to load in some cases! these errors
+	 * are usually caused by the game segfaulting upon a level change, which simply eats the steed; the real fix for
+	 * that is to fix errors that cause segfaults on level change, but panics eating the savegame just isn't a good idea
+	 * because they will happen during initialization and then the emergency save will just panic again on load
+	 *
+	 * we have to clear setustuck and u.usteed BEFORE calling impossible, because otherwise bot() is called and
+	 * may run functions that depend on those variables... */
+
 	if (stuckid) {
 		for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
 			if (mtmp->m_id == stuckid) break;
-		if (!mtmp) panic("Cannot find the monster ustuck.");
-		setustuck(mtmp);
+		if (!mtmp) {
+			setustuck((struct monst *)0);
+			impossible("Cannot find the monster ustuck.");
+		} else {
+			setustuck(mtmp);
+		}
 	}
 	if (steedid) {
 		for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
 			if (mtmp->m_id == steedid) break;
-		if (!mtmp) panic("Cannot find the monster usteed.");
-		u.usteed = mtmp;
-		remove_monster(mtmp->mx, mtmp->my);
+		if (!mtmp) {
+			u.usteed = (struct monst *)0;
+			impossible("Cannot find the monster usteed.");
+		} else {
+			u.usteed = mtmp;
+			remove_monster(mtmp->mx, mtmp->my);
+		}
 	}
 }
 
@@ -1765,6 +1864,13 @@ register int fd;
 	for(otmp = fobj; otmp; otmp = otmp->nobj)
 		if(otmp->owornmask)
 			setworn(otmp, otmp->owornmask);
+
+		if ((uball && !uchain) || (uchain && !uball)) {
+			impossible("either ball or chain lost in restgamestate");
+			/* ugh, gotta fix it now to avoid further bugs... */
+			setworn((struct obj *)0, W_CHAIN);
+			setworn((struct obj *)0, W_BALL);
+		}
 
 	/* in_use processing must be after:
 	 *    + The inventory has been read so that freeinv() works.
@@ -2028,7 +2134,21 @@ boolean ghostly;
 	relink_light_sources(ghostly);
 	reset_oattached_mids(ghostly);
 #ifdef DUNGEON_GROWTH
-	if (!ghostly) catchup_dgn_growths((monstermoves - omoves) / 5);
+	if (!ghostly) {
+
+		/* Amy addition: a hacky variable that should be used to avoid goddamn savegame errors. Some things,
+		 * e.g. checking for the randomized appearance of your worn cloak, seem to have a chance of segfaulting
+		 * if we call them in this state, probably because the pertinent structures have already been discarded
+		 * during the saving routine, so checking for "uarmc" or its OBJ_DESCR leads to a garbage pointer which
+		 * then crashes the game. And the savegame error is NO fun, so we can now use this variable in all checks
+		 * that get called during saving to disable stuff that should not run during saving. mkobj.c in particular
+		 * is dangerous, because the tree fruit seeding is called during saving, but also doorlock stuff in lock.c
+		 * and various other functions. Too bad we can't just defer it until you return to the level in question! */
+		u.dungeongrowthhack = TRUE;
+		catchup_dgn_growths((monstermoves - omoves) / 5);
+		u.dungeongrowthhack = FALSE;
+
+	}
 #endif
 	if (ghostly)
 	    clear_id_mapping();

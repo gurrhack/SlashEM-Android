@@ -85,6 +85,10 @@ int pm;
 	    case PM_HUMAN_WERECOW: return(PM_WERECOW);
 	    case PM_WEREBEAR:       return(PM_HUMAN_WEREBEAR);
 	    case PM_HUMAN_WEREBEAR: return(PM_WEREBEAR);
+	    case PM_WEREDEMON:       return(PM_HUMAN_WEREDEMON);
+	    case PM_HUMAN_WEREDEMON: return(PM_WEREDEMON);
+	    case PM_WEREPHANT:       return(PM_HUMAN_WEREPHANT);
+	    case PM_HUMAN_WEREPHANT: return(PM_WEREPHANT);
 	    case PM_WERESOLDIERANT:       return(PM_HUMAN_WERESOLDIERANT);
 	    case PM_HUMAN_WERESOLDIERANT: return(PM_WERESOLDIERANT);
 	    case PM_WERETROLL:       return(PM_HUMAN_WERETROLL);
@@ -231,7 +235,7 @@ register struct monst *mon;
 
 	pm = counter_were(monsndx(mon->data));
 	if(!pm) {
-	    impossible("unknown lycanthrope %s.", mon->data->mname);
+	    impossible("unknown lycanthrope %d.", mon->mnum);
 	    return;
 	}
 
@@ -259,11 +263,12 @@ register struct monst *mon;
 }
 
 int
-were_summon(ptr,yours,visible,genbuf)	/* were-creature (even you) summons a horde */
+were_summon(ptr,yours,visible,genbuf,ownloc)	/* were-creature (even you) summons a horde */
 register struct permonst *ptr;
 register boolean yours;
 int *visible;			/* number of visible helpers created */
 char *genbuf;
+boolean ownloc; /* TRUE = summon them at a random location, FALSE = summon them at player's location --Amy */
 {
 	register int i, typ, pm = monsndx(ptr);
 	register struct monst *mtmp;
@@ -361,6 +366,16 @@ char *genbuf;
 		case PM_HUMAN_WEREBEAR:
 			typ = rn2(5) ? PM_BROWN_BEAR : PM_CAVE_BEAR ;
 			if (genbuf) strcpy(genbuf, "ursa major");
+			break;
+		case PM_WEREDEMON:
+		case PM_HUMAN_WEREDEMON:
+			typ = rn2(5) ? PM_HELL_HOUND_PUP : PM_HELL_HOUND ;
+			if (genbuf) strcpy(genbuf, "demon");
+			break;
+		case PM_WEREPHANT:
+		case PM_HUMAN_WEREPHANT:
+			typ = PM_MUMAK ;
+			if (genbuf) strcpy(genbuf, "phant");
 			break;
 		case PM_WEREPIERCER:
 		case PM_HUMAN_WEREPIERCER:
@@ -710,7 +725,8 @@ char *genbuf;
 		default:
 			continue;
 	    }
-	    mtmp = makemon(&mons[typ], u.ux, u.uy, yours ? MM_NOSPECIALS : NO_MM_FLAGS);
+	    if (ownloc) mtmp = makemon(&mons[typ], 0, 0, yours ? MM_NOSPECIALS : NO_MM_FLAGS);
+	    else mtmp = makemon(&mons[typ], u.ux, u.uy, yours ? MM_NOSPECIALS : NO_MM_FLAGS);
 	    if (mtmp) {
 		total++;
 		if (canseemon(mtmp)) *visible += 1;
@@ -761,8 +777,8 @@ boolean purify;
 		    You_feel("very bad!");
 		    if (in_wereform && !Race_if(PM_UNGENOMOLD) )
 			rehumanize();
-		    (void) adjattrib(A_STR, -rn1(3,3), 2);
-		    (void) adjattrib(A_CON, -rn1(3,3), 1);
+		    (void) adjattrib(A_STR, -rn1(3,3), 2, TRUE);
+		    (void) adjattrib(A_CON, -rn1(3,3), 1, TRUE);
 		    losehp(u.uhp - (u.uhp > 10 ? rnd(5) : 1), "purification",
 			    KILLED_BY);
 		}

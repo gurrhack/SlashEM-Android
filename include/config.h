@@ -56,6 +56,11 @@
 /* #define SDL_GRAPHICS */	/* Software SDL graphics */
 #define ANDROID_GRAPHICS
 
+/* on Unix, it's well possible for the game to simply not compile when CURSES_GRAPHICS is not defined; if the
+ * curses interface is causing errors, enable the following AWFUL_CURSES option to prevent players from
+ * turning the curses interface on (basically, it disables the windowtype option, and it defaults to tty) --Amy */
+/* #define AWFUL_CURSES */	/* turns off the curses interface (i.e. effectively compiles it out) */
+
 /*
  * Define the default window system.  This should be one that is compiled
  * into your system (see defines above).  Known window systems are:
@@ -452,6 +457,8 @@ typedef unsigned char	uchar;
 #define EATEN_MEMORY	/* WAC -- Remember which monsters have been eaten (unconditionally enabled by Amy) */
 #define STEED		/* The ability to ride monsters (unconditionally enabled by Amy) */
 
+/* #define BIGSLEX */	/* BIGslex - increases dungeon level size, by Amy */
+
 /* Roles */
 #define TOURIST		/* Tourist players with cameras and Hawaiian shirts (unconditionally enabled by Amy) */
 #define YEOMAN		/* KMH -- Yeoman class (unconditionally enabled by Amy) */
@@ -499,7 +506,7 @@ typedef unsigned char	uchar;
                       /* Only supported on Qt with NAS - Network Audio System */
 
 
-// #define BORG            // Fixed for non-DOS --ELR
+/* #define BORG */            // Fixed for non-DOS --ELR
 /* #define KEEP_SAVE */       /* Keep savefiles after Restore (wac@intergate.bc.ca)*/
 /* #define CHARON */	/* Charon's boat, enables Cerebus - not implemented */
 #define SHOW_DMG        /* WAC made dmg reports optional (wac@intergate.bc.ca)*/

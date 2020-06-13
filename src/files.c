@@ -700,8 +700,11 @@ touch_whereis()
 
   sprintf(whereis_file,"%s",dump_format_str(WHEREIS_FILE));
   sprintf(whereis_work,
-	  "player=%s:depth=%d:dnum=%d:dname=%s:turns=%d:score=%ld:role=%s:race=%s:gender=%s:align=%s:amulet=0\n",
-	  plname,
+	  "player=%s%s%s%s:depth=%d:dnum=%d:dname=%s:turns=%ld:score=%ld:role=%s:race=%s:gender=%s:align=%s:amulet=0\n",
+	  plalias[0] ? plalias : plname,
+	  plalias[0] ? " (" : "",
+	  plalias[0] ? plname : "",
+	  plalias[0] ? ")" : "",
 	  depth(&u.uz),
 	  u.uz.dnum,
 	  dungeons[u.uz.dnum].dname,
@@ -711,7 +714,7 @@ touch_whereis()
 	  urace.filecode,
 	  genders[flags.female].filecode,
 	  aligns[1-u.ualign.type].filecode);
-  fp = fopen_datafile(whereis_file,"w",LEVELPREFIX);
+  fp = fopen_datafile_area(FILE_AREA_VAR, whereis_file, "w", LEVELPREFIX);
   if (fp) {
 #ifdef UNIX
     mode_t whereismode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
@@ -766,7 +769,10 @@ d_level *lev;
 	 * functions present in dgn_yacc.c, what the hell? So I can't just make a second bones id to increase the amount
 	 * of ones we can have. But, apparently we can just put the dungeon branch name in the file name instead! --Amy
 	 * ... but then the bones level fails to link correctly :( */
-	sprintf(bonesid, "%c%s", dungeons[lev->dnum].boneid,
+
+	/* used to be: sprintf(bonesid, "%c.%s" */
+
+	sprintf(bonesid, "%s.%s", /*dungeons[lev->dnum].boneid*/bonedunlvl(lev->dnum),
 			In_quest(lev) ? urole.filecode : "0");
 	dptr = eos(bonesid);
 	if ((sptr = Is_special(lev)) != 0)
@@ -775,7 +781,7 @@ d_level *lev;
 	    sprintf(dptr, ".%d", lev->dlevel);
 	sprintf(file, "bon%s", bonesid); 
 #ifdef BONES_POOL 
-	sprintf(eos(file), ".%d", (u.ubirthday % 10)); 
+	sprintf(eos(file), ".%ld", (u.ubirthday % 10)); 
 #endif
 #ifdef VMS
 	strcat(file, ";1");
@@ -2654,7 +2660,7 @@ read_wizkit()
 		else *ep = '\0';		/* remove newline */
 
 		if (buf[0]) {
-			otmp = readobjnam(buf, (struct obj *)0, FALSE);
+			otmp = readobjnam(buf, (struct obj *)0, FALSE, TRUE);
 			if (otmp) {
 			    if (otmp != &zeroobj)
 				otmp = addinv(otmp);
@@ -2809,7 +2815,7 @@ const char *reason;	/* explanation */
 
 	if (!program_state.in_paniclog) {
 		program_state.in_paniclog = 1;
-		lfile = fopen_datafile(PANICLOG, "a", TROUBLEPREFIX);
+		lfile = fopen_datafile_area(LOGAREA, PANICLOG, "a", TROUBLEPREFIX);
 		if (lfile) {
 		    (void) fprintf(lfile, "%s %08ld: %s %s\n",
 				   version_string(buf), yyyymmdd((time_t)0L),

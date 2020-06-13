@@ -56,7 +56,7 @@ register struct monst *mtmp;
 	if(mtmp->mpeaceful && in_town(u.ux+u.dx, u.uy+u.dy) &&
 	   mtmp->mcansee && m_canseeu(mtmp) && !rn2(3)) {
 
-		if((Role_if(PM_CONVICT) || Role_if(PM_MURDERER) || Race_if(PM_ALBAE)) && !Upolyd) {
+		if((Role_if(PM_CONVICT) || Role_if(PM_MURDERER) || Race_if(PM_ALBAE) || Race_if(PM_PLAYER_DYNAMO)) && !Upolyd) {
             verbalize("%s yells: Hey!  You are the one from the wanted poster!",
              Amonnam(mtmp));
             (void) angry_guards(!(flags.soundok));
@@ -202,8 +202,8 @@ struct monst *mtmp;
 	mresists = rn2(100) < resist_percentage;
 	scmresists = rn2(100) < resist_percentage;
 
-	return (boolean)((sobj_at(SCR_SCARE_MONSTER, x, y) && !(Conflict && rn2(2)) && !scmresists)
-			 || (sengr_at("Elbereth", x, y) && !mresists && !(Conflict && rn2(2)) && !(EngravingDoesntWork || u.uprops[ENGRAVINGBUG].extrinsic || have_engravingstone() || (uarmf && uarmf->oartifact == ART_VARIANTISH_DESIGN) ) )
+	return (boolean)((sobj_at(SCR_SCARE_MONSTER, x, y) && !(Conflict && rn2(StrongConflict ? 5 : 2)) && !scmresists)
+			 || (sengr_at("Elbereth", x, y) && !mresists && !(Conflict && rn2(StrongConflict ? 5 : 2)) && !(EngravingDoesntWork || u.uprops[ENGRAVINGBUG].extrinsic || have_engravingstone() || (uarmf && uarmf->oartifact == ART_VARIANTISH_DESIGN) ) )
 			 || (is_vampire(mtmp->data)
 			     && IS_ALTAR(levl[x][y].typ)));
 }
@@ -220,25 +220,38 @@ boolean digest_meal;
 
 	int regenrate; /* A level 30 pet large cat would otherwise regenerate waaaaaay too slowly. --Amy */
 
+	/* is the monster bleeding despite not being able to bleed? if so, stop its bleeding --Amy */
+	if (mon->bleedout && (!has_blood(mon->data) ) ) {
+		mon->bleedout = 0;
+	}
+
+	if (mon->healblock || mon->bleedout) return; /* sorry --Amy */
+
 	regenrate = (20 - (mon->m_lev / 3));
 	if (regenrate < 6) regenrate = 6;
 	if (ishaxor) regenrate /= 2;
 
 	if (mon->mhp < mon->mhpmax && !is_golem(mon->data) &&
-	    (moves % /*20*/regenrate == 0 || regenerates(mon->data) || mon->egotype_regeneration )) mon->mhp++;
+	    (!rn2(regenrate) || regenerates(mon->data) || mon->egotype_regeneration )) mon->mhp++;
 
 	if (mon->data == &mons[PM_GROGGY_GUY]) {
 		mon->mhp += rnd(5);
 		if (mon->mhp > mon->mhpmax) mon->mhp = mon->mhpmax;
 	}
 
+	/* super regene */
+	if (mon->data == &mons[PM_MESHERA_ALPHA_DEFORMED_ANGEL] || mon->data == &mons[PM_TESTER] || mon->data == &mons[PM_TEA_HUSSY] || mon->data == &mons[PM_OUROBOROS] || mon->data == &mons[PM_UNITDEAD_QUEEN] || mon->data == &mons[PM_UNITDEAD_KING] || mon->data == &mons[PM_REGULUS_THE_ALTERED] || mon->data == &mons[PM_ZANAN_ENHANCED_SOLDIER] || mon->data == &mons[PM_VANESSA_ENHANCED_SOLDIER] || mon->data == &mons[PM_SUPERREGENEBOROS] || mon->data == &mons[PM_JUERE_DEMON_SOLDIER] || mon->data == &mons[PM_JENNIFER_DEMON_SOLDIER] || mon->data == &mons[PM_RENAI_OVER_MESHERA]) {
+		mon->mhp += 20;
+		if (mon->mhp > mon->mhpmax) mon->mhp = mon->mhpmax;
+	}
+
 	if (mon->m_en < mon->m_enmax && 
-	    (moves % /*20*/regenrate == 0 || (rn2(mon->m_lev + 5) > 15))) {
+	    (!rn2(regenrate) || (rn2(mon->m_lev + 5) > 15))) {
 	    	mon->m_en += rn1((mon->m_lev % 10 + 1),1);
 	    	if (mon->m_en > mon->m_enmax) mon->m_en = mon->m_enmax;
 	}
 
-	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE && u.usteed && (mon == u.usteed)) {
+	if (powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE && u.usteed && (mon == u.usteed)) {
 		if (mon->mhp + 1 >= mon->mhpmax)
 		      mon->mhp = mon->mhpmax;
 		else mon->mhp++;
@@ -259,7 +272,7 @@ boolean digest_meal;
 	if (!(PlayerCannotUseSkills)) {
 
 		if (P_SKILL(P_RIDING) == P_BASIC && u.usteed && (mon == u.usteed) && !rn2(10) ) {
-			if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
+			if (powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
 				if (mon->mhp + 1 >= mon->mhpmax)
 				      mon->mhp = mon->mhpmax;
 				else mon->mhp++;
@@ -270,7 +283,7 @@ boolean digest_meal;
 			if (mon->mhp + 1 >= mon->mhpmax)
 			      mon->mhp = mon->mhpmax;
 			else mon->mhp++;
-			if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
+			if (powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
 				if (mon->mhp + 2 >= mon->mhpmax)
 				      mon->mhp = mon->mhpmax;
 				else mon->mhp++;
@@ -281,7 +294,7 @@ boolean digest_meal;
 			if (mon->mhp + 1 >= mon->mhpmax)
 			      mon->mhp = mon->mhpmax;
 			else mon->mhp++;
-			if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
+			if (powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
 				if (mon->mhp + 3 >= mon->mhpmax)
 				      mon->mhp = mon->mhpmax;
 				else mon->mhp++;
@@ -291,7 +304,7 @@ boolean digest_meal;
 			if (mon->mhp + 1 >= mon->mhpmax)
 			      mon->mhp = mon->mhpmax;
 			else mon->mhp++;
-			if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
+			if (powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
 				if (mon->mhp + 4 >= mon->mhpmax)
 				      mon->mhp = mon->mhpmax;
 				else mon->mhp++;
@@ -301,7 +314,7 @@ boolean digest_meal;
 			if (mon->mhp + 1 >= mon->mhpmax)
 			      mon->mhp = mon->mhpmax;
 			else mon->mhp++;
-			if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
+			if (powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
 				if (mon->mhp + 5 >= mon->mhpmax)
 				      mon->mhp = mon->mhpmax;
 				else mon->mhp++;
@@ -311,7 +324,7 @@ boolean digest_meal;
 			if (mon->mhp + 1 >= mon->mhpmax)
 			      mon->mhp = mon->mhpmax;
 			else mon->mhp++;
-			if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
+			if (powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
 				if (mon->mhp + 6 >= mon->mhpmax)
 				      mon->mhp = mon->mhpmax;
 				else mon->mhp++;
@@ -400,21 +413,16 @@ disturb(mtmp)
 	 *	Aggravate or mon is (dog or human) or
 	 *	    (1/7 and mon is not mimicing furniture or object)
 	 */
-	if(couldsee(mtmp->mx,mtmp->my) &&
+	if(couldsee(mtmp->mx,mtmp->my) && !(Race_if(PM_VIETIS) && rn2(3)) && !(Race_if(PM_KUTAR) && rn2(3)) &&
 		distu(mtmp->mx,mtmp->my) <= 100 &&
-		(!Stealth || (Aggravate_monster && !rn2(3) ) || (mtmp->data == &mons[PM_ETTIN] && rn2(10))) &&
+		(!Stealth || (Stealth && !StrongStealth && !rn2(5)) || (Aggravate_monster && !rn2(3) ) || (mtmp->data == &mons[PM_ETTIN] && rn2(10))) &&
 		(!(mtmp->data->mlet == S_NYMPH
-			|| mtmp->data == &mons[PM_JABBERWOCK]
-			|| mtmp->data == &mons[PM_VORPAL_JABBERWOCK]
-#if 0	/* DEFERRED */
-			|| mtmp->data == &mons[PM_VORPAL_JABBERWOCK]
-#endif
+			|| mtmp->data->mlet == S_JABBERWOCK
 			|| mtmp->data->mlet == S_LEPRECHAUN) || !rn2(50)) &&
 		(Aggravate_monster
-			|| (mtmp->data->mlet == S_DOG ||
-				mtmp->data->mlet == S_HUMAN)
-			|| (!rn2(7) && mtmp->m_ap_type != M_AP_FURNITURE &&
-				mtmp->m_ap_type != M_AP_OBJECT) )) {
+			|| (mtmp->data->mlet == S_DOG
+			|| mtmp->data->mlet == S_HUMAN)
+			|| (!rn2(7) && (mtmp->m_ap_type != M_AP_FURNITURE) && (mtmp->m_ap_type != M_AP_OBJECT)) )) {
 		mtmp->msleeping = 0;
 		return(1);
 	}
@@ -453,6 +461,7 @@ boolean fleemsg;
 	    if (!mtmp->mflee && fleemsg && canseemon(mtmp) && !mtmp->mfrozen) {
 		if (rn2(3)) {
 		  pline("%s turns to flee!", (Monnam(mtmp)));
+		  if (isok(u.ux, u.uy) && sengr_at("Elbereth", u.ux, u.uy)) u.cnd_elberethamount++;
 		  mtmp->mflee = 1;
 		}
 		else {
@@ -483,7 +492,7 @@ int *inrange, *nearby, *scared;
 	 * running into you by accident but possibly attacking the spot
 	 * where it guesses you are.
 	 */
-	if (!mtmp->mcansee || (Invis && !perceives(mtmp->data))) {
+	if (!mtmp->mcansee || (Invis && (StrongInvis || !rn2(3)) && !perceives(mtmp->data))) {
 		seescaryx = mtmp->mux;
 		seescaryy = mtmp->muy;
 	} else {
@@ -555,10 +564,10 @@ register struct monst *mtmp;
 	mdat = mtmp->data;
 
 	int fartdistance = 1;
-	if (FemaleTrapKatharina) fartdistance = 15;
-	if (FemaleTrapKatharina && mtmp->crapbonus) fartdistance = 100;
+	if (FemtrapActiveKatharina) fartdistance = 15;
+	if (FemtrapActiveKatharina && mtmp->crapbonus) fartdistance = 100;
 
-	if (TimeStopped) return 0;	/* time stop completely prevents monsters from doing anything --Amy */
+	if (TimeStopped && !immune_timestop(mtmp->data)) return 0;	/* time stop completely prevents monsters from doing anything, but some are immune --Amy */
 	if (u.stasistime) return 0;	/* stasis does the same --Amy */
 	if (uarmf && uarmf->oartifact == ART_ELEVECULT && !rn2(3)) return 0;
 
@@ -582,6 +591,14 @@ register struct monst *mtmp;
 		quest_talk(mtmp);	/* give the leaders a chance to speak */
 	    return(0);	/* other frozen monsters can't do anything */
 	}
+
+	if ((mdat == &mons[PM_BUGBEAM_CUBE] || mdat == &mons[PM_TORSTINA] || mdat == &mons[PM_MARINERV] || mdat == &mons[PM_MARISTIN] || mdat == &mons[PM_MARIVERT] || mdat == &mons[PM_MARISISTER] || mdat == &mons[PM_FUNNY_ITALIAN] || mdat == &mons[PM_EAR_FIG_MACHINE] || mdat == &mons[PM_POLEPOKER] || mdat == &mons[PM_DISTURBMENT_HEAD]) && !rn2(4)) return 0; /* can sometimes not move; this is by design */
+
+	if (mdat == &mons[PM_BLOTREE] && !rn2(2)) return 0;
+
+	/* huro troves are for the matrayser race: they're only there as a means of porting your possessions to a different
+	 * dungeon level at game start; we don't want them to waste potions of invisibility or similar stuff --Amy */
+	if (mdat == &mons[PM_HURO_TROVE]) return 0;
 
 	/* there is a chance we will wake it */
 	if (mtmp->msleeping && !disturb(mtmp)) {
@@ -617,11 +634,491 @@ register struct monst *mtmp;
 		}
       }
 
-	if (mdat == &mons[PM_LAG_MONSTER] || mdat == &mons[PM_LAG_DEFENSE_TOWER]) { /* laaaaaaaaaag! :D --Amy */
+	if (mdat == &mons[PM_LAG_MONSTER] || mdat == &mons[PM_SLITHER] || mdat == &mons[PM_LAG_DEFENSE_TOWER]) { /* laaaaaaaaaag! :D --Amy */
 		int lagamount = rno(10);
 		while (lagamount > 0) {
 			delay_output();
 			lagamount--;
+		}
+	}
+
+	/* jonadab loooooooves polka music <3 */
+	if ((mdat == &mons[PM_GEHENNOM_S_POLKA_MUSICIAN] && !rn2(5)) || (mdat == &mons[PM_HELLISH_POLKA_SINGER] && !rn2(3)) ) {
+		static const char *polka_msgs[] = {
+			"I brake for birds.",
+			"I rock a lot of polka dots.",
+			"To dance is human, to polka is divine.",
+			"There is never a wrong time for a polka dot.",
+			"Nuapurista kuulu se polokan tahti, jalakani pohjii kutkutti...",
+			"Salivili hipput tupput taeppyt, aeppyt tipput hilijalleen.",
+			"On kauniina muistona Karjalan maa, mutta vielaekin syoemmestae soinnahtaa, kun soittajan sormista kuulla saa, Saekkijaerven polkkaa!",
+			"On sointuna Karjalan kaunoisen: Saekkijaerven polkka!",
+			"Slim Shady won't you please stand up?",
+			"I'm Slim Shady, yes I'm the real Shady; all you other Slim Shadys are just imitating...",
+			"There's a garden, what a garden, Only happy faces bloom there, And there's never any room there, For a worry or a gloom there...",
+			"Sing a song of good cheer, 'Cause the whole gang is here, Roll it out, roll it out, Let's do the beer barrel polka!",
+			"Hoop-dee-doo, hoop-dee-doo, I hear a polka and my troubles are through",
+			"Hoop-dee-doo, hoop-dee-dee, This kind of music is like heaven to me",
+			"I am gonna get my wish, Hoop-dee-doin' it tonight",
+			"In Heaven There Is No Beer, That's why we drink it here, And when we're gone from here, All our friends will be drinking all that beer",
+			"Who laughs this way, ho ho ho? Santa laughs this way, ho ho ho! Ho ho ho, cherry nose, cap on head, suit that's red...",
+			"I come from Alabama with my Banjo on my knee, I'se gwine to Lou'siana...",
+			"De bulgine bust and de hoss ran off, I really thought I'd die; I shut my eyes to hold my bref, Susanna, dont you cry.",
+			"So they say you booked a flight and you'll be leaving. Is it business, is it pleasure, is it both.",
+			"Say hello to someone in Massachusetts, Tip your hat to every lady that you meet, Shake a hand, you'll make a friend in Massachusetts, That New England old-time custom can't be beat.",
+			"Someone stole the kishka, Someone stole the kishka, Who stole the kishka, From the butcher's shop?",
+			"Fat and round and firmly packed, It was hanging on the rack, Someone stole the kishka, When I turned my back!",
+		};
+		verbalize("%s", polka_msgs[rn2(SIZE(polka_msgs))]);
+	}
+
+	if (mdat == &mons[PM_DARKNESS_ELEMENTAL] || mdat == &mons[PM_PERMADARKNESS_ELEMENTAL]) {
+		if (isok(mtmp->mx, mtmp->my)) levl[mtmp->mx][mtmp->my].lit = FALSE;
+	}
+
+	if (mdat == &mons[PM_ROCK_SPAWNER]) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25)) ) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = ROCKWALL;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_WALT_IN_PERSON]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = GRAVEWALL;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_CONSTRUCTION_WORKER]) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = TUNNELWALL;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_TERRIFYING_POISON_IVY]) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				if ((levl[mtmp->mx][mtmp->my].wall_info & W_NONDIGGABLE) == 0) levl[mtmp->mx][mtmp->my].typ = TREE;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_BJARNARHAVEN_FARMER]) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = FARMLAND;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_MOUNTAIN_GOLEM] || mdat == &mons[PM_PHASING_MOUNTAIN_GOLEM]) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = MOUNTAIN;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_WATERSPLASH_NYMPH]) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = POOL;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_DELUGE_NYMPH]) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = MOAT;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_VOLCANIC_NYMPH] || mdat == &mons[PM_SUPER_ANNOYING_NYMPH]) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = LAVAPOOL;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_MIRA_S_AGENT]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = URINELAKE;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_WHARF_TROLL]) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = WATERTUNNEL;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_CAVE_MOUSER] || mdat == &mons[PM_BROODY_CAVE_MOUSER]) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = CRYSTALWATER;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_SUMP_DRAGON]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = MOORLAND;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_KLEPTO]) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = SHIFTINGSAND;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_JASON_SEEKER]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = STYXRIVER;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_EXTREME_IRON_BAR]) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = IRONBARS;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_VERY_CHILLY_MAMMOTH] || mdat == &mons[PM_ICE_LICH]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = ICE;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_SNOW_LETTER] || mdat == &mons[PM_SNOW_FROSTER]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = SNOW;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_WASTE_DEADRA] || mdat == &mons[PM_ASH_GOLEM]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = ASH;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_SAND_DROPPER] || mdat == &mons[PM_SAND_DRAGON]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = SAND;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_ANIMATED_PAVEMENT_HEEL] || mdat == &mons[PM_SHADE_OF_THE_KING]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = PAVEDFLOOR;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_HIGHWAY_RACER] || mdat == &mons[PM_SPEEDOKRAKEN]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = HIGHWAY;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_GRASS_SPY] || mdat == &mons[PM_WAR_CRIMER]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = GRASSLAND;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_NETHERREALM_GHOST] || mdat == &mons[PM_ABSOLUTE_NETHER_DRAGON]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = NETHERMIST;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_STALACTITE_CRUNCHER] || mdat == &mons[PM_STALACTUNNITE]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = STALACTITE;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_FLEECY_BUBBLE] || mdat == &mons[PM_BALLBATH_WOMAN]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = BUBBLES;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_STORMY_WEATHER] || mdat == &mons[PM_GUY_THAT_LOOKS_LIKE_A_RAINER]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR || (levl[mtmp->mx][mtmp->my].typ >= ICE && levl[mtmp->mx][mtmp->my].typ <= CRYPTFLOOR) || (levl[mtmp->mx][mtmp->my].typ >= AIR && levl[mtmp->mx][mtmp->my].typ <= RAINCLOUD)) {
+				levl[mtmp->mx][mtmp->my].typ = RAINCLOUD;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_CHAOS_TILER] || mdat == &mons[PM_CHAOTIC_FILLER]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR) {
+
+				int wallclass = randomwalltype();
+
+				if (wallclass != TREE || (levl[mtmp->mx][mtmp->my].wall_info & W_NONDIGGABLE) == 0) levl[mtmp->mx][mtmp->my].typ = wallclass;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_DIMM_COIN]) {
+		if (isok(mtmp->mx, mtmp->my)) {
+			if (levl[mtmp->mx][mtmp->my].typ == ROOM || levl[mtmp->mx][mtmp->my].typ == CORR) {
+
+				int wallclass = GRASSLAND;
+				switch (mtmp->terraintrans) {
+					case 1:
+						wallclass = TREE; break;
+					case 2:
+						wallclass = MOAT; break;
+					case 3:
+						wallclass = LAVAPOOL; break;
+					case 4:
+						wallclass = IRONBARS; break;
+					case 5:
+						wallclass = CORR; break;
+					case 6:
+						wallclass = ICE; break;
+					case 7:
+						wallclass = CLOUD; break;
+					case 8:
+						wallclass = ROCKWALL; break;
+					case 9:
+						wallclass = GRAVEWALL; break;
+					case 10:
+						wallclass = TUNNELWALL; break;
+					case 11:
+						wallclass = FARMLAND; break;
+					case 12:
+						wallclass = MOUNTAIN; break;
+					case 13:
+						wallclass = WATERTUNNEL; break;
+					case 14:
+						wallclass = CRYSTALWATER; break;
+					case 15:
+						wallclass = MOORLAND; break;
+					case 16:
+						wallclass = URINELAKE; break;
+					case 17:
+						wallclass = SHIFTINGSAND; break;
+					case 18:
+						wallclass = STYXRIVER; break;
+					case 19:
+						wallclass = SNOW; break;
+					case 20:
+						wallclass = ASH; break;
+					case 21:
+						wallclass = SAND; break;
+					case 22:
+						wallclass = PAVEDFLOOR; break;
+					case 23:
+						wallclass = HIGHWAY; break;
+					case 24:
+						wallclass = GRASSLAND; break;
+					case 25:
+						wallclass = NETHERMIST; break;
+					case 26:
+						wallclass = STALACTITE; break;
+					case 27:
+						wallclass = CRYPTFLOOR; break;
+					case 28:
+						wallclass = BUBBLES; break;
+					case 29:
+						wallclass = RAINCLOUD; break;
+				}
+
+				if (wallclass != TREE || (levl[mtmp->mx][mtmp->my].wall_info & W_NONDIGGABLE) == 0) levl[mtmp->mx][mtmp->my].typ = wallclass;
+				blockorunblock_point(mtmp->mx,mtmp->my);
+				if(cansee(mtmp->mx,mtmp->my)) {
+					newsym(mtmp->mx,mtmp->my);
+				}
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_DEVIOUS_TRAP_INSTALLER] && !rn2(5)) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (!(t_at(mtmp->mx, mtmp->my))) {
+				(void) maketrap(mtmp->mx, mtmp->my, randomtrap(), 100 );
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_LITTLE_HIDDEN_BOX]) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (!(t_at(mtmp->mx, mtmp->my))) {
+				(void) maketrap(mtmp->mx, mtmp->my, randomtrap(), 100 );
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_XTRA_WEBBER] && !rn2(3)) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (!(t_at(mtmp->mx, mtmp->my))) {
+				(void) maketrap(mtmp->mx, mtmp->my, randomtrap(), 100 );
+			}
+		}
+	}
+
+	if (mdat == &mons[PM_SUPERREGENEBOROS]) {
+		if (isok(mtmp->mx, mtmp->my) && (!In_sokoban(&u.uz) || !rn2(25))) {
+			if (!(t_at(mtmp->mx, mtmp->my))) {
+				(void) maketrap(mtmp->mx, mtmp->my, randomtrap(), 100 );
+			}
 		}
 	}
 
@@ -639,6 +1136,9 @@ register struct monst *mtmp;
 	if (mdat == &mons[PM_FLEECE_MONSTER] && !rn2(10) && (distu(mtmp->mx,mtmp->my) <= BOLT_LIM*BOLT_LIM) ) {
 		You_hear("'fleecelfleecelfleecel!!'");
 	}
+	if (mdat == &mons[PM_FELEECHY] && !rn2(10) && (distu(mtmp->mx,mtmp->my) <= BOLT_LIM*BOLT_LIM) ) {
+		You_hear("'feleechfeleechfeleech!!'");
+	}
 
 	if (mdat == &mons[PM_UBERNAZGUL] && rn2(2)) { /* sporkhack nazgul --Amy */
 		if (canseemon(mtmp)) {
@@ -652,33 +1152,148 @@ register struct monst *mtmp;
 
 	}
 
-	if ((WakeupCallBug || u.uprops[WAKEUP_CALL_BUG].extrinsic || have_wakeupcallstone()) && mtmp->mpeaceful && !mtmp->mtame && !rn2(10000)) {
+	if ((WakeupCallBug || u.uprops[WAKEUP_CALL_BUG].extrinsic || have_wakeupcallstone() || Race_if(PM_SERB)) && mtmp->mpeaceful && !mtmp->mtame && !rn2(10000)) {
 		wakeup(mtmp);
 	}
 
 	/* not frozen or sleeping: wipe out texts written in the dust */
 	wipe_engr_at(mtmp->mx, mtmp->my, 1);
 
+	/* bleeding monsters will take damage and may die from blood loss --Amy */
+	if (mtmp->bleedout) {
+
+		int bleedingdamage = rnd(1 + (mtmp->bleedout / 10));
+		if (bleedingdamage > mtmp->bleedout) bleedingdamage = mtmp->bleedout;
+		mtmp->mhp -= bleedingdamage;
+		mtmp->bleedout -= bleedingdamage;
+		if (cansee(mtmp->mx,mtmp->my) && !rn2(10)) pline("%s bleeds.", Monnam(mtmp));
+		if (mtmp->bleedout < 0) mtmp->bleedout = 0; /* fail safe */
+
+		if (mtmp->mhp <= 0) {
+			if (cansee(mtmp->mx,mtmp->my)) pline("%s dies from loss of blood", Monnam(mtmp));
+			/* the lack of a period is intentional because the message is the same in Elona :P --Amy */
+			mondied(mtmp);
+			return(1);
+		}
+	}
+
+	/* heal block will time out --Amy */
+	if (mtmp->healblock) {
+		mtmp->healblock--;
+
+		if (!PlayerCannotUseSkills && mtmp->mtame) {
+
+			switch (P_SKILL(P_PETKEEPING)) {
+				default: break;
+				case P_BASIC: if (!rn2(10)) mtmp->healblock--; break;
+				case P_SKILLED: if (!rn2(5)) mtmp->healblock--; break;
+				case P_EXPERT: if (rnd(10) > 7) mtmp->healblock--; break;
+				case P_MASTER: if (rnd(10) > 6) mtmp->healblock--; break;
+				case P_GRAND_MASTER: if (!rn2(2)) mtmp->healblock--; break;
+				case P_SUPREME_MASTER: if (rnd(10) > 4) mtmp->healblock--; break;
+			}
+
+		}
+
+		if (mtmp->healblock < 0) mtmp->healblock = 0; /* fail safe */
+	}
+
+	/* inertia will also time out, and slows down the monster --Amy */
+	if (mtmp->inertia) {
+		mtmp->inertia--;
+
+		if (!PlayerCannotUseSkills && mtmp->mtame) {
+
+			switch (P_SKILL(P_PETKEEPING)) {
+				default: break;
+				case P_BASIC: if (!rn2(5)) mtmp->inertia--; break;
+				case P_SKILLED: if (rnd(5) > 3) mtmp->inertia--; break;
+				case P_EXPERT: if (rnd(5) > 2) mtmp->inertia--; break;
+				case P_MASTER: if (rn2(5)) mtmp->inertia--; break;
+				case P_GRAND_MASTER: mtmp->inertia--; break;
+				case P_SUPREME_MASTER: if (!rn2(5)) mtmp->inertia--; mtmp->inertia--; break;
+			}
+
+		}
+
+		if (mtmp->inertia < 0) mtmp->inertia = 0; /* fail safe */
+		if (!rn2(2)) return 0; /* because I'm lazy :P monster loses a turn with 50% chance, instead of every other turn */
+	}
+
 	/* confused monsters get unconfused with small probability */
-	if (mtmp->mconf && !rn2(50)) mtmp->mconf = 0;
+	if (mtmp->mconf) {
+		int unconfusechance = 50;
+
+		if (!PlayerCannotUseSkills && mtmp->mtame) {
+
+			switch (P_SKILL(P_PETKEEPING)) {
+				default: break;
+				case P_BASIC: unconfusechance = 45; break;
+				case P_SKILLED: unconfusechance = 40; break;
+				case P_EXPERT: unconfusechance = 35; break;
+				case P_MASTER: unconfusechance = 30; break;
+				case P_GRAND_MASTER: unconfusechance = 25; break;
+				case P_SUPREME_MASTER: unconfusechance = 20; break;
+			}
+
+		}
+
+		if (!rn2(unconfusechance)) mtmp->mconf = 0;
+	}
 
 	/* stunned monsters get un-stunned with larger probability */
-	if (mtmp->mstun && !rn2(10)) mtmp->mstun = 0;
+	if (mtmp->mstun) {
+		int unstunchance = 10;
+
+		if (!PlayerCannotUseSkills && mtmp->mtame) {
+
+			switch (P_SKILL(P_PETKEEPING)) {
+				default: break;
+				case P_BASIC: unstunchance = 9; break;
+				case P_SKILLED: unstunchance = 8; break;
+				case P_EXPERT: unstunchance = 7; break;
+				case P_MASTER: unstunchance = 6; break;
+				case P_GRAND_MASTER: unstunchance = 5; break;
+				case P_SUPREME_MASTER: unstunchance = 4; break;
+			}
+
+		}
+
+		if (!rn2(unstunchance)) mtmp->mstun = 0;
+
+	}
+
+	/* cancelled monsters get un-cancelled with a VERY low probability --Amy */
+	if (mtmp->mcan && !rn2(10000)) mtmp->mcan = 0;
+
+	/* slowed monsters get un-slowed with a low probability --Amy */
+	if (mtmp->mspeed == MSLOW && mtmp->permspeed == MSLOW && !mtmp->inertia && !rn2(2000)) mon_adjust_speed(mtmp, 1, (struct obj *)0);
+
+	/* is the monster charging a special laser cannon? */
+	if (mtmp->hominglazer) {
+		mtmp->hominglazer++;
+		/* it can only be charged for so long, and then the monster needs to charge it again */
+		if (mtmp->hominglazer > 200) mtmp->hominglazer = 0;
+	}
 
 	/* monsters whose butts were bashed by you will slowly recover --Amy */
 	if (mtmp->butthurt && !rn2(mdat->msound == MS_FART_QUIET ? 5 : mdat->msound == MS_FART_NORMAL ? 20 : 50) ) mtmp->butthurt -= 1;
 
 	/* some monsters teleport */
 	if (mtmp->mflee && !rn2(40) && can_teleport(mdat) && !mtmp->iswiz &&
-	    !level.flags.noteleport) {
+	    !level.flags.noteleport && !u.antitelespelltimeout) {
 		(void) rloc(mtmp, FALSE);
 		return(0);
 	}
 	if (mdat->msound == MS_SHRIEK && !um_dist(mtmp->mx, mtmp->my, 1))
 	    m_respond(mtmp);
 
-	if (FemaleTrapMeltem && mtmp->female && humanoid(mdat) && !rn2(10 + mtmp->butthurt - mtmp->fartbonus) && !um_dist(mtmp->mx, mtmp->my, fartdistance) && !mtmp->mpeaceful) {
+	if (mtmp->fartbonus > 9) mtmp->fartbonus = 9; /* fail save, gaaaaaah */
+
+	if (FemtrapActiveMeltem && mtmp->female && humanoid(mdat) && !rn2(10 + mtmp->butthurt - mtmp->fartbonus) && !um_dist(mtmp->mx, mtmp->my, fartdistance) && !mtmp->mpeaceful) {
 		pline("%s produces %s farting noises with %s %s butt.", Monnam(mtmp), rn2(2) ? "beautiful" : "squeaky", mhis(mtmp), mtmp->female ? "sexy" : "ugly" );
+		u.cnd_fartingcount++;
+		if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 		if (uarmf && uarmf->oartifact == ART_ELIANE_S_SHIN_SMASH) {
 			pline("The farting gas destroys your footwear instantly.");
 		      useup(uarmf);
@@ -692,9 +1307,9 @@ register struct monst *mtmp;
 			badeffect();
 			badeffect();
 		}
-		badeffect();
+		if (!extralongsqueak()) badeffect();
 
-		if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "breath control helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "shlem upravleniya dykhaniyem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "nafasni boshqarish dubulg'asi")) ) {
+		if (uarmh && itemhasappearance(uarmh, APP_BREATH_CONTROL_HELMET) ) {
 			pline("Your breath control helmet keeps pumping the farting gas into your %s...", body_part(NOSE));
 			badeffect();
 			badeffect();
@@ -712,9 +1327,11 @@ register struct monst *mtmp;
 
 		if (!rn2(20)) increasesanity(1);
 
-		while (FemaleTrapElena && !rn2(3)) {
+		while (FemtrapActiveElena && !rn2(3)) {
 			pline("You long for more!");
 			pline("%s produces %s farting noises with %s %s butt.", Monnam(mtmp), rn2(2) ? "beautiful" : "squeaky", mhis(mtmp), mtmp->female ? "sexy" : "ugly" );
+			u.cnd_fartingcount++;
+			if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 			if (uarmf && uarmf->oartifact == ART_ELIANE_S_SHIN_SMASH) {
 				pline("The farting gas destroys your footwear instantly.");
 			      useup(uarmf);
@@ -728,9 +1345,9 @@ register struct monst *mtmp;
 				badeffect();
 				badeffect();
 			}
-			badeffect();
+			if (!extralongsqueak()) badeffect();
 
-			if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "breath control helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "shlem upravleniya dykhaniyem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "nafasni boshqarish dubulg'asi")) ) {
+			if (uarmh && itemhasappearance(uarmh, APP_BREATH_CONTROL_HELMET) ) {
 				pline("Your breath control helmet keeps pumping the farting gas into your %s...", body_part(NOSE));
 				badeffect();
 				badeffect();
@@ -754,21 +1371,21 @@ register struct monst *mtmp;
 
 	if (mdat->msound == MS_FART_QUIET && !rn2(10 + mtmp->butthurt - mtmp->fartbonus) && !um_dist(mtmp->mx, mtmp->my, fartdistance) && !mtmp->mpeaceful) {
 	    m_respond(mtmp);
-		while (FemaleTrapElena && !rn2(3)) {
+		while (FemtrapActiveElena && !rn2(3)) {
 			pline("You long for more!");
 			m_respond(mtmp);
 		}
 	}
 	if (mdat->msound == MS_FART_NORMAL && !rn2(10 + mtmp->butthurt - mtmp->fartbonus) && !um_dist(mtmp->mx, mtmp->my, fartdistance) && !mtmp->mpeaceful) {
 	    m_respond(mtmp);
-		while (FemaleTrapElena && !rn2(3)) {
+		while (FemtrapActiveElena && !rn2(3)) {
 			pline("You long for more!");
 			m_respond(mtmp);
 		}
 	}
 	if (mdat->msound == MS_FART_LOUD && !rn2(10 + mtmp->butthurt - mtmp->fartbonus) && !um_dist(mtmp->mx, mtmp->my, fartdistance) && !mtmp->mpeaceful) {
 	    m_respond(mtmp);
-		while (FemaleTrapElena && !rn2(3)) {
+		while (FemtrapActiveElena && !rn2(3)) {
 			pline("You long for more!");
 			m_respond(mtmp);
 		}
@@ -777,31 +1394,43 @@ register struct monst *mtmp;
 	if (mdat->msound == MS_FART_QUIET && mtmp->crapbonus && (rn2(2000) < mtmp->crapbonus) && !um_dist(mtmp->mx, mtmp->my, 1) && !mtmp->mpeaceful)
 	{
 		pline("Using %s %s butt, %s produces tender noises and craps right in your %s.", mhis(mtmp), mtmp->female ? "sexy" : "ugly", mon_nam(mtmp), body_part(FACE) );
-		u.ucreamed += rnd(20);
-		make_blinded(Blinded + (long)u.ucreamed, FALSE);
+
+		int blindinc = rnd(20);
+		u.ucreamed += blindinc;
+		make_blinded(Blinded + (long)blindinc, FALSE);
 		if (!rn2(5)) increasesanity(rnd(10));
+		u.cnd_crappingcount++;
+		if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 
 	}
 	if (mdat->msound == MS_FART_NORMAL && mtmp->crapbonus && (rn2(1000) < mtmp->crapbonus) && !um_dist(mtmp->mx, mtmp->my, 1) && !mtmp->mpeaceful)
 	{
 		pline("Using %s %s butt, %s produces beautiful noises and craps right in your %s.", mhis(mtmp), mtmp->female ? "sexy" : "ugly", mon_nam(mtmp), body_part(FACE) );
-		u.ucreamed += rnd(50);
-		make_blinded(Blinded + (long)u.ucreamed, FALSE);
+
+		int blindinc = rnd(50);
+		u.ucreamed += blindinc;
+		make_blinded(Blinded + (long)blindinc, FALSE);
 		if (!rn2(5)) increasesanity(rnd(10));
+		u.cnd_crappingcount++;
+		if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 
 	}
 	if (mdat->msound == MS_FART_LOUD && mtmp->crapbonus && (rn2(400) < mtmp->crapbonus) && !um_dist(mtmp->mx, mtmp->my, 1) && !mtmp->mpeaceful)
 	{
 		pline("Using %s %s butt, %s produces disgusting noises and craps right in your %s.", mhis(mtmp), mtmp->female ? "sexy" : "ugly", mon_nam(mtmp), body_part(FACE) );
-		u.ucreamed += rnd(100);
-		make_blinded(Blinded + (long)u.ucreamed, FALSE);
+
+		int blindinc = rnd(100);
+		u.ucreamed += blindinc;
+		make_blinded(Blinded + (long)blindinc, FALSE);
 		if (!rn2(5)) increasesanity(rnd(10));
+		u.cnd_crappingcount++;
+		if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 
 	}
 
 	if (!(mdat->msound == MS_FART_LOUD || mdat->msound == MS_FART_NORMAL || mdat->msound == MS_FART_QUIET) && mtmp->egotype_farter && !rn2(10 + mtmp->butthurt) && !um_dist(mtmp->mx, mtmp->my, fartdistance) && !mtmp->mpeaceful) {
 	    m_respond(mtmp);
-		while (FemaleTrapElena && !rn2(3)) {
+		while (FemtrapActiveElena && !rn2(3)) {
 			pline("You long for more!");
 			m_respond(mtmp);
 		}
@@ -824,7 +1453,7 @@ register struct monst *mtmp;
 
 	/* Monsters that want to acquire things */
 	/* may teleport, so do it before inrange is set */
-	if( (is_covetous(mdat) || mtmp->egotype_covetous) && (!rn2(10) || (CovetousnessBug || u.uprops[COVETOUSNESS_BUG].extrinsic || have_covetousstone() ) ) ) (void) tactics(mtmp);
+	if( (is_covetous(mdat) || mtmp->egotype_covetous) && (!rn2(10) || (mdat == &mons[PM_AT_RAINKID] && !rn2(3)) || (mdat == &mons[PM_TEA_HUSSY] && !rn2(3)) || (CovetousnessBug || u.uprops[COVETOUSNESS_BUG].extrinsic || have_covetousstone() ) ) ) (void) tactics(mtmp);
 
 	/* check distance and scariness of attacks */
 	distfleeck(mtmp,&inrange,&nearby,&scared);
@@ -1008,7 +1637,7 @@ register struct monst *mtmp;
 				if (!rn2(100)) {
 					char bufof[BUFSZ];
 					bufof[0] = '\0';
-					steal(mtmp, bufof, FALSE);
+					steal(mtmp, bufof, FALSE, FALSE);
 				}
 
 				break;
@@ -1068,7 +1697,7 @@ register struct monst *mtmp;
 		}
 	}
 
-	if ((mdat->msound == MS_CONVERT || mtmp->egotype_converter) && !mtmp->mpeaceful && (distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) && !rn2(10)) {
+	if ((mdat->msound == MS_CONVERT || mtmp->egotype_converter) && !Race_if(PM_TURMENE) && !Race_if(PM_HC_ALIEN) && !mtmp->mpeaceful && (distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) && !(uarmh && uarmh->oartifact == ART_JAMILA_S_BELIEF) && !rn2(10)) {
 
 		static const char *conversion_msgs[] = {
 			"Kafir! Yuece Tanri sizi sevmez, ve sonra doenuestuermek yoksa cezalandirilacaktir!",
@@ -1107,7 +1736,7 @@ register struct monst *mtmp;
 			"Hepinizi inatci koepekler yapacagiz!",
 			"Inanilmaz, ama simdi yeterli! Simdi Allah'in gazabi sana vuracak!",
 			"Inkar edenler iki seceneginiz var. Hemen Islam'a itiraf edin ya da yueksek savas botlarim ciddi yaralar acacak.",
-			"Oyuncu bir guevensiz! Onu Islam’a doenuestuerme zamani.",
+			"Oyuncu bir guevensiz! Onu Islam'a doenuestuerme zamani.",
 			"Inkar edenler yenilir. Derhal Islam'in tek gercek din oldugunu ya da kutsal Allah'in gazabini hissettirdigini itiraf edin!",
 			"Oyuncu ve adamlari... pah. Buetuen inanmayanlar. Sadece askerlerim kimin dine inanmalari gerektigini biliyor!",
 			"Hahahaha Hahahaha! Tuerk savas botlari bedeninizi yok etti, siz kafirler!",
@@ -1191,9 +1820,18 @@ register struct monst *mtmp;
 			"Kafa bezi sadece bir bez parcasi degildir! Onu takariz cuenkue bizi Allah'in kutsal mueminleri olarak tanimlar! Sadece kafirlerin anlamadigi icin hicbir anlam ifade etmez!",
 			"Bir Yahudi dini semboluenue giydigi icin saldiriya ugrarsa, kendi hatasidir. Biz mueslueman bir kafa bezi giymek icin bize saldiran kimseyi asla kabul etmeyecegiz, cuenkue biz kafir topuklularimizla bir asyali tekmelemizi dogrudan kafir somunlarina yerlestirecegiz.",
 			"Siz kafirsiniz, Allah'a doenmelisiniz cuenkue o zaman cennette doksan dokuz genc kadin var! Eger yapmazsan, cehennemin kirmizi seytanlari acimasizca iskence edecek!",
+			"Halkimizin kutsal topraklara seyahat etmesine izin verilmemesi bir hakaret! Bueyuek Tanri, bu karardan sorumlu olan buetuen kafirleri cezalandirir!",
+			"Kongremizdeki kadinlar suclu degil! Ancak baskan kirli bir kuefuer ve Tanri sahsen ona yildirim carpacak!",
+			"Bir bildirimin ardindan geri doendueguemuez icin neden uezuelmemiz gerektigini duesuenueyorsunuz? Siz heretik, istediginizi aldiniz, cuenkue yuece Tanrimiz affetmez!",
+			"Yasli ihtiyar bizim icadi olan doener kebabi yiyorsun, ama dinimiz hakkinda yalan soeylueyorsun! Tanrimiz seni mahvedecek!",
+			"Ceviri makinesi kirli kafirler tarafindan isletiliyor, cuenkue tanri adina varsayilan ceviriyi degistirdiler!",
+			"Benim konusmalarimi zaten anlamiyorsunuz, bu yuezden irkinizin tamamen ortadan kaldirilmasi icin cagri yapabilirim, sizi allahimiza inanmayan insafsizsiniz.",
+			"Temizlik Allah'in guenue buetuen kafirler cezalandirmak ve ilk bu sapkin kadin olacak!",
 			};
 
 		verbalize("%s", conversion_msgs[rn2(SIZE(conversion_msgs))]);
+		u.cnd_conversioncount++;
+		if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 
 		armpro = magic_negation(&youmonst);
 		armprolimit = 75;
@@ -1216,17 +1854,17 @@ register struct monst *mtmp;
 
 			You_feel("less faithful!");
 
-			if (u.ualign.record < -20 && !rn2(100) && (mtmp->data->maligntyp != u.ualign.type) ) { /* You have been converted! */
+			if (u.ualign.record < -20 && !rn2(Race_if(PM_KORONST) ? 10 : 100) && (sgn(mtmp->data->maligntyp) != u.ualign.type) ) { /* You have been converted! */
 
 				if(u.ualignbase[A_CURRENT] == u.ualignbase[A_ORIGINAL] && mtmp->data->maligntyp != A_NONE) {
 					You("have a strong feeling that %s is angry...", u_gname());
-					pline("%s accepts your allegiance.", align_gname(mtmp->data->maligntyp));
+					pline("%s accepts your allegiance.", align_gname(sgn(mtmp->data->maligntyp)));
 
 					/* The player wears a helm of opposite alignment? */
 					if (uarmh && uarmh->otyp == HELM_OF_OPPOSITE_ALIGNMENT)
-						u.ualignbase[A_CURRENT] = mtmp->data->maligntyp;
+						u.ualignbase[A_CURRENT] = sgn(mtmp->data->maligntyp);
 					else
-						u.ualign.type = u.ualignbase[A_CURRENT] = mtmp->data->maligntyp;
+						u.ualign.type = u.ualignbase[A_CURRENT] = sgn(mtmp->data->maligntyp);
 					u.ublessed = 0;
 					flags.botl = 1;
 
@@ -1239,14 +1877,16 @@ register struct monst *mtmp;
 				} else {
 					u.ugangr += 3;
 					adjalign(-25);
-					godvoice(mtmp->data->maligntyp, "Suffer, infidel!");
+					godvoice(sgn(mtmp->data->maligntyp), "Suffer, infidel!");
 					change_luck(-5);
-					(void) adjattrib(A_WIS, -2, TRUE);
-					angrygods(mtmp->data->maligntyp);
+					(void) adjattrib(A_WIS, -2, TRUE, TRUE);
+					angrygods(sgn(mtmp->data->maligntyp));
 
 				}
 			}
 			adjalign(-(mtmp->m_lev + 1));
+
+			if (!rn2(10)) badeffect();
 
 		}
 
@@ -1254,7 +1894,7 @@ register struct monst *mtmp;
 
 convertdone:
 
-	if ((mdat->msound == MS_HCALIEN || mtmp->egotype_wouwouer) && !mtmp->mpeaceful && (distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) && !rn2(15)) {
+	if ((mdat->msound == MS_HCALIEN || mtmp->egotype_wouwouer) && !Race_if(PM_TURMENE) && !Race_if(PM_HC_ALIEN) && !mtmp->mpeaceful && (distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) && !(uarmh && uarmh->oartifact == ART_JAMILA_S_BELIEF) && !rn2(15)) {
 
 		static const char *hcalien_msgs[] = {
 			"Wouwou.",
@@ -1265,6 +1905,8 @@ convertdone:
 			"Wwwouu.",
 		};
 		verbalize("%s", hcalien_msgs[rn2(SIZE(hcalien_msgs))]);
+		u.cnd_wouwoucount++;
+		if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 
 		armpro = magic_negation(&youmonst);
 		armprolimit = 75;
@@ -1285,7 +1927,7 @@ convertdone:
 
 			badeffect();
 			stop_occupation();
-		    switch (rn2(17)) {
+		    if (!obsidianprotection()) switch (rn2(17)) {
 		    case 0:
 		    case 1:
 		    case 2:
@@ -1317,12 +1959,38 @@ convertdone:
 		    case 16: make_dimmed(HDimmed + rnd(100 + (mtmp->m_lev * 5) ), FALSE);			/* 10% */
 			    break;
 		    }
-			if (!rn2(20)) increasesanity(rnd(10));
+			if (!rn2(20)) increasesanity(rnd(10 + (mtmp->m_lev * 2) ));
 		}
 
 	}
 
-	if ((mdat->msound == MS_STENCH || mtmp->egotype_perfumespreader) && !Role_if(PM_HUSSY) && !(youmonst.data->msound == MS_STENCH) && !mtmp->mpeaceful && (distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) && !rn2(20)) {
+	if (mdat->msound == MS_SHOE && !mtmp->mpeaceful && evilfriday && !rn2(50) && (distu(mtmp->mx, mtmp->my) <= 12)) {
+		pline("%s uses %s sweaty inlay, causing you to become unconscious from the stench!", Monnam(mtmp), mhis(mtmp));
+		nomul(-(rnd(5) + (mtmp->m_lev / 4) ), "smelling sweaty inlays", TRUE);
+	}
+
+	if (mdat == &mons[PM_STINKING_HEAP_OF_SHIT] && multi >= 0 && (distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) && !rn2(10)) {
+		pline("Urrrrrgh, there seems to be a stinking heap of shit nearby! You pass out from the vile stench.");
+		nomul(-(rnd(5)), "unconscious from smelling shit", TRUE);
+	}
+	if (mdat == &mons[PM_STINK_HOMER] && multi >= 0 && (distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) && !rn2(10)) {
+		pline("Urrrrrgh, some really stinky person seems to be nearby! You pass out from the vile stench.");
+		nomul(-(rnd(5)), "unconscious from the stink homer's stench", TRUE);
+	}
+
+	if (mdat == &mons[PM_NOISY_ANNOYANCE] && (distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) && !rn2(20)) {
+		demagogueparole();
+		aggravate();
+	}
+	if (mdat == &mons[PM_GHOST_PORKER] && (distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) && !rn2(20)) {
+		verbalize("DENERF! DENERF! DENERF!");
+	}
+	if (mdat == &mons[PM_MIKRAANESIS] && (distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) && !rn2(20)) {
+		pline("*tschoeck tschoeck* Mikraanesis stopped time.");
+		nomul(-(rnd(10)), "Mikraanesis had stopped time", FALSE);
+	}
+
+	if ((mdat->msound == MS_STENCH || mtmp->egotype_perfumespreader) && !Role_if(PM_HUSSY) && !(youmonst.data->msound == MS_STENCH) && !mtmp->mpeaceful && (distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) && !rn2((mdat == &mons[PM_NICE_AUNTIE_HILDA]) ? 5 : (mdat == &mons[PM_AUNT_ANITA]) ? 5 : 20)) {
 		switch (rnd(9)) {
 
 			case 1:
@@ -1354,19 +2022,22 @@ convertdone:
 				break;
 
 		}
+		u.cnd_perfumecount++;
+		if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 
-		if (rn2(10) && uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "gas mask") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "protivogaz") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "gaz niqobi")) ) {
+		if (rn2(10) && uarmh && itemhasappearance(uarmh, APP_GAS_MASK) ) {
 			pline("But the gas mask protects you from the effects.");
 		} else {
 
 			badeffect();
+			if (rn2(2) || Role_if(PM_EMERA)) increasesanity(rnz(20 + mtmp->m_lev));
 			stop_occupation();
 		}
 	}
 
 	/* Monsters with MS_BONES can rattle. If this causes you to snap out of a longer paralysis, more power to you :D */
 	if (mdat->msound == MS_BONES && !mtmp->mpeaceful && (distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM) && !rn2(100)) {
-		pline(Hallucination ? "%s plays the xylophone!" : "%s rattles noisily!", Monnam(mtmp));
+		pline(FunnyHallu ? "%s plays the xylophone!" : "%s rattles noisily!", Monnam(mtmp));
 
 		armpro = magic_negation(&youmonst);
 		armprolimit = 75;
@@ -1396,17 +2067,17 @@ convertdone:
 
 	/* [DS] Cthulhu also uses psychic blasts */
 	else if ((is_mind_flayer(mdat) || mdat == &mons[PM_CTHULHU] || mdat == &mons[PM_FLYING_ASSHOLE] ) 
-			&& !rn2( (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "narrow helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "uzkiy shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "tor dubulg'a") ) ) ? 4 : 20)) {
+			&& !rn2( (uarmh && itemhasappearance(uarmh, APP_NARROW_HELMET) ) ? 4 : 20)) {
 		struct monst *m2, *nmon = (struct monst *)0;
 
 		if (canseemon(mtmp))
 			pline("%s concentrates.", Monnam(mtmp));
 		if (distu(mtmp->mx, mtmp->my) > BOLT_LIM * BOLT_LIM) {
-			You(Hallucination ? "sense a fantastic wave of psychic energy." : "sense a faint wave of psychic energy.");
+			You(FunnyHallu ? "sense a fantastic wave of psychic energy." : "sense a faint wave of psychic energy.");
 			goto toofar;
 		}
 		pline("A wave of psychic energy pours over you!");
-		if ( (mtmp->mpeaceful || (Psi_resist && rn2(20) ) ) &&
+		if ( (mtmp->mpeaceful || (Psi_resist && rn2(StrongPsi_resist ? 100 : 20) ) ) &&
 		    (!Conflict || resist(mtmp, RING_CLASS, 0, 0)))
 			pline("It feels quite soothing.");
 		else {
@@ -1421,6 +2092,7 @@ convertdone:
 					rn1(10, 10) :
 					rn1(4, 4);
 				if (Half_spell_damage && rn2(2) ) dmg = (dmg+1) / 2;
+				if (StrongHalf_spell_damage && rn2(2) ) dmg = (dmg+1) / 2;
 				if (!rn2(100)) { /* evil patch idea by jonadab: 1% chance of causing amnesia */
 					forget(1 + rn2(5));
 				}
@@ -1434,12 +2106,12 @@ convertdone:
 					pline("You're confused!");
 				}
 				if (!rn2(100)) {
-					adjattrib(A_INT, -1, 1);
-					adjattrib(A_WIS, -1, 1);
+					adjattrib(A_INT, -1, 1, TRUE);
+					adjattrib(A_WIS, -1, 1, TRUE);
 				}
 				if (!rn2(100)) {
 					(void) make_hallucinated(HHallucination + rnd(10) + rnd(monster_difficulty() + 1), TRUE, 0L);
-					if (!Free_action || !rn2(20)) {
+					if (!Free_action || !rn2(StrongFree_action ? 100 : 20)) {
 					    pline("You are frozen in place!");
 					    nomul(-rnz(10), "frozen by an eldritch blast", TRUE);
 						if (PlayerHearsSoundEffects) pline(issoviet ? "Teper' vy ne mozhete dvigat'sya. Nadeyus', chto-to ubivayet vas, prezhde chem vash paralich zakonchitsya." : "Klltsch-tsch-tsch-tsch-tsch!");
@@ -1493,11 +2165,22 @@ convertdone:
 	}
 
 	/* occasionally hint at the presence of psychic beings, if you are telepathic --Amy */
-	if (dmgtype(mdat, AD_SPC2) && !rn2((uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "narrow helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "uzkiy shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "tor dubulg'a") ) ) ? 40 : 200) && Blind_telepat) {
-		You(Hallucination ? "sense a fantastic psionic wave." : "sense a faint psionic wave.");
+	if (dmgtype(mdat, AD_SPC2) && !rn2((uarmh && itemhasappearance(uarmh, APP_NARROW_HELMET) ) ? 40 : 200) && Blind_telepat) {
+		You(FunnyHallu ? "sense a fantastic psionic wave." : "sense a faint psionic wave.");
 	}
 
 toofar:
+
+	/* try to attack the player's pets at range, if possible (from dnethack) */
+	if (!DEADMONSTER(mtmp) && !mtmp->mpeaceful && !mtmp->mtame) {
+		register struct monst *mtmp2 = mfind_target(mtmp, FALSE);
+		if (mtmp2 && (mtmp2 != &youmonst) && (mtmp2 != mtmp)) {
+
+			int res;
+			res = mattackm(mtmp, mtmp2);
+			if (res & MM_AGR_DIED) return 1; /* Oops. */
+		}
+	}
 
 	/* If monster is nearby you, and has to wield a weapon, do so.   This
 	 * costs the monster a move, of course.
@@ -1517,7 +2200,7 @@ toofar:
 	    mw_tmp = MON_WEP(mtmp);
 	    if (!(scared && mw_tmp && is_pick(mw_tmp)) &&
 		mtmp->weapon_check == NEED_WEAPON &&
-		!(mtmp->mtrapped && !nearby && select_rwep(mtmp))) {
+		!(mtmp->mtrapped && !nearby && select_rwep(mtmp, FALSE))) {
 		mtmp->weapon_check = NEED_HTH_WEAPON;
 		if (mon_wield_item(mtmp) != 0) return(0);
 	    }
@@ -1540,10 +2223,10 @@ toofar:
 	   mtmp->mconf || mtmp->mstun || (mtmp->minvis && !rn2(3)) ||
 	   (mdat->mlet == S_LEPRECHAUN && !ygold && (lepgold || rn2(2))) ||
 #endif
-	   (is_wanderer(mdat) && !rn2(4)) || (Conflict && mtmp->mcansee && haseyes(mtmp->data) && !resist(mtmp, RING_CLASS, 0, 0) && !mtmp->iswiz
+	   (is_wanderer(mdat) && !rn2(4)) || (Conflict && mtmp->mcansee && haseyes(mtmp->data) && (!resist(mtmp, RING_CLASS, 0, 0) || (StrongConflict && !resist(mtmp, RING_CLASS, 0, 0)) ) && !mtmp->iswiz
 	   && !Is_blackmarket(&u.uz)
 	   ) ||
-	   (!mtmp->mcansee && !rn2(iswarper ? 2 : 4)) || mtmp->mpeaceful) {
+	   (!mtmp->mcansee && !rn2(iswarper ? 2 : 8)) || mtmp->mpeaceful) {
 		/* Possibly cast an undirected spell if not attacking you */
 		/* note that most of the time castmu() will pick a directed
 		   spell and do nothing, so the monster moves normally */
@@ -1622,10 +2305,7 @@ toofar:
 
 /*	Now, attack the player if possible - one attack set per monst	*/
 
-	if (!mtmp->mpeaceful ||
-	    (Conflict && !resist(mtmp, RING_CLASS, 0, 0)
-		&& !Is_blackmarket(&u.uz)
-	)) {
+	if (!mtmp->mpeaceful || (mtmp->mnum == PM_FRENZY_KANGAROO) || ((Conflict && !resist(mtmp, RING_CLASS, 0, 0)) || (StrongConflict && !resist(mtmp, RING_CLASS, 0, 0)) && !Is_blackmarket(&u.uz)) ) {
 
 		/* FIQ found out that self-genocide while polymorphed can make monsters stop attacking entirely. Fixed. */
 
@@ -1644,19 +2324,27 @@ toofar:
 	    if(inrange && dmgtype(mtmp->data, AD_FAKE) && !mtmp->mpeaceful && !rn2(20))
 		{
 			pline("%s", fauxmessage());
-			if (!rn2(3)) pline("%s", fauxmessage());
+			u.cnd_plineamount++;
+			if (!rn2(3)) {
+				pline("%s", fauxmessage());
+				u.cnd_plineamount++;
+			}
 		}
 
 	    if(inrange && mtmp->egotype_faker && !mtmp->mpeaceful && !rn2(20))
 		{
 			pline("%s", fauxmessage());
-			if (!rn2(3)) pline("%s", fauxmessage());
+			u.cnd_plineamount++;
+			if (!rn2(3)) {
+				pline("%s", fauxmessage());
+				u.cnd_plineamount++;
+			}
 		}
 
 	    if(inrange && mtmp->data->msound == MS_BOSS && !mtmp->mpeaceful && !rn2(10))
 	    pline("%s %s", Monnam(mtmp), bosstaunt());
 
-	    if(inrange && (mtmp->data->msound == MS_FART_QUIET || mtmp->data->msound == MS_FART_NORMAL || mtmp->data->msound == MS_FART_LOUD) && (mtmp->data->geno & G_UNIQ) && !mtmp->mpeaceful && !rn2(10))
+	    if(inrange && (mtmp->data->msound == MS_STENCH || mtmp->data->msound == MS_WHORE || mtmp->data->msound == MS_SUPERMAN || mtmp->data->msound == MS_HCALIEN || mtmp->data->msound == MS_CONVERT || mtmp->data->msound == MS_FART_QUIET || mtmp->data->msound == MS_FART_NORMAL || mtmp->data->msound == MS_FART_LOUD) && (mtmp->data->geno & G_UNIQ) && !mtmp->mpeaceful && !rn2(10))
 	    pline("%s %s", Monnam(mtmp), bosstaunt());
 
 	    if(inrange && mtmp->data->msound == MS_CUSS && !mtmp->mpeaceful &&
@@ -1751,7 +2439,7 @@ toofar:
 
 		}
 
-	    if(inrange && mtmp->data->msound == MS_SUPERMAN && !mtmp->mpeaceful && !rn2(5))
+	    if(inrange && mtmp->data->msound == MS_SUPERMAN && !mtmp->mpeaceful && !rn2(mtmp->mnum == PM_BARTOLI_RETARD ? 25 : 5))
 
 		{
 		static const char *superman_msgs[] = {
@@ -1777,7 +2465,8 @@ toofar:
 
 		verbalize("%s", superman_msgs[rn2(SIZE(superman_msgs))]);
 		badeffect();
-		increasesanity(rnz(50));
+		increasesanity(rnz(50 + (mtmp->m_lev * 5) ));
+		u.cnd_supermancount++;
 		stop_occupation();
 		}
 
@@ -1874,6 +2563,7 @@ register int after;
 	boolean can_open=0, can_unlock=0, doorbuster=0;
 	boolean uses_items=0, setlikes=0;
 	boolean avoid=FALSE;
+	boolean astralspecial = FALSE;
 	struct permonst *ptr;
 	struct monst *mtoo;
 	schar mmoved = 0;	/* not strictly nec.: chi >= 0 will do */
@@ -1886,10 +2576,33 @@ register int after;
 	if (mtmp->mfrenzied && mtmp->mpeaceful) mtmp->mpeaceful = 0;
 	if (mtmp->mfrenzied && mtmp->mtame) mtmp->mtame = 0;
 
-	if (mtmp->data->mlet == S_TURRET || stationary(mtmp->data) || ((is_hider(mtmp->data) || mtmp->egotype_hide || mtmp->egotype_mimic) && (mtmp->mundetected || mtmp->m_ap_type == M_AP_FURNITURE || mtmp->m_ap_type == M_AP_OBJECT) ) ) return(0); /* stationary turrets --Amy */
+	if (mtmp->data->mlet == S_TURRET || stationary(mtmp->data) || ((is_hider(mtmp->data) || mtmp->egotype_hide || mtmp->egotype_mimic) && (mtmp->mundetected || mtmp->m_ap_type == M_AP_FURNITURE || mtmp->m_ap_type == M_AP_OBJECT) ) ) {
+
+		if (mtmp->meating) { /* special case here by Amy, otherwise they'd never finish eating! */
+			mtmp->meating--;
+			return 3;			/* still eating */
+		}
+
+		if(mtmp->mtame) {
+			mmoved = dog_move(mtmp, after);
+			goto postmov;
+		}
+
+		return(0); /* stationary turrets --Amy */
+	}
+
+	if (uwep && uwep->oartifact == ART_FLOWERBANE && !rn2(2) && mtmp->data->mlet == S_BAD_FOOD) return 0;
 
 	/* mcalcmove() in mon.c allows sessile monsters to get turns. We still don't want them to move around though. --Amy */
-	if (!mtmp->data->mmove && (!mtmp->egotype_speedster) && (!mtmp->egotype_racer) ) return(0);
+	if (!mtmp->data->mmove && (!mtmp->egotype_speedster) && (!mtmp->egotype_racer) ) {
+
+		if (mtmp->meating) { /* special case here by Amy, otherwise they'd never finish eating! */
+			mtmp->meating--;
+			return 3;			/* still eating */
+		}
+
+		return(0);
+	}
 
 	if(mtmp->mtrapped) {
 	    int i = mintrap(mtmp);
@@ -1990,7 +2703,7 @@ register int after;
 #endif
 
 	/* teleport if that lies in our nature */
-	if( (ptr == &mons[PM_TENGU] || ptr == &mons[PM_TELEPORTER] || ptr == &mons[PM_EASTERN_TENGU] || ptr == &mons[PM_PHASING_TENGU] || ptr == &mons[PM_CHEERFUL_LEPRECHAUN] || ptr == &mons[PM_BLINK] || ptr == &mons[PM_VORPAL_BUNNY] || ptr == &mons[PM_KING_OF_PORN] || ptr == &mons[PM_PEARDUCK] || ptr == &mons[PM_INDIVIDUAL_WILL_O_THE_WISP] || ptr == &mons[PM_TELEHOBBIT] || ptr == &mons[PM_SPOOPY_GHOST] || ptr == &mons[PM_ANNOYING_SLEX_GHOST] || ptr == &mons[PM_SPRING_WOLF] || ptr == &mons[PM_DIMENSIONAL_SHAMBLER] || ptr == &mons[PM_MAGNET_ELEMENTAL] || ptr == &mons[PM_PHASE_KNIGHT] || ptr == &mons[PM_TELEPORTING_DEMON] || ptr == &mons[PM_BEAMING_UFO_PART] || ptr == &mons[PM_BEAMER] || mtmp->egotype_teleportself) && !rn2(25) && !mtmp->mcan &&
+	if( (ptr == &mons[PM_TENGU] || ptr == &mons[PM_CORONA_TASK_FORCE] || ptr == &mons[PM_PURPLE_BOUNCING_GIRL] || ptr == &mons[PM_CORONA_LICHEN] || ptr == &mons[PM_STALKING_CORONA_LICHEN] || ptr == &mons[PM_CORONA_SPORE_LICHEN] || ptr == &mons[PM_CORONA_COLONY_LICHEN] || ptr == &mons[PM_SUDDEN_TENGU] || ptr == &mons[PM_FAKE_NEWS_TENGU] || ptr == &mons[PM_LASTING_TENGU] || ptr == &mons[PM_TELEPORTER] || ptr == &mons[PM_COUNTRY_SHARK] || ptr == &mons[PM_POLITICAL_TENGU] || ptr == &mons[PM_EASTERN_TENGU] || ptr == &mons[PM_PHASING_TENGU] || ptr == &mons[PM_CHEERFUL_LEPRECHAUN] || ptr == &mons[PM_BLINK] || ptr == &mons[PM_VORPAL_BUNNY] || ptr == &mons[PM_KING_OF_PORN] || ptr == &mons[PM_OF_FLOW] || ptr == &mons[PM_PEARDUCK] || ptr == &mons[PM_UAE] || ptr == &mons[PM_CHEATY_SILVER_COIN] || ptr == &mons[PM_SPACEWARP_JELLY] || ptr == &mons[PM_ALSAPIA_MURDERER_MASK] || ptr == &mons[PM_NIGHTMARE_SHEEP] || ptr == &mons[PM_HELL_SHEEP] || ptr == &mons[PM_LOVECRAFT_SHEEP] || ptr == &mons[PM_INDIVIDUAL_WILL_O_THE_WISP] || ptr == &mons[PM_TELEHOBBIT] || ptr == &mons[PM_SPOOPY_GHOST] || ptr == &mons[PM_ANNOYING_SLEX_GHOST] || ptr == &mons[PM_SPRING_WOLF] || ptr == &mons[PM_DIMENSIONAL_SHAMBLER] || ptr == &mons[PM_MAGNET_ELEMENTAL] || ptr == &mons[PM_PHASE_KNIGHT] || ptr == &mons[PM_TELEPORTING_DEMON] || ptr == &mons[PM_BEAMING_UFO_PART] || ptr == &mons[PM_BEAMER] || mtmp->egotype_teleportself) && !rn2(25) && !mtmp->mcan &&
 	   !tele_restrict(mtmp)) {
 	    if(mtmp->mhp < 7 || (ptr == &mons[PM_SPOOPY_GHOST]) || mtmp->mpeaceful || rn2(2))
 		(void) rloc(mtmp, FALSE);
@@ -2012,16 +2725,91 @@ register int after;
 	      goto postmov;
 	}
 
+	if (ptr == &mons[PM_CHEATY_SILVER_COIN] && rn2(3)) {
+		(void) rloc(mtmp, FALSE);
+	      mmoved = 1;
+	      goto postmov;
+	}
+
 not_special:
 	if(u.uswallow && !mtmp->mflee && u.ustuck != mtmp) return(1);
 	omx = mtmp->mx;
 	omy = mtmp->my;
 	gx = mtmp->mux;
 	gy = mtmp->muy;
+
+	if (isevilvariant && mon_has_amulet(mtmp) && !u.freeplaymode && Is_astralevel(&u.uz) ) {
+
+		int altarx = 0, altary = 0;
+		while (altarx++ < COLNO) {
+			altary = 0;
+			while (altary++ < ROWNO) {
+				if (isok(altarx, altary) && (IS_ALTAR(levl[altarx][altary].typ))) {
+
+					aligntyp astalign;
+
+					astalign = levl[altarx][altary].altarmask & AM_MASK;
+					if (astalign == AM_LAWFUL) astalign = 1;
+					else if (astalign == AM_NEUTRAL) astalign = 0;
+					else if (astalign == AM_CHAOTIC) astalign = -1;
+
+					if (astalign == sgn(mtmp->data->maligntyp)) {
+
+						gx = altarx;
+						gy = altary;
+						astralspecial = TRUE;
+
+						if (mtmp->mx == altarx && mtmp->my == altary) { /* game over */
+							u.youaredead = 1;
+							u.youarereallydead = 1;
+							pline("Oh no! Someone else managed to offer the Amulet of Yendor and obtained immortality. You have failed your mission and the game ends here.");
+							killer_format = NO_KILLER_PREFIX;
+							killer = "allowed someone else to offer the Amulet of Yendor to the gods";
+						      done(DIED);
+						      done(DIED);
+						      done(QUIT); /* sorry but your game *really* ends here --Amy */
+
+						}
+
+						goto altarfound;
+
+					}
+				}
+			}
+		}
+
+	}
+altarfound:
+
 	appr = mtmp->mflee ? -1 : 1;
+
+	if (monsndx(ptr) == PM_SLEEPING_GIANT && !rn2(10)) mtmp->msleeping = 1;
+	if (monsndx(ptr) == PM_SARSLEEPER && !rn2(10)) mtmp->msleeping = 1;
+	if (monsndx(ptr) == PM_SLEEPY_GIRL && !rn2(10)) mtmp->msleeping = 1;
+	if (monsndx(ptr) == PM_SLEEPY_WOMAN && !rn2(10)) mtmp->msleeping = 1;
+	if (monsndx(ptr) == PM_SLEEPY_LADY && !rn2(10)) mtmp->msleeping = 1;
+	if (monsndx(ptr) == PM_SLEEPING_ASIAN_GIRL && !rn2(10)) mtmp->msleeping = 1;
+	if (monsndx(ptr) == PM_DIDDLY_DINGUS_DUDE && !rn2(20)) mtmp->msleeping = 1;
 	if (monsndx(ptr) == PM_NOTHING_CHECKER_WHO_IS_CONFUSED) mtmp->mconf = 1;
+	if (monsndx(ptr) == PM_BEER_BELLY) mtmp->mconf = 1;
+	if (monsndx(ptr) == PM_CRAMP_CART_TO_THE_WALL_DRIVER) mtmp->mconf = 1;
+	if (monsndx(ptr) == PM_SOBER_THE_DRUNK) mtmp->mconf = 1;
+	if (monsndx(ptr) == PM_LOONIE_BOSS) mtmp->mconf = 1;
+	if (monsndx(ptr) == PM_BARTOLI_RETARD) mtmp->mconf = 1;
+	if (monsndx(ptr) == PM_ERR_BOSS) mtmp->mconf = 1;
+	if (monsndx(ptr) == PM_ERR) mtmp->mconf = 1;
+	if (monsndx(ptr) == PM_TRANS_BIRTH) mtmp->mconf = 1;
+	if (monsndx(ptr) == PM_CONFUSTICA_EQUA_STABILIA) mtmp->mconf = 1;
+	if (monsndx(ptr) == PM_STUPIDITY_AUTIST) mtmp->mconf = 1;
+	if (monsndx(ptr) == PM_SEIZURE_FOOBACUS) mtmp->mconf = 1;
+	if (monsndx(ptr) == PM_HIGHEST_PRIESTEST) mtmp->mconf = 1;
+	if (monsndx(ptr) == PM_HAMMER_DRIVE) mtmp->mconf = 1;
 	if (monsndx(ptr) == PM_PANCAKE_SPIRIT) mtmp->mconf = 1;
-	if (mtmp->mconf || (uarmh && !rn2(10) && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "inkcoat helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "shlem pal'to chernil") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "siyoh palto dubulg'a") ) ) || (uarmh && uarmh->oartifact == ART_RADAR_NOT_WORKING) || (monsndx(ptr) == PM_DANCING_DRAGON) || (monsndx(ptr) == PM_NOTHING_CHECKER_WHO_IS_CONFUSED) || (monsndx(ptr) == PM_TREMBLING_POPLAR) || (u.uswallow && mtmp == u.ustuck))
+	if (monsndx(ptr) == PM_DIDDLY_DINGUS_DUDE && !rn2(10)) mtmp->mconf = 1;
+	if (monsndx(ptr) == PM_PARROT_RIDING_A_GIANT_PENIS && !rn2(10)) mtmp->mconf = 1;
+	if (mtmp->mconf || (uarmh && !rn2(10) && itemhasappearance(uarmh, APP_INKCOAT_HELMET) ) || (uarmh && uarmh->oartifact == ART_RADAR_NOT_WORKING) || (monsndx(ptr) == PM_DANCING_DRAGON) || (monsndx(ptr) == PM_ERR_BOSS) || (monsndx(ptr) == PM_ERR) || (monsndx(ptr) == PM_NOTHING_CHECKER_WHO_IS_CONFUSED) || (monsndx(ptr) == PM_TREMBLING_POPLAR) || (monsndx(ptr) == PM_DEAR_ENEMY) || (monsndx(ptr) == PM_TOIDI) || (u.uswallow && mtmp == u.ustuck))
+		appr = 0;
+	else if ((monsndx(ptr) == PM_WIMPDAG_BANGER) || (monsndx(ptr) == PM_DARK_BANGER) || (monsndx(ptr) == PM_ARCANE_BANGER) || (monsndx(ptr) == PM_AVARICIOUS_BANGER) || (monsndx(ptr) == PM_SLING_BANGER) || (monsndx(ptr) == PM_TALC_BANGER) || (monsndx(ptr) == PM_EX_SLING_BANGER) || (monsndx(ptr) == PM_FLINT_BANGER) || (monsndx(ptr) == PM_DAT_BANGER) || (monsndx(ptr) == PM_BOW_BANGER) || (monsndx(ptr) == PM_PISTOL_BANGER) || (monsndx(ptr) == PM_LEAD_BANGER) || (monsndx(ptr) == PM_SPEA_BANGER) || (monsndx(ptr) == PM_XBOW_BANGER) || (monsndx(ptr) == PM_FLEECE_BANGER) || (monsndx(ptr) == PM_SHOTTY_BANGER) || (monsndx(ptr) == PM_SHURI_BANGER) || (monsndx(ptr) == PM_SMG_BANGER) || (monsndx(ptr) == PM_LASER_BANGER) || (monsndx(ptr) == PM_ETHER_BANGER) || (monsndx(ptr) == PM_ASSAULT_BANGER) || (monsndx(ptr) == PM_JAV_BANGER) || (monsndx(ptr) == PM_AUTOSHOT_BANGER) || (monsndx(ptr) == PM_ARMSTREAM_BANGER) || (monsndx(ptr) == PM_BIG_FUCKING_BANGER) )
 		appr = 0;
 	else {
 #ifdef GOLDOBJ
@@ -2032,17 +2820,47 @@ not_special:
 				       !levl[omx][omy].lit) &&
 				      (dist2(omx, omy, gx, gy) <= (level.flags.shortsighted ? 36 : 100) ));
 
+		if (astralspecial) should_see = TRUE;
+
 		if (!mtmp->mcansee ||
 		/* monsters no longer automatically know where you are. That was just incredibly annoying. --Amy */
-		( (!Aggravate_monster || !rn2(5)) && !should_see && distu(mtmp->mx,mtmp->my) > 10 && (Stealth ? (can_track(ptr) ? !rn2(4) : rn2(2) ) : (can_track(ptr) ? !rn2(10) : !rn2(4) ) ) ) ||
-			 ( (!Aggravate_monster || !rn2(20)) && is_wanderer(mtmp->data) ? (Stealth ? !rn2(3) : !rn2(5) ) : (Stealth ? !rn2(5) : !rn2(25) ) ) ||
-		    (should_see && Invis && haseyes(ptr) && !perceives(ptr) && rn2(3)) ||
+		( (!Aggravate_monster || !rn2(5)) && !should_see && distu(mtmp->mx,mtmp->my) > 10 && ((Stealth && (StrongStealth || !rn2(3))) ? (can_track(ptr) ? !rn2(4) : rn2(2) ) : (can_track(ptr) ? !rn2(10) : !rn2(4) ) ) ) ||
+			 ( (!Aggravate_monster || !rn2(20)) && is_wanderer(mtmp->data) ? ((Stealth && (StrongStealth || !rn2(3))) ? !rn2(3) : !rn2(5) ) : ((Stealth && (StrongStealth || !rn2(3))) ? !rn2(5) : !rn2(25) ) ) ||
+		    (should_see && Invis && (StrongInvis || !rn2(3)) && haseyes(ptr) && !perceives(ptr) && rn2(3)) ||
 		    (youmonst.m_ap_type == M_AP_OBJECT && youmonst.mappearance == STRANGE_OBJECT) || u.uundetected ||
 		    (youmonst.m_ap_type == M_AP_OBJECT && youmonst.mappearance == GOLD_PIECE && !likes_gold(ptr)) ||
 		    (mtmp->mpeaceful && !mtmp->isshk) ||  /* allow shks to follow */
 		    ((monsndx(ptr) == PM_STALKER || ptr->mlet == S_BAT ||
 		      ptr->mlet == S_LIGHT) && !rn2(3)))
 			appr = 0;
+
+		/* monsters that are very far away shouldn't know where you are --Amy
+		 * but if they're injured, they should (most of the time it's because you tried to kill them) */
+
+		if (mtmp->mhp >= mtmp->mhpmax) {
+
+			int nositerange = 900, siterange = 2500;
+			if (Aggravate_monster) {
+				nositerange *= 3;
+				siterange *= 3;
+			}
+			if (StrongAggravate_monster) {
+				nositerange *= 3;
+				siterange *= 3;
+			}
+			if (Stealth) {
+				nositerange /= 2;
+				siterange /= 2;
+			}
+			if (StrongStealth) {
+				nositerange /= 2;
+				siterange /= 2;
+			}
+
+			if (clear_path(u.ux, u.uy, mtmp->mx, mtmp->my) && (distu(mtmp->mx,mtmp->my) > siterange)) appr = 0;
+			if (!clear_path(u.ux, u.uy, mtmp->mx, mtmp->my) && (distu(mtmp->mx,mtmp->my) > nositerange)) appr = 0;
+
+		}
 
 /*		if(monsndx(ptr) == PM_LEPRECHAUN && (appr == 1) &&
 #ifndef GOLDOBJ
@@ -2057,24 +2875,27 @@ not_special:
 			register coord *cp;
 
 			cp = gettrack(omx,omy);
-			if (cp) {
+			if (cp && !astralspecial) {
 				gx = cp->x;
 				gy = cp->y;
 			}
 		}
 	}
 
-	if (appr == 1 && !rn2(5) && (uarm && OBJ_DESCR(objects[uarm->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarm->otyp]), "camo robe") || !strcmp(OBJ_DESCR(objects[uarm->otyp]), "kamuflyazhnaya roba") || !strcmp(OBJ_DESCR(objects[uarm->otyp]), "kamuflaj to'n") )) ) appr = 0;
+	if (appr == 1 && !rn2(5) && (uarm && itemhasappearance(uarm, APP_CAMO_ROBE)) ) appr = 0;
 
 	if (appr == 1 && uarmf && uarmf->oartifact == ART_SMELL_LIKE_DOG_SHIT && !rn2(10)) appr = 0;
 
-	if (appr == 1 && !rn2(5) && (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "pink cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "bakh-rozovyy plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "portlash-pushti plash") ) )) appr = 0;
+	if (appr == 1 && !rn2(5) && (uarmc && itemhasappearance(uarmc, APP_PINK_CLOAK) )) appr = 0;
 
 	if (ptr == &mons[PM_ANCIENT_BIBLICAL_DRAGON]) appr = -1;
 	if (ptr == &mons[PM_BLOWSTREAM_BABY]) appr = -1;
 	if (ptr == &mons[PM_BOGUXORN]) appr = -1;
 	if (ptr == &mons[PM_POOL_EDGE_SWIMMER]) appr = -1;
 	if (ptr == &mons[PM_SOCIAL_DISORDER]) appr = -1;
+	if (ptr == &mons[PM_LITTLE_WALL_FLOWER]) appr = -1;
+
+	if (u.katitrapocc && !mtmp->mpeaceful) appr = -1; /* they're supposed to let you perform your occupation in peace */
 
 	if ((!mtmp->mpeaceful || !rn2(10))
 #ifdef REINCARNATION
@@ -2149,13 +2970,13 @@ not_special:
 
 		    if(((likegold && otmp->oclass == COIN_CLASS) ||
 		       (likeobjs && index(practical, otmp->oclass) &&
-			(otmp->otyp != CORPSE || (ptr->mlet == S_NYMPH
+			(otmp->otyp != CORPSE || ((ptr->mlet == S_NYMPH || ptr == &mons[PM_GOLDEN_KNIGHT] || ptr == &mons[PM_URCAGUARY])
 			   && !is_rider(&mons[otmp->corpsenm]) && !is_deadlysin(&mons[otmp->corpsenm]) ))) ||
 		       (likemagic && index(magical, otmp->oclass)) ||
 		       (uses_items && searches_for_item(mtmp, otmp)) ||
 		       (likerock && otmp->otyp == BOULDER) ||
 		       (likegems && otmp->oclass == GEM_CLASS &&
-			objects[otmp->otyp].oc_material != MINERAL) ||
+			objects[otmp->otyp].oc_material != MT_MINERAL) ||
 		       (conceals && !cansee(otmp->ox,otmp->oy)) ||
 		       (ptr == &mons[PM_GELATINOUS_CUBE] &&
 			!index(indigestion, otmp->oclass) &&
@@ -2163,10 +2984,15 @@ not_special:
 			  touch_petrifies(&mons[otmp->corpsenm])))
 		      ) && touch_artifact(otmp,mtmp)) {
 			if(can_carry(mtmp,otmp) &&
+				otmp->otyp != STATUE && 
+				otmp->otyp != CHARGER && 
+				otmp->otyp != SYMBIOTE && 
+				otmp->otyp != SWITCHER && 
+				otmp->otyp != UGH_MEMORY_TO_CREATE_INVENTORY && 
 			   (throws_rocks(ptr) ||
 				!sobj_at(BOULDER,xx,yy)) &&
 			   (!is_unicorn(ptr) ||
-			    objects[otmp->otyp].oc_material == GEMSTONE) &&
+			    objects[otmp->otyp].oc_material == MT_GEMSTONE) &&
 			   /* Don't get stuck circling an Elbereth */
 			   !(onscary(xx, yy, mtmp))) {
 			    minr = distmin(omx,omy,xx,yy);
@@ -2174,8 +3000,10 @@ not_special:
 			    oomy = min(ROWNO-1, omy+minr);
 			    lmx = max(1, omx-minr);
 			    lmy = max(0, omy-minr);
-			    gx = otmp->ox;
-			    gy = otmp->oy;
+			    if (!astralspecial) {
+				    gx = otmp->ox;
+				    gy = otmp->oy;
+			    }
 			    /*if (gx == omx && gy == omy) {
 				mmoved = 3; actually unnecessary
 				goto postmov;
@@ -2192,13 +3020,15 @@ not_special:
 	}
 
 	if(minr < SQSRCHRADIUS && appr == -1) {
-	    if(distmin(omx,omy,mtmp->mux,mtmp->muy) <= 3) {
+	    if(!astralspecial && (distmin(omx,omy,mtmp->mux,mtmp->muy) <= 3)) {
 		gx = mtmp->mux;
 		gy = mtmp->muy;
 	    } else
 		appr = 1;
 	}
       }
+
+	if (astralspecial) appr = 1;
 
 	/* don't tunnel if hostile and close enough to prefer a weapon */
 	if (can_tunnel && needspick(ptr) &&
@@ -2209,12 +3039,12 @@ not_special:
 	nix = omx;
 	niy = omy;
 	flag = 0L;
-	if (mtmp->mpeaceful && (!Conflict || resist(mtmp, RING_CLASS, 0, 0)))
+	if (mtmp->mpeaceful && (!Conflict || (resist(mtmp, RING_CLASS, 0, 0) && (!StrongConflict || resist(mtmp, RING_CLASS, 0, 0)) ) ))
 	    flag |= (ALLOW_SANCT | ALLOW_SSM);
 	else flag |= ALLOW_U;
 	if (is_minion(ptr) || is_rider(ptr) || is_deadlysin(ptr)) flag |= ALLOW_SANCT;
 	/* unicorn may not be able to avoid hero on a noteleport level */
-	if (is_unicorn(ptr) && !level.flags.noteleport) flag |= NOTONL;
+	if (is_unicorn(ptr) && !level.flags.noteleport && !u.antitelespelltimeout) flag |= NOTONL;
 	if (passes_walls(ptr) || (mtmp->egotype_wallwalk) ) flag |= (ALLOW_WALL | ALLOW_ROCK);
 	if (passes_bars(ptr) && !In_sokoban(&u.uz)) flag |= ALLOW_BARS;
 	if (can_tunnel) flag |= ALLOW_DIG;
@@ -2239,26 +3069,28 @@ not_special:
 	    chi = -1;
 	    nidist = dist2(nix,niy,gx,gy);
 	    /* allow monsters be shortsighted on some levels for balance */
-	    if(!mtmp->mpeaceful && (level.flags.shortsighted || (rn2(10) && RngeLightAbsorption) || (rn2(10) && uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "absorbing cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "pogloshchayushchiy plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yutucu plash") ) ) ) &&
+	    if(!mtmp->mpeaceful && (level.flags.shortsighted || (rn2(10) && RngeLightAbsorption) || (rn2(10) && uarmc && itemhasappearance(uarmc, APP_ABSORBING_CLOAK) ) ) &&
 	       nidist > (couldsee(nix,niy) ? 144 : 36) && appr == 1) appr = 0;
 
 		/* special coding for "homing" giant wasps from the hunger games --Amy */
-		if ((ptr == &mons[PM_TRACKER_JACKER] || ptr == &mons[PM_FULL_REFUGE] || ptr == &mons[PM_DRIVE_TRAIN] || ptr == &mons[PM_XTREME_TRACKER] || ptr == &mons[PM_REFUGE_UHLERT]) && !mtmp->mpeaceful) appr = 1;
+		if ((ptr == &mons[PM_TRACKER_JACKER] || ptr == &mons[PM_VERONA_MARBLE] || ptr == &mons[PM_CHASE_BIRD] || ptr == &mons[PM_OOGABOOGAGOBILITGOOK_SEEKER_AREHETYPE_FUCKING_RETARD_ASS_SHIT_FLINGING_MONKEY_MONSTER] || ptr == &mons[PM_FULL_REFUGE] || ptr == &mons[PM_DRIVE_TRAIN] || ptr == &mons[PM_XTREME_TRACKER] || ptr == &mons[PM_REFUGE_UHLERT]) && !mtmp->mpeaceful) appr = 1;
 
-	if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "bug-tracking helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "oshibka otslezhivaniya shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "hasharotlar-kuzatish dubulg'a") ) && !rn2(3) ) appr = 1; 
+	if (uarmh && itemhasappearance(uarmh, APP_BUG_TRACKING_HELMET) && !rn2(3) ) appr = 1; 
 
-	if (uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "rainbow boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "raduga sapogi") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "kamalak chizilmasin") ) && !rn2(3) ) appr = 1; 
+	if (uarmf && itemhasappearance(uarmf, APP_RAINBOW_BOOTS) && !rn2(3) ) appr = 1; 
 
 		if (uarmf && uarmf->oartifact == ART_HENRIETTA_S_DOGSHIT_BOOTS) appr = 1;
 
 		if (uarmh && uarmh->oartifact == ART_RADAR_NOT_WORKING) appr = 0;
 
-	    if (is_unicorn(ptr) && level.flags.noteleport) {
+	    if (is_unicorn(ptr) && (level.flags.noteleport || u.antitelespelltimeout)) {
 		/* on noteleport levels, perhaps we cannot avoid hero */
 		for(i = 0; i < cnt; i++)
 		    if(!(info[i] & NOTONL)) avoid=TRUE;
 	    }
 		if (avoid_player(ptr) || mtmp->egotype_avoider ) avoid=TRUE; /* making this into a monster flag --Amy */
+
+		if (astralspecial) appr = 1;
 
 	    for(i=0; i < cnt; i++) {
 		if (avoid && (info[i] & NOTONL)) continue;
@@ -2300,12 +3132,12 @@ not_special:
 		mmoved==1 && can_tunnel && needspick(ptr)) {
 		if (closed_door(nix, niy)) {
 		    if (!(mw_tmp = MON_WEP(mtmp)) ||
-			!is_pick(mw_tmp) || !is_axe(mw_tmp))
+			(mw_tmp && (!is_pick(mw_tmp) || !is_axe(mw_tmp))) )
 			mtmp->weapon_check = NEED_PICK_OR_AXE;
 		} else if (IS_TREE(levl[nix][niy].typ)) {
-		    if (!(mw_tmp = MON_WEP(mtmp)) || !is_axe(mw_tmp))
+		    if (!(mw_tmp = MON_WEP(mtmp)) || (mw_tmp && !is_axe(mw_tmp)) )
 			mtmp->weapon_check = NEED_AXE;
-		} else if (!(mw_tmp = MON_WEP(mtmp)) || !is_pick(mw_tmp)) {
+		} else if (!(mw_tmp = MON_WEP(mtmp)) || (mw_tmp && !is_pick(mw_tmp)) ) {
 		mtmp->weapon_check = NEED_PICK_AXE;
 		}
 		if (mtmp->weapon_check >= NEED_PICK_AXE && mon_wield_item(mtmp))
@@ -2351,9 +3183,10 @@ not_special:
 		if (mstatus & MM_AGR_DIED)		/* aggressor died */
 		    return 2;
 
-		if ((mstatus & MM_HIT) && !(mstatus & MM_DEF_DIED)  &&
-		    rn2(4) && mtmp2->movement >= NORMAL_SPEED) {
+		if ( ((mstatus & MM_HIT) || (mtmp2 && mtmp2->mtame && mtmp && !mtmp->mtame && !rn2(4))) && !(mstatus & MM_DEF_DIED) &&
+		    ((rn2(4) && mtmp2 && mtmp2->movement >= NORMAL_SPEED) || (mtmp2 && mtmp2->mtame && mtmp && !mtmp->mtame)) ) {
 		    mtmp2->movement -= NORMAL_SPEED;
+		    if (mtmp2->movement < 0) mtmp2->movement = 0; /* fail safe */
 		    notonhead = 0;
 		    mstatus = mattackm(mtmp2, mtmp);	/* return attack */
 		    if (mstatus & MM_DEF_DIED)
@@ -2519,7 +3352,7 @@ postmov:
 		    conceals = hides_under(ptr);
 		}
 
-		if ((EaterBugEffect || u.uprops[EATER_BUG].extrinsic || have_eaterstone() || mtmp->egotype_allivore)) {
+		if ((EaterBugEffect || u.uprops[EATER_BUG].extrinsic || have_eaterstone() || ptr == &mons[PM_RAW_MATERIAL_COLLECTING_TANK] || mtmp->egotype_allivore)) {
 		    if (meatanything(mtmp) == 2) return 2;	/* it died */
 		}
 
@@ -2540,8 +3373,7 @@ postmov:
 		if (organivorous(ptr) || mtmp->egotype_organivore) {
 		    if (meatobj(mtmp) == 2) return 2;	/* it died */
 		}
-		if (ptr == &mons[PM_GHOUL] || ptr == &mons[PM_GHAST] || ptr == &mons[PM_GASTLY] || ptr == &mons[PM_PHANTOM_GHOST]
-		|| ptr == &mons[PM_HAUNTER] || ptr == &mons[PM_GENGAR] || ptr == &mons[PM_CORPULENT_DOG] || ptr == &mons[PM_SPIT_DEMON] || ptr == &mons[PM_THESTRAL] || ptr == &mons[PM_THICK_POTATO] || ptr == &mons[PM_BLACK_MUZZLE] || ptr == &mons[PM_CORPSE_SPITTER] || ptr == &mons[PM_MUZZLE_FIEND] || ptr == &mons[PM_MAW_FIEND] || ptr == &mons[PM_ROCKET_MUZZLE]) meatcorpse(mtmp);
+		if (saprovorous(ptr) || ptr == &mons[PM_CORPULENT_DOG] || ptr == &mons[PM_SPIT_DEMON] || ptr == &mons[PM_THESTRAL] || ptr == &mons[PM_THICK_POTATO] || ptr == &mons[PM_BLACK_MUZZLE] || ptr == &mons[PM_CORPSE_SPITTER] || ptr == &mons[PM_MUZZLE_FIEND] || ptr == &mons[PM_MAW_FIEND] || ptr == &mons[PM_ROCKET_MUZZLE]) meatcorpse(mtmp);
 
 		if(!*in_rooms(mtmp->mx, mtmp->my, SHOPBASE) || !rn2(25)) {
 		    boolean picked = FALSE;
@@ -2625,7 +3457,7 @@ register struct monst *mtmp;
 	   if you haven't moved away */
 	if (mx == u.ux && my == u.uy) goto found_you;
 
-	notseen = (!mtmp->mcansee || (Invis && haseyes(mtmp->data) && !perceives(mtmp->data)));
+	notseen = (!mtmp->mcansee || (Invis && (StrongInvis || !rn2(3)) && haseyes(mtmp->data) && !perceives(mtmp->data)));
 	/* add cases as required.  eg. Displacement ... */
 	if (notseen || Underwater) {
 	    /* Xorns can smell valuable metal like gold, treat as seen */
@@ -2639,7 +3471,7 @@ register struct monst *mtmp;
 		disp = 0;
 	    else
 		disp = 1;
-	} else if (Displaced && !(dmgtype(mtmp->data, AD_DISP) ) && !(dmgtype(mtmp->data, AD_MAGM) ) && mtmp->data != &mons[PM_BABY_GRAY_DRAGON] && mtmp->data != &mons[PM_YOUNG_GRAY_DRAGON] && mtmp->data != &mons[PM_YOUNG_ADULT_GRAY_DRAGON] &&
+	} else if (Displaced && (StrongDisplaced || !rn2(3)) && !(dmgtype(mtmp->data, AD_DISP) ) && !(dmgtype(mtmp->data, AD_MAGM) ) && !(dmgtype(mtmp->data, AD_MCRE) ) && mtmp->data != &mons[PM_BABY_GRAY_DRAGON] && mtmp->data != &mons[PM_YOUNG_GRAY_DRAGON] && mtmp->data != &mons[PM_YOUNG_ADULT_GRAY_DRAGON] &&
 		!(dmgtype(mtmp->data, AD_RBRE)) && !(dmgtype(mtmp->data, AD_RNG)) ) {
 	    disp = couldsee(mx, my) ? 2 : 1;
 	} else disp = 0;
@@ -2647,7 +3479,7 @@ register struct monst *mtmp;
 
 	/* without something like the following, invis. and displ.
 	   are too powerful */
-	gotu = notseen ? rn2(3) : Displaced ? rn2(2) : FALSE;
+	gotu = notseen ? rn2(3) : StrongDisplaced ? rn2(2) : Displaced ? rn2(2) : FALSE;
 
 #if 0		/* this never worked as intended & isn't needed anyway */
 	/* If invis but not displaced, staying around gets you 'discovered' */
@@ -2710,7 +3542,7 @@ struct monst *mtmp;
                 if (typ == COIN_CLASS && obj->quan > 100L) return FALSE;
 #endif
 		if (obj->oclass != GEM_CLASS &&
-		    !(typ >= ARROW && typ <= BATARANG) &&
+		    !(typ >= ARROW && typ <= DARK_BATARANG) &&
 		    !(typ >= DAGGER && typ <= CRYSKNIFE) &&
 		    typ != SLING &&
 		    !is_cloak(obj) && typ != FEDORA &&

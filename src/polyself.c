@@ -257,7 +257,13 @@ newman()
 		if (u.uenmax <= u.ulevel) u.uenmax = u.ulevel;
 	}
 	if (u.uhp <= 0 || u.uhpmax <= 0) {
-		if (Polymorph_control || Race_if(PM_MOULD) || Race_if(PM_DEATHMOLD) || Race_if(PM_MISSINGNO) || Race_if(PM_WORM_THAT_WALKS) || Race_if(PM_WARPER) || Race_if(PM_UNGENOMOLD) ) {
+
+		/* Amy edit: We allow polymorph traps and such stuff to generate as early as dungeon level 1. This can
+		 * result in the player's attributes being redistributed, including possibly death, so we'll be nice and
+		 * prevent such a death if the turn counter is below 1000. After all, we fixed that stupid drain for gain
+		 * exploit and therefore this should not be abusable. If it is, I'll devise another fix :P */
+
+		if (Polymorph_control || Race_if(PM_MOULD) || Race_if(PM_DEATHMOLD) || Race_if(PM_MISSINGNO) || Race_if(PM_WORM_THAT_WALKS) || Race_if(PM_WARPER) || Race_if(PM_UNGENOMOLD) || u.polyprotected ) {
 		    if (u.uhp <= 0) u.uhp = 1;
 		    if (u.uhpmax <= 0) u.uhpmax = 1;
 		} else {
@@ -276,15 +282,17 @@ dead: /* we come directly here if their experience level went to 0 or less */
 	polyman("feel like a new %s!",
 		(flags.female && urace.individual.f) ? urace.individual.f :
 		(urace.individual.m) ? urace.individual.m : urace.noun);
+	u.cnd_newmancount++;
 	if (!Upolyd) u.polyformed = 0;
 	if (Slimed) {
 		Your("body transforms, but there is still slime on you.");
-		Slimed = Race_if(PM_EROSATOR) ? 25L : 100L;
+		Slimed = 100;
 	}
 	flags.botl = 1;
 	vision_full_recalc = 1;
 	(void) encumber_msg();
 	see_monsters();
+	exprecalc();
 }
 
 void
@@ -311,9 +319,11 @@ boolean forcecontrol;
 	/* [Tom] I made the chance of dying from Con check only possible for
 		 really weak people (it was out of 20) */
 
-	if(!Polymorph_control && !(tech_inuse(T_POLYFORM) || tech_inuse(T_FUNGOISM) || tech_inuse(T_BECOME_UNDEAD)) && !u.wormpolymorph && !forcecontrol && !draconian && !iswere &&
+	/* Amy edit: early polymorph traps shouldn't kill you by system shock either because that would suck */
+
+	if(!Polymorph_control && !(tech_inuse(T_POLYFORM) || tech_inuse(T_FUNGOISM) || u.fungalsandals || tech_inuse(T_BECOME_UNDEAD)) && !u.wormpolymorph && !forcecontrol && !draconian && !iswere &&
 			!isvamp && !Race_if(PM_DOPPELGANGER) && !Role_if(PM_SHAPESHIFTER) && !Race_if(PM_HEMI_DOPPELGANGER)) {
-		if ( (rn2(12) > ACURR(A_CON) || !rn2(50)) && !Race_if(PM_UNGENOMOLD) && !Race_if(PM_MOULD) && !Race_if(PM_DEATHMOLD) && !Race_if(PM_MISSINGNO) && !Race_if(PM_WORM_THAT_WALKS) && !Race_if(PM_WARPER) ) {
+		if ( (rn2(12) > ACURR(A_CON) || !rn2(50)) && !u.polyprotected && !Race_if(PM_UNGENOMOLD) && !Race_if(PM_MOULD) && !Race_if(PM_DEATHMOLD) && !Race_if(PM_MISSINGNO) && !Race_if(PM_WORM_THAT_WALKS) && !Race_if(PM_WARPER) ) {
 
 		You("%s", shudder_for_moment);
 		losehp(rnd(30), "system shock", KILLED_BY_AN);
@@ -327,7 +337,7 @@ boolean forcecontrol;
 
 		do {
 			mntmp = rn2(NUMMONS);
-		} while(( (notake(&mons[mntmp]) && rn2(4) ) || ((mons[mntmp].mlet == S_BAT) && rn2(2)) || ((mons[mntmp].mlet == S_EYE) && rn2(2) ) || ((mons[mntmp].mmove == 1) && rn2(4) ) || ((mons[mntmp].mmove == 2) && rn2(3) ) || ((mons[mntmp].mmove == 3) && rn2(2) ) || ((mons[mntmp].mmove == 4) && !rn2(3) ) || ( (mons[mntmp].mlevel < 10) && ((mons[mntmp].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[mntmp]) && rn2(2) ) || ( is_nonmoving(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5) ) || ( is_nonmoving(&mons[mntmp]) && rn2(20) ) || ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(20) ) ) );
+		} while(( (notake(&mons[mntmp]) && rn2(4) ) || ((mons[mntmp].mlet == S_BAT) && rn2(2)) || ((mons[mntmp].mlet == S_EYE) && rn2(2) ) || ((mons[mntmp].mmove == 1) && rn2(4) ) || ((mons[mntmp].mmove == 2) && rn2(3) ) || ((mons[mntmp].mmove == 3) && rn2(2) ) || ((mons[mntmp].mmove == 4) && !rn2(3) ) || ( (mons[mntmp].mlevel < 10) && ((mons[mntmp].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[mntmp]) && rn2(2) ) || ( is_nonmoving(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5) ) || ( is_nonmoving(&mons[mntmp]) && rn2(20) ) || (is_jonadabmonster(&mons[mntmp]) && rn2(20)) || ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(20) ) ) );
 
 		if (polymon(mntmp)) u.polyformed = 1;
 
@@ -338,11 +348,11 @@ boolean forcecontrol;
 		goto made_change;
 	}
 
-	if (tech_inuse(T_FUNGOISM)) {
+	if (tech_inuse(T_FUNGOISM) || u.fungalsandals) {
 
 		do {
 			mntmp = rn2(NUMMONS);
-		} while(( (notake(&mons[mntmp]) && rn2(4) ) || (mons[mntmp].mlet != S_FUNGUS) || ((mons[mntmp].mmove == 1) && rn2(4) ) || ((mons[mntmp].mmove == 2) && rn2(3) ) || ((mons[mntmp].mmove == 3) && rn2(2) ) || ((mons[mntmp].mmove == 4) && !rn2(3) ) || ( (mons[mntmp].mlevel < 10) && ((mons[mntmp].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[mntmp]) && rn2(2) ) || ( is_nonmoving(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5) ) || ( is_nonmoving(&mons[mntmp]) && rn2(20) ) || ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(20) ) ) );
+		} while(( (notake(&mons[mntmp]) && rn2(4) ) || !polyok(&mons[mntmp]) || (mons[mntmp].mlet != S_FUNGUS) || ((mons[mntmp].mmove == 1) && rn2(4) ) || ((mons[mntmp].mmove == 2) && rn2(3) ) || ((mons[mntmp].mmove == 3) && rn2(2) ) || ((mons[mntmp].mmove == 4) && !rn2(3) ) || ( (mons[mntmp].mlevel < 10) && ((mons[mntmp].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[mntmp]) && rn2(2) ) || ( is_nonmoving(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5) ) || ( is_nonmoving(&mons[mntmp]) && rn2(20) ) || (is_jonadabmonster(&mons[mntmp]) && rn2(20)) || ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(20) ) ) );
 
 		if (polymon(mntmp)) u.polyformed = 1;
 
@@ -357,7 +367,7 @@ boolean forcecontrol;
 
 		do {
 			mntmp = rn2(NUMMONS);
-		} while(( (notake(&mons[mntmp]) && rn2(4) ) || (!(is_undead(&mons[mntmp])) ) || ((mons[mntmp].mmove == 1) && rn2(4) ) || ((mons[mntmp].mmove == 2) && rn2(3) ) || ((mons[mntmp].mmove == 3) && rn2(2) ) || ((mons[mntmp].mmove == 4) && !rn2(3) ) || ( (mons[mntmp].mlevel < 10) && ((mons[mntmp].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[mntmp]) && rn2(2) ) || ( is_nonmoving(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5) ) || ( is_nonmoving(&mons[mntmp]) && rn2(20) ) || ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(20) ) ) );
+		} while(( (notake(&mons[mntmp]) && rn2(4) ) || !polyok(&mons[mntmp]) || (!(is_undead(&mons[mntmp])) ) || ((mons[mntmp].mmove == 1) && rn2(4) ) || ((mons[mntmp].mmove == 2) && rn2(3) ) || ((mons[mntmp].mmove == 3) && rn2(2) ) || ((mons[mntmp].mmove == 4) && !rn2(3) ) || ( (mons[mntmp].mlevel < 10) && ((mons[mntmp].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[mntmp]) && rn2(2) ) || ( is_nonmoving(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5) ) || ( is_nonmoving(&mons[mntmp]) && rn2(20) ) || (is_jonadabmonster(&mons[mntmp]) && rn2(20)) || ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(20) ) ) );
 
 		if (polymon(mntmp)) u.polyformed = 1;
 
@@ -372,7 +382,7 @@ boolean forcecontrol;
 
 		do {
 			mntmp = rn2(NUMMONS);
-		} while(( (notake(&mons[mntmp]) && rn2(4) ) || ((mons[mntmp].mlet == S_BAT) && rn2(2)) || ((mons[mntmp].mlet == S_EYE) && rn2(2) ) || ((mons[mntmp].mmove == 1) && rn2(4) ) || ((mons[mntmp].mmove == 2) && rn2(3) ) || ((mons[mntmp].mmove == 3) && rn2(2) ) || ((mons[mntmp].mmove == 4) && !rn2(3) ) || ( (mons[mntmp].mlevel < 10) && ((mons[mntmp].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[mntmp]) && rn2(2) ) || ( is_nonmoving(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5) ) || ( is_nonmoving(&mons[mntmp]) && rn2(20) ) || ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(20) ) ) );
+		} while(( (notake(&mons[mntmp]) && rn2(4) ) || ((mons[mntmp].mlet == S_BAT) && rn2(2)) || ((mons[mntmp].mlet == S_EYE) && rn2(2) ) || ((mons[mntmp].mmove == 1) && rn2(4) ) || ((mons[mntmp].mmove == 2) && rn2(3) ) || ((mons[mntmp].mmove == 3) && rn2(2) ) || ((mons[mntmp].mmove == 4) && !rn2(3) ) || ( (mons[mntmp].mlevel < 10) && ((mons[mntmp].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[mntmp]) && rn2(2) ) || ( is_nonmoving(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5) ) || ( is_nonmoving(&mons[mntmp]) && rn2(20) ) || (is_jonadabmonster(&mons[mntmp]) && rn2(20)) || ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(20) ) ) );
 
 		if (polymon(mntmp)) u.polyformed = 1;
 
@@ -385,16 +395,109 @@ boolean forcecontrol;
 		goto made_change;
 	}
 
-	if (Race_if(PM_MISSINGNO)) mntmp = (NUMMONS + rnd(MISSINGNORANGE));
-	else if (Race_if(PM_WARPER) && !u.wormpolymorph) {
+	/*if (Race_if(PM_MISSINGNO)) mntmp = (NUMMONS + rnd(MISSINGNORANGE));*/
+	/*else*/ if (Race_if(PM_WARPER) && !u.wormpolymorph) {
 		do {
 			/* randomly pick any monster, but reroll if it sucks too much --Amy */
 			mntmp = rn2(NUMMONS);
-		} while(( (notake(&mons[mntmp]) && rn2(4) ) || ((mons[mntmp].mlet == S_BAT) && rn2(2)) || ((mons[mntmp].mlet == S_EYE) && rn2(2) ) || ((mons[mntmp].mmove == 1) && rn2(4) ) || ((mons[mntmp].mmove == 2) && rn2(3) ) || ((mons[mntmp].mmove == 3) && rn2(2) ) || ((mons[mntmp].mmove == 4) && !rn2(3) ) || ( (mons[mntmp].mlevel < 10) && ((mons[mntmp].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[mntmp]) && rn2(2) ) || ( is_nonmoving(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5) ) || ( is_nonmoving(&mons[mntmp]) && rn2(20) ) || ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(20) ) ) );
+		} while(( (notake(&mons[mntmp]) && rn2(4) ) || ((mons[mntmp].mlet == S_BAT) && rn2(2)) || ((mons[mntmp].mlet == S_EYE) && rn2(2) ) || ((mons[mntmp].mmove == 1) && rn2(4) ) || ((mons[mntmp].mmove == 2) && rn2(3) ) || ((mons[mntmp].mmove == 3) && rn2(2) ) || ((mons[mntmp].mmove == 4) && !rn2(3) ) || ( (mons[mntmp].mlevel < 10) && ((mons[mntmp].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[mntmp]) && rn2(2) ) || ( is_nonmoving(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5) ) || ( is_nonmoving(&mons[mntmp]) && rn2(20) ) || (is_jonadabmonster(&mons[mntmp]) && rn2(20)) || ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(20) ) ) );
 
 	}
-	else if (Race_if(PM_DEATHMOLD)) mntmp = (PM_WHITE_MISSINGNO + rn2(14 + (u.ulevel / 2) ) );
-	else if ((Polymorph_control || forcecontrol) && !u.wormpolymorph && rn2(5)) {
+	else if (Race_if(PM_DEATHMOLD)) {
+		/* since we added new tilde-class monsters... have to hardwire this --Amy */
+		int deathmolds = 14 + (u.ulevel / 2);
+		switch (rnd(deathmolds)) {
+			case 1:
+				mntmp = PM_WHITE_MISSINGNO;
+				break;
+			case 2:
+				mntmp = PM_GRAY_MISSINGNO;
+				break;
+			case 3:
+				mntmp = PM_BLACK_MISSINGNO;
+				break;
+			case 4:
+				mntmp = PM_RED_MISSINGNO;
+				break;
+			case 5:
+				mntmp = PM_GREEN_MISSINGNO;
+				break;
+			case 6:
+				mntmp = PM_BROWN_MISSINGNO;
+				break;
+			case 7:
+				mntmp = PM_MAGENTA_MISSINGNO;
+				break;
+			case 8:
+				mntmp = PM_CYAN_MISSINGNO;
+				break;
+			case 9:
+				mntmp = PM_ORANGE_MISSINGNO;
+				break;
+			case 10:
+				mntmp = PM_BRIGHT_GREEN_MISSINGNO;
+				break;
+			case 11:
+				mntmp = PM_YELLOW_MISSINGNO;
+				break;
+			case 12:
+				mntmp = PM_BRIGHT_BLUE_MISSINGNO;
+				break;
+			case 13:
+				mntmp = PM_BRIGHT_MAGENTA_MISSINGNO;
+				break;
+			case 14:
+				mntmp = PM_BRIGHT_CYAN_MISSINGNO;
+				break;
+			case 15:
+				mntmp = PM_BEIGE_MISSINGNO;
+				break;
+			case 16:
+				mntmp = PM_SHADY_MISSINGNO;
+				break;
+			case 17:
+				mntmp = PM_DARK_MISSINGNO;
+				break;
+			case 18:
+				mntmp = PM_SCARLET_MISSINGNO;
+				break;
+			case 19:
+				mntmp = PM_VIRIDIAN_MISSINGNO;
+				break;
+			case 20:
+				mntmp = PM_UMBRA_MISSINGNO;
+				break;
+			case 21:
+				mntmp = PM_PURPLE_MISSINGNO;
+				break;
+			case 22:
+				mntmp = PM_STEEL_MISSINGNO;
+				break;
+			case 23:
+				mntmp = PM_VIVID_MISSINGNO;
+				break;
+			case 24:
+				mntmp = PM_POISONOUS_MISSINGNO;
+				break;
+			case 25:
+				mntmp = PM_TOPAZ_MISSINGNO;
+				break;
+			case 26:
+				mntmp = PM_ULTRAMARINE_MISSINGNO;
+				break;
+			case 27:
+				mntmp = PM_PINK_MISSINGNO;
+				break;
+			case 28:
+				mntmp = PM_AZURE_MISSINGNO;
+				break;
+			case 29:
+				mntmp = PM_MULTICOLORED_MISSINGNO;
+				break;
+		}
+		mntmp = (PM_WHITE_MISSINGNO + rn2(14 + (u.ulevel / 2) ) );
+	}
+	else if ((Polymorph_control || forcecontrol) && !u.wormpolymorph && rn2(StrongPolymorph_control ? 5 : 3)) {
 		do {
 			getlin("Become what kind of monster? [type the name]",
 				buf);
@@ -414,13 +517,13 @@ boolean forcecontrol;
 			}
 			/* uncommon forms are difficult to polymorph into, because the usual reason why they're uncommon is
 			 * that they are very powerful, so we need to reduce the player's chance of becoming one --Amy */
-			else if (!forcecontrol && ( ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5)) ) ) {
+			else if (!forcecontrol && ( (is_jonadabmonster(&mons[mntmp]) && rn2(20)) || ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5)) ) ) {
 				mntmp = LOW_PM - 1; break; /* polymorph failed */
 			}
-			else if (!forcecontrol && ((PlayerCannotUseSkills) && (rnd(18) > 7) ) ) {
+			else if (!forcecontrol && ((PlayerCannotUseSkills) && (rnd(StrongPolymorph_control ? 12 : 18) > 7) ) ) {
 				mntmp = LOW_PM - 1; break; /* polymorph failed */
 			}
-			else if (!forcecontrol && (!(PlayerCannotUseSkills) && (rnd(18) > (P_SKILL(P_POLYMORPHING) + 10) ) ) ) {
+			else if (!forcecontrol && (!(PlayerCannotUseSkills) && (rnd(StrongPolymorph_control ? 15 : 18) > (P_SKILL(P_POLYMORPHING) + 10) ) ) ) {
 				mntmp = LOW_PM - 1; break; /* polymorph failed */
 			}
 
@@ -432,7 +535,7 @@ boolean forcecontrol;
 		if (draconian &&
 		    (mntmp == armor_to_dragon(uarm->otyp) || tries == 5))
 		    goto do_merge;
-	} else if ((Race_if(PM_DOPPELGANGER) || Role_if(PM_SHAPESHIFTER) || Race_if(PM_HEMI_DOPPELGANGER)) && rn2(5)) {
+	} else if ((Race_if(PM_DOPPELGANGER) || Role_if(PM_SHAPESHIFTER) || Race_if(PM_HEMI_DOPPELGANGER)) && rn2(StrongPolymorph_control ? 10 : 5)) {
 		/* Not an experienced Doppelganger yet */
 		do {
 			/* Slightly different wording */
@@ -458,13 +561,13 @@ boolean forcecontrol;
 
 				/* lower chance if form is uncommon, see above --Amy */
 				}
-				else if ( ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5)) ) {
+				else if ( (is_jonadabmonster(&mons[mntmp]) && rn2(20)) || ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5)) ) {
 					mntmp = LOW_PM - 1; break; /* polymorph failed */
 				}
-				else if ((PlayerCannotUseSkills) && (rnd(12) > 3) ) {
+				else if ((PlayerCannotUseSkills) && (rnd(StrongPolymorph_control ? 6 : 12) > 3) ) {
 					mntmp = LOW_PM - 1; break; /* polymorph failed */
 				}
-				else if (!(PlayerCannotUseSkills) && (rnd(12) > (P_SKILL(P_POLYMORPHING) + 4) ) ) {
+				else if (!(PlayerCannotUseSkills) && (rnd(StrongPolymorph_control ? 9 : 12) > (P_SKILL(P_POLYMORPHING) + 4) ) ) {
 					mntmp = LOW_PM - 1; break; /* polymorph failed */
 				}
 
@@ -478,10 +581,10 @@ boolean forcecontrol;
 				mntmp = LOW_PM - 1; break; /* polymorph failed */
 			}
 
-			else if ((PlayerCannotUseSkills) && (rnd(12) > 3) ) {
+			else if ((PlayerCannotUseSkills) && (rnd(StrongPolymorph_control ? 6 : 12) > 3) ) {
 				mntmp = LOW_PM - 1; break; /* polymorph failed */
 			}
-			else if (!(PlayerCannotUseSkills) && (rnd(12) > (P_SKILL(P_POLYMORPHING) + 4) ) ) {
+			else if (!(PlayerCannotUseSkills) && (rnd(StrongPolymorph_control ? 9 : 12) > (P_SKILL(P_POLYMORPHING) + 4) ) ) {
 				mntmp = LOW_PM - 1; break; /* polymorph failed */
 			}
 
@@ -507,10 +610,16 @@ boolean forcecontrol;
 				mntmp = PM_HUMAN; /* Illegal; force newman() */
 			else
 				mntmp = u.ulycn;
-		} else if (isvamp) {
-			if (u.umonnum != PM_VAMPIRE_BAT)
+		} else if (isvamp && issoviet) {
+			/* Amy edit: vampire bats are ultra sucky polymorph forms... */
+			/* In Soviet Russia, vampires aren't allowed to polymorph into non-vampires. It's actually weird that
+			 * the country isn't called Soviet Romania, where the vampires originally come from. And of course they
+			 * don't take into account the fact that there's many many vampiric monsters in this game, not all of
+			 * which deserve to always turn into such a godawfully weak form. */
+			if (u.umonnum != PM_VAMPIRE_BAT) {
 				mntmp = PM_VAMPIRE_BAT;
-			else
+				pline("Teper' vy bespoleznaya letuchaya mysh', kotoraya vsegda oglushena i dvizhetsya sluchaynym obrazom. Vse tol'ko potomu, chto sovetskiy tip ledyanykh glyb nastol'ko otstalyy i nikogda ne mozhet izmenit' chto-to ot vanili.");
+			} else
 				mntmp = PM_HUMAN; /* newman() */
 		}
 		/* if polymon fails, "you feel" message has been given
@@ -524,12 +633,12 @@ boolean forcecontrol;
 		u.polyformed = 1;
 	}
 
-	if (!u.wormpolymorph && !Race_if(PM_MISSINGNO) && !Race_if(PM_WARPER) && !Race_if(PM_DEATHMOLD) && mntmp < LOW_PM) {
+	if (!u.wormpolymorph && !Race_if(PM_WARPER) && !Race_if(PM_DEATHMOLD) && mntmp < LOW_PM) {
 		tries = 0;
 		do {
 			/* randomly pick an "ordinary" monster */
 			mntmp = rn1(SPECIAL_PM - LOW_PM, LOW_PM);
-		} while((!polyok(&mons[mntmp]) || is_placeholder(&mons[mntmp]) || (notake(&mons[mntmp]) && rn2(4) ) || ((mons[mntmp].mlet == S_BAT) && rn2(2)) || ((mons[mntmp].mlet == S_EYE) && rn2(2) ) || ((mons[mntmp].mmove == 1) && rn2(4) ) || ((mons[mntmp].mmove == 2) && rn2(3) ) || ((mons[mntmp].mmove == 3) && rn2(2) ) || ((mons[mntmp].mmove == 4) && !rn2(3) ) || ( (mons[mntmp].mlevel < 10) && ((mons[mntmp].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[mntmp]) && rn2(2) ) || ( is_nonmoving(&mons[mntmp]) && rn2(5) ) || ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5) ) || ( is_nonmoving(&mons[mntmp]) && rn2(20) && (Race_if(PM_UNGENOMOLD) || Race_if(PM_MOULD) || Race_if(PM_WORM_THAT_WALKS) || Race_if(PM_WARPER) ) ) || ( is_eel(&mons[mntmp]) && rn2(20) && (Race_if(PM_UNGENOMOLD) || Race_if(PM_MOULD) || Race_if(PM_WORM_THAT_WALKS) || Race_if(PM_WARPER) ) ) )
+		} while((!polyok(&mons[mntmp]) || is_placeholder(&mons[mntmp]) || (notake(&mons[mntmp]) && rn2(4) ) || ((mons[mntmp].mlet == S_BAT) && rn2(2)) || ((mons[mntmp].mlet == S_EYE) && rn2(2) ) || ((mons[mntmp].mmove == 1) && rn2(4) ) || ((mons[mntmp].mmove == 2) && rn2(3) ) || ((mons[mntmp].mmove == 3) && rn2(2) ) || ((mons[mntmp].mmove == 4) && !rn2(3) ) || ( (mons[mntmp].mlevel < 10) && ((mons[mntmp].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[mntmp]) && rn2(2) ) || ( is_nonmoving(&mons[mntmp]) && rn2(5) ) || (is_jonadabmonster(&mons[mntmp]) && rn2(20)) || ( uncommon2(&mons[mntmp]) && !rn2(4) ) || ( uncommon3(&mons[mntmp]) && !rn2(3) ) || ( uncommon5(&mons[mntmp]) && !rn2(2) ) || ( uncommon7(&mons[mntmp]) && rn2(3) ) || ( uncommon10(&mons[mntmp]) && rn2(5) ) || ( is_eel(&mons[mntmp]) && rn2(5) ) || ( is_nonmoving(&mons[mntmp]) && rn2(20) && (Race_if(PM_UNGENOMOLD) || Race_if(PM_MOULD) || Race_if(PM_WORM_THAT_WALKS) || Race_if(PM_WARPER) ) ) || ( is_eel(&mons[mntmp]) && rn2(20) && (Race_if(PM_UNGENOMOLD) || Race_if(PM_MOULD) || Race_if(PM_WORM_THAT_WALKS) || Race_if(PM_WARPER) ) ) )
 	/* Polymorphing into a nonmoving monster can really ruin your day as an ungenomold character, so the chances
 	 * of ending up as one are greatly reduced now. Eels are sucky polymorph forms too.
 	 * And of course stuff that can't pick up items or is otherwise stunted should be more rare as well. --Amy */
@@ -649,7 +758,7 @@ int	mntmp;
 		if(!rn2(10)) dochange = TRUE;
 	}
 
-	if (!Race_if(PM_MISSINGNO) && !u.ughmemory) {
+	if (!u.ughmemory) {
 	if (dochange) {
 		flags.female = !flags.female;
 		You("%s %s%s!",
@@ -683,7 +792,24 @@ int	mntmp;
       	case P_GRAND_MASTER:	u.mtimedone = rnz(900); break;
       	case P_SUPREME_MASTER:	u.mtimedone = rnz(1000); break;
       	default: u.mtimedone = rnz(400); break;
-		
+
+	}
+
+	if (!PlayerCannotUseSkills) {
+
+		if (P_SKILL(P_POLYMORPHING) >= P_BASIC) {
+			char nervbuf[QBUFSZ];
+			char thisisannoying = 0;
+
+			sprintf(nervbuf, "You have the polymorphing skill, which allows you to get a longer-lasting polymorph. Do you want a longer polymorph duration? (If you answer no, you just throw the bonus away.)");
+			thisisannoying = yn_function(nervbuf, ynqchars, 'y');
+			if (thisisannoying == 'n') {
+				u.mtimedone = rnz(400);
+				pline("You decided to opt for the regular polymorphing duration, disregarding the bonus that your polymorphing skill would have given you.");
+			}
+			else pline("Your polymorph duration was extended!");
+		}
+
 	}
 
 	u.umonnum = mntmp;
@@ -817,7 +943,7 @@ int	mntmp;
 		skinback(FALSE);
 	break_armor();
 	drop_weapon(1);
-	if (hides_under(youmonst.data) || (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "secret helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "sekret shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "yashirin dubulg'a") ) ) || (uarmc && uarmc->oartifact == ART_JANA_S_EXTREME_HIDE_AND_SE) )
+	if (hides_under(youmonst.data) || (uarmh && itemhasappearance(uarmh, APP_SECRET_HELMET) ) || (uarmc && uarmc->oartifact == ART_JANA_S_EXTREME_HIDE_AND_SE) )
 		u.uundetected = OBJ_AT(u.ux, u.uy);
 	else if (youmonst.data->mlet == S_EEL)
 		u.uundetected = is_waterypool(u.ux, u.uy);
@@ -840,7 +966,7 @@ int	mntmp;
 	if (!sticky && !u.uswallow && u.ustuck && sticks(youmonst.data)) setustuck(0);
 	else if (sticky && !sticks(youmonst.data)) uunstick();
 	if (u.usteed) {
-	    if (touch_petrifies(u.usteed->data) && !Stone_resistance && !(uarmg && !FingerlessGloves && uarmu && uarm && uarmc) && rnl(3)) {
+	    if (touch_petrifies(u.usteed->data) && (PlayerCannotUseSkills || (P_SKILL(P_RIDING) < P_EXPERT)) && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && !(uarmg && !FingerlessGloves && uarmu && uarm && uarmc) && rnl(3)) {
 	    	char buf[BUFSZ];
 
 	    	pline("No longer petrifying-resistant, you touch %s.",
@@ -868,7 +994,7 @@ int	mntmp;
 		pline(use_thec,monsterc,"summon help");
 	    if (webmaker(youmonst.data))
 		pline(use_thec,monsterc,"spin a web");
-	    if (u.umonnum == PM_GREMLIN)
+	    if (splittinggremlin(youmonst.data))
 		pline(use_thec,monsterc,"multiply in a fountain");
 	    if (is_unicorn(youmonst.data))
 		pline(use_thec,monsterc,"use your horn");
@@ -897,10 +1023,10 @@ int	mntmp;
 	    spoteffects(TRUE);
 	if (Passes_walls && u.utrap && u.utraptype == TT_INFLOOR) {
 	    u.utrap = 0;
-	    Hallucination ? pline("You get on an astral trip.") : pline_The("rock seems to no longer trap you.");
+	    FunnyHallu ? pline("You get on an astral trip.") : pline_The("rock seems to no longer trap you.");
 	} else if (likes_lava(youmonst.data) && u.utrap && u.utraptype == TT_LAVA) {
 	    u.utrap = 0;
-	    Hallucination ? pline("Fire all around you - how comfy!") : pline_The("lava now feels soothing.");
+	    FunnyHallu ? pline("Fire all around you - how comfy!") : pline_The("lava now feels soothing.");
 	}
 	if (amorphous(youmonst.data) || is_whirly(youmonst.data) || unsolid(youmonst.data)) {
 	    if (Punished) {
@@ -971,25 +1097,25 @@ break_armor()
 
 	if (uarm && (rnd(100) < controllingchance)) {
 
-		getlin ("Keep your torso armor on? [yes/no]",buf);
+		getlin ("Keep your torso armor on? [y/yes/no]",buf);
 		(void) lcase (buf);
-		if (!(strcmp (buf, "yes"))) armorkeep = 1;
+		if (!(strcmp (buf, "yes")) || !(strcmp (buf, "y"))) armorkeep = 1;
 
 	}
 	if (uarm && uarm->stckcurse) armorkeep = 1;
 
 	if (uarmc && (rnd(100) < controllingchance)) {
-		getlin ("Keep your cloak on? [yes/no]",buf);
+		getlin ("Keep your cloak on? [y/yes/no]",buf);
 		(void) lcase (buf);
-		if (!(strcmp (buf, "yes"))) cloakkeep = 1;
+		if (!(strcmp (buf, "yes")) || !(strcmp (buf, "y"))) cloakkeep = 1;
 
 	}
 	if (uarmc && uarmc->stckcurse) cloakkeep = 1;
 
 	if (uarmu && (rnd(100) < controllingchance)) {
-		getlin ("Keep your shirt on? [yes/no]",buf);
+		getlin ("Keep your shirt on? [y/yes/no]",buf);
 		(void) lcase (buf);
-		if (!(strcmp (buf, "yes"))) shirtkeep = 1;
+		if (!(strcmp (buf, "yes")) || !(strcmp (buf, "y"))) shirtkeep = 1;
 
 	}
 	if (uarmu && uarmu->stckcurse) shirtkeep = 1;
@@ -1017,6 +1143,7 @@ break_armor()
 		else pline("I yeshche odin glupyy veshch' kusayet pyl'! Sovetskaya khochet etu igru, chtoby sosat' kak mozhno bol'she!");
 		exercise(A_STR, FALSE);
 		(void) Armor_gone();
+		u.cnd_polybreak++;
 		useup(otmp);
 	}
 	}
@@ -1039,6 +1166,7 @@ break_armor()
 		if (!issoviet) Your("%s tears apart!", cloak_simple_name(otmp));
 		else pline("I yeshche odin glupyy veshch' kusayet pyl'! Sovetskaya khochet etu igru, chtoby sosat' kak mozhno bol'she!");
 		(void) Cloak_off();
+		u.cnd_polybreak++;
 		useup(otmp);
 	    }
 	}
@@ -1060,6 +1188,7 @@ break_armor()
 	    } else {                
 		if (!issoviet) Your("shirt rips to shreds!");
 		else pline("I yeshche odin glupyy veshch' kusayet pyl'! Sovetskaya khochet etu igru, chtoby sosat' kak mozhno bol'she!");
+		u.cnd_polybreak++;
 		useup(uarmu);
 	    }
 	}
@@ -1109,15 +1238,16 @@ break_armor()
 	    } else if (!(uarmf && uarmf->oartifact == ART_MALENA_S_LADYNESS)) {
 	      Your("tentacles break through %s.", the(xname(otmp)));
 	      useup(uarmh);
+		u.cnd_polybreak++;
 	    }
     }
     if (!Race_if(PM_TRANSFORMER) && (nohands(youmonst.data) || verysmall(youmonst.data))) {
 
 	if (uarmg && (rnd(100) < controllingchance)) {
 
-		getlin ("Keep your gloves on? [yes/no]",buf);
+		getlin ("Keep your gloves on? [y/yes/no]",buf);
 		(void) lcase (buf);
-		if (!(strcmp (buf, "yes"))) goto glovesdone;
+		if (!(strcmp (buf, "yes")) || !(strcmp (buf, "y"))) goto glovesdone;
 
 	}
 
@@ -1133,9 +1263,9 @@ glovesdone:
 
 	if (uarms && (rnd(100) < controllingchance)) {
 
-		getlin ("Keep your shield on? [yes/no]",buf);
+		getlin ("Keep your shield on? [y/yes/no]",buf);
 		(void) lcase (buf);
-		if (!(strcmp (buf, "yes"))) goto shielddone;
+		if (!(strcmp (buf, "yes")) || !(strcmp (buf, "y"))) goto shielddone;
 
 	}
 
@@ -1148,9 +1278,9 @@ shielddone:
 
 	if (uarmh && (rnd(100) < controllingchance)) {
 
-		getlin ("Keep your helmet on? [yes/no]",buf);
+		getlin ("Keep your helmet on? [y/yes/no]",buf);
 		(void) lcase (buf);
-		if (!(strcmp (buf, "yes"))) goto helmetdone;
+		if (!(strcmp (buf, "yes")) || !(strcmp (buf, "y"))) goto helmetdone;
 
 	}
 
@@ -1167,9 +1297,9 @@ helmetdone:
 
 	if (uarmf && (rnd(100) < controllingchance)) {
 
-		getlin ("Keep your boots on? [yes/no]",buf);
+		getlin ("Keep your boots on? [y/yes/no]",buf);
 		(void) lcase (buf);
-		if (!(strcmp (buf, "yes"))) goto bootsdone;
+		if (!(strcmp (buf, "yes")) || !(strcmp (buf, "y"))) goto bootsdone;
 
 	}
 
@@ -1224,7 +1354,7 @@ int alone;
 	 * future it might not be so if there are monsters which cannot
 	 * wear gloves but can wield weapons
 	 */
-	if (!Race_if(PM_TRANSFORMER) && (!alone || cantwield(youmonst.data))) {
+	if (!Race_if(PM_TRANSFORMER) && !(uwep && uwep->oartifact == ART_FLAGELLATOR) && !(u.twoweap && uswapwep && uswapwep->oartifact == ART_FLAGELLATOR) && (!alone || cantwield(youmonst.data))) {
 	    struct obj *wep = uwep;
 
 	    if (alone) You("find you must drop your weapon%s!",
@@ -1233,9 +1363,9 @@ int alone;
 
 		if (uwep && (rnd(100) < controllingchance)) {
 
-			getlin ("Keep wielding your weapon? [yes/no]",buf);
+			getlin ("Keep wielding your weapon? [y/yes/no]",buf);
 			(void) lcase (buf);
-			if (!(strcmp (buf, "yes"))) goto weapondone;
+			if (!(strcmp (buf, "yes")) || !(strcmp (buf, "y"))) goto weapondone;
 
 		}
 	    uwepgone();
@@ -1312,20 +1442,43 @@ rehumanize()
 /* WAC -- MUHAHAHAAHA - Gaze attacks! 
  * Note - you can only gaze at one monster at a time, to keep this 
  * from getting out of hand ;B  Also costs 20 energy.
+ * Amy edit: costs scale with level of your current form, since some gazes can be quite unbalanced...
  */
 int
 dogaze()
 {
 	coord cc;
 	struct monst *mtmp;
+	int gazecost = 24;
+	int squeakamount = 0;
+	gazecost += (Upolyd ? (mons[u.umonnum].mlevel * 4) : (u.ulevel * 4));
+
+	if (!attacktype_fordmg(youmonst.data, AT_GAZE, AD_ANY)) {
+		gazecost = 24;
+		gazecost += (1 + mons[u.usymbiote.mnum].mlevel * 4);
+	}
+
+	squeakamount = gazecost;
+	/* we can now reduce the cost based on the player's squeaking skill --Amy */
+	if (!PlayerCannotUseSkills && gazecost > 2) {
+		switch (P_SKILL(P_SQUEAKING)) {
+	      	case P_BASIC:	gazecost *= 9; gazecost /= 10; break;
+	      	case P_SKILLED:	gazecost *= 8; gazecost /= 10; break;
+	      	case P_EXPERT:	gazecost *= 7; gazecost /= 10; break;
+	      	case P_MASTER:	gazecost *= 6; gazecost /= 10; break;
+	      	case P_GRAND_MASTER:	gazecost *= 5; gazecost /= 10; break;
+	      	case P_SUPREME_MASTER:	gazecost *= 4; gazecost /= 10; break;
+	      	default: break;
+		}
+	}
 
 	if (Blind) {
 		You("can't see a thing!");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return(0);
 	}
-	if (u.uen < 20) {
-		You("lack the energy to use your special gaze! Gaze attacks cost 20 mana!");
+	if (u.uen < gazecost) {
+		You("lack the energy to use your special gaze! Your current form's gaze attack costs %d mana!", gazecost);
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return(0);
 	}
@@ -1351,14 +1504,29 @@ dogaze()
 		  	
 			sprintf(qbuf, "Really gaze at %s?", mon_nam(mtmp));
 			if (yn(qbuf) != 'y') return (0);
-			if (mtmp->mpeaceful) setmangry(mtmp);
 	}
 
-	u.uen -= 20;
+	/* WUOT why the hell did they not become hostile if you were e.g. confused??? */
+	if (mtmp->mpeaceful) setmangry(mtmp);
+
+	u.uen -= gazecost;
 
 	You("gaze at %s...", mon_nam(mtmp));
 
-	if ((mtmp->data==&mons[PM_MEDUSA]) && !mtmp->mcan && !Stone_resistance) {
+	if (practicantterror) {
+		pline("%s booms: 'Don't look at other people like that. Now you have to pay a fine of 200 zorkmids and vow to not do it again.'", noroelaname());
+		fineforpracticant(200, 0, 0);
+	}
+
+	ranged_thorns(mtmp);
+
+	while (squeakamount > 20) {
+		use_skill(P_SQUEAKING, 1);
+		squeakamount -= 20;
+	}
+	use_skill(P_SQUEAKING, 1);
+
+	if ((mtmp->data==&mons[PM_MEDUSA]) && !mtmp->mcan && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) )) {
 		pline("Gazing at the awake Medusa is not a very good idea.");
 		/* as if gazing at a sleeping anything is fruitful... */
 		/*You("turn to stone...");
@@ -1370,6 +1538,7 @@ dogaze()
 			if (Hallucination && rn2(10)) pline("But you are already stoned.");
 			else {
 				Stoned = Race_if(PM_EROSATOR) ? 3 : 7;
+				u.cnd_stoningcount++;
 				delayed_killer = "gazing at Medusa";
 			}
 		}
@@ -1389,7 +1558,19 @@ dogaze()
 		    damageum(mtmp, mattk);
 		    break;
 		}
+
 	    }
+
+	    for(i = 0; i < NATTK; i++) {
+		if (uactivesymbiosis && !PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_SKILLED) {
+			mattk = &(mons[u.usymbiote.mnum].mattk[i]);
+			if (mattk->aatyp == AT_GAZE) {
+			    damageum(mtmp, mattk);
+			    break;
+			}
+		}
+	    }
+
 	}
 	return(1);
 }
@@ -1399,6 +1580,7 @@ dobreathe()
 {
 	struct attack *mattk;
 	int energy = 0;
+	int squeakamount = 0;
 
 	if (Strangled) {
 	    You_cant("breathe.  Sorry.");
@@ -1419,13 +1601,32 @@ dobreathe()
 
 	/* and make instakill breath attacks even more expensive to tone down abuse potential */
 	mattk = attacktype_fordmg(youmonst.data, AT_BREA, AD_ANY);
-	if (!mattk)
-	    impossible("bad breath attack?");   /* mouthwash needed... */
+	if (!mattk && uactivesymbiosis && !PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_EXPERT) mattk = attacktype_fordmg(&mons[u.usymbiote.mnum], AT_BREA, AD_ANY);
+	if (!mattk) {
+		impossible("bad breath attack?");   /* mouthwash needed... */
+		return(0); /* prevent you from using segfault breath --Amy */
+	}
 
 	if ((mattk->adtyp != AD_MAGM) && (mattk->adtyp != AD_RBRE) && (mattk->adtyp != AD_FIRE) && (mattk->adtyp != AD_COLD) && (mattk->adtyp != AD_SLEE) && (mattk->adtyp != AD_DISN) && (mattk->adtyp != AD_ELEC) && (mattk->adtyp != AD_DRST) && (mattk->adtyp != AD_ACID) && (mattk->adtyp != AD_LITE) && (mattk->adtyp != AD_SPC2)  ) energy = 30;
 
-	if (mattk->adtyp == AD_DISN) energy = 100;
-	else if (mattk->adtyp == AD_RBRE) energy = 30; /* can randomly be a disintegration beam */
+	if (mattk->adtyp == AD_DISN) energy = u.breathenhancetimer ? 66 : 100;
+	else if (mattk->adtyp == AD_RBRE) energy = u.breathenhancetimer ? 20 : 30; /* can randomly be a disintegration beam */
+
+	if (Race_if(PM_PLAYER_CERBERUS) && !Upolyd) energy *= 3;
+
+	squeakamount = energy;
+	/* squeaking skill can reduce the required amount; reduce it after setting up the variable for skill training */
+	if (!PlayerCannotUseSkills && energy > 2) {
+		switch (P_SKILL(P_SQUEAKING)) {
+	      	case P_BASIC:	energy *= 9; energy /= 10; break;
+	      	case P_SKILLED:	energy *= 8; energy /= 10; break;
+	      	case P_EXPERT:	energy *= 7; energy /= 10; break;
+	      	case P_MASTER:	energy *= 6; energy /= 10; break;
+	      	case P_GRAND_MASTER:	energy *= 5; energy /= 10; break;
+	      	case P_SUPREME_MASTER:	energy *= 4; energy /= 10; break;
+	      	default: break;
+		}
+	}
 
 	if (u.uen < energy) {
 	    You("don't have enough energy to breathe! You need at least %d mana!",energy);
@@ -1439,6 +1640,7 @@ dobreathe()
 	flags.botl = 1;
 
 	mattk = attacktype_fordmg(youmonst.data, AT_BREA, AD_ANY);
+	if (!mattk && uactivesymbiosis && !PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_EXPERT) mattk = attacktype_fordmg(&mons[u.usymbiote.mnum], AT_BREA, AD_ANY);
 	if (!mattk)
 	    impossible("bad breath attack?");   /* mouthwash needed... */
 	else {
@@ -1449,9 +1651,34 @@ dobreathe()
 
 	if ((mattk->adtyp != AD_MAGM) && (mattk->adtyp != AD_RBRE) && (mattk->adtyp != AD_FIRE) && (mattk->adtyp != AD_COLD) && (mattk->adtyp != AD_SLEE) && (mattk->adtyp != AD_DISN) && (mattk->adtyp != AD_ELEC) && (mattk->adtyp != AD_DRST) && (mattk->adtyp != AD_ACID) && (mattk->adtyp != AD_LITE) && (mattk->adtyp != AD_SPC2)  ) adtyp = rnd(AD_SPC2);
 
-	    buzz((int) (20 + adtyp - 1), (rn2(2) ? (int)mattk->damn : (int)mattk->damd ),
-		u.ux, u.uy, u.dx, u.dy);
+		if (u.breathenhancetimer) {
+			buzz((int) (20 + adtyp - 1), (rn2(2) ? ((int)mattk->damn * 3 / 2) : ((int)mattk->damd * 3 / 2) ), u.ux, u.uy, u.dx, u.dy);
+
+		} else {
+			buzz((int) (20 + adtyp - 1), (rn2(2) ? (int)mattk->damn : (int)mattk->damd ), u.ux, u.uy, u.dx, u.dy);
+
+		}
+
+		if (Race_if(PM_PLAYER_CERBERUS) && !Upolyd) { /* breath three times for 3x the cost --Amy */
+			if (u.breathenhancetimer) {
+				buzz((int) (20 + adtyp - 1), (rn2(2) ? ((int)mattk->damn * 3 / 2) : ((int)mattk->damd * 3 / 2) ), u.ux, u.uy, u.dx, u.dy);
+			} else {
+				buzz((int) (20 + adtyp - 1), (rn2(2) ? (int)mattk->damn : (int)mattk->damd ), u.ux, u.uy, u.dx, u.dy);
+			}
+
+			if (u.breathenhancetimer) {
+				buzz((int) (20 + adtyp - 1), (rn2(2) ? ((int)mattk->damn * 3 / 2) : ((int)mattk->damd * 3 / 2) ), u.ux, u.uy, u.dx, u.dy);
+			} else {
+				buzz((int) (20 + adtyp - 1), (rn2(2) ? (int)mattk->damn : (int)mattk->damd ), u.ux, u.uy, u.dx, u.dy);
+			}
+		}
+
 	}
+	while (squeakamount > 20) {
+		use_skill(P_SQUEAKING, 1);
+		squeakamount -= 20;
+	}
+	use_skill(P_SQUEAKING, 1);
 	return(1);
 }
 
@@ -1460,8 +1687,21 @@ dospit()
 {
 	struct obj *otmp;
 	struct attack *mattk;
+	int spitcost = 5;
 
-	if (u.uen < 5) {
+	if (!PlayerCannotUseSkills) {
+		switch (P_SKILL(P_SQUEAKING)) {
+	      	case P_BASIC:	spitcost = rn2(5) ? 5 : 4; break;
+	      	case P_SKILLED:	spitcost = rn2(2) ? 5 : 4; break;
+	      	case P_EXPERT:	spitcost = !rn2(3) ? 3 : rn2(2) ? 5 : 4; break;
+	      	case P_MASTER:	spitcost = !rn2(3) ? 3 : rn2(5) ? 5 : 4; break;
+	      	case P_GRAND_MASTER:	spitcost = !rn2(2) ? 3 : rn2(3) ? 5 : 4; break;
+	      	case P_SUPREME_MASTER:	spitcost = !rn2(5) ? 2 : !rn2(2) ? 3 : rn2(2) ? 5 : 4; break;
+	      	default: break;
+		}
+	}
+
+	if (u.uen < spitcost) {
 		You("lack the energy to spit - need at least 5 mana!");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return(0);
@@ -1469,37 +1709,39 @@ dospit()
 
 	if (!getdir((char *)0)) return(0);
 
-	u.uen -= 5;
+	u.uen -= spitcost;
 
 	mattk = attacktype_fordmg(youmonst.data, AT_SPIT, AD_ANY);
+	if (!mattk && uactivesymbiosis && !PlayerCannotUseSkills && P_SKILL(P_SYMBIOSIS) >= P_BASIC) mattk = attacktype_fordmg(&mons[u.usymbiote.mnum], AT_SPIT, AD_ANY);
 	if (!mattk)
 	    impossible("bad spit attack?");
 	else {
 	    switch (mattk->adtyp) {
 		case AD_BLND:
 		case AD_DRST:
-		    otmp = mksobj(BLINDING_VENOM, TRUE, FALSE);
+		    otmp = mksobj(BLINDING_VENOM, TRUE, FALSE, FALSE);
 		    break;
 		case AD_DRLI:
-		    otmp = mksobj(FAERIE_FLOSS_RHING, TRUE, FALSE);
+		    otmp = mksobj(FAERIE_FLOSS_RHING, TRUE, FALSE, FALSE);
 		    break;
 		case AD_TCKL:
-		    otmp = mksobj(TAIL_SPIKES, TRUE, FALSE);
+		    otmp = mksobj(TAIL_SPIKES, TRUE, FALSE, FALSE);
 		    break;
 		case AD_NAST:
-		    otmp = mksobj(SEGFAULT_VENOM, TRUE, FALSE);
+		    otmp = mksobj(SEGFAULT_VENOM, TRUE, FALSE, FALSE);
 		    break;
 		default:
 		    pline("bad attack type in do_spit");
 		    /* fall through */
 		case AD_ACID:
-		    otmp = mksobj(ACID_VENOM, TRUE, FALSE);
+		    otmp = mksobj(ACID_VENOM, TRUE, FALSE, FALSE);
 		    break;
 	    }
 	    if (!otmp) return(0);
 	    otmp->spe = 1; /* to indicate it's yours */
 	    throwit(otmp, 0L, FALSE, 0);
 	}
+	use_skill(P_SQUEAKING, 1);
 	return(1);
 }
 
@@ -1567,6 +1809,11 @@ dospinweb()
 	}
 	exercise(A_DEX, TRUE);
 	if (ttmp) switch (ttmp->ttyp) {
+		case S_PRESSING_TRAP:
+			You("enclose the s-pressing trap in a web.");
+			deltrap(ttmp);
+			newsym(u.ux, u.uy);
+			return(1);
 		case PIT:
 		case SHIT_PIT:
 		case MANA_PIT:
@@ -1812,6 +2059,39 @@ dospinweb()
 		case ELDER_TENTACLING_TRAP:
 		case FOOTERER_TRAP:
 
+		case GRAVE_WALL_TRAP:
+		case TUNNEL_TRAP:
+		case FARMLAND_TRAP:
+		case MOUNTAIN_TRAP:
+		case WATER_TUNNEL_TRAP:
+		case CRYSTAL_FLOOD_TRAP:
+		case MOORLAND_TRAP:
+		case URINE_TRAP:
+		case SHIFTING_SAND_TRAP:
+		case STYX_TRAP:
+		case PENTAGRAM_TRAP:
+		case SNOW_TRAP:
+		case ASH_TRAP:
+		case SAND_TRAP:
+		case PAVEMENT_TRAP:
+		case HIGHWAY_TRAP:
+		case GRASSLAND_TRAP:
+		case NETHER_MIST_TRAP:
+		case STALACTITE_TRAP:
+		case CRYPTFLOOR_TRAP:
+		case BUBBLE_TRAP:
+		case RAIN_CLOUD_TRAP:
+
+		case ITEM_NASTIFICATION_TRAP:
+		case SANITY_INCREASE_TRAP:
+		case PSI_TRAP:
+		case GAY_TRAP:
+
+		case SARAH_TRAP:
+		case CLAUDIA_TRAP:
+		case LUDGERA_TRAP:
+		case KATI_TRAP:
+
 			You("have triggered a trap!");
 			dotrap(ttmp, 0);
 			return(1);
@@ -1847,6 +2127,9 @@ dospinweb()
 		case BISHOP_TRAP:
 		case UNINFORMATION_TRAP:
 		case TIMERUN_TRAP:
+		case BAD_PART_TRAP:
+		case COMPLETELY_BAD_PART_TRAP:
+		case EVIL_VARIANT_TRAP:
 		case ALIGNMENT_TRAP:
 		case CONFUSION_TRAP:
 		case NUPESELL_TRAP:
@@ -2075,6 +2358,9 @@ dospinweb()
 		case SOUND_EFFECT_TRAP:
 		case KOP_CUBE:
 		case BOSS_SPAWNER:
+		case SANITY_TREBLE_TRAP:
+		case STAT_DECREASE_TRAP:
+		case SIMEOUT_TRAP:
 
 			dotrap(ttmp, 0);
 			return(1);
@@ -2104,6 +2390,7 @@ dosummon()
 	int placeholder;
 	int somanymana;
 	somanymana = 10;
+	int squeakamount = 0;
 
 	if (u.ulycn == PM_WERESOLDIERANT) somanymana = 15;
 	if (u.ulycn == PM_WEREWOLF) somanymana = 20;
@@ -2116,12 +2403,14 @@ dosummon()
 	if (u.ulycn == PM_WERESNAKE) somanymana = 20;
 	if (u.ulycn == PM_WERECOW) somanymana = 20;
 	if (u.ulycn == PM_WEREBEAR) somanymana = 75;
+	if (u.ulycn == PM_WEREPHANT) somanymana = 75;
 	if (u.ulycn == PM_WEREVORTEX) somanymana = 50;
 	if (u.ulycn == PM_WERETROLL) somanymana = 50;
 	if (u.ulycn == PM_WEREGIANT) somanymana = 50;
 	if (u.ulycn == PM_WEREGHOST) somanymana = 30;
 	if (u.ulycn == PM_WERECOCKATRICE) somanymana = 60;
 	if (u.ulycn == PM_WERELICH) somanymana = 100;
+	if (u.ulycn == PM_WEREDEMON) somanymana = 100;
 	if (u.ulycn == PM_WEREMINDFLAYER) somanymana = 150;
 	if (u.ulycn == PM_WEREJABBERWOCK) somanymana = 200;
 	if (u.ulycn == PM_WEREWEDGESANDAL) somanymana = 80;
@@ -2135,7 +2424,55 @@ dosummon()
 	if (u.ulycn == PM_WERESTILETTOSANDAL) somanymana = 250;
 	if (u.ulycn == PM_WEREUNFAIRSTILETTO) somanymana = 260;
 	if (u.ulycn == PM_WEREWINTERSTILETTO) somanymana = 300;
-	
+
+	if (u.umonnum == PM_WERESOLDIERANT && somanymana < 15) somanymana = 15;
+	if (u.umonnum == PM_WEREWOLF && somanymana < 20) somanymana = 20;
+	if (u.umonnum == PM_WEREPIRANHA && somanymana < 20) somanymana = 20;
+	if (u.umonnum == PM_WEREEEL && somanymana < 25) somanymana = 25;
+	if (u.umonnum == PM_WEREKRAKEN && somanymana < 45) somanymana = 45;
+	if (u.umonnum == PM_WEREFLYFISH && somanymana < 45) somanymana = 45;
+	if (u.umonnum == PM_WEREPANTHER && somanymana < 30) somanymana = 30;
+	if (u.umonnum == PM_WERETIGER && somanymana < 30) somanymana = 30;
+	if (u.umonnum == PM_WERESNAKE && somanymana < 20) somanymana = 20;
+	if (u.umonnum == PM_WERECOW && somanymana < 20) somanymana = 20;
+	if (u.umonnum == PM_WEREBEAR && somanymana < 75) somanymana = 75;
+	if (u.umonnum == PM_WEREPHANT && somanymana < 75) somanymana = 75;
+	if (u.umonnum == PM_WEREVORTEX && somanymana < 50) somanymana = 50;
+	if (u.umonnum == PM_WERETROLL && somanymana < 50) somanymana = 50;
+	if (u.umonnum == PM_WEREGIANT && somanymana < 50) somanymana = 50;
+	if (u.umonnum == PM_WEREGHOST && somanymana < 30) somanymana = 30;
+	if (u.umonnum == PM_WERECOCKATRICE && somanymana < 60) somanymana = 60;
+	if (u.umonnum == PM_WERELICH && somanymana < 100) somanymana = 100;
+	if (u.umonnum == PM_WEREDEMON && somanymana < 100) somanymana = 100;
+	if (u.umonnum == PM_WEREMINDFLAYER && somanymana < 150) somanymana = 150;
+	if (u.umonnum == PM_WEREJABBERWOCK && somanymana < 200) somanymana = 200;
+	if (u.umonnum == PM_WEREWEDGESANDAL && somanymana < 80) somanymana = 80;
+	if (u.umonnum == PM_WEREHUGGINGBOOT && somanymana < 120) somanymana = 120;
+	if (u.umonnum == PM_WEREPEEPTOE && somanymana < 140) somanymana = 140;
+	if (u.umonnum == PM_WERESEXYLEATHERPUMP && somanymana < 160) somanymana = 160;
+	if (u.umonnum == PM_WEREBLOCKHEELEDCOMBATBOOT && somanymana < 160) somanymana = 160;
+	if (u.umonnum == PM_WERECOMBATSTILETTO && somanymana < 200) somanymana = 200;
+	if (u.umonnum == PM_WEREBEAUTIFULFUNNELHEELEDPUMP && somanymana < 240) somanymana = 240;
+	if (u.umonnum == PM_WEREPROSTITUTESHOE && somanymana < 240) somanymana = 240;
+	if (u.umonnum == PM_WERESTILETTOSANDAL && somanymana < 250) somanymana = 250;
+	if (u.umonnum == PM_WEREUNFAIRSTILETTO && somanymana < 260) somanymana = 260;
+	if (u.umonnum == PM_WEREWINTERSTILETTO && somanymana < 300) somanymana = 300;
+
+	squeakamount = somanymana;
+	/* we can now use the squeaking skill to reduce the cost */
+
+	if (!PlayerCannotUseSkills && somanymana > 2) {
+		switch (P_SKILL(P_SQUEAKING)) {
+	      	case P_BASIC:	somanymana *= 9; somanymana /= 10; break;
+	      	case P_SKILLED:	somanymana *= 8; somanymana /= 10; break;
+	      	case P_EXPERT:	somanymana *= 7; somanymana /= 10; break;
+	      	case P_MASTER:	somanymana *= 6; somanymana /= 10; break;
+	      	case P_GRAND_MASTER:	somanymana *= 5; somanymana /= 10; break;
+	      	case P_SUPREME_MASTER:	somanymana *= 4; somanymana /= 10; break;
+	      	default: break;
+		}
+	}
+
 	if (u.uen < somanymana) {
 	    You("lack the energy to send forth a call for help! You need at least %d!",somanymana);
 	    return(0);
@@ -2145,8 +2482,15 @@ dosummon()
 
 	You("call upon your brethren for help!");
 	exercise(A_WIS, TRUE);
-	if (!were_summon(youmonst.data, TRUE, &placeholder, (char *)0))
+	if (!were_summon(youmonst.data, TRUE, &placeholder, (char *)0, FALSE))
 		pline("But none arrive.");
+
+	while (squeakamount > 40) {
+		use_skill(P_SQUEAKING, 1);
+		squeakamount -= 40;
+	}
+	use_skill(P_SQUEAKING, 1);
+
 	return(1);
 }
 
@@ -2191,7 +2535,7 @@ dogaze()
 		looked++;
 		if (Invis && !perceives(mtmp->data))
 		    pline("%s seems not to notice your gaze.", Monnam(mtmp));
-		else if ((mtmp->minvis && !See_invisible) || mtmp->minvisreal)
+		else if ((mtmp->minvis && (!See_invisible || (!StrongSee_invisible && !mtmp->seeinvisble)) ) || mtmp->minvisreal)
 		    You_cant("see where to gaze at %s.", Monnam(mtmp));
 		else if (mtmp->m_ap_type == M_AP_FURNITURE
 			|| mtmp->m_ap_type == M_AP_OBJECT) {
@@ -2274,6 +2618,7 @@ dogaze()
 				if (Hallucination && rn2(10)) pline("But you are already stoned.");
 				else {
 					Stoned = Race_if(PM_EROSATOR) ? 3 : 7;
+					u.cnd_stoningcount++;
 					delayed_killer = "deliberately meeting Medusa's gaze";
 				}
 			}
@@ -2310,12 +2655,25 @@ int
 domindblast()
 {
 	struct monst *mtmp, *nmon;
+	int mindblastcost = 10;
 
-	if (u.uen < 10) {
+	if (!PlayerCannotUseSkills) {
+		switch (P_SKILL(P_SQUEAKING)) {
+	      	case P_BASIC:	mindblastcost = 9 + rn2(2); break;
+	      	case P_SKILLED:	mindblastcost = 8 + rn2(3); break;
+	      	case P_EXPERT:	mindblastcost = 7 + rn2(4); break;
+	      	case P_MASTER:	mindblastcost = 6 + rn2(5); break;
+	      	case P_GRAND_MASTER:	mindblastcost = 5 + rn2(6); break;
+	      	case P_SUPREME_MASTER:	mindblastcost = 4 + rn2(7); break;
+	      	default: break;
+		}
+	}
+
+	if (u.uen < mindblastcost) {
 	    You("concentrate but lack the energy to maintain doing so. Wimp, you don't even have 10 mana to spare?!");
 	    return(0);
 	}
-	u.uen -= 10;
+	u.uen -= mindblastcost;
 	flags.botl = 1;
 
 	pline("A wave of psychic energy pours out.");
@@ -2340,6 +2698,8 @@ domindblast()
 				killed(mtmp);
 		}
 	}
+	use_skill(P_SQUEAKING, 1);
+
 	return 1;
 }
 
@@ -2633,6 +2993,21 @@ int atyp;
 	    case GOLDEN_DRAGON_SCALE_MAIL:
 	    case GOLDEN_DRAGON_SCALES:
 		return PM_GOLDEN_DRAGON;
+	    case FEMINISM_DRAGON_SCALE_MAIL:
+	    case FEMINISM_DRAGON_SCALES:
+		return PM_FEMINISM_DRAGON;
+	    case CANCEL_DRAGON_SCALE_MAIL:
+	    case CANCEL_DRAGON_SCALES:
+		return PM_CANCEL_DRAGON;
+	    case NEGATIVE_DRAGON_SCALE_MAIL:
+	    case NEGATIVE_DRAGON_SCALES:
+		return PM_NEGATIVE_DRAGON;
+	    case CORONA_DRAGON_SCALE_MAIL:
+	    case CORONA_DRAGON_SCALES:
+		return PM_CORONA_DRAGON;
+	    case HEROIC_DRAGON_SCALE_MAIL:
+	    case HEROIC_DRAGON_SCALES:
+		return PM_HEROIC_DRAGON;
 	    case STONE_DRAGON_SCALE_MAIL:
 	    case STONE_DRAGON_SCALES:
 		return PM_STONE_DRAGON;
@@ -2886,23 +3261,52 @@ boolean
 polyskillchance()
 {
 	register int percentualchance = 0;
+	register int enchantplant = 0;
 
-	if (PlayerCannotUseSkills) return FALSE;
-	else switch (P_SKILL(P_POLYMORPHING)) {
+	if (!PlayerCannotUseSkills) {
+		switch (P_SKILL(P_POLYMORPHING)) {
 
-      	case P_BASIC:	percentualchance = 15; break;
-      	case P_SKILLED:	percentualchance = 30; break;
-      	case P_EXPERT:	percentualchance = 45; break;
-      	case P_MASTER:	percentualchance = 60; break;
-      	case P_GRAND_MASTER:	percentualchance = 75; break;
-      	case P_SUPREME_MASTER:	percentualchance = 90; break;
-      	default: percentualchance = 0; break;
-		
+	      	case P_BASIC:	percentualchance = 15; break;
+	      	case P_SKILLED:	percentualchance = 30; break;
+	      	case P_EXPERT:	percentualchance = 45; break;
+	      	case P_MASTER:	percentualchance = 60; break;
+	      	case P_GRAND_MASTER:	percentualchance = 75; break;
+	      	case P_SUPREME_MASTER:	percentualchance = 90; break;
+	      	default: percentualchance = 0; break;
+		}
 	}
 
 	if (rn2(100) < percentualchance) return TRUE;
-	else return FALSE;
 
+	else if (powerfulimplants() && uimplant && objects[uimplant->otyp].oc_charged && uimplant->spe > 0 ) {
+		enchantplant = uimplant->spe;
+		while (enchantplant > 0) {
+			if (!rn2(10)) return TRUE;
+			enchantplant--;
+			if (enchantplant < 0) enchantplant = 0; /* fail safe, should never happen */
+		}
+	}
+
+	/* if we get here, always return false because you didn't succeed on any of the "can perform the action anyway" checks */
+	return FALSE;
+}
+
+/* are you eligible for the "handless" effects of implants? If you don't have hands and aren't a transformer, yes.
+ * But some other races are handicapped enough that I decide they deserve this bonus too. --Amy */
+boolean
+powerfulimplants()
+{
+	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER)) return TRUE;
+	if (Race_if(PM_WEAPON_BUG) && !Upolyd) return TRUE; /* the movement restriction is a big handicap */
+	if (Race_if(PM_JELLY) && !Upolyd) return TRUE; /* permablind and can't pick up items */
+	if (Race_if(PM_OCTOPODE)) return TRUE; /* can't wear armor, even while polymorphed! */
+	if (Race_if(PM_SATRE) && !Upolyd) return TRUE; /* equipment restrictions */
+	if (Race_if(PM_ELONA_SNAIL) && !Upolyd) return TRUE; /* equipment restrictions */
+	if (Race_if(PM_HUMAN_WRAITH)) return TRUE; /* loses maxHP permanently when equipping stuff */
+	if (Race_if(PM_PLAYER_GLORKUM)) return TRUE; /* is so weird that it always gets the bonus */
+	if (tech_inuse(T_IMPLANTED_SYMBIOSIS) && uactivesymbiosis && uimplant) return TRUE;
+
+	return FALSE;
 }
 
 static void

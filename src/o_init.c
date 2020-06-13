@@ -134,14 +134,51 @@ shuffle(o_low, o_high, domaterial)
 		color = objects[j].oc_color;
 		objects[j].oc_color = objects[i].oc_color;
 		objects[i].oc_color = color;
+		color = objects[j].oc_appearindex;
+		objects[j].oc_appearindex = objects[i].oc_appearindex;
+		objects[i].oc_appearindex = color;
 
 		/* shuffle material */
 		if (domaterial) {
-			sw = objects[j].oc_material;
+			color = objects[j].oc_material;
 			objects[j].oc_material = objects[i].oc_material;
-			objects[i].oc_material = sw;
+			objects[i].oc_material = color;
 		}
 	}
+}
+
+/* for matrayser race: shuffle materials per item class --Amy */
+void
+matraysershuffle()
+{
+	int first, last, oclass;
+	int i, lastgood, k, savemat;
+
+	for (oclass = 1; oclass < MAXOCLASSES; oclass++) {
+		first = bases[oclass];
+		last = first+1;
+		while (last < NUM_OBJECTS && objects[last].oc_class == oclass)
+			last++;
+		lastgood = last-1;
+		/* lastgood stays constant from here on */
+
+		if (objects[lastgood].oc_class != oclass) {
+			impossible("matraysershuffle() ERROR: object %d is not object class %d!", lastgood, oclass);
+		}
+
+		/* shuffle(first, lastgood, TRUE);
+		 * first = o_low, lastgood = o_high */
+
+		for (i = first; i <= lastgood; i++) {
+			k = i + rn2(lastgood - i + 1);
+
+			savemat = objects[i].oc_material;
+			objects[i].oc_material = objects[k].oc_material;
+			objects[k].oc_material = savemat;
+		}
+
+	}
+
 }
 
 /* A function that assigns random materials to a few objects, called once at game start. --Amy */
@@ -149,7 +186,7 @@ void
 randommaterials()
 {
 	register int objtomodify;
-	while (rn2(20)) { /* to randomize the # of objects affected --Amy */
+	while (rn2(25)) { /* to randomize the # of objects affected --Amy */
 		objtomodify = -1;
 		while ( (objtomodify == -1) || (objtomodify == GOLD_PIECE) || (objtomodify == STRANGE_OBJECT) || (objtomodify == AMULET_OF_YENDOR) || (objtomodify == CANDELABRUM_OF_INVOCATION) || (objtomodify == BELL_OF_OPENING) || (objtomodify == SPE_BOOK_OF_THE_DEAD) || (objects[objtomodify].oc_prob < 1) ) objtomodify = rn2(NUM_OBJECTS);
 		/* we roll until we get an item that can be randomly generated and is not a gold piece or other weird thing --Amy */
@@ -161,7 +198,7 @@ randommaterials()
 
 	if (!rn2(5)) {
 
-		while (rn2(20)) {
+		while (rn2(25)) {
 			objtomodify = -1;
 			while ( (objtomodify == -1) || (objtomodify == GOLD_PIECE) || (objtomodify == STRANGE_OBJECT) || (objtomodify == AMULET_OF_YENDOR) || (objtomodify == CANDELABRUM_OF_INVOCATION) || (objtomodify == BELL_OF_OPENING) || (objtomodify == SPE_BOOK_OF_THE_DEAD) || (objects[objtomodify].oc_prob < 1) ) objtomodify = rn2(NUM_OBJECTS);
 
@@ -173,7 +210,7 @@ randommaterials()
 
 	if (!rn2(20)) {
 
-		while (rn2(50)) {
+		while (rn2(60)) {
 			objtomodify = -1;
 			while ( (objtomodify == -1) || (objtomodify == GOLD_PIECE) || (objtomodify == STRANGE_OBJECT) || (objtomodify == AMULET_OF_YENDOR) || (objtomodify == CANDELABRUM_OF_INVOCATION) || (objtomodify == BELL_OF_OPENING) || (objtomodify == SPE_BOOK_OF_THE_DEAD) || (objects[objtomodify].oc_prob < 1) ) objtomodify = rn2(NUM_OBJECTS);
 
@@ -185,7 +222,7 @@ randommaterials()
 
 	if (!rn2(100)) {
 
-		while (rn2(200)) {
+		while (rn2(240)) {
 			objtomodify = -1;
 			while ( (objtomodify == -1) || (objtomodify == GOLD_PIECE) || (objtomodify == STRANGE_OBJECT) || (objtomodify == AMULET_OF_YENDOR) || (objtomodify == CANDELABRUM_OF_INVOCATION) || (objtomodify == BELL_OF_OPENING) || (objtomodify == SPE_BOOK_OF_THE_DEAD) || (objects[objtomodify].oc_prob < 1) ) objtomodify = rn2(NUM_OBJECTS);
 
@@ -206,6 +243,8 @@ initobjectsamnesia()
 
 	register struct obj *otmp, *otmp2, *otmp3, *otmp4, *otmp5, *otmp6, *otmp7, *otmp8, *otmp9, *otmp10, *otmp11;
 	boolean hasamulet, hasleftring, hasrightring, hasshirt, hascloak, hasarmor, hasboots, hasgloves, hashelmet, hasshield, hasimplant;
+
+	u.cnd_appearanceshufflingcount++;
 
 	if (uamul) {
 		hasamulet = TRUE;
@@ -263,7 +302,7 @@ initobjectsamnesia()
 		setworn((struct obj *)0, W_IMPLANT);
 	} else hasimplant = FALSE;
 
-	init_objects();
+	init_objects(FALSE);
 
 	if (hasamulet) {
 		setworn(otmp, W_AMUL);
@@ -302,7 +341,8 @@ initobjectsamnesia()
 }
 
 void
-init_objects()
+init_objects(descrinit)
+boolean descrinit;
 {
 register int i, first, last, sum;
 register char oclass;
@@ -320,8 +360,10 @@ register char oclass;
 	for (i = 0; i < MAXOCLASSES; i++)
 		bases[i] = 0;
 	/* initialize object descriptions */
-	for (i = 0; i < NUM_OBJECTS; i++)
-		objects[i].oc_name_idx = objects[i].oc_descr_idx = i;
+	if (descrinit) {
+		for (i = 0; i < NUM_OBJECTS; i++)
+			objects[i].oc_name_idx = objects[i].oc_descr_idx = i;
+	}
 	/* init base; if probs given check that they add up to 10000,
 	   otherwise compute probs */
 	first = 0;
@@ -487,6 +529,8 @@ register char oclass;
 	objects[PURPLE_DRAGON_SCALES].oc_oprop = randenchantment();
 	objects[PURPLE_DRAGON_SCALE_SHIELD].oc_oprop = randenchantment();
 
+	objects[EXCITING_ARMOR].oc_oprop = randenchantment();
+
 	objects[RANDOMIZED_HELMET].oc_oprop = randenchantment();
 	objects[ROBE_OF_RANDOMNESS].oc_oprop = randenchantment();
 	objects[HIGH_STILETTOS].oc_oprop = randenchantment();
@@ -643,6 +687,22 @@ register char oclass;
 	objects[DUMMY_CLOAK_T].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 	objects[DUMMY_CLOAK_U].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 	objects[DUMMY_CLOAK_V].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_W].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_X].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_Y].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_Z].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_AA].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_AB].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_AC].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_AD].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_AE].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_AF].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_AG].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_AH].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_AI].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_AJ].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_AK].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_CLOAK_AL].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 
 	objects[IMPLANT_OF_ABSORPTION].a_ac = rnd(10);
 	objects[IMPLANT_OF_PUNCTURING].a_ac = rnd(10);
@@ -665,6 +725,11 @@ register char oclass;
 	objects[IMPLANT_OF_ACCELERATION].a_ac = rnd(10);
 	objects[IMPLANT_OF_PROSPERITY].a_ac = rnd(10);
 
+	objects[IMPLANT_OF_QUEEB_BUTT].a_ac = rnd(10);
+	objects[IMPLANT_OF_BEHOLDING].a_ac = rnd(10);
+	objects[IMPLANT_OF_DA_GUSHA].a_ac = rnd(10);
+	objects[IMPLANT_OF_FINGER_POINTING].a_ac = rnd(10);
+
 	objects[IMPLANT_OF_QUICKENING].a_ac = rnd(8);
 	objects[IMPLANT_OF_KARMA].a_ac = rnd(8);
 	objects[IMPLANT_OF_FERVOR].a_ac = rnd(8);
@@ -685,6 +750,11 @@ register char oclass;
 	objects[IMPLANT_OF_VENGEANCE].a_ac = rnd(8);
 	objects[IMPLANT_OF_BLISS].a_ac = rnd(8);
 	objects[IMPLANT_OF_BLITZEN].a_ac = rnd(8);
+
+	objects[IMPLANT_OF_TOTAL_NONSENSE].a_ac = rnd(8);
+	objects[IMPLANT_OF_BIG_OL].a_ac = rnd(8);
+	objects[IMPLANT_OF_ANAL_RETENTION].a_ac = rnd(8);
+	objects[IMPLANT_OF_GALVANIZATION].a_ac = rnd(8);
 
 	objects[IMPLANT_OF_IRE].a_ac = rnd(5);
 	objects[IMPLANT_OF_MALICE].a_ac = rnd(5);
@@ -747,6 +817,19 @@ register char oclass;
 	objects[IMPLANT_OF_TSUNAMI].a_ac = rnd(5);
 	objects[IMPLANT_OF_FREEDOM].a_ac = rnd(5);
 
+	objects[IMPLANT_OF_TEN_THOUSAND_THINGS].a_ac = rnd(5);
+	objects[IMPLANT_OF_TOSSING].a_ac = rnd(5);
+	objects[IMPLANT_OF_HEAVY_LUBRICATION].a_ac = rnd(5);
+	objects[IMPLANT_OF_MISANTHROPHY].a_ac = rnd(5);
+	objects[IMPLANT_OF_CRAP].a_ac = rnd(5);
+	objects[IMPLANT_OF_KING_BEEFCAKE].a_ac = rnd(5);
+	objects[IMPLANT_OF_PUMPING].a_ac = rnd(5);
+	objects[IMPLANT_OF_WANNABE].a_ac = rnd(5);
+	objects[IMPLANT_OF_YOUR_MOMMA].a_ac = rnd(5);
+	objects[IMPLANT_OF_SWALLOWING].a_ac = rnd(5);
+	objects[IMPLANT_OF_MENSTRATING].a_ac = rnd(5);
+	objects[IMPLANT_OF_ENFORCING].a_ac = rnd(5);
+
 	objects[IMPLANT_OF_QUICKENING].oc_oprop = randnastyenchantment();
 	objects[IMPLANT_OF_KARMA].oc_oprop = randnastyenchantment();
 	objects[IMPLANT_OF_FERVOR].oc_oprop = randnastyenchantment();
@@ -767,6 +850,11 @@ register char oclass;
 	objects[IMPLANT_OF_VENGEANCE].oc_oprop = randnastyenchantment();
 	objects[IMPLANT_OF_BLISS].oc_oprop = randnastyenchantment();
 	objects[IMPLANT_OF_BLITZEN].oc_oprop = randnastyenchantment();
+
+	objects[IMPLANT_OF_TOTAL_NONSENSE].oc_oprop = randnastyenchantment();
+	objects[IMPLANT_OF_BIG_OL].oc_oprop = randnastyenchantment();
+	objects[IMPLANT_OF_ANAL_RETENTION].oc_oprop = randnastyenchantment();
+	objects[IMPLANT_OF_GALVANIZATION].oc_oprop = randnastyenchantment();
 
 	objects[IMPLANT_OF_IRE].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 	objects[IMPLANT_OF_MALICE].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
@@ -829,6 +917,19 @@ register char oclass;
 	objects[IMPLANT_OF_TSUNAMI].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 	objects[IMPLANT_OF_FREEDOM].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 
+	objects[IMPLANT_OF_TEN_THOUSAND_THINGS].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[IMPLANT_OF_TOSSING].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[IMPLANT_OF_HEAVY_LUBRICATION].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[IMPLANT_OF_MISANTHROPHY].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[IMPLANT_OF_CRAP].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[IMPLANT_OF_KING_BEEFCAKE].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[IMPLANT_OF_PUMPING].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[IMPLANT_OF_WANNABE].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[IMPLANT_OF_YOUR_MOMMA].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[IMPLANT_OF_SWALLOWING].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[IMPLANT_OF_MENSTRATING].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[IMPLANT_OF_ENFORCING].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+
 	objects[DUMMY_CLOAK_A].a_can = rn2(4);
 	objects[DUMMY_CLOAK_B].a_can = rn2(4);
 	objects[DUMMY_CLOAK_C].a_can = rn2(4);
@@ -851,6 +952,22 @@ register char oclass;
 	objects[DUMMY_CLOAK_T].a_can = rn2(4);
 	objects[DUMMY_CLOAK_U].a_can = rn2(4);
 	objects[DUMMY_CLOAK_V].a_can = rn2(4);
+	objects[DUMMY_CLOAK_W].a_can = rn2(4);
+	objects[DUMMY_CLOAK_X].a_can = rn2(4);
+	objects[DUMMY_CLOAK_Y].a_can = rn2(4);
+	objects[DUMMY_CLOAK_Z].a_can = rn2(4);
+	objects[DUMMY_CLOAK_AA].a_can = rn2(4);
+	objects[DUMMY_CLOAK_AB].a_can = rn2(4);
+	objects[DUMMY_CLOAK_AC].a_can = rn2(4);
+	objects[DUMMY_CLOAK_AD].a_can = rn2(4);
+	objects[DUMMY_CLOAK_AE].a_can = rn2(4);
+	objects[DUMMY_CLOAK_AF].a_can = rn2(4);
+	objects[DUMMY_CLOAK_AG].a_can = rn2(4);
+	objects[DUMMY_CLOAK_AH].a_can = rn2(4);
+	objects[DUMMY_CLOAK_AI].a_can = rn2(4);
+	objects[DUMMY_CLOAK_AJ].a_can = rn2(4);
+	objects[DUMMY_CLOAK_AK].a_can = rn2(4);
+	objects[DUMMY_CLOAK_AL].a_can = rn2(4);
 
 	objects[DUMMY_CLOAK_A].a_ac = 0;
 	if (rn2(10)) objects[DUMMY_CLOAK_A].a_ac = 1;
@@ -962,6 +1079,86 @@ register char oclass;
 	while (!rn2(3)) {
 		if (objects[DUMMY_CLOAK_V].a_ac < 20) objects[DUMMY_CLOAK_V].a_ac++;
 	}
+	objects[DUMMY_CLOAK_W].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_W].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_W].a_ac < 20) objects[DUMMY_CLOAK_W].a_ac++;
+	}
+	objects[DUMMY_CLOAK_X].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_X].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_X].a_ac < 20) objects[DUMMY_CLOAK_X].a_ac++;
+	}
+	objects[DUMMY_CLOAK_Y].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_Y].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_Y].a_ac < 20) objects[DUMMY_CLOAK_Y].a_ac++;
+	}
+	objects[DUMMY_CLOAK_Z].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_Z].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_Z].a_ac < 20) objects[DUMMY_CLOAK_Z].a_ac++;
+	}
+	objects[DUMMY_CLOAK_AA].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_AA].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_AA].a_ac < 20) objects[DUMMY_CLOAK_AA].a_ac++;
+	}
+	objects[DUMMY_CLOAK_AB].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_AB].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_AB].a_ac < 20) objects[DUMMY_CLOAK_AB].a_ac++;
+	}
+	objects[DUMMY_CLOAK_AC].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_AC].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_AC].a_ac < 20) objects[DUMMY_CLOAK_AC].a_ac++;
+	}
+	objects[DUMMY_CLOAK_AD].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_AD].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_AD].a_ac < 20) objects[DUMMY_CLOAK_AD].a_ac++;
+	}
+	objects[DUMMY_CLOAK_AE].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_AE].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_AE].a_ac < 20) objects[DUMMY_CLOAK_AE].a_ac++;
+	}
+	objects[DUMMY_CLOAK_AF].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_AF].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_AF].a_ac < 20) objects[DUMMY_CLOAK_AF].a_ac++;
+	}
+	objects[DUMMY_CLOAK_AG].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_AG].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_AG].a_ac < 20) objects[DUMMY_CLOAK_AG].a_ac++;
+	}
+	objects[DUMMY_CLOAK_AH].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_AH].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_AH].a_ac < 20) objects[DUMMY_CLOAK_AH].a_ac++;
+	}
+	objects[DUMMY_CLOAK_AI].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_AI].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_AI].a_ac < 20) objects[DUMMY_CLOAK_AI].a_ac++;
+	}
+	objects[DUMMY_CLOAK_AJ].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_AJ].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_AJ].a_ac < 20) objects[DUMMY_CLOAK_AJ].a_ac++;
+	}
+	objects[DUMMY_CLOAK_AK].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_AK].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_AK].a_ac < 20) objects[DUMMY_CLOAK_AK].a_ac++;
+	}
+	objects[DUMMY_CLOAK_AL].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_CLOAK_AL].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_CLOAK_AL].a_ac < 20) objects[DUMMY_CLOAK_AL].a_ac++;
+	}
 
 	objects[DUMMY_HELMET_A].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 	objects[DUMMY_HELMET_B].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
@@ -974,6 +1171,16 @@ register char oclass;
 	objects[DUMMY_HELMET_I].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 	objects[DUMMY_HELMET_J].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 	objects[DUMMY_HELMET_K].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_HELMET_L].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_HELMET_M].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_HELMET_N].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_HELMET_O].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_HELMET_P].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_HELMET_Q].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_HELMET_R].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_HELMET_S].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_HELMET_T].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_HELMET_U].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 
 	objects[DUMMY_HELMET_A].a_can = rnd(10) ? 0 : rnd(3);
 	objects[DUMMY_HELMET_B].a_can = rnd(10) ? 0 : rnd(3);
@@ -986,6 +1193,16 @@ register char oclass;
 	objects[DUMMY_HELMET_I].a_can = rnd(10) ? 0 : rnd(3);
 	objects[DUMMY_HELMET_J].a_can = rnd(10) ? 0 : rnd(3);
 	objects[DUMMY_HELMET_K].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_HELMET_L].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_HELMET_M].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_HELMET_N].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_HELMET_O].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_HELMET_P].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_HELMET_Q].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_HELMET_R].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_HELMET_S].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_HELMET_T].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_HELMET_U].a_can = rnd(10) ? 0 : rnd(3);
 
 	objects[DUMMY_HELMET_A].a_ac = 0;
 	if (rn2(10)) objects[DUMMY_HELMET_A].a_ac = 1;
@@ -1042,6 +1259,56 @@ register char oclass;
 	while (!rn2(3)) {
 		if (objects[DUMMY_HELMET_K].a_ac < 20) objects[DUMMY_HELMET_K].a_ac++;
 	}
+	objects[DUMMY_HELMET_L].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_HELMET_L].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_HELMET_L].a_ac < 20) objects[DUMMY_HELMET_L].a_ac++;
+	}
+	objects[DUMMY_HELMET_M].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_HELMET_M].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_HELMET_M].a_ac < 20) objects[DUMMY_HELMET_M].a_ac++;
+	}
+	objects[DUMMY_HELMET_N].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_HELMET_N].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_HELMET_N].a_ac < 20) objects[DUMMY_HELMET_N].a_ac++;
+	}
+	objects[DUMMY_HELMET_O].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_HELMET_O].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_HELMET_O].a_ac < 20) objects[DUMMY_HELMET_O].a_ac++;
+	}
+	objects[DUMMY_HELMET_P].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_HELMET_P].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_HELMET_P].a_ac < 20) objects[DUMMY_HELMET_P].a_ac++;
+	}
+	objects[DUMMY_HELMET_Q].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_HELMET_Q].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_HELMET_Q].a_ac < 20) objects[DUMMY_HELMET_Q].a_ac++;
+	}
+	objects[DUMMY_HELMET_R].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_HELMET_R].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_HELMET_R].a_ac < 20) objects[DUMMY_HELMET_R].a_ac++;
+	}
+	objects[DUMMY_HELMET_S].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_HELMET_S].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_HELMET_S].a_ac < 20) objects[DUMMY_HELMET_S].a_ac++;
+	}
+	objects[DUMMY_HELMET_T].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_HELMET_T].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_HELMET_T].a_ac < 20) objects[DUMMY_HELMET_T].a_ac++;
+	}
+	objects[DUMMY_HELMET_U].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_HELMET_U].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_HELMET_U].a_ac < 20) objects[DUMMY_HELMET_U].a_ac++;
+	}
 
 	objects[DUMMY_GLOVES_A].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 	objects[DUMMY_GLOVES_B].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
@@ -1052,6 +1319,9 @@ register char oclass;
 	objects[DUMMY_GLOVES_G].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 	objects[DUMMY_GLOVES_H].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 	objects[DUMMY_GLOVES_I].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_GLOVES_J].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_GLOVES_K].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_GLOVES_L].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 
 	objects[DUMMY_GLOVES_A].a_can = rnd(10) ? 0 : rnd(3);
 	objects[DUMMY_GLOVES_B].a_can = rnd(10) ? 0 : rnd(3);
@@ -1062,6 +1332,9 @@ register char oclass;
 	objects[DUMMY_GLOVES_G].a_can = rnd(10) ? 0 : rnd(3);
 	objects[DUMMY_GLOVES_H].a_can = rnd(10) ? 0 : rnd(3);
 	objects[DUMMY_GLOVES_I].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_GLOVES_J].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_GLOVES_K].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_GLOVES_L].a_can = rnd(10) ? 0 : rnd(3);
 
 	objects[DUMMY_GLOVES_A].a_ac = 0;
 	if (rn2(10)) objects[DUMMY_GLOVES_A].a_ac = 1;
@@ -1108,6 +1381,21 @@ register char oclass;
 	while (!rn2(3)) {
 		if (objects[DUMMY_GLOVES_I].a_ac < 20) objects[DUMMY_GLOVES_I].a_ac++;
 	}
+	objects[DUMMY_GLOVES_J].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_GLOVES_J].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_GLOVES_J].a_ac < 20) objects[DUMMY_GLOVES_J].a_ac++;
+	}
+	objects[DUMMY_GLOVES_K].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_GLOVES_K].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_GLOVES_K].a_ac < 20) objects[DUMMY_GLOVES_K].a_ac++;
+	}
+	objects[DUMMY_GLOVES_L].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_GLOVES_L].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_GLOVES_L].a_ac < 20) objects[DUMMY_GLOVES_L].a_ac++;
+	}
 
 	objects[DUMMY_BOOTS_A].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 	objects[DUMMY_BOOTS_B].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
@@ -1121,6 +1409,23 @@ register char oclass;
 	objects[DUMMY_BOOTS_J].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 	objects[DUMMY_BOOTS_K].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 	objects[DUMMY_BOOTS_L].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_M].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_N].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_O].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_P].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_Q].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_R].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_S].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_T].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_U].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_V].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_W].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_X].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_Y].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_Z].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_AA].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_AB].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
+	objects[DUMMY_BOOTS_AC].oc_oprop = !rn2(10) ? randnastyenchantment() : randenchantment();
 
 	objects[DUMMY_BOOTS_A].a_can = rnd(10) ? 0 : rnd(3);
 	objects[DUMMY_BOOTS_B].a_can = rnd(10) ? 0 : rnd(3);
@@ -1134,6 +1439,23 @@ register char oclass;
 	objects[DUMMY_BOOTS_J].a_can = rnd(10) ? 0 : rnd(3);
 	objects[DUMMY_BOOTS_K].a_can = rnd(10) ? 0 : rnd(3);
 	objects[DUMMY_BOOTS_L].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_M].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_N].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_O].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_P].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_Q].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_R].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_S].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_T].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_U].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_V].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_W].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_X].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_Y].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_Z].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_AA].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_AB].a_can = rnd(10) ? 0 : rnd(3);
+	objects[DUMMY_BOOTS_AC].a_can = rnd(10) ? 0 : rnd(3);
 
 	objects[DUMMY_BOOTS_A].a_ac = 0;
 	if (rn2(10)) objects[DUMMY_BOOTS_A].a_ac = 1;
@@ -1195,12 +1517,140 @@ register char oclass;
 	while (!rn2(3)) {
 		if (objects[DUMMY_BOOTS_L].a_ac < 20) objects[DUMMY_BOOTS_L].a_ac++;
 	}
+	objects[DUMMY_BOOTS_M].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_M].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_M].a_ac < 20) objects[DUMMY_BOOTS_M].a_ac++;
+	}
+	objects[DUMMY_BOOTS_N].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_N].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_N].a_ac < 20) objects[DUMMY_BOOTS_N].a_ac++;
+	}
+	objects[DUMMY_BOOTS_O].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_O].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_O].a_ac < 20) objects[DUMMY_BOOTS_O].a_ac++;
+	}
+	objects[DUMMY_BOOTS_P].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_P].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_P].a_ac < 20) objects[DUMMY_BOOTS_P].a_ac++;
+	}
+	objects[DUMMY_BOOTS_Q].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_Q].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_Q].a_ac < 20) objects[DUMMY_BOOTS_Q].a_ac++;
+	}
+	objects[DUMMY_BOOTS_R].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_R].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_R].a_ac < 20) objects[DUMMY_BOOTS_R].a_ac++;
+	}
+	objects[DUMMY_BOOTS_S].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_S].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_S].a_ac < 20) objects[DUMMY_BOOTS_S].a_ac++;
+	}
+	objects[DUMMY_BOOTS_T].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_T].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_T].a_ac < 20) objects[DUMMY_BOOTS_T].a_ac++;
+	}
+	objects[DUMMY_BOOTS_U].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_U].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_U].a_ac < 20) objects[DUMMY_BOOTS_U].a_ac++;
+	}
+	objects[DUMMY_BOOTS_V].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_V].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_V].a_ac < 20) objects[DUMMY_BOOTS_V].a_ac++;
+	}
+	objects[DUMMY_BOOTS_W].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_W].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_W].a_ac < 20) objects[DUMMY_BOOTS_W].a_ac++;
+	}
+	objects[DUMMY_BOOTS_X].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_X].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_X].a_ac < 20) objects[DUMMY_BOOTS_X].a_ac++;
+	}
+	objects[DUMMY_BOOTS_Y].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_Y].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_Y].a_ac < 20) objects[DUMMY_BOOTS_Y].a_ac++;
+	}
+	objects[DUMMY_BOOTS_Z].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_Z].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_Z].a_ac < 20) objects[DUMMY_BOOTS_Z].a_ac++;
+	}
+	objects[DUMMY_BOOTS_AA].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_AA].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_AA].a_ac < 20) objects[DUMMY_BOOTS_AA].a_ac++;
+	}
+	objects[DUMMY_BOOTS_AB].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_AB].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_AB].a_ac < 20) objects[DUMMY_BOOTS_AB].a_ac++;
+	}
+	objects[DUMMY_BOOTS_AC].a_ac = 0;
+	if (rn2(10)) objects[DUMMY_BOOTS_AC].a_ac = 1;
+	while (!rn2(3)) {
+		if (objects[DUMMY_BOOTS_AC].a_ac < 20) objects[DUMMY_BOOTS_AC].a_ac++;
+	}
 
 	objects[SPE_FORBIDDEN_KNOWLEDGE].oc_level = rnd(8);
-	objects[SPE_FORBIDDEN_KNOWLEDGE].oc_cost = (objects[SPE_FORBIDDEN_KNOWLEDGE].oc_level * 100);
 
 	objects[SPE_CHARACTER_RECURSION].oc_level = rnd(8);
-	objects[SPE_CHARACTER_RECURSION].oc_cost = (objects[SPE_CHARACTER_RECURSION].oc_level * 100);
+
+	objects[WONDER_BALL].oc_material = rn2(LASTMATERIAL + 1);
+	objects[WONDER_CHAIN].oc_material = rn2(LASTMATERIAL + 1);
+	objects[TOILET_ROLL].oc_material = rn2(LASTMATERIAL + 1);
+	objects[WONDER_PLATE].oc_material = rn2(LASTMATERIAL + 1);
+	objects[MEDIUM_MITHRIL_COAT].oc_material = rn2(LASTMATERIAL + 1);
+	objects[TAPERED_MAIL].oc_material = rn2(LASTMATERIAL + 1);
+	objects[EXCITING_ARMOR].oc_material = rn2(LASTMATERIAL + 1);
+	objects[LORICATED_CLOAK].oc_material = rn2(LASTMATERIAL + 1);
+	objects[BASINET].oc_material = rn2(LASTMATERIAL + 1);
+	objects[ROCKET_GAUNTLETS].oc_material = rn2(LASTMATERIAL + 1);
+	objects[ANCIENT_SHIELD].oc_material = rn2(LASTMATERIAL + 1);
+	objects[ITALIAN_HEELS].oc_material = rn2(LASTMATERIAL + 1);
+	objects[WONDER_DAGGER].oc_material = rn2(LASTMATERIAL + 1);
+	objects[UNKNOWN_KNIFE].oc_material = rn2(LASTMATERIAL + 1);
+	objects[SHARP_AXE].oc_material = rn2(LASTMATERIAL + 1);
+	objects[SHORT_BLADE].oc_material = rn2(LASTMATERIAL + 1);
+	objects[ELEGANT_BROADSWORD].oc_material = rn2(LASTMATERIAL + 1);
+	objects[MAIN_SWORD].oc_material = rn2(LASTMATERIAL + 1);
+	objects[ROMAN_SWORD].oc_material = rn2(LASTMATERIAL + 1);
+	objects[MYTHICAL_SABLE].oc_material = rn2(LASTMATERIAL + 1);
+	objects[CRYPTIC_SABER].oc_material = rn2(LASTMATERIAL + 1);
+	objects[BLOW_AKLYS].oc_material = rn2(LASTMATERIAL + 1);
+	objects[TELEPHONE].oc_material = rn2(LASTMATERIAL + 1);
+	objects[BATLETH].oc_material = rn2(LASTMATERIAL + 1);
+	objects[ELITE_BATLETH].oc_material = rn2(LASTMATERIAL + 1);
+	objects[CALCULATOR].oc_material = rn2(LASTMATERIAL + 1);
+	objects[WEIGHTED_FLAIL].oc_material = rn2(LASTMATERIAL + 1);
+	objects[BLOCK_HEELED_SANDAL].oc_material = rn2(LASTMATERIAL + 1);
+	objects[PROSTITUTE_SHOE].oc_material = rn2(LASTMATERIAL + 1);
+	objects[BO_STAFF].oc_material = rn2(LASTMATERIAL + 1);
+	objects[LONG_POLE].oc_material = rn2(LASTMATERIAL + 1);
+	objects[SHARP_POLE].oc_material = rn2(LASTMATERIAL + 1);
+	objects[RANDOSPEAR].oc_material = rn2(LASTMATERIAL + 1);
+	objects[STACK_JAVELIN].oc_material = rn2(LASTMATERIAL + 1);
+	objects[SPEC_LANCE].oc_material = rn2(LASTMATERIAL + 1);
+	objects[META_BOW].oc_material = rn2(LASTMATERIAL + 1);
+	objects[WONDER_ARROW].oc_material = rn2(LASTMATERIAL + 1);
+	objects[MATERIAL_BOLT].oc_material = rn2(LASTMATERIAL + 1);
+	objects[RANDOM_DART].oc_material = rn2(LASTMATERIAL + 1);
+	objects[CUBIC_STAR].oc_material = rn2(LASTMATERIAL + 1);
+	objects[SEXPLAY_WHIP].oc_material = rn2(LASTMATERIAL + 1);
+	objects[MYSTERY_PICK].oc_material = rn2(LASTMATERIAL + 1);
+	objects[MYSTERY_LIGHTSABER].oc_material = rn2(LASTMATERIAL + 1);
+	objects[SLING_AMMO].oc_material = rn2(LASTMATERIAL + 1);
 
 	/* shuffle descriptions */
 	shuffle_all();
@@ -1273,15 +1723,9 @@ int
 find_skates()
 {
     register int i;
-    register const char *s;
 
     for (i = SPEED_BOOTS; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "snow boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "zimniye sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "qor chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_SNOW_BOOTS)) return i;
     }
 
     impossible("snow boots not found?");
@@ -1292,15 +1736,9 @@ int
 find_skates2()
 {
     register int i;
-    register const char *s;
 
     for (i = SPEED_BOOTS; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "winter boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "sapogi zimniye"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "qish chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_WINTER_BOOTS)) return i;
     }
 
     impossible("winter boots not found?");
@@ -1311,15 +1749,9 @@ int
 find_skates3()
 {
     register int i;
-    register const char *s;
 
     for (i = SPEED_BOOTS; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "winter stilettos"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "zima stilety"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "qish sandal chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_WINTER_STILETTOS)) return i;
     }
 
     impossible("winter stilettos not found?");
@@ -1330,15 +1762,9 @@ int
 find_skates4()
 {
     register int i;
-    register const char *s;
 
     for (i = SPEED_BOOTS; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "ski heels"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "lyzhnyye kabluki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "chang'i poshnalar"))
-	    return i;
+	if (itemnumwithappearance(i, APP_SKI_HEELS)) return i;
     }
 
     impossible("ski heels not found?");
@@ -1351,15 +1777,9 @@ int
 find_opera_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "opera cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "nakidka"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "operasi plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_OPERA_CLOAK)) return i;
     }
 
     impossible("opera cloak not found?");
@@ -1370,15 +1790,9 @@ int
 find_explosive_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "explosive boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "vzryvnyye sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "portlovchi chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_EXPLOSIVE_BOOTS)) return i;
     }
 
     impossible("explosive boots not found?");
@@ -1389,15 +1803,9 @@ int
 find_irregular_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "irregular boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "neregulyarnyye sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "tartibsizlik chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_IRREGULAR_BOOTS)) return i;
     }
 
     impossible("irregular boots not found?");
@@ -1408,15 +1816,9 @@ int
 find_wedge_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "wedge boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "klin sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "xanjar chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_WEDGE_BOOTS)) return i;
     }
 
     impossible("wedge boots not found?");
@@ -1427,15 +1829,9 @@ int
 find_aluminium_helmet()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "aluminium helmet"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "shlem iz alyuminiya"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "alyuminiy dubulg'a"))
-	    return i;
+	if (itemnumwithappearance(i, APP_ALUMINIUM_HELMET)) return i;
     }
 
     impossible("aluminium helmet not found?");
@@ -1446,15 +1842,9 @@ int
 find_ghostly_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "ghostly cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "prizrachnyy plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "diniy plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_GHOSTLY_CLOAK)) return i;
     }
 
     impossible("ghostly cloak not found?");
@@ -1465,15 +1855,9 @@ int
 find_polnish_gloves()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "polnish gloves"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "pol'skiye perchatki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "polsha qo'lqop"))
-	    return i;
+	if (itemnumwithappearance(i, APP_POLNISH_GLOVES)) return i;
     }
 
     impossible("polnish gloves not found?");
@@ -1484,15 +1868,9 @@ int
 find_velcro_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "velcro boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "lipuchki sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "cirt chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_VELCRO_BOOTS)) return i;
     }
 
     impossible("velcro boots not found?");
@@ -1503,15 +1881,9 @@ int
 find_clumsy_gloves()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "clumsy gloves"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "neuklyuzhiye perchatki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "qo'pol qo'lqop"))
-	    return i;
+	if (itemnumwithappearance(i, APP_CLUMSY_GLOVES)) return i;
     }
 
     impossible("clumsy gloves not found?");
@@ -1522,15 +1894,9 @@ int
 find_fin_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "fin boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "plavnik sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "kanatcik chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_FIN_BOOTS)) return i;
     }
 
     impossible("fin boots not found?");
@@ -1541,15 +1907,9 @@ int
 find_profiled_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "profiled boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "profilirovannyye sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "profilli chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_PROFILED_BOOTS)) return i;
     }
 
     impossible("profiled boots not found?");
@@ -1560,15 +1920,9 @@ int
 find_void_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "void cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "nedeystvitel'nym plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "haqiqiy emas plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_VOID_CLOAK)) return i;
     }
 
     impossible("void cloak not found?");
@@ -1579,15 +1933,9 @@ int
 find_grey_shaded_gloves()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "grey-shaded gloves"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "sero-zatenennykh perchatki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "kulrang-soyali qo'lqop"))
-	    return i;
+	if (itemnumwithappearance(i, APP_GREY_SHADED_GLOVES)) return i;
     }
 
     impossible("grey-shaded gloves not found?");
@@ -1598,15 +1946,9 @@ int
 find_weeb_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "weeb cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "zese plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "yaponiya ucube rido"))
-	    return i;
+	if (itemnumwithappearance(i, APP_WEEB_CLOAK)) return i;
     }
 
     impossible("weeb cloak not found?");
@@ -1617,15 +1959,9 @@ int
 find_persian_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "persian boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "persidskiye sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "fors chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_PERSIAN_BOOTS)) return i;
     }
 
     impossible("persian boots not found?");
@@ -1636,15 +1972,9 @@ int
 find_hugging_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "hugging boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "obnimat'sya sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "havola etdi chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_HUGGING_BOOTS)) return i;
     }
 
     impossible("hugging boots not found?");
@@ -1655,15 +1985,9 @@ int
 find_fleecy_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "fleecy boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "flis sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "tozalamoq chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_FLEECY_BOOTS)) return i;
     }
 
     impossible("fleecy boots not found?");
@@ -1674,15 +1998,9 @@ int
 find_fingerless_gloves()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "fingerless gloves"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "mitenki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "kam qo'lqop barmoq"))
-	    return i;
+	if (itemnumwithappearance(i, APP_FINGERLESS_GLOVES)) return i;
     }
 
     impossible("fingerless gloves not found?");
@@ -1693,15 +2011,9 @@ int
 find_mantle_of_coat()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "mantle of coat"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "mantiya pal'to"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "ko'ylagi mantiya"))
-	    return i;
+	if (itemnumwithappearance(i, APP_MANTLE_OF_COAT)) return i;
     }
 
     impossible("mantle of coat not found?");
@@ -1712,15 +2024,9 @@ int
 find_fatal_gloves()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "fatal gloves"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "fatal'nyye perchatki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "halokatli qo'lqop"))
-	    return i;
+	if (itemnumwithappearance(i, APP_FATAL_GLOVES)) return i;
     }
 
     impossible("fatal gloves not found?");
@@ -1731,15 +2037,9 @@ int
 find_beautiful_heels()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "beautiful heels"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "krasivyye kabluki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "chiroyli ko'chirish to'piqlarni"))
-	    return i;
+	if (itemnumwithappearance(i, APP_BEAUTIFUL_HEELS)) return i;
     }
 
     impossible("beautiful heels not found?");
@@ -1750,15 +2050,9 @@ int
 find_homicidal_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "homicidal cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "smertonosnyy plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "halokatli plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_HOMICIDAL_CLOAK)) return i;
     }
 
     impossible("homicidal cloak not found?");
@@ -1769,15 +2063,9 @@ int
 find_castlevania_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "castlevania boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "zamok vaney sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "qal'a vania chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_CASTLEVANIA_BOOTS)) return i;
     }
 
     impossible("castlevania boots not found?");
@@ -1788,15 +2076,9 @@ int
 find_greek_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "greek cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "grecheskiy plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "yunon plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_GREEK_CLOAK)) return i;
     }
 
     impossible("greek cloak not found?");
@@ -1807,15 +2089,9 @@ int
 find_celtic_helmet()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "celtic helmet"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "kel'tskaya shlem"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "seltik dubulg'a"))
-	    return i;
+	if (itemnumwithappearance(i, APP_CELTIC_HELMET)) return i;
     }
 
     impossible("celtic helmet not found?");
@@ -1826,15 +2102,9 @@ int
 find_english_gloves()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "english gloves"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "angliyskiye perchatki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "ingliz tili qo'lqop"))
-	    return i;
+	if (itemnumwithappearance(i, APP_ENGLISH_GLOVES)) return i;
     }
 
     impossible("english gloves not found?");
@@ -1845,15 +2115,9 @@ int
 find_korean_sandals()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "korean sandals"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "koreyskiye sandalii"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "janubiy koreyaning kavushlari"))
-	    return i;
+	if (itemnumwithappearance(i, APP_KOREAN_SANDALS)) return i;
     }
 
     impossible("korean sandals not found?");
@@ -1864,15 +2128,9 @@ int
 find_octarine_robe()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "octarine robe"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "vos'moy tsvet khalata"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "sakkizinchi rang to'n"))
-	    return i;
+	if (itemnumwithappearance(i, APP_OCTARINE_ROBE)) return i;
     }
 
     impossible("octarine robe not found?");
@@ -1883,15 +2141,9 @@ int
 find_chinese_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "chinese cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "kitayskiy plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "xitoy plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_CHINESE_CLOAK)) return i;
     }
 
     impossible("chinese cloak not found?");
@@ -1902,15 +2154,9 @@ int
 find_polyform_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "polyform cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "sopolimer forma plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "belgigacha bo'lgan poli shakli plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_POLYFORM_CLOAK)) return i;
     }
 
     impossible("polyform cloak not found?");
@@ -1921,15 +2167,9 @@ int
 find_absorbing_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "absorbing cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "pogloshchayushchiy plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "yutucu plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_ABSORBING_CLOAK)) return i;
     }
 
     impossible("absorbing cloak not found?");
@@ -1940,15 +2180,9 @@ int
 find_birthcloth()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "birthcloth"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "rozhdeniye tkan'"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "tug'ilgan mato"))
-	    return i;
+	if (itemnumwithappearance(i, APP_BIRTHCLOTH)) return i;
     }
 
     impossible("birthcloth not found?");
@@ -1959,15 +2193,9 @@ int
 find_poke_mongo_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "poke mongo cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "sovat' mongo plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "soktudun mongo plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_POKE_MONGO_CLOAK)) return i;
     }
 
     impossible("poke mongo cloak not found?");
@@ -1978,15 +2206,9 @@ int
 find_levuntation_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "levuntation cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "levitatsii plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "havo rido kiygan suzadi"))
-	    return i;
+	if (itemnumwithappearance(i, APP_LEVUNTATION_CLOAK)) return i;
     }
 
     impossible("levuntation cloak not found?");
@@ -1997,15 +2219,9 @@ int
 find_quicktravel_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "quicktravel cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "bystryy plashch puteshestviya"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "tez safar plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_QUICKTRAVEL_CLOAK)) return i;
     }
 
     impossible("quicktravel cloak not found?");
@@ -2016,15 +2232,9 @@ int
 find_angband_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "angband cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "plashch sredizem'ye krepost'"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "o'rta yer qal'a plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_ANGBAND_CLOAK)) return i;
     }
 
     impossible("angband cloak not found?");
@@ -2035,15 +2245,9 @@ int
 find_anorexia_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "anorexia cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "yedyat plashch rasstroystvo"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "eb buzilishi plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_ANOREXIA_CLOAK)) return i;
     }
 
     impossible("anorexia cloak not found?");
@@ -2054,15 +2258,9 @@ int
 find_dnethack_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "dnethack cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "podzemeliy i vnezemnyye plashch vzlomat'"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "hamzindon va dunyo bo'lmagan doirasi so'yish plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_DNETHACK_CLOAK)) return i;
     }
 
     impossible("dnethack cloak not found?");
@@ -2073,15 +2271,9 @@ int
 find_team_splat_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "team splat cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "vosklitsatel'nyy znak plashch komanda"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "jamoasi xavfsizlik plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_TEAM_SPLAT_CLOAK)) return i;
     }
 
     impossible("team splat cloak not found?");
@@ -2092,15 +2284,9 @@ int
 find_eldritch_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "eldritch cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "sverkh'yestestvennyy plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "aql bovar qilmaydigan plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_ELDRITCH_CLOAK)) return i;
     }
 
     impossible("eldritch cloak not found?");
@@ -2111,15 +2297,9 @@ int
 find_erotic_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "erotic boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "eroticheskiye sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "erotik chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_EROTIC_BOOTS)) return i;
     }
 
     impossible("erotic boots not found?");
@@ -2130,15 +2310,9 @@ int
 find_secret_helmet()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "secret helmet"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "sekret shlem"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "yashirin dubulg'a"))
-	    return i;
+	if (itemnumwithappearance(i, APP_SECRET_HELMET)) return i;
     }
 
     impossible("secret helmet not found?");
@@ -2149,15 +2323,9 @@ int
 find_difficult_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "difficult cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "trudnyy plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "qiyin plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_DIFFICULT_CLOAK)) return i;
     }
 
     impossible("difficult cloak not found?");
@@ -2168,15 +2336,9 @@ int
 find_velvet_gloves()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "velvet gloves"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "barkhatnyye perchatki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "baxmal qo'lqop"))
-	    return i;
+	if (itemnumwithappearance(i, APP_VELVET_GLOVES)) return i;
     }
 
     impossible("velvet gloves not found?");
@@ -2184,18 +2346,207 @@ find_velvet_gloves()
 }
 
 int
+find_velvet_pumps()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_VELVET_PUMPS)) return i;
+    }
+
+    impossible("velvet pumps not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
+find_volcanic_cloak()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_VOLCANIC_CLOAK)) return i;
+    }
+
+    impossible("volcanic cloak not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
+find_fuel_cloak()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_FUEL_CLOAK)) return i;
+    }
+
+    impossible("fuel cloak not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
+find_cloister_cloak()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_CLOISTER_CLOAK)) return i;
+    }
+
+    impossible("cloister cloak not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
+find_shemagh()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_SHEMAGH)) return i;
+    }
+
+    impossible("shemagh not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
+find_visored_helmet()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_VISORED_HELMET)) return i;
+    }
+
+    impossible("visored helmet not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
+find_orange_visored_helmet()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_ORANGE_VISORED_HELMET)) return i;
+    }
+
+    impossible("orange visored helmet not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
+find_frequent_helmet()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_FREQUENT_HELMET)) return i;
+    }
+
+    impossible("frequent helmet not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
+find_serrated_helmet()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_SERRATED_HELMET)) return i;
+    }
+
+    impossible("serrated helmet not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
+find_thick_boots()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_THICK_BOOTS)) return i;
+    }
+
+    impossible("thick boots not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
+find_sand_als()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_SAND_ALS)) return i;
+    }
+
+    impossible("sand-als not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
+find_shadowy_heels()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_SHADOWY_HEELS)) return i;
+    }
+
+    impossible("shadowy heels not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
+find_weight_attachment_boots()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_WEIGHT_ATTACHMENT_BOOTS)) return i;
+    }
+
+    impossible("weight attachment boots not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
+find_fungal_sandals()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_FUNGAL_SANDALS)) return i;
+    }
+
+    impossible("fungal sandals not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
+find_standing_footwear()
+{
+    register int i;
+
+    for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
+	if (itemnumwithappearance(i, APP_STANDING_FOOTWEAR)) return i;
+    }
+
+    impossible("standing footwear not found?");
+    return -1;	/* not 0, or caller would try again each move */
+}
+
+int
 find_sputa_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "sputa boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "mokrota sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "sputa chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_SPUTA_BOOTS)) return i;
     }
 
     impossible("sputa boots not found?");
@@ -2206,15 +2557,9 @@ int
 find_formula_one_helmet()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "formula one helmet"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "formula odin shlem"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "formula bir zarbdan"))
-	    return i;
+	if (itemnumwithappearance(i, APP_FORMULA_ONE_HELMET)) return i;
     }
 
     impossible("formula one helmet not found?");
@@ -2225,15 +2570,9 @@ int
 find_excrement_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "excrement cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "ekskrementy plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "chiqindi plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_EXCREMENT_CLOAK)) return i;
     }
 
     impossible("excrement cloak not found?");
@@ -2244,15 +2583,9 @@ int
 find_racer_gloves()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "racer gloves"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "gonshchik perchatki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "poygachi qo'lqop"))
-	    return i;
+	if (itemnumwithappearance(i, APP_RACER_GLOVES)) return i;
     }
 
     impossible("racer gloves not found?");
@@ -2263,15 +2596,9 @@ int
 find_turbo_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "turbo boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "turbo sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "qidiruvi va turbo chizilmasin"))
-	    return i;
+	if (itemnumwithappearance(i, APP_TURBO_BOOTS)) return i;
     }
 
     impossible("turbo boots not found?");
@@ -2282,15 +2609,9 @@ int
 find_guild_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "guild cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "gil'dii plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "birlik plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_GUILD_CLOAK)) return i;
     }
 
     impossible("guild cloak not found?");
@@ -2301,15 +2622,9 @@ int
 find_shitty_gloves()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "shitty gloves"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "der'movyye perchatki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "boktan qo'lqop"))
-	    return i;
+	if (itemnumwithappearance(i, APP_SHITTY_GLOVES)) return i;
     }
 
     impossible("shitty gloves not found?");
@@ -2320,15 +2635,9 @@ int
 find_foundry_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "foundry cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "liteynyy plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "quyish plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_FOUNDRY_CLOAK)) return i;
     }
 
     impossible("foundry cloak not found?");
@@ -2339,15 +2648,9 @@ int
 find_spellsucking_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "spellsucking cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "plashch zaklinaniy"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "so'rib imlo plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_SPELLSUCKING_CLOAK)) return i;
     }
 
     impossible("spellsucking cloak not found?");
@@ -2358,15 +2661,9 @@ int
 find_storm_coat()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "storm coat"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "shtorm"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "bo'ron palto"))
-	    return i;
+	if (itemnumwithappearance(i, APP_STORM_COAT)) return i;
     }
 
     impossible("storm coat not found?");
@@ -2377,15 +2674,9 @@ int
 find_fleeceling_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "fleeceling cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "pushistyy plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "serjunrangli plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_FLEECELING_CLOAK)) return i;
     }
 
     impossible("fleeceling cloak not found?");
@@ -2396,15 +2687,9 @@ int
 find_princess_gloves()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "princess gloves"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "perchatki printsessy"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "malika qo'lqop"))
-	    return i;
+	if (itemnumwithappearance(i, APP_PRINCESS_GLOVES)) return i;
     }
 
     impossible("princess gloves not found?");
@@ -2415,15 +2700,9 @@ int
 find_uncanny_gloves()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "uncanny gloves"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "sverkh''yestestvennyye perchatki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "dahshatli qo'lqop"))
-	    return i;
+	if (itemnumwithappearance(i, APP_UNCANNY_GLOVES)) return i;
     }
 
     impossible("uncanny gloves not found?");
@@ -2434,15 +2713,9 @@ int
 find_slaying_gloves()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "slaying gloves"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "ubiystvennyye perchatki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "o'ldirish qo'lqop"))
-	    return i;
+	if (itemnumwithappearance(i, APP_SLAYING_GLOVES)) return i;
     }
 
     impossible("slaying gloves not found?");
@@ -2453,15 +2726,9 @@ int
 find_blue_sneakers()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "blue sneakers"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "siniye krossovki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "ko'k shippak"))
-	    return i;
+	if (itemnumwithappearance(i, APP_BLUE_SNEAKERS)) return i;
     }
 
     impossible("blue sneakers not found?");
@@ -2472,15 +2739,9 @@ int
 find_femmy_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "femmy boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "zhenskiye sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "nazokat etigi"))
-	    return i;
+	if (itemnumwithappearance(i, APP_FEMMY_BOOTS)) return i;
     }
 
     impossible("femmy boots not found?");
@@ -2491,15 +2752,9 @@ int
 find_red_sneakers()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "red sneakers"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "krasnyye krossovki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "qizil shippak"))
-	    return i;
+	if (itemnumwithappearance(i, APP_RED_SNEAKERS)) return i;
     }
 
     impossible("red sneakers not found?");
@@ -2510,15 +2765,9 @@ int
 find_yellow_sneakers()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "yellow sneakers"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "zheltyye krossovki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "sariq shippak"))
-	    return i;
+	if (itemnumwithappearance(i, APP_YELLOW_SNEAKERS)) return i;
     }
 
     impossible("yellow sneakers not found?");
@@ -2529,15 +2778,9 @@ int
 find_pink_sneakers()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "pink sneakers"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "rozovyye krossovki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "pushti shippak"))
-	    return i;
+	if (itemnumwithappearance(i, APP_PINK_SNEAKERS)) return i;
     }
 
     impossible("pink sneakers not found?");
@@ -2548,15 +2791,9 @@ int
 find_calf_leather_sandals()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "calf-leather sandals"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "sandalii iz telyach'yey kozhi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "buzoq-charm kavushlari"))
-	    return i;
+	if (itemnumwithappearance(i, APP_CALF_LEATHER_SANDALS)) return i;
     }
 
     impossible("calf-leather sandals not found?");
@@ -2567,15 +2804,9 @@ int
 find_velcro_sandals()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "velcro sandals"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "sandalii na lipuchkakh"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "cirt kavushlari"))
-	    return i;
+	if (itemnumwithappearance(i, APP_VELCRO_SANDALS)) return i;
     }
 
     impossible("velcro sandals not found?");
@@ -2586,15 +2817,9 @@ int
 find_buffalo_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "buffalo boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "buyvolovyye sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "qo'tos botlarni"))
-	    return i;
+	if (itemnumwithappearance(i, APP_BUFFALO_BOOTS)) return i;
     }
 
     impossible("buffalo boots not found?");
@@ -2605,15 +2830,9 @@ int
 find_heroine_mocassins()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "heroine mocassins"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "mokasiny dlya geroini"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "qahramoni mokasen"))
-	    return i;
+	if (itemnumwithappearance(i, APP_HEROINE_MOCASSINS)) return i;
     }
 
     impossible("heroine mocassins not found?");
@@ -2624,15 +2843,9 @@ int
 find_lolita_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "lolita boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "botinki s lolitoy"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "bosh ketish etigi"))
-	    return i;
+	if (itemnumwithappearance(i, APP_LOLITA_BOOTS)) return i;
     }
 
     impossible("lolita boots not found?");
@@ -2643,15 +2856,9 @@ int
 find_fetish_heels()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "fetish heels"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "idol kabluki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "but poshnalar"))
-	    return i;
+	if (itemnumwithappearance(i, APP_FETISH_HEELS)) return i;
     }
 
     impossible("fetish heels not found?");
@@ -2662,15 +2869,9 @@ int
 find_weapon_light_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "weapon light boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "legkiye botinki dlya oruzhiya"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "qurol engil etigi"))
-	    return i;
+	if (itemnumwithappearance(i, APP_WEAPON_LIGHT_BOOTS)) return i;
     }
 
     impossible("weapon light boots not found?");
@@ -2681,15 +2882,9 @@ int
 find_rubynus_helmet()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "rubynus helmet"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "rubinovyy shlem"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "yoqut asosiy dubulg'a"))
-	    return i;
+	if (itemnumwithappearance(i, APP_RUBYNUS_HELMET)) return i;
     }
 
     impossible("rubynus helmet not found?");
@@ -2700,15 +2895,9 @@ int
 find_cursed_called_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "cursed called cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "proklyatyy pod nazvaniyem plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "la'natlangan la'nati"))
-	    return i;
+	if (itemnumwithappearance(i, APP_CURSED_CALLED_CLOAK)) return i;
     }
 
     impossible("cursed called cloak not found?");
@@ -2719,15 +2908,9 @@ int
 find_fourchan_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "fourchan cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "chetyrekhchasovoy plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "to'rtburchak plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_FOURCHAN_CLOAK)) return i;
     }
 
     impossible("fourchan cloak not found?");
@@ -2738,15 +2921,9 @@ int
 find_inalish_cloak()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "inalish cloak"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "glupyy plashch"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "ichki plash"))
-	    return i;
+	if (itemnumwithappearance(i, APP_INALISH_CLOAK)) return i;
     }
 
     impossible("inalish cloak not found?");
@@ -2757,15 +2934,9 @@ int
 find_grunter_helmet()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "grunter helmet"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "shturmovoy shlem"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "go'shtli dubulg'a"))
-	    return i;
+	if (itemnumwithappearance(i, APP_GRUNTER_HELMET)) return i;
     }
 
     impossible("grunter helmet not found?");
@@ -2776,15 +2947,9 @@ int
 find_cloudy_helmet()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "cloudy helmet"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "oblachnyy shlem"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "bulutli dubulg'a"))
-	    return i;
+	if (itemnumwithappearance(i, APP_CLOUDY_HELMET)) return i;
     }
 
     impossible("cloudy helmet not found?");
@@ -2795,15 +2960,9 @@ int
 find_breath_control_helmet()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "breath control helmet"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "shlem upravleniya dykhaniyem"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "nafasni boshqarish dubulg'asi"))
-	    return i;
+	if (itemnumwithappearance(i, APP_BREATH_CONTROL_HELMET)) return i;
     }
 
     impossible("breath control helmet not found?");
@@ -2814,15 +2973,9 @@ int
 find_gas_mask()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "gas mask"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "protivogaz"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "gaz niqobi"))
-	    return i;
+	if (itemnumwithappearance(i, APP_GAS_MASK)) return i;
     }
 
     impossible("gas mask not found?");
@@ -2833,15 +2986,9 @@ int
 find_sages_helmet()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "sages helmet"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "mudryy shlem"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "do'stlar dubulg'asi"))
-	    return i;
+	if (itemnumwithappearance(i, APP_SAGES_HELMET)) return i;
     }
 
     impossible("sages helmet not found?");
@@ -2852,15 +2999,9 @@ int
 find_rayductnay_gloves()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "rayductnay gloves"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "ruchnyye perchatki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "nurli qo'lqoplar"))
-	    return i;
+	if (itemnumwithappearance(i, APP_RAYDUCTNAY_GLOVES)) return i;
     }
 
     impossible("rayductnay gloves not found?");
@@ -2871,15 +3012,9 @@ int
 find_orgasm_pumps()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "orgasm pumps"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "nasosy dlya orgazma"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "orgazm nasoslari"))
-	    return i;
+	if (itemnumwithappearance(i, APP_ORGASM_PUMPS)) return i;
     }
 
     impossible("orgasm pumps not found?");
@@ -2890,15 +3025,9 @@ int
 find_worn_out_sneakers()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "worn-out sneakers"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "iznoshennyye krossovki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "eskirib qolgan sport poyafzali"))
-	    return i;
+	if (itemnumwithappearance(i, APP_WORN_OUT_SNEAKERS)) return i;
     }
 
     impossible("worn-out sneakers not found?");
@@ -2909,15 +3038,9 @@ int
 find_noble_sandals()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "noble sandals"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "blagorodnyye sandalii"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "oqlangan sandallar"))
-	    return i;
+	if (itemnumwithappearance(i, APP_NOBLE_SANDALS)) return i;
     }
 
     impossible("noble sandals not found?");
@@ -2928,15 +3051,9 @@ int
 find_doctor_claw_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "doctor claw boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "kolgotki dlya sapog"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "shifokor chiziqlari"))
-	    return i;
+	if (itemnumwithappearance(i, APP_DOCTOR_CLAW_BOOTS)) return i;
     }
 
     impossible("doctor claw boots not found?");
@@ -2947,15 +3064,9 @@ int
 find_feelgood_heels()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "feelgood heels"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "chuvstvennyye kabluki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "his-tuyg'ulari baland"))
-	    return i;
+	if (itemnumwithappearance(i, APP_FEELGOOD_HEELS)) return i;
     }
 
     impossible("feelgood heels not found?");
@@ -2966,15 +3077,9 @@ int
 find_plof_heels()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "plof heels"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "ploskiye kabluki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "buzilgan yurish ovozi to'piqlari"))
-	    return i;
+	if (itemnumwithappearance(i, APP_PLOF_HEELS)) return i;
     }
 
     impossible("plof heels not found?");
@@ -2985,15 +3090,9 @@ int
 find_princess_pumps()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "princess pumps"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "nasosy printsessy"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "malika nasoslari"))
-	    return i;
+	if (itemnumwithappearance(i, APP_PRINCESS_PUMPS)) return i;
     }
 
     impossible("princess pumps not found?");
@@ -3004,15 +3103,9 @@ int
 find_ballet_heels()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "ballet heels"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "baletnyye kabluki"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "balet poshnali"))
-	    return i;
+	if (itemnumwithappearance(i, APP_BALLET_HEELS)) return i;
     }
 
     impossible("ballet heels not found?");
@@ -3023,15 +3116,9 @@ int
 find_steel_toed_boots()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "steel toed boots"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "stal'nyye kosolapyy sapogi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "po'latdan yasalgan poyafzal"))
-	    return i;
+	if (itemnumwithappearance(i, APP_STEEL_TOED_BOOTS)) return i;
     }
 
     impossible("steel toed boots not found?");
@@ -3042,15 +3129,9 @@ int
 find_marji_shoes()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "marji shoes"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "obuv' marzhi"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "oz maryam poyafzallari"))
-	    return i;
+	if (itemnumwithappearance(i, APP_MARJI_SHOES)) return i;
     }
 
     impossible("marji shoes not found?");
@@ -3061,15 +3142,9 @@ int
 find_mary_janes()
 {
     register int i;
-    register const char *s;
 
     for (i = HAWAIIAN_SHIRT; i <= LEVITATION_BOOTS; i++) {
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "mary janes"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "meri dzheyn"))
-	    return i;
-	if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "meri janes"))
-	    return i;
+	if (itemnumwithappearance(i, APP_MARY_JANES)) return i;
     }
 
     impossible("mary janes not found?");
@@ -3094,6 +3169,8 @@ int fd, mode;
 	    bwrite(fd, (void *)disco, sizeof disco);
 	    bwrite(fd, (void *)objects,
 		   sizeof(struct objclass) * NUM_OBJECTS);
+	    /*bwrite(fd, (void *)mons,
+		   sizeof(struct permonst) * NUMMONS);*/
 	}
 	/* as long as we use only one version of Hack we
 	   need not save oc_name and oc_descr, but we must save
@@ -3122,6 +3199,7 @@ register int fd;
 	mread(fd, (void *) bases, sizeof bases);
 	mread(fd, (void *) disco, sizeof disco);
 	mread(fd, (void *) objects, sizeof(struct objclass) * NUM_OBJECTS);
+	/*mread(fd, (void *) mons, sizeof(struct permonst) * NUMMONS);*/
 	for (i = 0; i < NUM_OBJECTS; i++)
 	    if (objects[i].oc_uname) {
 		mread(fd, (void *) &len, sizeof len);

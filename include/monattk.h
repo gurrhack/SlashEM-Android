@@ -28,9 +28,10 @@
 #define AT_TENT		16	/* tentacles */
 #define AT_TRAM		17	/* trample */
 #define AT_BEAM		18	/* non-contact ranged beam attack from dnethack - thanks Chris for the implementation */
+#define AT_RATH		19	/* ranged thorns */
 
 /* AT_MULTIPLY is also used in u_init.c as a placeholder - please put all "standard" attack types above it! --Amy */
-#define AT_MULTIPLY	19	/* RJ - multiplies (yes, it's an attack) */
+#define AT_MULTIPLY	20	/* RJ - multiplies (yes, it's an attack) */
 
 #define AT_WEAP		254	/* uses weapon */
 #define AT_MAGC		255	/* uses magic spell(s) */
@@ -186,8 +187,28 @@
 #define AD_TRAI		125	/* reduces skill training */
 #define AD_STAT		126	/* permanently damages stats */
 
-#define AD_ENDS		127	/* placeholder */
+#define AD_NACU		127	/* curse a random worn armor piece and replace its egotype with a nastytrap one */
+#define AD_SANI		128	/* increase sanity */
 
+#define AD_RBAD		129	/* really bad effect - like regular bad effect, but all effects have the same chance */
+#define AD_BLEE		130	/* bleedout - target continuously loses health for a while */
+#define AD_SHAN		131	/* shanking - unequips player's items */
+#define AD_SCOR		132	/* drains player's score */
+#define AD_TERR		133	/* terrain terror - changes floor into other terrain and may sometimes summon monsters */
+#define AD_FEMI		134	/* feminism trap effect */
+#define AD_LEVI		135	/* levitation (always uncontrolled) */
+
+#define AD_MCRE		136	/* temporarily reduce magic cancellation (by K2) */
+
+#define AD_FLAM		137	/* flame attack - burns items (weaker form of AD_LAVA) */
+#define AD_DEBU		138	/* debuff - temporarily reduces the player's stats */
+
+#define AD_UNPR		139	/* unproofing - remove erosionproofing from items */
+#define AD_NIVE		140	/* nivellation - can reduce max HP or Pw, but only if they're high enough */
+
+#define AD_ENDS		141	/* placeholder */
+
+#define AD_ILLU		229	/* illusion attack - random effect also seen in illusion rooms */
 #define AD_PART		230	/* specific regular attack (rolled at game start) */
 #define AD_RUNS		231	/* specific nastytrap effect (rolled at game start) */
 

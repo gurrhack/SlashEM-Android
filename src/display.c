@@ -406,58 +406,6 @@ unmap_object(x, y)
     register struct obj   *obj;						\
     register struct trap  *trap;					\
 									\
-	if ((ManlerEffect || u.uprops[MANLER_EFFECT].extrinsic || have_manlerstone()) && x == u.manlerx && y == u.manlery) {	\
-	show_glyph(x, y, (GLYPH_MON_OFF + rn2(NUMMONS)));	\
-	return;	\
-	}	\
-	if ((Quaversal || u.uprops[QUAVERSAL].extrinsic || have_quaversalstone()) && isok(u.ux, u.uy) && !(levl[u.ux][u.uy].wall_info & W_QUASAROK)) {	\
-	show_glyph(x, y, cmap_to_glyph(S_stone));	\
-	return;	\
-	}	\
-	if (!u.seesilverspell && SpellColorSilver) {	\
-	show_glyph(x, y, cmap_to_glyph(S_stone));	\
-	return;	\
-	}	\
-	if ((GrayoutBug || u.uprops[GRAYOUT_BUG].extrinsic || have_grayoutstone()) && ((moves % 15 == 0) || ((moves + 1) % 15 == 0) || ((moves + 2) % 15 == 0) || ((moves + 3) % 15 == 0) || ((moves + 4) % 15 == 0))  ) {	\
-	show_glyph(x, y, cmap_to_glyph(S_grayglyph));			\
-	return;								\
-	}								\
-	if ((GrayCenterBug || u.uprops[GRAY_CENTER_BUG].extrinsic || have_graycenterstone()) && distu(x, y) < 4) {		\
-	show_glyph(x, y, cmap_to_glyph(S_grayglyph));			\
-	return;								\
-	}								\
-	if ((CheckerboardBug || u.uprops[CHECKERBOARD_BUG].extrinsic || have_checkerboardstone()) && ( ((x + y) % 2) != (moves % 2) ) ) {		\
-	show_glyph(x, y, cmap_to_glyph(S_grayglyph));			\
-	return;								\
-	}								\
-	if ( (QuasarVision || u.uprops[QUASAR_BUG].extrinsic || have_quasarstone() ) && !(levl[x][y].wall_info & W_QUASAROK) ) {	\
-	show_glyph(x, y, cmap_to_glyph(S_stone));			\
-	return;								\
-	}								\
-	if ((MojibakeEffect || u.uprops[MOJIBAKE].extrinsic || have_mojibakestone()) && !rn2(5)) { 	\
-	show_glyph(x, y, randomglyph() );			\
-	return;								\
-	}								\
-	if (SpellColorBlue && !rn2(10)) { 	\
-	show_glyph(x, y, cmap_to_glyph(S_room));			\
-	return;								\
-	}								\
-	if (SpellColorOrange && (distu(x,y) > 100)) { 	\
-	show_glyph(x, y, cmap_to_glyph(S_grayglyph));			\
-	return;								\
-	}								\
-	if (SpellColorPlatinum && !rn2(5)) { 	\
-	show_glyph(x, y, cmap_to_glyph(S_bars));			\
-	return;								\
-	}								\
-	if (SpellColorBrightCyan && cyanspellok(x,y)) { 	\
-	show_glyph(x, y, cmap_to_glyph(S_grayglyph));			\
-	return;								\
-	}								\
-	if (SpellColorBrown && (distu(x,y) % 3 == 0)) { 	\
-	show_glyph(x, y, cmap_to_glyph(S_pile_of_shit));			\
-	return;								\
-	}								\
 									\
     if (level.flags.hero_memory) {					\
 	if ((obj = vobj_at(x, y)) && !covers_objects(x, y))		\
@@ -476,6 +424,58 @@ unmap_object(x, y)
 	map_trap(trap,show);						\
     else								\
 	map_background(x,y,show);					\
+	if (ManlerIsChasing && x == u.manlerx && y == u.manlery) {	\
+	show_glyph(x, y, (GLYPH_MON_OFF + rn2(NUMMONS)));	\
+	return;	\
+	}	\
+	if ((Quaversal || u.uprops[QUAVERSAL].extrinsic || have_quaversalstone()) && isok(u.ux, u.uy) && !isimportantlocation(x, y) && !(levl[u.ux][u.uy].wall_info & W_QUASAROK)) {	\
+	show_glyph(x, y, cmap_to_glyph(S_stone));	\
+	return;	\
+	}	\
+	if (!u.seesilverspell && SpellColorSilver && !isimportantlocation(x, y)) {	\
+	show_glyph(x, y, cmap_to_glyph(S_stone));	\
+	return;	\
+	}	\
+	if ((GrayoutBug || u.uprops[GRAYOUT_BUG].extrinsic || have_grayoutstone()) && ((moves % 15 == 0) || ((moves + 1) % 15 == 0) || ((moves + 2) % 15 == 0) || ((moves + 3) % 15 == 0) || ((moves + 4) % 15 == 0))  ) {	\
+	show_glyph(x, y, cmap_to_glyph(S_grayglyph));			\
+	return;								\
+	}								\
+	if ((GrayCenterBug || u.uprops[GRAY_CENTER_BUG].extrinsic || have_graycenterstone()) && distu(x, y) < 4) {		\
+	show_glyph(x, y, cmap_to_glyph(S_grayglyph));			\
+	return;								\
+	}								\
+	if ((CheckerboardBug || u.uprops[CHECKERBOARD_BUG].extrinsic || have_checkerboardstone()) && ( ((x + y) % 2) != (moves % 2) ) ) {		\
+	show_glyph(x, y, cmap_to_glyph(S_grayglyph));			\
+	return;								\
+	}								\
+	if ( (QuasarVision || u.uprops[QUASAR_BUG].extrinsic || have_quasarstone() ) && !isimportantlocation(x, y) && !(levl[x][y].wall_info & W_QUASAROK) ) {	\
+	show_glyph(x, y, cmap_to_glyph(S_stone));			\
+	return;								\
+	}								\
+	if ((MojibakeEffect || u.uprops[MOJIBAKE].extrinsic || have_mojibakestone()) && !rn2(10)) { 	\
+	show_glyph(x, y, randomglyph() );			\
+	return;								\
+	}								\
+	if (SpellColorBlue && !rn2(10)) { 	\
+	show_glyph(x, y, cmap_to_glyph(S_room));			\
+	return;								\
+	}								\
+	if (SpellColorOrange && (distu(x,y) > 100)) { 	\
+	show_glyph(x, y, cmap_to_glyph(S_grayglyph));			\
+	return;								\
+	}								\
+	if (SpellColorPlatinum && !rn2(10)) { 	\
+	show_glyph(x, y, cmap_to_glyph(S_bars));			\
+	return;								\
+	}								\
+	if (SpellColorBrightCyan && cyanspellok(x,y)) { 	\
+	show_glyph(x, y, cmap_to_glyph(S_grayglyph));			\
+	return;								\
+	}								\
+	if (SpellColorBrown && (distu(x,y) % 3 == 0)) { 	\
+	show_glyph(x, y, cmap_to_glyph(S_pile_of_shit));			\
+	return;								\
+	}								\
 }
 #else	/* DISPLAY_LAYERS */
 #define _map_location(x,y,show)						\
@@ -504,15 +504,15 @@ int memory_glyph(x, y)
 {
 #ifdef DISPLAY_LAYERS
 
-	if ((ManlerEffect || u.uprops[MANLER_EFFECT].extrinsic || have_manlerstone()) && x == u.manlerx && y == u.manlery) {
+	if (ManlerIsChasing && x == u.manlerx && y == u.manlery) {
 	return (GLYPH_MON_OFF + rn2(NUMMONS));
 	}
 
-	if ((Quaversal || u.uprops[QUAVERSAL].extrinsic || have_quaversalstone()) && isok(u.ux, u.uy) && !(levl[u.ux][u.uy].wall_info & W_QUASAROK)) {
+	if ((Quaversal || u.uprops[QUAVERSAL].extrinsic || have_quaversalstone()) && isok(u.ux, u.uy) && !isimportantlocation(x, y) && !(levl[u.ux][u.uy].wall_info & W_QUASAROK)) {
 	return cmap_to_glyph(S_stone);
 	}
 
-	if (!u.seesilverspell && SpellColorSilver) {
+	if (!u.seesilverspell && SpellColorSilver && !isimportantlocation(x, y)) {
 	return cmap_to_glyph(S_stone);
 	}
 
@@ -528,9 +528,9 @@ int memory_glyph(x, y)
 	return cmap_to_glyph(S_grayglyph);
 	}
 
-	if ( (QuasarVision || u.uprops[QUASAR_BUG].extrinsic || have_quasarstone() ) && !(levl[x][y].wall_info & W_QUASAROK) ) { return cmap_to_glyph(S_stone); }
+	if ( (QuasarVision || u.uprops[QUASAR_BUG].extrinsic || have_quasarstone() ) && !isimportantlocation(x, y) && !(levl[x][y].wall_info & W_QUASAROK) ) { return cmap_to_glyph(S_stone); }
 
-	if ((MojibakeEffect || u.uprops[MOJIBAKE].extrinsic || have_mojibakestone()) && !rn2(5)) {
+	if ((MojibakeEffect || u.uprops[MOJIBAKE].extrinsic || have_mojibakestone()) && !rn2(10)) {
 	return randomglyph();
 	}
 
@@ -542,7 +542,7 @@ int memory_glyph(x, y)
 	return cmap_to_glyph(S_grayglyph);
 	}
 
-	if (SpellColorPlatinum && !rn2(5)) {
+	if (SpellColorPlatinum && !rn2(10)) {
 	return cmap_to_glyph(S_bars);
 	}
 
@@ -981,8 +981,10 @@ feel_location(x, y)
 	     * something has been dropped on the ball/chain.  If the bit is
 	     * not cleared, then when the ball/chain is moved it will drop
 	     * the wrong glyph.
+	     * Amy edit: there's the bug that the chain can be removed due to errors, in which case we don't want to try to
+	     * place it. In fact we should probably unpunish the player in that case and print an error message...
 	     */
-	    if (uchain->ox == x && uchain->oy == y) {
+	    if (uchain && uchain->ox == x && uchain->oy == y) {
 		if (level.objects[x][y] == uchain)
 		    u.bc_felt |= BC_CHAIN;
 		else
@@ -1038,17 +1040,17 @@ newsym(x,y)
 
     if (in_mklev) return;
 
-	if ((ManlerEffect || u.uprops[MANLER_EFFECT].extrinsic || have_manlerstone()) && x == u.manlerx && y == u.manlery) {
+	if (ManlerIsChasing && x == u.manlerx && y == u.manlery) {
 	show_glyph(x, y, GLYPH_MON_OFF + rn2(NUMMONS));
 	return;
 	}
 
-	if ((Quaversal || u.uprops[QUAVERSAL].extrinsic || have_quaversalstone()) && isok(u.ux, u.uy) && !(levl[u.ux][u.uy].wall_info & W_QUASAROK)) {
+	if ((Quaversal || u.uprops[QUAVERSAL].extrinsic || have_quaversalstone()) && isok(u.ux, u.uy) && !isimportantlocation(x, y) && !(levl[u.ux][u.uy].wall_info & W_QUASAROK)) {
 	show_glyph(x, y, cmap_to_glyph(S_stone));
 	return;
 	}
 
-	if (!u.seesilverspell && SpellColorSilver) {
+	if (!u.seesilverspell && SpellColorSilver && !isimportantlocation(x, y)) {
 	show_glyph(x, y, cmap_to_glyph(S_stone));
 	return;
 	}
@@ -1068,12 +1070,12 @@ newsym(x,y)
 	return;
 	}
 
-	if ( (QuasarVision || u.uprops[QUASAR_BUG].extrinsic || have_quasarstone() ) && !(levl[x][y].wall_info & W_QUASAROK) ) {
+	if ( (QuasarVision || u.uprops[QUASAR_BUG].extrinsic || have_quasarstone() ) && !isimportantlocation(x, y) && !(levl[x][y].wall_info & W_QUASAROK) ) {
 	show_glyph(x, y, cmap_to_glyph(S_stone));
 	return;
 	}
 
-	if ((MojibakeEffect || u.uprops[MOJIBAKE].extrinsic || have_mojibakestone()) && !rn2(5)) {
+	if ((MojibakeEffect || u.uprops[MOJIBAKE].extrinsic || have_mojibakestone()) && !rn2(10)) {
 	show_glyph(x, y, randomglyph());
 	return;
 	}
@@ -1088,7 +1090,7 @@ newsym(x,y)
 	return;
 	}
 
-	if (SpellColorPlatinum && !rn2(5)) {
+	if (SpellColorPlatinum && !rn2(10)) {
 	show_glyph(x, y, cmap_to_glyph(S_bars));
 	return;
 	}
@@ -1103,7 +1105,7 @@ newsym(x,y)
 	return;
 	}
 
-	if ( (Superscroller || (uarm && uarm->oartifact == ART_VOLUME_ARMAMENT) || (uarm && uarm->oartifact == ART_SPLINTER_ARMAMENT) || (uarm && uarm->oartifact == ART_TAPE_ARMAMENT) || (uarmc && uarmc->oartifact == ART_VEIL_OF_LATONA) || (uarmc && uarmc->oartifact == ART_VEIL_OF_MINISTRY) || u.uprops[SUPERSCROLLER_ACTIVE].extrinsic || have_superscrollerstone() ) && rn2(10) ) { show_glyph(x, y, cmap_to_glyph(S_stone)); return;}
+	if ( (Superscroller || (uarm && uarm->oartifact == ART_VOLUME_ARMAMENT) || (uarm && uarm->oartifact == ART_SPLINTER_ARMAMENT) || (uarm && uarm->oartifact == ART_TAPE_ARMAMENT) || (uarmc && uarmc->oartifact == ART_VEIL_OF_LATONA) || (uarmc && uarmc->oartifact == ART_VEIL_OF_MINISTRY) || u.uprops[SUPERSCROLLER_ACTIVE].extrinsic || have_superscrollerstone() ) && !isimportantlocation(x, y) && rn2(10) ) { show_glyph(x, y, cmap_to_glyph(S_stone)); return;}
 
     /* only permit updating the hero when swallowed */
     if (u.uswallow) {
@@ -1152,7 +1154,7 @@ newsym(x,y)
 	    mon = m_at(x,y);
 	    worm_tail = is_worm_tail(mon);
 	    see_it = mon && !(uarmh && uarmh->oartifact == ART_RADAR_NOT_WORKING && !mon_visible(mon) ) && !(isselfhybrid && (moves % 3 == 0) ) && (worm_tail
-		? ((!mon->minvis || See_invisible) && !mon->minvisreal)
+		? ((!mon->minvis || (See_invisible && (StrongSee_invisible || mon->seeinvisble) ) ) && !mon->minvisreal)
 		: (mon_visible(mon)) ||
 		tp_sensemon(mon) ||
 		MATCH_WARN_OF_MON(mon) ||
@@ -1163,32 +1165,37 @@ newsym(x,y)
 		(uamul && uamul->otyp == AMULET_OF_OWN_RACE_WARNING && your_race(mon->data) ) ||
 		(Role_if(PM_PALADIN) && is_demon(mon->data) ) ||
 		(uarmc && uarmc->oartifact == ART_DEMONIC_UNDEAD_RADAR && is_demon(mon->data) ) ||
+		(uwep && uwep->oartifact == ART_DAEDRA_SEEKER && mon->data->mlet == S_DEMON ) ||
 		(Race_if(PM_VORTEX) && unsolid(mon->data) ) ||
 		(Race_if(PM_VORTEX) && nolimbs(mon->data) ) ||
 		(Race_if(PM_CORTEX) && unsolid(mon->data) ) ||
 		(Race_if(PM_CORTEX) && nolimbs(mon->data) ) ||
 		(uamul && uamul->otyp == AMULET_OF_COVETOUS_WARNING && (is_covetous(mon->data) || mon->egotype_covetous) ) ||
 		(ublindf && ublindf->otyp == BOSS_VISOR && (is_covetous(mon->data) || mon->egotype_covetous) ) ||
-		(Stunnopathy && Stunned && always_hostile(mon->data) && (mon)->mhp % 4 != 0) ||
-		( (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "internet helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "vsemirnaya pautina shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "keng dunyo veb-zarbdan") ) ) && (mon)->mhp % 9 == 0) ||
-		(RngeInternetAccess && (mon)->mhp % 9 == 0) ||
-		(uarmh && uarmh->oartifact == ART_WEB_RADIO && (mon)->mhp % 9 == 0) ||
+		(Stunnopathy && Stunned && always_hostile(mon->data) && mon->stunnovisible) ||
+		( (uarmh && itemhasappearance(uarmh, APP_INTERNET_HELMET) ) && mon->internetvisible) ||
+		(RngeInternetAccess && mon->internetvisible) ||
+		(uarmh && uarmh->oartifact == ART_WEB_RADIO && mon->internetvisible) ||
 		(Numbopathy && Numbed && (avoid_player(mon->data) || mon->egotype_avoider) ) ||
 		(Sickopathy && Sick && extra_nasty(mon->data) ) ||
 		(Freezopathy && Frozen && mon->data->mcolor == CLR_WHITE ) ||
 		(uarmf && uarmf->oartifact == ART_VERA_S_FREEZER && mon->data->mcolor == CLR_WHITE) ||
 		(Burnopathy && Burned && infravision(mon->data) ) ||
 		(Dimmopathy && Dimmed && mon->m_lev > u.ulevel) ||
+		(ScentView && distu(mon->mx, mon->my) < 101 && mon->scentvisible && (is_animal(mon->data) || mon->data->msound == MS_STENCH) ) ||
+		(EcholocationActive && distu(mon->mx, mon->my) < 626 && mon->echolocatevisible && (dmgtype(mon->data, AD_SOUN) || mon->data->msound == MS_SOUND || mon->data->msound == MS_SHRIEK || mon->data->msound == MS_FART_NORMAL || mon->data->msound == MS_FART_LOUD || mon->data->msound == MS_FART_QUIET ) ) ||
 		(Race_if(PM_RODNEYAN) && mon_has_amulet(mon)) ||
 		(Race_if(PM_RODNEYAN) && mon_has_special(mon)) ||
 		(Race_if(PM_LEVITATOR) && (is_flyer(mon->data) || mon->egotype_flying) ) ||
 		(isselfhybrid && strongmonst(mon->data) && is_wanderer(mon->data) ) ||
 		(uwep && uwep->oartifact == ART_TIGATOR_S_THORN && is_pokemon(mon->data) ) ||
 		(uarmf && uarmf->oartifact == ART_ELENETTES && (mon->mhp < (mon->mhpmax * 9 / 10)) ) ||
-		(uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "sages helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "mudryy shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "do'stlar dubulg'asi")) && mon->minvis && mon->sagesvisible ) ||
+		(uarmh && itemhasappearance(uarmh, APP_SAGES_HELMET) && mon->minvis && mon->sagesvisible ) ||
 		(ublindf && ublindf->oartifact == ART_BREATHER_SHOW && attacktype(mon->data, AT_BREA)) ||
 		(uarmc && uarmc->oartifact == ART_POKEWALKER && is_pokemon(mon->data) ) ||
 		(uarmc && uarmc->oartifact == ART_BUGNOSE && (mon->data->mlet == S_ANT || mon->data->mlet == S_XAN) ) ||
+		(uwep && uwep->oartifact == ART_EGRID_BUG && mon->data->mlet == S_XAN) ||
+		(uwep && uwep->oartifact == ART_FUYER_BREV && mon->data->mlet == S_FUNGUS) ||
 		(uarmf && uarmf->oartifact == ART_BOOTS_OF_THE_MACHINE && (mon->data->mlet == S_GOLEM || nonliving(mon->data) ) ) ||
 		(uarmf && uarmf->oartifact == ART_FD_DETH && (mon->data->mlet == S_DOG || mon->data->mlet == S_FELINE) ) ||
 		(uarmg && uarmg->oartifact == ART_WHAT_S_UP_BITCHES && (mon->data->mlet == S_NYMPH) ) ||
@@ -1208,7 +1215,7 @@ newsym(x,y)
 		(uwep && uwep->oartifact == ART_INDIGENOUS_FUN && humanoid(mon->data)) ||
 		(uwep && uwep->oartifact == ART_ANIMALBANE && is_animal(mon->data)) ||
 		(uwep && uwep->oartifact == ART_SEE_ANIMALS && is_animal(mon->data)) ||
-		(isselfhybrid && monpolyok(mon->data) && !polyok(mon->data) && ((mon->data->mlevel < 30) || ((mon)->mhp % 2 != 0) ) )  );
+		(isselfhybrid && monpolyok(mon->data) && !polyok(mon->data) && ((mon->data->mlevel < 30) || mon->selfhybridvisible) )  );
 	    if (mon && (see_it || (!worm_tail && Detect_monsters))) {
 		if (mon->mtrapped) {
 		    struct trap *trap = t_at(x, y);
@@ -1250,32 +1257,37 @@ newsym(x,y)
 		(uamul && uamul->otyp == AMULET_OF_OWN_RACE_WARNING && your_race(mon->data) ) ||
 		(Role_if(PM_PALADIN) && is_demon(mon->data) ) ||
 		(uarmc && uarmc->oartifact == ART_DEMONIC_UNDEAD_RADAR && is_demon(mon->data) ) ||
+		(uwep && uwep->oartifact == ART_DAEDRA_SEEKER && mon->data->mlet == S_DEMON ) ||
 		(Race_if(PM_VORTEX) && unsolid(mon->data) ) ||
 		(Race_if(PM_VORTEX) && nolimbs(mon->data) ) ||
 		(Race_if(PM_CORTEX) && unsolid(mon->data) ) ||
 		(Race_if(PM_CORTEX) && nolimbs(mon->data) ) ||
 		(ublindf && ublindf->otyp == BOSS_VISOR && (is_covetous(mon->data) || mon->egotype_covetous) ) ||
 		(uamul && uamul->otyp == AMULET_OF_COVETOUS_WARNING && (is_covetous(mon->data) || mon->egotype_covetous) ) ||
-		(Stunnopathy && Stunned && always_hostile(mon->data) && (mon)->mhp % 4 != 0) ||
-		( (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "internet helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "vsemirnaya pautina shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "keng dunyo veb-zarbdan") ) ) && (mon)->mhp % 9 == 0) ||
-		(RngeInternetAccess && (mon)->mhp % 9 == 0) ||
-		(uarmh && uarmh->oartifact == ART_WEB_RADIO && (mon)->mhp % 9 == 0) ||
+		(Stunnopathy && Stunned && always_hostile(mon->data) && mon->stunnovisible) ||
+		( (uarmh && itemhasappearance(uarmh, APP_INTERNET_HELMET) ) && mon->internetvisible) ||
+		(RngeInternetAccess && mon->internetvisible) ||
+		(uarmh && uarmh->oartifact == ART_WEB_RADIO && mon->internetvisible) ||
 		(Numbopathy && Numbed && (avoid_player(mon->data) || mon->egotype_avoider) ) ||
 		(Sickopathy && Sick && extra_nasty(mon->data) ) ||
 		(Freezopathy && Frozen && mon->data->mcolor == CLR_WHITE ) ||
 		(uarmf && uarmf->oartifact == ART_VERA_S_FREEZER && mon->data->mcolor == CLR_WHITE) ||
 		(Burnopathy && Burned && infravision(mon->data) ) ||
 		(Dimmopathy && Dimmed && mon->m_lev > u.ulevel) ||
+		(ScentView && distu(mon->mx, mon->my) < 101 && mon->scentvisible && (is_animal(mon->data) || mon->data->msound == MS_STENCH) ) ||
+		(EcholocationActive && distu(mon->mx, mon->my) < 626 && mon->echolocatevisible && (dmgtype(mon->data, AD_SOUN) || mon->data->msound == MS_SOUND || mon->data->msound == MS_SHRIEK || mon->data->msound == MS_FART_NORMAL || mon->data->msound == MS_FART_LOUD || mon->data->msound == MS_FART_QUIET ) ) ||
 		(Race_if(PM_RODNEYAN) && mon_has_amulet(mon)) ||
 		(Race_if(PM_RODNEYAN) && mon_has_special(mon)) ||
 		(Race_if(PM_LEVITATOR) && (is_flyer(mon->data) || mon->egotype_flying) ) ||
 		(isselfhybrid && strongmonst(mon->data) && is_wanderer(mon->data) ) ||
 		(uwep && uwep->oartifact == ART_TIGATOR_S_THORN && is_pokemon(mon->data) ) ||
 		(uarmf && uarmf->oartifact == ART_ELENETTES && (mon->mhp < (mon->mhpmax * 9 / 10)) ) ||
-		(uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "sages helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "mudryy shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "do'stlar dubulg'asi")) && mon->minvis && mon->sagesvisible ) ||
+		(uarmh && itemhasappearance(uarmh, APP_SAGES_HELMET) && mon->minvis && mon->sagesvisible ) ||
 		(ublindf && ublindf->oartifact == ART_BREATHER_SHOW && attacktype(mon->data, AT_BREA)) ||
 		(uarmc && uarmc->oartifact == ART_POKEWALKER && is_pokemon(mon->data) ) ||
 		(uarmc && uarmc->oartifact == ART_BUGNOSE && (mon->data->mlet == S_ANT || mon->data->mlet == S_XAN) ) ||
+		(uwep && uwep->oartifact == ART_EGRID_BUG && mon->data->mlet == S_XAN) ||
+		(uwep && uwep->oartifact == ART_FUYER_BREV && mon->data->mlet == S_FUNGUS) ||
 		(uarmf && uarmf->oartifact == ART_BOOTS_OF_THE_MACHINE && (mon->data->mlet == S_GOLEM || nonliving(mon->data) ) ) ||
 		(uarmf && uarmf->oartifact == ART_FD_DETH && (mon->data->mlet == S_DOG || mon->data->mlet == S_FELINE) ) ||
 		(uarmg && uarmg->oartifact == ART_WHAT_S_UP_BITCHES && (mon->data->mlet == S_NYMPH) ) ||
@@ -1295,7 +1307,7 @@ newsym(x,y)
 		(uwep && uwep->oartifact == ART_INDIGENOUS_FUN && humanoid(mon->data)) ||
 		(uwep && uwep->oartifact == ART_ANIMALBANE && is_animal(mon->data)) ||
 		(uwep && uwep->oartifact == ART_SEE_ANIMALS && is_animal(mon->data)) ||
-		(isselfhybrid && monpolyok(mon->data) && !polyok(mon->data) && ((mon->data->mlevel < 30) || ((mon)->mhp % 2 != 0) ) ) ||
+		(isselfhybrid && monpolyok(mon->data) && !polyok(mon->data) && ((mon->data->mlevel < 30) || mon->selfhybridvisible ) ) ||
 		(see_with_infrared(mon) && mon_visible(mon))))
 		    || Detect_monsters)
 		&& !is_worm_tail(mon)) {
@@ -1365,17 +1377,17 @@ newsymX(x,y)
 
     if (in_mklev) return;
 
-	if ((ManlerEffect || u.uprops[MANLER_EFFECT].extrinsic || have_manlerstone()) && x == u.manlerx && y == u.manlery) {
+	if (ManlerIsChasing && x == u.manlerx && y == u.manlery) {
 	show_glyph(x, y, GLYPH_MON_OFF + rn2(NUMMONS));
 	return;
 	}
 
-	if ((Quaversal || u.uprops[QUAVERSAL].extrinsic || have_quaversalstone()) && isok(u.ux, u.uy) && !(levl[u.ux][u.uy].wall_info & W_QUASAROK)) {
+	if ((Quaversal || u.uprops[QUAVERSAL].extrinsic || have_quaversalstone()) && isok(u.ux, u.uy) && !isimportantlocation(x, y) && !(levl[u.ux][u.uy].wall_info & W_QUASAROK)) {
 	show_glyph(x, y, cmap_to_glyph(S_stone));
 	return;
 	}
 
-	if (!u.seesilverspell && SpellColorSilver) {
+	if (!u.seesilverspell && SpellColorSilver && !isimportantlocation(x, y)) {
 	show_glyph(x, y, cmap_to_glyph(S_stone));
 	return;
 	}
@@ -1395,12 +1407,12 @@ newsymX(x,y)
 	return;
 	}
 
-	if ( (QuasarVision || u.uprops[QUASAR_BUG].extrinsic || have_quasarstone() ) && !(levl[x][y].wall_info & W_QUASAROK) ) {
+	if ( (QuasarVision || u.uprops[QUASAR_BUG].extrinsic || have_quasarstone() ) && !isimportantlocation(x, y) && !(levl[x][y].wall_info & W_QUASAROK) ) {
 	show_glyph(x, y, cmap_to_glyph(S_stone));
 	return;
 	}
 
-	if ((MojibakeEffect || u.uprops[MOJIBAKE].extrinsic || have_mojibakestone()) && !rn2(5)) {
+	if ((MojibakeEffect || u.uprops[MOJIBAKE].extrinsic || have_mojibakestone()) && !rn2(10)) {
 	show_glyph(x, y, randomglyph());
 	return;
 	}
@@ -1415,7 +1427,7 @@ newsymX(x,y)
 	return;
 	}
 
-	if (SpellColorPlatinum && !rn2(5)) {
+	if (SpellColorPlatinum && !rn2(10)) {
 	show_glyph(x, y, cmap_to_glyph(S_bars));
 	return;
 	}
@@ -1430,7 +1442,7 @@ newsymX(x,y)
 	return;
 	}
 
-	if ( (Superscroller || (uarm && uarm->oartifact == ART_VOLUME_ARMAMENT) || (uarm && uarm->oartifact == ART_SPLINTER_ARMAMENT) || (uarm && uarm->oartifact == ART_TAPE_ARMAMENT) || (uarmc && uarmc->oartifact == ART_VEIL_OF_LATONA) || (uarmc && uarmc->oartifact == ART_VEIL_OF_MINISTRY) || u.uprops[SUPERSCROLLER_ACTIVE].extrinsic || have_superscrollerstone() ) && rn2(10) ) { show_glyphX(x, y, cmap_to_glyph(S_stone)); return;}
+	if ( (Superscroller || (uarm && uarm->oartifact == ART_VOLUME_ARMAMENT) || (uarm && uarm->oartifact == ART_SPLINTER_ARMAMENT) || (uarm && uarm->oartifact == ART_TAPE_ARMAMENT) || (uarmc && uarmc->oartifact == ART_VEIL_OF_LATONA) || (uarmc && uarmc->oartifact == ART_VEIL_OF_MINISTRY) || u.uprops[SUPERSCROLLER_ACTIVE].extrinsic || have_superscrollerstone() ) && !isimportantlocation(x, y) && rn2(10) ) { show_glyphX(x, y, cmap_to_glyph(S_stone)); return;}
 
     /* only permit updating the hero when swallowed */
     if (u.uswallow) {
@@ -1479,7 +1491,7 @@ newsymX(x,y)
 	    mon = m_at(x,y);
 	    worm_tail = is_worm_tail(mon);
 	    see_it = mon && !(uarmh && uarmh->oartifact == ART_RADAR_NOT_WORKING && !mon_visible(mon) ) && !(isselfhybrid && (moves % 3 == 0) ) && (worm_tail
-		? ((!mon->minvis || See_invisible) && !mon->minvisreal)
+		? ((!mon->minvis || (See_invisible && (StrongSee_invisible || mon->seeinvisble) ) ) && !mon->minvisreal)
 		: (mon_visible(mon)) ||
 		tp_sensemon(mon) ||
 		MATCH_WARN_OF_MON(mon) ||
@@ -1490,32 +1502,37 @@ newsymX(x,y)
 		(uamul && uamul->otyp == AMULET_OF_OWN_RACE_WARNING && your_race(mon->data) ) ||
 		(Role_if(PM_PALADIN) && is_demon(mon->data) ) ||
 		(uarmc && uarmc->oartifact == ART_DEMONIC_UNDEAD_RADAR && is_demon(mon->data) ) ||
+		(uwep && uwep->oartifact == ART_DAEDRA_SEEKER && mon->data->mlet == S_DEMON ) ||
 		(Race_if(PM_VORTEX) && unsolid(mon->data) ) ||
 		(Race_if(PM_VORTEX) && nolimbs(mon->data) ) ||
 		(Race_if(PM_CORTEX) && unsolid(mon->data) ) ||
 		(Race_if(PM_CORTEX) && nolimbs(mon->data) ) ||
 		(uamul && uamul->otyp == AMULET_OF_COVETOUS_WARNING && (is_covetous(mon->data) || mon->egotype_covetous) ) ||
 		(ublindf && ublindf->otyp == BOSS_VISOR && (is_covetous(mon->data) || mon->egotype_covetous) ) ||
-		(Stunnopathy && Stunned && always_hostile(mon->data) && (mon)->mhp % 4 != 0) ||
-		( (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "internet helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "vsemirnaya pautina shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "keng dunyo veb-zarbdan") ) ) && (mon)->mhp % 9 == 0) ||
-		(RngeInternetAccess && (mon)->mhp % 9 == 0) ||
-		(uarmh && uarmh->oartifact == ART_WEB_RADIO && (mon)->mhp % 9 == 0) ||
+		(Stunnopathy && Stunned && always_hostile(mon->data) && mon->stunnovisible) ||
+		( (uarmh && itemhasappearance(uarmh, APP_INTERNET_HELMET) ) && mon->internetvisible) ||
+		(RngeInternetAccess && mon->internetvisible) ||
+		(uarmh && uarmh->oartifact == ART_WEB_RADIO && mon->internetvisible) ||
 		(Numbopathy && Numbed && (avoid_player(mon->data) || mon->egotype_avoider) ) ||
 		(Sickopathy && Sick && extra_nasty(mon->data) ) ||
 		(Freezopathy && Frozen && mon->data->mcolor == CLR_WHITE ) ||
 		(uarmf && uarmf->oartifact == ART_VERA_S_FREEZER && mon->data->mcolor == CLR_WHITE) ||
 		(Burnopathy && Burned && infravision(mon->data) ) ||
 		(Dimmopathy && Dimmed && mon->m_lev > u.ulevel) ||
+		(ScentView && distu(mon->mx, mon->my) < 101 && mon->scentvisible && (is_animal(mon->data) || mon->data->msound == MS_STENCH) ) ||
+		(EcholocationActive && distu(mon->mx, mon->my) < 626 && mon->echolocatevisible && (dmgtype(mon->data, AD_SOUN) || mon->data->msound == MS_SOUND || mon->data->msound == MS_SHRIEK || mon->data->msound == MS_FART_NORMAL || mon->data->msound == MS_FART_LOUD || mon->data->msound == MS_FART_QUIET ) ) ||
 		(Race_if(PM_RODNEYAN) && mon_has_amulet(mon)) ||
 		(Race_if(PM_RODNEYAN) && mon_has_special(mon)) ||
 		(Race_if(PM_LEVITATOR) && (is_flyer(mon->data) || mon->egotype_flying) ) ||
 		(isselfhybrid && strongmonst(mon->data) && is_wanderer(mon->data) ) ||
 		(uwep && uwep->oartifact == ART_TIGATOR_S_THORN && is_pokemon(mon->data) ) ||
 		(uarmf && uarmf->oartifact == ART_ELENETTES && (mon->mhp < (mon->mhpmax * 9 / 10)) ) ||
-		(uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "sages helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "mudryy shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "do'stlar dubulg'asi")) && mon->minvis && mon->sagesvisible ) ||
+		(uarmh && itemhasappearance(uarmh, APP_SAGES_HELMET) && mon->minvis && mon->sagesvisible ) ||
 		(ublindf && ublindf->oartifact == ART_BREATHER_SHOW && attacktype(mon->data, AT_BREA)) ||
 		(uarmc && uarmc->oartifact == ART_POKEWALKER && is_pokemon(mon->data) ) ||
 		(uarmc && uarmc->oartifact == ART_BUGNOSE && (mon->data->mlet == S_ANT || mon->data->mlet == S_XAN) ) ||
+		(uwep && uwep->oartifact == ART_EGRID_BUG && mon->data->mlet == S_XAN) ||
+		(uwep && uwep->oartifact == ART_FUYER_BREV && mon->data->mlet == S_FUNGUS) ||
 		(uarmf && uarmf->oartifact == ART_BOOTS_OF_THE_MACHINE && (mon->data->mlet == S_GOLEM || nonliving(mon->data) ) ) ||
 		(uarmf && uarmf->oartifact == ART_FD_DETH && (mon->data->mlet == S_DOG || mon->data->mlet == S_FELINE) ) ||
 		(uarmg && uarmg->oartifact == ART_WHAT_S_UP_BITCHES && (mon->data->mlet == S_NYMPH) ) ||
@@ -1535,7 +1552,7 @@ newsymX(x,y)
 		(uwep && uwep->oartifact == ART_INDIGENOUS_FUN && humanoid(mon->data)) ||
 		(uwep && uwep->oartifact == ART_ANIMALBANE && is_animal(mon->data)) ||
 		(uwep && uwep->oartifact == ART_SEE_ANIMALS && is_animal(mon->data)) ||
-		(isselfhybrid && monpolyok(mon->data) && !polyok(mon->data) && ((mon->data->mlevel < 30) || ((mon)->mhp % 2 != 0) ) )  );
+		(isselfhybrid && monpolyok(mon->data) && !polyok(mon->data) && ((mon->data->mlevel < 30) || mon->selfhybridvisible ) )  );
 	    if (mon && (see_it || (!worm_tail && Detect_monsters))) {
 		if (mon->mtrapped) {
 		    struct trap *trap = t_at(x, y);
@@ -1577,32 +1594,37 @@ newsymX(x,y)
 		(uamul && uamul->otyp == AMULET_OF_OWN_RACE_WARNING && your_race(mon->data) ) ||
 		(Role_if(PM_PALADIN) && is_demon(mon->data) ) ||
 		(uarmc && uarmc->oartifact == ART_DEMONIC_UNDEAD_RADAR && is_demon(mon->data) ) ||
+		(uwep && uwep->oartifact == ART_DAEDRA_SEEKER && mon->data->mlet == S_DEMON ) ||
 		(Race_if(PM_VORTEX) && unsolid(mon->data) ) ||
 		(Race_if(PM_VORTEX) && nolimbs(mon->data) ) ||
 		(Race_if(PM_CORTEX) && unsolid(mon->data) ) ||
 		(Race_if(PM_CORTEX) && nolimbs(mon->data) ) ||
 		(ublindf && ublindf->otyp == BOSS_VISOR && (is_covetous(mon->data) || mon->egotype_covetous) ) ||
 		(uamul && uamul->otyp == AMULET_OF_COVETOUS_WARNING && (is_covetous(mon->data) || mon->egotype_covetous) ) ||
-		(Stunnopathy && Stunned && always_hostile(mon->data) && (mon)->mhp % 4 != 0) ||
-		( (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "internet helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "vsemirnaya pautina shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "keng dunyo veb-zarbdan") ) ) && (mon)->mhp % 9 == 0) ||
-		(RngeInternetAccess && (mon)->mhp % 9 == 0) ||
-		(uarmh && uarmh->oartifact == ART_WEB_RADIO && (mon)->mhp % 9 == 0) ||
+		(Stunnopathy && Stunned && always_hostile(mon->data) && mon->stunnovisible) ||
+		( (uarmh && itemhasappearance(uarmh, APP_INTERNET_HELMET) ) && mon->internetvisible) ||
+		(RngeInternetAccess && mon->internetvisible) ||
+		(uarmh && uarmh->oartifact == ART_WEB_RADIO && mon->internetvisible) ||
 		(Numbopathy && Numbed && (avoid_player(mon->data) || mon->egotype_avoider) ) ||
 		(Sickopathy && Sick && extra_nasty(mon->data) ) ||
 		(Freezopathy && Frozen && mon->data->mcolor == CLR_WHITE ) ||
 		(uarmf && uarmf->oartifact == ART_VERA_S_FREEZER && mon->data->mcolor == CLR_WHITE) ||
 		(Burnopathy && Burned && infravision(mon->data) ) ||
 		(Dimmopathy && Dimmed && mon->m_lev > u.ulevel) ||
+		(ScentView && distu(mon->mx, mon->my) < 101 && mon->scentvisible && (is_animal(mon->data) || mon->data->msound == MS_STENCH) ) ||
+		(EcholocationActive && distu(mon->mx, mon->my) < 626 && mon->echolocatevisible && (dmgtype(mon->data, AD_SOUN) || mon->data->msound == MS_SOUND || mon->data->msound == MS_SHRIEK || mon->data->msound == MS_FART_NORMAL || mon->data->msound == MS_FART_LOUD || mon->data->msound == MS_FART_QUIET ) ) ||
 		(Race_if(PM_RODNEYAN) && mon_has_amulet(mon)) ||
 		(Race_if(PM_RODNEYAN) && mon_has_special(mon)) ||
 		(Race_if(PM_LEVITATOR) && (is_flyer(mon->data) || mon->egotype_flying) ) ||
 		(isselfhybrid && strongmonst(mon->data) && is_wanderer(mon->data) ) ||
 		(uwep && uwep->oartifact == ART_TIGATOR_S_THORN && is_pokemon(mon->data) ) ||
 		(uarmf && uarmf->oartifact == ART_ELENETTES && (mon->mhp < (mon->mhpmax * 9 / 10)) ) ||
-		(uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "sages helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "mudryy shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "do'stlar dubulg'asi")) && mon->minvis && mon->sagesvisible ) ||
+		(uarmh && itemhasappearance(uarmh, APP_SAGES_HELMET) && mon->minvis && mon->sagesvisible ) ||
 		(ublindf && ublindf->oartifact == ART_BREATHER_SHOW && attacktype(mon->data, AT_BREA)) ||
 		(uarmc && uarmc->oartifact == ART_POKEWALKER && is_pokemon(mon->data) ) ||
 		(uarmc && uarmc->oartifact == ART_BUGNOSE && (mon->data->mlet == S_ANT || mon->data->mlet == S_XAN) ) ||
+		(uwep && uwep->oartifact == ART_EGRID_BUG && mon->data->mlet == S_XAN) ||
+		(uwep && uwep->oartifact == ART_FUYER_BREV && mon->data->mlet == S_FUNGUS) ||
 		(uarmf && uarmf->oartifact == ART_BOOTS_OF_THE_MACHINE && (mon->data->mlet == S_GOLEM || nonliving(mon->data) ) ) ||
 		(uarmf && uarmf->oartifact == ART_FD_DETH && (mon->data->mlet == S_DOG || mon->data->mlet == S_FELINE) ) ||
 		(uarmg && uarmg->oartifact == ART_WHAT_S_UP_BITCHES && (mon->data->mlet == S_NYMPH) ) ||
@@ -1622,7 +1644,7 @@ newsymX(x,y)
 		(uwep && uwep->oartifact == ART_INDIGENOUS_FUN && humanoid(mon->data)) ||
 		(uwep && uwep->oartifact == ART_ANIMALBANE && is_animal(mon->data)) ||
 		(uwep && uwep->oartifact == ART_SEE_ANIMALS && is_animal(mon->data)) ||
-		(isselfhybrid && monpolyok(mon->data) && !polyok(mon->data) && ((mon->data->mlevel < 30) || ((mon)->mhp % 2 != 0) ) ) ||
+		(isselfhybrid && monpolyok(mon->data) && !polyok(mon->data) && ((mon->data->mlevel < 30) || mon->selfhybridvisible ) ) ||
 		(see_with_infrared(mon) && mon_visible(mon))))
 		    || Detect_monsters)
 		&& !is_worm_tail(mon)) {
@@ -2361,13 +2383,13 @@ show_glyph(x,y,glyph)
 	return;
     }
 
-	if ( (RMBLoss || u.uprops[RMB_LOST].extrinsic || (uarmh && uarmh->oartifact == ART_NO_RMB_VACATION) || (uamul && uamul->oartifact == ART_BUEING) || (uimplant && uimplant->oartifact == ART_ARABELLA_S_SEXY_CHARM) || (uarmh && uarmh->oartifact == ART_WOLF_KING) || (uamul && uamul->oartifact == ART_YOU_HAVE_UGH_MEMORY) || have_rmbstone()) && glyph >= GLYPH_OBJ_OFF && !(glyph >= GLYPH_CMAP_OFF && glyph < (GLYPH_CMAP_OFF + 13) ) && !(glyph >= (GLYPH_CMAP_OFF + 24) && glyph < (GLYPH_CMAP_OFF + 28) ) && !(glyph == (GLYPH_CMAP_OFF + 47) ) )
-	return;
+	if ( (RMBLoss || u.uprops[RMB_LOST].extrinsic || (uarmh && uarmh->oartifact == ART_NO_RMB_VACATION) || (uamul && uamul->oartifact == ART_BUEING) || (uimplant && uimplant->oartifact == ART_ARABELLA_S_SEXY_CHARM) || (uarmh && uarmh->oartifact == ART_WOLF_KING) || (uamul && uamul->oartifact == ART_YOU_HAVE_UGH_MEMORY) || have_rmbstone()) && glyph >= GLYPH_OBJ_OFF && !(glyph >= GLYPH_CMAP_OFF && glyph < (GLYPH_CMAP_OFF + 13) ) && !(glyph >= (GLYPH_CMAP_OFF + 24) && glyph < (GLYPH_CMAP_OFF + 28) ) && !isimportantlocation(x, y) && !(glyph == (GLYPH_CMAP_OFF + 47) ) )
+	glyph = cmap_to_glyph(S_stone);
 
-	if ( (NotSeenBug || u.uprops[NOT_SEEN_BUG].extrinsic || have_nonseeingstone()) && ((glyph >= GLYPH_CMAP_OFF && glyph < (GLYPH_CMAP_OFF + 13) ) || (glyph == (GLYPH_CMAP_OFF + 47) ) ) )
-	return;
+	if ( (NotSeenBug || u.uprops[NOT_SEEN_BUG].extrinsic || have_nonseeingstone()) && !isimportantlocation(x, y) && ((glyph >= GLYPH_CMAP_OFF && glyph < (GLYPH_CMAP_OFF + 13) ) || (glyph == (GLYPH_CMAP_OFF + 47) ) ) )
+	glyph = cmap_to_glyph(S_stone);
 
-	if (!flags.wallglyph && glyph == (GLYPH_CMAP_OFF + 47)) return;
+	if (!flags.wallglyph && !isimportantlocation(x, y) && glyph == (GLYPH_CMAP_OFF + 47)) glyph = cmap_to_glyph(S_stone);
 
     if (glyph >= MAX_GLYPH) {
 	impossible("show_glyph:  bad glyph %d [max %d] at (%d,%d).",
@@ -2440,13 +2462,13 @@ show_glyphX(x,y,glyph)
 	return;
     }
 
-	if ( (RMBLoss || u.uprops[RMB_LOST].extrinsic || (uarmh && uarmh->oartifact == ART_NO_RMB_VACATION) || (uamul && uamul->oartifact == ART_BUEING) || (uimplant && uimplant->oartifact == ART_ARABELLA_S_SEXY_CHARM) || (uarmh && uarmh->oartifact == ART_WOLF_KING) || (uamul && uamul->oartifact == ART_YOU_HAVE_UGH_MEMORY) || have_rmbstone()) && glyph >= GLYPH_OBJ_OFF && !(glyph >= GLYPH_CMAP_OFF && glyph < (GLYPH_CMAP_OFF + 13) ) && !(glyph >= (GLYPH_CMAP_OFF + 24) && glyph < (GLYPH_CMAP_OFF + 28) ) && !(glyph == (GLYPH_CMAP_OFF + 47) ) )
-	return;
+	if ( (RMBLoss || u.uprops[RMB_LOST].extrinsic || (uarmh && uarmh->oartifact == ART_NO_RMB_VACATION) || (uamul && uamul->oartifact == ART_BUEING) || (uimplant && uimplant->oartifact == ART_ARABELLA_S_SEXY_CHARM) || (uarmh && uarmh->oartifact == ART_WOLF_KING) || (uamul && uamul->oartifact == ART_YOU_HAVE_UGH_MEMORY) || have_rmbstone()) && glyph >= GLYPH_OBJ_OFF && !(glyph >= GLYPH_CMAP_OFF && glyph < (GLYPH_CMAP_OFF + 13) ) && !(glyph >= (GLYPH_CMAP_OFF + 24) && glyph < (GLYPH_CMAP_OFF + 28) ) && !isimportantlocation(x, y) && !(glyph == (GLYPH_CMAP_OFF + 47) ) )
+	glyph = cmap_to_glyph(S_stone);
 
-	if ( (NotSeenBug || u.uprops[NOT_SEEN_BUG].extrinsic || have_nonseeingstone()) && ((glyph >= GLYPH_CMAP_OFF && glyph < (GLYPH_CMAP_OFF + 13) ) || (glyph == (GLYPH_CMAP_OFF + 47) ) ) )
-	return;
+	if ( (NotSeenBug || u.uprops[NOT_SEEN_BUG].extrinsic || have_nonseeingstone()) && !isimportantlocation(x, y) && ((glyph >= GLYPH_CMAP_OFF && glyph < (GLYPH_CMAP_OFF + 13) ) || (glyph == (GLYPH_CMAP_OFF + 47) ) ) )
+	glyph = cmap_to_glyph(S_stone);
 
-	if (!flags.wallglyph && glyph == (GLYPH_CMAP_OFF + 47)) return;
+	if (!flags.wallglyph && !isimportantlocation(x, y) && glyph == (GLYPH_CMAP_OFF + 47)) glyph = cmap_to_glyph(S_stone);
 
     if (glyph >= MAX_GLYPH) {
 	impossible("show_glyph:  bad glyph %d [max %d] at (%d,%d).",
@@ -3450,6 +3472,78 @@ do_crwall:
 	    idx = /*S_stone*/S_dungwall;
     }
     return idx;
+}
+
+boolean
+sensemon(mon)
+struct monst *mon;
+{
+	if (uarmh && uarmh->oartifact == ART_RADAR_NOT_WORKING) return FALSE;
+	if (isselfhybrid && (moves % 3 == 0) ) return FALSE;
+
+	if (tp_sensemon(mon)) return TRUE;
+	if (Detect_monsters) return TRUE;
+	if (MATCH_WARN_OF_MON(mon)) return TRUE;
+	if (Role_if(PM_ACTIVISTOR) && mon->data == &mons[PM_TOPMODEL]) return TRUE;
+	if (Race_if(PM_PEACEMAKER) && mon->data == &mons[PM_TOPMODEL]) return TRUE;
+	if (Role_if(PM_ACTIVISTOR) && type_is_pname(mon->data) && uwep && is_quest_artifact(uwep) ) return TRUE;
+	if (uamul && uamul->otyp == AMULET_OF_POISON_WARNING && poisonous(mon->data) ) return TRUE;
+	if (Role_if(PM_PALADIN) && is_demon(mon->data) ) return TRUE;
+	if (uarmc && uarmc->oartifact == ART_DEMONIC_UNDEAD_RADAR && is_demon(mon->data) ) return TRUE;
+	if (uwep && uwep->oartifact == ART_DAEDRA_SEEKER && mon->data->mlet == S_DEMON ) return TRUE;
+	if (Race_if(PM_VORTEX) && unsolid(mon->data) ) return TRUE;
+	if (Race_if(PM_VORTEX) && nolimbs(mon->data) ) return TRUE;
+	if (Race_if(PM_CORTEX) && unsolid(mon->data) ) return TRUE;
+	if (Race_if(PM_CORTEX) && nolimbs(mon->data) ) return TRUE;
+	if (uamul && uamul->otyp == AMULET_OF_OWN_RACE_WARNING && your_race(mon->data) ) return TRUE;
+	if (uamul && uamul->otyp == AMULET_OF_COVETOUS_WARNING && (is_covetous(mon->data) || mon->egotype_covetous) ) return TRUE;
+	if (ublindf && ublindf->otyp == BOSS_VISOR && (is_covetous(mon->data) || mon->egotype_covetous) ) return TRUE;
+	if ((uarmh && itemhasappearance(uarmh, APP_INTERNET_HELMET) ) && mon->internetvisible) return TRUE;
+	if (RngeInternetAccess && mon->internetvisible) return TRUE;
+	if (uarmh && uarmh->oartifact == ART_WEB_RADIO && mon->internetvisible) return TRUE;
+	if (Stunnopathy && Stunned && always_hostile(mon->data) && mon->stunnovisible) return TRUE;
+	if (Numbopathy && Numbed && (avoid_player(mon->data) || mon->egotype_avoider) ) return TRUE;
+	if (Sickopathy && Sick && extra_nasty(mon->data) ) return TRUE;
+	if (Freezopathy && Frozen && mon->data->mcolor == CLR_WHITE ) return TRUE;
+	if (ScentView && distu(mon->mx, mon->my) < 101 && mon->scentvisible && (is_animal(mon->data) || mon->data->msound == MS_STENCH) ) return TRUE;
+	if (EcholocationActive && distu(mon->mx, mon->my) < 626 && mon->echolocatevisible && (dmgtype(mon->data, AD_SOUN) || mon->data->msound == MS_SOUND || mon->data->msound == MS_SHRIEK || mon->data->msound == MS_FART_NORMAL || mon->data->msound == MS_FART_LOUD || mon->data->msound == MS_FART_QUIET ) ) return TRUE;
+	if (uarmf && uarmf->oartifact == ART_VERA_S_FREEZER && mon->data->mcolor == CLR_WHITE) return TRUE;
+	if (Burnopathy && Burned && infravision(mon->data) ) return TRUE;
+	if (Dimmopathy && Dimmed && mon->m_lev > u.ulevel) return TRUE;
+	if (Race_if(PM_RODNEYAN) && mon_has_amulet(mon)) return TRUE;
+	if (Race_if(PM_RODNEYAN) && mon_has_special(mon)) return TRUE;
+	if (Race_if(PM_LEVITATOR) && (is_flyer(mon->data) || mon->egotype_flying) ) return TRUE;
+	if (uarmf && uarmf->oartifact == ART_ELENETTES && (mon->mhp < (mon->mhpmax * 9 / 10)) ) return TRUE;
+	if (isselfhybrid && strongmonst(mon->data) && is_wanderer(mon->data) ) return TRUE;
+	if (uwep && uwep->oartifact == ART_TIGATOR_S_THORN && is_pokemon(mon->data) ) return TRUE;
+	if (uarmh && itemhasappearance(uarmh, APP_SAGES_HELMET) && mon->minvis && mon->sagesvisible ) return TRUE;
+	if (ublindf && ublindf->oartifact == ART_BREATHER_SHOW && attacktype(mon->data, AT_BREA)) return TRUE;
+	if (uarmc && uarmc->oartifact == ART_POKEWALKER && is_pokemon(mon->data) ) return TRUE;
+	if (uwep && uwep->oartifact == ART_EGRID_BUG && mon->data->mlet == S_XAN) return TRUE;
+	if (uarmc && uarmc->oartifact == ART_BUGNOSE && (mon->data->mlet == S_ANT || mon->data->mlet == S_XAN) ) return TRUE;
+	if (uwep && uwep->oartifact == ART_FUYER_BREV && mon->data->mlet == S_FUNGUS) return TRUE;
+	if (uarmf && uarmf->oartifact == ART_BOOTS_OF_THE_MACHINE && (mon->data->mlet == S_GOLEM || nonliving(mon->data) ) ) return TRUE;
+	if (uarmf && uarmf->oartifact == ART_FD_DETH && (mon->data->mlet == S_DOG || mon->data->mlet == S_FELINE) ) return TRUE;
+	if (uarmg && uarmg->oartifact == ART_WHAT_S_UP_BITCHES && (mon->data->mlet == S_NYMPH) ) return TRUE;
+	if (uwep && uwep->oartifact == ART_FISHING_GRANDPA && mon->data->mlet == S_EEL) return TRUE;
+	if (uwep && uwep->oartifact == ART_PEOPLE_EATING_TRIDENT && mon->data->mlet == S_HUMAN) return TRUE;
+	if (uwep && uwep->oartifact == ART_VAMPIREBANE && mon->data->mlet == S_VAMPIRE) return TRUE;
+	if (uwep && uwep->oartifact == ART_GOLEMBANE && mon->data->mlet == S_GOLEM) return TRUE;
+	if (uwep && uwep->oartifact == ART_EELBANE && mon->data->mlet == S_EEL) return TRUE;
+	if (uwep && uwep->oartifact == ART_MAUI_S_FISHHOOK && mon->data->mlet == S_EEL) return TRUE;
+	if (uwep && uwep->oartifact == ART_DEMONSTRANTS_GO_HOME && mon->data->mlet == S_HUMAN) return TRUE;
+	if (uarmu && uarmu->oartifact == ART_PEACE_ADVOCATE && mon->data->mlet == S_HUMAN) return TRUE;
+	if (uwep && uwep->oartifact == ART_DOCTOR_JONES__AID && mon->data->mlet == S_SNAKE) return TRUE;
+	if (uwep && uwep->oartifact == ART_GOODBYE_TROLLS && mon->data->mlet == S_TROLL) return TRUE;
+	if (uwep && uwep->oartifact == ART_ANTINSTANT_DEATH && mon->data->mlet == S_ANT) return TRUE;
+	if (uwep && uwep->oartifact == ART_DRAGONLANCE && mon->data->mlet == S_DRAGON) return TRUE;
+	if (uwep && uwep->oartifact == ART_MINI_PEOPLE_EATER && humanoid(mon->data)) return TRUE;
+	if (uwep && uwep->oartifact == ART_INDIGENOUS_FUN && humanoid(mon->data)) return TRUE;
+	if (uwep && uwep->oartifact == ART_ANIMALBANE && is_animal(mon->data)) return TRUE;
+	if (uwep && uwep->oartifact == ART_SEE_ANIMALS && is_animal(mon->data)) return TRUE;
+	if (isselfhybrid && monpolyok(mon->data) && !polyok(mon->data) && ((mon->data->mlevel < 30) || mon->selfhybridvisible ) ) return TRUE;
+
+	return FALSE; /* catchall */
 }
 
 /*display.c*/

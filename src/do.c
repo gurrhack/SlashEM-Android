@@ -228,7 +228,7 @@ const char *verb;
 				    "fills a pit");
 			}
 		}
-		if (t && !(t->ttyp == GIANT_CHASM)) deltrap(t);
+		if (t && !(t->ttyp == GIANT_CHASM && !In_sokoban(&u.uz)) ) deltrap(t);
 		obfree(obj, (struct obj *)0);
 		bury_objs(x, y);
 		newsym(x,y);
@@ -286,6 +286,17 @@ doaltarobj(obj)  /* obj is an object dropped on an altar */
 	/* high altars don't tell you the BUC of an item, partly as extra insurance against altar vanishing
 	 * but also to make sure that you can't indefinitely identify BUC on the astral plane --Amy */
 	if (Is_astralevel(&u.uz) || Is_sanctum(&u.uz)) return;
+
+	if (Race_if(PM_MACTHEIST)) return;
+
+	if (practicantterror && !u.pract_altartest) {
+		u.pract_altartestamount++;
+		if (u.pract_altartestamount >= 10) {
+			pline("%s booms: 'Well, now your memory simply belongs to me. Why do you try to test your equipment on an altar anyway?'", noroelaname());
+			forget(1 + rn2(5));
+			u.pract_altartest = TRUE;
+		}
+	}
 
 	if (u.uprops[DESECRATION].extrinsic || Desecration || have_nonsacredstone() ) {
 
@@ -346,6 +357,10 @@ doaltarobj(obj)  /* obj is an object dropped on an altar */
 
 	/* KMH, conduct */
 	u.uconduct.gnostic++;
+	if (Race_if(PM_MAGYAR)) {
+		You_feel("bad about breaking the atheist conduct.");
+		badeffect();
+	}
 
 	/* evil patch idea by aosdict: Moloch's altars can occasionally curse the item. */
 	
@@ -391,6 +406,17 @@ register struct obj *obj;
 
 	You("drop %s down the drain.", doname(obj));
 	obj->in_use = TRUE;	/* block free identification via interrupt */
+	u.cnd_sinkamount++;
+
+	if (!rn2(isfriday ? 3 : 10)) { /* we don't want them to be endless; ring is now lost without a message */
+		pline_The("pipes break!  Water spurts out!");
+		level.flags.nsinks--;
+		levl[u.ux][u.uy].typ = FOUNTAIN;
+		level.flags.nfountains++;
+		newsym(u.ux,u.uy);
+		useup(obj);
+		return;
+	}
 
 	if (isfriday && !rn2(10)) goto fridaydone;
 
@@ -519,6 +545,12 @@ giveback:
 		case RIN_ILLITERACY:
 		    pline("The sink seems to be breaking apart at the seams.");
 		    break;
+		case RIN_STAT_DECREASE:
+		    pline("The water stream seems to die of hunger.");
+		    break;
+		case RIN_SANITY_TIMEOUT:
+		    pline("The water flow exposes quite a lot of muck in the sink.");
+		    break;
 
 		case RIN_WIMPINESS:
 		    pline("Somehow the sink seems powerless.");
@@ -559,6 +591,12 @@ giveback:
 
 	      case RIN_SICKNESS_RESISTANCE:
 		    pline("The sink looks clean and neat for a moment.");
+		    break;
+	      case RIN_JUMPING:
+		    pline("The sink jumps up and down!");
+		    break;
+	      case RIN_ILLNESS:
+		    pline("The sink is overgrown with fungus.");
 		    break;
 	      case RIN_DISARMING:
 		    pline("The water flow pauses for a moment.");
@@ -669,6 +707,9 @@ giveback:
 		case RIN_DISCOUNT_ACTION:
 		    pline("Waterdrops are quickly running down the drain.");
 		    break;
+		case RIN_DIMINISHED_BLEEDING:
+		    pline("The waterdrops seem to be slowing down.");
+		    break;
 		case RIN_SEE_INVISIBLE:
 		    You("see some air in the sink.");
 		    break;
@@ -754,8 +795,20 @@ register struct obj *obj;
 	/* you can't drop the Amulet of Yendor anyway, but in case this function is somehow called with it... */
 	if (obj->otyp == AMULET_OF_YENDOR || obj->otyp == FAKE_AMULET_OF_YENDOR) return;
 
+	u.cnd_toiletamount++;
+
 	You("drop %s down the drain.", doname(obj));
 	obj->in_use = TRUE;	/* block free identification via interrupt */
+
+	if (!rn2(isfriday ? 3 : 10)) { /* we don't want them to be endless; amulet is now lost without a message */
+		pline_The("pipes break!  Water spurts out!");
+		level.flags.nsinks--;
+		levl[u.ux][u.uy].typ = FOUNTAIN;
+		level.flags.nfountains++;
+		newsym(u.ux,u.uy);
+		useup(obj);
+		return;
+	}
 
 	if (isfriday && !rn2(10)) goto fridaydone2;
 
@@ -881,6 +934,9 @@ register struct obj *obj;
 	case AMULET_OF_CONTAMINATION_RESIST:
 		pline_The("toilet water cleans instantly!");
 		break;
+	case AMULET_OF_SCENT:
+		pline_The("toilet suddenly smells like roses!");
+		break;
 	case AMULET_OF_THE_RNG:
 	case AMULET_OF_INFINITY:
 		pline("Something strange is happening to the toilet.");
@@ -954,7 +1010,7 @@ register struct obj *obj;
 		break;
 	case AMULET_OF_MAP_AMNESIA:
 		You("don't remember whether there was a toilet at all.");
-		if (Hallucination) You("also forgot that you have to take a crap, and shit your trousers by mistake.");
+		if (FunnyHallu) You("also forgot that you have to take a crap, and shit your trousers by mistake.");
 		break;
 	case AMULET_OF_DEPRESSION:
 		You("feel like you lost an important part of yourself.");
@@ -992,16 +1048,25 @@ register struct obj *obj;
 	case AMULET_OF_TECHOUT:
 		pline_The("toilet looks primitive.");
 		break;
+	case AMULET_OF_BAD_PART:
+		pline("Suddenly all sorts of random garbage appear in the toilet!");
+		break;
+	case AMULET_OF_EVIL_VARIANT:
+		You("see a chunk of silver get corroded by the toilet water!"); /* evilvariant makes silver corrodeable */
+		break;
 
 	case AMULET_OF_HOSTILITY:
 		pline_The("toilet suddenly threatens to attack you!");
+		break;
+	case AMULET_OF_SANITY_TREBLE:
+		pline_The("toilet seems to be full of dirt and shit!");
 		break;
 	case AMULET_OF_EVIL_CRAFTING:
 		You("suddenly seem to see %s taking a crap!", rndplrmonnamefemale());
 		break;
 	case AMULET_OF_EDIBILITY:
 		pline_The("toilet looks delicious! You wonder whether you can eat it.");
-		if (Hallucination) pline("In fact, it seems to have turned into an edible bra! Mmmmmmmmmmmmm... candy!");
+		if (FunnyHallu) pline("In fact, it seems to have turned into an edible bra! Mmmmmmmmmmmmm... candy!");
 		break;
 	case AMULET_OF_WAKING:
 		pline("Suddenly, a very loud flushing sound seems to jolt you back to your senses.");
@@ -1084,7 +1149,7 @@ register const char *word;
 			pline("For some reason, you cannot %s%s the stone%s!",
 			      word, obj->corpsenm ? " any of" : "",
 			      plur(obj->quan));
-			if (Hallucination) pline("Your fault for picking it up, you damn idiot!"); /* YANI by Yasdorian */
+			if (FunnyHallu) pline("Your fault for picking it up, you damn idiot!"); /* YANI by Yasdorian */
 		}
 		obj->corpsenm = 0;		/* reset */
 		obj->bknown = 1;
@@ -1129,7 +1194,7 @@ register struct obj *obj;
 			weldmsg(obj);
 			return(0);
 		}
-		setuwep((struct obj *)0, FALSE);
+		setuwep((struct obj *)0, FALSE, TRUE);
 	}
 	if (obj == uswapwep) {
 		setuswapwep((struct obj *)0, FALSE);
@@ -1162,12 +1227,17 @@ register struct obj *obj;
 		return(issoviet ? 1 : 0);
 	    }
 	    if (!can_reach_floor()) {
+		if (u.uprops[DROPCURSES_EFFECT].extrinsic || Dropcurses || have_dropcursestone() || (uleft && uleft->oartifact == ART_ARABELLA_S_RADAR) || (uright && uright->oartifact == ART_ARABELLA_S_RADAR) ) {
+			curse(obj);
+		}
+
 		if(flags.verbose) You("drop %s.", doname(obj));
 #ifndef GOLDOBJ
 		if (obj->oclass != COIN_CLASS || obj == invent) freeinv(obj);
 #else
 		/* Ensure update when we drop gold objects */
 		if (obj->oclass == COIN_CLASS) flags.botl = 1;
+
 		freeinv(obj);
 #endif
 		hitfloor(obj);
@@ -1177,6 +1247,11 @@ register struct obj *obj;
 	    if (!IS_ALTAR(levl[u.ux][u.uy].typ) && flags.verbose)
 		You("drop %s.", doname(obj));
 	}
+
+	if (u.uprops[DROPCURSES_EFFECT].extrinsic || Dropcurses || have_dropcursestone() || (uleft && uleft->oartifact == ART_ARABELLA_S_RADAR) || (uright && uright->oartifact == ART_ARABELLA_S_RADAR) ) {
+		curse(obj);
+	}
+
 	dropx(obj);
 	if (issoviet && !rn2(10)) pline("Eto zanimayet ochered' potomu, chto sovetskiy khochet, chtoby igra byla der'mo.");
 	return(issoviet ? 1 : 0);
@@ -1210,13 +1285,13 @@ void
 dropy(obj)
 register struct obj *obj;
 {
-	if (obj == uwep) setuwep((struct obj *)0, FALSE);
+	if (obj == uwep) setuwep((struct obj *)0, FALSE, TRUE);
 	if (obj == uquiver) setuqwep((struct obj *)0);
 	if (obj == uswapwep) setuswapwep((struct obj *)0, FALSE);
 
-	if (!u.uswallow && flooreffects(obj,u.ux,u.uy,"drop")) return;
+	if ((!u.uswallow) && flooreffects(obj,u.ux,u.uy,"drop")) return;
 	/* uswallow check done by GAN 01/29/87 */
-	if(u.uswallow) {
+	if(u.uswallow ) {
 	    boolean could_petrify = FALSE;
 	    boolean could_poly = FALSE;
 	    boolean could_slime = FALSE;
@@ -1232,7 +1307,7 @@ register struct obj *obj;
 		    could_heal = (obj->corpsenm == PM_NURSE);
 		}
 		if (obj->otyp == EGG) {
-		    could_petrify = touch_petrifies(&mons[obj->corpsenm]);
+		    could_petrify = (touch_petrifies(&mons[obj->corpsenm]) && obj->corpsenm != PM_PLAYERMON);
 		}
 		(void) mpickobj(u.ustuck,obj,FALSE);
 		if (is_animal(u.ustuck->data)) {
@@ -1310,7 +1385,7 @@ doddrop()
 
 	add_valid_menu_class(0); /* clear any classes already there */
 	if (*u.ushops) sellobj_state(SELL_DELIBERATE);
-	if (flags.menu_style != MENU_TRADITIONAL ||
+	if ((flags.menu_style != MENU_TRADITIONAL && !InventoryDoesNotGo) ||
 		(result = ggetobj("drop", drop, 0, FALSE, (unsigned *)0)) < -1)
 	    result = menu_drop(result);
 	if (*u.ushops) sellobj_state(SELL_NORMAL);
@@ -1348,7 +1423,7 @@ int retry;
 #endif
     if (retry) {
 	all_categories = (retry == -2);
-    } else if (flags.menu_style == MENU_FULL) {
+    } else if (flags.menu_style == MENU_FULL && !InventoryDoesNotGo) {
 	all_categories = FALSE;
 	n = query_category("Drop what type of items?",
 			invent,
@@ -1365,7 +1440,7 @@ int retry;
 		add_valid_menu_class(pick_list[i].item.a_int);
 	}
 	free((void *) pick_list);
-    } else if (flags.menu_style == MENU_COMBINATION) {
+    } else if (flags.menu_style == MENU_COMBINATION && !InventoryDoesNotGo) {
 	unsigned ggoresults = 0;
 	all_categories = FALSE;
 	/* Gather valid classes via traditional NetHack method */
@@ -1440,14 +1515,14 @@ dodown()
 		    (u.ux == sstairs.sx && u.uy == sstairs.sy && !sstairs.up)),
 		ladder_down = (u.ux == xdnladder && u.uy == ydnladder);
 
-	if (NoStaircase && u.uhave.amulet && (stairs_down || ladder_down) ) {
+	if (NoStaircase && u.uhave.amulet && !u.freeplaymode && (stairs_down || ladder_down) ) {
 
-		pline(Hallucination ? "An anomalous energy field prevents you from taking the stairs!" : "The staircase is temporarily blocked! Try again later!");
+		pline(FunnyHallu ? "An anomalous energy field prevents you from taking the stairs!" : "The staircase is temporarily blocked! Try again later!");
 		return(0);
 
 	}
 
-	if (!(nohands(youmonst.data) && !Race_if(PM_TRANSFORMER)) && uimplant && uimplant->oartifact == ART_JANA_S_MAKE_UP_PUTTY && (stairs_down || ladder_down) && !rn2(100)) {
+	if (!(powerfulimplants()) && uimplant && uimplant->oartifact == ART_JANA_S_MAKE_UP_PUTTY && (stairs_down || ladder_down) && !rn2(100)) {
 		u.youaredead = 1;
 		pline("NETHACK caused a Kernel error at address 0001:A9EE.");
 		killer_format = KILLED_BY;
@@ -1510,9 +1585,12 @@ dodown()
 		else {return(0);} /* didn't move */
 	}
 	if (!stairs_down && !ladder_down) {
+
+		/* Amy edit: just because you can't see the trap doesn't mean it's not there; let the player use it! */
+
 		if (!(trap = t_at(u.ux,u.uy)) ||
 			(trap->ttyp != TRAPDOOR && trap->ttyp != SHAFT_TRAP && trap->ttyp != CURRENT_SHAFT && trap->ttyp != HOLE)
-			|| !Can_fall_thru(&u.uz) || (!trap->tseen && !Race_if(PM_LEVITATOR)) ) {
+			|| !Can_fall_thru(&u.uz) ) {
 
 			/* allow the > key to go down into a pit. But only if it really is one! --Amy */
 			if ((trap = t_at(u.ux,u.uy)) && (trap->ttyp == PIT || trap->ttyp == SHIT_PIT || trap->ttyp == MANA_PIT || trap->ttyp == GIANT_CHASM || trap->ttyp == SPIKED_PIT || trap->ttyp == ANOXIC_PIT || trap->ttyp == ACID_PIT) && !u.utrap) {
@@ -1529,6 +1607,7 @@ dodown()
 				}
 				return 1;
 			} else if (flags.autodig && !flags.nopick && uwep && is_pick(uwep)) {
+				if (!touch_artifact(uwep, &youmonst)) return(0);
 				return use_pick_axe2(uwep);
 			} else {
 				You_cant("go down here.");
@@ -1559,8 +1638,10 @@ dodown()
 
 		if (!achieve.enter_gehennom) {
 
-			if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+			if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 			if (RngeTeamSplat) pline("TROPHY GET!");
+			if (Race_if(PM_INHERITOR)) giftartifact();
+			if (Race_if(PM_HERALD)) heraldgift();
 
 			if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 				u.uhpmax += 10;
@@ -1602,6 +1683,33 @@ dodown()
 int
 doup()
 {
+	if (u.freeplaymode && on_level(&u.uz, &astral_level) && IS_ALTAR(levl[u.ux][u.uy].typ)) {
+		You("ascend back to the dungeon.");
+		u.freeplaytransit = TRUE;
+		if (u.uhave.amulet) { /* no longer need the amulet, now that you've won */
+			struct obj *otmpi, *otmpii;
+			if (invent) {
+				for (otmpi = invent; otmpi; otmpi = otmpii) {
+				      otmpii = otmpi->nobj;
+					if (otmpi->otyp == AMULET_OF_YENDOR) {							
+						if (otmpi->owornmask) {
+							setnotworn(otmpi);
+						}
+						dropx(otmpi);
+					}
+				}
+			}
+		}
+		goto_level(&medusa_level, TRUE, FALSE, FALSE);
+
+		register int newlevX = 1;
+		d_level newlevelX;
+		get_level(&newlevelX, newlevX);
+		goto_level(&newlevelX, TRUE, FALSE, FALSE);
+		u.freeplaytransit = FALSE;
+		return(0);
+	}
+
 	if( (u.ux != xupstair || u.uy != yupstair)
 	     && (!xupladder || u.ux != xupladder || u.uy != yupladder)
 	     && (!sstairs.sx || u.ux != sstairs.sx || u.uy != sstairs.sy
@@ -1611,14 +1719,14 @@ doup()
 		return(0);
 	}
 
-	if (NoStaircase && !u.uhave.amulet ) {
+	if (NoStaircase && (!u.uhave.amulet || u.freeplaymode)) {
 
-		pline(Hallucination ? "An anomalous energy field prevents you from taking the stairs!" : "The staircase is temporarily blocked! Try again later!");
+		pline(FunnyHallu ? "An anomalous energy field prevents you from taking the stairs!" : "The staircase is temporarily blocked! Try again later!");
 		return(0);
 
 	}
 
-	if (!(nohands(youmonst.data) && !Race_if(PM_TRANSFORMER)) && uimplant && uimplant->oartifact == ART_JANA_S_MAKE_UP_PUTTY && !rn2(100)) {
+	if (!(powerfulimplants()) && uimplant && uimplant->oartifact == ART_JANA_S_MAKE_UP_PUTTY && !rn2(100)) {
 		u.youaredead = 1;
 		pline("NETHACK caused a Kernel error at address 0001:A9EE.");
 		killer_format = KILLED_BY;
@@ -1627,8 +1735,13 @@ doup()
 		u.youaredead = 0;
 	}
 
-	if (u.stairscumslowing && !u.uhave.amulet) {
+	if (u.stairscumslowing && (!u.uhave.amulet || u.freeplaymode)) {
 		pline("This stair is currently blocked and will reopen in %d turn%s.", u.stairscumslowing, u.stairscumslowing > 1 ? "s" : "");
+		return(0);
+	}
+
+	if ((iszapem && !(u.zapemescape)) && u.ux == sstairs.sx && u.uy == sstairs.sy && In_spacebase(&u.uz) && (dunlev(&u.uz) == 1) && !u.sewerplantcomplete) {
+		pline("Since you've not finished the Sewer Plant yet, you cannot leave the Space Base.");
 		return(0);
 	}
 
@@ -1658,13 +1771,20 @@ doup()
 	}
 	if(ledger_no(&u.uz) == 1) {
 
+		if (u.freeplaymode && !u.freeplayplanes) {
+			pline("Sorry. In order to re-visit the planes, you need to go to Moloch's Sanctum first.");
+			return 0;
+		}
+
 		if (u.uhave.amulet && !u.amuletcompletelyimbued) {
 			/* You were such a n00b and ignored all the messages telling you about the Yendorian Tower. */
 			com_pager(197);
 			return 0;
 		}
 
-		if (yn("Beware, there will be no return! Still climb?") != 'y')
+		if (iflags.debug_fuzzer) return 0;
+
+		if (!u.freeplaymode && yn("Beware, there will be no return! Still climb?") != 'y')
 			return(0);
 	}
 	if(!next_to_u()) {
@@ -1789,11 +1909,16 @@ boolean at_stairs, falling, portal;
 
 	if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel))
 		newlevel->dlevel = dunlevs_in_dungeon(newlevel);
-	if (newdungeon && In_endgame(newlevel)) { /* 1st Endgame Level !!! */
+	if (newdungeon && In_endgame(newlevel) && !u.freeplaymode) { /* 1st Endgame Level !!! */
 		if (u.uhave.amulet)
 		    assign_level(newlevel, &earth_level);
 		else return;
 	}
+
+	if (!In_endgame(&u.uz) && In_endgame(newlevel) && u.freeplaymode && u.freeplayplanes) {
+		assign_level(newlevel, &earth_level);
+	}
+
 	new_ledger = ledger_no(newlevel);
 	if (new_ledger <= 0)
 		done(ESCAPED);	/* in fact < 0 is impossible */
@@ -1815,7 +1940,7 @@ boolean at_stairs, falling, portal;
 	 * comment by Amy: Yes, it definitely is. That's why I don't re-enable it...
 	 * except in evilvariant mode, because that one is deliberately designed to screw you over :P */
 
-	if ( ((Inhell && evilfriday && u.uhave.amulet) || (MysteriousForceActive || u.uprops[MYSTERIOUS_FORCE_EFFECT].extrinsic || have_forcestone())) && up && !newdungeon && !portal && (dunlev(&u.uz) < dunlevs_in_dungeon(&u.uz)-3)) {
+	if ( ((Inhell && evilfriday && u.uhave.amulet && !u.freeplaymode) || (MysteriousForceActive || u.uprops[MYSTERIOUS_FORCE_EFFECT].extrinsic || have_forcestone())) && up && !newdungeon && !portal && (dunlev(&u.uz) < dunlevs_in_dungeon(&u.uz)-3)) {
 		if (!rn2(4)) {
 			int odds = 3 + (int)u.ualign.type;          /* 2..4 */
 
@@ -1844,6 +1969,7 @@ boolean at_stairs, falling, portal;
 		new_ledger = ledger_no(newlevel);
 
 		pline("A dirty mysterious dirt force full of dirt momentarily surrounds you...");
+		u.cnd_mysteriousforcecount++;
 		if (on_level(newlevel, &u.uz)) {
 			(void) safe_teleds(FALSE);
 			(void) next_to_u();
@@ -1894,15 +2020,15 @@ boolean at_stairs, falling, portal;
 	 * for the level being left, to recover dynamic memory in use and
 	 * to avoid dangling timers and light sources.
 	 */
-	cant_go_back = (newdungeon && In_endgame(newlevel));
-	if (!cant_go_back) {
+	cant_go_back = /*(newdungeon && In_endgame(newlevel))*/FALSE;
+/*	if (!cant_go_back) {*/
 	    update_mlstmv();	/* current monsters are becoming inactive */
 	    bufon(fd);		/* use buffered output */
-	}
+/*	}*/
 	savelev(fd, ledger_no(&u.uz),
 		cant_go_back ? FREE_SAVE : (WRITE_SAVE | FREE_SAVE));
 	bclose(fd);
-	if (cant_go_back) {
+	if (/*cant_go_back*/0) { /* Amy edit: freeplay mode means we need to keep the levels around */
 	    /* discard unreachable levels; keep #0 */
 	    for (l_idx = maxledgerno(); l_idx > 0; --l_idx)
 		delete_levelfile(l_idx);
@@ -1936,6 +2062,19 @@ boolean at_stairs, falling, portal;
 		}
 		mklev();
 		new = TRUE;	/* made the level */
+
+		if (Race_if(PM_ELONA_SNAIL)) { /* cleaner bastard */
+			s_level *sptr;
+			if ( (sptr = Is_special(&u.uz)) != 0 && sptr->flags.town) {
+				(void) makemon(&mons[PM_CLEANER], 0, 0, MM_ANGRY);
+				if (!rn2(3)) { /* some towns, like Palmia or Arcbelc, have two cleaners */
+					(void) makemon(&mons[PM_CLEANER], 0, 0, MM_ANGRY);
+					if (!rn2(5)) { /* Port Kapul even has three of the bastards! */
+						(void) makemon(&mons[PM_CLEANER], 0, 0, MM_ANGRY);
+					}
+				}
+			}
+		}
 
 		if (In_illusorycastle(&u.uz) && (dunlev(&u.uz) == dunlevs_in_dungeon(&u.uz)) ) { /* glass golem */
 			(void) makemon(&mons[PM_MOTHERFUCKER_GLASS_GOLEM], 0, 0, NO_MM_FLAGS);
@@ -1978,8 +2117,10 @@ boolean at_stairs, falling, portal;
 			if (!achieveX.swimmingpool_cleared) {
 
 				achieveX.swimmingpool_cleared = TRUE;
-				if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "team splat cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "vosklitsatel'nyy znak plashch komanda") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "jamoasi xavfsizlik plash") )) pline("TROPHY GET!");
+				if (uarmc && itemhasappearance(uarmc, APP_TEAM_SPLAT_CLOAK)) pline("TROPHY GET!");
 				if (RngeTeamSplat) pline("TROPHY GET!");
+				if (Race_if(PM_INHERITOR)) giftartifact();
+				if (Race_if(PM_HERALD)) heraldgift();
 
 				if (uarmc && uarmc->oartifact == ART_JUNETHACK______WINNER) {
 					u.uhpmax += 10;
@@ -2007,6 +2148,8 @@ boolean at_stairs, falling, portal;
 
 		if (u.gottenbones) { /* evil patch idea by jonadab - spawn monsters if a bones file loads */
 
+			u.cnd_bonescount++;
+
 			if (Aggravate_monster) {
 				u.aggravation = 1;
 				reset_rndmonst(NON_PM);
@@ -2030,7 +2173,40 @@ boolean at_stairs, falling, portal;
 		if (depth(&u.uz) >= 1 && depth(&u.uz) <= 5 && !issoviet && !rn2(5)) {
 			angbandx = rn1(COLNO-3,2);
 			angbandy = rn2(ROWNO);
-			(void) mksobj_at(CHEST, angbandx, angbandy, TRUE, TRUE);
+			(void) mksobj_at(CHEST, angbandx, angbandy, TRUE, TRUE, FALSE);
+		}
+
+		/* bossrusher race: spawn a boss at a random location whenever you enter a new level --Amy */
+		if (isbossrusher) {
+			if (Aggravate_monster) {
+				u.aggravation = 1;
+				reset_rndmonst(NON_PM);
+			}
+
+			{
+				int attempts = 0;
+				register struct permonst *ptrZ;
+newboss:
+				do {
+
+					ptrZ = rndmonst();
+					attempts++;
+					if (!rn2(2000)) reset_rndmonst(NON_PM);
+
+				} while ( (!ptrZ || (ptrZ && !(ptrZ->geno & G_UNIQ))) && attempts < 50000);
+
+				if (ptrZ && ptrZ->geno & G_UNIQ) {
+					(void) makemon(ptrZ, 0, 0, MM_ANGRY);
+				}
+				else if (rn2(50)) {
+					attempts = 0;
+					goto newboss;
+				}
+
+			}
+
+			u.aggravation = 0;
+
 		}
 
 		if (uarmc && uarmc->oartifact == ART_T_O_M_E) {
@@ -2095,7 +2271,7 @@ rerollelemloc:
 
 				if (angbandx && angbandy && isok(angbandx, angbandy) && (levl[angbandx][angbandy].typ == ROOM || levl[angbandx][angbandy].typ == CORR) && !(t_at(angbandx, angbandy)) ) {
 
-					(void) mksobj_at(booktype, angbandx, angbandy, TRUE, TRUE);
+					(void) mksobj_at(booktype, angbandx, angbandy, TRUE, TRUE, FALSE);
 				} else if (rn2(1000)) goto rerollelemloc;
 
 			}
@@ -2121,7 +2297,7 @@ rerolloccloc:
 
 				if (angbandx && angbandy && isok(angbandx, angbandy) && (levl[angbandx][angbandy].typ == ROOM || levl[angbandx][angbandy].typ == CORR) && !(t_at(angbandx, angbandy)) ) {
 
-					(void) mksobj_at(booktype, angbandx, angbandy, TRUE, TRUE);
+					(void) mksobj_at(booktype, angbandx, angbandy, TRUE, TRUE, FALSE);
 				} else if (rn2(1000)) goto rerolloccloc;
 
 			}
@@ -2147,7 +2323,7 @@ rerollchaloc:
 
 				if (angbandx && angbandy && isok(angbandx, angbandy) && (levl[angbandx][angbandy].typ == ROOM || levl[angbandx][angbandy].typ == CORR) && !(t_at(angbandx, angbandy)) ) {
 
-					(void) mksobj_at(booktype, angbandx, angbandy, TRUE, TRUE);
+					(void) mksobj_at(booktype, angbandx, angbandy, TRUE, TRUE, FALSE);
 				} else if (rn2(1000)) goto rerollchaloc;
 
 			}
@@ -2155,7 +2331,7 @@ rerollchaloc:
 
 		}
 
-		if (isangbander || RngeAngband || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "angband cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "plashch sredizem'ye krepost'") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "o'rta yer qal'a plash") )) ) { /* level feelings --Amy */
+		if (isangbander || RngeAngband || (uarmc && itemhasappearance(uarmc, APP_ANGBAND_CLOAK)) ) { /* level feelings --Amy */
 
 			if (Aggravate_monster) {
 				u.aggravation = 1;
@@ -2894,7 +3070,7 @@ rerollchaloc:
 
 					if (angbandx && angbandy && isok(angbandx, angbandy) && (levl[angbandx][angbandy].typ == ROOM || levl[angbandx][angbandy].typ == CORR) && !(t_at(angbandx, angbandy)) ) {
 
-					    (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, FALSE);
+					    (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, FALSE, FALSE);
 
 					}
 				}
@@ -2911,11 +3087,11 @@ rerollchaloc:
 
 					if (angbandx && angbandy && isok(angbandx, angbandy) && (levl[angbandx][angbandy].typ == ROOM || levl[angbandx][angbandy].typ == CORR) && !(t_at(angbandx, angbandy)) ) {
 
-					    (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, FALSE);
-						if (!rn2(50)) (void) mkobj_at(SCROLL_CLASS, angbandx, angbandy, FALSE);
-						if (!rn2(50)) (void) mkobj_at(POTION_CLASS, angbandx, angbandy, FALSE);
-						if (!rn2(100)) (void) mkobj_at(WAND_CLASS, angbandx, angbandy, FALSE);
-						if (!rn2(50)) (void) mkobj_at(SPBOOK_CLASS, angbandx, angbandy, FALSE);
+					    (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, FALSE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(SCROLL_CLASS, angbandx, angbandy, FALSE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(POTION_CLASS, angbandx, angbandy, FALSE, FALSE);
+						if (!rn2(100)) (void) mkobj_at(WAND_CLASS, angbandx, angbandy, FALSE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(SPBOOK_CLASS, angbandx, angbandy, FALSE, FALSE);
 					}
 				}
 
@@ -2924,7 +3100,7 @@ rerollchaloc:
 
 				if (angbandx && angbandy && isok(angbandx, angbandy) && (levl[angbandx][angbandy].typ == ROOM || levl[angbandx][angbandy].typ == CORR) && !(t_at(angbandx, angbandy)) ) {
 
-				    (void) mksobj_at(usefulitem(), angbandx, angbandy, TRUE, TRUE);
+				    (void) mksobj_at(usefulitem(), angbandx, angbandy, TRUE, TRUE, FALSE);
 				}
 
 			}
@@ -2939,13 +3115,13 @@ rerollchaloc:
 
 					if (angbandx && angbandy && isok(angbandx, angbandy) && (levl[angbandx][angbandy].typ == ROOM || levl[angbandx][angbandy].typ == CORR) && !(t_at(angbandx, angbandy)) ) {
 
-					    (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(SCROLL_CLASS, angbandx, angbandy, FALSE);
-						if (!rn2(50)) (void) mkobj_at(POTION_CLASS, angbandx, angbandy, FALSE);
-						if (!rn2(100)) (void) mkobj_at(WAND_CLASS, angbandx, angbandy, FALSE);
-						if (!rn2(100)) (void) mkobj_at(WEAPON_CLASS, angbandx, angbandy, FALSE);
-						if (!rn2(100)) (void) mkobj_at(ARMOR_CLASS, angbandx, angbandy, FALSE);
-						if (!rn2(50)) (void) mkobj_at(SPBOOK_CLASS, angbandx, angbandy, FALSE);
+					    (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(SCROLL_CLASS, angbandx, angbandy, FALSE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(POTION_CLASS, angbandx, angbandy, FALSE, FALSE);
+						if (!rn2(100)) (void) mkobj_at(WAND_CLASS, angbandx, angbandy, FALSE, FALSE);
+						if (!rn2(100)) (void) mkobj_at(WEAPON_CLASS, angbandx, angbandy, FALSE, FALSE);
+						if (!rn2(100)) (void) mkobj_at(ARMOR_CLASS, angbandx, angbandy, FALSE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(SPBOOK_CLASS, angbandx, angbandy, FALSE, FALSE);
 					}
 				}
 
@@ -2956,7 +3132,7 @@ rerollchaloc:
 
 					if (angbandx && angbandy && isok(angbandx, angbandy) && (levl[angbandx][angbandy].typ == ROOM || levl[angbandx][angbandy].typ == CORR) && !(t_at(angbandx, angbandy)) ) {
 	
-					    (void) mksobj_at(usefulitem(), angbandx, angbandy, TRUE, TRUE);
+					    (void) mksobj_at(usefulitem(), angbandx, angbandy, TRUE, TRUE, FALSE);
 					}
 				}
 
@@ -2972,16 +3148,16 @@ rerollchaloc:
 
 					if (angbandx && angbandy && isok(angbandx, angbandy) && (levl[angbandx][angbandy].typ == ROOM || levl[angbandx][angbandy].typ == CORR) && !(t_at(angbandx, angbandy)) ) {
 
-					    (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(SCROLL_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(POTION_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(100)) (void) mkobj_at(WAND_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(100)) (void) mkobj_at(WEAPON_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(100)) (void) mkobj_at(ARMOR_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(SPBOOK_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(RING_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(150)) (void) mkobj_at(AMULET_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(TOOL_CLASS, angbandx, angbandy, TRUE);
+					    (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(SCROLL_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(POTION_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(100)) (void) mkobj_at(WAND_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(100)) (void) mkobj_at(WEAPON_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(100)) (void) mkobj_at(ARMOR_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(SPBOOK_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(RING_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(150)) (void) mkobj_at(AMULET_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(TOOL_CLASS, angbandx, angbandy, TRUE, FALSE);
 
 						if (!rn2(1000)) (void) maketrap(angbandx, angbandy, AUTOMATIC_SWITCHER, 0);
 
@@ -2995,7 +3171,7 @@ rerollchaloc:
 
 					if (angbandx && angbandy && isok(angbandx, angbandy) && (levl[angbandx][angbandy].typ == ROOM || levl[angbandx][angbandy].typ == CORR) && !(t_at(angbandx, angbandy)) ) {
 	
-					    (void) mksobj_at(usefulitem(), angbandx, angbandy, TRUE, TRUE);
+					    (void) mksobj_at(usefulitem(), angbandx, angbandy, TRUE, TRUE, FALSE);
 					}
 				}
 			}
@@ -3009,31 +3185,31 @@ rerollchaloc:
 
 					if (angbandx && angbandy && isok(angbandx, angbandy) && (levl[angbandx][angbandy].typ == ROOM || levl[angbandx][angbandy].typ == CORR) && !(t_at(angbandx, angbandy)) ) {
 
-					    (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(SCROLL_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(POTION_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(100)) (void) mkobj_at(WAND_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(100)) (void) mkobj_at(WEAPON_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(100)) (void) mkobj_at(ARMOR_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(SPBOOK_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(RING_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(150)) (void) mkobj_at(AMULET_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(TOOL_CLASS, angbandx, angbandy, TRUE);
-					    (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(SCROLL_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(POTION_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(100)) (void) mkobj_at(WAND_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(100)) (void) mkobj_at(WEAPON_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(100)) (void) mkobj_at(ARMOR_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(SPBOOK_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(RING_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(150)) (void) mkobj_at(AMULET_CLASS, angbandx, angbandy, TRUE);
-						if (!rn2(50)) (void) mkobj_at(TOOL_CLASS, angbandx, angbandy, TRUE);
-					      if (!rn2(5)) (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE);
-					      if (!rn2(10)) (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE);
-					      if (!rn2(25)) (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE);
-					      if (!rn2(50)) (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE);
-					      if (!rn2(100)) (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE);
+					    (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(SCROLL_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(POTION_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(100)) (void) mkobj_at(WAND_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(100)) (void) mkobj_at(WEAPON_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(100)) (void) mkobj_at(ARMOR_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(SPBOOK_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(RING_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(150)) (void) mkobj_at(AMULET_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(TOOL_CLASS, angbandx, angbandy, TRUE, FALSE);
+					    (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(SCROLL_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(POTION_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(100)) (void) mkobj_at(WAND_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(100)) (void) mkobj_at(WEAPON_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(100)) (void) mkobj_at(ARMOR_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(SPBOOK_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(RING_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(150)) (void) mkobj_at(AMULET_CLASS, angbandx, angbandy, TRUE, FALSE);
+						if (!rn2(50)) (void) mkobj_at(TOOL_CLASS, angbandx, angbandy, TRUE, FALSE);
+					      if (!rn2(5)) (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE, FALSE);
+					      if (!rn2(10)) (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE, FALSE);
+					      if (!rn2(25)) (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE, FALSE);
+					      if (!rn2(50)) (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE, FALSE);
+					      if (!rn2(100)) (void) mkobj_at(RANDOM_CLASS, angbandx, angbandy, TRUE, FALSE);
 
 						if (!rn2(500)) (void) maketrap(angbandx, angbandy, AUTOMATIC_SWITCHER, 0);
 
@@ -3047,7 +3223,7 @@ rerollchaloc:
 
 					if (angbandx && angbandy && isok(angbandx, angbandy) && (levl[angbandx][angbandy].typ == ROOM || levl[angbandx][angbandy].typ == CORR) && !(t_at(angbandx, angbandy)) ) {
 	
-					    (void) mksobj_at(usefulitem(), angbandx, angbandy, TRUE, TRUE);
+					    (void) mksobj_at(usefulitem(), angbandx, angbandy, TRUE, TRUE, FALSE);
 					}
 				}
 			}
@@ -3066,7 +3242,7 @@ rerollchaloc:
 			randmnst = (rn2(187) + 1);
 			randmnsx = (rn2(100) + 1);
 
-				if (wizard || !rn2(10)) pline(Hallucination ? "Crash bugs probably abound here, the dungeon is likely to collapse soon..." : "The air around here seems charged with tension!");
+				if (wizard || !rn2(10)) pline(FunnyHallu ? "Crash bugs probably abound here, the dungeon is likely to collapse soon..." : "The air around here seems charged with tension!");
 
 			for (i = 0; i < randsp; i++) {
 			/* This function will fill the map with a random amount of monsters of one class. --Amy */
@@ -3231,7 +3407,7 @@ rerollchaloc:
 		      cx = rn2(COLNO);
 		      cy = rn2(ROWNO);
 
-				if (wizard || !rn2(10)) pline(Hallucination ? "Crash bugs probably abound here, the dungeon is likely to collapse soon..." : "The air around here seems charged with tension!");
+				if (wizard || !rn2(10)) pline(FunnyHallu ? "Crash bugs probably abound here, the dungeon is likely to collapse soon..." : "The air around here seems charged with tension!");
 
 			for (i = 0; i < randsp; i++) {
 			/* This function will fill the map with a random amount of monsters of one class. --Amy */
@@ -3393,7 +3569,7 @@ rerollchaloc:
 			if (!rn2(10000)) randsp *= 10;
 			if (randsp > 1) randsp = rnd(randsp);
 
-			if (wizard || !rn2(10)) pline(Hallucination ? "The RNG exceptionally seems to be on your side..." : "You feel that there's lots of treasure to be found here!");
+			if (wizard || !rn2(10)) pline(FunnyHallu ? "The RNG exceptionally seems to be on your side..." : "You feel that there's lots of treasure to be found here!");
 
 			for (i = 0; i < randsp; i++) {
 
@@ -3413,7 +3589,7 @@ rerollchaloc:
 			if (!rn2(10000)) randsp *= 10;
 			if (randsp > 1) randsp = rnd(randsp);
 
-			if (wizard || !rn2(10)) pline(Hallucination ? "The RNG whispers to you: 'Today's your lucky day!'" : "You feel that there's lots of good stuff to be found here!");
+			if (wizard || !rn2(10)) pline(FunnyHallu ? "The RNG whispers to you: 'Today's your lucky day!'" : "You feel that there's lots of good stuff to be found here!");
 
 			for (i = 0; i < randsp; i++) {
 
@@ -3433,7 +3609,7 @@ rerollchaloc:
 			if (!rn2(10000)) randsp *= 10;
 			if (randsp > 1) randsp = rnd(randsp);
 
-			if (wizard || !rn2(10)) pline(Hallucination ? "The RNG's voice booms out: 'You were fated to die on this level. DIE!'" : "You feel that the monsters are exceptionally well-armed here!");
+			if (wizard || !rn2(10)) pline(FunnyHallu ? "The RNG's voice booms out: 'You were fated to die on this level. DIE!'" : "You feel that the monsters are exceptionally well-armed here!");
 
 			for (i = 0; i < randsp; i++) {
 
@@ -3466,7 +3642,7 @@ rerollchaloc:
 			if (!rn2(10000)) randsp *= 10;
 			randmonstforspawn = rndmonst();
 
-			if (wizard || !rn2(10)) pline(Hallucination ? "Very unstable architecture here, it seems..." : "It seems there might be lots of monsters around here...");
+			if (wizard || !rn2(10)) pline(FunnyHallu ? "Very unstable architecture here, it seems..." : "It seems there might be lots of monsters around here...");
 
 			for (i = 0; i < randsp; i++) {
 
@@ -3552,7 +3728,7 @@ rerollchaloc:
 			monstercolor = rnd(15);
 			do { monstercolor = rnd(15); } while (monstercolor == CLR_BLUE);
 
-			if (wizard || !rn2(10)) pline(Hallucination ? "Uh... wow, what a strong color flash of rainbows!" : "You feel that a certain color might be prominent around here...");
+			if (wizard || !rn2(10)) pline(FunnyHallu ? "Uh... wow, what a strong color flash of rainbows!" : "You feel that a certain color might be prominent around here...");
 
 			for (i = 0; i < randsp; i++) {
 				if (!enexto(&dd, u.ux, u.uy, (struct permonst *)0) ) continue;
@@ -3573,7 +3749,7 @@ rerollchaloc:
 		      cx = rn2(COLNO);
 		      cy = rn2(ROWNO);
 
-			if (wizard || !rn2(10)) pline(Hallucination ? "Very unstable architecture here, it seems..." : "It seems there might be lots of monsters around here...");
+			if (wizard || !rn2(10)) pline(FunnyHallu ? "Very unstable architecture here, it seems..." : "It seems there might be lots of monsters around here...");
 
 			for (i = 0; i < randsp; i++) {
 
@@ -3662,7 +3838,7 @@ rerollchaloc:
 		      cx = rn2(COLNO);
 		      cy = rn2(ROWNO);
 
-			if (wizard || !rn2(10)) pline(Hallucination ? "Uh... wow, what a strong color flash of rainbows!" : "You feel that a certain color might be prominent around here...");
+			if (wizard || !rn2(10)) pline(FunnyHallu ? "Uh... wow, what a strong color flash of rainbows!" : "You feel that a certain color might be prominent around here...");
 
 			for (i = 0; i < randsp; i++) {
 				if (!enexto(&dd, u.ux, u.uy, (struct permonst *)0) ) continue;
@@ -3679,9 +3855,9 @@ rerollchaloc:
 			if (!rn2(100)) randsp *= 3;
 			if (!rn2(1000)) randsp *= 5;
 			if (!rn2(10000)) randsp *= 10;
-			monstercolor = rnd(359);
+			monstercolor = rnd(376);
 
-			if (wizard || !rn2(10)) pline(Hallucination ? "Err... is someone here? Hello-o, please show yourself!" : "Seems like someone made their home on this dungeon level.");
+			if (wizard || !rn2(10)) pline(FunnyHallu ? "Err... is someone here? Hello-o, please show yourself!" : "Seems like someone made their home on this dungeon level.");
 
 			for (i = 0; i < randsp; i++) {
 				if (!enexto(&dd, u.ux, u.uy, (struct permonst *)0) ) continue;
@@ -3698,12 +3874,12 @@ rerollchaloc:
 			if (!rn2(100)) randsp *= 3;
 			if (!rn2(1000)) randsp *= 5;
 			if (!rn2(10000)) randsp *= 10;
-			monstercolor = rnd(359);
+			monstercolor = rnd(376);
 
 		      cx = rn2(COLNO);
 		      cy = rn2(ROWNO);
 
-			if (wizard || !rn2(10)) pline(Hallucination ? "Err... is someone here? Hello-o, please show yourself!" : "Seems like someone made their home on this dungeon level.");
+			if (wizard || !rn2(10)) pline(FunnyHallu ? "Err... is someone here? Hello-o, please show yourself!" : "Seems like someone made their home on this dungeon level.");
 
 			for (i = 0; i < randsp; i++) {
 				if (!enexto(&dd, u.ux, u.uy, (struct permonst *)0) ) continue;
@@ -3943,7 +4119,7 @@ rerollchaloc:
 			if (!rn2(100)) randsp *= 3;
 			if (!rn2(1000)) randsp *= 5;
 			if (!rn2(10000)) randsp *= 10;
-			monstercolor = rnd(359);
+			monstercolor = rnd(376);
 			if (rn2(2)) {
 			      cx = rn2(COLNO);
 			      cy = rn2(ROWNO);
@@ -4034,12 +4210,18 @@ rerollchaloc:
 		    if (newdungeon) {
 			if (Is_stronghold(&u.uz)) {
 			    register xchar x, y;
+			    int attempts = 0;
 
 			    do {
+#ifdef BIGSLEX
+				x = (COLNO - 25 - rnd(5));
+				y = rn1(ROWNO - 11, 12);
+#else
 				x = (COLNO - 2 - rnd(5));
 				y = rn1(ROWNO - 4, 3);
-			    } while(occupied(x, y) ||
-				    IS_WALL(levl[x][y].typ) || IS_WATERTUNNEL(levl[x][y].typ));
+#endif
+				attempts++;
+			    } while ((occupied(x, y) || IS_STWALL(levl[x][y].typ) || IS_WATERTUNNEL(levl[x][y].typ) || !goodpos(x, y, &youmonst, 0)) && attempts < 999999);
 			    u_on_newpos(x, y);
 			} else u_on_sstairs();
 		    } else u_on_dnstairs();
@@ -4067,10 +4249,11 @@ rerollchaloc:
 		     || Fumbling || (Confusion && !Conf_resist && !rn2(20) && !Race_if(PM_ADDICT)) || (Stunned && !Stun_resist && !rn2(5) && !Race_if(PM_TUMBLRER) && !Race_if(PM_REDDITOR)) )) {
 		    You("fall down the %s.", at_ladder ? "ladder" : "stairs");
 
-		    if (!rn2(10) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) { /* evil patch idea by jonadab: amnesia */
+		    if (!rn2(Role_if(PM_COURIER) ? 1000 : uarmh ? 50 : 10) && has_head(youmonst.data) && !Role_if(PM_COURIER) ) { /* evil patch idea by jonadab: amnesia */
 
 			if (rn2(50)) {
-				adjattrib(rn2(2) ? A_INT : A_WIS, -rnd(5), FALSE);
+				adjattrib(rn2(2) ? A_INT : A_WIS, -rno(3), FALSE, TRUE);
+				if (!rn2(50)) adjattrib(rn2(2) ? A_INT : A_WIS, -rno(2), FALSE, TRUE);
 			} else {
 				You_feel("dizzy!");
 				forget(1 + rn2(5));
@@ -4091,7 +4274,7 @@ rerollchaloc:
 			    if (uquiver == uball)
 				setuqwep((struct obj *)0);
 			    if (uwep == uball)
-				setuwep((struct obj *)0, FALSE);
+				setuwep((struct obj *)0, FALSE, TRUE);
 			    freeinv(uball);
 			}
 		    }
@@ -4205,6 +4388,10 @@ rerollchaloc:
 
 	}
 
+	/* or whether we left Gehennom - not just Vlad's tower! --Amy */
+	if (In_hell(&u.uz0) && !Inhell) 
+		pline_The("heat and smoke are gone.");
+
 	if (familiar) {
 	    static const char * const fam_msgs[4] = {
 		"You have a sense of deja vu.",
@@ -4222,7 +4409,7 @@ rerollchaloc:
 	    char buf[BUFSZ];
 	    int which = rn2(4);
 
-	    if (Hallucination)
+	    if (FunnyHallu)
 		mesg = halu_fam_msgs[which];
 	    else
 		mesg = fam_msgs[which];
@@ -4242,10 +4429,8 @@ rerollchaloc:
 	    You("enter what seems to be an older, more primitive world.");
 #endif
 	/* Final confrontation */
-	if (In_endgame(&u.uz) && newdungeon && u.uhave.amulet)
+	if (In_endgame(&u.uz) && newdungeon && u.uhave.amulet && !u.freeplaymode)
 		resurrect();
-	if (newdungeon && In_V_tower(&u.uz) && In_hell(&u.uz0))
-		pline_The("heat and smoke are gone.");
 
 	/* the message from your quest leader */
 	if (!In_quest(&u.uz0) && at_dgn_entrance("The Quest") &&
@@ -4305,6 +4490,11 @@ final_level()
 	coord mm;
 	int i;
 
+	if (u.freeplaymode) {
+		pline("Welcome back to the Astral Plane. You have already ascended, so you no longer need the Amulet of Yendor. In order to go back to the regular dungeon, simply press < while standing on one of the high altars.");
+		return;
+	}
+
 	/* reset monster hostility relative to player */
 	for(mtmp = fmon; mtmp; mtmp = mtmp->nmon)
 	    if (!DEADMONSTER(mtmp)) reset_hostility(mtmp);
@@ -4332,7 +4522,7 @@ final_level()
 				     mm.x, mm.y, FALSE);
 	    }
 	} else if (u.ualign.record > 8) {	/* fervent */
-	    if (Hallucination) pline("You hear Amy say \"Bundlebundlebundle!\""); /* thanks FlamingGuacamole */
+	    if (FunnyHallu) pline("You hear Amy say \"Bundlebundlebundle!\""); /* thanks FlamingGuacamole */
 	    else pline("A voice whispers: \"Thou hast been worthy of me!\"");
 	    mm.x = u.ux;
 	    mm.y = u.uy;
@@ -4353,7 +4543,7 @@ final_level()
 		    mtmp->mhp = mtmp->mhpmax =
 					d((int)mtmp->m_lev,10) + 30 + rnd(30);
 		    if ((otmp = select_hwep(mtmp)) == 0) {
-			otmp = mksobj(SILVER_SABER, FALSE, FALSE);
+			otmp = mksobj(SILVER_SABER, FALSE, FALSE, FALSE);
 			if (otmp) {
 				if (mpickobj(mtmp, otmp, TRUE))
 				    panic("merged weapon?");
@@ -4435,8 +4625,8 @@ deferred_goto()
 
 	if (portaldeferring == TRUE && !program_state.gameover) {
 
-		pline(Hallucination ? "Things open up on the flipside!" : "The portal radiates strange energy, and monsters appear from nowhere!");
-		pushplayer();
+		pline(FunnyHallu ? "Things open up on the flipside!" : "The portal radiates strange energy, and monsters appear from nowhere!");
+		pushplayer(TRUE);
 		(void)nasty((struct monst *)0);
 		u.stairscumslowing += rn1(5,5);
 		portaldeferring = FALSE;
@@ -4699,12 +4889,14 @@ wipeoff()
 	else			Blinded -= 4;
 	if (!Blinded) {
 		pline("You've got the glop off.");
+		u.cnd_wipecount++;
 		u.ucreamed = 0;
 		Blinded = 1;
 		make_blinded(0L,TRUE);
 		return(0);
 	} else if (!u.ucreamed) {
 		Your("%s feels clean now.", body_part(FACE));
+		u.cnd_wipecount++;
 		return(0);
 	}
 	return(1);		/* still busy */

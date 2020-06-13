@@ -49,18 +49,30 @@ mayfalloffsteed()
 	int ridesavingthrow = 0;
 	char buf[BUFSZ];
 
-	switch (P_SKILL(P_RIDING)) {
-		case P_SKILLED: ridesavingthrow = 11; break;
-		case P_EXPERT: ridesavingthrow = 34; break;
-		case P_MASTER: ridesavingthrow = 76; break;
-		case P_GRAND_MASTER: ridesavingthrow = 91; break;
-		case P_SUPREME_MASTER: ridesavingthrow = 101; break;
+	if (Race_if(PM_PERVERT)) {
+		switch (P_SKILL(P_RIDING)) {
+
+			case P_SKILLED: ridesavingthrow = 56; break;
+			case P_EXPERT: ridesavingthrow = 67; break;
+			case P_MASTER: ridesavingthrow = 89; break;
+			case P_GRAND_MASTER: ridesavingthrow = 96; break;
+			case P_SUPREME_MASTER: ridesavingthrow = 101; break;
+		}
+	} else {
+		switch (P_SKILL(P_RIDING)) {
+
+			case P_SKILLED: ridesavingthrow = 11; break;
+			case P_EXPERT: ridesavingthrow = 34; break;
+			case P_MASTER: ridesavingthrow = 76; break;
+			case P_GRAND_MASTER: ridesavingthrow = 91; break;
+			case P_SUPREME_MASTER: ridesavingthrow = 101; break;
+		}
 	}
 
 	if (ridesavingthrow > 0) {
-		getlin ("Uh-oh! You're about to fall off your steed! Attempt a saving throw? [yes/no]",buf);
+		getlin ("Uh-oh! You're about to fall off your steed! Attempt a saving throw? [y/yes/no]",buf);
 		(void) lcase (buf);
-		if (!(strcmp (buf, "yes"))) {
+		if (!(strcmp (buf, "yes")) || !(strcmp (buf, "y"))) {
 			if (ridesavingthrow > rnd(100)) {
 				pline("Success! You've managed to stay mounted.");
 				return TRUE;
@@ -72,6 +84,38 @@ mayfalloffsteed()
 	}
 
 	return FALSE;
+
+}
+
+/* it was SOOOOOOO annoying that a confused steed would always walk randomly, when a confused player would only be
+ * subjected to random-direction walking some of the time. Change that, and make it use riding skill. --Amy
+ * Returns TRUE if you will walk randomly, FALSE otherwise */
+boolean
+confsteeddir()
+{
+	if (PlayerCannotUseSkills) return rn2(Race_if(PM_PERVERT) ? 2 : 4);
+	if (!Race_if(PM_PERVERT)) {
+		switch (P_SKILL(P_RIDING)) {
+
+			default: return rn2(4);
+			case P_BASIC: return rn2(2);
+			case P_SKILLED: return !rn2(3);
+			case P_EXPERT: return !rn2(4);
+			case P_MASTER: return !rn2(5);
+			case P_GRAND_MASTER: return !rn2(7);
+			case P_SUPREME_MASTER: return !rn2(10);
+		}
+	} else {
+		switch (P_SKILL(P_RIDING)) {
+			default: return rn2(2);
+			case P_BASIC: return !rn2(4);
+			case P_SKILLED: return !rn2(6);
+			case P_EXPERT: return !rn2(10);
+			case P_MASTER: return !rn2(15);
+			case P_GRAND_MASTER: return !rn2(25);
+			case P_SUPREME_MASTER: return !rn2(50);
+		}
+	}
 
 }
 
@@ -134,7 +178,7 @@ use_saddle(otmp)
 	    return 1;
 	}
 	ptr = mtmp->data;
-	if (touch_petrifies(ptr) && (!uarmg || FingerlessGloves) && !Stone_resistance) {
+	if (touch_petrifies(ptr) && (!uarmg || FingerlessGloves) && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) )) {
 	    char kbuf[BUFSZ];
 
 	    You("touch %s.", mon_nam(mtmp));
@@ -162,9 +206,16 @@ use_saddle(otmp)
 	/* Calculate your chance */
 	chance = ACURR(A_DEX) + ACURR(A_CHA)/2 + 2*mtmp->mtame;
 	chance += GushLevel * (mtmp->mtame ? 20 : 5);
-	if (!mtmp->mtame) {
-		if (mtmp->mpeaceful) chance -= 5*mtmp->m_lev;
-		else chance -= 10*mtmp->m_lev;
+	if (!mtmp->mtame) { /* humpers and steed egotypes should be easier... --Amy */
+
+		if (mtmp->egotype_steed || canalwaysride(mtmp->data)) {
+			if (mtmp->mpeaceful) chance -= mtmp->m_lev;
+			else chance -= 2*mtmp->m_lev;
+		} else {
+			if (mtmp->mpeaceful) chance -= 5*mtmp->m_lev;
+			else chance -= 10*mtmp->m_lev;
+		}
+
 	}
 	if (Role_if(PM_KNIGHT) || Role_if(PM_CHEVALIER))
 	    chance += 20;
@@ -217,7 +268,7 @@ use_saddle(otmp)
 	    You("put the saddle on %s.", mon_nam(mtmp));
 	    if (otmp && otmp->oartifact == ART_SADDLE_OF_REFLECTION) {
 		You("reflect upon your life choices when applying the saddle.");
-		adjattrib(A_WIS, -1, FALSE);
+		adjattrib(A_WIS, -1, FALSE, TRUE);
 	    }
 	    if (otmp->owornmask) remove_worn_item(otmp, FALSE);
 	    freeinv(otmp);
@@ -241,9 +292,9 @@ boolean
 can_ride(mtmp)
 	struct monst *mtmp;
 {
-	if (!issoviet) return (mtmp->mtame || mtmp->egotype_steed || (Race_if(PM_SHOE) && mtmp->data->msound == MS_SHOE) );
+	if (!issoviet) return (mtmp->mtame || mtmp->egotype_steed || canalwaysride(mtmp->data) || (Race_if(PM_SHOE) && mtmp->data->msound == MS_SHOE) );
 
-	return ((mtmp->mtame || mtmp->egotype_steed || (Race_if(PM_SHOE) && mtmp->data->msound == MS_SHOE)) && humanoid(youmonst.data) &&
+	return ((mtmp->mtame || mtmp->egotype_steed || canalwaysride(mtmp->data) || (Race_if(PM_SHOE) && mtmp->data->msound == MS_SHOE)) && humanoid(youmonst.data) &&
 			!verysmall(youmonst.data) && !bigmonst(youmonst.data) &&
 			(!Underwater || is_swimmer(mtmp->data)) );
 
@@ -287,7 +338,7 @@ mount_steed(mtmp, force)
 	}
 
 	/* Is the player in the right form? */
-	if (Hallucination && !force) {
+	if (FunnyHallu && !force) {
 	    pline("Maybe you should find a designated driver.");
 	    /*return (FALSE); well, if the horse is saddled, a hallucinating player should be able to ride it --Amy*/
 	}
@@ -310,7 +361,7 @@ mount_steed(mtmp, force)
 #endif
 	    if (yn("But you can try to get on your steed anyway. Do it?") == 'y') {
 		if (rn2(3)) {
-			losehp(rn1(10,20), "trying an illegal ride", NO_KILLER_PREFIX);
+			losehp(rn1(10,20), "trying an illegal ride", KILLED_BY);
 			pline("Ouch! You slip and hurt yourself a lot!");
 			if (rn2(3)) {
 				pline("Due to your leg injury, you don't manage to swing yourself onto your steed.");
@@ -340,10 +391,8 @@ mount_steed(mtmp, force)
 	}
 
 	/* Can the player reach and see the monster? */
-	if (!mtmp || (!force && ((Blind && !Blind_telepat) ||
-		mtmp->mundetected ||
-		mtmp->m_ap_type == M_AP_FURNITURE ||
-		mtmp->m_ap_type == M_AP_OBJECT))) {
+	/* Amy edit: boah the vanilla code for that was really shitty... permamimics should be rideable :P */
+	if (!mtmp || (!force && !canspotmon(mtmp))) {
 	    pline("I see nobody there.");
 	    return (FALSE);
 	}
@@ -376,15 +425,16 @@ mount_steed(mtmp, force)
 	    return (FALSE);
 	}
 	ptr = mtmp->data;
-	/* Amy edit: you should be able to ride as long as your body is sufficiently covered in clothing */
-	if (touch_petrifies(ptr) && !Stone_resistance && !(uarmg && !FingerlessGloves && uarmu && uarm && uarmc) ) {
+	/* Amy edit: you should be able to ride a cockatrice as long as your body is sufficiently covered in clothing
+	 * or also if you're highly skilled (making high riding skill more useful in the process) */
+	if (touch_petrifies(ptr) && (PlayerCannotUseSkills || (P_SKILL(P_RIDING) < P_EXPERT)) && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && !(uarmg && !FingerlessGloves && uarmu && uarm && uarmc) ) {
 	    char kbuf[BUFSZ];
 
 	    You("touch %s.", mon_nam(mtmp));
 	    sprintf(kbuf, "attempting to ride %s", an(mtmp->data->mname));
 	    instapetrify(kbuf);
 	}
-	if (!(mtmp->mtame || mtmp->egotype_steed || (Race_if(PM_SHOE) && mtmp->data->msound == MS_SHOE)) || mtmp->isminion) {
+	if (!(mtmp->mtame || mtmp->egotype_steed || canalwaysride(mtmp->data) || (Race_if(PM_SHOE) && mtmp->data->msound == MS_SHOE)) || mtmp->isminion) {
 	    pline("I think %s would mind.", mon_nam(mtmp));
 	    return (FALSE);
 	}
@@ -428,7 +478,7 @@ mount_steed(mtmp, force)
 			mon_nam(mtmp));
 	    return (FALSE);
 	}
-	if (!force && !(otmp && otmp->otyp == INKA_SADDLE) && ((Confusion && !Conf_resist) || Fumbling || IsGlib || Wounded_legs ||
+	if (!force && !(otmp && otmp->otyp == INKA_SADDLE) && ((Confusion && !Conf_resist && rn2(3)) || (Fumbling && rn2(4)) || (IsGlib && rn2(2)) || (Wounded_legs && rn2(3)) ||
 		otmp->cursed || (GushLevel+mtmp->mtame < rnd(MAXULEV/2+5) && ( (!Role_if(PM_KNIGHT) || !rn2(5)) && (!Role_if(PM_CHEVALIER) || !rn2(5)) && (!Role_if(PM_YEOMAN) || !rn2(5)) && ((!Role_if(PM_TRANSVESTITE) && !Role_if(PM_TOPMODEL)) || !rn2(5)) ) ) )) {
 	    if (Levitation) {
 		pline("%s slips away from you.", Monnam(mtmp));
@@ -454,12 +504,12 @@ mount_steed(mtmp, force)
 
 	    if (otmp && otmp->oartifact == ART_SADDLE_OF_REFLECTION) {
 		You("reflect upon your life choices when climbing the saddle.");
-		adjattrib(A_WIS, -1, FALSE);
+		adjattrib(A_WIS, -1, FALSE, TRUE);
 	    }
 
 	}
 	/* setuwep handles polearms differently when you're mounted */
-	if (uwep && is_pole(uwep)) unweapon = FALSE;
+	if (uwep && is_applypole(uwep)) unweapon = FALSE;
 	u.usteed = mtmp;
 	remove_monster(mtmp->mx, mtmp->my);
 	teleds(mtmp->mx, mtmp->my, TRUE);
@@ -657,7 +707,7 @@ dismount_steed(reason)
 		if (!mtmp->mnamelth) {
 			pline("You've been through the dungeon on %s with no name.",
 				an(mtmp->data->mname));
-			if (Hallucination)
+			if (FunnyHallu)
 				pline("It felt good to get out of the rain.");
 		} else
 			You("dismount %s.", mon_nam(mtmp));
@@ -792,6 +842,9 @@ int x, y;
 boolean
 will_hit_steed()
 {
+	/* if your steed is low on health, attacks should be redirected to it much less often, otherwise they die constantly */
+	if (u.usteed && (u.usteed->mhp < 5 || (u.usteed->mhp <= (u.usteed->mhpmax / 5) ) ) && rn2(5)) return FALSE;
+
 	if (rn2(100) < u.steedhitchance) return TRUE;
 	else return FALSE;
 }

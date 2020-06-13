@@ -5,7 +5,7 @@
 #ifndef QTEXT_H
 #define QTEXT_H
 
-#define N_HDR	127		/* Maximum number of categories */
+#define N_HDR	500		/* Maximum number of categories */
 				/* (i.e., num roles + 1) */
 #define LEN_HDR 3		/* Maximum length of a category name */
 
@@ -119,16 +119,18 @@ struct	qtlists {
 
 #define QT_VIBRATINGSQUARE	116	/* you stepped on the vibrating square for the first time */
 
+#define QT_MAGRESSTONE	117	/* you obtained the stone of magic resistance from the deep mines */
+
 /*
  *	Message defines for common text used in maledictions.
  */
 #define COMMON_ID	"-"	/* common message id value */
 
 #define QT_ANGELIC	1000
-#define QTN_ANGELIC	253
+#define QTN_ANGELIC	266
 
 #define QT_DEMONIC	2000
-#define QTN_DEMONIC	286
+#define QTN_DEMONIC	309
 
 #define QT_BANISHED	60
 

@@ -78,6 +78,15 @@ nemdead()
 	if(!Qstat(killed_nemesis)) {
 	    Qstat(killed_nemesis) = TRUE;
 	    qt_pager(QT_KILLEDNEM);
+
+	    if (Role_if(PM_PRACTICANT) || isbeacher) {
+		You("managed to overthrow %s's reign of terror!!!", noroelaname());
+		if (u.practicantcash) {
+			You("rummage through %s's possessions and find the box in which she kept the money she stole from you. The bitch spent some of it, but you take the remaining %d zorkmids and pocket them.", noroelaname(), u.practicantcash);
+			u.ugold += u.practicantcash;
+			u.practicantcash = 0;
+		}
+	    }
 	}
 }
 
@@ -192,6 +201,13 @@ struct obj *obj;	/* quest artifact; possibly null if carrying Amulet */
 	    if ((otmp = carrying(BELL_OF_OPENING)) == 0)
 		/*com_pager(5)*/qt_pager(QT_SILVERBELL); /* have individual messages for certain classes --Amy */
 	}
+
+	if (!Qstat(got_thanks)) {
+		Qstat(got_thanks) = TRUE; /* filthy hangup cheater */
+		u.weapon_slots += 2;
+		pline("As a reward, you gain 2 extra skill slots!");
+	}
+
 	Qstat(got_thanks) = TRUE;
 
 	if (obj) {
@@ -344,7 +360,7 @@ STATIC_OVL void
 prisoner_speaks (mtmp)
 	register struct monst *mtmp;
 {
-	if (mtmp->data == &mons[PM_PRISONER] &&
+	if ((mtmp->data == &mons[PM_PRISONER] || mtmp->data == &mons[PM_CASTLE_PRISONER] || mtmp->data == &mons[PM_YOUR_BROTHER] || mtmp->data == &mons[PM_YOUR_SISTER] || mtmp->data == &mons[PM_OCCASIONAL_FRIEND] || mtmp->data == &mons[PM_GIRL_OUTSIDE_GANG] || mtmp->data == &mons[PM_GRAVITY_STRIKER] || mtmp->data == &mons[PM_POEZ_PRESIDENT] || mtmp->data == &mons[PM_IDIOT_HOME_PRINCESS]) &&
 			(mtmp->mstrategy & STRAT_WAITMASK)) {
 	    /* Awaken the prisoner */
 	    if (canseemon(mtmp))

@@ -45,7 +45,7 @@ register struct monst *mon;
 	if (!tunnels(mon->data) || !needspick(mon->data))
 		item1 = TRUE;
 	for(obj = mon->minvent; obj; obj = obj->nobj) {
-		if (!item1 && is_pick(obj) && ((obj->otyp != DWARVISH_MATTOCK && obj->otyp != SOFT_MATTOCK)
+		if (!item1 && is_pick(obj) && ((obj->otyp != DWARVISH_MATTOCK && obj->otyp != SOFT_MATTOCK && obj->otyp != ETERNIUM_MATTOCK)
 						|| !which_armor(mon, W_ARMS))) {
 			item1 = TRUE;
 			continue;
@@ -56,6 +56,7 @@ register struct monst *mon;
 		}
 		if (obj->mstartinvent) continue;
 		if (obj->mstartinventB) continue;
+		if (obj->mstartinventC) continue;
 		if (obj->petmarked) continue;
 
 		if (!obj->owornmask && obj != wep) return obj;
@@ -333,7 +334,7 @@ register struct edog *edog;
 		    pline("%s starves.", Monnam(mtmp));
 		else {
 		    You_feel("%s for a moment.",
-			Hallucination ? "bummed" : "sad");
+			FunnyHallu ? "bummed" : "sad");
 			if (PlayerHearsSoundEffects) pline(issoviet ? "Tipichnyy igrok. Vy dazhe ne sposobny kormit' vashego pitomtsa." : "Tschwieaeaeh!");
 
 		}
@@ -395,7 +396,7 @@ int udist;
 		    could_reach_item(mtmp, obj->ox, obj->oy)) && u.petcaneat)
 		    return dog_eat(mtmp, obj, omx, omy, FALSE);
 
-		/* [Tom] demonic & undead pets don't mind cursed items */                
+		/* [Tom] demonic & undead pets don't mind cursed items */
 		if(can_carry(mtmp, obj) && u.petcollectitems && (issoviet || !Has_contents(obj)) &&
 		  !(obj == uchain) && !(obj == uball) &&
 		  could_reach_item(mtmp, obj->ox, obj->oy) &&
@@ -403,9 +404,9 @@ int udist;
 		  (!obj->blessed || (!is_demon(mtmp->data) && !is_undead(mtmp->data) && (!mtmp->egotype_undead) ))) {
 		    if(rn2(20) < edog->apport+3) {
 			if (rn2(udist) || !rn2(edog->apport)) {
-			    if ((!nohands(mtmp->data)) ||
-						/* KMH, balance patch -- 10*level */
-						(obj->quan <= dogquan))
+				/* KMH, balance patch -- 10*level
+				 * oh-my-god by Amy: why the hell did you make this depend on the mon having hands... */
+			    if (((!nohands(mtmp->data)) || (obj->quan <= dogquan)) && !(obj->oclass == COIN_CLASS && obj->quan > dogquan))
 			    {
 			    if (cansee(omx, omy) && flags.verbose)
 				pline("%s picks up %s.", Monnam(mtmp),
@@ -416,10 +417,10 @@ int udist;
 			    }                            
 			    else /* picking up a few objects from a pile... */
 				/* KMH -- fix picking up zero quantity */
-			    if (dogquan > 0) {
+			    if (dogquan > 0 || (obj->oclass == COIN_CLASS)) {
 				if (obj->oclass == COIN_CLASS) {
 				    /* KMH, balance patch -- 10*level */
-
+				    if (dogquan < 1) dogquan = 1; /* fail safe by Amy */
 #ifndef GOLDOBJ
 				    obj->quan -= dogquan;
 				    if (cansee(omx, omy) && flags.verbose)
@@ -614,6 +615,7 @@ int after, udist, whappr;
 	    edog->ogoal.x = 0;
 	}
 	if (!u.petcanfollow && appr == 1) appr = 0;
+	if (mtmp && mtmp->data == &mons[PM_ASSBALL_FOOTBALL] && appr == 1) appr = 0;
 	if ((PetAIScrewed || u.uprops[PET_AI_SCREWED].extrinsic || have_petaistone()) && appr == 1) appr = 0;
 	return appr;
 }
@@ -663,40 +665,82 @@ boolean
 betrayed(mtmp)
 register struct monst *mtmp;
 {
-    boolean has_edog = !mtmp->isminion;
-    struct edog *edog = EDOG(mtmp);
-    int udist = distu(mtmp->mx, mtmp->my);
+	boolean has_edog = !mtmp->isminion;
+	struct edog *edog = EDOG(mtmp);
+	int udist = distu(mtmp->mx, mtmp->my);
 
-    if (udist < 4 && has_edog && (!mtmp->isspell || (mtmp->data == &mons[PM_SUMMONED_FIRE_GOLEM]) ) && !rn2(3)
-		    && (can_betray(mtmp->data) || (isfriday && !rn2(10)) || (is_jonadabmonster(mtmp->data)) || (mtmp->data->mlevel >= 50) || (mtmp->data == &mons[PM_SUMMONED_FIRE_GOLEM]) || (uarmc && uarmc->oartifact == ART_ARTIFICIAL_FAKE_DIFFICULTY && !rn2(3) ) || Role_if(PM_FAILED_EXISTENCE) || (u.uprops[REBELLION_EFFECT].extrinsic || Rebellions || have_rebelstone() || (uarmf && uarmf->oartifact == ART_KATIE_MELUA_S_FLEECINESS) ) || (mtmp->m_lev >= 40) )
-		    /*&& !mindless(mtmp->data)*/ /* mindless creatures may still decide to attack randomly --Amy */
-		    && (mtmp->mhp >= u.uhp || !rn2(5) || (u.uprops[REBELLION_EFFECT].extrinsic || Rebellions || have_rebelstone() || (is_jonadabmonster(mtmp->data)) || (isfriday && !rn2(10)) || (mtmp->data->mlevel >= 50) || (uarmf && uarmf->oartifact == ART_KATIE_MELUA_S_FLEECINESS) ) || (mtmp->data == &mons[PM_SUMMONED_FIRE_GOLEM]) || (uarmc && uarmc->oartifact == ART_ARTIFICIAL_FAKE_DIFFICULTY && !rn2(3) ) || Role_if(PM_FAILED_EXISTENCE))	/* Pet is buff enough */
-		    && rn2(22) > mtmp->mtame	/* Roll against tameness */
-		    && !((rnd(30 - ACURR(A_CHA))) < 4) /* Roll against charisma */
-		    && rn2(edog->abuse + rnd(2) )) {
-	/* Treason */
-	if (canseemon(mtmp))
-	    pline("%s turns on you!", Monnam(mtmp));
-	else
-	    You_feel("uneasy about %s.", y_monnam(mtmp));
-	mtmp->mpeaceful = 0;
-	mtmp->mtame = 0;
-	mtmp->mtraitor = TRUE;
-	mtmp->isspell = 0;
-	mtmp->uexp = 0;
+	int hasbeenbetrayed = 0;
 
-	/* if the monster is a domestic animal, you could just re-tame it indefinitely... prevent that :P --Amy */
-	if (!rn2(5)) {
-		mtmp->mfrenzied = 1;
-		if (canseemon(mtmp))
-		    pline("In fact, %s apparently decides to stop at nothing until you're dead!", mon_nam(mtmp));
+	if (Role_if(PM_SLAVE_MASTER) && rn2(10)) return FALSE; /* can keep monsters tame more easily --Amy */
+	if (Race_if(PM_CELTIC) && mtmp->data->mlet == S_GOLEM) return FALSE; /* everything else betrays you more often */
+
+	/* dragonmaster can of course wear DSM (sorry AntiGulp) and it prevents dragons from rebelling --Amy */
+	if (Role_if(PM_DRAGONMASTER) && mtmp->data->mlet == S_DRAGON && uarm && Is_dragon_armor(uarm) ) return FALSE;
+
+	/* changed the way this works: first see whether the monster can betray you at all, then whether it actually does
+	 * if the latter is the case, "hasbeenbetrayed" is set to 2 and the actual betrayal code runs where we roll against
+	 * tameness, charisma and abuse --Amy */
+
+	if (udist < 4 && has_edog && (!mtmp->isspell || (mtmp->data == &mons[PM_SUMMONED_FIRE_GOLEM]) || (mtmp->data == &mons[PM_ULTRA_EVIL_QUASIT]) ) && !rn2(3)) {
+		if (can_betray(mtmp->data)) hasbeenbetrayed = 1;
+		if (Race_if(PM_CELTIC)) hasbeenbetrayed = 1;
+		if (isfriday && !rn2(10)) hasbeenbetrayed = 1;
+		if (is_jonadabmonster(mtmp->data)) hasbeenbetrayed = 1;
+		if (mtmp->data->mlevel >= 50) hasbeenbetrayed = 1;
+		if (mtmp->data == &mons[PM_SUMMONED_FIRE_GOLEM]) hasbeenbetrayed = 1;
+		if (mtmp->data == &mons[PM_ULTRA_EVIL_QUASIT]) hasbeenbetrayed = 1;
+		if (uarmc && uarmc->oartifact == ART_ARTIFICIAL_FAKE_DIFFICULTY && !rn2(3)) hasbeenbetrayed = 1;
+		if (Role_if(PM_FAILED_EXISTENCE)) hasbeenbetrayed = 1;
+		if (u.uprops[REBELLION_EFFECT].extrinsic || Rebellions || have_rebelstone() || (uarmf && uarmf->oartifact == ART_KATIE_MELUA_S_FLEECINESS)) hasbeenbetrayed = 1;
+		if (Role_if(PM_UNDEAD_SLAYER) && is_undead(mtmp->data)) hasbeenbetrayed = 1;
+		if (mtmp->m_lev >= 40) hasbeenbetrayed = 1;
+	}
+	/* used to test for mindless here, but mindless creatures may still decide to attack randomly --Amy
+	 * this is so that you can't simply tame a mindless pet and have it forever be loyal, of course */
+
+	if (hasbeenbetrayed >= 1) { /* will it really betray you? */
+		if (mtmp->mhp >= u.uhp) hasbeenbetrayed = 2;
+		if (!rn2(5)) hasbeenbetrayed = 2;
+		if (Race_if(PM_CELTIC)) hasbeenbetrayed = 2;
+		if (Role_if(PM_UNDEAD_SLAYER) && is_undead(mtmp->data)) hasbeenbetrayed = 2;
+		if (u.uprops[REBELLION_EFFECT].extrinsic || Rebellions || have_rebelstone() || (uarmf && uarmf->oartifact == ART_KATIE_MELUA_S_FLEECINESS)) hasbeenbetrayed = 2;
+		if (is_jonadabmonster(mtmp->data)) hasbeenbetrayed = 2;
+		if (isfriday && !rn2(10)) hasbeenbetrayed = 2;
+		if (mtmp->data->mlevel >= 50) hasbeenbetrayed = 2;
+		if (mtmp->data == &mons[PM_SUMMONED_FIRE_GOLEM]) hasbeenbetrayed = 2;
+		if (mtmp->data == &mons[PM_ULTRA_EVIL_QUASIT]) hasbeenbetrayed = 2;
+		if (uarmc && uarmc->oartifact == ART_ARTIFICIAL_FAKE_DIFFICULTY) hasbeenbetrayed = 2;
+		if (Role_if(PM_FAILED_EXISTENCE)) hasbeenbetrayed = 2;
 	}
 
-	/* Do we need to call newsym() here? */
-	newsym(mtmp->mx, mtmp->my);
-	return TRUE;
-    }
-    return FALSE;
+	if (hasbeenbetrayed >= 2 /* here the monster needs to pass a couple rolls to be allowed to betray you */
+		&& ( (rn2(22) > mtmp->mtame)	/* Roll against tameness */
+		&& (!((rnd(30 - ACURR(A_CHA))) < 4)) /* Roll against charisma */
+		&& rn2(edog->abuse + rnd(2)) ) ) { /* Roll against abuse */
+
+		/* Treason */
+		if (canseemon(mtmp))
+		    pline("%s turns on you!", Monnam(mtmp));
+		else
+		    You_feel("uneasy about %s.", y_monnam(mtmp));
+		mtmp->mpeaceful = 0;
+		mtmp->mtame = 0;
+		mtmp->mtraitor = TRUE;
+		mtmp->isspell = 0;
+		mtmp->uexp = 0;
+
+		/* if the monster is a domestic animal, you could just re-tame it indefinitely... prevent that :P --Amy */
+		if (!rn2(5)) {
+			mtmp->mfrenzied = 1;
+			if (canseemon(mtmp))
+				pline("In fact, %s apparently decides to stop at nothing until you're dead!", mon_nam(mtmp));
+		}
+
+		/* Do we need to call newsym() here? */
+		newsym(mtmp->mx, mtmp->my);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 /* return 0 (no move), 1 (move) or 2 (dead) */
@@ -719,6 +763,28 @@ register int after;	/* this is extra fast monster movement */
 	coord poss[9];
 	long info[9], allowflags;
 #define GDIST(x,y) (dist2(x,y,gx,gy))
+
+	if (mtmp->willbebanished) {
+		mtmp->willbebanished = FALSE;
+		if (u.usteed && u.usteed == mtmp) {
+			if (((u.uevent.udemigod || u.uhave.amulet) && !u.freeplaymode) || CannotTeleport || (u.usteed && mon_has_amulet(u.usteed)) ) { pline("You shudder for a moment.");
+			}
+			if (flags.lostsoul || flags.uberlostsoul || (flags.wonderland && !(u.wonderlandescape)) || (iszapem && !(u.zapemescape)) || u.uprops[STORM_HELM].extrinsic || In_bellcaves(&u.uz) || In_subquest(&u.uz) || In_voiddungeon(&u.uz) || In_netherrealm(&u.uz)) {
+			pline("For some reason you resist the banishment!");
+			}
+
+			make_stunned(HStun + 2, FALSE); /* to suppress teleport control that you might have */
+
+			if (!u.banishmentbeam) {
+				u.banishmentbeam = 1;
+				nomul(-2, "being banished", FALSE); /* because it's not called until you get another turn... */
+			}
+
+		} else {
+			u_teleport_monB(mtmp, TRUE);
+		}
+		return 0;
+	}
 
 	/*
 	 * Tame Angels have isminion set and an ispriest structure instead of
@@ -764,7 +830,20 @@ register int after;	/* this is extra fast monster movement */
 	if (!rn2(850) && (mtmp->data->mlevel >= 50) && betrayed(mtmp)) return 1;
 	if (Aggravate_monster && !rn2( cannot_be_tamed(mtmp->data) ? 85 : 850) && betrayed(mtmp)) return 1;
 	if (!rn2(10) && mtmp->data == &mons[PM_SUMMONED_FIRE_GOLEM] && betrayed(mtmp)) return 1;
+	if (mtmp->data == &mons[PM_ULTRA_EVIL_QUASIT]) { /* REALLY doesn't want to be tame --Amy */
+		if (betrayed(mtmp)) return 1;
+		if (betrayed(mtmp)) return 1;
+		if (betrayed(mtmp)) return 1;
+		if (betrayed(mtmp)) return 1;
+		if (betrayed(mtmp)) return 1;
+		if (betrayed(mtmp)) return 1;
+		if (betrayed(mtmp)) return 1;
+		if (betrayed(mtmp)) return 1;
+		if (betrayed(mtmp)) return 1;
+		if (betrayed(mtmp)) return 1;
+	}
 	if ((u.uprops[REBELLION_EFFECT].extrinsic || Rebellions || have_rebelstone() || (uarmf && uarmf->oartifact == ART_KATIE_MELUA_S_FLEECINESS) ) && !rn2(85) && betrayed(mtmp)) return 1;
+	if (Role_if(PM_UNDEAD_SLAYER) && is_undead(mtmp->data)) return 1;
 
 	/* If you abused your pet, it will _very_ slowly time out. --Amy */
 	if (!rn2(10000) && has_edog && edog->abuse) {
@@ -824,6 +903,30 @@ register int after;	/* this is extra fast monster movement */
 	    allowflags |= ALLOW_BARS;
 	if (throws_rocks(mtmp->data)) allowflags |= ALLOW_ROCK;
 	if (Conflict && !resist(mtmp, RING_CLASS, 0, 0) && In_endgame(&u.uz)) {
+	    allowflags |= ALLOW_U;
+	    if (!has_edog && !is_spell) {
+		coord mm;
+		/* Guardian angel refuses to be conflicted; rather,
+		 * it disappears, angrily, and sends in some nasties
+		 */
+		if (canspotmon(mtmp)) {
+		    pline("%s rebukes you, saying:", Monnam(mtmp));
+		    verbalize("Since you desire conflict, have some more!");
+		}
+		mongone(mtmp);
+		i = rnd(4);
+		while(i--) {
+		    mm.x = u.ux;
+		    mm.y = u.uy;
+		    if(enexto(&mm, mm.x, mm.y, &mons[PM_ANGEL]))
+			(void) mk_roamer(&mons[PM_ANGEL], u.ualign.type,
+					 mm.x, mm.y, FALSE);
+		}
+		return(2);
+
+	    }
+	}
+	if (StrongConflict && !resist(mtmp, RING_CLASS, 0, 0) && In_endgame(&u.uz)) {
 	    allowflags |= ALLOW_U;
 	    if (!has_edog && !is_spell) {
 		coord mm;
@@ -929,10 +1032,18 @@ register int after;	/* this is extra fast monster movement */
 
 		    /* Mindless monsters and spelled monsters have no fear of 
 		     * attacking higher level monsters 
+		     * Amy edit: and high-level pets are less afraid of high-level monsters; it's really stupid if your
+		     * level 45 pet still won't attack Jubilex just because the latter is level 48...
 		     */
-		    if (((int)mtmp2->m_lev >= (int)mtmp->m_lev+2 && !is_spell && 
-			    !mindless(mtmp->data)) ||
-			(mtmp2->data == &mons[PM_FLOATING_EYE] && rn2(10) &&
+		    if (
+			(
+			(
+			(((int)mtmp2->m_lev >= (int)mtmp->m_lev+2) && mtmp->m_lev < 20) ||
+			(((int)mtmp2->m_lev >= (int)mtmp->m_lev+10) && mtmp->m_lev < 30)
+			)
+			&& !is_spell && !mindless(mtmp->data))
+
+			|| (mtmp2->data == &mons[PM_FLOATING_EYE] && rn2(10) &&
 			 mtmp->mcansee && haseyes(mtmp->data) && mtmp2->mcansee
 			 && !mtmp2->minvisreal && (perceives(mtmp->data) || !mtmp2->minvis)) ||
 			(mtmp2->data==&mons[PM_GELATINOUS_CUBE] && rn2(10)) ||
@@ -953,17 +1064,27 @@ register int after;	/* this is extra fast monster movement */
 			 (Race_if(PM_PEACEMAKER) && mtmp2->data == &mons[PM_TOPMODEL]) || 
 	/* for Rodneyan race characters, the real Rodney is supposed to be their buddy so he doesn't get attacked */
 			 (mtmp2->data == &mons[PM_WIZARD_OF_YENDOR] && Race_if(PM_RODNEYAN)) ||
+			 (mtmp2->data == &mons[PM_THE_ZRUTINATOR] && Race_if(PM_RODNEYAN)) ||
 	/* troves only drop their items if the player kills them, so keep pets away from them */
 			 (mtmp2->data->mlet == S_TROVE) ||
+	/* fear and other status effects should screw over pets */
+			 (mtmp->mflee && rn2(10)) || (mtmp->mstun && rn2(4)) || (mtmp->mconf && !rn2(3)) || (mtmp->mblinded && haseyes(mtmp->data) && !rn2(3)) ||
+	/* invisible monsters need see invis to be attacked reliably */
+			 (mtmp2->minvis && haseyes(mtmp->data) && !perceives(mtmp->data) && rn2(2)) ||
+			 (mtmp2->minvisreal && rn2(haseyes(mtmp->data) ? 4 : 2)) ||
 	/* petshielder egotype is never attacked by pets either */
-			 (mtmp2->egotype_petshielder) ||
+			 (mtmp2->egotype_petshielder || mtmp2->data == &mons[PM_TUXIE]) ||
+	/* directive can be used to make them not attack peacefuls */
+			 (u.petattackenemies == 1 && mtmp2->mpeaceful) ||
 	/* Moldoux is special-cased */
 			 (mtmp2->data == &mons[PM_MOLDOUX__THE_DEFENCELESS_MOLD]) ||
+	/* your one-way girlfriend is never attacked by pets */
+			 (mtmp2->data == &mons[PM_YOUR_ONE_WAY_GIRLFRIEND]) ||
 	/* if Izchak dies, the player gets disintegrated, so stop pets from killing them
 	   well screw it, just completely prevent them from attacking shopkeepers, priests and vault guards --Amy */
 	/* In Soviet Russia, pets are totally stupid (in fact, even more so than modders). They simply attack everything,
 	 * even if it's something the player might want to use. --Amy */
-			 (!issoviet && mtmp2->isshk ) || (!issoviet && mtmp2->isgd ) || (!issoviet && mtmp2->ispriest ) ||
+			 (!issoviet && mtmp2->isshk ) || (!issoviet && mtmp2->data == &mons[PM_BLACKSMITH]) || (!issoviet && mtmp2->isgd ) || (!issoviet && mtmp2->ispriest ) ||
 			   (touch_petrifies(mtmp2->data) &&
 				!resists_ston(mtmp)))
 			continue;
@@ -981,6 +1102,12 @@ register int after;	/* this is extra fast monster movement */
 			    !onscary(mtmp->mx, mtmp->my, mtmp2) &&
 			    /* monnear check needed: long worms hit on tail */
 			    monnear(mtmp2, mtmp->mx, mtmp->my)) {
+			mstatus = mattackm(mtmp2, mtmp);  /* return attack */
+			if (mstatus & MM_DEF_DIED) return 2;
+		    } else if (!(mstatus & MM_HIT) && !(mstatus & MM_DEF_DIED) && !rn2(10) && mtmp2->mlstmv != monstermoves &&
+			    !onscary(mtmp->mx, mtmp->my, mtmp2) && monnear(mtmp2, mtmp->mx, mtmp->my)) {
+
+			/* Amy edit: allow monsters to occasionally fight back even if your pet missed them */
 			mstatus = mattackm(mtmp2, mtmp);  /* return attack */
 			if (mstatus & MM_DEF_DIED) return 2;
 		    }
@@ -1065,6 +1192,13 @@ register int after;	/* this is extra fast monster movement */
 		}
 	nxti:	;
 	}
+
+	/* monmove.c now allows stationary pets to get turns, but they're not supposed to actually walk around --Amy
+	 * the "goto newdogpos" above means the pet can cheat and move anyway if it wants to get food :P */
+	if (mtmp->data->mlet == S_TURRET || stationary(mtmp->data) || ((is_hider(mtmp->data) || mtmp->egotype_hide || mtmp->egotype_mimic) && (mtmp->mundetected || mtmp->m_ap_type == M_AP_FURNITURE || mtmp->m_ap_type == M_AP_OBJECT) ) ) {
+		return 0;
+	}
+
 newdogpos:
 	if (nix != omx || niy != omy) {
 		struct obj *mw_tmp;

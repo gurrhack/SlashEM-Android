@@ -1075,7 +1075,7 @@ ENDMAP
 STAIR:levregion(01,00,79,20),(0,0,0,0),up
 STAIR:levregion(01,00,79,20),(0,0,0,0),down
 #
-REGION:(09,04,09,04),lit,"random shop"
+REGION:(09,04,09,04),lit,"ordinary"
 
 DOOR:closed,(00,04)
 
@@ -1638,6 +1638,9 @@ DOOR:closed,(62,01)
 DOOR:closed,(62,09)
 DOOR:closed,(62,11)
 DOOR:closed,(62,19)
+
+MAZEWALK:(00,04),west
+MAZEWALK:(74,04),east
 
 MAZE: "mazes-41",random
 FLAGS: noteleport,hardfloor,nommap,shortsighted

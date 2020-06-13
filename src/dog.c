@@ -86,6 +86,20 @@ pet_type()
 		case 10: return (PM_BABY_SILVER_DRAGON);
 		case 11: return (PM_BABY_GRAY_DRAGON);
 		}
+	else if (Role_if(PM_DRAGONMASTER))
+		switch (rnd(11)) {   
+		case 1: return (PM_BABY_YELLOW_DRAGON);
+		case 2: return (PM_BABY_GREEN_DRAGON);
+		case 3: return (PM_BABY_BLUE_DRAGON);
+		case 4: return (PM_BABY_BLACK_DRAGON);
+		case 5: return (PM_BABY_ORANGE_DRAGON);
+		case 6: return (PM_BABY_WHITE_DRAGON);
+		case 7: return (PM_BABY_RED_DRAGON);
+		case 8: return (PM_BABY_DEEP_DRAGON);
+		case 9: return (PM_BABY_SHIMMERING_DRAGON);
+		case 10: return (PM_BABY_SILVER_DRAGON);
+		case 11: return (PM_BABY_GRAY_DRAGON);
+		}
 	else if (Role_if(PM_MEDIUM)) {
 		switch (u.ualign.type) {
 			case A_LAWFUL: return (PM_WHITE_UNICORN_FOAL);
@@ -113,6 +127,11 @@ pet_type()
 		case 1: return (PM_DARK_GIRL);
 		case 2: return (PM_REDGUARD_GIRL);
 		case 3: return (PM_THIEVING_GIRL);
+		}
+	else if (Role_if(PM_PRACTICANT))
+		switch (rnd(2)) {   
+		case 1: return (PM_OXYGEN_GOLEM);
+		case 2: return (PM_SULFUR_GOLEM);
 		}
 	else
 	    return (rn2(2) ? PM_KITTEN : PM_LITTLE_DOG);
@@ -144,7 +163,7 @@ boolean quietly;
 		    if (!quietly)
 			/* have just been given "You <do something with>
 			   the figurine and it transforms." message */
-			pline(Hallucination ? "... into a pile of garbage. Even you know that that's of no use." : "... into a pile of dust.");
+			pline(FunnyHallu ? "... into a pile of garbage. Even you know that that's of no use." : "... into a pile of dust.");
 		    break;	/* mtmp is null */
 		}
 	    } else if (!rn2(3)) {
@@ -183,7 +202,7 @@ boolean quietly;
 		mtmp->mtame = 0;	/* not tame after all */
 		if (chance == 2) { /* hostile (cursed figurine) */
 		    if (!quietly)
-		       You(Hallucination ? "shiver." : "get a bad feeling about this.");
+		       You(FunnyHallu ? "shiver." : "get a bad feeling about this.");
 		    mtmp->mpeaceful = 0;
 		    set_malign(mtmp);
 		}
@@ -195,7 +214,7 @@ boolean quietly;
 	set_malign(mtmp); /* more alignment changes */
 	newsym(mtmp->mx, mtmp->my);
 
-	if (mtmp && mtmp->mtame && Hallucination) verbalize("wassup fam");
+	if (mtmp && mtmp->mtame && FunnyHallu) verbalize("wassup fam");
 
 	/* must wield weapon immediately since pets will otherwise drop it */
 	if (mtmp->mtame && attacktype(mtmp->data, AT_WEAP)) {
@@ -244,11 +263,12 @@ makedog()
 {
 	register struct monst *mtmp;
 	register struct obj *otmp;
-	const char *petname;
+	register const char *petname;
 	int   pettype, petsym;
 	static int petname_used = 0;
 
-	if (!Role_if(PM_KURWA) && (preferred_pet == 'n')) return((struct monst *) 0);
+	/* some roles should be forced to start with a pet because they get a detrimental one :P --Amy */
+	if (!Role_if(PM_KURWA) && !Role_if(PM_JANITOR) && !Role_if(PM_YAUTJA) && !Role_if(PM_GRENADONIN) && !Role_if(PM_PSYKER) && !Role_if(PM_MILL_SWALLOWER) && !Role_if(PM_CHAOS_SORCEROR) && (preferred_pet == 'n')) return((struct monst *) 0);
 
 	/* Gang scholars are supposed to start without a pet. However, every once in a blue moon they do get one --Amy */
 	if (Role_if(PM_GANG_SCHOLAR) && rn2(100)) return((struct monst *) 0);
@@ -295,8 +315,10 @@ makedog()
 		petname = boyname;
 	else if (pettype == PM_RAVEN)
 		petname = ravenname;
-	else
+	else if (petsym == S_FELINE)
 		petname = catname;
+	else
+		goto maeney;
 
 	/* default pet names */
 	if (!*petname && pettype == PM_LITTLE_DOG) {
@@ -308,8 +330,9 @@ makedog()
 	}
 	if (!*petname && pettype == PM_SEWER_RAT) {
 	    if(Role_if(PM_CONVICT)) petname = "Nicodemus"; /* Rats of NIMH */
-    }
+	}
 	if (!*petname) {
+maeney:
 	if (pettype == PM_MONKEY) petname = "Ugga-Ugga";
 	if (pettype == PM_AIRBORNE_PARROT) petname = "Squawks";
 	if (pettype == PM_SPEEDHORSE) petname = "Harley Davidson";
@@ -350,8 +373,25 @@ makedog()
 	if (pettype == PM_SOLDIER) petname = "Lieutenant Surge"; /* Pokemon Yellow */
 	if (pettype == PM_VALKYRIE) petname = "Rue";	/* hunger games */
 	if (pettype == PM_PLATYPUS) petname = "Donald Duck";
+	if (pettype == PM_OFFICER_JENNY) petname = "Jenny";
+	if (pettype == PM_FEMALE_SAMURAI) petname = "Miss Grenade";
 	if (pettype == PM_ORDINATOR) petname = "Andragil";
 	if (pettype == PM_ROTHE) petname = "Rambo";
+	if (pettype == PM_GEEK) petname = "Tacitus";
+	if (pettype == PM_SOFTWARE_BUG) petname = "Signal 11";
+	if (pettype == PM_ROOMBA) petname = "Asshole Vacuum Cleaner";
+	if (pettype == PM_CUNTGUN_TROOPER) petname = "Sergeant McShithead";
+	if (pettype == PM_DRATINI) petname = "DRAGO";
+	if (pettype == PM_ROBOT) petname = "Meliha";
+	if (pettype == PM_MISTER_HEAD) petname = "Mister Head";
+	if (pettype == PM_QUADRENNIAL_SODDEN_RATCHET) petname = "Randomized Script Monster";
+	if (pettype == PM_NURSE) petname = "Klara";
+	if (pettype == PM_ELVEN_MAGE) petname = "Keytu Framer";
+	if (pettype == PM_SCHINDA) petname = "Tragic Past On Crack";
+	if (pettype == PM_UFO) petname = "Flying Saucer";
+	if (pettype == PM_DENRYU) petname = "Ryu Hayabusa";
+	if (pettype == PM_CHRISTINE) petname = "Christine";
+	if (pettype == PM_BIRSEN) petname = "Birsen";
 
 	if (pettype == PM_FLOATING_EYE) petname = "Gazing Beholder Orb";
 
@@ -401,6 +441,14 @@ makedog()
 
 	if (pettype == PM_SEXY_GIRL) petname = "Natalje";
 
+	if (pettype == PM_FLYING_BLOODFISH) petname = "Kiri";
+	if (pettype == PM_OXYGEN_GOLEM) petname = "Scheele";
+	if (pettype == PM_SULFUR_GOLEM) petname = "Lavoisier";
+	if (pettype == PM_EMERA) petname = "Doctor Faust";
+	if (pettype == PM_TASMANIAN_DEVIL) petname = "Taz";
+	if (pettype == PM_SPIKE_MOLD) petname = "Improv";
+	if (pettype == PM_GENDERSTARIST) petname = "Bariwun";
+
 	if (pettype == PM_ACTIVISTOR) petname = "Helen"; /* yet another common first name */
 
 	if (pettype == PM_BABY_YELLOW_DRAGON || pettype == PM_BABY_GREEN_DRAGON || pettype == PM_BABY_BLUE_DRAGON || pettype == PM_BABY_RED_DRAGON || pettype == PM_BABY_ORANGE_DRAGON || pettype == PM_BABY_WHITE_DRAGON || pettype == PM_BABY_BLACK_DRAGON || pettype == PM_BABY_DEEP_DRAGON || pettype == PM_BABY_SHIMMERING_DRAGON || pettype == PM_BABY_GRAY_DRAGON || pettype == PM_BABY_SILVER_DRAGON) petname = "Odahviing";
@@ -413,7 +461,7 @@ makedog()
 	if(!mtmp) return((struct monst *) 0); /* pets were genocided */
 
 	/* Horses already wear a saddle */
-	if ((pettype == PM_PONY || pettype == PM_GREEN_NIGHTMARE || pettype == PM_SPEEDHORSE) && !!(otmp = mksobj(Race_if(PM_INKA) ? INKA_SADDLE : LEATHER_SADDLE, TRUE, FALSE))) {
+	if ((pettype == PM_PONY || pettype == PM_GREEN_NIGHTMARE || pettype == PM_SPEEDHORSE) && !!(otmp = mksobj(Race_if(PM_INKA) ? INKA_SADDLE : LEATHER_SADDLE, TRUE, FALSE, FALSE))) {
 	    if (mpickobj(mtmp, otmp, TRUE)) {
 		impossible("merged saddle?");
 		} else {
@@ -697,6 +745,12 @@ long nmv;		/* number of moves */
 	if (imv > mtmp->mspec_used) mtmp->mspec_used = 0;
 	else mtmp->mspec_used -= imv;
 
+	/* might have been charging a homing lazer */
+	if (mtmp->hominglazer) {
+		mtmp->hominglazer += imv;
+		if (mtmp->hominglazer > 200) mtmp->hominglazer = 0;
+	}
+
 
 		   /*                    
 			*      M1_MINDLESS __
@@ -708,7 +762,7 @@ long nmv;		/* number of moves */
  
 			if ((is_animal(mtmp->data) || mindless(mtmp->data) ||
 			    is_demon(mtmp->data)  || is_undead(mtmp->data) || mtmp->egotype_undead ||
-			    is_were(mtmp->data)) && (issoviet || ((monstermoves + 5000) > edog->hungrytime)) ) { 
+			    is_were(mtmp->data)) && mtmp->mtame && (issoviet || ((monstermoves + 5000) > edog->hungrytime)) ) { 
 				/* reduce tameness for every 
 				 * 150 moves you are away 
 				 Amy -- edit so that well-satiated pets can be on another level for much longer */
@@ -746,6 +800,8 @@ long nmv;		/* number of moves */
 	    m_unleash(mtmp, FALSE);
 	}
 
+	if (mtmp->healblock || mtmp->bleedout) goto healingdone;
+
 	/* recover lost hit points */
 	if (!regenerates(mtmp->data) && (!mtmp->egotype_regeneration) ) imv /= (ishaxor ? 10 : 20);
 	if (mtmp->mhp + imv >= mtmp->mhpmax)
@@ -759,7 +815,7 @@ long nmv;		/* number of moves */
 		else mtmp->mhp++;
 	}
 
-	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE && u.usteed && (mtmp == u.usteed)) {
+	if (powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE && u.usteed && (mtmp == u.usteed)) {
 		if (mtmp->mhp + 1 >= mtmp->mhpmax)
 		      mtmp->mhp = mtmp->mhpmax;
 		else mtmp->mhp++;
@@ -780,7 +836,7 @@ long nmv;		/* number of moves */
 	if (!(PlayerCannotUseSkills)) {
 
 	if (P_SKILL(P_RIDING) == P_BASIC && u.usteed && (mtmp == u.usteed) && !rn2(10) ) {
-		if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
+		if (powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
 			if (mtmp->mhp + 1 >= mtmp->mhpmax)
 			      mtmp->mhp = mtmp->mhpmax;
 			else mtmp->mhp++;
@@ -790,7 +846,7 @@ long nmv;		/* number of moves */
 		if (mtmp->mhp + 1 >= mtmp->mhpmax)
 		      mtmp->mhp = mtmp->mhpmax;
 		else mtmp->mhp++;
-		if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
+		if (powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
 			if (mtmp->mhp + 2 >= mtmp->mhpmax)
 			      mtmp->mhp = mtmp->mhpmax;
 			else mtmp->mhp++;
@@ -800,7 +856,7 @@ long nmv;		/* number of moves */
 		if (mtmp->mhp + 1 >= mtmp->mhpmax)
 		      mtmp->mhp = mtmp->mhpmax;
 		else mtmp->mhp++;
-		if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
+		if (powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
 			if (mtmp->mhp + 3 >= mtmp->mhpmax)
 			      mtmp->mhp = mtmp->mhpmax;
 			else mtmp->mhp++;
@@ -810,7 +866,7 @@ long nmv;		/* number of moves */
 		if (mtmp->mhp + 1 >= mtmp->mhpmax)
 		      mtmp->mhp = mtmp->mhpmax;
 		else mtmp->mhp++;
-		if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
+		if (powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
 			if (mtmp->mhp + 4 >= mtmp->mhpmax)
 			      mtmp->mhp = mtmp->mhpmax;
 			else mtmp->mhp++;
@@ -820,7 +876,7 @@ long nmv;		/* number of moves */
 		if (mtmp->mhp + 1 >= mtmp->mhpmax)
 		      mtmp->mhp = mtmp->mhpmax;
 		else mtmp->mhp++;
-		if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
+		if (powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
 			if (mtmp->mhp + 5 >= mtmp->mhpmax)
 			      mtmp->mhp = mtmp->mhpmax;
 			else mtmp->mhp++;
@@ -831,13 +887,15 @@ long nmv;		/* number of moves */
 		if (mtmp->mhp + 1 >= mtmp->mhpmax)
 		      mtmp->mhp = mtmp->mhpmax;
 		else mtmp->mhp++;
-		if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
+		if (powerfulimplants() && uimplant && uimplant->oartifact == ART_READY_FOR_A_RIDE) {
 			if (mtmp->mhp + 6 >= mtmp->mhpmax)
 			      mtmp->mhp = mtmp->mhpmax;
 			else mtmp->mhp++;
 		}
 	}
 
+healingdone:
+	;
 	}
 }
 
@@ -874,8 +932,9 @@ boolean pets_only;	/* true for ascension or final escape */
 	    mtmp2 = mtmp->nmon;
 	    if (DEADMONSTER(mtmp)) continue;
 	    if (pets_only && !mtmp->mtame) continue;
+	    if (u.freeplaytransit && !mtmp->mtame) continue;
 
-	    if (mtmp && !program_state.gameover && isok(u.ux, u.uy) && extraradius && mtmp->mtame && levl_follower(mtmp) && (distu(mtmp->mx, mtmp->my) < (4 + extraradius))) {
+	    if (mtmp && !program_state.gameover && !u.freeplaytransit && isok(u.ux, u.uy) && extraradius && mtmp->mtame && levl_follower(mtmp) && (distu(mtmp->mx, mtmp->my) < (4 + extraradius))) {
 		sprintf(qbuf, "You can take %s with you. Do it?", noit_mon_nam(mtmp));
 		qbufdefined = 1;
 	    }
@@ -886,6 +945,7 @@ boolean pets_only;	/* true for ascension or final escape */
 			/* come on, if you ascend then all tame monsters should ascend with you. --Amy */
 			|| (mtmp->mtame && (achieve.ascended))
 #endif
+			|| (mtmp->mtame && u.freeplaytransit)
 
 			|| (mtmp && !(program_state.gameover) && qbufdefined && isok(u.ux, u.uy) && extraradius && mtmp->mtame && levl_follower(mtmp) && (distu(mtmp->mx, mtmp->my) < (4 + extraradius)) && (yn(qbuf) == 'y') ) ||
 			(mtmp == u.usteed) ||
@@ -905,7 +965,8 @@ boolean pets_only;	/* true for ascension or final escape */
 			if (canseemon(mtmp))
 			    pline("%s is still eating.", Monnam(mtmp));
 			stay_behind = TRUE;
-		} else if (mtmp->mtame && 
+		/* there's a bug where escaping or ascending makes the game think you're going to the black market... --Amy */
+		} else if (mtmp->mtame && !u.freeplaytransit && !program_state.gameover &&
 		    (Is_blackmarket(&new_dlevel) || Is_blackmarket(&u.uz))) {
 			pline("%s can't follow you %s.",
 			      Monnam(mtmp), Is_blackmarket(&u.uz) ?
@@ -1031,6 +1092,23 @@ migrate_to_level(mtmp, tolev, xyloc, cc)
 	mtmp->mx = mtmp->my = 0;	/* this implies migration */
 }
 
+/* function that makes your pet more hungry, e.g. because it got hit by a famine attack */
+void
+makedoghungry(mon, amount)
+struct monst *mon;
+int amount;
+{
+	if (!mon->mtame) return;
+
+	struct edog *edog = EDOG(mon);
+
+	if (edog && edog->hungrytime > 1) {
+		edog->hungrytime -= amount;
+		if (edog->hungrytime < 1) edog->hungrytime = 1;
+	}
+
+}
+
 #endif /* OVLB */
 #ifdef OVL1
 
@@ -1065,9 +1143,8 @@ register struct obj *obj;
 		 || is_rider(fptr) || (!issoviet && (fptr->cnutrit < 1)) || is_deadlysin(fptr) || fptr->mlet == S_TROVE )) /* troves are meant for the player --Amy */
 		    return TABU;
 	    /* Ghouls only eat old corpses... yum! */
-	    if (mon->data == &mons[PM_GHOUL] || mon->data == &mons[PM_GHAST] || mon->data == &mons[PM_GASTLY] || mon->data == &mons[PM_PHANTOM_GHOST]
-		|| mon->data == &mons[PM_HAUNTER] || mon->data == &mons[PM_GENGAR]) {
-		return (obj->otyp == CORPSE && obj->corpsenm != PM_ACID_BLOB &&
+	    if (saprovorous(mon->data)) {
+		return (obj->otyp == CORPSE && !acidic(&mons[obj->corpsenm]) &&
 		  peek_at_iced_corpse_age(obj) + 5*rn1(20,10) <= monstermoves) ?
 			DOGFOOD : TABU;
 	    }
@@ -1096,7 +1173,7 @@ register struct obj *obj;
 		case HUGE_CHUNK_OF_MEAT:
 		    return (carni ? DOGFOOD : MANFOOD);
 		case EGG:
-		    if (touch_petrifies(&mons[obj->corpsenm]) && !resists_ston(mon))
+		    if (touch_petrifies(&mons[obj->corpsenm]) && obj->corpsenm != PM_PLAYERMON && !resists_ston(mon))
 			return POISON;
 		    return (carni ? CADAVER : MANFOOD);
 		case CORPSE:
@@ -1136,16 +1213,21 @@ register struct obj *obj;
 			obj->otyp == RIN_SLOW_DIGESTION)
 		return TABU;
 	    if (hates_silver(mon->data) &&
-		objects[obj->otyp].oc_material == SILVER)
+		objects[obj->otyp].oc_material == MT_SILVER)
 		return(TABU);
 	    if (hates_copper(mon->data) &&
-		objects[obj->otyp].oc_material == COPPER)
+		objects[obj->otyp].oc_material == MT_COPPER)
+		return(TABU);
+	    if (hates_platinum(mon->data) &&
+		objects[obj->otyp].oc_material == MT_PLATINUM)
+		return(TABU);
+	    if (hates_cursed(mon->data) && obj->cursed)
 		return(TABU);
 	    if (hates_viva(mon->data) &&
-		objects[obj->otyp].oc_material == VIVA)
+		objects[obj->otyp].oc_material == MT_VIVA)
 		return(TABU);
 	    if (hates_inka(mon->data) &&
-		objects[obj->otyp].oc_material == INKA)
+		objects[obj->otyp].oc_material == MT_INKA)
 		return(TABU);
 		/* KMH -- Taz likes organics, too! */
 	    if ((organivorous(mon->data) || mon->egotype_organivore) && is_organic(obj))
@@ -1278,10 +1360,10 @@ boolean guaranteed;
 	    /* KMH -- Added gypsy */
 	    mtmp->isgyp ||
 	    (is_covetous(mtmp->data) && (issoviet || rn2(50) ) ) || (is_human(mtmp->data) && (issoviet || rn2(4) ) ) ||
-	    (is_demon(mtmp->data) && !is_demon(youmonst.data) && !Race_if(PM_HUMANOID_DEVIL) && (issoviet || rn2(10) ) ) ||
+	    (is_demon(mtmp->data) && !is_demon(youmonst.data) && !Race_if(PM_HUMANOID_DEVIL) && !Race_if(PM_GAVIL) && !(Race_if(PM_PLAYER_SHEEP) && u.ulevel >= 20) && (issoviet || rn2(10) ) ) ||
 	    /* Mik -- New flag to indicate which things cannot be tamed... */
 	    cannot_be_tamed(mtmp->data) || mtmp->mfrenzied ||
-	    (obj && dogfood(mtmp, obj) >= MANFOOD)) {
+	    (obj && dogfood(mtmp, obj) >= MANFOOD && !(Race_if(PM_CELTIC) && mtmp->data->mlet == S_GOLEM) )) {
 
 	/* In Soviet Russia, people only know dogs, cats and maybe horses. Everything else cannot be tamed, and variety
 	 * is also something that absolutely no one likes. Communism means everyone gets the same, so you can't have an
@@ -1299,7 +1381,7 @@ boolean guaranteed;
 		}
 
 	/* failsafe for things that REALLY cannot be tamed --Amy */
-	if (cannot_be_tamed(mtmp->data) || mtmp->mfrenzied || mtmp->mtame || mtmp->isshk || mtmp->isgd || mtmp->ispriest || mtmp->isminion || mtmp->isgyp)
+	if (cannot_be_tamed(mtmp->data) || (mtmp->cham == CHAM_ZRUTINATOR) || mtmp->mfrenzied || mtmp->mtame || mtmp->isshk || mtmp->isgd || mtmp->ispriest || mtmp->isminion || mtmp->isgyp)
 		return (struct monst *)0;
 
 	if (mtmp->m_id == quest_status.leader_m_id)
@@ -1436,6 +1518,35 @@ boolean was_dead;
     }
 }
 
+boolean
+befriend_with_obj(ptr, obj)
+struct permonst *ptr;
+struct obj *obj;
+{
+	if (obj->oclass == FOOD_CLASS) {
+		if (is_domestic(ptr)) return TRUE;
+		if (Race_if(PM_HUMANLIKE_DRAGON) && ptr->mlet == S_DRAGON) return TRUE;
+		if (Role_if(PM_DRAGONMASTER) && ptr->mlet == S_DRAGON) return TRUE;
+		if (is_animal(ptr) && Race_if(PM_HUMANOID_CENTAUR) && !((ptr)->geno & G_UNIQ)) return TRUE;
+		if (is_rat(ptr) && Role_if(PM_CONVICT)) return TRUE;
+		/* [Tom] Dorothy wants more pets... */
+		if (obj->otyp == CHEESE && is_rat(ptr)) return TRUE;
+		if (obj->otyp == ORANGE && (ptr) == &mons[PM_MANDARUCK]) return TRUE;
+		if (ptr->msound == MS_SHOE && Race_if(PM_SHOE)) return TRUE;
+		if (obj->otyp == KELP_FROND && (ptr->mflags3 & M3_PETTY)) return TRUE;
+		if (obj->otyp == BANANA && herbivorous(ptr) && ptr->mlet == S_YETI) return TRUE;
+	}
+
+	/* Amy edit: metallivores etc. should also be capable of being domestic */
+	if (is_metallic(obj) && is_domestic(ptr) && metallivorous(ptr)) return TRUE;
+	if (is_lithic(obj) && is_domestic(ptr) && lithivorous(ptr)) return TRUE;
+	if (is_organic(obj) && is_domestic(ptr) && organivorous(ptr)) return TRUE;
+
+	if (Race_if(PM_CELTIC) && is_metallic(obj) && ptr->mlet == S_GOLEM) return TRUE;
+
+	return FALSE;
+}
+
 void
 abuse_dog(mtmp)
 struct monst *mtmp;
@@ -1445,12 +1556,12 @@ struct monst *mtmp;
 	if (Aggravate_monster || Conflict) mtmp->mtame /=2;
 	else mtmp->mtame--;
 
-	if (mtmp->mtame && !mtmp->isminion)
+	if (mtmp->mtame && !mtmp->isminion && !(Role_if(PM_SLAVE_MASTER) && rn2(5)) )
 	    EDOG(mtmp)->abuse++;
 
 	if (Role_if(PM_CRUEL_ABUSER)) {
 		adjalign(5);
-		pline(Hallucination ? "Let's whip that bitch some more!" : "You feel empowered."); /* Christian Grey likes to be needlessly cruel */
+		pline(FunnyHallu ? "Let's whip that bitch some more!" : "You feel empowered."); /* Christian Grey likes to be needlessly cruel */
 	}
 
 	if (!mtmp->mtame && mtmp->mleashed)

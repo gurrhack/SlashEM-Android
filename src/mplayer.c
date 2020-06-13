@@ -68,7 +68,7 @@ get_mplname(mtmp, nam)
 register struct monst *mtmp;
 char *nam;
 {
-	boolean fmlkind = is_female(mtmp->data);
+	boolean fmlkind = mtmp->female; /* wtf why did that use "is_female"??? that's retarded! --Amy */
 	const char *devnam;
 
 	/* Amy edit: more names, mainly ones of active players and variant developers */
@@ -76,7 +76,7 @@ char *nam;
 
 		if (fmlkind) { /* awwwwww there's way too few female players :( */
 
-			switch (rnd(12)) {
+			switch (rnd(14)) {
 
 				case 1: strcpy(nam, "GoldenIvy"); break;
 				case 2: strcpy(nam, "AmyBSOD"); break;
@@ -90,12 +90,14 @@ char *nam;
 				case 10: strcpy(nam, "Lymia"); break;
 				case 11: strcpy(nam, "Naganadel"); break;
 				case 12: strcpy(nam, "Icerose"); break;
+				case 13: strcpy(nam, "AntiGulp"); break;
+				case 14: strcpy(nam, "Malena"); break;
 				default: strcpy(nam, "BugFemName"); break;
 			}
 
 		} else {
 
-			switch (rnd(68)) {
+			switch (rnd(79)) {
 
 				case 1: strcpy(nam, "Bhaak"); break;
 				case 2: strcpy(nam, "Jonadab"); break;
@@ -164,7 +166,18 @@ char *nam;
 				case 65: strcpy(nam, "PavelB"); break;
 				case 66: strcpy(nam, "FlamingGuacamole"); break;
 				case 67: strcpy(nam, "Dracopent"); break;
-				case 68: strcpy(nam, "AntiGulp"); break;
+				case 68: strcpy(nam, "Andrio"); break;
+				case 69: strcpy(nam, "Metanite"); break;
+				case 70: strcpy(nam, "Greyberyl"); break;
+				case 71: strcpy(nam, "Pellsson"); break;
+				case 72: strcpy(nam, "Recluse"); break;
+				case 73: strcpy(nam, "Pinkbeast"); break;
+				case 74: strcpy(nam, "Mickmane"); break;
+				case 75: strcpy(nam, "Porkman"); break;
+				case 76: strcpy(nam, "Micromoog"); break;
+				case 77: strcpy(nam, "Malor"); break;
+				case 78: strcpy(nam, "Merlek"); break;
+				case 79: strcpy(nam, "Musicdemon"); break;
 				default: strcpy(nam, "BugMalName"); break;
 
 			}
@@ -182,10 +195,11 @@ char *nam;
 	else strcpy(nam, devnam);
 
 namedecided:
-	if (fmlkind || !strcmp(nam, "Janet"))
+	/* why don't we just let the RNG decide whether the player monster is female... --Amy */
+/*	if (fmlkind || !strcmp(nam, "Janet"))
 	    mtmp->female = 1;
 	else
-	    mtmp->female = 0;
+	    mtmp->female = 0;*/
 	if (is_mplayer(mtmp->data)) {
 		strcat(nam, " the ");
 		strcat(nam, rank_of((int)mtmp->m_lev, monsndx(mtmp->data), (boolean)mtmp->female));
@@ -200,7 +214,7 @@ short typ;
 	struct obj *obj;
 
 	if (typ == STRANGE_OBJECT) return;
-	obj = mksobj(typ, FALSE, FALSE);
+	obj = mksobj(typ, FALSE, FALSE, FALSE);
 	if (obj) {
 		if (!rn2(3)) obj->oerodeproof = 1;
 		if (!rn2(3)) curse(obj);
@@ -298,6 +312,86 @@ register boolean special;
 		case PM_UNDEAD_MASON:
 			weapon = DWARVISH_MATTOCK;
 			armor = FULL_PLATE_MAIL;
+		    break;
+		case PM_DEMAGOGUE:
+		case PM_UNDEAD_DEMAGOGUE:
+			armor = FULL_PLATE_MAIL;
+			weapon = THUNDER_HAMMER;
+		    break;
+		case PM_CELLAR_CHILD:
+		case PM_UNDEAD_CELLAR_CHILD:
+			weapon = BATTLE_STAFF;
+			armor = MAGE_PLATE_MAIL;
+		    break;
+		case PM_GRENADONIN:
+		case PM_UNDEAD_GRENADONIN:
+			weapon = KATANA;
+		    break;
+		case PM_SOFTWARE_ENGINEER:
+		case PM_UNDEAD_SOFTWARE_ENGINEER:
+			weapon = AXE;
+		    break;
+		case PM_CRACKER:
+		case PM_UNDEAD_CRACKER:
+			weapon = BATTLE_AXE;
+		    break;
+		case PM_JANITOR:
+		case PM_UNDEAD_JANITOR:
+			weapon = SPECIAL_MOP;
+		    break;
+		case PM_SPACE_MARINE:
+		case PM_UNDEAD_SPACE_MARINE:
+			weapon = WAR_HAMMER;
+		    break;
+		case PM_STORMBOY:
+		case PM_UNDEAD_STORMBOY:
+			weapon = TSURUGI;
+		    break;
+		case PM_YAUTJA:
+		case PM_UNDEAD_YAUTJA:
+			weapon = !rn2(3) ? DRAGON_SPEAR : rn2(2) ? BULLETPROOF_CHAINWHIP : HUGE_CLUB;
+		    break;
+		case PM_QUARTERBACK:
+		case PM_UNDEAD_QUARTERBACK:
+			weapon = METAL_CLUB;
+		    break;
+		case PM_PSYKER:
+		case PM_UNDEAD_PSYKER:
+		    break;
+		case PM_EMPATH:
+		case PM_UNDEAD_EMPATH:
+			weapon = CRYSKNIFE;
+		    break;
+		case PM_MASTERMIND:
+		case PM_UNDEAD_MASTERMIND:
+		    break;
+		case PM_WEIRDBOY:
+		case PM_UNDEAD_WEIRDBOY:
+			weapon = BRONZE_MORNING_STAR;
+		    break;
+		case PM_ASTRONAUT:
+		case PM_UNDEAD_ASTRONAUT:
+		    break;
+		case PM_CYBERNINJA:
+		case PM_UNDEAD_CYBERNINJA:
+			weapon = KATANA;
+		    break;
+		case PM_DISSIDENT:
+		case PM_UNDEAD_DISSIDENT:
+			weapon = SPIKED_CLUB;
+		    break;
+		case PM_XELNAGA:
+		case PM_UNDEAD_XELNAGA:
+		    break;
+		case PM_WALSCHOLAR:
+		case PM_UNDEAD_WALSCHOLAR:
+			weapon = CONGLOMERATE_PICK;
+			armor = EVIL_LEATHER_ARMOR;
+		    break;
+		case PM_SOCIAL_JUSTICE_WARRIOR:
+		case PM_UNDEAD_SOCIAL_JUSTICE_WARRIOR:
+			helm = FEDORA;
+			weapon = INSECT_SQUASHER;
 		    break;
 		case PM_BINDER:
 		case PM_UNDEAD_BINDER:
@@ -628,6 +722,49 @@ register boolean special;
 		case PM_UNDEAD_CAMPERSTRIKER:
 		    weapon = GREEN_LIGHTSABER;
 		    break;
+		case PM_CARTOMANCER:
+		case PM_UNDEAD_CARTOMANCER:
+		    weapon = GREAT_DAGGER;
+		    break;
+		case PM_DRAGONMASTER:
+		case PM_UNDEAD_DRAGONMASTER:
+		    weapon = ELVEN_BROADSWORD;
+		    break;
+		case PM_COMBATANT:
+		case PM_UNDEAD_COMBATANT:
+		    break;
+		case PM_FJORDE:
+		case PM_UNDEAD_FJORDE:
+		    weapon = TRIDENT;
+		    break;
+		case PM_PRACTICANT:
+		case PM_UNDEAD_PRACTICANT:
+		    weapon = STEEL_CAPPED_SANDAL;
+		    break;
+		case PM_EMERA:
+		case PM_UNDEAD_EMERA:
+		    weapon = BULLETPROOF_CHAINWHIP;
+		    break;
+		case PM_TOSSER:
+		case PM_UNDEAD_TOSSER:
+		    weapon = TORPEDO;
+		    break;
+		case PM_AKLYST:
+		case PM_UNDEAD_AKLYST:
+		    weapon = AKLYS;
+		    break;
+		case PM_MILL_SWALLOWER:
+		case PM_UNDEAD_MILL_SWALLOWER:
+		    weapon = CHEMISTRY_SPACE_AXE;
+		    break;
+		case PM_SYMBIANT:
+		case PM_UNDEAD_SYMBIANT:
+		    weapon = ORNATE_MACE;
+		    break;
+		case PM_GENDERSTARIST:
+		case PM_UNDEAD_GENDERSTARIST:
+		    weapon = TELEPHONE;
+		    break;
 		case PM_PRIEST:
 		case PM_PRIESTESS:
 		case PM_UNDEAD_PRIEST:
@@ -787,7 +924,7 @@ register boolean special;
 		case PM_PADAWAN:
 		case PM_UNDEAD_JEDI:
 		case PM_UNDEAD_PADAWAN:
-		    switch(rnd(8)){
+		    switch(rnd(9)){
 		      case 1: weapon = RED_LIGHTSABER; break;
 		      case 2: weapon = BLUE_LIGHTSABER; break;
 		      case 3: weapon = GREEN_LIGHTSABER; break;
@@ -796,6 +933,7 @@ register boolean special;
 		      case 6: weapon = VIOLET_LIGHTSABER; break;
 		      case 7: weapon = RED_DOUBLE_LIGHTSABER; break;
 		      case 8: weapon = WHITE_DOUBLE_LIGHTSABER; break;
+		      case 9: weapon = MYSTERY_LIGHTSABER; break;
 		    }
 		    cloak = STRANGE_OBJECT;
 		    armor = rn2(2) ? ROBE : ROBE_OF_POWER;
@@ -808,7 +946,7 @@ register boolean special;
 	    }
 
 	    if (weapon != STRANGE_OBJECT) {
-		otmp = mksobj(weapon, TRUE, FALSE);
+		otmp = mksobj(weapon, TRUE, FALSE, FALSE);
 		if (otmp) {
 			otmp->spe = (special ? rn1(5,4) : (rn2(4) - rn2(7) ) );
 			if (!rn2(3)) otmp->oerodeproof = 1;
@@ -837,8 +975,7 @@ register boolean special;
 
 		/* These are supposed to be ascension kits. Why were the shirts missing??? --Amy */
 		if (rn2(15))
-		    mk_mplayer_armor(mtmp, rnd_class(HAWAIIAN_SHIRT,
-					       VICTORIAN_UNDERWEAR));
+		    mk_mplayer_armor(mtmp, rnd_class(HAWAIIAN_SHIRT, VICTORIAN_UNDERWEAR));
 		m_dowear(mtmp, TRUE);
 
 		quan = rn2(3) ? rn2(3) : rn2(16);
@@ -853,7 +990,7 @@ register boolean special;
 #endif
 		quan = rn2(10);
 		while(quan--)
-		    (void) mpickobj(mtmp, mkobj(RANDOM_CLASS, FALSE), TRUE);
+		    (void) mpickobj(mtmp, mkobj(RANDOM_CLASS, FALSE, FALSE), TRUE);
 	    } else { /* wandering characters... */
 #ifndef GOLDOBJ
 	       mtmp->mgold = rn2((mtmp->m_lev)*100);

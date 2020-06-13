@@ -110,11 +110,11 @@ unsigned material;
 		if (material && objects[glyph_to_obj(glyph)].oc_material == material) {
 			/* the object shown here is of interest because material matches */
 			for (otmp = level.objects[x][y]; otmp; otmp = otmp->nexthere)
-				if (o_material(otmp, GOLD)) return FALSE;
+				if (o_material(otmp, MT_GOLD)) return FALSE;
 			/* didn't find it; perhaps a monster is carrying it */
 			if ((mtmp = m_at(x,y)) != 0) {
 				for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
-					if (o_material(otmp, GOLD)) return FALSE;
+					if (o_material(otmp, MT_GOLD)) return FALSE;
 		        }
 			/* detection indicates removal of this object from the map */
 			return TRUE;
@@ -181,7 +181,7 @@ register struct obj *sobj;
     boolean stale;
 
     known = stale = clear_stale_map(COIN_CLASS,
-				(unsigned)(sobj->blessed ? GOLD : 0));
+				(unsigned)(sobj->blessed ? MT_GOLD : 0));
 
     /* look for gold carried by monsters (might be in a container) */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -194,7 +194,7 @@ register struct obj *sobj;
 	    known = TRUE;
 	    goto outgoldmap;	/* skip further searching */
 	} else for (obj = mtmp->minvent; obj; obj = obj->nobj)
-	    if (sobj->blessed && o_material(obj, GOLD)) {
+	    if (sobj->blessed && o_material(obj, MT_GOLD)) {
 	    	known = TRUE;
 	    	goto outgoldmap;
 	    } else if (o_in(obj, COIN_CLASS)) {
@@ -205,7 +205,7 @@ register struct obj *sobj;
     
     /* look for gold objects */
     for (obj = fobj; obj; obj = obj->nobj) {
-	if (sobj->blessed && o_material(obj, GOLD)) {
+	if (sobj->blessed && o_material(obj, MT_GOLD)) {
 	    known = TRUE;
 	    if (obj->ox != u.ux || obj->oy != u.uy) goto outgoldmap;
 	} else if (o_in(obj, COIN_CLASS)) {
@@ -247,7 +247,7 @@ outgoldmap:
     u.uinwater = 0;
     /* Discover gold locations. */
     for (obj = fobj; obj; obj = obj->nobj) {
-    	if (sobj->blessed && (temp = o_material(obj, GOLD))) {
+    	if (sobj->blessed && (temp = o_material(obj, MT_GOLD))) {
 	    if (temp != obj) {
 		temp->ox = obj->ox;
 		temp->oy = obj->oy;
@@ -275,7 +275,7 @@ outgoldmap:
 	    gold.oy = mtmp->my;
 	    map_object(&gold,1);
 	} else for (obj = mtmp->minvent; obj; obj = obj->nobj)
-	    if (sobj->blessed && (temp = o_material(obj, GOLD))) {
+	    if (sobj->blessed && (temp = o_material(obj, MT_GOLD))) {
 		temp->ox = mtmp->mx;
 		temp->oy = mtmp->my;
 		map_object(temp,1);
@@ -422,6 +422,7 @@ int		class;		/* an object class, 0 for all */
 					detector->oartifact ) &&
 			detector->blessed);
     int guaranteed = (detector && !(detector->otyp == SPE_DETECT_TREASURE) && !(detector->otyp == SPE_MAP_LEVEL) && !(detector->otyp == SPE_MAGIC_MAPPING));
+    boolean stupiddetect = (detector && (detector->otyp == SPE_DETECT_TREASURE || detector->otyp == SPE_MAGIC_MAPPING));
     int likely = (detector && (detector->otyp == SPE_MAP_LEVEL));
     int ct = 0, ctu = 0;
     register struct obj *obj, *otmp = (struct obj *)0;
@@ -451,7 +452,7 @@ int		class;		/* an object class, 0 for all */
     if (boulder && class != ROCK_CLASS) strcat(stuff, " and/or large stones");
 
     if (do_dknown) for(obj = invent; obj; obj = obj->nobj) {
-	if (guaranteed || (likely && rn2(5)) || !rn2(3)) do_dknown_of(obj);
+	if (guaranteed || (likely && rn2(2)) || !rn2(3)) do_dknown_of(obj);
 	}
 
     for (obj = fobj; obj; obj = obj->nobj) {
@@ -459,7 +460,7 @@ int		class;		/* an object class, 0 for all */
 	    if (obj->ox == u.ux && obj->oy == u.uy) ctu++;
 	    else ct++;
 	}
-	if (do_dknown && (guaranteed || (likely && rn2(5)) || !rn2(3)) ) do_dknown_of(obj);
+	if (do_dknown && (guaranteed || (likely && rn2(2)) || !rn2(3)) ) do_dknown_of(obj);
     }
 
     for (obj = level.buriedobjlist; obj; obj = obj->nobj) {
@@ -467,14 +468,14 @@ int		class;		/* an object class, 0 for all */
 	    if (obj->ox == u.ux && obj->oy == u.uy) ctu++;
 	    else ct++;
 	}
-	if (do_dknown && (guaranteed || (likely && rn2(5)) || !rn2(3)) ) do_dknown_of(obj);
+	if (do_dknown && (guaranteed || (likely && rn2(2)) || !rn2(3)) ) do_dknown_of(obj);
     }
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
 	if (DEADMONSTER(mtmp)) continue;
 	for (obj = mtmp->minvent; obj; obj = obj->nobj) {
 	    if ((!class && !boulder) || o_in(obj, class) || o_in(obj, boulder)) ct++;
-	    if (do_dknown && (guaranteed || (likely && rn2(5)) || !rn2(3)) ) do_dknown_of(obj);
+	    if (do_dknown && (guaranteed || (likely && rn2(2)) || !rn2(3)) ) do_dknown_of(obj);
 	}
 	if ((is_cursed && mtmp->m_ap_type == M_AP_OBJECT &&
 	    (!class || class == objects[mtmp->mappearance].oc_class)) ||
@@ -512,9 +513,9 @@ int		class;		/* an object class, 0 for all */
 		    otmp->ox = obj->ox;
 		    otmp->oy = obj->oy;
 		}
-		if (guaranteed || (likely && rn2(5)) || !rn2(3)) map_object(otmp, 1);
+		if ((guaranteed || (likely && rn2(2)) || !rn2(3)) && !(stupiddetect && isok(obj->ox, obj->oy) && isok(u.ux, u.uy) && (dist2(u.ux, u.uy, obj->ox, obj->oy) > 1226) ) ) map_object(otmp, 1);
 	    } else
-		if (guaranteed || (likely && rn2(5)) || !rn2(3)) map_object(obj, 1);
+		if ((guaranteed || (likely && rn2(2)) || !rn2(3)) && !(stupiddetect && isok(obj->ox, obj->oy) && isok(u.ux, u.uy) && (dist2(u.ux, u.uy, obj->ox, obj->oy) > 1226) ) ) map_object(obj, 1);
 	}
     /*
      * If we are mapping all objects, map only the top object of a pile or
@@ -534,9 +535,9 @@ int		class;		/* an object class, 0 for all */
 			    otmp->ox = obj->ox;
 			    otmp->oy = obj->oy;
 			}
-			if (guaranteed || (likely && rn2(5)) || !rn2(3)) map_object(otmp, 1);
+			if ((guaranteed || (likely && rn2(2)) || !rn2(3)) && !(stupiddetect && isok(obj->ox, obj->oy) && isok(u.ux, u.uy) && (dist2(u.ux, u.uy, obj->ox, obj->oy) > 1226) ) ) map_object(otmp, 1);
 		    } else
-			if (guaranteed || (likely && rn2(5)) || !rn2(3)) map_object(obj, 1);
+			if ((guaranteed || (likely && rn2(2)) || !rn2(3)) && !(stupiddetect && isok(obj->ox, obj->oy) && isok(u.ux, u.uy) && (dist2(u.ux, u.uy, obj->ox, obj->oy) > 1226) ) ) map_object(obj, 1);
 		    break;
 		}
 
@@ -549,7 +550,7 @@ int		class;		/* an object class, 0 for all */
 		if (!class && !boulder) otmp = obj;
 		otmp->ox = mtmp->mx;		/* at monster location */
 		otmp->oy = mtmp->my;
-		if (guaranteed || (likely && rn2(5)) || !rn2(3)) map_object(otmp, 1);
+		if ((guaranteed || (likely && rn2(2)) || !rn2(3)) && !(stupiddetect && isok(obj->ox, obj->oy) && isok(u.ux, u.uy) && (dist2(u.ux, u.uy, obj->ox, obj->oy) > 1226) ) ) map_object(otmp, 1);
 		break;
 	    }
 	/* Allow a mimic to override the detected objects it is carrying. */
@@ -726,7 +727,7 @@ water_detect()
 }
 
 void
-water_detectX()
+water_detectX() /* for the spell, which is meant to be weaker than the scroll --Amy */
 {
 
     register int zx, zy;
@@ -735,7 +736,7 @@ water_detectX()
     for (zx = 1; zx < COLNO; zx++)
 	for (zy = 0; zy < ROWNO; zy++)
 	    if ((levl[zx][zy].typ == WATER || levl[zx][zy].typ == POOL || levl[zx][zy].typ == CRYSTALWATER || levl[zx][zy].typ == WATERTUNNEL || levl[zx][zy].typ == WELL || levl[zx][zy].typ == POISONEDWELL || levl[zx][zy].typ == RAINCLOUD || levl[zx][zy].typ == MOAT || levl[zx][zy].typ == FOUNTAIN || levl[zx][zy].typ == SINK || levl[zx][zy].typ == TOILET) && rn2(2)) {
-			show_map_spot(zx, zy);
+			if (!(isok(zx, zy) && isok(u.ux, u.uy) && (dist2(u.ux, u.uy, zx, zy) > 901) ) ) show_map_spot(zx, zy);
 			detectamount++;
 		}
 
@@ -776,7 +777,7 @@ int mclass;			/* monster class, 0 for all */
 
     if (!mcnt) {
 	if (otmp)
-	    strange_feeling(otmp, Hallucination ?
+	    strange_feeling(otmp, FunnyHallu ?
 			    "You get the heebie jeebies." :
 			    "You feel threatened.");
 	return 1;
@@ -788,7 +789,7 @@ int mclass;			/* monster class, 0 for all */
 	    if (DEADMONSTER(mtmp)) continue;
 	    if (!mclass || mtmp->data->mlet == mclass ||
 		(mtmp->data == &mons[PM_LONG_WORM] && mclass == S_WORM_TAIL))
-		    if ((mtmp->mx > 0) && ( !(otmp && otmp->oclass == SPBOOK_CLASS) || rn2(2) ) ) {
+		    if ((mtmp->mx > 0) && !(otmp && otmp->oclass == SPBOOK_CLASS && (mtmp && isok(u.ux, u.uy) && isok(mtmp->mx, mtmp->my) && (dist2(u.ux,u.uy,mtmp->mx,mtmp->my) > 101) ) ) && ( !(otmp && otmp->oclass == SPBOOK_CLASS) || rn2(2) ) ) {
 		    	if (mclass && def_monsyms[mclass] == ' ')
 				show_glyph(mtmp->mx,mtmp->my,
 					detected_mon_to_glyph(mtmp));
@@ -807,7 +808,7 @@ int mclass;			/* monster class, 0 for all */
 	display_self();
 	You("sense the presence of monsters.");
 	if (woken)
-	    pline(Hallucination ? "They're after you! Now you know why you were always paranoid - they REALLY want to eat you alive!" : "Monsters sense the presence of you.");
+	    pline(FunnyHallu ? "They're after you! Now you know why you were always paranoid - they REALLY want to eat you alive!" : "Monsters sense the presence of you.");
 	display_nhwindow(WIN_MAP, TRUE);
 	docrt();
 	if (Underwater) under_water(2);
@@ -922,6 +923,7 @@ outtrapmap:
     return(0);
 }
 
+/* weaker trap detection, from spell; currently only the entrapping spell uses this --Amy */
 int
 trap_detectX(sobj)
 register struct obj *sobj;
@@ -970,17 +972,18 @@ outtrapmap:
 	/* nerf by Amy - only detect 50% of all traps, because trap detection is very powerful if you think about it... */
     u.uinwater = 0;
     for (ttmp = ftrap; ttmp; ttmp = ttmp->ntrap)
-	if (!rn2(4) && (ttmp->trapdiff < rnd(150)) && (!isfriday || (ttmp->trapdiff < rnd(150))) && (ttmp->trapdiff < rnd(150)) ) sense_trap(ttmp, 0, 0, sobj && sobj->cursed);
+	if (!rn2(4) && !(isok(ttmp->tx, ttmp->ty) && isok(u.ux, u.uy) && (dist2(u.ux, u.uy, ttmp->tx, ttmp->ty) > 401) ) && (ttmp->trapdiff < rnd(150)) && (!isfriday || (ttmp->trapdiff < rnd(150))) && (ttmp->trapdiff < rnd(150)) ) sense_trap(ttmp, 0, 0, sobj && sobj->cursed);
 
     for (obj = fobj; obj; obj = obj->nobj)
 	if ((obj->otyp==LARGE_BOX || obj->otyp==CHEST || obj->otyp==TREASURE_CHEST || obj->otyp==LARGE_BOX_OF_DIGESTION || obj->otyp==CHEST_OF_HOLDING) && obj->otrapped)
-	if (!rn2(4)) sense_trap((struct trap *)0, obj->ox, obj->oy, sobj && sobj->cursed);
+	if (!rn2(4) && !(isok(obj->ox, obj->oy) && isok(u.ux, u.uy) && (dist2(u.ux, u.uy, obj->ox, obj->oy) > 401) ))
+		sense_trap((struct trap *)0, obj->ox, obj->oy, sobj && sobj->cursed);
 
     for (door = 0; door < doorindex; door++) {
 	x = doors[door].x;
 	y = doors[door].y;
 	if (levl[x][y].doormask & D_TRAPPED)
-	if (!rn2(4)) sense_trap((struct trap *)0, x, y, sobj && sobj->cursed);
+	if (!rn2(4) && !(isok(x, y) && isok(u.ux, u.uy) && (dist2(u.ux, u.uy, x, y) > 401) )) sense_trap((struct trap *)0, x, y, sobj && sobj->cursed);
     }
 
     newsym(u.ux,u.uy);
@@ -1261,7 +1264,7 @@ do_mapping()
 }
 
 void
-do_mappingX()
+do_mappingX() /* magic mapping spell and roadmap cloak - they don't reveal as much info --Amy */
 {
     register int zx, zy;
     int uw = u.uinwater;
@@ -1269,7 +1272,7 @@ do_mappingX()
     u.uinwater = 0;
     for (zx = 1; zx < COLNO; zx++)
 	for (zy = 0; zy < ROWNO; zy++)
-	    show_map_spotX(zx, zy);
+	    if (!(isok(zx, zy) && isok(u.ux, u.uy) && (dist2(u.ux, u.uy, zx, zy) > 626) ) ) show_map_spotX(zx, zy);
     exercise(A_WIS, TRUE);
     u.uinwater = uw;
     if (!level.flags.hero_memory || Underwater) {
@@ -1388,6 +1391,7 @@ void * num;
 	if(levl[zx][zy].typ == SDOOR) {
 		cvt_sdoor_to_door(&levl[zx][zy]);	/* .typ = DOOR */
 		You("find a secret door!");
+		u.cnd_searchsecretcount++;
 		use_skill(P_SEARCHING,1);
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		magic_map_background(zx, zy, 0);
@@ -1397,6 +1401,7 @@ void * num;
 		levl[zx][zy].typ = CORR;
 		unblock_point(zx,zy);
 		You("find a secret passage!");
+		u.cnd_searchsecretcount++;
 		use_skill(P_SEARCHING,1);
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		magic_map_background(zx, zy, 0);
@@ -1440,6 +1445,7 @@ void * num;
 	if(!rn2(3) && levl[zx][zy].typ == SDOOR) {
 		cvt_sdoor_to_door(&levl[zx][zy]);	/* .typ = DOOR */
 		You("find a secret door!");
+		u.cnd_searchsecretcount++;
 		use_skill(P_SEARCHING,1);
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		magic_map_background(zx, zy, 0);
@@ -1449,6 +1455,7 @@ void * num;
 		levl[zx][zy].typ = CORR;
 		unblock_point(zx,zy);
 		You("find a secret passage!");
+		u.cnd_searchsecretcount++;
 		use_skill(P_SEARCHING,1);
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		magic_map_background(zx, zy, 0);
@@ -1583,10 +1590,10 @@ struct trap *trap;
 
     trap->tseen = 1;
     exercise(A_WIS, TRUE);
-    if (Blind)
+/*    if (Blind)*/
 	feel_location(trap->tx, trap->ty);
-    else
-	newsym(trap->tx, trap->ty);
+/*    else*/
+	if (!Blind) newsym(trap->tx, trap->ty);
 
 #ifdef DISPLAY_LAYERS
     if (levl[trap->tx][trap->ty].mem_obj ||
@@ -1602,6 +1609,7 @@ struct trap *trap;
     }
 
     You("find %s.", an(defsyms[trap_to_defsym(tt)].explanation));
+	u.cnd_searchtrapcount++;
 	if (!trap->tdetected) {
 		use_skill(P_SEARCHING,1);
 		trap->tdetected = TRUE;
@@ -1660,7 +1668,7 @@ register int aflag;
 
 	if(u.uswallow) {
 		if (!aflag)
-			pline(Hallucination ? "There must be some door here, allowing you to get out..." : "What are you looking for?  The exit?");
+			pline(FunnyHallu ? "There must be some door here, allowing you to get out..." : "What are you looking for?  The exit?");
 	} else {
 	    int fund = (uwep && uwep->oartifact &&
 		    spec_ability(uwep, SPFX_SEARCH)) ?
@@ -1678,24 +1686,26 @@ register int aflag;
 	      for(y = u.uy-1; y < u.uy+2; y++) {
 		if(!isok(x,y)) continue;
 		if(x != u.ux || y != u.uy) {
-		    if (Blind && (!aflag || !rn2(fundxtrachange) || !rn2(fundxtrachange)) ) feel_location(x,y);
+		    if (/*Blind &&*/ (!aflag || !rn2(fundxtrachange) || !rn2(fundxtrachange)) ) feel_location(x,y);
 		    if(levl[x][y].typ == SDOOR) {
 			if(rnl(7-fund) && rn2(fundxtrachange) && (rn2(fundxtrachange) || !rn2(2)) ) continue; /* better chance --Amy */
 			cvt_sdoor_to_door(&levl[x][y]);	/* .typ = DOOR */
 			You("find a secret door!");
+			u.cnd_searchsecretcount++;
 			use_skill(P_SEARCHING,1);
 			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 			exercise(A_WIS, TRUE);
 			nomul(0, 0, FALSE);
-			if (Blind && (!aflag || !rn2(fundxtrachange) || !rn2(fundxtrachange)) )
+			if (/*Blind && */(!aflag || !rn2(fundxtrachange) || !rn2(fundxtrachange)) )
 			    feel_location(x,y);	/* make sure it shows up */
-			else
-			    newsym(x,y);
+			/*else*/
+			if (!Blind) newsym(x,y);
 		    } else if(levl[x][y].typ == SCORR) {
 			if(rnl(7-fund) && rn2(fundxtrachange) && (rn2(fundxtrachange) || !rn2(2)) ) continue; /* better chance --Amy */
 			levl[x][y].typ = CORR;
 			unblock_point(x,y);	/* vision */
 			You("find a secret passage!");
+			u.cnd_searchsecretcount++;
 			use_skill(P_SEARCHING,1);
 			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 			exercise(A_WIS, TRUE);
@@ -1756,6 +1766,7 @@ register int aflag;
 			    if (trap->ttyp == STATUE_TRAP || trap->ttyp == SATATUE_TRAP) {
  				mtmp = activate_statue_trap(trap, x, y, FALSE);
  				if (mtmp != (struct monst *)0) {
+				    u.cnd_searchtrapcount++;
 				    exercise(A_WIS, TRUE);
 				    use_skill(P_SEARCHING,1); /* you found a trap, so the skill should train --Amy */
 				}

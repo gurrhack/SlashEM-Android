@@ -18,23 +18,18 @@ static NEARDATA struct obj *book;	/* last/current book being xscribed */
 #define DUNADAN_KEEN 	5000	/* memory increase reading the book */
 #define CAST_BOOST 	  500	/* memory increase for successful casting */
 #define DUNADAN_CAST_BOOST 	  250	/* memory increase for successful casting */
-#define MAX_KNOW 	70000	/* Absolute Max timeout */
-#define MAX_CAN_STUDY 	60000	/* Can study while timeout is less than */
+#define MAX_KNOW 	200000	/* Absolute Max timeout */
+#define MAX_CAN_STUDY 	190000	/* Can study while timeout is less than */
 
 #define MAX_STUDY_TIME 	  300	/* Max time for one study session */
 #define MAX_SPELL_STUDY    30	/* Uses before spellbook crumbles */
 
 #define spellknow(spell)	spl_book[spell].sp_know 
+#define spellmemorize(spell)	spl_book[spell].sp_memorize
 
 static NEARDATA const char revivables[] = { ALLOW_FLOOROBJ, FOOD_CLASS, 0 };
 
 static const char all_count[] = { ALLOW_COUNT, ALL_CLASSES, 0 };
-
-#define incrnknow(spell)        spl_book[spell].sp_know = ((spl_book[spell].sp_know < 1) ? (Race_if(PM_DUNADAN) ? DUNADAN_KEEN : KEEN) \
-				 : ((spl_book[spell].sp_know + (Race_if(PM_DUNADAN) ? DUNADAN_KEEN : KEEN) ) > MAX_KNOW) ? MAX_KNOW \
-				 : spl_book[spell].sp_know + (Race_if(PM_DUNADAN) ? DUNADAN_KEEN : KEEN) )
-#define boostknow(spell,boost)  spl_book[spell].sp_know = ((spl_book[spell].sp_know + boost > MAX_KNOW) ? MAX_KNOW \
-				 : spl_book[spell].sp_know + boost)
 
 #define spellev(spell)		spl_book[spell].sp_lev
 #define spellid(spell)          spl_book[spell].sp_id
@@ -54,61 +49,15 @@ STATIC_DCL void deadbook(struct obj *);
 STATIC_PTR int learn(void);
 STATIC_DCL void do_reset_learn(void);
 STATIC_DCL boolean getspell(int *, BOOLEAN_P);
-STATIC_DCL boolean dospellmenu(const char *,int,int *);
+STATIC_DCL boolean dospellmenu(const char *,int,int *, int);
 STATIC_DCL int percent_success(int);
 STATIC_DCL void cast_protection(void);
 STATIC_DCL void cast_reflection(void);
 STATIC_DCL void spell_backfire(int);
 STATIC_DCL const char *spelltypemnemonic(int);
-STATIC_DCL int isqrt(int);
 static int spell_dash(void);
-
-/* categories whose names don't come from OBJ_NAME(objects[type]) */
-#define PN_POLEARMS		(-1)
-#define PN_SABER		(-2)
-#define PN_HAMMER		(-3)
-#define PN_WHIP			(-4)
-#define PN_PADDLE		(-5)
-#define PN_FIREARMS		(-6)
-#define PN_ATTACK_SPELL		(-7)
-#define PN_HEALING_SPELL	(-8)
-#define PN_DIVINATION_SPELL	(-9)
-#define PN_ENCHANTMENT_SPELL	(-10)
-#define PN_PROTECTION_SPELL	(-11)
-#define PN_BODY_SPELL		(-12)
-#define PN_OCCULT_SPELL		(-13)
-#define PN_ELEMENTAL_SPELL		(-14)
-#define PN_CHAOS_SPELL		(-15)
-#define PN_MATTER_SPELL		(-16)
-#define PN_BARE_HANDED		(-17)
-#define PN_HIGH_HEELS		(-18)
-#define PN_GENERAL_COMBAT		(-19)
-#define PN_SHIELD		(-20)
-#define PN_BODY_ARMOR		(-21)
-#define PN_TWO_HANDED_WEAPON		(-22)
-#define PN_POLYMORPHING		(-23)
-#define PN_DEVICES		(-24)
-#define PN_SEARCHING		(-25)
-#define PN_SPIRITUALITY		(-26)
-#define PN_PETKEEPING		(-27)
-#define PN_MISSILE_WEAPONS		(-28)
-#define PN_TECHNIQUES		(-29)
-#define PN_IMPLANTS		(-30)
-#define PN_SEXY_FLATS		(-31)
-#define PN_SHII_CHO		(-32)
-#define PN_MAKASHI		(-33)
-#define PN_SORESU		(-34)
-#define PN_ATARU		(-35)
-#define PN_SHIEN		(-36)
-#define PN_DJEM_SO		(-37)
-#define PN_NIMAN		(-38)
-#define PN_JUYO		(-39)
-#define PN_VAAPAD		(-40)
-#define PN_WEDI		(-41)
-#define PN_MARTIAL_ARTS		(-42)
-#define PN_RIDING		(-43)
-#define PN_TWO_WEAPONS		(-44)
-#define PN_LIGHTSABER		(-45)
+STATIC_DCL void boostknow(int, int);
+STATIC_DCL void incrnknow(int, BOOLEAN_P);
 
 #ifndef OVLB
 
@@ -140,6 +89,7 @@ STATIC_OVL NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
 	PN_TWO_HANDED_WEAPON,	PN_POLYMORPHING,	PN_DEVICES,
 	PN_SEARCHING,	PN_SPIRITUALITY,	PN_PETKEEPING,
 	PN_MISSILE_WEAPONS,	PN_TECHNIQUES,	PN_IMPLANTS,	PN_SEXY_FLATS,
+	PN_MEMORIZATION,	PN_GUN_CONTROL,	PN_SQUEAKING,	PN_SYMBIOSIS,
 	PN_SHII_CHO,	PN_MAKASHI,	PN_SORESU,
 	PN_ATARU,	PN_SHIEN,	PN_DJEM_SO,
 	PN_NIMAN,	PN_JUYO,	PN_VAAPAD,	PN_WEDI,
@@ -182,6 +132,10 @@ STATIC_OVL NEARDATA const char * const odd_skill_names[] = {
     "techniques",
     "implants",
     "sexy flats",
+    "memorization",
+    "gun control",
+    "squeaking",
+    "symbiosis",
     "form I (Shii-Cho)",
     "form II (Makashi)",
     "form III (Soresu)",
@@ -269,9 +223,9 @@ spell_known(int sbook_id)
  *	to permit magic-use).
  */
 
-#define uarmhbon 4 /* Metal helmets interfere with the mind */
-#define uarmgbon 6 /* Casting channels through the hands */
-#define uarmfbon 2 /* All metal interferes to some degree */
+#define uarmhbon 3 /* Metal helmets interfere with the mind */
+#define uarmgbon 5 /* Casting channels through the hands */
+#define uarmfbon 1 /* All metal interferes to some degree */
 
 /* since the spellbook itself doesn't blow up, don't say just "explodes" */
 static const char explodes[] = "radiates explosive energy";
@@ -304,7 +258,7 @@ void * roomcnt;
 
 	/* Get rid of bars at x, y */
 	levl[x][y].typ = ROOM;
-	unblock_point(x,y);
+	blockorunblock_point(x,y);
 	newsym(x,y);
 }
 
@@ -339,7 +293,7 @@ cursed_book(bp)
 	case 5:
 		pline_The("book was coated with contact poison!");
 		if (uarmg) {
-		    if (uarmg->oerodeproof || (uarmg->oartifact && rn2(4)) || !is_corrodeable(uarmg)) {
+		    if (uarmg->oerodeproof || (Race_if(PM_CHIQUAI) && rn2(4)) || (uarmg->oartifact && rn2(4)) || !is_corrodeable(uarmg)) {
 			Your("gloves seem unaffected.");
 		    } else if (uarmg->oeroded2 < MAX_ERODE) {
 			if (uarmg->greased) {
@@ -358,13 +312,13 @@ cursed_book(bp)
 		}
 		/* temp disable in_use; death should not destroy the book */
 		bp->in_use = FALSE;
-		losestr(Poison_resistance ? rn1(2,1) : rn1(4,3));
+		losestr(StrongPoison_resistance ? 1 : Poison_resistance ? rno(3) : rnd(5), TRUE);
 		losehp(rnd(Poison_resistance ? 6 : 10),
 		       "contact-poisoned spellbook", KILLED_BY_AN);
 		bp->in_use = TRUE;
 		break;
 	case 6:
-		if(Antimagic) {
+		if(Antimagic && !Race_if(PM_KUTAR) && rn2(StrongAntimagic ? 20 : 5) ) {
 		    shieldeff(u.ux, u.uy);
 		    pline_The("book %s, but you are unharmed!", explodes);
 		} else {
@@ -377,7 +331,7 @@ cursed_book(bp)
 		rndcurse();
 		break;
 	}
-	return FALSE;
+	return (bp->spe < 0) ? TRUE : FALSE;
 }
 
 /* study while confused: returns TRUE if the book is destroyed */
@@ -437,7 +391,7 @@ void * poolcnt;
 			else {
 				if (levl[randomx][randomy].typ != DOOR) levl[randomx][randomy].typ = STONE;
 				else levl[randomx][randomy].typ = CROSSWALL;
-				block_point(randomx,randomy);
+				blockorunblock_point(randomx,randomy);
 				if (!(levl[randomx][randomy].wall_info & W_EASYGROWTH)) levl[randomx][randomy].wall_info |= W_HARDGROWTH;
 				del_engr_at(randomx, randomy);
 
@@ -456,16 +410,13 @@ void * poolcnt;
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].wall_info & W_NONDIGGABLE) != 0 || (levl[x][y].typ != CORR && levl[x][y].typ != ROOM && (levl[x][y].typ != DOOR || levl[x][y].doormask != D_NODOOR) ))
 		return;
 
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
-		return;
-
 	(*(int *)poolcnt)++;
 
 	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
 		/* Put a wall at x, y */
 		if (levl[x][y].typ != DOOR) levl[x][y].typ = STONE;
 		else levl[x][y].typ = CROSSWALL;
-		block_point(x,y);
+		blockorunblock_point(x,y);
 		if (!(levl[x][y].wall_info & W_EASYGROWTH)) levl[x][y].wall_info |= W_HARDGROWTH;
 		del_engr_at(x, y);
 
@@ -507,7 +458,7 @@ void * poolcnt;
 		randomy = rn2(ROWNO);
 		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
 			levl[randomx][randomy].typ = TREE;
-			block_point(randomx,randomy);
+			blockorunblock_point(randomx,randomy);
 			if (!(levl[randomx][randomy].wall_info & W_EASYGROWTH)) levl[randomx][randomy].wall_info |= W_HARDGROWTH;
 			del_engr_at(randomx, randomy);
 	
@@ -523,15 +474,327 @@ void * poolcnt;
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
 		return;
 
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = TREE;
+		blockorunblock_point(x,y);
+		if (!(levl[x][y].wall_info & W_EASYGROWTH)) levl[x][y].wall_info |= W_HARDGROWTH;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_gravefloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = GRAVEWALL;
+			blockorunblock_point(randomx,randomy);
+			if (!(levl[randomx][randomy].wall_info & W_EASYGROWTH)) levl[randomx][randomy].wall_info |= W_HARDGROWTH;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
 		return;
 
 	(*(int *)poolcnt)++;
 
 	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
 		/* Put a pool at x, y */
-		levl[x][y].typ = TREE;
-		block_point(x,y);
+		levl[x][y].typ = GRAVEWALL;
+		blockorunblock_point(x,y);
+		if (!(levl[x][y].wall_info & W_EASYGROWTH)) levl[x][y].wall_info |= W_HARDGROWTH;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_tunnelfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = TUNNELWALL;
+			blockorunblock_point(randomx,randomy);
+			if (!(levl[randomx][randomy].wall_info & W_EASYGROWTH)) levl[randomx][randomy].wall_info |= W_HARDGROWTH;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = TUNNELWALL;
+		blockorunblock_point(x,y);
+		if (!(levl[x][y].wall_info & W_EASYGROWTH)) levl[x][y].wall_info |= W_HARDGROWTH;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_farmfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = FARMLAND;
+			blockorunblock_point(randomx,randomy);
+			if (!(levl[randomx][randomy].wall_info & W_EASYGROWTH)) levl[randomx][randomy].wall_info |= W_HARDGROWTH;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = FARMLAND;
+		blockorunblock_point(x,y);
+		if (!(levl[x][y].wall_info & W_EASYGROWTH)) levl[x][y].wall_info |= W_HARDGROWTH;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_mountainfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = MOUNTAIN;
+			blockorunblock_point(randomx,randomy);
+			if (!(levl[randomx][randomy].wall_info & W_EASYGROWTH)) levl[randomx][randomy].wall_info |= W_HARDGROWTH;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = MOUNTAIN;
+		blockorunblock_point(x,y);
+		if (!(levl[x][y].wall_info & W_EASYGROWTH)) levl[x][y].wall_info |= W_HARDGROWTH;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_watertunnelfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = WATERTUNNEL;
+			blockorunblock_point(randomx,randomy);
+			if (!(levl[randomx][randomy].wall_info & W_EASYGROWTH)) levl[randomx][randomy].wall_info |= W_HARDGROWTH;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = WATERTUNNEL;
+		blockorunblock_point(x,y);
 		if (!(levl[x][y].wall_info & W_EASYGROWTH)) levl[x][y].wall_info |= W_HARDGROWTH;
 		del_engr_at(x, y);
 
@@ -587,14 +850,960 @@ void * poolcnt;
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
 		return;
 
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = ICE;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_crystalwaterfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = CRYSTALWATER;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
 		return;
 
 	(*(int *)poolcnt)++;
 
 	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
 		/* Put a pool at x, y */
-		levl[x][y].typ = ICE;
+		levl[x][y].typ = CRYSTALWATER;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+
+STATIC_PTR void
+do_moorfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = MOORLAND;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = MOORLAND;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_urinefloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = URINELAKE;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = URINELAKE;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_shiftingsandfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = SHIFTINGSAND;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = SHIFTINGSAND;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_styxfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = STYXRIVER;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = STYXRIVER;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_snowfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = SNOW;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = SNOW;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_ashfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = ASH;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = ASH;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_sandfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = SAND;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = SAND;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_pavementfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = PAVEDFLOOR;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = PAVEDFLOOR;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_highwayfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = HIGHWAY;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = HIGHWAY;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_grassfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = GRASSLAND;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = GRASSLAND;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_nethermistfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = NETHERMIST;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = NETHERMIST;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_stalactitefloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = STALACTITE;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = STALACTITE;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_cryptfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = CRYPTFLOOR;
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = CRYPTFLOOR;
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_bubblefloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = BUBBLES;
+			blockorunblock_point(randomx,randomy);
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = BUBBLES;
+		blockorunblock_point(x,y);
+		del_engr_at(x, y);
+
+		if ((mtmp = m_at(x, y)) != 0) {
+			(void) minliquid(mtmp);
+		} else {
+			newsym(x,y);
+		}
+	} else if ((x == u.ux) && (y == u.uy)) {
+		(*(int *)poolcnt)--;
+	}
+
+}
+
+STATIC_PTR void
+do_raincloudfloodg(x, y, poolcnt)
+int x, y;
+void * poolcnt;
+{
+	register struct monst *mtmp;
+	register struct trap *ttmp;
+	int randomamount = 0;
+	int randomx, randomy;
+	if (!rn2(25)) randomamount += rnz(2);
+	if (!rn2(125)) randomamount += rnz(5);
+	if (!rn2(625)) randomamount += rnz(20);
+	if (!rn2(3125)) randomamount += rnz(50);
+	if (isaquarian) {
+		if (!rn2(25)) randomamount += rnz(2);
+		if (!rn2(125)) randomamount += rnz(5);
+		if (!rn2(625)) randomamount += rnz(20);
+		if (!rn2(3125)) randomamount += rnz(50);
+	}
+	if (rn2(5)) randomamount = 0;
+
+	while (randomamount) {
+		randomamount--;
+		randomx = rn1(COLNO-3,2);
+		randomy = rn2(ROWNO);
+		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
+			levl[randomx][randomy].typ = RAINCLOUD;
+			blockorunblock_point(randomx,randomy);
+			del_engr_at(randomx, randomy);
+	
+			if ((mtmp = m_at(randomx, randomy)) != 0) {
+				(void) minliquid(mtmp);
+			} else {
+				newsym(randomx,randomy);
+			}
+
+		}
+	}
+	if ((rn2(1 + distmin(u.ux, u.uy, x, y))) ||
+	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
+		return;
+
+	(*(int *)poolcnt)++;
+
+	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
+		/* Put a pool at x, y */
+		levl[x][y].typ = RAINCLOUD;
+		blockorunblock_point(x,y);
 		del_engr_at(x, y);
 
 		if ((mtmp = m_at(x, y)) != 0) {
@@ -635,7 +1844,7 @@ void * poolcnt;
 		randomy = rn2(ROWNO);
 		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
 			levl[randomx][randomy].typ = CLOUD;
-			block_point(randomx,randomy);
+			blockorunblock_point(randomx,randomy);
 			del_engr_at(randomx, randomy);
 	
 			if ((mtmp = m_at(randomx, randomy)) != 0) {
@@ -650,15 +1859,12 @@ void * poolcnt;
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
 		return;
 
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
-		return;
-
 	(*(int *)poolcnt)++;
 
 	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
 		/* Put a pool at x, y */
 		levl[x][y].typ = CLOUD;
-		block_point(x,y);
+		blockorunblock_point(x,y);
 		del_engr_at(x, y);
 
 		if ((mtmp = m_at(x, y)) != 0) {
@@ -699,7 +1905,7 @@ void * poolcnt;
 		randomy = rn2(ROWNO);
 		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
 			levl[randomx][randomy].typ = randomwalltype();
-			block_point(randomx,randomy);
+			blockorunblock_point(randomx,randomy);
 			if (!(levl[randomx][randomy].wall_info & W_EASYGROWTH)) levl[randomx][randomy].wall_info |= W_HARDGROWTH;
 			del_engr_at(randomx, randomy);
 	
@@ -715,15 +1921,12 @@ void * poolcnt;
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
 		return;
 
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
-		return;
-
 	(*(int *)poolcnt)++;
 
 	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
 		/* Put a pool at x, y */
 		levl[x][y].typ = randomwalltype();
-		block_point(x,y);
+		blockorunblock_point(x,y);
 		if (!(levl[x][y].wall_info & W_EASYGROWTH)) levl[x][y].wall_info |= W_HARDGROWTH;
 		del_engr_at(x, y);
 
@@ -765,7 +1968,7 @@ void * poolcnt;
 		randomy = rn2(ROWNO);
 		if (isok(randomx, randomy) && (levl[randomx][randomy].typ == ROOM || levl[randomx][randomy].typ == CORR) ) {
 			levl[randomx][randomy].typ = IRONBARS;
-			block_point(randomx,randomy);
+			blockorunblock_point(randomx,randomy);
 			del_engr_at(randomx, randomy);
 	
 			if ((mtmp = m_at(randomx, randomy)) != 0) {
@@ -780,15 +1983,12 @@ void * poolcnt;
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y) )
 		return;
 
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
-		return;
-
 	(*(int *)poolcnt)++;
 
 	if (!((*(int *)poolcnt) && (x == u.ux) && (y == u.uy))) {
 		/* Put a pool at x, y */
 		levl[x][y].typ = IRONBARS;
-		block_point(x,y);
+		blockorunblock_point(x,y);
 		del_engr_at(x, y);
 
 		if ((mtmp = m_at(x, y)) != 0) {
@@ -812,9 +2012,6 @@ void * poolcnt;
 
 	if (/*nexttodoor(x, y) || */(rn2(1 + distmin(u.ux, u.uy, x, y))) ||
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
-		return;
-
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
 		return;
 
 	(*(int *)poolcnt)++;
@@ -845,9 +2042,6 @@ void * poolcnt;
 
 	if (/*nexttodoor(x, y) || */(rn2(1 + distmin(u.ux, u.uy, x, y))) ||
 	    (sobj_at(BOULDER, x, y)) || (levl[x][y].typ != ROOM && levl[x][y].typ != CORR) || MON_AT(x, y))
-		return;
-
-	if ((ttmp = t_at(x, y)) != 0 && !delfloortrap(ttmp))
 		return;
 
 	(*(int *)poolcnt)++;
@@ -950,6 +2144,7 @@ raise_dead:
 			(mtmp = makemon(&mons[PM_NALFESHNEE],
 					u.ux, u.uy, NO_MINVENT)) != 0)) {
 	    mtmp->mpeaceful = 0;
+	    mtmp->mfrenzied = 1;
 	    set_malign(mtmp);
 	}
 	/* next handle the affect on things you're carrying */
@@ -957,7 +2152,7 @@ raise_dead:
 	/* last place some monsters around you */
 	mm.x = u.ux;
 	mm.y = u.uy;
-	mkundead(&mm, TRUE, NO_MINVENT);
+	mkundead(&mm, TRUE, NO_MINVENT|MM_ANGRY|MM_FRENZIED, TRUE);
 	badeffect();
 	aggravate();
     } else if(book2->blessed) {
@@ -1017,13 +2212,19 @@ learn()
 	if (delay < end_delay && ublindf && ublindf->otyp == BOSS_VISOR && rn2(2))
 	    delay++;
 
-	if (Confusion && (book->otyp != SPE_BOOK_OF_THE_DEAD) && !Conf_resist && !rn2(Role_if(PM_LIBRARIAN) ? 100 : 10) ) {		/* became confused while learning */
+	if (Confusion && (book->otyp != SPE_BOOK_OF_THE_DEAD) && !(Conf_resist && rn2(StrongConf_resist ? 25 : 5)) && !rn2((Role_if(PM_LIBRARIAN) || Role_if(PM_PSYKER)) ? 100 : 10) ) {		/* became confused while learning */
 
 	    (void) confused_book(book);
 	    book = 0;			/* no longer studying */
 	    if ((delay - end_delay) < 0) {
-			if (!issoviet) nomul((-(rno(-(delay - end_delay)))), "reading a confusing book", TRUE); /* remaining delay is uninterrupted */
-			else {
+			if (!issoviet) {
+
+				register int actualdelay;
+				actualdelay = rno(-(delay - end_delay));
+				if (actualdelay > 0) actualdelay = isqrt(actualdelay); /* a lot of reduction --Amy */
+
+				nomul(-(actualdelay), "reading a confusing book", TRUE); /* remaining delay is uninterrupted */
+			} else { /* soviet mode */
 				nomul((delay - end_delay), "reading a confusing book", TRUE);
 				pline("Vy tol'ko chto podpisal svoy smertnyy prigovor, potomu chto sovetskaya ne zabotitsya o igrovoy balans. Ne dazhe nebol'shoye nemnogo.");
 
@@ -1054,15 +2255,51 @@ learn()
 			    book->otyp = booktype = SPE_BLANK_PAPER;
 			} else if (spellknow(i) <= MAX_CAN_STUDY) {
 			    Your("knowledge of that spell is keener.");
-			    incrnknow(i);
-				if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "runic gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "runa rukovitsakh") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "runi qo'lqop") ) && !rn2(2) ) incrnknow(i);
-				if (Role_if(PM_MAHOU_SHOUJO)) incrnknow(i);
+			    use_skill(P_MEMORIZATION, spellev(i));
+			    u.cnd_spellbookcount++;
+			    incrnknow(i, FALSE);
+				if (uarmg && itemhasappearance(uarmg, APP_RUNIC_GLOVES) && !rn2(2) ) incrnknow(i, FALSE);
+				if (Role_if(PM_MAHOU_SHOUJO)) incrnknow(i, FALSE);
 			    book->spestudied++;
+
+				if (!PlayerCannotUseSkills && P_SKILL(P_MEMORIZATION) >= P_BASIC) {
+
+					char nervbuf[QBUFSZ];
+					char thisisannoying = 0;
+
+					if (!u.youhavememorized) {
+						u.youhavememorized = TRUE;
+						if (!iflags.memorizationknown) pline("You have the memorization skill, which allows you to gain extra spell memory for newly learned spells. Whenever you learn a spell, you are asked whether you want to use the skill to boost the new spell's memory. In the case of doubt you should ALWAYS ANSWER YES. If you answer no, you just throw the bonus away. (Exception is if you want a forgotten spell, but you only ever need one of those normally.)");
+					}
+
+					if (!iflags.memorizationknown) sprintf(nervbuf, "Memorize this spell to add more spell memory? In the case of doubt you should always answer yes, unless you want the bonus to go to waste.");
+					else sprintf(nervbuf, "Memorize this spell to add more spell memory?");
+					thisisannoying = yn_function(nervbuf, ynqchars, 'y');
+					if (thisisannoying != 'n') {
+
+						int memoboost = 0;
+						switch (P_SKILL(P_MEMORIZATION)) {
+							case P_BASIC: memoboost = 2; break;
+							case P_SKILLED: memoboost = 4; break;
+							case P_EXPERT: memoboost = 6; break;
+							case P_MASTER: memoboost = 8; break;
+							case P_GRAND_MASTER: memoboost = 10; break;
+							case P_SUPREME_MASTER: memoboost = 12; break;
+						}
+					    	boostknow(i, memoboost * 1000);
+						spl_book[i].sp_memorize = TRUE;
+						pline("Spell memory increased! You gained %d%% extra spell memory.", memoboost * 10);
+					} else {
+						spl_book[i].sp_memorize = FALSE;
+						pline("You decided to throw away the spell memory bonus. The spell was set to non-memorization mode. If you did that by mistake, you should open the spell menu and turn memorization for this spell back on so that it properly benefits from memorization skill.");
+					}
+
+				}
+
 			    if (end_delay) {
-			    	boostknow(i,
-				  end_delay * (book->spe > 0 ? 20 : 10));
-				use_skill(spell_skilltype(book->otyp),
-				  end_delay / (book->spe > 0 ? 10 : 20));
+			    	boostknow(i, end_delay * ((book->spe > 0) ? 20 : 10));
+
+				use_skill(spell_skilltype(book->otyp), end_delay / ((book->spe > 0) ? 10 : 20));
 			    }
 			    exercise(A_WIS, TRUE);      /* extra study */
 			} else { /* MAX_CAN_STUDY < spellknow(i) <= MAX_SPELL_STUDY */
@@ -1076,9 +2313,12 @@ learn()
 		} else if (spellid(i) == NO_SPELL)  {
 			spl_book[i].sp_id = booktype;
 			spl_book[i].sp_lev = objects[booktype].oc_level;
-			incrnknow(i);
-			if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "runic gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "runa rukovitsakh") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "runi qo'lqop") ) && !rn2(2) ) incrnknow(i);
-			if (Role_if(PM_MAHOU_SHOUJO)) incrnknow(i);
+			spl_book[i].sp_memorize = TRUE;
+			use_skill(P_MEMORIZATION, spellev(i));
+			u.cnd_spellbookcount++;
+			incrnknow(i, TRUE);
+			if (uarmg && itemhasappearance(uarmg, APP_RUNIC_GLOVES) && !rn2(2) ) incrnknow(i, TRUE);
+			if (Role_if(PM_MAHOU_SHOUJO)) incrnknow(i, TRUE);
 			book->spestudied++;
 			You("have keen knowledge of the spell.");
 			You(i > 0 ? "add %s to your repertoire." : "learn %s.",
@@ -1094,15 +2334,51 @@ learn()
 				You_feel("dizzy!");
 				forget(ALL_MAP);
 			}
+
+			if (!PlayerCannotUseSkills && P_SKILL(P_MEMORIZATION) >= P_BASIC) {
+
+				char nervbuf[QBUFSZ];
+				char thisisannoying = 0;
+
+				if (!u.youhavememorized) {
+					u.youhavememorized = TRUE;
+					if (!iflags.memorizationknown) pline("You have the memorization skill, which allows you to gain extra spell memory for newly learned spells. Whenever you learn a spell, you are asked whether you want to use the skill to boost the new spell's memory. In the case of doubt you should ALWAYS ANSWER YES. If you answer no, you just throw the bonus away. (Exception is if you want a forgotten spell, but you only ever need one of those normally.)");
+				}
+
+				if (!iflags.memorizationknown) sprintf(nervbuf, "Memorize this spell to add more spell memory? In the case of doubt you should always answer yes, unless you want the bonus to go to waste.");
+				else sprintf(nervbuf, "Memorize this spell to add more spell memory?");
+				thisisannoying = yn_function(nervbuf, ynqchars, 'y');
+				if (thisisannoying != 'n') {
+
+					int memoboost = 0;
+					switch (P_SKILL(P_MEMORIZATION)) {
+						case P_BASIC: memoboost = 2; break;
+						case P_SKILLED: memoboost = 4; break;
+						case P_EXPERT: memoboost = 6; break;
+						case P_MASTER: memoboost = 8; break;
+						case P_GRAND_MASTER: memoboost = 10; break;
+						case P_SUPREME_MASTER: memoboost = 12; break;
+					}
+				    	boostknow(i, memoboost * 1000);
+					spl_book[i].sp_memorize = TRUE;
+					pline("Spell memory increased! You gained %d%% extra spell memory.", memoboost * 10);
+				} else {
+					spl_book[i].sp_memorize = FALSE;
+					pline("You decided to throw away the spell memory bonus. The spell was set to non-memorization mode. If you did that by mistake, you should open the spell menu and turn memorization for this spell back on so that it properly benefits from memorization skill.");
+				}
+
+			}
+
 			break;
 		}
 	}
 	if (i == MAXSPELL) impossible("Too many spells memorized!");
 
-	if ( (book->cursed || book->spe < 1) && !(uimplant && uimplant->oartifact == ART_DOMPFINATION) && !Role_if(PM_LIBRARIAN) && !(booktype == SPE_BOOK_OF_THE_DEAD) ) {	/* maybe a demon cursed it */
+	if ( (book->cursed || book->spe < 1) && !(uimplant && uimplant->oartifact == ART_DOMPFINATION) && !Role_if(PM_LIBRARIAN) && !Role_if(PM_PSYKER) && !(booktype == SPE_BOOK_OF_THE_DEAD) ) {	/* maybe a demon cursed it */
 	    if (cursed_book(book)) {
 		if (carried(book)) useup(book);
 		else useupf(book, 1L);
+		pline_The("book falls apart.");
 		book = 0;
 		return 0;
 	    }
@@ -1117,7 +2393,7 @@ study_book(spellbook)
 register struct obj *spellbook;
 {
 	register int	 booktype = spellbook->otyp;
-	register boolean confused = ((Confusion != 0) && !Conf_resist);
+	register boolean confused = ((Confusion != 0) && !(Conf_resist && (StrongConf_resist ? rn2(3) : !rn2(3)) ));
 	boolean too_hard = FALSE;
 
 	if (delay && !confused && spellbook == book &&
@@ -1133,7 +2409,7 @@ register struct obj *spellbook;
 			makeknown(booktype);
 			return(1);
 		}
-		if (spellbook->spe && confused && rn2(Role_if(PM_LIBRARIAN) ? 2 : 10) ) {
+		if (spellbook->spe > 0 && confused && rn2((Role_if(PM_LIBRARIAN) || Role_if(PM_PSYKER)) ? 2 : 10) ) {
 		    check_unpaid_usage(spellbook, TRUE);
 
 			int nochargechange = 10;
@@ -1163,7 +2439,7 @@ register struct obj *spellbook;
 		    pline_The("words on the page seem to glow faintly purple.");
 		    You_cant("quite make them out.");
 		    return 1;
-		}
+		} else if (spellbook->spe == 0) spellbook->spe--;
 
 		switch (objects[booktype].oc_level) {
 		 case 1:
@@ -1192,11 +2468,31 @@ register struct obj *spellbook;
 			return 0;
 		}
 
+		/* Memorization skill by Amy: reduces the time required to read a spellbook, but not below 1 (obviously) */
+		if (!PlayerCannotUseSkills && (delay < -1) && P_SKILL(P_MEMORIZATION) >= P_BASIC) {
+
+			int memreduction = 100;
+
+			switch (P_SKILL(P_MEMORIZATION)) {
+				case P_BASIC: memreduction = 80; break;
+				case P_SKILLED: memreduction = 60; break;
+				case P_EXPERT: memreduction = 40; break;
+				case P_MASTER: memreduction = 20; break;
+				case P_GRAND_MASTER: memreduction = 10; break;
+				case P_SUPREME_MASTER: memreduction = 5; break;
+			}
+
+			delay *= memreduction;
+			delay /= 100;
+			if (delay > -1) delay = -1; /* fail safe */
+
+		}
+
 		/* Books are often wiser than their readers (Rus.) */
 		spellbook->in_use = TRUE;
 		if (!spellbook->blessed &&
 		    spellbook->otyp != SPE_BOOK_OF_THE_DEAD) {
-		    if ( ((spellbook->cursed && rn2(4)) || (spellbook->spe < 1 && rn2(3)) ) && !Role_if(PM_LIBRARIAN) && booktype != SPE_BOOK_OF_THE_DEAD ) {
+		    if ( ((spellbook->cursed && rn2(4)) || (spellbook->spe < 1 && rn2(3)) ) && !Role_if(PM_LIBRARIAN) && !Role_if(PM_PSYKER) && booktype != SPE_BOOK_OF_THE_DEAD ) {
 			too_hard = TRUE;
 		    } else {
 			/* uncursed - chance to fail */
@@ -1206,7 +2502,7 @@ register struct obj *spellbook;
 			/* only wizards know if a spell is too difficult */
 			/* Amy edit: others may randomly know it sometimes */
 			if ((Role_if(PM_WIZARD) || !rn2(4)) && read_ability < 20 &&
-			    !confused && (!spellbook->spe || spellbook->cursed)) {
+			    !confused && ((spellbook->spe < 1) || spellbook->cursed)) {
 			    char qbuf[QBUFSZ];
 			    sprintf(qbuf,
 		      "This spellbook is %sdifficult to comprehend. Continue?",
@@ -1223,20 +2519,27 @@ register struct obj *spellbook;
 		    }
 		}
 
-		if ( (too_hard || rn2(2)) && ( (spellbook->cursed && !Role_if(PM_LIBRARIAN) ) || (!(spellbook->spe) && !(booktype == SPE_BOOK_OF_THE_DEAD) ) )) {
+		if ( (too_hard || rn2(2)) && ( (spellbook->cursed && !Role_if(PM_LIBRARIAN) && !Role_if(PM_PSYKER) ) || ((spellbook->spe < 1) && !(booktype == SPE_BOOK_OF_THE_DEAD) ) )) {
 		    boolean gone = cursed_book(spellbook);
 
 		    if (delay < 0) {
-				if (!issoviet) nomul(-(rno(-(delay))), "reading a cursed book", TRUE); /* study time */
-				else {
+				if (!issoviet) {
+
+					register int actualdelay;
+					actualdelay = rno(-(delay));
+					if (actualdelay > 1) actualdelay = isqrt(actualdelay); /* a lot of reduction */
+
+					nomul(-(actualdelay), "reading a cursed book", TRUE); /* study time */
+				} else { /* soviet mode */
 					nomul((delay), "reading a cursed book", TRUE);
 					pline("Vy tol'ko chto podpisal svoy smertnyy prigovor, potomu chto sovetskaya ne zabotitsya o igrovoy balans. Ne dazhe nebol'shoye nemnogo.");
 				}
 
 		    }
 		    delay = 0;
-		    if(gone || !rn2(3)) {
-			if (!gone) pline_The("spellbook crumbles to dust!");
+		    if(gone || (spellbook->spe < 0) || !rn2(3)) {
+			if (!gone && !(booktype == SPE_BOOK_OF_THE_DEAD)) pline_The("spellbook crumbles to dust!");
+			else if (!(booktype == SPE_BOOK_OF_THE_DEAD)) pline_The("spellbook has been destroyed.");
 			if (!objects[spellbook->otyp].oc_name_known &&
 				!objects[spellbook->otyp].oc_uname)
 			    docall(spellbook);
@@ -1245,13 +2548,19 @@ register struct obj *spellbook;
 		    } else
 			spellbook->in_use = FALSE;
 		    return(1);
-		} else if (confused && !Conf_resist && !rn2(Role_if(PM_LIBRARIAN) ? 50 : 5) && spellbook->otyp != SPE_BOOK_OF_THE_DEAD) {
+		} else if (confused && !(Conf_resist && rn2(StrongConf_resist ? 25 : 5)) && !rn2((Role_if(PM_LIBRARIAN) || Role_if(PM_PSYKER)) ? 50 : 5) && spellbook->otyp != SPE_BOOK_OF_THE_DEAD) {
 		    if (!confused_book(spellbook)) {
 			spellbook->in_use = FALSE;
 		    }
 		    if (delay < 0) {
-				if (!issoviet) nomul(-(rno(-(delay))), "reading a book while confused", TRUE);
-				else {
+				if (!issoviet) {
+					register int actualdelay;
+					actualdelay = rno(-(delay));
+					if (actualdelay > 1) actualdelay = isqrt(actualdelay); /* a lot of reduction */
+
+					nomul(-(actualdelay), "reading a book while confused", TRUE);
+
+				} else { /* soviet mode */
 					nomul((delay), "reading a book while confused", TRUE);
 					pline("Vy tol'ko chto podpisal svoy smertnyy prigovor, potomu chto sovetskaya ne zabotitsya o igrovoy balans. Ne dazhe nebol'shoye nemnogo.");
 				}
@@ -1264,7 +2573,7 @@ register struct obj *spellbook;
 		/* The glowing words make studying easier */
 		if (spellbook->otyp != SPE_BOOK_OF_THE_DEAD) {
 		    delay *= 2;
-		    if (spellbook->spe) {
+		    if (spellbook->spe > 0) {
 			check_unpaid_usage(spellbook, TRUE);
 
 			int nochargechange = 10;
@@ -1361,8 +2670,13 @@ void
 age_spells()
 {
 	int i;
-	if (Keen_memory && moves % 3 == 0)
+	if (Keen_memory && !rn2(StrongKeen_memory ? 3 : 5))
 		return;
+
+	/* the spell color trap that causes your memory to decrease when casting shouldn't be too awfully harsh... --Amy */
+	if (SpellColorCyan && rn2(10))
+		return;
+
 	/*
 	 * The time relative to the hero (a pass through move
 	 * loop) causes all spell knowledge to be decremented.
@@ -1372,7 +2686,28 @@ age_spells()
 	for (i = 0; i < MAXSPELL && spellid(i) != NO_SPELL; i++)
 	    if (spellknow(i) ) {
 
-		if (!(uarmc && OBJ_DESCR(objects[uarmc->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "guild cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "gil'dii plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "birlik plash") ) ) ) {
+		if (!(uarmc && itemhasappearance(uarmc, APP_GUILD_CLOAK) ) ) {
+
+			/* Memorization skill by Amy: if the spell is set to memorization mode, have a skill-based chance here
+			 * that on any given turn the spell memory will not decrease. */
+
+			if (!PlayerCannotUseSkills && spellmemorize(i) && P_SKILL(P_MEMORIZATION) >= P_BASIC) {
+
+				int savememochance = 0;
+
+				switch (P_SKILL(P_MEMORIZATION)) {
+					case P_BASIC: savememochance = 1; break;
+					case P_SKILLED: savememochance = 2; break;
+					case P_EXPERT: savememochance = 3; break;
+					case P_MASTER: savememochance = 4; break;
+					case P_GRAND_MASTER: savememochance = 5; break;
+					case P_SUPREME_MASTER: savememochance = 6; break;
+				}
+
+				if (savememochance > rn2(10)) continue;
+
+			}
+
 			decrnknow(i);
 		}
 
@@ -1398,7 +2733,7 @@ age_spells()
 		if (!issoviet && !SpellColorCyan && !(SpellForgetting || u.uprops[SPELL_FORGETTING].extrinsic || have_spellforgettingstone()) && !(SpellLoss || u.uprops[SPELLS_LOST].extrinsic || have_spelllossstone()) && spellknow(i) == 100) pline("You are about to forget the %s spell.", spellname(i));
 		if (!issoviet && !SpellColorCyan && !(SpellForgetting || u.uprops[SPELL_FORGETTING].extrinsic || have_spellforgettingstone()) && !(SpellLoss || u.uprops[SPELLS_LOST].extrinsic || have_spelllossstone()) && spellknow(i) == 0) pline("You no longer know how to cast the %s spell.", spellname(i));
 
-		if (spellknow(i) && uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "forgetful cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "zabyvchiv plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "unutuvchan plash") ) ) {
+		if (spellknow(i) && uarmc && itemhasappearance(uarmc, APP_FORGETFUL_CLOAK) ) {
 			decrnknow(i);
 			if (!issoviet && !SpellColorCyan && !(SpellForgetting || u.uprops[SPELL_FORGETTING].extrinsic || have_spellforgettingstone()) && !(SpellLoss || u.uprops[SPELLS_LOST].extrinsic || have_spelllossstone()) && spellknow(i) == 1000) pline("Your %s spell is beginning to fade from your memory.", spellname(i));
 			if (!issoviet && !SpellColorCyan && !(SpellForgetting || u.uprops[SPELL_FORGETTING].extrinsic || have_spellforgettingstone()) && !(SpellLoss || u.uprops[SPELLS_LOST].extrinsic || have_spelllossstone()) && spellknow(i) == 100) pline("You are about to forget the %s spell.", spellname(i));
@@ -1435,7 +2770,7 @@ getspell(spell_no, goldspellpossible)
 	    return FALSE;
 	}
 
-	if ((Goldspells || u.uprops[GOLDSPELLS].extrinsic || have_goldspellstone()) && goldspellpossible) {
+	if ((Goldspells || u.uprops[GOLDSPELLS].extrinsic || have_goldspellstone()) && goldspellpossible && rn2(10)) {
 
 		for (n = 0; n < MAXSPELL && spellid(n) != NO_SPELL; n++)
 			continue;
@@ -1509,23 +2844,23 @@ getspell(spell_no, goldspellpossible)
 		    You("don't know that spell.");
 	    }
 	}
-	if (SpellColorPink) return dospellmenu("Your spells are pink.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorBrightCyan) return dospellmenu("Your spells are bright cyan.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorCyan) return dospellmenu("Your spells are cyan.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorBlack) return dospellmenu("Your spells are black.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorOrange) return dospellmenu("Your spells are orange.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorRed) return dospellmenu("Your spells are red.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorPlatinum) return dospellmenu("Your spells are platinum.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorSilver) return dospellmenu("Your spells are silver.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorMetal) return dospellmenu("Your spells are metal.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorGreen) return dospellmenu("Your spells are green.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorBlue) return dospellmenu("Your spells are blue.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorGray) return dospellmenu("Your spells are completely gray.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorBrown) return dospellmenu("Your spells are brown.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorWhite) return dospellmenu("Your spells are white.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorViolet) return dospellmenu("Your spells are violet.", SPELLMENU_CAST, spell_no);
-	else if (SpellColorYellow) return dospellmenu("Your spells are yellow.", SPELLMENU_CAST, spell_no);
-	else return dospellmenu("Choose which spell to cast", SPELLMENU_CAST, spell_no);
+	if (SpellColorPink) return dospellmenu("Your spells are pink.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorBrightCyan) return dospellmenu("Your spells are bright cyan.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorCyan) return dospellmenu("Your spells are cyan.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorBlack) return dospellmenu("Your spells are black.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorOrange) return dospellmenu("Your spells are orange.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorRed) return dospellmenu("Your spells are red.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorPlatinum) return dospellmenu("Your spells are platinum.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorSilver) return dospellmenu("Your spells are silver.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorMetal) return dospellmenu("Your spells are metal.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorGreen) return dospellmenu("Your spells are green.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorBlue) return dospellmenu("Your spells are blue.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorGray) return dospellmenu("Your spells are completely gray.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorBrown) return dospellmenu("Your spells are brown.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorWhite) return dospellmenu("Your spells are white.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorViolet) return dospellmenu("Your spells are violet.", SPELLMENU_CAST, spell_no, 0);
+	else if (SpellColorYellow) return dospellmenu("Your spells are yellow.", SPELLMENU_CAST, spell_no, 0);
+	else return dospellmenu("Choose which spell to cast", SPELLMENU_CAST, spell_no, 0);
 
 }
 
@@ -1537,7 +2872,7 @@ docast()
 
 	int whatreturn;
 
-	if (u.antimagicshell || (RngeAntimagicA && (moves % 10 == 0)) || (RngeAntimagicB && (moves % 5 == 0)) || (RngeAntimagicC && (moves % 2 == 0)) || (RngeAntimagicD) || (uarmc && uarmc->oartifact == ART_SHELLY && (moves % 3 == 0)) || (uarmc && uarmc->oartifact == ART_BLACK_VEIL_OF_BLACKNESS) || (uarmc && uarmc->oartifact == ART_ARABELLA_S_WAND_BOOSTER) || (uarmu && uarmu->oartifact == ART_ANTIMAGIC_SHELL) || (uarmu && uarmu->oartifact == ART_ANTIMAGIC_FIELD) || Role_if(PM_UNBELIEVER) ) {
+	if (u.antimagicshell || (uarmh && uarmh->otyp == HELM_OF_ANTI_MAGIC) || (RngeAntimagicA && (moves % 10 == 0)) || (RngeAntimagicB && (moves % 5 == 0)) || (RngeAntimagicC && (moves % 2 == 0)) || (RngeAntimagicD) || (uarmc && uarmc->oartifact == ART_SHELLY && (moves % 3 == 0)) || (uarmc && uarmc->oartifact == ART_BLACK_VEIL_OF_BLACKNESS) || (uarmc && uarmc->oartifact == ART_ARABELLA_S_WAND_BOOSTER) || (uarmu && uarmu->oartifact == ART_ANTIMAGIC_SHELL) || (uarmu && uarmu->oartifact == ART_ANTIMAGIC_FIELD) || Role_if(PM_UNBELIEVER) ) {
 
 		pline("Your anti-magic shell prevents spellcasting.");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
@@ -1588,9 +2923,36 @@ docast()
 void
 castinertiaspell()
 {
+	char buf[BUFSZ];
+	char c;
+	boolean willcastinertiaspell = FALSE;
 
 	pline("You control the %s spell flow.", spellname(u.inertiacontrolspellno));
-	if (yn("Cast it?") == 'y') {
+
+	if (flags.inertiaconfirm) {
+		getlin ("Cast it? [y/yes/no/q/quit]",buf);
+		(void) lcase (buf);
+		if (!(strcmp (buf, "yes")) || !(strcmp (buf, "y"))) willcastinertiaspell = TRUE;
+		if (!(strcmp (buf, "q")) || !(strcmp (buf, "quit"))) {
+			You("ended inertia control prematurely.");
+			u.inertiacontrol = 0;
+			u.inertiacontrolspell = -1;
+			u.inertiacontrolspellno = -1;
+			return;
+		}
+	} else {
+		c = yn_function("Cast it?", ynqchars, 'n');
+		if (c == 'y') willcastinertiaspell = TRUE;
+		else if (c == 'q') {
+			You("ended inertia control prematurely.");
+			u.inertiacontrol = 0;
+			u.inertiacontrolspell = -1;
+			u.inertiacontrolspellno = -1;
+			return;
+		}
+	}
+
+	if (willcastinertiaspell) {
 
 		if (spellid(u.inertiacontrolspellno) != u.inertiacontrolspell) {
 			pline("The inertia controlled spell is no longer in place, and therefore cannot be auto-casted!");
@@ -1693,6 +3055,7 @@ cast_protection()
 	 *     16-30 -10    0,  5,  8,  9, 10
 	 */
 	gain = loglev - (int)u.uspellprot / (4 - min(3,(10 - natac)/10));
+	if (Race_if(PM_MAYMES)) gain *= 2;
 
 	if (gain > 0) {
 	    if (!Blind) {
@@ -1710,8 +3073,14 @@ cast_protection()
 	    u.uspellprot += gain;
 	    u.uspmtime =
 		(!(PlayerCannotUseSkills) && P_SKILL(spell_skilltype(SPE_PROTECTION)) >= P_EXPERT) ? 20 : 10;
+
+	    if (Race_if(PM_MAYMES)) {
+		u.uspmtime *= 2;
+	    }
+
 	    if (!u.usptime)
 		u.usptime = u.uspmtime;
+
 	    find_ac();
 	} else {
 	    Your("skin feels warm for a moment.");
@@ -1744,7 +3113,7 @@ int spell;
     long duration = (long)((spellev(spell) + 1) * 3);	 /* 6..24 */
 
     /* prior to 3.4.1, the only effect was confusion; it still predominates */
-    switch (rn2(17)) {
+    if (!obsidianprotection()) switch (rn2(17)) {
     case 0:
     case 1:
     case 2:
@@ -1787,7 +3156,7 @@ boolean atme;
 	int energy, damage, chance, n, intell;
 	int hungr;
 	int skill, role_skill;
-	boolean confused = ((Confusion != 0) && !Conf_resist);
+	boolean confused = ((Confusion != 0) && !(Conf_resist && (StrongConf_resist ? rn2(3) : !rn2(3)) ) );
 	struct obj *pseudo;
 	struct obj *otmp;
 	int confusionchance = 0;
@@ -1805,13 +3174,49 @@ boolean atme;
 	 * decrement of spell knowledge is done every turn.
 	 */
 	if (spellknow(spell) <= 0) {
-	    Your("knowledge of this spell is twisted.");
-	    pline("It invokes nightmarish images in your mind...");
-	    spell_backfire(spell);
-	    if (!rn2(25)) {
-		badeffect();
-	    }
-	    return(1);
+
+		/* overhaul by Amy: forgotten spells are no longer free, they cost Pw now and can fail or backfire
+		 * higher-level spells cost less mana to cast, THIS IS NOT AN ERROR, it's because those will also generally
+		 * have a higher fail rate, because I want there to be no easy answer for the question of "which is the best
+		 * spell to turn into a forgotten spell?" - low-level ones will have a low fail rate but cost much Pw,
+		 * high-level ones will have a high fail rate (unless you're a pretty good spellcaster) but cost little Pw */
+		int forgottencost;
+		forgottencost = ((9 - spellev(spell)) * 5);
+		if (u.uhave.amulet && u.amuletcompletelyimbued && !u.freeplaymode) {
+			You_feel("the amulet draining your energy away.");
+			forgottencost += rnd(2*forgottencost);
+
+			if (u.uen < forgottencost) {
+				u.uen = 0;
+				pline("You are exhausted, and fail to invoke the forgotten spell due to the amulet draining all your energy away.");
+				return(1);
+			}
+		}
+		if (u.uen < forgottencost) {
+			You("don't have enough energy to cast that spell. The required amount was %d.", forgottencost);
+			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+			return(0);
+		}
+		u.uen -= forgottencost;
+
+		Your("knowledge of this spell is twisted.");
+
+		if (rnd(100) > (percent_success(spell))) {
+			pline("The attempt to invoke the forgotten spell failed.");
+			if (!rn2(10)) {
+				pline("In fact, you've screwed up badly enough for it to backfire...");
+				badeffect();
+			}
+			return(1);
+		}
+
+		pline("It invokes nightmarish images in your mind...");
+		u.cnd_forgottenspellcount++;
+		spell_backfire(spell);
+		if (!rn2(25)) {
+			badeffect();
+		}
+		return(1);
 	} else if (spellknow(spell) <= 100) {
 	    You("strain to recall the spell.");
 	} else if (spellknow(spell) <= 1000) {
@@ -1821,23 +3226,45 @@ boolean atme;
 	if (SpellColorYellow) energy *= 2;
 	if (SpellColorWhite) energy *= 4;
 
+	/* inertia control and spellbinder make spells a bit more expensive... --Amy */
+	if (u.inertiacontrol) {
+		energy *= 5;
+		energy /= 4;
+	}
+	if (u.spellbinder) {
+		energy *= 5;
+		energy /= 4;
+	}
+	/* if you have both active, it's even more expensive */
+	if (u.spellbinder && u.inertiacontrol) {
+		energy *= 4;
+		energy /= 3;
+	}
+
 	/* only being easier to cast is not good enough for the "special spell", since you can't have a failure rate
 	 * lower than 0%. Reduce cost of casting the special spell to 80%! --Amy */
 	if (spellid(spell) == urole.spelspec) { if (rn2(10)) energy += 1; energy *= 4; energy /= 5; }
 
 	/* Some spells are just plain too powerful, and need to be nerfed. Sorry. --Amy */
-	if (spellid(spell) == SPE_FINGER_OF_DEATH) energy *= 2;
-	if (spellid(spell) == SPE_TIME_STOP) energy *= 2;
+	if (spellid(spell) == SPE_FINGER_OF_DEATH) energy *= 3;
+	if (spellid(spell) == SPE_TIME) energy *= 4;
+	if (spellid(spell) == SPE_INERTIA) energy *= 4;
+	if (spellid(spell) == SPE_TIME_STOP) energy *= 5;
+	if (spellid(spell) == SPE_PARALYSIS) energy *= 2;
 	if (spellid(spell) == SPE_HELLISH_BOLT) energy *= 2;
-	if (spellid(spell) == SPE_PETRIFY) { energy *= 5; energy /= 2;}
+	if (spellid(spell) == SPE_PETRIFY) energy *= 4;
+	if (spellid(spell) == SPE_JUMPING) energy *= 5;
+	if (spellid(spell) == SPE_ARMOR_SMASH) { energy *= 5; energy /= 3; }
 	if (spellid(spell) == SPE_GODMODE) { energy *= 5; energy /= 2;}
-	if (spellid(spell) == SPE_DISINTEGRATION) energy *= 3;
-	if (spellid(spell) == SPE_DISINTEGRATION_BEAM) energy *= 3;
+	if (spellid(spell) == SPE_DISINTEGRATION) energy *= 5;
+	if (spellid(spell) == SPE_DISINTEGRATION_BEAM) energy *= 5;
 	if (spellid(spell) == SPE_FIXING) energy *= 3;
 	if (spellid(spell) == SPE_CHROMATIC_BEAM) { energy *= 10; energy /= 7;}
 	if (spellid(spell) == SPE_FORCE_BOLT) { energy *= 3; energy /= 2;}
 	if (spellid(spell) == SPE_HEALING) { energy *= 3; energy /= 2;}
+	if (spellid(spell) == SPE_WATER_FLAME) { energy *= 3; energy /= 2;}
 	if (spellid(spell) == SPE_FIREBALL) energy *= 2;
+	if (spellid(spell) == SPE_SHINING_WAVE) energy *= 5;
 	if (spellid(spell) == SPE_FIRE_BOLT) { energy *= 3; energy /= 2;}
 	if (spellid(spell) == SPE_CONE_OF_COLD) { energy *= 3; energy /= 2;}
 	if (spellid(spell) == SPE_MULTIBEAM) { energy *= 6; energy /= 5;}
@@ -1877,12 +3304,18 @@ boolean atme;
 		energy /= 10;
 	}
 
-	if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "uncanny gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "sverkh''yestestvennyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "dahshatli qo'lqop") )) {
+	if (uarmg && itemhasappearance(uarmg, APP_UNCANNY_GLOVES)) {
 		energy *= 11;
 		energy /= 10;
 	}
 
 	if (uleft && uleft->oartifact == ART_HENRIETTA_S_MAGICAL_AID) {
+		if (rn2(10)) energy += 1;
+		energy *= 4;
+		energy /= 5;
+	}
+
+	if (Race_if(PM_BACTERIA)) {
 		if (rn2(10)) energy += 1;
 		energy *= 4;
 		energy /= 5;
@@ -1915,9 +3348,13 @@ boolean atme;
 		energy *= 4;
 		energy /= 5;
 	}
-	if (Role_if(PM_ELEMENTALIST) && skill == P_ELEMENTAL_SPELL) {if (rn2(10)) energy += 1; energy *= 3; energy /= 4;}
+	if (Role_if(PM_ELEMENTALIST) && skill == P_ELEMENTAL_SPELL) {
+		if (rn2(10)) energy += 1;
+		energy *= 3;
+		energy /= 4;
+	}
 
-	if ((uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "occultism gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "perchatki okkul'tizma") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "folbinlik qo'lqop") )) && skill == P_OCCULT_SPELL) {
+	if ((uarmg && itemhasappearance(uarmg, APP_OCCULTISM_GLOVES)) && skill == P_OCCULT_SPELL) {
 		if (rn2(10)) energy += 1;
 		energy *= 4;
 		energy /= 5;
@@ -1929,13 +3366,13 @@ boolean atme;
 		energy /= 3;
 	}
 
-	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_DOMPFINATION) {
+	if (powerfulimplants() && uimplant && uimplant->oartifact == ART_DOMPFINATION) {
 		if (rn2(10)) energy += 1;
 		energy *= 9;
 		energy /= 10;
 	}
 
-	if (Role_if(PM_MAHOU_SHOUJO) && (energy > 1) && uarmc && OBJ_DESCR(objects[uarmc->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "weeb cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "zese plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "yaponiya ucube rido") ) ) {
+	if (Role_if(PM_MAHOU_SHOUJO) && (energy > 1) && uarmc && itemhasappearance(uarmc, APP_WEEB_CLOAK) ) {
 		if (rn2(10)) energy += 1;
 		energy *= 9;
 		energy /= 10;
@@ -1944,11 +3381,11 @@ boolean atme;
 	/* Fail safe. Spellcasting should never become too inexpensive. --Amy */
 	if (energy < 2) energy = rn2(10) ? 2 : 1;
 
-	if (u.uhunger <= 10 && spellid(spell) != SPE_DETECT_FOOD && spellid(spell) != SPE_SATISFY_HUNGER) {
+	if (u.uhunger <= 10 && spellid(spell) != SPE_DETECT_FOOD && spellid(spell) != SPE_SATISFY_HUNGER && spellid(spell) != SPE_KEEP_SATIATION) {
 		You("are too hungry to cast that spell.");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return(0);
-	} else if (ACURR(A_STR) < 4)  {
+	} else if (ACURR(A_STR) < 4 && !(Role_if(PM_CELLAR_CHILD) && uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) )  {
 		You("lack the strength to cast spells.");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return(0);
@@ -1956,13 +3393,15 @@ boolean atme;
 		"Your concentration falters while carrying so much stuff.")) {
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 	    return (1);
-	} else if (!freehandX()) {
+	} else if (!freehandX() && !(Role_if(PM_CELLAR_CHILD) && uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) ) {
 		Your("arms are not free to cast!");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		return (0);
-	} else if (Muteness || u.uprops[MUTENESS].extrinsic || have_mutenessstone()) {
-		pline("You're muted!");
+	} else if ((Muteness || u.uprops[MUTENESS].extrinsic || have_mutenessstone()) && rn2(10)) {
+		pline("You're muted, and fail to cast the spell!");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+		u.uen -= rnd(20); /* arbitrary; you're supposed to still be able to cast a little sometimes --Amy */
+		if (u.uen < 0) u.uen = 0;
 		return (0);
 	} else if (tech_inuse(T_SILENT_OCEAN)) {
 		pline("The silent ocean prevents you from spellcasting.");
@@ -1979,7 +3418,7 @@ boolean atme;
 	/* Amy edit: but if you're satiated, you always use the standard amount of nutrition. That way, hungerless casting
 	 * does not rob you of the ability to get out of satiated status by repeatedly casting spells. */
 
-		if ((!Role_if(PM_MAHOU_SHOUJO) && !Race_if(PM_HUMANLIKE_NAGA) && (spellid(spell) != SPE_DETECT_FOOD) && (spellid(spell) != SPE_SATISFY_HUNGER) ) || u.uhunger > 2500 ) {
+		if ((!Role_if(PM_MAHOU_SHOUJO) && !Race_if(PM_HUMANLIKE_NAGA) && (spellid(spell) != SPE_DETECT_FOOD) && (spellid(spell) != SPE_SATISFY_HUNGER) && (spellid(spell) != SPE_KEEP_SATIATION) ) || u.uhunger > 2500 ) {
 		hungr = energy * 2;
 
 			/* If hero is a wizard, their current intelligence
@@ -2015,7 +3454,7 @@ boolean atme;
 			 * casting anything else except detect food
 			 */
 
-	if (u.uhave.amulet && u.amuletcompletelyimbued) {
+	if (u.uhave.amulet && u.amuletcompletelyimbued && !u.freeplaymode) {
 		/* casting while you have the fully imbued amulet always causes extra hunger no matter what --Amy
 		 * but a non-imbued one doesn't increase hunger cost */
 		hungr += rnd(2*energy);
@@ -2029,21 +3468,30 @@ boolean atme;
 			goto castanyway;
 		}
 
-		if (role_skill >= P_SKILLED) You("don't have enough energy to cast that spell.");
+		if (role_skill >= P_SKILLED || Race_if(PM_BACTERIA)) You("don't have enough energy to cast that spell.");
 		else You("don't have enough energy to cast that spell. The required amount was %d.",energy);
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		/* WAC/ALI Experts can override with HP/hunger loss */
-		if ((role_skill >= P_SKILLED) && (u.uhpmax > (energy / 5)) && (yn("Continue? Doing so may damage your maximum health.") == 'y')) {
+		if ((role_skill >= P_SKILLED || Race_if(PM_BACTERIA)) && (u.uhpmax > (energy / 5)) && (yn("Continue? Doing so may damage your maximum health.") == 'y')) {
 			energy -= u.uen;
 			hungr += energy * 2;
 			if (hungr > u.uhunger - 1)
 				hungr = u.uhunger - 1;
 
-			if (energy > 4) {
+			if (energy > 4 && (!Race_if(PM_BACTERIA) || !rn2(2))) {
 			/* otherwise, skilled godmode at 0% fail equals instawin. --Amy */
 				pline("Your maximum health was reduced by %d.", energy / 5);
 				u.uhpmax -= (energy / 5);
 				u.uhp -= (energy / 5);
+				if (u.uhp < 1) {
+					u.youaredead = 1;
+					done(DIED);
+					u.youaredead = 0;
+				}
+			} else if (energy < 5 && (!Race_if(PM_BACTERIA) || !rn2(2))) {
+				pline("Your maximum health was reduced by 1.");
+				u.uhpmax -= 1;
+				u.uhp -= 1;
 				if (u.uhp < 1) {
 					u.youaredead = 1;
 					done(DIED);
@@ -2055,7 +3503,7 @@ boolean atme;
 			if (role_skill < P_EXPERT) exercise(A_WIS, FALSE);
 			energy = u.uen;
 		} else {
-			if (role_skill >= P_SKILLED) pline("The required amount was %d.",energy);
+			if (role_skill >= P_SKILLED || Race_if(PM_BACTERIA)) pline("The required amount was %d.",energy);
 			return 0;
 		}
 	}
@@ -2097,6 +3545,12 @@ castanyway:
 
 	}
 
+	if (spellid(spell) == SPE_PARTICLE_CANNON) {
+
+		nomul(-6, "shooting the particle cannon", FALSE);
+
+	}
+
 	if (MiscastBug || u.uprops[MISCAST_BUG].extrinsic || have_miscastingstone()) {
 		badeffect();
 	}
@@ -2105,14 +3559,14 @@ castanyway:
 
 		int lcount = rnd(monster_difficulty() ) + 1;
 
-		switch (rn2(11)) {
+		if (!obsidianprotection()) switch (rn2(11)) {
 		    case 0: make_sick(Sick ? Sick/2L + 1L : (long)rn1(ACURR(A_CON),20),
 				"red spell sickness", TRUE, SICK_NONVOMITABLE);
 			    break;
 		    case 1: make_blinded(Blinded + lcount, TRUE);
 			    break;
 		    case 2: if (!Confusion)
-				You("suddenly feel %s.", Hallucination ? "trippy" : "confused");
+				You("suddenly feel %s.", FunnyHallu ? "trippy" : "confused");
 			    make_confused(HConfusion + lcount, TRUE);
 			    break;
 		    case 3: make_stunned(HStun + lcount, TRUE);
@@ -2123,7 +3577,7 @@ castanyway:
 			    break;
 		    case 6: make_burned(HBurned + lcount, TRUE);
 			    break;
-		    case 7: (void) adjattrib(rn2(A_MAX), -1, FALSE);
+		    case 7: (void) adjattrib(rn2(A_MAX), -1, FALSE, TRUE);
 			    break;
 		    case 8: (void) make_hallucinated(HHallucination + lcount, TRUE, 0L);
 			    break;
@@ -2145,9 +3599,10 @@ castanyway:
 
 	if (SpellColorPink) {
 		pline("%s", fauxmessage());
+		u.cnd_plineamount++;
 	}
 
-	if (SpellColorViolet) pushplayer();
+	if (SpellColorViolet) pushplayer(TRUE);
 
 	if (SpellColorGreen) {
 		register int zx, zy;
@@ -2178,9 +3633,10 @@ castanyway:
 		}
 	}
 
-	if ( (confused && spellid(spell) != SPE_CURE_CONFUSION && spellid(spell) != SPE_CURE_RANDOM_STATUS && (confusionchance < rnd(100)) && rn2(Conf_resist ? 2 : 10) ) || (rnd(100) > chance)) {
+	if ( (confused && spellid(spell) != SPE_CURE_CONFUSION && spellid(spell) != SPE_CURE_RANDOM_STATUS && (confusionchance < rnd(100)) && (!StrongConf_resist || !rn2(3)) && rn2(Conf_resist ? 5 : 10) ) || (rnd(100) > chance)) {
 		if (!issoviet) pline("You fail to cast the spell correctly.");
 		else pline("HA HA HA HA HA, tip bloka l'da sdelal vy ne zaklinaniye!");
+		u.cnd_spellfailcount++;
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		if (!rn2(100)) { /* evil patch idea by Amy: failure effect */
 			pline("In fact, you cast the spell incorrectly in a way that causes bad stuff to happen...");
@@ -2210,6 +3666,7 @@ castanyway:
 		if (rn2(100) < rnd(tremblechance)) {
 			You("screw up while casting the spell...");
 			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+			u.cnd_spellfailcount++;
 
 			if (!rn2(10)) {
 				pline("In fact, you screwed up so badly that bad stuff happens...");
@@ -2233,7 +3690,7 @@ castanyway:
 	/* Players could cheat if they had just barely enough mana for casting a spell without the increased drain.
 	 * They'd just need to keep trying until the extra mana costs are randomly very low.
 	 * Prevent players from abusing this by calculating the extra drain _after_ the other checks. --Amy */
-	if (u.uhave.amulet && u.amuletcompletelyimbued) {
+	if (u.uhave.amulet && u.amuletcompletelyimbued && !u.freeplaymode) {
 		You_feel("the amulet draining your energy away.");
 		energy += rnd(2*energy);
 	}
@@ -2245,12 +3702,25 @@ castanyway:
 	if (SpellColorSilver) u.seesilverspell = 1;
 
 	/* And if the amulet drained it below zero, set it to zero and just make the spell fail now. */
-	if (u.uhave.amulet && u.amuletcompletelyimbued && u.uen < 0) {
+	if (u.uhave.amulet && !u.freeplaymode && u.amuletcompletelyimbued && u.uen < 0) {
 		pline("You are exhausted, and fail to cast the spell due to the amulet draining all your energy away.");
+		u.cnd_spellfailcount++;
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		u.uen = 0;
 		if (SpellColorSilver) u.seesilverspell = 0;
 		return(1);
+	}
+
+	u.cnd_spellcastcount++;
+
+	if (uarmg && uarmg->oartifact == ART_WHOOSHZHOOSH) {
+		incr_itimeout(&HFast, rn1(15, 5));
+	}
+
+	u.umemorizationturns += spellev(spell);
+	if (u.umemorizationturns >= 100) {
+		u.umemorizationturns -= 100;
+		use_skill(P_MEMORIZATION, 1);
 	}
 
 	if (uwep && is_lightsaber(uwep) && uwep->lamplit) {
@@ -2278,7 +3748,7 @@ castanyway:
 	if (SpellColorBrightCyan) {
 		u.aggravation = 1;
 		reset_rndmonst(NON_PM);
-		(void) makemon((struct permonst *)0, 0, 0, MM_ANGRY);
+		(void) makemon((struct permonst *)0, 0, 0, MM_ANGRY|MM_FRENZIED);
 		u.aggravation = 0;
 
 	}
@@ -2291,7 +3761,7 @@ castanyway:
 	exercise(A_WIS, TRUE);
 
 	/* pseudo is a temporary "false" object containing the spell stats. */
-	pseudo = mksobj(spellid(spell), FALSE, 2);
+	pseudo = mksobj(spellid(spell), FALSE, 2, FALSE);
 	if (!pseudo) {
 		pline("The spell failed spontaneously!");
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
@@ -2363,6 +3833,15 @@ castanyway:
 	case SPE_WIZARD_LOCK:
 	case SPE_DIG:
 	case SPE_VOLT_ROCK:
+	case SPE_GIANT_FOOT:
+	case SPE_BUBBLING_HOLE:
+	case SPE_GEYSER:
+	case SPE_NERVE_POISON:
+	case SPE_BLOOD_STREAM:
+	case SPE_SHINING_WAVE:
+	case SPE_ARMOR_SMASH:
+	case SPE_STRANGLING:
+	case SPE_PARTICLE_CANNON:
 	case SPE_BATTERING_RAM:
 	case SPE_WATER_FLAME:
 	case SPE_TURN_UNDEAD:
@@ -2397,6 +3876,44 @@ castanyway:
 	case SPE_FIRE_BOLT:
 	case SPE_HYPER_BEAM:
 	case SPE_PARALYSIS:
+
+		if (pseudo->otyp == SPE_PARTICLE_CANNON) {
+			if (u.gaugetimer) {
+				You("need to wait %d more turns to refill your gauge. The particle cannon can be used again at turn %d.", u.gaugetimer, (moves + u.gaugetimer));
+				break;
+			} else {
+				u.gaugetimer = 50;
+			}
+		}
+
+		if (practicantterror && pseudo && pseudo->otyp == SPE_FINGER_OF_DEATH && !u.pract_fodzap) {
+			pline("%s thunders: 'Well wait, I'll shut down your evil spellcasting. Also, for actually casting an unforgivable curse, you have to pay 25000 zorkmids. If you keep misbehaving like that I'll show you some unforgivable curses, I tell you...'", noroelaname());
+			Muteness += rnz(5000);
+			fineforpracticant(25000, 0, 0);
+			u.pract_fodzap = TRUE;
+		}
+
+		if (pseudo->otyp == SPE_BLOOD_STREAM) {
+
+			if (Upolyd && u.mh < 5) {
+				losehp(10000, "forcibly bleeding out", KILLED_BY);
+			} else if (!Upolyd && u.uhp < 5) {
+				losehp(10000, "forcibly bleeding out", KILLED_BY);
+			}
+			if (rn2(2)) {
+				if (Upolyd) u.mh -= ((u.mh / 5) + 1);
+				else u.uhp -= ((u.uhp / 5) + 1);
+			} else {
+				if (Upolyd) {
+					u.mh -= ((u.mhmax / 5) + 1);
+					if (u.mh < 0) losehp(10000, "forcibly bleeding out", KILLED_BY);
+				} else {
+					u.uhp -= ((u.uhpmax / 5) + 1);
+					if (u.uhp < 0) losehp(10000, "forcibly bleeding out", KILLED_BY);
+				}
+			}
+		}
+
 		if (!(objects[pseudo->otyp].oc_dir == NODIR)) {
 			if (atme) u.dx = u.dy = u.dz = 0;
 			else
@@ -2454,7 +3971,7 @@ magicalenergychoice:
 			if (!(InterfaceScrewed || u.uprops[INTERFACE_SCREW].extrinsic || have_interfacescrewstone())) (void) doredraw();
 		}
 		if (pseudo->otyp == SPE_WIND) {
-			pushplayer();
+			pushplayer(TRUE);
 			pline("The winds hurt you!");
 			losehp(rnd(10), "winds", KILLED_BY);
 			if (In_sokoban(&u.uz)) {
@@ -2495,7 +4012,7 @@ magicalenergychoice:
 	case SPE_CREATE_MONSTER:
 	case SPE_IDENTIFY:
 	case SPE_DESTROY_ARMOR:
-	case SPE_COMMAND_UNDEAD:                
+	case SPE_COMMAND_UNDEAD:
 	case SPE_SUMMON_UNDEAD:
 		if (rn2(5)) pseudo->blessed = 0;
 		(void) seffects(pseudo);
@@ -2533,6 +4050,11 @@ magicalenergychoice:
 		trap_detectX((struct obj *)0);
 		exercise(A_WIS, TRUE);
 
+		if (!rn2(10)) {
+			pline("The spell backlashes!");
+			badeffect();
+		}
+
 		break;
 	/* these are all duplicates of potion effects */
 	case SPE_HASTE_SELF:
@@ -2551,7 +4073,21 @@ magicalenergychoice:
 		(void) peffects(pseudo);
 		break;
 	case SPE_CURE_BLINDNESS:
-		healup(0, 0, FALSE, TRUE);
+		if (HeavyBlind) break;
+		if (Blinded > (rn1(Role_if(PM_HEALER) ? 200 : 100, 20))) {
+			int effreduction = rnd(Blinded / 2);
+			if (effreduction > 0) {
+				u.ucreamed -= effreduction;
+				Blinded -= effreduction;
+				Your("blindness counter is reduced.");
+			}
+			if (!Role_if(PM_HEALER) && !rn2(500)) {
+				pline("The spell backlashes!");
+				badeffect();
+			}
+		} else {
+			healup(0, 0, FALSE, TRUE);
+		}
 		break;
 	case SPE_AMNESIA:
 		You_feel("dizzy!");
@@ -2567,6 +4103,851 @@ magicalenergychoice:
 		if (PlayerHearsSoundEffects) pline(issoviet ? "Vashe der'mo tol'ko chto proklinal." : "Woaaaaaa-AAAH!");
 		rndcurse();
 		break;
+
+	case SPE_ORE_MINING:
+
+		{
+			int i, j;
+			boolean alreadydone = 0;
+			for (i = -1; i <= 1; i++) for(j = -1; j <= 1; j++) {
+				if (!isok(u.ux + i, u.uy + j)) continue;
+				if (alreadydone) continue;
+				if (levl[u.ux + i][u.uy + j].typ == STALACTITE) {
+					levl[u.ux + i][u.uy + j].typ = CORR;
+
+					if (!rn2(3)) { /* 80% chance of glass, 20% of precious gems */
+						if (rn2(5)) mksobj_at(rnd_class(JADE+1, LUCKSTONE-1), u.ux + i, u.uy + j, TRUE, FALSE, FALSE);
+						else mksobj_at(rnd_class(DILITHIUM_CRYSTAL, JADE), u.ux + i, u.uy + j, TRUE, FALSE, FALSE);
+						pline("A stalactite turns into gems!");
+						alreadydone = TRUE;
+
+						if (practicantterror && !u.pract_oremining) {
+							pline("%s booms: 'Didn't you hear? Mining my ore is forbidden! That's 1000 zorkmids, and you still have one minute to get away from my ore, got it?'", noroelaname());
+							fineforpracticant(1000, 0, 0);
+							u.pract_oremining = TRUE;
+						}
+
+						break;
+					} else {
+						pline("A stalactite shatters!");
+						alreadydone = TRUE;
+						break;
+					}
+
+					alreadydone = TRUE; /* why the HELL does the break statement not go out of the loop */
+					break; /* only raze one stalactite if there are several --Amy */
+				}
+
+			}
+
+		}
+manloop:
+
+		if (!(InterfaceScrewed || u.uprops[INTERFACE_SCREW].extrinsic || have_interfacescrewstone())) (void)doredraw();
+
+		break;
+
+	case SPE_BOILER_KABOOM:
+
+		{
+			int i, j;
+			for (i = -1; i <= 1; i++) for(j = -1; j <= 1; j++) {
+
+				if (!isok(u.ux + i, u.uy + j)) continue;
+				if (levl[u.ux + i][u.uy + j].typ == RAINCLOUD) {
+
+					levl[u.ux + i][u.uy + j].typ = CORR;
+					explode(u.ux + i, u.uy + j, ZT_FIRE, rnd(u.ulevel * 3), WAND_CLASS, EXPL_FIERY);
+
+				}
+
+			}
+
+		}
+
+		if (!(InterfaceScrewed || u.uprops[INTERFACE_SCREW].extrinsic || have_interfacescrewstone())) (void)doredraw();
+
+		break;
+
+	case SPE_DEFOG:
+
+		{
+			boolean defogged = 0;
+			int i, j;
+			for (i = -1; i <= 1; i++) for(j = -1; j <= 1; j++) {
+
+				if (!isok(u.ux + i, u.uy + j)) continue;
+				if (levl[u.ux + i][u.uy + j].typ == NETHERMIST) {
+
+					levl[u.ux + i][u.uy + j].typ = CORR;
+					adjalign(-10);
+					u.alignlim--;
+					defogged = 1;
+
+				}
+
+			}
+
+			if (defogged) pline("It is not foggy any longer.");
+			else {
+				pline("Nothing happens.");
+				if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
+					pline("Oh wait, actually something bad happens...");
+					badeffect();
+				}
+			}
+
+		}
+
+		if (!(InterfaceScrewed || u.uprops[INTERFACE_SCREW].extrinsic || have_interfacescrewstone())) (void)doredraw();
+
+		break;
+
+	case SPE_SWAP_POSITION:
+
+		u.swappositioncount = 4;
+		pline("The next monster you move into will be displaced.");
+
+		break;
+
+	case SPE_SHUFFLE_MONSTER:
+
+		{
+			int hasshuffled = 0;
+
+			register struct monst *nexusmon, *nextmon;
+
+			for(nexusmon = fmon; nexusmon; nexusmon = nextmon) {
+			    nextmon = nexusmon->nmon; /* trap might kill mon */
+			    if (DEADMONSTER(nexusmon)) continue;
+			    if (u.usteed && nexusmon == u.usteed) continue;
+	
+			    if (!monnear(nexusmon, u.ux, u.uy)) continue;
+				if (nexusmon->mtrapped) {
+				    /* no longer in previous trap (affects mintrap) */
+				    nexusmon->mtrapped = 0;
+				    fill_pit(nexusmon->mx, nexusmon->my);
+				}
+
+				if (pushmonster(nexusmon)) hasshuffled++;
+				if (pushmonster(nexusmon)) hasshuffled++;
+
+			}
+
+			if (hasshuffled && !(InterfaceScrewed || u.uprops[INTERFACE_SCREW].extrinsic || have_interfacescrewstone())) doredraw();
+
+			if (!hasshuffled) pline("No monsters were shuffled!");
+			else if (hasshuffled <= 2) pline("A monster was shuffled!");
+			else pline("Several monsters were shuffled!");
+
+		}
+
+		break;
+
+	case SPE_PET_SYRINGE:
+
+		{
+
+			register struct monst *nexusmon, *nextmon;
+			const char *verb;
+			int healamount;
+
+			for(nexusmon = fmon; nexusmon; nexusmon = nextmon) {
+			    nextmon = nexusmon->nmon; /* trap might kill mon */
+			    if (DEADMONSTER(nexusmon)) continue;
+
+			    if (!monnear(nexusmon, u.ux, u.uy)) continue;
+			    if (!nexusmon->mtame) continue;
+
+				healamount = d(15, 10 + spell_damage_bonus(SPE_PET_SYRINGE) );
+				nexusmon->mhp += healamount;
+
+				if (nexusmon->mhp > nexusmon->mhpmax) nexusmon->mhp = nexusmon->mhpmax;
+
+				if (nexusmon->bleedout && nexusmon->bleedout <= healamount) {
+					nexusmon->bleedout = 0;
+					pline("%s's bleeding stops.", Monnam(nexusmon));
+				} else if (nexusmon->bleedout) {
+					nexusmon->bleedout -= healamount;
+					if (nexusmon->bleedout < 0) nexusmon->bleedout = 0; /* should never happen */
+					pline("%s's bleeding diminishes.", Monnam(nexusmon));
+				}
+
+				abuse_dog(nexusmon);
+
+				pline("%s received the syringe and is healthy again.", Monnam(nexusmon));
+				verb = growl_sound(nexusmon);
+				pline("%s %s.", Monnam(nexusmon), vtense((char *)0, verb));
+
+			}
+
+		}
+
+		break;
+
+	case SPE_BUC_KNOWLEDGE:
+
+		pline("Choose an item for BUC identification.");
+bucchoice:
+		otmp = getobj(all_count, "know the BUC of");
+		if (!otmp) {
+			if (yn("Really exit with no object selected?") == 'y')
+				pline("You just wasted the opportunity to determine an item's BUC.");
+			else goto bucchoice;
+			pline("You decide not to determine an item's BUC after all.");
+			break;
+		}
+		if (otmp) {
+			otmp->bknown = TRUE;
+			if (otmp->blessed || otmp->cursed) pline("Your %s flashes %s.", doname(otmp), hcolor(otmp->blessed ? NH_AMBER : NH_BLACK));
+		}
+
+		break;
+
+	case SPE_PREACHING:
+
+		You("preach some religious sermon.");
+		adjalign(5);
+
+		break;
+
+	case SPE_RESIST_PARALYSIS:
+
+		if(!(HDiscount_action & INTRINSIC)) {
+			You("gain paralysis resistance!");
+			incr_itimeout(&HDiscount_action, HDiscount_action ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+		} else {
+			pline("%s", nothing_happens);	/* Already have as intrinsic */
+			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
+				pline("Oh wait, actually something bad happens...");
+				badeffect();
+			}
+		}
+
+		break;
+
+	case SPE_KEEP_SATIATION:
+
+		if(!(HFull_nutrient & INTRINSIC)) {
+			Your("nutrition consumption slows down!");
+			incr_itimeout(&HFull_nutrient, HFull_nutrient ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+		} else {
+			pline("%s", nothing_happens);	/* Already have as intrinsic */
+			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
+				pline("Oh wait, actually something bad happens...");
+				badeffect();
+			}
+		}
+
+		break;
+
+	case SPE_TECH_BOOST:
+
+		if(!(HTechnicality & INTRINSIC)) {
+			Your("techniques become stronger!");
+			incr_itimeout(&HTechnicality, HTechnicality ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+		} else {
+			pline("%s", nothing_happens);	/* Already have as intrinsic */
+			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
+				pline("Oh wait, actually something bad happens...");
+				badeffect();
+			}
+		}
+
+		break;
+
+	case SPE_CONTINGENCY:
+
+		u.contingencyturns = 50 + (spell_damage_bonus(spellid(spell)) * 3);
+		You("sign up a contract with the reaper.");
+
+		break;
+
+	case SPE_AULE_SMITHING:
+
+		pline("Choose an item for erosionproofing.");
+aulechoice:
+		otmp = getobj(all_count, "fooproof");
+		if (!otmp) {
+			if (yn("Really exit with no object selected?") == 'y')
+				pline("You just wasted the opportunity to fooproof an item.");
+			else goto aulechoice;
+			pline("You decide not to erosionproof any item after all.");
+			break;
+		}
+		if (otmp) {
+			otmp->oerodeproof = TRUE;
+			pline("Success! Your item is erosionproof now.");
+		}
+
+		break;
+
+	case SPE_HORSE_HOP:
+		u.horsehopturns = 50 + rnd(50 + (spell_damage_bonus(spellid(spell)) * 5) );
+		pline("You can jump while riding!");
+
+		break;
+
+	case SPE_LINE_LOSS:
+
+		{
+
+			register struct monst *nexusmon, *nextmon;
+
+			for(nexusmon = fmon; nexusmon; nexusmon = nextmon) {
+			    nextmon = nexusmon->nmon; /* trap might kill mon */
+			    if (DEADMONSTER(nexusmon)) continue;
+
+			    if (!sensemon(nexusmon) && !canseemon(nexusmon)) continue;
+
+				nexusmon->mhp--;
+				if (nexusmon->mhp <= 0) {
+					xkilled(nexusmon, 0);
+					pline("%s lost the last line and dies!", Monnam(nexusmon));
+				}
+				else {
+					pline("%s loses a line!", Monnam(nexusmon));
+					wakeup(nexusmon); /* monster becomes hostile */
+				}
+
+			}
+
+		}
+
+		break;
+
+	case SPE_TACTICAL_NUKE:
+
+		if (Upolyd) losehp((u.mhmax / 10) + 1, "tactical nuke", KILLED_BY_AN);
+		else losehp((u.uhpmax / 10) + 1, "tactical nuke", KILLED_BY_AN);
+		pline("Rrrrroommmmmm - the nuke hits you and all monsters in view.");
+
+		{
+
+			register struct monst *nexusmon, *nextmon;
+
+			for(nexusmon = fmon; nexusmon; nexusmon = nextmon) {
+			    nextmon = nexusmon->nmon; /* trap might kill mon */
+			    if (DEADMONSTER(nexusmon)) continue;
+
+			    if (!sensemon(nexusmon) && !canseemon(nexusmon)) continue;
+
+				nexusmon->mhp -= ((nexusmon->mhp / 10) + 1);
+				if (nexusmon->mhp <= 0) {
+					xkilled(nexusmon, 0);
+					pline("%s dies to the nuke!", Monnam(nexusmon));
+				}
+				else {
+					pline("%s is hurt by the nuke!", Monnam(nexusmon));
+					wakeup(nexusmon); /* monster becomes hostile */
+				}
+
+			}
+
+		}
+
+		break;
+
+	case SPE_RAGNAROK:
+
+		if (u.ragnarokspelltimeout) {
+			pline("Nothing happens.");
+			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
+				pline("Oh wait, actually something bad happens...");
+				badeffect();
+			}
+			break;
+		}
+		ragnarok(TRUE);
+		if (evilfriday) evilragnarok(TRUE,level_difficulty());
+		u.ragnarokspelltimeout += 1000; /* can't use it again for a while */
+
+		break;
+
+	case SPE_ONE_POINT_SHOOT:
+
+		if (u.gaugetimer) {
+			You("need to wait %d more turns to refill your gauge. One Point Shoot can be used again at turn %d.", u.gaugetimer, (moves + u.gaugetimer));
+			break;
+		} else {
+			u.gaugetimer = 50;
+		}
+
+		{
+			register struct obj *opbullet;
+			int opbonus = 0;
+			int opdamage = 0;
+
+			coord cc;
+			struct monst *psychmonst;
+
+			opbullet = carrying(BULLET);
+			if (!opbullet) opbullet = carrying(SILVER_BULLET);
+			if (!opbullet) opbullet = carrying(LEAD_BULLET);
+			if (!opbullet) {
+				pline("There are no bullets, and therefore you can't shoot!");
+				break;
+			}
+
+			opdamage = d(6, 12) + (spell_damage_bonus(spellid(spell)) * 5);
+
+			pline("Select the target monster");
+			cc.x = u.ux;
+			cc.y = u.uy;
+			getpos(&cc, TRUE, "the spot to shoot");
+			if (cc.x == -10) break; /* user pressed esc */
+			psychmonst = m_at(cc.x, cc.y);
+
+			if (!psychmonst || (!canseemon(psychmonst) && !canspotmon(psychmonst))) {
+				You("don't see a monster there!");
+				break;
+			}
+
+			/* there should be a valid target now, so use up a bullet */
+			if (opbullet) {
+				if (opbullet->spe > 0) opbonus = opbullet->spe;
+
+				if (opbullet->quan > 1) {
+					opbullet->quan--;
+					opbullet->owt = weight(opbullet);
+				}
+				else useup(opbullet);
+
+			}
+
+			if (opdamage > 1) opdamage = rnd(opdamage);
+			opdamage += (opbonus * rnd(20));
+
+			if (psychmonst) {
+
+				pline("PEW PEW PEW! %s is shot by your gun!", Monnam(psychmonst));
+				if (noncorporeal(psychmonst->data)) { /* ghosts are hard to hit... */
+					if (opdamage > 1) opdamage /= 2;
+					pline("%s resists the attack!", Monnam(psychmonst));
+					/* but isn't immune --Amy */
+				}
+				psychmonst->mhp -= opdamage;
+				if (psychmonst->mhp < 1) {
+					pline("%s resonates and breaks up.", Monnam(psychmonst));
+					xkilled(psychmonst,0);
+				} else wakeup(psychmonst); /* make them hostile */
+
+			}
+
+		}
+
+		break;
+
+	case SPE_GROUND_STOMP:
+
+		if (Confusion) {
+			You("are unable to use ground stomp while confused.");
+			break;
+		}
+
+		You("smash something the ground."); /* This is NOT a misspelling!!! --Amy */
+
+		{
+
+			register struct monst *nexusmon, *nextmon;
+
+			for(nexusmon = fmon; nexusmon; nexusmon = nextmon) {
+			    nextmon = nexusmon->nmon; /* trap might kill mon */
+			    if (DEADMONSTER(nexusmon)) continue;
+			    if (!monnear(nexusmon, u.ux, u.uy)) continue;
+
+			    if (!sensemon(nexusmon) && !canseemon(nexusmon)) continue;
+
+				nexusmon->mhp -= (d(10, 10 + (spell_damage_bonus(spellid(spell)) * 5) ) + rnd(u.ulevel * 5));
+				if (nexusmon->mhp <= 0) {
+					xkilled(nexusmon, 0);
+					pline("%s is crushed flat!", Monnam(nexusmon));
+				}
+				else {
+					pline("%s is hit by debris!", Monnam(nexusmon));
+					wakeup(nexusmon); /* monster becomes hostile */
+				}
+
+			}
+
+		}
+
+		make_confused(HConfusion + rn1(50,75), FALSE);
+		set_itimeout(&HeavyConfusion, HConfusion);
+		u.uprops[DEAC_CONF_RES].intrinsic += rn1(50,75);
+
+		break;
+
+	case SPE_DIRECTIVE:
+
+		{
+
+			int successrate = 0;
+
+			if (!(PlayerCannotUseSkills) && P_SKILL(P_OCCULT_SPELL) >= P_UNSKILLED) {
+
+				switch (P_SKILL(P_OCCULT_SPELL)) {
+					case P_BASIC: successrate = 25; break;
+					case P_SKILLED: successrate = 40; break;
+					case P_EXPERT: successrate = 50; break;
+					case P_MASTER: successrate = 60; break;
+					case P_GRAND_MASTER: successrate = 80; break;
+					case P_SUPREME_MASTER: successrate = 100; break;
+					default: successrate = 10; break;
+				}
+
+			}
+
+			if (!successrate) {
+				pline("Unfortunately, no one seems to follow any directives you're giving.");
+				break;
+			}
+
+			if (!PlayerCannotUseSkills && P_SKILL(P_RIDING) >= P_SKILLED && rnd(75) <= successrate) {
+
+			pline("Currently your steed has %d%% chance of being targetted by monsters.", u.steedhitchance);
+			if (yn("Change it?") == 'y') {
+
+				int lowerbound, higherbound;
+				lowerbound = 25;
+				higherbound = 25;
+
+				switch (P_SKILL(P_RIDING)) {
+					case P_SKILLED:
+						lowerbound = 20;
+						higherbound = 33;
+						break;
+					case P_EXPERT:
+						lowerbound = 10;
+						higherbound = 50;
+						break;
+					case P_MASTER:
+						lowerbound = 5;
+						higherbound = 75;
+						break;
+					case P_GRAND_MASTER:
+						lowerbound = 3;
+						higherbound = 90;
+						break;
+					case P_SUPREME_MASTER:
+						lowerbound = 1;
+						higherbound = 100;
+						break;
+					default:
+						lowerbound = 25;
+						higherbound = 25;
+						break;
+				}
+
+				pline("You can set the chance to values between %d%% and %d%% (inclusive).", lowerbound, higherbound);
+				if (lowerbound <= 1 && yn("Set the chance to 1%%?") == 'y') {
+					u.steedhitchance = 1;
+					pline("The chance that attacks target your steed is 1%% now.");
+				} else if (lowerbound <= 3 && yn("Set the chance to 3%%?") == 'y') {
+					u.steedhitchance = 3;
+					pline("The chance that attacks target your steed is 3%% now.");
+				} else if (lowerbound <= 5 && yn("Set the chance to 5%%?") == 'y') {
+					u.steedhitchance = 5;
+					pline("The chance that attacks target your steed is 5%% now.");
+				} else if (lowerbound <= 10 && yn("Set the chance to 10%%?") == 'y') {
+					u.steedhitchance = 10;
+					pline("The chance that attacks target your steed is 10%% now.");
+				} else if (lowerbound <= 20 && yn("Set the chance to 20%%?") == 'y') {
+					u.steedhitchance = 20;
+					pline("The chance that attacks target your steed is 20%% now.");
+				} else if (yn("Set the chance to 25%%?") == 'y') {
+					u.steedhitchance = 25;
+					pline("The chance that attacks target your steed is 25%% now.");
+				} else if (higherbound >= 33 && yn("Set the chance to 33%%?") == 'y') {
+					u.steedhitchance = 33;
+					pline("The chance that attacks target your steed is 33%% now.");
+				} else if (higherbound >= 50 && yn("Set the chance to 50%%?") == 'y') {
+					u.steedhitchance = 50;
+					pline("The chance that attacks target your steed is 50%% now.");
+				} else if (higherbound >= 75 && yn("Set the chance to 75%%?") == 'y') {
+					u.steedhitchance = 75;
+					pline("The chance that attacks target your steed is 75%% now.");
+				} else if (higherbound >= 90 && yn("Set the chance to 90%%?") == 'y') {
+					u.steedhitchance = 90;
+					pline("The chance that attacks target your steed is 90%% now.");
+				} else if (higherbound >= 100 && yn("Set the chance to 100%%?") == 'y') {
+					u.steedhitchance = 100;
+					pline("The chance that attacks target your steed is 100%% now.");
+				} else pline("The chance that attacks target your steed remains %d%%.", u.steedhitchance);
+
+			}
+
+			}
+
+			if (rnd(20) <= successrate) {
+
+			pline("Currently your pets can%s pick up items.", u.petcollectitems ? "" : "'t");
+			if (yn("Change it?") == 'y') {
+				if (u.petcollectitems) u.petcollectitems = 0;
+				else u.petcollectitems = 1;
+				pline("Your pets can%s pick up items now.", u.petcollectitems ? "" : "'t");
+			}
+
+			}
+
+			if (rnd(45) <= successrate) {
+
+			pline("Currently your pets can%s attack%s monsters.", u.petattackenemies ? "" : "'t", u.petattackenemies == 2 ? " both hostile and peaceful" : u.petattackenemies == 1 ? " only hostile" : "");
+			if (yn("Change it?") == 'y') {
+				pline("You got the following options: make the pet attack everything, make it attack only hostile monsters, or prevent it from attacking anything.");
+				if (yn("Do you want your pets to attack everything?") == 'y') {
+					u.petattackenemies = 2;
+					pline("Your pets can attack all monsters now.");
+				} else if (yn("Do you want your pets to only attack hostile creatures?") == 'y') {
+					u.petattackenemies = 1;
+					pline("Your pets can attack hostile monsters now, but will leave peaceful ones alone.");
+				} else if (yn("Do you want your pets to not attack any monsters?") == 'y') {
+					u.petattackenemies = 0;
+					pline("Your pets can't attack monsters now.");
+				}
+			}
+
+			}
+
+			if (rnd(75) <= successrate) {
+
+			pline("Currently your pets can%s eat food off the floor.", u.petcaneat ? "" : "'t");
+			if (yn("Change it?") == 'y') {
+				if (u.petcaneat) u.petcaneat = 0;
+				else u.petcaneat = 1;
+				pline("Your pets can%s eat food off the floor now.", u.petcaneat ? "" : "'t");
+			}
+
+			}
+
+			if (rnd(120) <= successrate) {
+
+			pline("Currently your pets can%s try to follow you.", u.petcanfollow ? "" : "'t");
+			if (yn("Change it?") == 'y') {
+				if (u.petcanfollow) u.petcanfollow = 0;
+				else u.petcanfollow = 1;
+				pline("Your pets can%s try to follow you now.", u.petcanfollow ? "" : "'t");
+			}
+
+			}
+
+		}
+
+		break;
+
+	case SPE_POWDER_SPRAY:
+
+		You("spray the powder.");
+
+		{
+
+			register struct monst *nexusmon, *nextmon;
+
+			for(nexusmon = fmon; nexusmon; nexusmon = nextmon) {
+			    nextmon = nexusmon->nmon; /* trap might kill mon */
+			    if (DEADMONSTER(nexusmon)) continue;
+
+			    if (!monnear(nexusmon, u.ux, u.uy)) continue;
+			    if (resist(nexusmon, SPBOOK_CLASS, 0, NOTELL)) continue;
+			    if (resists_poison(nexusmon)) continue;
+
+				nexusmon->mhp -= rn1(10, 6);
+				if (!rn2(500)) {
+					pline("The poison was deadly...");
+					nexusmon->mhp = -1;
+					xkilled(nexusmon, 0);
+				} else if (nexusmon->mhp <= 0) {
+					xkilled(nexusmon, 0);
+					pline("%s is poisoned to death!", Monnam(nexusmon));
+				}
+				else {
+					pline("%s is poisoned!", Monnam(nexusmon));
+					wakeup(nexusmon); /* monster becomes hostile */
+				}
+			}
+
+		}
+
+		break;
+
+	case SPE_FIREWORKS:
+
+		throwstorm(pseudo, 2 + spell_damage_bonus(SPE_FIREWORKS), 2, 2);
+
+		break;
+
+	case SPE_AIMBOT_LIGHTNING:
+
+		{
+			coord cc;
+			int dirx, diry;
+
+			pline("Select the target square");
+			cc.x = u.ux;
+			cc.y = u.uy;
+			getpos(&cc, TRUE, "the spot to aim lightning from");
+			if (cc.x == -10) break; /* user pressed esc */
+
+			if (!couldsee(cc.x, cc.y)) {
+				You("can't see the location, and therefore nothing happens!");
+				break;
+			}
+
+			dirx = rn2(3) - 1;
+			diry = rn2(3) - 1;
+			if (dirx == 0 && diry == 0) { /* fail safe; yeah I know this biases it towards diagonal :P --Amy */
+				dirx = rn2(2) ? 1 : -1;
+				diry = rn2(2) ? 1 : -1;
+			}
+			if (dirx != 0 || diry != 0) {
+				buzz(15, 8 + (spell_damage_bonus(SPE_AIMBOT_LIGHTNING) * rnd(2)), cc.x, cc.y, dirx, diry);
+			}
+
+		}
+
+		break;
+
+	case SPE_ENHANCE_BREATH:
+
+		u.breathenhancetimer = 100 + (spell_damage_bonus(SPE_ENHANCE_BREATH) * 10);
+		Your("breath is magically enhanced!");
+
+		break;
+
+	case SPE_GOUGE_DICK:
+
+		if (!u.uswallow) {
+			pline("This spell has no effect if you're not engulfed.");
+			break;
+		}
+		pline("You ram into %s with your %spenis.", mon_nam(u.ustuck), flags.female ? "nonexistant " : "");
+		if (u.ustuck->mpeaceful && !(u.ustuck->mtame)) u.ustuck->mpeaceful = 0; /* monster becomes hostile */
+		u.ustuck->mhp -= d(flags.female ? 2 : 5, 5 + spell_damage_bonus(SPE_GOUGE_DICK) + rno(u.ulevel));
+		u.ustuck->mcanmove = 0;
+		u.ustuck->mfrozen = rn1(5,5);
+		u.ustuck->mstrategy &= ~STRAT_WAITFORU;
+
+		if (u.ustuck->mhp <= 0) {
+			xkilled(u.ustuck, 0);
+			pline("The monster that engulfed you is stabbed to death!");
+		}
+		else pline("%s is severely hurt!", Monnam(u.ustuck));
+
+		break;
+
+	case SPE_BODYFLUID_STRENGTHENING:
+
+		u.bodyfluideffect = 10 + spell_damage_bonus(SPE_BODYFLUID_STRENGTHENING);
+		Your("body is covered with protective acid!");
+
+		break;
+
+	case SPE_PURIFICATION:
+
+		{
+			int i, j;
+			for (i = -1; i <= 1; i++) for(j = -1; j <= 1; j++) {
+				if (!isok(u.ux + i, u.uy + j)) continue;
+				if (i == 0 && j == 0) continue; /* don't target the square you're on --Amy */
+				if (levl[u.ux + i][u.uy + j].typ == STYXRIVER) {
+					levl[u.ux + i][u.uy + j].typ = MOAT;
+					Norep("A styx river turns into a moat!");
+				}
+			}
+		}
+
+		if (!(InterfaceScrewed || u.uprops[INTERFACE_SCREW].extrinsic || have_interfacescrewstone())) (void)doredraw();
+
+		break;
+
+	case SPE_ADD_SPELL_MEMORY:
+
+		if (spellid(0) == NO_SPELL)  { /* should never happen, but I put it here just in case --Amy */
+			You("don't know any spells, and therefore you cannot add spell memory to them either.");
+			break;
+		}
+
+		pline("Choose a spell to add spell memory.");
+addspmagain:
+		if (!addsomespellmemory()) {
+			if (yn("Really exit with no spell selected?") == 'y')
+				pline("You just wasted the opportunity to add memory to a spell.");
+			else goto addspmagain;
+		}
+
+		break;
+
+	case SPE_NEXUSPORT:
+
+		switch (rnd(7)) {
+
+			case 1:
+			case 2:
+			case 3:
+				pline("You are teleported by nexus forces!");
+				teleX();
+				break;
+			case 4:
+			case 5:
+				pline("You are pushed around by nexus forces!");
+				phase_door(0);
+				break;
+			case 6:
+
+				if ((!u.uevent.udemigod || u.freeplaymode) && !(flags.lostsoul || flags.uberlostsoul || (flags.wonderland && !(u.wonderlandescape)) || (iszapem && !(u.zapemescape)) || u.uprops[STORM_HELM].extrinsic || In_bellcaves(&u.uz) || In_subquest(&u.uz) || In_voiddungeon(&u.uz) || In_netherrealm(&u.uz)) ) {
+					make_stunned(HStun + 2, FALSE); /* to suppress teleport control that you might have */
+
+					if (!u.levelporting) {
+						u.levelporting = 1;
+						nomul(-2, "being levelported", FALSE); /* because it's not called until you get another turn... */
+					}
+				}
+				break;
+			case 7:
+				{
+					nexus_swap();
+
+					if (!rn2(3)) {
+
+						int reducedstat = rn2(A_MAX);
+						if(ABASE(reducedstat) <= ATTRMIN(reducedstat)) {
+							pline("Your health was damaged!");
+							u.uhpmax -= rnd(5);
+							if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
+							if (u.uhp < 1) {
+								u.youaredead = 1;
+								killer = "nexus scrambling";
+								killer_format = KILLED_BY;
+								done(DIED);
+								u.youaredead = 0;
+							}
+
+						} else {
+							ABASE(reducedstat) -= 1;
+							AMAX(reducedstat) -= 1;
+							flags.botl = 1;
+							pline("Your attributes were damaged!");
+						}
+					}
+				}
+				break;
+
+		}
+
+		if (!rn2(5)) {
+			pline("The spell backfires!");
+			badeffect();
+		}
+
+		break;
+
+	case SPE_ANTI_TELEPORTATION:
+
+		u.antitelespelltimeout = rnd(100 + (spell_damage_bonus(SPE_ANTI_TELEPORTATION) * 10));
+		You("erect an anti-teleportation barrier!");
+
+		break;
+
 	case SPE_FUMBLING:
 		if (!Fumbling) pline("You start fumbling.");
 		HFumbling = FROMOUTSIDE | rnd(5);
@@ -2576,7 +4957,7 @@ magicalenergychoice:
 	case SPE_REMOVE_BLESSING:
 		{
 
-		    if (Hallucination)
+		    if (FunnyHallu)
 			You_feel("the power of the Force against you!");
 		    else
 			You_feel("like you need some help.");
@@ -2612,28 +4993,732 @@ magicalenergychoice:
 		    for (obj = invent; obj; obj = obj2) {
 		      obj2 = obj->nobj;
 
-			if (obj->oclass == ARMOR_CLASS && (obj->shirtmessage % 3 == 0) ) obj->known = TRUE;
+			if (obj->oclass == ARMOR_CLASS && !obj->known && (obj->shirtmessage % 3 == 0) ) {
+				obj->known = TRUE;
+				break;
+			}
 
 		    }
 		}
 
 		break;
 
+	case SPE_METAL_GUARD:
+
+		if (u.metalguard) pline("%s", nothing_happens);
+		else {
+			u.metalguard = TRUE;
+			You("activate your metal guard!");
+		}
+
+		break;
+
+	case SPE_MAGIC_WHISTLING:
+
+	{
+		register struct monst *whismtmp, *whisnextmon;
+
+		You("try to whistle your pets here...");
+
+		for(whismtmp = fmon; whismtmp; whismtmp = whisnextmon) {
+		    whisnextmon = whismtmp->nmon; /* trap might kill mon */
+		    if (DEADMONSTER(whismtmp)) continue;
+		    if (whismtmp->mtame) {
+			if (whismtmp->mtrapped) {
+			    /* no longer in previous trap (affects mintrap) */
+			    whismtmp->mtrapped = 0;
+			    fill_pit(whismtmp->mx, whismtmp->my);
+			}
+			mnexto(whismtmp);
+			if (mintrap(whismtmp) == 2) change_luck(-1);
+		    }
+		}
+	}
+		break;
+
+	case SPE_GAIN_SPACT:
+
+		if (u.uhpmax < 101) {
+			pline("You don't have enough health to control the powers of this spell!");
+			break;
+		}
+		if (Upolyd && u.mhmax < 101) {
+			pline("You don't have enough health to control the powers of this spell!");
+			break;
+		}
+
+		u.uhpmax -= rnd(100);
+		if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
+		if (Upolyd) {
+			u.mhmax -= rnd(100);
+			if (u.mh > u.mhmax) u.mh = u.mhmax;
+		}
+
+		{
+			int wondertech = rnd(MAXTECH-1);
+			if (!tech_known(wondertech)) {
+			    	learntech(wondertech, FROMOUTSIDE, 1);
+				You("learn how to perform a new technique!");
+			} else pline("Tough luck! The technique that you would have learned happens to be one you already know.");
+
+		}
+
+		break;
+
+	case SPE_ATTUNE_MAGIC:
+
+			if (rn2(3)) {
+				pline("Your mana increases.");
+				u.uenmax++;
+			} else switch (rnd(28)) {
+
+				case 1:
+					HTeleport_control += 2;
+					tele();
+					break;
+				case 2:
+					{
+
+					register struct obj *acqo;
+
+					acqo = mkobj_at(SPBOOK_CLASS, u.ux, u.uy, FALSE, FALSE);
+					if (acqo) {
+						acqo->bknown = acqo->known = TRUE;
+						pline("A book appeared at your %s!", makeplural(body_part(FOOT)));
+					} else {
+						pline("Nothing happens...");
+						if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
+							pline("Oh wait, actually something bad happens...");
+							badeffect();
+						}
+					  }
+					}
+					break;
+				case 3:
+					(void) monster_detect((struct obj *)0, 0);
+					exercise(A_WIS, TRUE);
+					break;
+				case 4:
+					trap_detect((struct obj *)0);
+					break;
+				case 5:
+					object_detect((struct obj *)0, 0);
+					break;
+				case 6:
+					{
+					boolean havegifts = u.ugifts;
+
+					if (!havegifts) u.ugifts++;
+
+					register struct obj *acqo;
+
+					acqo = mk_artifact((struct obj *)0, !rn2(3) ? A_CHAOTIC : rn2(2) ? A_NEUTRAL : A_LAWFUL, TRUE);
+					if (acqo) {
+					    dropy(acqo);
+						if (P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_ISRESTRICTED) {
+						    unrestrict_weapon_skill(get_obj_skill(acqo, TRUE));
+						} else if (P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_UNSKILLED) {
+							unrestrict_weapon_skill(get_obj_skill(acqo, TRUE));
+							P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_BASIC;
+						} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_BASIC) {
+							P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_SKILLED;
+						} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_SKILLED) {
+							P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_EXPERT;
+						} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_EXPERT) {
+							P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_MASTER;
+						} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_MASTER) {
+							P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_GRAND_MASTER;
+						} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_GRAND_MASTER) {
+							P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_SUPREME_MASTER;
+						}
+						if (Race_if(PM_RUSMOT)) {
+							if (P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_ISRESTRICTED) {
+							    unrestrict_weapon_skill(get_obj_skill(acqo, TRUE));
+							} else if (P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_UNSKILLED) {
+								unrestrict_weapon_skill(get_obj_skill(acqo, TRUE));
+								P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_BASIC;
+							} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_BASIC) {
+								P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_SKILLED;
+							} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_SKILLED) {
+								P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_EXPERT;
+							} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_EXPERT) {
+								P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_MASTER;
+							} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_MASTER) {
+								P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_GRAND_MASTER;
+							} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_GRAND_MASTER) {
+								P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_SUPREME_MASTER;
+							}
+						}
+
+					    discover_artifact(acqo->oartifact);
+
+						if (!havegifts) u.ugifts--;
+						pline("An artifact appeared beneath you!");
+
+					}	
+
+					else pline("Opportunity knocked, but nobody was home.  Bummer.");
+
+					}
+
+					break;
+				case 7:
+					pline("The RNG decides to curse-weld an item to you.");
+					bad_artifact_xtra();
+					break;
+				case 8:
+					{
+					int aggroamount = rnd(6);
+					if (isfriday) aggroamount *= 2;
+					u.aggravation = 1;
+					reset_rndmonst(NON_PM);
+					while (aggroamount) {
+						u.cnd_aggravateamount++;
+						makemon((struct permonst *)0, u.ux, u.uy, MM_ANGRY|MM_FRENZIED);
+						aggroamount--;
+						if (aggroamount < 0) aggroamount = 0;
+					}
+					u.aggravation = 0;
+					pline("Several monsters come out of a portal.");
+
+					}
+
+					break;
+				case 9:
+					pline("Your body suddenly becomes all stiff!");
+					nomul(-rnd(15), "paralyzed by a pentagram", TRUE);
+					break;
+				case 10:
+
+					pline("The dungeon is getting more chaotic!");
+					{
+					int madepoolPEP = 0;
+					do_clear_areaX(u.ux, u.uy, 12, do_terrainfloodg, (void *)&madepoolPEP);
+					}
+
+					break;
+				case 11:
+					You_feel("powered up!");
+					u.uenmax += rnd(5);
+					u.uen = u.uenmax;
+					break;
+				case 12:
+					pline("Suddenly, you gain a new companion!");
+					(void) make_familiar((struct obj *)0, u.ux, u.uy, FALSE);
+					break;
+				case 13:
+					{
+
+					if (Aggravate_monster) {
+						u.aggravation = 1;
+						reset_rndmonst(NON_PM);
+					}
+
+					    coord dd;
+					    coord cc;
+					    int cx,cy;
+						int i;
+						int randsp, randmnst, randmnsx;
+						struct permonst *randmonstforspawn;
+						int monstercolor;
+
+				      cx = rn2(COLNO);
+				      cy = rn2(ROWNO);
+
+					if (!rn2(4)) {
+
+					randsp = (rn2(14) + 2);
+					if (!rn2(10)) randsp *= 2;
+					if (!rn2(100)) randsp *= 3;
+					if (!rn2(1000)) randsp *= 5;
+					if (!rn2(10000)) randsp *= 10;
+					randmnst = (rn2(187) + 1);
+					randmnsx = (rn2(100) + 1);
+
+					pline("You suddenly feel a surge of tension!");
+
+					for (i = 0; i < randsp; i++) {
+					/* This function will fill the map with a random amount of monsters of one class. --Amy */
+
+					if (!enexto(&dd, u.ux, u.uy, (struct permonst *)0) ) continue;
+
+					if (randmnst < 6)
+				 	    (void) makemon(mkclass(S_ANT,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 9)
+				 	    (void) makemon(mkclass(S_BLOB,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 11)
+				 	    (void) makemon(mkclass(S_COCKATRICE,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 15)
+				 	    (void) makemon(mkclass(S_DOG,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 18)
+				 	    (void) makemon(mkclass(S_EYE,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 22)
+				 	    (void) makemon(mkclass(S_FELINE,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 24)
+				 	    (void) makemon(mkclass(S_GREMLIN,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 29)
+				 	    (void) makemon(mkclass(S_HUMANOID,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 33)
+				 	    (void) makemon(mkclass(S_IMP,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 36)
+				 	    (void) makemon(mkclass(S_JELLY,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 41)
+				 	    (void) makemon(mkclass(S_KOBOLD,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 44)
+				 	    (void) makemon(mkclass(S_LEPRECHAUN,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 47)
+				 	    (void) makemon(mkclass(S_MIMIC,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 50)
+				 	    (void) makemon(mkclass(S_NYMPH,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 54)
+				 	    (void) makemon(mkclass(S_ORC,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 55)
+				 	    (void) makemon(mkclass(S_PIERCER,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 58)
+				 	    (void) makemon(mkclass(S_QUADRUPED,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 62)
+				 	    (void) makemon(mkclass(S_RODENT,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 65)
+				 	    (void) makemon(mkclass(S_SPIDER,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 66)
+				 	    (void) makemon(mkclass(S_TRAPPER,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 69)
+				 	    (void) makemon(mkclass(S_UNICORN,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 71)
+				 	    (void) makemon(mkclass(S_VORTEX,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 73)
+				 	    (void) makemon(mkclass(S_WORM,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 75)
+				 	    (void) makemon(mkclass(S_XAN,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 76)
+				 	    (void) makemon(mkclass(S_LIGHT,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 77)
+				 	    (void) makemon(mkclass(S_ZOUTHERN,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 78)
+				 	    (void) makemon(mkclass(S_ANGEL,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 81)
+				 	    (void) makemon(mkclass(S_BAT,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 83)
+				 	    (void) makemon(mkclass(S_CENTAUR,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 86)
+				 	    (void) makemon(mkclass(S_DRAGON,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 89)
+				 	    (void) makemon(mkclass(S_ELEMENTAL,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 94)
+				 	    (void) makemon(mkclass(S_FUNGUS,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 99)
+				 	    (void) makemon(mkclass(S_GNOME,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 102)
+				 	    (void) makemon(mkclass(S_GIANT,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 103)
+				 	    (void) makemon(mkclass(S_JABBERWOCK,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 104)
+				 	    (void) makemon(mkclass(S_KOP,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 105)
+				 	    (void) makemon(mkclass(S_LICH,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 108)
+				 	    (void) makemon(mkclass(S_MUMMY,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 110)
+				 	    (void) makemon(mkclass(S_NAGA,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 113)
+				 	    (void) makemon(mkclass(S_OGRE,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 115)
+				 	    (void) makemon(mkclass(S_PUDDING,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 116)
+				 	    (void) makemon(mkclass(S_QUANTMECH,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 118)
+				 	    (void) makemon(mkclass(S_RUSTMONST,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 121)
+				 	    (void) makemon(mkclass(S_SNAKE,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 123)
+				 	    (void) makemon(mkclass(S_TROLL,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 124)
+				 	    (void) makemon(mkclass(S_UMBER,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 125)
+				 	    (void) makemon(mkclass(S_VAMPIRE,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 127)
+				 	    (void) makemon(mkclass(S_WRAITH,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 128)
+				 	    (void) makemon(mkclass(S_XORN,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 130)
+				 	    (void) makemon(mkclass(S_YETI,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 135)
+				 	    (void) makemon(mkclass(S_ZOMBIE,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 145)
+				 	    (void) makemon(mkclass(S_HUMAN,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 147)
+				 	    (void) makemon(mkclass(S_GHOST,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 149)
+				 	    (void) makemon(mkclass(S_GOLEM,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 152)
+				 	    (void) makemon(mkclass(S_DEMON,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 155)
+				 	    (void) makemon(mkclass(S_EEL,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 160)
+				 	    (void) makemon(mkclass(S_LIZARD,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 162)
+				 	    (void) makemon(mkclass(S_BAD_FOOD,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 165)
+				 	    (void) makemon(mkclass(S_BAD_COINS,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 166) {
+						if (randmnsx < 96)
+				 	    (void) makemon(mkclass(S_HUMAN,0), cx, cy, MM_ADJACENTOK);
+						else
+				 	    (void) makemon(mkclass(S_NEMESE,0), cx, cy, MM_ADJACENTOK);
+						}
+					else if (randmnst < 171)
+				 	    (void) makemon(mkclass(S_GRUE,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 176)
+				 	    (void) makemon(mkclass(S_WALLMONST,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 180)
+				 	    (void) makemon(mkclass(S_RUBMONST,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 181) {
+						if (randmnsx < 99)
+				 	    (void) makemon(mkclass(S_HUMAN,0), cx, cy, MM_ADJACENTOK);
+						else
+				 	    (void) makemon(mkclass(S_ARCHFIEND,0), cx, cy, MM_ADJACENTOK);
+						}
+					else if (randmnst < 186)
+				 	    (void) makemon(mkclass(S_TURRET,0), cx, cy, MM_ADJACENTOK);
+					else if (randmnst < 187)
+				 	    (void) makemon(mkclass(S_FLYFISH,0), cx, cy, MM_ADJACENTOK);
+					else
+				 	    (void) makemon((struct permonst *)0, cx, cy, MM_ADJACENTOK);
+
+					}
+
+					}
+
+					else if (!rn2(3)) {
+
+					randsp = (rn2(14) + 2);
+					if (!rn2(10)) randsp *= 2;
+					if (!rn2(100)) randsp *= 3;
+					if (!rn2(1000)) randsp *= 5;
+					if (!rn2(10000)) randsp *= 10;
+					randmonstforspawn = rndmonst();
+
+					You_feel("the arrival of monsters!");
+
+					for (i = 0; i < randsp; i++) {
+
+						if (!enexto(&cc, u.ux, u.uy, (struct permonst *)0) ) continue;
+
+						(void) makemon(randmonstforspawn, cx, cy, MM_ADJACENTOK);
+					}
+
+					}
+
+					else if (!rn2(2)) {
+
+					randsp = (rn2(14) + 2);
+					if (!rn2(10)) randsp *= 2;
+					if (!rn2(100)) randsp *= 3;
+					if (!rn2(1000)) randsp *= 5;
+					if (!rn2(10000)) randsp *= 10;
+					monstercolor = rnd(15);
+					do { monstercolor = rnd(15); } while (monstercolor == CLR_BLUE);
+
+					You_feel("a colorful sensation!");
+
+					for (i = 0; i < randsp; i++) {
+
+						if (!enexto(&cc, u.ux, u.uy, (struct permonst *)0) ) continue;
+
+						(void) makemon(colormon(monstercolor), cx, cy, MM_ADJACENTOK);
+					}
+
+					}
+
+					else {
+
+					randsp = (rn2(14) + 2);
+					if (!rn2(10)) randsp *= 2;
+					if (!rn2(100)) randsp *= 3;
+					if (!rn2(1000)) randsp *= 5;
+					if (!rn2(10000)) randsp *= 10;
+					monstercolor = rnd(376);
+
+					You_feel("that a group has arrived!");
+
+					for (i = 0; i < randsp; i++) {
+
+						if (!enexto(&cc, u.ux, u.uy, (struct permonst *)0) ) continue;
+
+						(void) makemon(specialtensmon(monstercolor), cx, cy, MM_ADJACENTOK);
+					}
+
+					}
+
+					u.aggravation = 0;
+
+					}
+					break;
+				case 14:
+
+					if (u.uhunger < 1500) {
+						pline("Your %s fills.", body_part(STOMACH));
+						u.uhunger = 1500;
+						u.uhs = 1; /* NOT_HUNGRY */
+						flags.botl = 1;
+					} else {
+						pline("Nothing happens...");
+						if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
+							pline("Oh wait, actually something bad happens...");
+							badeffect();
+						}
+					}
+					break;
+				case 15:
+					if (u.ualign.record < -1) {
+						adjalign(-(u.ualign.record / 2));
+						You_feel("partially absolved.");
+					} else {
+						u.alignlim++;
+						adjalign(10);
+						You_feel("appropriately %s.", align_str(u.ualign.type));
+					}
+					break;
+				case 16:
+					{
+
+					int nastytrapdur = (Role_if(PM_GRADUATE) ? 6 : Role_if(PM_GEEK) ? 12 : 24);
+					if (!nastytrapdur) nastytrapdur = 24; /* fail safe */
+					int blackngdur = (Role_if(PM_GRADUATE) ? 2000 : Role_if(PM_GEEK) ? 1000 : 500);
+					if (!blackngdur ) blackngdur = 500; /* fail safe */
+
+					pline("Your mana increases.");
+					u.uenmax++;
+					/* nasty trap effect - no extra message because, well, nastiness! --Amy */
+					randomnastytrapeffect(rnz(nastytrapdur * (monster_difficulty() + 1)), (blackngdur - (monster_difficulty() * 3)));
+
+					}
+					break;
+				case 17:
+					{
+					int i = rn2(A_MAX);
+					adjattrib(i, 1, 0, TRUE);
+					adjattrib(i, 1, 0, TRUE);
+					adjattrib(i, 1, 0, TRUE);
+					adjattrib(i, 1, 0, TRUE);
+					adjattrib(i, 1, 0, TRUE);
+					}
+					break;
+				case 18:
+					Your("intrinsics change.");
+					intrinsicgainorloss();
+					break;
+				case 19:
+					{
+					struct obj *pseudogram;
+					pseudogram = mksobj(SCR_ITEM_GENOCIDE, FALSE, 2, FALSE);
+					if (!pseudogram) {
+						pline("Nothing happens...");
+						if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
+							pline("Oh wait, actually something bad happens...");
+							badeffect();
+						}
+						break;
+					}
+					if (pseudogram->otyp == GOLD_PIECE) pseudogram->otyp = SCR_ITEM_GENOCIDE;
+					(void) seffects(pseudogram);
+					obfree(pseudogram, (struct obj *)0);	/* now, get rid of it */
+
+					}
+
+					break;
+				case 20:
+					doubleskilltraining();
+					break;
+				case 21:
+					if (!(HAggravate_monster & INTRINSIC) && !(HAggravate_monster & TIMEOUT)) {
+
+						int maxtrainingamount = 0;
+						int skillnumber = 0;
+						int actualskillselection = 0;
+						int amountofpossibleskills = 1;
+						int i;
+
+						for (i = 0; i < P_NUM_SKILLS; i++) {
+							if (P_SKILL(i) != P_ISRESTRICTED) continue;
+
+							if (P_ADVANCE(i) > 0 && P_ADVANCE(i) >= maxtrainingamount) {
+								if (P_ADVANCE(i) > maxtrainingamount) {
+									amountofpossibleskills = 1;
+									skillnumber = i;
+									maxtrainingamount = P_ADVANCE(i);
+								} else if (!rn2(amountofpossibleskills + 1)) {
+									amountofpossibleskills++;
+									skillnumber = i;
+								} else {
+									amountofpossibleskills++;
+								}
+							}
+						}
+
+						if (skillnumber > 0 && maxtrainingamount > 0) {
+							unrestrict_weapon_skill(skillnumber);
+
+							register int maxcap = P_BASIC;
+							if (!rn2(2)) {
+								maxcap = P_SKILLED;
+								if (!rn2(2)) {
+									maxcap = P_EXPERT;
+									if (maxtrainingamount >= 20 && !rn2(2)) {
+										maxcap = P_MASTER;
+										if (maxtrainingamount >= 160 && !rn2(2)) {
+											maxcap = P_GRAND_MASTER;
+											if (maxtrainingamount >= 540 && !rn2(2)) {
+												maxcap = P_SUPREME_MASTER;
+											}
+										}
+									}
+								}
+							}
+
+							P_MAX_SKILL(skillnumber) = maxcap;
+							pline("You can now learn the %s skill, with a new cap of %s.", P_NAME(skillnumber), maxcap == P_SUPREME_MASTER ? "supreme master" : maxcap == P_GRAND_MASTER ? "grand master" : maxcap == P_MASTER ? "master" : maxcap == P_EXPERT ? "expert" : maxcap == P_SKILLED ? "skilled" : "basic");
+						} else {
+							pline("Nothing happens...");
+							if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
+								pline("Oh wait, actually something bad happens...");
+								badeffect();
+							}
+						}
+
+					}
+
+					if (HAggravate_monster & INTRINSIC) {
+						HAggravate_monster &= ~INTRINSIC;
+						You_feel("more acceptable!");
+					}
+					if (HAggravate_monster & TIMEOUT) {
+						HAggravate_monster &= ~TIMEOUT;
+						You_feel("more acceptable!");
+					}
+					break;
+				case 22:
+					{
+						u.aggravation = 1;
+						reset_rndmonst(NON_PM);
+						int attempts = 0;
+						register struct permonst *ptrZ;
+newbossPENT:
+					do {
+
+						ptrZ = rndmonst();
+						attempts++;
+						if (!rn2(2000)) reset_rndmonst(NON_PM);
+
+					} while ( (!ptrZ || (ptrZ && !(ptrZ->geno & G_UNIQ))) && attempts < 50000);
+
+					if (ptrZ && ptrZ->geno & G_UNIQ) {
+						if (wizard) pline("monster generation: %s", ptrZ->mname);
+						(void) makemon(ptrZ, u.ux, u.uy, MM_ANGRY);
+					}
+					else if (rn2(50)) {
+						attempts = 0;
+						goto newbossPENT;
+					}
+					if (!rn2(10) ) {
+						attempts = 0;
+						goto newbossPENT;
+					}
+					pline("Boss monsters appear from nowhere!");
+
+					}
+					u.aggravation = 0;
+
+					break;
+				case 23:
+					if (!rn2(6400)) {
+						ragnarok(TRUE);
+						if (evilfriday) evilragnarok(TRUE,level_difficulty());
+
+					}
+
+					u.aggravation = 1;
+					u.heavyaggravation = 1;
+					DifficultyIncreased += 1;
+					HighlevelStatus += 1;
+					EntireLevelMode += 1;
+
+					(void) makemon(mkclass(S_NEMESE,0), u.ux, u.uy, MM_ANGRY|MM_FRENZIED);
+
+					u.aggravation = 0;
+					u.heavyaggravation = 0;
+
+					break;
+				case 24:
+					wonderspell();
+					break;
+				case 25:
+
+					{
+					int tryct = 0;
+					int x, y;
+					register struct trap *ttmp;
+					for (tryct = 0; tryct < 2000; tryct++) {
+						x = rn1(COLNO-3,2);
+						y = rn2(ROWNO);
+
+						if (x && y && isok(x, y) && (levl[x][y].typ > DBWALL) && !(t_at(x, y)) ) {
+								ttmp = maketrap(x, y, randomtrap(), 0);
+							if (ttmp) {
+								ttmp->tseen = 0;
+								ttmp->hiddentrap = 1;
+							}
+							if (!rn2(5)) break;
+						}
+					}
+
+					You_feel("in grave danger...");
+					}
+					break;
+				case 26:
+					badeffect();
+					break;
+				case 27:
+					if (!uinsymbiosis) {
+						getrandomsymbiote(FALSE);
+						pline("Suddenly you have a symbiote!");
+					} else {
+						u.usymbiote.mhpmax += rnd(10);
+						if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
+						flags.botl = TRUE;
+						Your("symbiote seems much stronger now.");
+					}
+					break;
+				case 28:
+					decontaminate(100);
+					You_feel("decontaminated.");
+					break;
+				default:
+					impossible("undefined pentagram effect");
+					break;
+
+			}
+
+
+		if (!rn2(7)) badeffect();
+
+		break;
+
 	case SPE_THRONE_GAMBLE:
 
 	    if (rnd(6) > 4)  {
-		switch (rnd(20))  {
+		switch (rnd(32))  {
 		    case 1:
-			(void) adjattrib(rn2(A_MAX), -rn1(4,3), FALSE);
+			(void) adjattrib(rn2(A_MAX), -rno(5), FALSE, TRUE);
 			losehp(rnd(10), "cursed throne", KILLED_BY_AN);
 			break;
 		    case 2:
-			(void) adjattrib(rn2(A_MAX), 1, FALSE);
+			(void) adjattrib(rn2(A_MAX), 1, FALSE, TRUE);
 			break;
 		    case 3:
 			pline("A%s electric shock shoots through your body!",
 			      (Shock_resistance) ? "n" : " massive");
-			losehp(Shock_resistance ? rnd(6) : rnd(30),
+			losehp(StrongShock_resistance ? rnd(2) : Shock_resistance ? rnd(6) : rnd(30),
 			       "electric chair", KILLED_BY_AN);
 			exercise(A_CON, FALSE);
 			break;
@@ -2645,6 +5730,10 @@ magicalenergychoice:
 			}
 			if(u.uhp >= (u.uhpmax - 5))  u.uhpmax += 4;
 			u.uhp = u.uhpmax;
+			if (uactivesymbiosis) {
+				u.usymbiote.mhpmax += 4;
+				if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
+			}
 			make_blinded(0L,TRUE);
 			make_sick(0L, (char *) 0, FALSE, SICK_ALL);
 			heal_legs();
@@ -2724,7 +5813,7 @@ magicalenergychoice:
 			You("are granted an insight!");
 			if (invent) {
 			    /* rn2(5) agrees w/seffects() */
-			    identify_pack(rn2(5), 0);
+			    identify_pack(rn2(5), 0, 0);
 			}
 			break;
 		    case 13:
@@ -2733,158 +5822,7 @@ magicalenergychoice:
 			break;
 		    case 14:
 			You("are granted some new skills!"); /* new effect that unrestricts skills --Amy */
-
-			int acquiredskill;
-			acquiredskill = 0;
-
-			pline("Pick a skill to unrestrict. The prompt will loop until you actually make a choice.");
-
-			while (acquiredskill == 0) { /* ask the player what they want --Amy */
-
-			if (P_RESTRICTED(P_DAGGER) && yn("Do you want to learn the dagger skill?")=='y') {
-				    unrestrict_weapon_skill(P_DAGGER);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_KNIFE) && yn("Do you want to learn the knife skill?")=='y') {
-				    unrestrict_weapon_skill(P_KNIFE);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_AXE) && yn("Do you want to learn the axe skill?")=='y') {
-				    unrestrict_weapon_skill(P_AXE);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_PICK_AXE) && yn("Do you want to learn the pick-axe skill?")=='y') {
-				    unrestrict_weapon_skill(P_PICK_AXE);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SHORT_SWORD) && yn("Do you want to learn the short sword skill?")=='y') {
-				    unrestrict_weapon_skill(P_SHORT_SWORD);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_BROAD_SWORD) && yn("Do you want to learn the broad sword skill?")=='y') {
-				    unrestrict_weapon_skill(P_BROAD_SWORD);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_LONG_SWORD) && yn("Do you want to learn the long sword skill?")=='y') {
-				    unrestrict_weapon_skill(P_LONG_SWORD);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_TWO_HANDED_SWORD) && yn("Do you want to learn the two-handed sword skill?")=='y') {
-				    unrestrict_weapon_skill(P_TWO_HANDED_SWORD);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SCIMITAR) && yn("Do you want to learn the scimitar skill?")=='y') {
-				    unrestrict_weapon_skill(P_SCIMITAR);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SABER) && yn("Do you want to learn the saber skill?")=='y') {
-				    unrestrict_weapon_skill(P_SABER);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_CLUB) && yn("Do you want to learn the club skill?")=='y') {
-				    unrestrict_weapon_skill(P_CLUB);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_PADDLE) && yn("Do you want to learn the paddle skill?")=='y') {
-				    unrestrict_weapon_skill(P_PADDLE);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_MACE) && yn("Do you want to learn the mace skill?")=='y') {
-				    unrestrict_weapon_skill(P_MACE);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_MORNING_STAR) && yn("Do you want to learn the morning star skill?")=='y') {
-				    unrestrict_weapon_skill(P_MORNING_STAR);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_FLAIL) && yn("Do you want to learn the flail skill?")=='y') {
-				    unrestrict_weapon_skill(P_FLAIL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_HAMMER) && yn("Do you want to learn the hammer skill?")=='y') {
-				    unrestrict_weapon_skill(P_HAMMER);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_QUARTERSTAFF) && yn("Do you want to learn the quarterstaff skill?")=='y') {
-				    unrestrict_weapon_skill(P_QUARTERSTAFF);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_POLEARMS) && yn("Do you want to learn the polearms skill?")=='y') {
-				    unrestrict_weapon_skill(P_POLEARMS);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SPEAR) && yn("Do you want to learn the spear skill?")=='y') {
-				    unrestrict_weapon_skill(P_SPEAR);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_JAVELIN) && yn("Do you want to learn the javelin skill?")=='y') {
-				    unrestrict_weapon_skill(P_JAVELIN);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_TRIDENT) && yn("Do you want to learn the trident skill?")=='y') {
-				    unrestrict_weapon_skill(P_TRIDENT);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_LANCE) && yn("Do you want to learn the lance skill?")=='y') {
-				    unrestrict_weapon_skill(P_LANCE);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_BOW) && yn("Do you want to learn the bow skill?")=='y') {
-				    unrestrict_weapon_skill(P_BOW);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SLING) && yn("Do you want to learn the sling skill?")=='y') {
-				    unrestrict_weapon_skill(P_SLING);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_FIREARM) && yn("Do you want to learn the firearms skill?")=='y') {
-				    unrestrict_weapon_skill(P_FIREARM);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_CROSSBOW) && yn("Do you want to learn the crossbow skill?")=='y') {
-				    unrestrict_weapon_skill(P_CROSSBOW);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_DART) && yn("Do you want to learn the dart skill?")=='y') {
-				    unrestrict_weapon_skill(P_DART);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SHURIKEN) && yn("Do you want to learn the shuriken skill?")=='y') {
-				    unrestrict_weapon_skill(P_SHURIKEN);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_BOOMERANG) && yn("Do you want to learn the boomerang skill?")=='y') {
-				    unrestrict_weapon_skill(P_BOOMERANG);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_WHIP) && yn("Do you want to learn the whip skill?")=='y') {
-				    unrestrict_weapon_skill(P_WHIP);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_UNICORN_HORN) && yn("Do you want to learn the unicorn horn skill?")=='y') {
-				    unrestrict_weapon_skill(P_UNICORN_HORN);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_LIGHTSABER) && yn("Do you want to learn the lightsaber skill?")=='y') {
-				    unrestrict_weapon_skill(P_LIGHTSABER);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_ATTACK_SPELL) && yn("Do you want to learn the attack spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_ATTACK_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_HEALING_SPELL) && yn("Do you want to learn the healing spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_HEALING_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_DIVINATION_SPELL) && yn("Do you want to learn the divination spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_DIVINATION_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_ENCHANTMENT_SPELL) && yn("Do you want to learn the enchantment spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_ENCHANTMENT_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_PROTECTION_SPELL) && yn("Do you want to learn the protection spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_PROTECTION_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_BODY_SPELL) && yn("Do you want to learn the body spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_BODY_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_OCCULT_SPELL) && yn("Do you want to learn the occult spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_OCCULT_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_ELEMENTAL_SPELL) && yn("Do you want to learn the elemental spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_ELEMENTAL_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_CHAOS_SPELL) && yn("Do you want to learn the chaos spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_CHAOS_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_MATTER_SPELL) && yn("Do you want to learn the matter spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_MATTER_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_RIDING) && yn("Do you want to learn the riding skill?")=='y') {
-				    unrestrict_weapon_skill(P_RIDING);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_HIGH_HEELS) && yn("Do you want to learn the high heels skill?")=='y') {
-				    unrestrict_weapon_skill(P_HIGH_HEELS);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_GENERAL_COMBAT) && yn("Do you want to learn the general combat skill?")=='y') {
-				    unrestrict_weapon_skill(P_GENERAL_COMBAT);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SHIELD) && yn("Do you want to learn the shield skill?")=='y') {
-				    unrestrict_weapon_skill(P_SHIELD);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_BODY_ARMOR) && yn("Do you want to learn the body armor skill?")=='y') {
-				    unrestrict_weapon_skill(P_BODY_ARMOR);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_TWO_HANDED_WEAPON) && yn("Do you want to learn the two-handed weapon skill?")=='y') {
-				    unrestrict_weapon_skill(P_TWO_HANDED_WEAPON);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_TWO_WEAPON_COMBAT) && yn("Do you want to learn the two-weapon combat skill?")=='y') {
-				    unrestrict_weapon_skill(P_TWO_WEAPON_COMBAT);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_POLYMORPHING) && yn("Do you want to learn the polymorphing skill?")=='y') {
-				    unrestrict_weapon_skill(P_POLYMORPHING);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_DEVICES) && yn("Do you want to learn the devices skill?")=='y') {
-				    unrestrict_weapon_skill(P_DEVICES);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SEARCHING) && yn("Do you want to learn the searching skill?")=='y') {
-				    unrestrict_weapon_skill(P_SEARCHING);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SPIRITUALITY) && yn("Do you want to learn the spirituality skill?")=='y') {
-				    unrestrict_weapon_skill(P_SPIRITUALITY);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_PETKEEPING) && yn("Do you want to learn the petkeeping skill?")=='y') {
-				    unrestrict_weapon_skill(P_PETKEEPING);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_MISSILE_WEAPONS) && yn("Do you want to learn the missile weapons skill?")=='y') {
-				    unrestrict_weapon_skill(P_MISSILE_WEAPONS);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_TECHNIQUES) && yn("Do you want to learn the techniques skill?")=='y') {
-				    unrestrict_weapon_skill(P_TECHNIQUES);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_IMPLANTS) && yn("Do you want to learn the implants skill?")=='y') {
-				    unrestrict_weapon_skill(P_IMPLANTS);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SEXY_FLATS) && yn("Do you want to learn the sexy flats skill?")=='y') {
-				    unrestrict_weapon_skill(P_SEXY_FLATS);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SHII_CHO) && yn("Do you want to learn the form I (Shii-Cho) skill?")=='y') {
-				    unrestrict_weapon_skill(P_SHII_CHO);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_MAKASHI) && yn("Do you want to learn the form II (Makashi) skill?")=='y') {
-				    unrestrict_weapon_skill(P_MAKASHI);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SORESU) && yn("Do you want to learn the form III (Soresu) skill?")=='y') {
-				    unrestrict_weapon_skill(P_SORESU);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_ATARU) && yn("Do you want to learn the form IV (Ataru) skill?")=='y') {
-				    unrestrict_weapon_skill(P_ATARU);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SHIEN) && yn("Do you want to learn the form V (Shien) skill?")=='y') {
-				    unrestrict_weapon_skill(P_SHIEN);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_DJEM_SO) && yn("Do you want to learn the form V (Djem So) skill?")=='y') {
-				    unrestrict_weapon_skill(P_DJEM_SO);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_NIMAN) && yn("Do you want to learn the form VI (Niman) skill?")=='y') {
-				    unrestrict_weapon_skill(P_NIMAN);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_JUYO) && yn("Do you want to learn the form VII (Juyo) skill?")=='y') {
-				    unrestrict_weapon_skill(P_JUYO);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_VAAPAD) && yn("Do you want to learn the form VII (Vaapad) skill?")=='y') {
-				    unrestrict_weapon_skill(P_VAAPAD);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_WEDI) && yn("Do you want to learn the form VIII (Wedi) skill?")=='y') {
-				    unrestrict_weapon_skill(P_WEDI);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_BARE_HANDED_COMBAT) && yn("Do you want to learn the bare-handed combat skill?")=='y') {
-				    unrestrict_weapon_skill(P_BARE_HANDED_COMBAT);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_MARTIAL_ARTS) && yn("Do you want to learn the martial arts skill?")=='y') {
-				    unrestrict_weapon_skill(P_MARTIAL_ARTS);	acquiredskill = 1; }
-			else if (yn("Do you want to learn no new skill at all?")=='y') {
-				    acquiredskill = 1; }
-			}
-			pline("Check out what you got!");
+			unrestrictskillchoice();
 
 			break;
 		    case 15:
@@ -2924,9 +5862,35 @@ magicalenergychoice:
 			} else if (!rn2(200) && P_MAX_SKILL(skillimprove) == P_GRAND_MASTER) {
 				P_MAX_SKILL(skillimprove) = P_SUPREME_MASTER;
 				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
-			} else pluslvl(FALSE);
+			} else gainlevelmaybe();
 
-			pluslvl(FALSE);
+			if (Race_if(PM_RUSMOT)) {
+				if (P_MAX_SKILL(skillimprove) == P_ISRESTRICTED) {
+					unrestrict_weapon_skill(skillimprove);
+					pline("You can now learn the %s skill.", P_NAME(skillimprove));
+				} else if (P_MAX_SKILL(skillimprove) == P_UNSKILLED) {
+					unrestrict_weapon_skill(skillimprove);
+					P_MAX_SKILL(skillimprove) = P_BASIC;
+					pline("You can now learn the %s skill.", P_NAME(skillimprove));
+				} else if (rn2(2) && P_MAX_SKILL(skillimprove) == P_BASIC) {
+					P_MAX_SKILL(skillimprove) = P_SKILLED;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(4) && P_MAX_SKILL(skillimprove) == P_SKILLED) {
+					P_MAX_SKILL(skillimprove) = P_EXPERT;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(10) && P_MAX_SKILL(skillimprove) == P_EXPERT) {
+					P_MAX_SKILL(skillimprove) = P_MASTER;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(100) && P_MAX_SKILL(skillimprove) == P_MASTER) {
+					P_MAX_SKILL(skillimprove) = P_GRAND_MASTER;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(200) && P_MAX_SKILL(skillimprove) == P_GRAND_MASTER) {
+					P_MAX_SKILL(skillimprove) = P_SUPREME_MASTER;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				}
+			}
+
+			gainlevelmaybe();
 
 			break;
 		    case 18:
@@ -2991,6 +5955,130 @@ secureidchoice:
 			}
 			}
 			break;
+		    case 21:
+			{
+				int nastytrapdur = (Role_if(PM_GRADUATE) ? 6 : Role_if(PM_GEEK) ? 12 : 24);
+				if (!nastytrapdur) nastytrapdur = 24; /* fail safe */
+				int blackngdur = (Role_if(PM_GRADUATE) ? 2000 : Role_if(PM_GEEK) ? 1000 : 500);
+				if (!blackngdur ) blackngdur = 500; /* fail safe */
+				randomnastytrapeffect(rnz(nastytrapdur * (monster_difficulty() + 1)), (blackngdur - (monster_difficulty() * 3)));
+				You_feel("uncomfortable.");
+			}
+			break;
+		    case 22:
+			morehungry(500);
+			pline("Whoops... suddenly you feel hungry.");
+			break;
+		    case 23:
+			pline("Suddenly you feel a healing touch!");
+			reducesanity(100);
+			break;
+		    case 24:
+			poisoned("throne", rn2(6) /* A_STR ... A_CHA*/, "poisoned throne", 30);
+			break;
+		    case 25:
+			{
+				int thronegold = rnd(200);
+				u.ugold += thronegold;
+				pline("Some coins come loose! You pick up %d zorkmids.", thronegold);
+			}
+			break;
+		    case 26:
+			{
+
+				if (Aggravate_monster) {
+					u.aggravation = 1;
+					reset_rndmonst(NON_PM);
+				}
+
+				pline("A voice echoes:");
+				verbalize("Thou hath been summoned to appear before royalty, %s!", playeraliasname);
+				(void) makemon(specialtensmon(rn2(2) ? 105 : 106), u.ux, u.uy, MM_ANGRY); /* M2_LORD, M2_PRINCE */
+
+				u.aggravation = 0;
+
+			}
+			break;
+		    case 27:
+			badeffect();
+			break;
+		    case 28:
+			u.uhp++;
+			u.uhpmax++;
+			if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
+			You_feel("a health boost!");
+			break;
+		    case 29:
+			pline("A pretty ethereal woman appears and offers: 'For only 10000 zorkmids, I will give you a very rare trinket!");
+			if (u.ugold < 10000) {
+				pline("But you don't have enough money! Frustrated, she places a terrible curse on you and disappears.");
+				randomfeminismtrap(rnz( (level_difficulty() + 2) * rnd(50)));
+			}
+			else {
+				char femhandlebuf[BUFSZ];
+				getlin ("Do you want to buy her goods? [y/yes/no]",femhandlebuf);
+				(void) lcase (femhandlebuf);
+				if (!(strcmp (femhandlebuf, "yes")) || !(strcmp (femhandlebuf, "y"))) {
+					u.ugold -= 10000;
+					register struct obj *acqo;
+					acqo = mksobj(makegreatitem(), TRUE, TRUE, FALSE);
+					if (acqo) {
+						dropy(acqo);
+						verbalize("Thanks a lot! You'll find your prize on the ground.");
+					} else {
+						verbalize("Oh sorry, I must have misplaced it. Here you have your money back. Maybe next time I'll have something for you.");
+						u.ugold += 10000;
+					}
+				} else {
+					verbalize("You will regret that decision!");
+					randomfeminismtrap(rnz( (level_difficulty() + 2) * rnd(50)));
+
+				}
+			}
+			break;
+		    case 30:
+			pline("A shady merchant appears and offers: 'Sale! Sale! I'm selling you this useful item for 2000 zorkmids!");
+			if (u.ugold < 2000) {
+				pline("But you don't have enough money! The merchant disappears.");
+			}
+			else {
+				char femhandlebuf[BUFSZ];
+				getlin ("Do you want to buy his item? [y/yes/no]",femhandlebuf);
+				(void) lcase (femhandlebuf);
+				if (!(strcmp (femhandlebuf, "yes")) || !(strcmp (femhandlebuf, "y"))) {
+					u.ugold -= 2000;
+					register struct obj *acqo;
+					acqo = mksobj(usefulitem(), TRUE, TRUE, FALSE);
+					if (acqo) {
+						dropy(acqo);
+						verbalize("Thank you! I've dropped the item at your feet.");
+					} else {
+						verbalize("Nyah-nyah, thanks for the money, sucker!");
+					}
+				} else {
+					verbalize("Are you sure? Well, it's your decision. I'll find someone else to sell it to, then.");
+				}
+			}
+			break;
+		    case 31:
+			{
+				struct obj *stupidstone;
+				stupidstone = mksobj_at(rnd_class(RIGHT_MOUSE_BUTTON_STONE,NASTY_STONE), u.ux, u.uy, TRUE, FALSE, FALSE);
+				if (stupidstone) {
+					stupidstone->quan = 1L;
+					stupidstone->owt = weight(stupidstone);
+					if (!Blind) stupidstone->dknown = 1;
+					if (stupidstone) {
+						pline("%s lands in your knapsack!", Doname2(stupidstone));
+						(void) pickup_object(stupidstone, 1L, TRUE, TRUE);
+					}
+				}
+			}
+			break;
+		    case 32:
+			(void) mksobj_at(rnd_class(DILITHIUM_CRYSTAL, ROCK), u.ux, u.uy, TRUE, TRUE, FALSE);
+			pline("Some stones come loose!");
+			break;
 
 		    default:	impossible("throne effect");
 				break;
@@ -3002,7 +6090,7 @@ secureidchoice:
 		    You_feel("somehow out of place...");
 	    }
 
-		if (!rn2(10)) badeffect();
+		if (!rn2(7)) badeffect();
 
 		break;
 
@@ -3129,6 +6217,10 @@ secureidchoice:
 				pline("The water evaporizes!");
 				if ( (rainedmon = m_at(u.ux + i, u.uy + j)) != 0) {
 					rainedmon->mhp /= 2;
+					if (rainedmon->mpeaceful && !(rainedmon->mtame)) {
+						rainedmon->mpeaceful = 0;
+						pline("%s gets angry.", Monnam(rainedmon));
+					}
 					pline("%s is damaged by the vapors!", Monnam(rainedmon));
 					if (!rn2(3)) {
 						rainedmon->mcanmove = 0;
@@ -3169,6 +6261,7 @@ secureidchoice:
 				    fill_pit(nexusmon->mx, nexusmon->my);
 				}
 				pline("%s is beamed away!", Monnam(nexusmon));
+				wakeup(nexusmon); /* monster becomes hostile */
 				rloc(nexusmon, FALSE);
 			}
 		}
@@ -3196,7 +6289,7 @@ secureidchoice:
 				if (levl[nexusmon->mx][nexusmon->my].typ >= STONE && levl[nexusmon->mx][nexusmon->my].typ <= ROCKWALL) {
 					if ((levl[nexusmon->mx][nexusmon->my].wall_info & W_NONDIGGABLE) == 0 && !(*in_rooms(nexusmon->mx,nexusmon->my,SHOPBASE))) {
 						levl[nexusmon->mx][nexusmon->my].typ = CORR;
-						unblock_point(nexusmon->mx,nexusmon->my);
+						blockorunblock_point(nexusmon->mx,nexusmon->my);
 						if (!(levl[nexusmon->mx][nexusmon->my].wall_info & W_HARDGROWTH)) levl[nexusmon->mx][nexusmon->my].wall_info |= W_EASYGROWTH;
 						newsym(nexusmon->mx,nexusmon->my);
 
@@ -3206,7 +6299,7 @@ secureidchoice:
 					if (nexusmon->mhp <= 0) {
 						xkilled(nexusmon, 0);
 						pline("%s is killed!", Monnam(nexusmon));
-					}
+					} else wakeup(nexusmon); /* monster becomes hostile */
 					adjalign(-10);
 				}
 			}
@@ -3275,6 +6368,11 @@ secureidchoice:
 			    if (DEADMONSTER(frostmon)) continue;
 			    if (!monnear(frostmon, u.ux, u.uy)) continue;
 
+			    if (frostmon->mpeaceful && !frostmon->mtame) {
+				pline("%s gets angry.", Monnam(frostmon) );
+				frostmon->mpeaceful = 0; /* monster becomes hostile */
+			    }
+
 			    if (!resists_elec(frostmon) && !(dmgtype(frostmon->data, AD_PLYS)) && !resist(frostmon, SPBOOK_CLASS, 0, NOTELL) && !rn2(10)) {
 
 				if (canseemon(frostmon) ) {
@@ -3312,6 +6410,7 @@ secureidchoice:
 			if (!isok(u.ux + i, u.uy + j)) continue;
 			if ((mtmp = m_at(u.ux + i, u.uy + j)) != 0) {
 				if (dmgtype(mtmp->data, AD_ELEC) || dmgtype(mtmp->data, AD_MALK)) {
+					wakeup(mtmp);
 					mtmp->mhp -= rnd(40 + (spell_damage_bonus(spellid(spell)) * 10) );
 					pline("%s's power is down!", Monnam(mtmp));
 					if (rn2(3) && !mtmp->mstun) {
@@ -3369,6 +6468,7 @@ secureidchoice:
 			    nxtmon = frostmon->nmon; /* trap might kill mon */
 			    if (DEADMONSTER(frostmon)) continue;
 			    if (!monnear(frostmon, u.ux, u.uy)) continue;
+			    if (rn2(2)) continue;
 				frostmon->mfrozen = 0;
 				frostmon->msleeping = 0;
 				frostmon->masleep = 0;
@@ -3575,7 +6675,10 @@ secureidchoice:
 		    for (obj = invent; obj; obj = obj2) {
 		      obj2 = obj->nobj;
 
-			if (obj->shirtmessage % 4 == 0) obj->known = TRUE;
+			if (obj->shirtmessage % 4 == 0 && !obj->known) {
+				obj->known = TRUE;
+				break;
+			}
 
 		    }
 		}
@@ -3602,17 +6705,12 @@ secureidchoice:
 		pline("You start to disguise.");
 
 		youmonst.m_ap_type = M_AP_OBJECT;
-		youmonst.mappearance = Hallucination ? ORANGE : GOLD_PIECE;
+		youmonst.mappearance = FunnyHallu ? ORANGE : GOLD_PIECE;
 		newsym(u.ux,u.uy);
 
 		break;
 
 	case SPE_WHISPERS_FROM_BEYOND:
-
-		identify_pack(0, 0);
-		identify_pack(0, 0);
-		if (rn2(2)) identify_pack(0, 0);
-		if (!rn2(5)) identify_pack(0, 0);
 
 		ABASE(A_INT) -= rnd(2);
 		if (ABASE(A_INT) < ATTRMIN(A_INT)) {
@@ -3653,14 +6751,42 @@ secureidchoice:
 		}
 		AMAX(A_WIS) = ABASE(A_WIS);
 
+		increasesanity(rnd(1000));
+
 		/* It is not a mistake that INT loss kills you twice while WIS loss only does so once. --Amy */
+
+		/* now identify the stuff because otherwise players could just hangup cheat past the bad effects... gah... */
+		identify_pack(0, 0, 0);
+		identify_pack(0, 0, 0);
+		if (rn2(2)) identify_pack(0, 0, 0);
+		if (!rn2(5)) identify_pack(0, 0, 0);
+whisperchoice:
+		{
+			otmp = getobj(all_count, "secure identify");
+
+			if (!otmp) {
+				if (yn("Really exit with no object selected?") == 'y')
+					pline("You just wasted the opportunity to secure identify your objects.");
+				else goto whisperchoice;
+				pline("A feeling of loss comes over you.");
+				break;
+			}
+			if (otmp) {
+				makeknown(otmp->otyp);
+				if (otmp->oartifact) discover_artifact((int)otmp->oartifact);
+				otmp->known = otmp->dknown = otmp->bknown = otmp->rknown = 1;
+				if (otmp->otyp == EGG && otmp->corpsenm != NON_PM)
+				learn_egg_type(otmp->corpsenm);
+				prinv((char *)0, otmp, 0L);
+			}
+		}
 
 		break;
 
 	case SPE_STASIS:
+		nomul(-(u.stasistime), "frozen in stasis", FALSE);
 		u.stasistime = rnd(100);
 		pline("You freeze completely.");
-		nomul(-(u.stasistime), "frozen in stasis", FALSE);
 
 		break;
 
@@ -3676,7 +6802,7 @@ secureidchoice:
 
 			pline("The spell effect backlashes!");
 
-		    switch (rn2(17)) {
+		    if (!obsidianprotection()) switch (rn2(17)) {
 		    case 0:
 		    case 1:
 		    case 2:
@@ -3716,11 +6842,24 @@ secureidchoice:
 
 		for(fleemon = fmon; fleemon; fleemon = fleemon->nmon) {
 		    if (DEADMONSTER(fleemon)) continue;
+			wakeup(fleemon); /* monster becomes hostile */
 			if (!resist(fleemon, SPBOOK_CLASS, 0, NOTELL))
 				monflee(fleemon, rnd(50), FALSE, FALSE);
 		}
 		You_hear("horrified screaming close by.");
 	    }
+
+		break;
+
+	case SPE_SYMHEAL:
+		if (uactivesymbiosis) {
+			int healamount;
+			healamount = (rnd(10) + 4 + (spell_damage_bonus(spellid(spell)) * 2) + rnd(rnz(u.ulevel)));
+			if (healamount > 1) healamount /= 2;
+			Your("symbiote seems healthier!");
+			u.usymbiote.mhp += healamount;
+			if (u.usymbiote.mhp > u.usymbiote.mhpmax) u.usymbiote.mhp = u.usymbiote.mhpmax;
+		}
 
 		break;
 
@@ -3918,6 +7057,9 @@ secureidchoice:
 		SpellForgetting = 0L;
 		SoundEffectBug = 0L;
 		TimerunBug = 0L;
+		BadPartBug = 0L;
+		CompletelyBadPartBug = 0L;
+		EvilVariantActive = 0L;
 		OrangeSpells = 0L;
 		VioletSpells = 0L;
 		LongingEffect = 0L;
@@ -3978,6 +7120,9 @@ secureidchoice:
 		TechoutBug = 0L;
 		StatDecay = 0L;
 		Movemork = 0L;
+		SanityTrebleEffect = 0L;
+		StatDecreaseBug = 0L;
+		SimeoutBug = 0L;
 
 		pline("But then the green light goes out again and the red one lights up...");
 
@@ -3995,469 +7140,9 @@ secureidchoice:
 	case SPE_GAIN_CORRUPTION:
 
 		pline("Okay, if that's really what you want... you feel corrupted.");
-		if (Hallucination) pline("At least this isn't ADOM, where having too many corruptions would instakill you!");
+		if (FunnyHallu) pline("At least this isn't ADOM, where having too many corruptions would instakill you!");
 
-		switch (rnd(229)) {
-
-			case 1: 
-			    SpeedBug |= FROMOUTSIDE; break;
-			case 2: 
-			    MenuBug |= FROMOUTSIDE; break;
-			case 3: 
-			    RMBLoss |= FROMOUTSIDE; break;
-			case 4: 
-			    DisplayLoss |= FROMOUTSIDE; break;
-			case 5: 
-			    SpellLoss |= FROMOUTSIDE; break;
-			case 6: 
-			    YellowSpells |= FROMOUTSIDE; break;
-			case 7: 
-			    AutoDestruct |= FROMOUTSIDE; break;
-			case 8: 
-			    MemoryLoss |= FROMOUTSIDE; break;
-			case 9: 
-			    InventoryLoss |= FROMOUTSIDE; break;
-			case 10: 
-			    BlackNgWalls |= FROMOUTSIDE; break;
-			case 11: 
-			    Superscroller |= FROMOUTSIDE; break;
-			case 12: 
-			    FreeHandLoss |= FROMOUTSIDE; break;
-			case 13: 
-			    Unidentify |= FROMOUTSIDE; break;
-			case 14: 
-			    Thirst |= FROMOUTSIDE; break;
-			case 15: 
-			    LuckLoss |= FROMOUTSIDE; break;
-			case 16: 
-			    ShadesOfGrey |= FROMOUTSIDE; break;
-			case 17: 
-			    FaintActive |= FROMOUTSIDE; break;
-			case 18: 
-			    Itemcursing |= FROMOUTSIDE; break;
-			case 19: 
-			    DifficultyIncreased |= FROMOUTSIDE; break;
-			case 20: 
-			    Deafness |= FROMOUTSIDE; break;
-			case 21: 
-			    CasterProblem |= FROMOUTSIDE; break;
-			case 22: 
-			    WeaknessProblem |= FROMOUTSIDE; break;
-			case 23: 
-			    RotThirteen |= FROMOUTSIDE; break;
-			case 24: 
-			    BishopGridbug |= FROMOUTSIDE; break;
-			case 25: 
-			    ConfusionProblem |= FROMOUTSIDE; break;
-			case 26: 
-			    NoDropProblem |= FROMOUTSIDE; break;
-			case 27: 
-			    DSTWProblem |= FROMOUTSIDE; break;
-			case 28: 
-			    StatusTrapProblem |= FROMOUTSIDE; break;
-			case 29: 
-			    AlignmentProblem |= FROMOUTSIDE; break;
-			case 30: 
-			    StairsProblem |= FROMOUTSIDE; break;
-			case 31: 
-			    UninformationProblem |= FROMOUTSIDE; break;
-			case 32: 
-			    IntrinsicLossProblem |= FROMOUTSIDE; break;
-			case 33: 
-			    BloodLossProblem |= FROMOUTSIDE; break;
-			case 34: 
-			    BadEffectProblem |= FROMOUTSIDE; break;
-			case 35: 
-			    TrapCreationProblem |= FROMOUTSIDE; break;
-			case 36: 
-			    AutomaticVulnerabilitiy |= FROMOUTSIDE; break;
-			case 37: 
-			    TeleportingItems |= FROMOUTSIDE; break;
-			case 38: 
-			    NastinessProblem |= FROMOUTSIDE; break;
-			case 39: 
-			    RecurringAmnesia |= FROMOUTSIDE; break;
-			case 40: 
-			    BigscriptEffect |= FROMOUTSIDE; break;
-			case 41: 
-			    BankTrapEffect |= FROMOUTSIDE; break;
-			case 42: 
-			    MapTrapEffect |= FROMOUTSIDE; break;
-			case 43: 
-			    TechTrapEffect |= FROMOUTSIDE; break;
-			case 44: 
-			    RecurringDisenchant |= FROMOUTSIDE; break;
-			case 45: 
-			    verisiertEffect |= FROMOUTSIDE; break;
-			case 46: 
-			    ChaosTerrain |= FROMOUTSIDE; break;
-			case 47: 
-			    Muteness |= FROMOUTSIDE; break;
-			case 48: 
-			    EngravingDoesntWork |= FROMOUTSIDE; break;
-			case 49: 
-			    MagicDeviceEffect |= FROMOUTSIDE; break;
-			case 50: 
-			    BookTrapEffect |= FROMOUTSIDE; break;
-			case 51: 
-			    LevelTrapEffect |= FROMOUTSIDE; break;
-			case 52: 
-			    QuizTrapEffect |= FROMOUTSIDE; break;
-			case 53: 
-			    CaptchaProblem |= FROMOUTSIDE; break;
-			case 54: 
-			    FarlookProblem |= FROMOUTSIDE; break;
-			case 55: 
-			    RespawnProblem |= FROMOUTSIDE; break;
-			case 56: 
-			    FastMetabolismEffect |= FROMOUTSIDE; break;
-			case 57: 
-			    NoReturnEffect |= FROMOUTSIDE; break;
-			case 58: 
-			    AlwaysEgotypeMonsters |= FROMOUTSIDE; break;
-			case 59: 
-			    TimeGoesByFaster |= FROMOUTSIDE; break;
-			case 60: 
-			    FoodIsAlwaysRotten |= FROMOUTSIDE; break;
-			case 61: 
-			    AllSkillsUnskilled |= FROMOUTSIDE; break;
-			case 62: 
-			    AllStatsAreLower |= FROMOUTSIDE; break;
-			case 63: 
-			    PlayerCannotTrainSkills |= FROMOUTSIDE; break;
-			case 64: 
-			    PlayerCannotExerciseStats |= FROMOUTSIDE; break;
-			case 65: 
-			    TurnLimitation |= FROMOUTSIDE; break;
-			case 66: 
-			    WeakSight |= FROMOUTSIDE; break;
-			case 67: 
-			    RandomMessages |= FROMOUTSIDE; break;
-			case 68: 
-			    Desecration |= FROMOUTSIDE; break;
-			case 69: 
-			    StarvationEffect |= FROMOUTSIDE; break;
-			case 70: 
-			    NoDropsEffect |= FROMOUTSIDE; break;
-			case 71: 
-			    LowEffects |= FROMOUTSIDE; break;
-			case 72: 
-			    InvisibleTrapsEffect |= FROMOUTSIDE; break;
-			case 73: 
-			    GhostWorld |= FROMOUTSIDE; break;
-			case 74: 
-			    Dehydration |= FROMOUTSIDE; break;
-			case 75: 
-			    HateTrapEffect |= FROMOUTSIDE; break;
-			case 76: 
-			    TotterTrapEffect |= FROMOUTSIDE; break;
-			case 77: 
-			    Nonintrinsics |= FROMOUTSIDE; break;
-			case 78: 
-			    Dropcurses |= FROMOUTSIDE; break;
-			case 79: 
-			    Nakedness |= FROMOUTSIDE; break;
-			case 80: 
-			    Antileveling |= FROMOUTSIDE; break;
-			case 81: 
-			    ItemStealingEffect |= FROMOUTSIDE; break;
-			case 82: 
-			    Rebellions |= FROMOUTSIDE; break;
-			case 83: 
-			    CrapEffect |= FROMOUTSIDE; break;
-			case 84: 
-			    ProjectilesMisfire |= FROMOUTSIDE; break;
-			case 85: 
-			    WallTrapping |= FROMOUTSIDE; break;
-			case 86: 
-			    DisconnectedStairs |= FROMOUTSIDE; break;
-			case 87: 
-			    InterfaceScrewed |= FROMOUTSIDE; break;
-			case 88: 
-			    Bossfights |= FROMOUTSIDE; break;
-			case 89: 
-			    EntireLevelMode |= FROMOUTSIDE; break;
-			case 90: 
-			    BonesLevelChange |= FROMOUTSIDE; break;
-			case 91: 
-			    AutocursingEquipment |= FROMOUTSIDE; break;
-			case 92: 
-			    HighlevelStatus |= FROMOUTSIDE; break;
-			case 93: 
-			    SpellForgetting |= FROMOUTSIDE; break;
-			case 94: 
-			    SoundEffectBug |= FROMOUTSIDE; break;
-			case 95: 
-			    TimerunBug |= FROMOUTSIDE; break;
-				case 96:
-				    LootcutBug |= FROMOUTSIDE; break;
-				case 97:
-				    MonsterSpeedBug |= FROMOUTSIDE; break;
-				case 98:
-				    ScalingBug |= FROMOUTSIDE; break;
-				case 99:
-				    EnmityBug |= FROMOUTSIDE; break;
-				case 100:
-				    WhiteSpells |= FROMOUTSIDE; break;
-				case 101:
-				    CompleteGraySpells |= FROMOUTSIDE; break;
-				case 102:
-				    QuasarVision |= FROMOUTSIDE; break;
-				case 103:
-				    MommaBugEffect |= FROMOUTSIDE; break;
-				case 104:
-				    HorrorBugEffect |= FROMOUTSIDE; break;
-				case 105:
-				    ArtificerBug |= FROMOUTSIDE; break;
-				case 106:
-				    WereformBug |= FROMOUTSIDE; break;
-				case 107:
-				    NonprayerBug |= FROMOUTSIDE; break;
-				case 108:
-				    EvilPatchEffect |= FROMOUTSIDE; break;
-				case 109:
-				    HardModeEffect |= FROMOUTSIDE; break;
-				case 110:
-				    SecretAttackBug |= FROMOUTSIDE; break;
-				case 111:
-				    EaterBugEffect |= FROMOUTSIDE; break;
-				case 112:
-				    CovetousnessBug |= FROMOUTSIDE; break;
-				case 113:
-				    NotSeenBug |= FROMOUTSIDE; break;
-				case 114:
-				    DarkModeBug |= FROMOUTSIDE; break;
-				case 115:
-				    AntisearchEffect |= FROMOUTSIDE; break;
-				case 116:
-				    HomicideEffect |= FROMOUTSIDE; break;
-				case 117:
-				    NastynationBug |= FROMOUTSIDE; break;
-				case 118:
-				    WakeupCallBug |= FROMOUTSIDE; break;
-				case 119:
-				    GrayoutBug |= FROMOUTSIDE; break;
-				case 120:
-				    GrayCenterBug |= FROMOUTSIDE; break;
-				case 121:
-				    CheckerboardBug |= FROMOUTSIDE; break;
-				case 122:
-				    ClockwiseSpinBug |= FROMOUTSIDE; break;
-				case 123:
-				    CounterclockwiseSpin |= FROMOUTSIDE; break;
-				case 124:
-				    LagBugEffect |= FROMOUTSIDE; break;
-				case 125:
-				    BlesscurseEffect |= FROMOUTSIDE; break;
-				case 126:
-				    DeLightBug |= FROMOUTSIDE; break;
-				case 127:
-				    DischargeBug |= FROMOUTSIDE; break;
-				case 128:
-				    TrashingBugEffect |= FROMOUTSIDE; break;
-				case 129:
-				    FilteringBug |= FROMOUTSIDE; break;
-				case 130:
-				    DeformattingBug |= FROMOUTSIDE; break;
-				case 131:
-				    FlickerStripBug |= FROMOUTSIDE; break;
-				case 132:
-				    UndressingEffect |= FROMOUTSIDE; break;
-				case 133:
-				    Hyperbluewalls |= FROMOUTSIDE; break;
-				case 134:
-				    NoliteBug |= FROMOUTSIDE; break;
-				case 135:
-				    ParanoiaBugEffect |= FROMOUTSIDE; break;
-				case 136:
-				    FleecescriptBug |= FROMOUTSIDE; break;
-				case 137:
-				    InterruptEffect |= FROMOUTSIDE; break;
-				case 138:
-				    DustbinBug |= FROMOUTSIDE; break;
-				case 139:
-				    ManaBatteryBug |= FROMOUTSIDE; break;
-				case 140:
-				    Monsterfingers |= FROMOUTSIDE; break;
-				case 141:
-				    MiscastBug |= FROMOUTSIDE; break;
-				case 142:
-				    MessageSuppression |= FROMOUTSIDE; break;
-				case 143:
-				    StuckAnnouncement |= FROMOUTSIDE; break;
-				case 144:
-				    BloodthirstyEffect |= FROMOUTSIDE; break;
-				case 145:
-				    MaximumDamageBug |= FROMOUTSIDE; break;
-				case 146:
-				    LatencyBugEffect |= FROMOUTSIDE; break;
-				case 147:
-				    StarlitBug |= FROMOUTSIDE; break;
-				case 148:
-				    KnowledgeBug |= FROMOUTSIDE; break;
-				case 149:
-				    HighscoreBug |= FROMOUTSIDE; break;
-				case 150:
-				    PinkSpells |= FROMOUTSIDE; break;
-				case 151:
-				    GreenSpells |= FROMOUTSIDE; break;
-				case 152:
-				    EvencoreEffect |= FROMOUTSIDE; break;
-				case 153:
-				    UnderlayerBug |= FROMOUTSIDE; break;
-				case 154:
-				    DamageMeterBug |= FROMOUTSIDE; break;
-				case 155:
-				    ArbitraryWeightBug |= FROMOUTSIDE; break;
-				case 156:
-				    FuckedInfoBug |= FROMOUTSIDE; break;
-				case 157:
-				    BlackSpells |= FROMOUTSIDE; break;
-				case 158:
-				    CyanSpells |= FROMOUTSIDE; break;
-				case 159:
-				    HeapEffectBug |= FROMOUTSIDE; break;
-				case 160:
-				    BlueSpells |= FROMOUTSIDE; break;
-				case 161:
-				    TronEffect |= FROMOUTSIDE; break;
-				case 162:
-				    RedSpells |= FROMOUTSIDE; break;
-				case 163:
-				    TooHeavyEffect |= FROMOUTSIDE; break;
-				case 164:
-				    ElongationBug |= FROMOUTSIDE; break;
-				case 165:
-				    WrapoverEffect |= FROMOUTSIDE; break;
-				case 166:
-				    DestructionEffect |= FROMOUTSIDE; break;
-				case 167:
-				    MeleePrefixBug |= FROMOUTSIDE; break;
-				case 168:
-				    AutomoreBug |= FROMOUTSIDE; break;
-				case 169:
-				    UnfairAttackBug |= FROMOUTSIDE; break;
-				case 170:
-				    OrangeSpells |= FROMOUTSIDE; break;
-				case 171:
-				    VioletSpells |= FROMOUTSIDE; break;
-				case 172:
-				    LongingEffect |= FROMOUTSIDE; break;
-				case 173:
-				    CursedParts |= FROMOUTSIDE; break;
-				case 174:
-				    Quaversal |= FROMOUTSIDE; break;
-				case 175:
-				    AppearanceShuffling |= FROMOUTSIDE; break;
-				case 176:
-				    BrownSpells |= FROMOUTSIDE; break;
-				case 177:
-				    Choicelessness |= FROMOUTSIDE; break;
-				case 178:
-				    Goldspells |= FROMOUTSIDE; break;
-				case 179:
-				    Deprovement |= FROMOUTSIDE; break;
-				case 180:
-				    InitializationFail |= FROMOUTSIDE; break;
-				case 181:
-				    GushlushEffect |= FROMOUTSIDE; break;
-				case 182:
-				    SoiltypeEffect |= FROMOUTSIDE; break;
-				case 183:
-				    DangerousTerrains |= FROMOUTSIDE; break;
-				case 184:
-				    FalloutEffect |= FROMOUTSIDE; break;
-				case 185:
-				    MojibakeEffect |= FROMOUTSIDE; break;
-				case 186:
-				    GravationEffect |= FROMOUTSIDE; break;
-				case 187:
-				    UncalledEffect |= FROMOUTSIDE; break;
-				case 188:
-				    ExplodingDiceEffect |= FROMOUTSIDE; break;
-				case 189:
-				    PermacurseEffect |= FROMOUTSIDE; break;
-				case 190:
-				    ShroudedIdentity |= FROMOUTSIDE; break;
-				case 191:
-				    FeelerGauges |= FROMOUTSIDE; break;
-				case 192:
-				    LongScrewup |= FROMOUTSIDE; break;
-				case 193:
-				    WingYellowChange |= FROMOUTSIDE; break;
-				case 194:
-				    LifeSavingBug |= FROMOUTSIDE; break;
-				case 195:
-				    CurseuseEffect |= FROMOUTSIDE; break;
-				case 196:
-				    CutNutritionEffect |= FROMOUTSIDE; break;
-				case 197:
-				    SkillLossEffect |= FROMOUTSIDE; break;
-				case 198:
-				    AutopilotEffect |= FROMOUTSIDE; break;
-				case 199:
-				    MysteriousForceActive |= FROMOUTSIDE; break;
-				case 200:
-				    MonsterGlyphChange |= FROMOUTSIDE; break;
-				case 201:
-				    ChangingDirectives |= FROMOUTSIDE; break;
-				case 202:
-				    ContainerKaboom |= FROMOUTSIDE; break;
-				case 203:
-				    StealDegrading |= FROMOUTSIDE; break;
-				case 204:
-				    LeftInventoryBug |= FROMOUTSIDE; break;
-				case 205:
-				    FluctuatingSpeed |= FROMOUTSIDE; break;
-				case 206:
-				    TarmuStrokingNora |= FROMOUTSIDE; break;
-				case 207:
-				    FailureEffects |= FROMOUTSIDE; break;
-				case 208:
-				    BrightCyanSpells |= FROMOUTSIDE; break;
-				case 209:
-				    FrequentationSpawns |= FROMOUTSIDE; break;
-				case 210:
-				    PetAIScrewed |= FROMOUTSIDE; break;
-				case 211:
-				    SatanEffect |= FROMOUTSIDE; break;
-				case 212:
-				    RememberanceEffect |= FROMOUTSIDE; break;
-				case 213:
-				    PokelieEffect |= FROMOUTSIDE; break;
-				case 214:
-				    AlwaysAutopickup |= FROMOUTSIDE; break;
-				case 215:
-				    DywypiProblem |= FROMOUTSIDE; break;
-				case 216:
-				    SilverSpells |= FROMOUTSIDE; break;
-				case 217:
-				    MetalSpells |= FROMOUTSIDE; break;
-				case 218:
-				    PlatinumSpells |= FROMOUTSIDE; break;
-				case 219:
-				    ManlerEffect |= FROMOUTSIDE; break;
-				case 220:
-				    DoorningEffect |= FROMOUTSIDE; break;
-				case 221:
-				    NownsibleEffect |= FROMOUTSIDE; break;
-				case 222:
-				    ElmStreetEffect |= FROMOUTSIDE; break;
-				case 223:
-				    MonnoiseEffect |= FROMOUTSIDE; break;
-				case 224:
-				    RangCallEffect |= FROMOUTSIDE; break;
-				case 225:
-				    RecurringSpellLoss |= FROMOUTSIDE; break;
-				case 226:
-				    AntitrainingEffect |= FROMOUTSIDE; break;
-				case 227:
-				    TechoutBug |= FROMOUTSIDE; break;
-				case 228:
-				    StatDecay |= FROMOUTSIDE; break;
-				case 229:
-				    Movemork |= FROMOUTSIDE; break;
-		}
+		getnastytrapintrinsic();
 
 		break;
 
@@ -4473,13 +7158,18 @@ secureidchoice:
 			    if (!rn2(2) && !resist(mtmp, SPBOOK_CLASS, 0, NOTELL)) {
 				(void) tamedog(mtmp, (struct obj *) 0, FALSE);
 			    }
-			    else if (!rn2(25) && !((rnd(30 - ACURR(A_CHA))) < 4)  && !mtmp->mfrenzied && !mtmp->mtame) {
+			    else if (!rn2(15) && !((rnd(30 - ACURR(A_CHA))) < 4) && !mtmp->mfrenzied && !mtmp->mtame) {
 				pline("Instead of being tamed, %s enters a state of frenzy!", mon_nam(mtmp));
 				mtmp->mpeaceful = 0;
 				mtmp->mfrenzied = 1;
 			    }
 
 		    }
+		}
+
+		if (!rn2(10)) {
+			pline("The spell backfires!");
+			badeffect();
 		}
 
 		break;
@@ -4502,7 +7192,7 @@ secureidchoice:
 				if (mtmp->mhp <= 0) {
 					pline("%s is killed!", Monnam(mtmp));
 					xkilled(mtmp, 0);
-				}
+				} else wakeup(mtmp); /* monster becomes hostile */
 			}
 
 		    }
@@ -4534,7 +7224,7 @@ secureidchoice:
 				if (mtmp->mhp <= 0) {
 					pline("%s is killed!", Monnam(mtmp));
 					xkilled(mtmp, 0);
-				}
+				} else wakeup(mtmp); /* monster becomes hostile */
 			}
 
 		    }
@@ -4592,7 +7282,7 @@ secureidchoice:
 	case SPE_BUC_RANDOMIZATION:
 
 	    {	register struct obj *objC;
-		    if (Hallucination)
+		    if (FunnyHallu)
 			You_feel("the power of the Force against you!");
 		    else
 			You_feel("like you need some help.");
@@ -4638,7 +7328,7 @@ secureidchoice:
 			     objC->otyp == SLEEPSTONE ||
 			     objC->otyp == STONE_OF_MAGIC_RESISTANCE ||
 			     is_nastygraystone(objC) ||
-			     (objC->otyp == LEATHER_LEASH && objC->leashmon) || (objC->otyp == INKA_LEASH && objC->leashmon) ) && !stack_too_big(objC) ) {
+			     (objC->otyp == LEATHER_LEASH && objC->leashmon) || (objC->otyp == INKA_LEASH && objC->leashmon) ) && !stack_too_big(objC) && !rn2(5) ) {
 			    	blessorcurse(objC, 2);
 			}
 		}
@@ -4651,7 +7341,11 @@ secureidchoice:
 	case SPE_MESSAGE:
 
 		pline("%s", fauxmessage());
-		if (!rn2(3)) pline("%s", fauxmessage());
+		u.cnd_plineamount++;
+		if (!rn2(3)) {
+			pline("%s", fauxmessage());
+			u.cnd_plineamount++;
+		}
 
 		break;
 
@@ -4690,6 +7384,7 @@ secureidchoice:
 		pline("You are hit by the magical reaction from casting this very powerful spell.");
 		u.uenmax -= rnd(5);
 		badeffect();
+		(void) doredraw();
 
 		break;
 
@@ -4705,6 +7400,11 @@ secureidchoice:
 		}
 		if (u.uenmax < 501) {
 			pline("You don't have enough mana to control the powers of this spell!");
+			break;
+		}
+
+		if (ABASE(A_STR) < 6 || ABASE(A_DEX) < 6 || ABASE(A_INT) < 6 || ABASE(A_WIS) < 6 || ABASE(A_CON) < 6 || ABASE(A_CHA) < 6) {
+			pline("You don't have the stats required to power this mighty spell!");
 			break;
 		}
 
@@ -4741,7 +7441,7 @@ secureidchoice:
 		if (ABASE(A_CHA) < ATTRMIN(A_CHA)) ABASE(A_CHA) = ATTRMIN(A_CHA);
 		AMAX(A_CHA) = ABASE(A_CHA);
 
-		makewish();
+		makewish(TRUE);
 
 		break;
 
@@ -4757,6 +7457,11 @@ secureidchoice:
 		}
 		if (u.uenmax < 101) {
 			pline("You don't have enough mana to control the powers of this spell!");
+			break;
+		}
+
+		if (ABASE(A_STR) < 4 || ABASE(A_DEX) < 4 || ABASE(A_INT) < 4 || ABASE(A_WIS) < 4 || ABASE(A_CON) < 4 || ABASE(A_CHA) < 4) {
+			pline("You don't have the stats required to power this mighty spell!");
 			break;
 		}
 
@@ -4811,68 +7516,7 @@ secureidchoice:
 		AMAX(A_CHA) = ABASE(A_CHA);
 		}
 
-		register struct obj *acqo;
-		int acquireditem;
-		acquireditem = 0;
-
-		pline("Pick an item type that you want to acquire. The prompt will loop until you actually make a choice.");
-
-		while (acquireditem == 0) { /* ask the player what they want --Amy */
-
-			if (yn("Do you want to acquire a random item?")=='y') {
-				    acqo = mkobj_at(RANDOM_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a weapon?")=='y') {
-				    acqo = mkobj_at(WEAPON_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire an armor?")=='y') {
-				    acqo = mkobj_at(ARMOR_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a ring?")=='y') {
-				    acqo = mkobj_at(RING_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire an amulet?")=='y') {
-				    acqo = mkobj_at(AMULET_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire an implant?")=='y') {
-				    acqo = mkobj_at(IMPLANT_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a tool?")=='y') {
-				    acqo = mkobj_at(TOOL_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire some food?")=='y') {
-				    acqo = mkobj_at(FOOD_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a potion?")=='y') {
-				    acqo = mkobj_at(POTION_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a scroll?")=='y') {
-				    acqo = mkobj_at(SCROLL_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a spellbook?")=='y') {
-				    acqo = mkobj_at(SPBOOK_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a wand?")=='y') {
-				    acqo = mkobj_at(WAND_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire some coins?")=='y') {
-				    acqo = mkobj_at(COIN_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a gem?")=='y') {
-				    acqo = mkobj_at(GEM_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a boulder or statue?")=='y') {
-				    acqo = mkobj_at(ROCK_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a heavy iron ball?")=='y') {
-				    acqo = mkobj_at(BALL_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire an iron chain?")=='y') {
-				    acqo = mkobj_at(CHAIN_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-			else if (yn("Do you want to acquire a splash of venom?")=='y') {
-				    acqo = mkobj_at(VENOM_CLASS, u.ux, u.uy, FALSE);	acquireditem = 1; }
-	
-		}
-		if (!acqo) {
-			pline("Unfortunately it failed.");
-			return 0;
-		}
-
-		/* special handling to prevent wands of wishing or similarly overpowered items --Amy */
-
-		if (acqo->otyp == GOLD_PIECE) acqo->quan = rnd(1000);
-		if (acqo->otyp == MAGIC_LAMP || acqo->otyp == TREASURE_CHEST) { acqo->otyp = OIL_LAMP; acqo->age = 1500L; }
-		if (acqo->otyp == MAGIC_MARKER) acqo->recharged = 1;
-	    while(acqo->otyp == WAN_WISHING || acqo->otyp == WAN_POLYMORPH || acqo->otyp == WAN_MUTATION || acqo->otyp == WAN_ACQUIREMENT)
-		acqo->otyp = rnd_class(WAN_LIGHT, WAN_PSYBEAM);
-	    while (acqo->otyp == SCR_WISHING || acqo->otyp == SCR_RESURRECTION || acqo->otyp == SCR_ACQUIREMENT || acqo->otyp == SCR_ENTHRONIZATION || acqo->otyp == SCR_FOUNTAIN_BUILDING || acqo->otyp == SCR_SINKING || acqo->otyp == SCR_WC)
-		acqo->otyp = rnd_class(SCR_CREATE_MONSTER, SCR_BLANK_PAPER);
-
-		pline("Something appeared on the ground just beneath you!");
+		acquireitem();
 
 		break;
 
@@ -4890,14 +7534,22 @@ secureidchoice:
 			}
 			if (!canspotmon(mtmp)) continue;	/*you can't see it and can't sense it*/
 
-			mtmp->mhp += rnd(200);
+			mtmp->mhp += rnd(50);
 			if (mtmp->mhp > mtmp->mhpmax) {
 			    mtmp->mhp = mtmp->mhpmax;
 			}
+			if (mtmp->bleedout) {
+				mtmp->bleedout -= rnd(50);
+				if (mtmp->bleedout < 0) mtmp->bleedout = 0;
+			}
+			pline("%s is healed.", Monnam(mtmp));
 
 		    }
 
-		    healup(d(6,8) + rnz(u.ulevel),0,0,0);
+		    int healamount = (d(6,8) + rnd(rnz(u.ulevel)) );
+		    if (healamount > 1) healamount /= 2;
+
+		    healup(healamount,0,0,0);
 		}
 		break;
 
@@ -4912,6 +7564,17 @@ secureidchoice:
 		You("call upon your chemical knowledge. Nothing happens.");
 		break;
 	case SPE_CURE_SICKNESS:
+
+		if ((Sick || Slimed) && !Role_if(PM_HEALER)) {
+			if (u.uenmax > 0) {
+				u.uenmax--;
+				if (u.uen > u.uenmax) u.uen = u.uenmax;
+			} else {
+				You("don't have enough power for this spell.");
+				break;
+			}
+		}
+
 		if (Sick) You("are no longer ill.");
 		if (Slimed) {
 		    pline_The("slime disappears!");
@@ -4921,29 +7584,130 @@ secureidchoice:
 		healup(0, 0, TRUE, FALSE);
 		break;
 	case SPE_CURE_HALLUCINATION:
-		make_hallucinated(0L,TRUE,0L);
+		if (HeavyHallu) break;
+		if (HHallucination > (rn1(Role_if(PM_HEALER) ? 200 : 100, 20))) {
+			int effreduction = rnd(HHallucination / 2);
+			if (effreduction > 0) {
+				HHallucination -= effreduction;
+				Your("hallucination counter is reduced.");
+			}
+			if (!Role_if(PM_HEALER) && !rn2(500)) {
+				pline("The spell backlashes!");
+				badeffect();
+			}
+		} else {
+			make_hallucinated(0L,TRUE,0L);
+		}
 		break;
 	case SPE_CURE_CONFUSION:
-		make_confused(0L,TRUE);
+		if (HeavyConfusion) break;
+		if (HConfusion > (rn1(Role_if(PM_HEALER) ? 200 : 100, 20))) {
+			int effreduction = rnd(HConfusion / 2);
+			if (effreduction > 0) {
+				HConfusion -= effreduction;
+				Your("confusion counter is reduced.");
+			}
+			if (!Role_if(PM_HEALER) && !rn2(500)) {
+				pline("The spell backlashes!");
+				badeffect();
+			}
+		} else {
+			make_confused(0L,TRUE);
+		}
 		break;
 	case SPE_CURE_STUN:
-		make_stunned(0L,TRUE);
+		if (HeavyStunned) break;
+		if (HStun > (rn1(Role_if(PM_HEALER) ? 200 : 100, 20))) {
+			int effreduction = rnd(HStun / 2);
+			if (effreduction > 0) {
+				HStun -= effreduction;
+				Your("stun counter is reduced.");
+			}
+			if (!Role_if(PM_HEALER) && !rn2(500)) {
+				pline("The spell backlashes!");
+				badeffect();
+			}
+		} else {
+			make_stunned(0L,TRUE);
+		}
 		break;
 	case SPE_CURE_DIM:
-		make_dimmed(0L,TRUE);
+		if (HeavyDimmed) break;
+		if (HDimmed > (rn1(Role_if(PM_HEALER) ? 200 : 100, 20))) {
+			int effreduction = rnd(HDimmed / 2);
+			if (effreduction > 0) {
+				HDimmed -= effreduction;
+				Your("dimness counter is reduced.");
+			}
+			if (!Role_if(PM_HEALER) && !rn2(500)) {
+				pline("The spell backlashes!");
+				badeffect();
+			}
+		} else {
+			make_dimmed(0L,TRUE);
+		}
 		break;
 	case SPE_CURE_BURN:
-		make_burned(0L,TRUE);
+		if (HeavyBurned) break;
+		if (HBurned > (rn1(Role_if(PM_HEALER) ? 200 : 100, 20))) {
+			int effreduction = rnd(HBurned / 2);
+			if (effreduction > 0) {
+				HBurned -= effreduction;
+				Your("burn counter is reduced.");
+			}
+			if (!Role_if(PM_HEALER) && !rn2(500)) {
+				pline("The spell backlashes!");
+				badeffect();
+			}
+		} else {
+			make_burned(0L,TRUE);
+		}
 		break;
 	case SPE_CURE_FREEZE:
-		make_frozen(0L,TRUE);
+		if (HeavyFrozen) break;
+		if (HFrozen > (rn1(Role_if(PM_HEALER) ? 200 : 100, 20))) {
+			int effreduction = rnd(HFrozen / 2);
+			if (effreduction > 0) {
+				HFrozen -= effreduction;
+				Your("freeze counter is reduced.");
+			}
+			if (!Role_if(PM_HEALER) && !rn2(500)) {
+				pline("The spell backlashes!");
+				badeffect();
+			}
+		} else {
+			make_frozen(0L,TRUE);
+		}
 		break;
 	case SPE_CURE_NUMBNESS:
-		make_numbed(0L,TRUE);
+		if (HeavyNumbed) break;
+		if (HNumbed > (rn1(Role_if(PM_HEALER) ? 200 : 100, 20))) {
+			int effreduction = rnd(HNumbed / 2);
+			if (effreduction > 0) {
+				HNumbed -= effreduction;
+				Your("numbness counter is reduced.");
+			}
+			if (!Role_if(PM_HEALER) && !rn2(500)) {
+				pline("The spell backlashes!");
+				badeffect();
+			}
+		} else {
+			make_numbed(0L,TRUE);
+		}
 		break;
 	case SPE_CURE_RANDOM_STATUS:
 		switch (rnd(10)) {
 			case 1:
+				if ((Sick || Slimed) && !Role_if(PM_HEALER) && !rn2(5)) {
+					if (u.uenmax > 0) {
+						u.uenmax--;
+						if (u.uen > u.uenmax) u.uen = u.uenmax;
+					} else {
+						You("don't have enough power for this spell.");
+						break;
+					}
+				}
+
 				if (Sick) You("are no longer ill.");
 				if (Slimed) {
 				    pline_The("slime disappears!");
@@ -4952,31 +7716,113 @@ secureidchoice:
 				healup(0, 0, TRUE, FALSE);
 				break;
 			case 2:
-				make_hallucinated(0L,TRUE,0L);
+				if (HeavyHallu) break;
+				if (HHallucination > (rn1(Role_if(PM_HEALER) ? 600 : 300, 20))) {
+					int effreduction = rnd(HHallucination / 2);
+					if (effreduction > 0) {
+						HHallucination -= effreduction;
+						Your("hallucination counter is reduced.");
+					}
+				} else {
+					make_hallucinated(0L,TRUE,0L);
+				}
 				break;
 			case 3:
-				make_confused(0L,TRUE);
+				if (HeavyConfusion) break;
+				if (HConfusion > (rn1(Role_if(PM_HEALER) ? 600 : 300, 20))) {
+					int effreduction = rnd(HConfusion / 2);
+					if (effreduction > 0) {
+						HConfusion -= effreduction;
+						Your("confusion counter is reduced.");
+					}
+				} else {
+					make_confused(0L,TRUE);
+				}
 				break;
 			case 4:
-				make_stunned(0L,TRUE);
+				if (HeavyStunned) break;
+				if (HStun > (rn1(Role_if(PM_HEALER) ? 600 : 300, 20))) {
+					int effreduction = rnd(HStun / 2);
+					if (effreduction > 0) {
+						HStun -= effreduction;
+						Your("stun counter is reduced.");
+					}
+				} else {
+					make_stunned(0L,TRUE);
+				}
 				break;
 			case 5:
-				make_burned(0L,TRUE);
+				if (HeavyBurned) break;
+				if (HBurned > (rn1(Role_if(PM_HEALER) ? 600 : 300, 20))) {
+					int effreduction = rnd(HBurned / 2);
+					if (effreduction > 0) {
+						HBurned -= effreduction;
+						Your("burn counter is reduced.");
+					}
+				} else {
+					make_burned(0L,TRUE);
+				}
 				break;
 			case 6:
-				make_frozen(0L,TRUE);
+				if (HeavyFrozen) break;
+				if (HFrozen > (rn1(Role_if(PM_HEALER) ? 600 : 300, 20))) {
+					int effreduction = rnd(HFrozen / 2);
+					if (effreduction > 0) {
+						HFrozen -= effreduction;
+						Your("freeze counter is reduced.");
+					}
+				} else {
+					make_frozen(0L,TRUE);
+				}
 				break;
 			case 7:
-				make_numbed(0L,TRUE);
+				if (HeavyNumbed) break;
+				if (HNumbed > (rn1(Role_if(PM_HEALER) ? 600 : 300, 20))) {
+					int effreduction = rnd(HNumbed / 2);
+					if (effreduction > 0) {
+						HNumbed -= effreduction;
+						Your("numbness counter is reduced.");
+					}
+				} else {
+					make_numbed(0L,TRUE);
+				}
 				break;
 			case 8:
-				make_blinded(0L,FALSE);
+				if (HeavyBlind) break;
+				if (Blinded > (rn1(Role_if(PM_HEALER) ? 600 : 300, 20))) {
+					int effreduction = rnd(Blinded / 2);
+					if (effreduction > 0) {
+						u.ucreamed -= effreduction;
+						Blinded -= effreduction;
+						Your("blindness counter is reduced.");
+					}
+				} else {
+						make_blinded(0L,FALSE);
+				}
 				break;
 			case 9:
-				make_feared(0L,FALSE);
+				if (HeavyFeared) break;
+				if (HFeared > (rn1(Role_if(PM_HEALER) ? 600 : 300, 20))) {
+					int effreduction = rnd(HFeared / 2);
+					if (effreduction > 0) {
+						HFeared -= effreduction;
+						Your("fear counter is reduced.");
+					}
+				} else {
+					make_feared(0L, TRUE);
+				}
 				break;
 			case 10:
-				make_dimmed(0L,FALSE);
+				if (HeavyDimmed) break;
+				if (HDimmed > (rn1(Role_if(PM_HEALER) ? 600 : 300, 20))) {
+					int effreduction = rnd(HDimmed / 2);
+					if (effreduction > 0) {
+						HDimmed -= effreduction;
+						Your("dimness counter is reduced.");
+					}
+				} else {
+					make_dimmed(0L,TRUE);
+				}
 				break;
 		}
 		break;
@@ -4992,13 +7838,11 @@ secureidchoice:
 				pline("Oh wait, actually I do mind...");
 				badeffect();
 			}
-		    obfree(pseudo, (struct obj *)0);
-		    return 0;
+		    break;
 		}
 		if (!cansee(cc.x, cc.y) || distu(cc.x, cc.y) >= 32) {
 		    You("smell rotten eggs.");
-		    obfree(pseudo, (struct obj *)0);
-		    return 0;
+		    break;
 		}
 		(void) create_gas_cloud(cc.x, cc.y, 2, 5);
 		break;
@@ -5045,6 +7889,10 @@ secureidchoice:
 			pline("Click! You feel vitalized.");
 			u.uhpmax++;
 			if (Upolyd) u.mhmax++;
+			if (uactivesymbiosis) {
+				u.usymbiote.mhpmax++;
+				if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
+			}
 
 		} else {
 			pline("BANG! You suffer from extreme blood loss!");
@@ -5080,8 +7928,8 @@ secureidchoice:
 
 	case SPE_ACID_INGESTION:
 		pline("Sulfuric acid forms in your mouth...");
-		if (Acid_resistance) {
-			pline("This tastes %s.", Hallucination ? "tangy" : "sour");
+		if (Acid_resistance && (StrongAcid_resistance || rn2(10)) ) {
+			pline("This tastes %s.", FunnyHallu ? "tangy" : "sour");
 		} else {
 			pline("This burns a lot!");
 			losehp(d(2, 8), "ingesting acid", KILLED_BY);
@@ -5114,7 +7962,7 @@ secureidchoice:
 
 		int duration = rn1(25,25);
 
-		switch (rn2(17)) {
+		if (!obsidianprotection()) switch (rn2(17)) {
 		case 0:
 		case 1:
 		case 2:
@@ -5158,7 +8006,7 @@ secureidchoice:
 		else TimeStopped += rnd(3 + spell_damage_bonus(spellid(spell)) );
 		break;
 	case SPE_LEVELPORT:
-	      if (!flags.lostsoul && !flags.uberlostsoul && !(flags.wonderland && !(u.wonderlandescape)) && !(u.uprops[STORM_HELM].extrinsic) && !(In_bellcaves(&u.uz)) && !(In_subquest(&u.uz)) && !(In_voiddungeon(&u.uz)) && !(In_netherrealm(&u.uz))) {
+	      if (!flags.lostsoul && !flags.uberlostsoul && !(flags.wonderland && !(u.wonderlandescape)) && !(iszapem && !(u.zapemescape)) && !(u.uprops[STORM_HELM].extrinsic) && !(In_bellcaves(&u.uz)) && !(In_subquest(&u.uz)) && !(In_voiddungeon(&u.uz)) && !(In_netherrealm(&u.uz))) {
 			level_tele();
 			pline("From your strain of casting such a powerful spell, the magical energy backlashes on you.");
 			badeffect();
@@ -5167,13 +8015,14 @@ secureidchoice:
 
 		break;
 	case SPE_WARPING:
-		if (u.uevent.udemigod || u.uhave.amulet || CannotTeleport || (u.usteed && mon_has_amulet(u.usteed))) { pline("You shudder for a moment."); break;}
+		if (((u.uevent.udemigod || u.uhave.amulet) && !u.freeplaymode) || CannotTeleport || (u.usteed && mon_has_amulet(u.usteed))) { pline("You shudder for a moment."); break;}
 
-		if (flags.lostsoul || flags.uberlostsoul || (flags.wonderland && !(u.wonderlandescape)) || u.uprops[STORM_HELM].extrinsic || In_bellcaves(&u.uz) || In_subquest(&u.uz) || In_voiddungeon(&u.uz) || In_netherrealm(&u.uz)) { 
+		if (flags.lostsoul || flags.uberlostsoul || (flags.wonderland && !(u.wonderlandescape)) || (iszapem && !(u.zapemescape)) || u.uprops[STORM_HELM].extrinsic || In_bellcaves(&u.uz) || In_subquest(&u.uz) || In_voiddungeon(&u.uz) || In_netherrealm(&u.uz)) { 
 			pline("You're unable to warp!"); break;}
 
 		make_stunned(HStun + 2, FALSE); /* to suppress teleport control that you might have */
 
+		u.cnd_banishmentcount++;
 		if (rn2(2)) {(void) safe_teleds(FALSE); goto_level(&medusa_level, TRUE, FALSE, FALSE); }
 		else {(void) safe_teleds(FALSE); goto_level(&portal_level, TRUE, FALSE, FALSE); }
 
@@ -5194,6 +8043,7 @@ secureidchoice:
 		{
 			int rtrap;
 		      int i, j, bd = 1;
+			register struct trap *ttmp;
 
 		      for (i = -bd; i <= bd; i++) for(j = -bd; j <= bd; j++) {
 				if (!isok(u.ux + i, u.uy + j)) continue;
@@ -5202,19 +8052,33 @@ secureidchoice:
 
 			      rtrap = randomtrap();
 
-				(void) maketrap(u.ux + i, u.uy + j, rtrap, 100);
+				ttmp = maketrap(u.ux + i, u.uy + j, rtrap, 100);
+				if (ttmp && !rn2(10)) ttmp->hiddentrap = TRUE;
 			}
 		}
 
-		makerandomtrap();
-		if (!rn2(2)) makerandomtrap();
-		if (!rn2(4)) makerandomtrap();
-		if (!rn2(8)) makerandomtrap();
-		if (!rn2(16)) makerandomtrap();
-		if (!rn2(32)) makerandomtrap();
-		if (!rn2(64)) makerandomtrap();
-		if (!rn2(128)) makerandomtrap();
-		if (!rn2(256)) makerandomtrap();
+		if (rn2(10)) {
+			makerandomtrap();
+			if (!rn2(2)) makerandomtrap();
+			if (!rn2(4)) makerandomtrap();
+			if (!rn2(8)) makerandomtrap();
+			if (!rn2(16)) makerandomtrap();
+			if (!rn2(32)) makerandomtrap();
+			if (!rn2(64)) makerandomtrap();
+			if (!rn2(128)) makerandomtrap();
+			if (!rn2(256)) makerandomtrap();
+		} else {
+			makeinvisotrap();
+			if (!rn2(2)) makeinvisotrap();
+			if (!rn2(4)) makeinvisotrap();
+			if (!rn2(8)) makeinvisotrap();
+			if (!rn2(16)) makeinvisotrap();
+			if (!rn2(32)) makeinvisotrap();
+			if (!rn2(64)) makeinvisotrap();
+			if (!rn2(128)) makeinvisotrap();
+			if (!rn2(256)) makeinvisotrap();
+		}
+		badeffect();
 
 		break;
 
@@ -5235,12 +8099,12 @@ secureidchoice:
 		break;
 
 	case SPE_AIR_CURRENT:
-		if (Hallucination)
+		if (FunnyHallu)
 			You_hear("air current noises, and a remark by Amy about how sexy they are.");
 		else
 			You_hear("air current noises.");
 
-		pushplayer();
+		pushplayer(TRUE);
 		if (In_sokoban(&u.uz)) {
 			change_luck(-1);
 			pline("You cheater!");
@@ -5407,6 +8271,342 @@ dashingchoice:
 
 		break;
 
+	case SPE_GRAVE:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_gravefloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("Hans Walt erects grave walls!");
+		if (rn2(2)) {
+			u.uenmax -= rnd(7);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_TUNNELS:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_tunnelfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("Lots of tunnels are built!");
+		if (rn2(2)) {
+			u.uenmax -= rnd(4);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_FARMING:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_farmfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("Farmland appears.");
+		if (!rn2(3)) {
+			u.uenmax -= rnd(3);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_MOUNTAINS:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_mountainfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("An underground mountain! Wow!");
+		if (rn2(2)) {
+			u.uenmax -= rnd(7);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_DIVING:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_watertunnelfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("Flooded tunnels have been built!");
+		if (rn2(2)) {
+			u.uenmax -= rnd(3);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_CRYSTALLIZATION:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_crystalwaterfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("There's water on the ceiling!");
+		if (rn2(2)) {
+			u.uenmax -= rnd(2);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_MOORLAND:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_moorfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("The floor becomes swampy.");
+		if (!rn2(4)) {
+			u.uenmax -= rnd(2);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_URINE:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_urinefloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("Mira does her thing!");
+		if (!rn2(5)) {
+			u.uenmax -= rnd(2);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_QUICKSAND:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_shiftingsandfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("Deadly sandholes appear!");
+		if (rn2(2)) {
+			u.uenmax -= rnd(3);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_STYX:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_styxfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("You're in the styx!");
+		if (rn2(2)) {
+			u.uenmax -= rnd(2);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_SNOW:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_snowfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("Winter is coming!");
+		if (!rn2(4)) {
+			u.uenmax -= rnd(2);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_ASH:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_ashfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("Ash terrain appears!");
+		if (rn2(2)) {
+			u.uenmax -= rnd(3);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_SAND:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_sandfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("Sandy deserts!");
+		if (rn2(2)) {
+			u.uenmax -= rnd(2);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_PAVING:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_pavementfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("Whoa, there's a paved road!");
+		if (!rn2(5)) {
+			u.uenmax -= rnd(2);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_HIGHWAY:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_highwayfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("You build a highway to the left!");
+		if (rn2(2)) {
+			u.uenmax -= rnd(6);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_GRASSLAND:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_grassfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("Grass is growing!");
+		if (!rn2(4)) {
+			u.uenmax -= rnd(2);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_NETHER_MIST:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_nethermistfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("Purple mist appears!");
+		if (!rn2(4)) {
+			u.uenmax -= rnd(2);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_STALACTITE:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_stalactitefloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("Stalactites shoot from the ceiling!");
+		if (!rn2(3)) {
+			u.uenmax -= rnd(2);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_CRYPT:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_cryptfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("You entered the crypts!");
+		if (!rn2(5)) {
+			u.uenmax -= rnd(2);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_BUBBLE_BOBBLE:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_bubblefloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("Floating bubbles!");
+		if (rn2(2)) {
+			u.uenmax -= rnd(2);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
+	case SPE_RAIN:
+		{
+		int madepoolQ = 0;
+		do_clear_areaX(u.ux, u.uy, 5 + rnd(5), do_raincloudfloodg, (void *)&madepoolQ);
+		if (madepoolQ) pline("There's rain clouds now!");
+		if (rn2(2)) {
+			u.uenmax -= rnd(2);
+			if (u.uenmax < 0) u.uenmax = 0;
+			if (u.uen > u.uenmax) u.uen = u.uenmax;
+			pline("Casting this spell is straining for your maximum mana supply.");
+		}
+
+		}
+
+		break;
+
 	case SPE_CHAOS_TERRAIN:
 
 		{
@@ -5508,7 +8708,7 @@ possessionchoice:
 
 		do {
 			u.wormpolymorph = rn2(NUMMONS);
-		} while(( (notake(&mons[u.wormpolymorph]) && rn2(4) ) || ((mons[u.wormpolymorph].mlet == S_BAT) && rn2(2)) || ((mons[u.wormpolymorph].mlet == S_EYE) && rn2(2) ) || ((mons[u.wormpolymorph].mmove == 1) && rn2(4) ) || ((mons[u.wormpolymorph].mmove == 2) && rn2(3) ) || ((mons[u.wormpolymorph].mmove == 3) && rn2(2) ) || ((mons[u.wormpolymorph].mmove == 4) && !rn2(3) ) || ( (mons[u.wormpolymorph].mlevel < 10) && ((mons[u.wormpolymorph].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[u.wormpolymorph]) && rn2(2) ) || ( is_nonmoving(&mons[u.wormpolymorph]) && rn2(5) ) || ( is_eel(&mons[u.wormpolymorph]) && rn2(5) ) || ( is_nonmoving(&mons[u.wormpolymorph]) && rn2(20) ) || ( uncommon2(&mons[u.wormpolymorph]) && !rn2(4) ) || ( uncommon3(&mons[u.wormpolymorph]) && !rn2(3) ) || ( uncommon5(&mons[u.wormpolymorph]) && !rn2(2) ) || ( uncommon7(&mons[u.wormpolymorph]) && rn2(3) ) || ( uncommon10(&mons[u.wormpolymorph]) && rn2(5) ) || ( is_eel(&mons[u.wormpolymorph]) && rn2(20) ) ) );
+		} while(( (notake(&mons[u.wormpolymorph]) && rn2(4) ) || ((mons[u.wormpolymorph].mlet == S_BAT) && rn2(2)) || ((mons[u.wormpolymorph].mlet == S_EYE) && rn2(2) ) || ((mons[u.wormpolymorph].mmove == 1) && rn2(4) ) || ((mons[u.wormpolymorph].mmove == 2) && rn2(3) ) || ((mons[u.wormpolymorph].mmove == 3) && rn2(2) ) || ((mons[u.wormpolymorph].mmove == 4) && !rn2(3) ) || ( (mons[u.wormpolymorph].mlevel < 10) && ((mons[u.wormpolymorph].mlevel + 1) < rnd(u.ulevel)) ) || (!haseyes(&mons[u.wormpolymorph]) && rn2(2) ) || ( is_nonmoving(&mons[u.wormpolymorph]) && rn2(5) ) || ( is_eel(&mons[u.wormpolymorph]) && rn2(5) ) || ( is_nonmoving(&mons[u.wormpolymorph]) && rn2(20) ) || (is_jonadabmonster(&mons[u.wormpolymorph]) && rn2(20)) || ( uncommon2(&mons[u.wormpolymorph]) && !rn2(4) ) || ( uncommon3(&mons[u.wormpolymorph]) && !rn2(3) ) || ( uncommon5(&mons[u.wormpolymorph]) && !rn2(2) ) || ( uncommon7(&mons[u.wormpolymorph]) && rn2(3) ) || ( uncommon10(&mons[u.wormpolymorph]) && rn2(5) ) || ( is_eel(&mons[u.wormpolymorph]) && rn2(20) ) ) );
 
 		pline("You feel polyform.");
 		polyself(FALSE);
@@ -5547,7 +8747,18 @@ possessionchoice:
 				break;
 			}
 
-			if (golemfuel) useup(golemfuel);
+			if (golemfuel->lamplit) { /* we don't want timer-related segfault panics --Amy */
+				pline("You need a torch that isn't lit! Turn off all lit torches first!");
+				break;
+			}
+
+			if (golemfuel) {
+				if (golemfuel->quan > 1) {
+					golemfuel->quan--;
+					golemfuel->owt = weight(golemfuel);
+				}
+				else useup(golemfuel);
+			}
 
 			firegolem = make_helper(PM_SUMMONED_FIRE_GOLEM, u.ux, u.uy);
 			if (!firegolem) break;
@@ -5678,7 +8889,10 @@ totemsummonchoice:
 				u.uenmax -= rnd(5);
 				if (u.uenmax < 0) u.uenmax = 0;
 				if (u.uen > u.uenmax) u.uen = u.uenmax;
-				if (Free_action) {
+				if (StrongFree_action) {
+				    nomul(-(rnd(3)), "buried by an avalanche", TRUE);
+					nomovemsg = "You finally dig yourself out of the debris.";
+				} else if (Free_action) {
 				    nomul(-(rnd(5)), "buried by an avalanche", TRUE);
 					nomovemsg = "You finally dig yourself out of the debris.";
 				} else {
@@ -5698,20 +8912,12 @@ totemsummonchoice:
 			break;
 		}
 
-		{
-			int numspells;
-
-			for (numspells = 0; numspells < MAXSPELL && spellid(numspells) != NO_SPELL; numspells++) {
-
-				pline("You know the %s spell.", spellname(numspells));
-				if (yn("Dememorize it?") == 'y') {
-
-					spl_book[numspells].sp_know = 0;
-					pline("Alright, the %s spell is a forgotten spell now.", spellname(numspells));
-
-					break;
-				}
-			}
+		pline("Choose a spell to dememorize.");
+dememostart:
+		if (!dememorizespell()) {
+			if (yn("Really exit with no spell selected?") == 'y')
+				pline("You just wasted the opportunity to dememorize a spell.");
+			else goto dememostart;
 		}
 
 		break;
@@ -5723,35 +8929,12 @@ totemsummonchoice:
 			break;
 		}
 
-		{
-			int numspells;
-
-			for (numspells = 0; numspells < MAXSPELL && spellid(numspells) != NO_SPELL; numspells++) {
-				if (spellid(numspells) == SPE_INERTIA_CONTROL) continue;
-
-				pline("You know the %s spell.", spellname(numspells));
-				if (yn("Control the flow of this spell?") == 'y') {
-					u.inertiacontrolspell = spellid(numspells);
-					u.inertiacontrolspellno = numspells;
-
-					u.inertiacontrol = 20;
-
-					if (!(PlayerCannotUseSkills) && P_SKILL(P_OCCULT_SPELL) >= P_BASIC) {
-
-						switch (P_SKILL(P_OCCULT_SPELL)) {
-							case P_BASIC: u.inertiacontrol = 23; break;
-							case P_SKILLED: u.inertiacontrol = 26; break;
-							case P_EXPERT: u.inertiacontrol = 30; break;
-							case P_MASTER: u.inertiacontrol = 33; break;
-							case P_GRAND_MASTER: u.inertiacontrol = 36; break;
-							case P_SUPREME_MASTER: u.inertiacontrol = 40; break;
-							default: break;
-						}
-					}
-
-					break;
-				}
-			}
+		pline("Choose a spell to control.");
+controlagain:
+		if (!inertiacontrolspell()) {
+			if (yn("Really exit with no spell selected?") == 'y')
+				pline("You just wasted the opportunity to control a spell.");
+			else goto controlagain;
 		}
 
 		break;
@@ -5805,12 +8988,12 @@ totemsummonchoice:
 			register struct monst *nexusmon;
 			boolean teleportdone = FALSE;
 
-			if (level.flags.noteleport && !Race_if(PM_RODNEYAN) ) {
+			if ((level.flags.noteleport || u.antitelespelltimeout) && !Race_if(PM_RODNEYAN) ) {
 				pline("A mysterious force prevents you from teleporting!");
 				break;
 			}
 
-			if ( ( (u.uhave.amulet && (u.amuletcompletelyimbued || !rn2(3))) || CannotTeleport || On_W_tower_level(&u.uz) || (u.usteed && mon_has_amulet(u.usteed)) ) ) {
+			if ( ( (u.uhave.amulet && !u.freeplaymode && (u.amuletcompletelyimbued || !rn2(3))) || CannotTeleport || On_W_tower_level(&u.uz) || (u.usteed && mon_has_amulet(u.usteed)) ) ) {
 				You_feel("disoriented for a moment.");
 				break;
 			}
@@ -5931,10 +9114,10 @@ totemsummonchoice:
 
 			pline("The poison spills over you!");
 
-			if (!rn2(Poison_resistance ? 5 : 3)) {
+			if (!rn2(StrongPoison_resistance ? 10 : Poison_resistance ? 5 : 3)) {
 				int typ = rn2(A_MAX);
 				poisontell(typ);
-				(void) adjattrib(typ, Poison_resistance ? -1 : -rn1(4,3), TRUE);
+				(void) adjattrib(typ, Poison_resistance ? -1 : -rno(5), TRUE, TRUE);
 			}
 			if (!Poison_resistance) {
 				losehp(rnd(10), "poisoning a weapon", KILLED_BY);
@@ -5990,7 +9173,7 @@ totemsummonchoice:
 	case SPE_RESIST_POISON:
 		if(!(HPoison_resistance & INTRINSIC)) {
 			You_feel("healthy ..... for the moment at least.");
-			incr_itimeout(&HPoison_resistance, Poison_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HPoison_resistance, HPoison_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6002,7 +9185,7 @@ totemsummonchoice:
 	case SPE_ANTI_DISINTEGRATION:
 		if(!(HDisint_resistance & INTRINSIC)) {
 			You_feel("quite firm for a while.");
-			incr_itimeout(&HDisint_resistance, Disint_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HDisint_resistance, HDisint_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6014,8 +9197,7 @@ totemsummonchoice:
 	case SPE_MAGICTORCH:
 		if(!(HSight_bonus & INTRINSIC)) {
 			You("can see in the dark!");
-			incr_itimeout(&HSight_bonus, rn1(20, 10) +
-				spell_damage_bonus(spellid(spell))*20);
+			incr_itimeout(&HSight_bonus, rn1(20, 10) + spell_damage_bonus(spellid(spell))*20);
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6027,7 +9209,7 @@ totemsummonchoice:
 	case SPE_DISPLACEMENT:
 		if(!(HDisplaced & INTRINSIC)) {
 			pline("Your image is displaced!");
-			incr_itimeout(&HDisplaced, Displaced ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(200, 100) + spell_damage_bonus(spellid(spell))*20));
+			incr_itimeout(&HDisplaced, HDisplaced ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(200, 100) + spell_damage_bonus(spellid(spell))*20));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6039,7 +9221,7 @@ totemsummonchoice:
 	case SPE_TRUE_SIGHT:
 		if(!(HSee_invisible & INTRINSIC)) {
 			pline("You can see invisible things!");
-			incr_itimeout(&HSee_invisible, See_invisible ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(50, 25) + spell_damage_bonus(spellid(spell))*5));
+			incr_itimeout(&HSee_invisible, HSee_invisible ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(50, 25) + spell_damage_bonus(spellid(spell))*5));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6051,7 +9233,7 @@ totemsummonchoice:
 	case SPE_CONFLICT:
 		if(!(HConflict & INTRINSIC)) {
 			pline("You start generating conflict!");
-			incr_itimeout(&HConflict, Conflict ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(20, 10) + spell_damage_bonus(spellid(spell))*3));
+			incr_itimeout(&HConflict, HConflict ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(20, 10) + spell_damage_bonus(spellid(spell))*3));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6063,7 +9245,7 @@ totemsummonchoice:
 	case SPE_ESP:
 		if(!(HTelepat & INTRINSIC)) {
 			You_feel("a strange mental acuity.");
-			incr_itimeout(&HTelepat, Blind_telepat ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HTelepat, HTelepat ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6075,7 +9257,7 @@ totemsummonchoice:
 	case SPE_RADAR:
 		if(!(HWarning & INTRINSIC)) {
 			pline("You turn on your radar.");
-			incr_itimeout(&HWarning, Warning ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HWarning, HWarning ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6087,7 +9269,7 @@ totemsummonchoice:
 	case SPE_REGENERATION:
 		if(!(HRegeneration & INTRINSIC)) {
 			pline("You direct your internal energy to closing your wounds.");
-			incr_itimeout(&HRegeneration, Regeneration ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HRegeneration, HRegeneration ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6099,7 +9281,7 @@ totemsummonchoice:
 	case SPE_SEARCHING:
 		if(!(HSearching & INTRINSIC)) {
 			pline("You start searching.");
-			incr_itimeout(&HSearching, Searching ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HSearching, HSearching ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6111,7 +9293,7 @@ totemsummonchoice:
 	case SPE_FREE_ACTION:
 		if(!(HFree_action & INTRINSIC)) {
 			pline("You are resistant to paralysis.");
-			incr_itimeout(&HFree_action, Free_action ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HFree_action, HFree_action ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6123,7 +9305,7 @@ totemsummonchoice:
 	case SPE_STEALTH:
 		if(!(HStealth & INTRINSIC)) {
 			pline("You start moving silently.");
-			incr_itimeout(&HStealth, Stealth ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HStealth, HStealth ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6135,7 +9317,7 @@ totemsummonchoice:
 	case SPE_INFRAVISION:
 		if(!(HInfravision & INTRINSIC)) {
 			pline("Your %s are suddenly very sensitive!", makeplural(body_part(EYE)));
-			incr_itimeout(&HInfravision, Infravision ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HInfravision, HInfravision ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6147,7 +9329,7 @@ totemsummonchoice:
 	case SPE_BOTOX_RESIST:
 		if(!(HSick_resistance & INTRINSIC)) {
 			You_feel("resistant to sickness.");
-			incr_itimeout(&HSick_resistance, Sick_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HSick_resistance, HSick_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6159,7 +9341,7 @@ totemsummonchoice:
 	case SPE_DRAGON_BLOOD:
 		if(!(HDrain_resistance & INTRINSIC)) {
 			You_feel("resistant to level drainage.");
-			incr_itimeout(&HDrain_resistance, Drain_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HDrain_resistance, HDrain_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6171,7 +9353,7 @@ totemsummonchoice:
 	case SPE_ANTI_MAGIC_FIELD:
 		if(!(HAntimagic & INTRINSIC)) {
 			You_feel("resistant to magic.");
-			incr_itimeout(&HAntimagic, Antimagic ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HAntimagic, HAntimagic ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6200,8 +9382,22 @@ totemsummonchoice:
 
 	case SPE_CURE_GLIB:
 
-		if (Glib) pline("You clean your %s.", makeplural(body_part(HAND)));
-		Glib = 0;
+		if (Glib) {
+			pline("You clean your %s.", makeplural(body_part(HAND)));
+			if (Glib > (rn1(Role_if(PM_HEALER) ? 200 : 100, 20))) {
+				int effreduction = rnd(Glib / 2);
+				if (effreduction > 0) {
+					Glib -= effreduction;
+					Your("glib counter is reduced.");
+				}
+				if (!Role_if(PM_HEALER) && !rn2(500)) {
+					pline("The spell backlashes!");
+					badeffect();
+				}
+			} else {
+				Glib = 0;
+			}
+		}
 
 		break;
 
@@ -6239,9 +9435,12 @@ totemsummonchoice:
 		int num;
 	      register struct monst *wfm, *wfm2;
 		num = 0;
+		int wflvl = (u.ulevel / 2);
+		if (wflvl < 1) wflvl = 1;
+
 		for (wfm = fmon; wfm; wfm = wfm2) {
 			wfm2 = wfm->nmon;
-			if ( ((wfm->m_lev < u.ulevel) || (!rn2(4) && wfm->m_lev < (2 * u.ulevel))) && wfm->mnum != quest_info(MS_NEMESIS) && !(wfm->data->geno & G_UNIQ) ) {
+			if ( ((wfm->m_lev < wflvl) || (!rn2(4) && wfm->m_lev < (2 * wflvl))) && wfm->mnum != quest_info(MS_NEMESIS) && !(wfm->data->geno & G_UNIQ) ) {
 				mondead(wfm);
 				num++;
 			}
@@ -6301,7 +9500,7 @@ totemsummonchoice:
 		else if (role_skill >= P_BASIC) n = 48;
 		else n = 50;	/* Unskilled or restricted */
 		if (!rn2(n)) {
-			pluslvl(FALSE);
+			gainlevelmaybe();
 		} else
 		    pline("Too bad - it didn't work!");
 		break;
@@ -6327,13 +9526,21 @@ totemsummonchoice:
 
 	case SPE_MAP_LEVEL:
 
+		if (level.flags.nommap) {
+
+			pline("Whoops, something blocks the spell's power and causes it to backfire.");
+			badeffect();
+			break;
+
+		}
+
 		if (role_skill >= P_SUPREME_MASTER) n = 4;
 		else if (role_skill >= P_GRAND_MASTER) n = 5;
-		else if (role_skill >= P_MASTER) n = 6;
-		else if (role_skill >= P_EXPERT) n = 7;
-		else if (role_skill >= P_SKILLED) n = 8;
-		else if (role_skill >= P_BASIC) n = 9;
-		else n = 10;	/* Unskilled or restricted */
+		else if (role_skill >= P_MASTER) n = 7;
+		else if (role_skill >= P_EXPERT) n = 9;
+		else if (role_skill >= P_SKILLED) n = 11;
+		else if (role_skill >= P_BASIC) n = 13;
+		else n = 15;	/* Unskilled or restricted */
 		if (!rn2(n)) {
 		    struct trap *t;
 		    long save_Hconf = HConfusion,
@@ -6341,8 +9548,9 @@ totemsummonchoice:
 	
 		    HConfusion = HHallucination = 0L;
 		    for (t = ftrap; t != 0; t = t->ntrap) {
-			if (!rn2(15)) continue;
-			if (!t->hiddentrap) t->tseen = 1; /* ignores trap difficulty because map level is powerful --Amy */
+			if (!rn2(2)) continue;
+			/* easier trap difficulty check compared to other detection methods because map level is powerful --Amy */
+			if (!t->hiddentrap && (t->trapdiff < rnd(150)) ) t->tseen = 1;
 			map_trap(t, TRUE);
 		    }
 		    do_mappingY();
@@ -6350,6 +9558,12 @@ totemsummonchoice:
 		    HHallucination = save_Hhallu;
 		    You_feel("knowledgable!");
 		    object_detect(pseudo, 0);
+
+		    if (!rn2(3)) {
+			pline("The spell backlashes!");
+			badeffect();
+		    }
+
 		} else
 		    pline("The map refuses to reveal its secrets.");
 		break;
@@ -6362,7 +9576,7 @@ totemsummonchoice:
 	case SPE_ACIDSHIELD:
 		if(!(HAcid_resistance & INTRINSIC)) {
 			You("are resistant to acid now. Your items, however, are not.");
-			incr_itimeout(&HAcid_resistance, Acid_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HAcid_resistance, HAcid_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6374,7 +9588,7 @@ totemsummonchoice:
 	case SPE_RESIST_PETRIFICATION:
 		if(!(HStone_resistance & INTRINSIC)) {
 			You_feel("more limber. Let's eat some cockatrice meat!");
-			incr_itimeout(&HStone_resistance, Stone_resistance ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(40, 20) + spell_damage_bonus(spellid(spell))*4));
+			incr_itimeout(&HStone_resistance, HStone_resistance ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(40, 20) + spell_damage_bonus(spellid(spell))*4));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6385,11 +9599,11 @@ totemsummonchoice:
 		break;
 	case SPE_RESIST_SLEEP:
 		if(!(HSleep_resistance & INTRINSIC)) {
-			if (Hallucination)
+			if (FunnyHallu)
 				pline("Too much coffee!");
 			else
 				You("no longer feel tired.");
-			incr_itimeout(&HSleep_resistance, Sleep_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HSleep_resistance, HSleep_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6401,7 +9615,7 @@ totemsummonchoice:
 	case SPE_FLYING:
 		if(!(HFlying & INTRINSIC)) {
 			You("start flying!");
-			incr_itimeout(&HFlying, Flying ? (rnd(4) + spell_damage_bonus(spellid(spell))) : (rn1(20, 25) + spell_damage_bonus(spellid(spell))*20));
+			incr_itimeout(&HFlying, HFlying ? (rnd(4) + spell_damage_bonus(spellid(spell))) : (rn1(20, 25) + spell_damage_bonus(spellid(spell))*20));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6413,7 +9627,7 @@ totemsummonchoice:
 	case SPE_ENDURE_COLD:
 		if(!(HCold_resistance & INTRINSIC)) {
 			You_feel("warmer.");
-			incr_itimeout(&HCold_resistance, Cold_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HCold_resistance, HCold_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6424,11 +9638,11 @@ totemsummonchoice:
 		break;
 	case SPE_ENDURE_HEAT:
 		if(!(HFire_resistance & INTRINSIC)) {
-			if (Hallucination)
+			if (FunnyHallu)
 				pline("Excellent! You feel, like, totally cool!");
 			else
 				You_feel("colder.");
-			incr_itimeout(&HFire_resistance, Fire_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HFire_resistance, HFire_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6439,11 +9653,11 @@ totemsummonchoice:
 		break;
 	case SPE_INSULATE:
 		if(!(HShock_resistance & INTRINSIC)) {
-			if (Hallucination)
+			if (FunnyHallu)
 				pline("Bummer! You've been grounded!");
 			else
 				You("are not at all shocked by this feeling.");
-			incr_itimeout(&HShock_resistance, Shock_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HShock_resistance, HShock_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6456,7 +9670,7 @@ totemsummonchoice:
 	case SPE_HOLD_AIR:
 		if(!(HMagical_breathing & INTRINSIC)) {
 			You("hold your breath.");
-			incr_itimeout(&HMagical_breathing, Amphibious ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(40, 20) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HMagical_breathing, HMagical_breathing ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(40, 20) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6469,7 +9683,7 @@ totemsummonchoice:
 	case SPE_SWIMMING:
 		if(!(HSwimming & INTRINSIC)) {
 			You("grow water wings.");
-			incr_itimeout(&HSwimming, Amphibious ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+			incr_itimeout(&HSwimming, HSwimming ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 		} else {
 			pline("%s", nothing_happens);	/* Already have as intrinsic */
 			if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6483,11 +9697,11 @@ totemsummonchoice:
 		switch (rnd(9)) {
 			case 1:
 				if(!(HShock_resistance & INTRINSIC)) {
-					if (Hallucination)
+					if (FunnyHallu)
 						pline("Bummer! You've been grounded!");
 					else
 						You("are not at all shocked by this feeling.");
-					incr_itimeout(&HShock_resistance, Shock_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+					incr_itimeout(&HShock_resistance, HShock_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 				} else {
 					pline("%s", nothing_happens);	/* Already have as intrinsic */
 					if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6498,11 +9712,11 @@ totemsummonchoice:
 				break;
 			case 2:
 				if(!(HFire_resistance & INTRINSIC)) {
-					if (Hallucination)
+					if (FunnyHallu)
 						pline("Excellent! You feel, like, totally cool!");
 					else
 						You_feel("colder.");
-					incr_itimeout(&HFire_resistance, Fire_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+					incr_itimeout(&HFire_resistance, HFire_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 				} else {
 					pline("%s", nothing_happens);	/* Already have as intrinsic */
 					if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6514,7 +9728,7 @@ totemsummonchoice:
 			case 3:
 				if(!(HCold_resistance & INTRINSIC)) {
 					You_feel("warmer.");
-					incr_itimeout(&HCold_resistance, Cold_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+					incr_itimeout(&HCold_resistance, HCold_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 				} else {
 					pline("%s", nothing_happens);	/* Already have as intrinsic */
 					if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6525,11 +9739,11 @@ totemsummonchoice:
 				break;
 			case 4:
 				if(!(HSleep_resistance & INTRINSIC)) {
-					if (Hallucination)
+					if (FunnyHallu)
 						pline("Too much coffee!");
 					else
 						You("no longer feel tired.");
-					incr_itimeout(&HSleep_resistance, Sleep_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+					incr_itimeout(&HSleep_resistance, HSleep_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 				} else {
 					pline("%s", nothing_happens);	/* Already have as intrinsic */
 					if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6541,7 +9755,7 @@ totemsummonchoice:
 			case 5:
 				if(!(HStone_resistance & INTRINSIC)) {
 					You_feel("more limber. Let's eat some cockatrice meat!");
-					incr_itimeout(&HStone_resistance, Stone_resistance ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(40, 20) + spell_damage_bonus(spellid(spell))*4));
+					incr_itimeout(&HStone_resistance, HStone_resistance ? (rnd(5) + spell_damage_bonus(spellid(spell))) : (rn1(40, 20) + spell_damage_bonus(spellid(spell))*4));
 				} else {
 					pline("%s", nothing_happens);	/* Already have as intrinsic */
 					if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6553,7 +9767,7 @@ totemsummonchoice:
 			case 6:
 				if(!(HAcid_resistance & INTRINSIC)) {
 					You("are resistant to acid now. Your items, however, are not.");
-					incr_itimeout(&HAcid_resistance, Acid_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+					incr_itimeout(&HAcid_resistance, HAcid_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 				} else {
 					pline("%s", nothing_happens);	/* Already have as intrinsic */
 					if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6565,7 +9779,7 @@ totemsummonchoice:
 			case 7:
 				if(!(HSick_resistance & INTRINSIC)) {
 					You_feel("resistant to sickness.");
-					incr_itimeout(&HSick_resistance, Sick_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+					incr_itimeout(&HSick_resistance, HSick_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 				} else {
 					pline("%s", nothing_happens);	/* Already have as intrinsic */
 					if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6577,7 +9791,7 @@ totemsummonchoice:
 			case 8:
 				if(!(HPoison_resistance & INTRINSIC)) {
 					You_feel("healthy ..... for the moment at least.");
-					incr_itimeout(&HPoison_resistance, Poison_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+					incr_itimeout(&HPoison_resistance, HPoison_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 				} else {
 					pline("%s", nothing_happens);	/* Already have as intrinsic */
 					if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6589,7 +9803,7 @@ totemsummonchoice:
 			case 9:
 				if(!(HDisint_resistance & INTRINSIC)) {
 					You_feel("quite firm for a while.");
-					incr_itimeout(&HDisint_resistance, Disint_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
+					incr_itimeout(&HDisint_resistance, HDisint_resistance ? (rnd(10) + spell_damage_bonus(spellid(spell))) : (rn1(100, 50) + spell_damage_bonus(spellid(spell))*10));
 				} else {
 					pline("%s", nothing_happens);	/* Already have as intrinsic */
 					if (FailureEffects || u.uprops[FAILURE_EFFECTS].extrinsic || have_failurestone()) {
@@ -6604,20 +9818,18 @@ totemsummonchoice:
 
 	case SPE_FORBIDDEN_KNOWLEDGE:
 		if(!(HHalf_spell_damage & INTRINSIC)) {
-			if (Hallucination)
+			if (FunnyHallu)
 				pline("Let the casting commence!");
 			else
 				You_feel("a sense of spell knowledge.");
-			incr_itimeout(&HHalf_spell_damage, rn1(100, 50) +
-				spell_damage_bonus(spellid(spell))*10);
+			incr_itimeout(&HHalf_spell_damage, rn1(500, 250) + spell_damage_bonus(spellid(spell))*50);
 		}
 		if(!(HHalf_physical_damage & INTRINSIC)) {
-			if (Hallucination)
+			if (FunnyHallu)
 				You_feel("like a tough motherfucker!");
 			else
 				You("are resistant to normal damage.");
-			incr_itimeout(&HHalf_physical_damage, rn1(100, 50) +
-				spell_damage_bonus(spellid(spell))*10);
+			incr_itimeout(&HHalf_physical_damage, rn1(500, 250) + spell_damage_bonus(spellid(spell))*50);
 		}
 		u.ugangr++;
 
@@ -6625,7 +9837,7 @@ totemsummonchoice:
 
 	case SPE_ALTER_REALITY:
 
-		alter_reality();
+		alter_reality(0);
 
 		break;
 
@@ -6709,8 +9921,9 @@ totemsummonchoice:
 			pline("You see here a %s on the end of your %s.",body_part(FOOT),body_part(LEG));
 		/* Come on sporkhack devteam, this spell could be useful. Let's see if I can make it do something. --Amy */
 			pline("Urgh - your head spins from the vile stench!");
-		    make_confused(HConfusion + d(10,10), FALSE);
+			make_confused(HConfusion + d(10,10), FALSE);
 			turn_allmonsters(); /* This even works on Demogorgon. */
+			badeffect();
 		}
 		break;
 	case SPE_REFLECTION:
@@ -6819,7 +10032,7 @@ rerollX:
 				otmp->otyp = rnd_class(AMULET_OF_CHANGE,AMULET_OF_VULNERABILITY);
 				break;
 			case IMPLANT_CLASS:
-				otmp->otyp = rnd_class(IMPLANT_OF_ABSORPTION,IMPLANT_OF_FREEDOM);
+				otmp->otyp = rnd_class(IMPLANT_OF_ABSORPTION,IMPLANT_OF_ENFORCING);
 				break;
 		}
 		pline("Your artifact was rerolled to another base item!");
@@ -6913,8 +10126,7 @@ rerollX:
 
 		}
 
-		obfree(pseudo, (struct obj *)0);	/* now, get rid of it */
-		return(1);
+		break;
 
 	default:
 		/*impossible("Unknown spell %d attempted.", spell);*/
@@ -6930,7 +10142,7 @@ rerollX:
 
 	/* WAC successful casting increases solidity of knowledge */
 
-	if (!SpellColorCyan) {
+	if (!SpellColorCyan && !(pseudo && pseudo->otyp == SPE_ADD_SPELL_MEMORY) ) {
 
 		boostknow(spell, (Race_if(PM_DUNADAN) ? DUNADAN_CAST_BOOST : CAST_BOOST));
 		if ((rnd(spellev(spell) + 5)) > 5) boostknow(spell, (Race_if(PM_DUNADAN) ? DUNADAN_CAST_BOOST : CAST_BOOST)); /* higher-level spells boost more --Amy */
@@ -6940,11 +10152,19 @@ rerollX:
 		}
 
 		if (Role_if(PM_MAHOU_SHOUJO)) boostknow(spell, (Race_if(PM_DUNADAN) ? DUNADAN_CAST_BOOST : CAST_BOOST));
+		if (Role_if(PM_PSYKER)) boostknow(spell, (Race_if(PM_DUNADAN) ? DUNADAN_CAST_BOOST : CAST_BOOST));
 
 	}
 
+	if (!(iflags.memorizationknown) && !(spl_book[spell].sp_memorize)) {
+		if (yn("You just cast a dememorized spell! If this means that you want to continue using that spell later, you might want to set it back to memorization mode so that its spell memory lasts longer. Press y now to set the spell back to memorization mode, or n to keep it dememorized.") == 'y') {
+			spl_book[spell].sp_memorize = TRUE;
+			pline("Spell memorization was activated!");
+		}
+	}
+
 	if (SpellColorCyan) {
-		boostknow(spell, -500);
+		boostknow(spell, -rnd(100));
 		if (spellknow(spell) < 0) spl_book[spell].sp_know = 0;
 	}
 
@@ -6955,28 +10175,49 @@ rerollX:
 
 	}
 
-	if (pseudo && (pseudo->otyp == SPE_THRONE_GAMBLE) && !rn2(20) ) {
-
-		boostknow(spell, -(rnd(50000)));
-		if (spellknow(spell) < 0) spl_book[spell].sp_know = 0;
-
-	}
-
-	if (pseudo && (pseudo->otyp == SPE_REROLL_ARTIFACT) && !rn2(5) ) {
-
-		boostknow(spell, -(rnd(50000)));
-		if (spellknow(spell) < 0) spl_book[spell].sp_know = 0;
-
-	}
-
-	if (pseudo && (pseudo->otyp == SPE_CHARGING) && !rn2(role_skill == P_SUPREME_MASTER ? 16 : role_skill == P_GRAND_MASTER ? 15 : role_skill == P_MASTER ? 13 : role_skill == P_EXPERT ? 12 : role_skill == P_SKILLED ? 11 : 10) ) {
+	if (pseudo && (pseudo->otyp == SPE_THRONE_GAMBLE) && !rn2(6) ) {
 
 		boostknow(spell, -(rnd(100000)));
 		if (spellknow(spell) < 0) spl_book[spell].sp_know = 0;
 
 	}
 
-	if (pseudo && ((pseudo->otyp == SPE_REPAIR_WEAPON) || (pseudo->otyp == SPE_REPAIR_ARMOR)) && !rn2(role_skill == P_SUPREME_MASTER ? 30 : role_skill == P_GRAND_MASTER ? 25 : role_skill == P_MASTER ? 24 : role_skill == P_EXPERT ? 23 : role_skill == P_SKILLED ? 22 : 20) ) {
+	if (pseudo && (pseudo->otyp == SPE_ATTUNE_MAGIC) && !rn2(6) ) {
+
+		boostknow(spell, -(rnd(100000)));
+		if (spellknow(spell) < 0) spl_book[spell].sp_know = 0;
+
+	}
+
+	if (pseudo && (pseudo->otyp == SPE_REROLL_ARTIFACT) && !rn2(5) ) {
+
+		boostknow(spell, -(rnd(100000)));
+		if (spellknow(spell) < 0) spl_book[spell].sp_know = 0;
+
+	}
+
+	if (pseudo && (pseudo->otyp == SPE_CHARGING) && !rn2(role_skill == P_SUPREME_MASTER ? 9 : role_skill == P_GRAND_MASTER ? 8 : role_skill == P_MASTER ? 7 : role_skill == P_EXPERT ? 6 : role_skill == P_SKILLED ? 5 : 4) ) {
+
+		boostknow(spell, -(rnd(100000)));
+		if (spellknow(spell) < 0) spl_book[spell].sp_know = 0;
+
+	}
+
+	if (pseudo && pseudo->otyp == SPE_ADD_SPELL_MEMORY) {
+
+		boostknow(spell, -500);
+		if (spellknow(spell) < 0) spl_book[spell].sp_know = 0;
+
+	}
+
+	if (pseudo && (pseudo->otyp == SPE_AULE_SMITHING) && !rn2(role_skill == P_SUPREME_MASTER ? 9 : role_skill == P_GRAND_MASTER ? 8 : role_skill == P_MASTER ? 7 : role_skill == P_EXPERT ? 6 : role_skill == P_SKILLED ? 5 : 4) ) {
+
+		boostknow(spell, -(rnd(100000)));
+		if (spellknow(spell) < 0) spl_book[spell].sp_know = 0;
+
+	}
+
+	if (pseudo && ((pseudo->otyp == SPE_REPAIR_WEAPON) || (pseudo->otyp == SPE_REPAIR_ARMOR)) && !rn2(role_skill == P_SUPREME_MASTER ? 15 : role_skill == P_GRAND_MASTER ? 14 : role_skill == P_MASTER ? 13 : role_skill == P_EXPERT ? 12 : role_skill == P_SKILLED ? 11 : 10) ) {
 
 		boostknow(spell, -(rnd(25000)));
 		if (spellknow(spell) < 0) spl_book[spell].sp_know = 0;
@@ -7048,18 +10289,81 @@ rerollX:
 
 	}
 
+	/* particle cannon and one point shoot need "gauge"; since this isn't Elona, we don't have an actual gauge meter,
+	 * so I decided that it just takes 50 turns to reload --Amy */
+	if (pseudo && (pseudo->otyp == SPE_PARTICLE_CANNON)) {
+		pline("The particle cannon can be used again at turn %d.", (moves + u.gaugetimer));
+	}
+	if (pseudo && (pseudo->otyp == SPE_ONE_POINT_SHOOT)) {
+		pline("One Point Shoot can be used again at turn %d.", (moves + u.gaugetimer));
+	}
+
 	obfree(pseudo, (struct obj *)0);	/* now, get rid of it */
 	return(1);
 }
 
+/* #spelldelete command: allows the player to erase the bottommost spell outright, but only if it's a forgotten one */
+int
+dodeletespell()
+{
+	int n;
+	for (n = 0; n < MAXSPELL && spellid(n) != NO_SPELL; n++)
+		continue;
+	if (n) {
+
+		n--; /* fix off-by-one error */
+		if (spellid(n) == NO_SPELL) {
+			impossible("ERROR: dodeletespell() trying to erase empty spell?");
+			return 0;
+		}
+
+		if (spellknow(n) > 0) {
+			pline("This doesn't work as long as your bottommost spell still has memory left.");
+		} else {
+			pline("Your bottommost spell is %s, which has no memory left.", spellname(n));
+			if (yn("Erase it from the list?") == 'y') {
+				spellid(n) = NO_SPELL;
+				/* no need to nullify spell memory because it's already zero */
+				pline("Done! The spell has been removed from your list.");
+			}
+		}
+	} else pline("It seems that you have no known spells in the first place.");
+
+	/* shouldn't cost a turn, regardless of result */
+	return 0;
+}
 
 void
 losespells()
 {
 	boolean confused = (Confusion != 0);
 	int  n, nzap, i;
+	int thisone, thisonetwo, choicenumber;
 
-	if (Keen_memory && rn2(20)) return;
+	if (Keen_memory && rn2(StrongKeen_memory ? 20 : 4)) return;
+	if (Role_if(PM_MASTERMIND) && mastermindsave()) return;
+
+	/* reduce memory of one known spell that still has memory left --Amy */
+	for (n = 0; n < MAXSPELL && spellid(n) != NO_SPELL; n++)
+		continue;
+	if (n) {
+		thisone = -1;
+		choicenumber = 0;
+		for (n = 0; ((n < MAXSPELL) && spellid(n) != NO_SPELL); n++) {
+			if ((!choicenumber || (!rn2(choicenumber + 1)) ) && (spellknow(n) > 0)) {
+				thisone = n;
+			}
+			if (spellknow(n) > 0) choicenumber++;
+		}
+
+		if (choicenumber > 0 && thisone >= 0 && (spellknow(thisone) > 0)) {
+			if (rn2(10)) {
+				spellknow(thisone) = rn2(spellknow(thisone));
+			} else {
+				spellknow(thisone) = 0;
+			}
+		}
+	}
 
 	book = 0;
 	for (n = 0; n < MAXSPELL && spellid(n) != NO_SPELL; n++)
@@ -7086,6 +10390,162 @@ losespells()
 		    exercise(A_WIS, FALSE);	/* ouch! */
 		}
 	}
+
+	/* now if you have too many forgotten spells, remove them --Amy */
+removeagain:
+	for (n = 0; n < MAXSPELL && spellid(n) != NO_SPELL; n++)
+		continue;
+	if (n > 4) {
+		thisone = -1;
+		thisonetwo = -1;
+		choicenumber = 0;
+		for (n = 0; ((n < MAXSPELL) && spellid(n) != NO_SPELL); n++) {
+			if (spellknow(n) <= 0) {
+				thisone = n;
+				choicenumber++;
+			}
+		}
+
+		if (choicenumber > 5 && thisone >= 0 && spellknow(thisone) <= 0) {
+
+			spellknow(thisone) = 0; /* make sure the spell memory is deleted! */
+			spellid(thisone) = NO_SPELL;
+
+			for (n = thisone; n < MAXSPELL; n++) {
+				if (spellid(n) != NO_SPELL) thisonetwo = n;
+			}
+			if (thisonetwo >= 0 && spellid(thisonetwo) != NO_SPELL) { /* move last known spell to the one we've erased */
+				spellknow(thisone) = spellknow(thisonetwo);
+				spellid(thisone) = spellid(thisonetwo);
+				spellev(thisone) = spellev(thisonetwo);
+				spellname(thisone) = spellname(thisonetwo);
+
+				spellknow(thisonetwo) = 0; /* make sure the spell memory is deleted! */
+				spellid(thisonetwo) = NO_SPELL;
+
+			}
+
+			if (choicenumber > 6) goto removeagain;
+		}
+	}
+
+
+}
+
+/* for bad effects: spell zonking similar to the amnesia effect */
+void
+evilspellforget()
+{
+	int n;
+	int thisone, thisonetwo, choicenumber;
+
+	/* reduce memory of one known spell that still has memory left --Amy */
+	for (n = 0; n < MAXSPELL && spellid(n) != NO_SPELL; n++)
+		continue;
+	if (n) {
+		thisone = -1;
+		choicenumber = 0;
+		for (n = 0; ((n < MAXSPELL) && spellid(n) != NO_SPELL); n++) {
+			if ((!choicenumber || (!rn2(choicenumber + 1)) ) && (spellknow(n) > 0)) {
+				thisone = n;
+			}
+			if (spellknow(n) > 0) choicenumber++;
+		}
+
+		if (choicenumber > 0 && thisone >= 0 && (spellknow(thisone) > 0)) {
+			if (rn2(10)) {
+				spellknow(thisone) = rn2(spellknow(thisone));
+				pline("You forget a lot of %s spell knowledge!", spellname(thisone));
+			} else {
+				spellknow(thisone) = 0;
+				pline("You forget all usage of the %s spell!", spellname(thisone));
+			}
+		}
+	}
+
+	/* now if you have too many forgotten spells, remove them --Amy */
+removeagain:
+	for (n = 0; n < MAXSPELL && spellid(n) != NO_SPELL; n++)
+		continue;
+	if (n > 4) {
+		thisone = -1;
+		thisonetwo = -1;
+		choicenumber = 0;
+		for (n = 0; ((n < MAXSPELL) && spellid(n) != NO_SPELL); n++) {
+			if (spellknow(n) <= 0) {
+				thisone = n;
+				choicenumber++;
+			}
+		}
+
+		if (choicenumber > 5 && thisone >= 0 && spellknow(thisone) <= 0) {
+
+			spellknow(thisone) = 0; /* make sure the spell memory is deleted! */
+			spellid(thisone) = NO_SPELL;
+
+			for (n = thisone; n < MAXSPELL; n++) {
+				if (spellid(n) != NO_SPELL) thisonetwo = n;
+			}
+			if (thisonetwo >= 0 && spellid(thisonetwo) != NO_SPELL) { /* move last known spell to the one we've erased */
+				spellknow(thisone) = spellknow(thisonetwo);
+				spellid(thisone) = spellid(thisonetwo);
+				spellev(thisone) = spellev(thisonetwo);
+				spellname(thisone) = spellname(thisonetwo);
+
+				spellknow(thisonetwo) = 0; /* make sure the spell memory is deleted! */
+				spellid(thisonetwo) = NO_SPELL;
+
+			}
+
+			if (choicenumber > 6) goto removeagain;
+		}
+	}
+
+}
+
+/* having too many forgotten spells just clogs up the interface, so we'll occasionally remove one --Amy */
+void
+removeforgottenspell()
+{
+	int n, thisone, thisonetwo, choicenumber;
+
+	for (n = 0; n < MAXSPELL && spellid(n) != NO_SPELL; n++)
+		continue;
+	if (n > 4) {
+		thisone = -1;
+		thisonetwo = -1;
+		choicenumber = 0;
+		for (n = 0; ((n < MAXSPELL) && spellid(n) != NO_SPELL); n++) {
+			if (spellknow(n) <= 0) {
+				thisone = n;
+				choicenumber++;
+			}
+		}
+
+		if (choicenumber > 5 && thisone >= 0 && spellknow(thisone) <= 0) {
+
+			pline("You completely forgot the %s spell.", spellname(thisone));
+			if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
+			spellknow(thisone) = 0; /* make sure the spell memory is deleted! */
+			spellid(thisone) = NO_SPELL;
+
+			for (n = thisone; n < MAXSPELL; n++) {
+				if (spellid(n) != NO_SPELL) thisonetwo = n;
+			}
+			if (thisonetwo >= 0 && spellid(thisonetwo) != NO_SPELL) { /* move last known spell to the one we've erased */
+				spellknow(thisone) = spellknow(thisonetwo);
+				spellid(thisone) = spellid(thisonetwo);
+				spellev(thisone) = spellev(thisonetwo);
+				spellname(thisone) = spellname(thisonetwo);
+
+				spellknow(thisonetwo) = 0; /* make sure the spell memory is deleted! */
+				spellid(thisonetwo) = NO_SPELL;
+
+			}
+
+		}
+	}
+
 }
 
 void
@@ -7108,6 +10568,7 @@ int lossamount;
 
 		/* sometimes we're mean and reduce it by more, depending on how many spells you have... --Amy */
 		if (!rn2(3) && choicenumber > 1) lossamount *= rno(choicenumber);
+		lossamount *= rnd(5);
 
 		if (choicenumber > 0 && thisone >= 0) {
 			boostknow(thisone, -(lossamount * 100));
@@ -7150,8 +10611,10 @@ morezapping:
 	if (nzap > n) nzap = n;
 	if (n && nzap > 0) {
 
-		while (spellknow(n) > 0 && nzap > 0) {
-			boostknow(n, -10000);
+		while (nzap > 0) {
+
+			if (spellknow(n) > 0) boostknow(n, -10000);
+			if (spellknow(n) < 0) spellknow(n) = 0;
 
 			if (spellknow(n) <= 0) {
 				spl_book[n].sp_know = 0;
@@ -7174,6 +10637,9 @@ dovspell()
 	char qbuf[QBUFSZ];
 	int splnum, othnum;
 	struct spell spl_tmp;
+
+	int dememonum = 0;
+	int i;
 
 	char spellcolorbuf[BUFSZ];
 
@@ -7198,30 +10664,46 @@ dovspell()
 	if (spellid(0) == NO_SPELL)
 	    You("don't know any spells right now.");
 	else {
-	    while (dospellmenu( spellcolorbuf, SPELLMENU_VIEW, &splnum)) {
+	    while (dospellmenu( spellcolorbuf, SPELLMENU_VIEW, &splnum, 0)) {
 		sprintf(qbuf, "Reordering spells; swap '%s' with",
 			(SpellLoss || u.uprops[SPELLS_LOST].extrinsic || have_spelllossstone()) ? "spell" : spellname(splnum));
-		if (!dospellmenu(qbuf, splnum, &othnum)) break;
+		if (!dospellmenu(qbuf, splnum, &othnum, 0)) break;
 
 		spl_tmp = spl_book[splnum];
 		spl_book[splnum] = spl_book[othnum];
 		spl_book[othnum] = spl_tmp;
 	    }
 	}
+
+	dememonum = 0;
+	for (i = 0; i < MAXSPELL; i++) {
+		if (spellid(i) == NO_SPELL) break;
+		if (spellmemorize(i)) continue;
+		dememonum++;
+	}
+	if (iflags.memorizationknown) dememonum = 0;
+
+	if (dememonum >= 10) pline("You set a very large amount of spells to dememorization mode. A common misconception of players unfamiliar with the memorization system is that dememorizing some spells would magically make the memorized spells last longer. That is NOT the case. The spells are independent from each other. Every spell set to memorization mode gets a 10%% reduction in spell decay rate per memorization skill level (i.e. spell memory persists longer), so if you want to keep casting those spells, you should set them back to memorization mode. You can do that by opening the spell menu (with the + key) and pressing ? twice, which brings you to the memorization menu.");
+	else if (dememonum >= 5) pline("You set many spells to dememorization mode (indicated by a - next to the spell level). All those spells aren't getting the spell memory bonus from memorization skill, which is highly impractical unless you WANT to forget those spells for some bizarre reason. It's advisable to have only a single spell set to dememorization mode, i.e. the one you want to turn into a forgotten spell. You can change it in the spell menu (hit + to open it and ? twice to navigate to the memorization menu).");
+	else if (dememonum >= 2) pline("You set several spells to dememorization mode (indicated by a - next to the spell level), which means that those spells currently don't benefit from increased spell memory. If you want your spells to benefit from the memorization skill, you should open the spell menu (+ key by default) and navigate to the memorization menu by pressing ? twice, then setting the spells in question back to memorization mode.");
+
 	return 0;
 }
 
 STATIC_OVL boolean
-dospellmenu(prompt, splaction, spell_no)
+dospellmenu(prompt, splaction, spell_no, specialmenutype)
 const char *prompt;
 int splaction;	/* SPELLMENU_CAST, SPELLMENU_VIEW, or spl_book[] index */
 int *spell_no;
+/* specialmenutype: 0 = show spells, 1 = describe spells, 2 = memorize spells */
+int specialmenutype;
 {
 	winid tmpwin;
 	int i, n, how;
 	char buf[BUFSZ];
 	menu_item *selected;
 	anything any;
+	boolean describe;
 
 	tmpwin = create_nhwindow(NHW_MENU);
 	start_menu(tmpwin);
@@ -7245,10 +10727,11 @@ int *spell_no;
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_BOLD, buf, MENU_UNSELECTED);
 	if (!SpellLoss && !u.uprops[SPELLS_LOST].extrinsic && !have_spelllossstone()) {for (i = 0; i < MAXSPELL && spellid(i) != NO_SPELL; i++) {
 		sprintf(buf, iflags.menu_tab_sep ?
-			"%s\t%-d%s\t%s\t%-d%%" : "%-20s  %2d%s   %-10s %3d%%"
+			"%s\t%-d%s\t%s%s\t%-d%%" : "%-20s  %2d%s%s  %-8s %4d%%"
 			"   %3d%%",
 			spellname(i), spellev(i),
 			((spellknow(i) > 1000) || SpellColorCyan) ? " " : (spellknow(i) ? "!" : "*"),
+			spellmemorize(i) ? "+" : "-",
 			spelltypemnemonic(spell_skilltype(spellid(i))),
 			SpellColorBlack ? 0 : (100 - percent_success(i)),
 
@@ -7275,13 +10758,96 @@ int *spell_no;
 	      }
 
 	}
+
+	if (splaction == SPELLMENU_VIEW) {
+		if (specialmenutype == 0) {
+			any.a_int = -1;	/* must be non-zero */
+			add_menu(tmpwin, NO_GLYPH, &any,
+				'?', 0, ATR_NONE, "Describe a spell instead",
+				MENU_UNSELECTED);
+		}
+		else if (specialmenutype == 1) {
+			any.a_int = -1;	/* must be non-zero */
+			add_menu(tmpwin, NO_GLYPH, &any,
+				'?', 0, ATR_NONE, "Memorize a spell instead",
+				MENU_UNSELECTED);
+		}
+		else if (specialmenutype == 2) {
+			any.a_int = -1;	/* must be non-zero */
+			add_menu(tmpwin, NO_GLYPH, &any,
+				'?', 0, ATR_NONE, "View spells instead",
+				MENU_UNSELECTED);
+		}
+	}
+
 	end_menu(tmpwin, prompt);
 
 	how = PICK_ONE;
-	if (splaction == SPELLMENU_VIEW && spellid(1) == NO_SPELL)
-	    how = PICK_NONE;	/* only one spell => nothing to swap with */
+	/*if (splaction == SPELLMENU_VIEW && spellid(1) == NO_SPELL)
+	    how = PICK_NONE;*/	/* only one spell => nothing to swap with */ /* Amy edit: blah, we have the ? option now */
 	n = select_menu(tmpwin, how, &selected);
 	destroy_nhwindow(tmpwin);
+	if (n > 0 && selected[0].item.a_int == -1) {
+
+		char spellcolorbuf[BUFSZ];
+
+		if (SpellColorPink) sprintf(spellcolorbuf, "Your spells are pink.");
+		else if (SpellColorBrightCyan) sprintf(spellcolorbuf, "Your spells are bright cyan.");
+		else if (SpellColorCyan) sprintf(spellcolorbuf, "Your spells are cyan.");
+		else if (SpellColorBlack) sprintf(spellcolorbuf, "Your spells are black.");
+		else if (SpellColorOrange) sprintf(spellcolorbuf, "Your spells are orange.");
+		else if (SpellColorRed) sprintf(spellcolorbuf, "Your spells are red.");
+		else if (SpellColorPlatinum) sprintf(spellcolorbuf, "Your spells are platinum.");
+		else if (SpellColorSilver) sprintf(spellcolorbuf, "Your spells are silver.");
+		else if (SpellColorMetal) sprintf(spellcolorbuf, "Your spells are metal.");
+		else if (SpellColorGreen) sprintf(spellcolorbuf, "Your spells are green.");
+		else if (SpellColorBlue) sprintf(spellcolorbuf, "Your spells are blue.");
+		else if (SpellColorGray) sprintf(spellcolorbuf, "Your spells are completely gray.");
+		else if (SpellColorBrown) sprintf(spellcolorbuf, "Your spells are brown.");
+		else if (SpellColorWhite) sprintf(spellcolorbuf, "Your spells are white.");
+		else if (SpellColorViolet) sprintf(spellcolorbuf, "Your spells are violet.");
+		else if (SpellColorYellow) sprintf(spellcolorbuf, "Your spells are yellow.");
+		else if (specialmenutype == 0) sprintf(spellcolorbuf, "Choose a spell to describe");
+		else if (specialmenutype == 1) sprintf(spellcolorbuf, "Choose a spell to (de-)memorize");
+		else if (specialmenutype == 2) sprintf(spellcolorbuf, "Currently known spells");
+		else sprintf(spellcolorbuf, "Bug: unknown spell menu title");
+
+		return dospellmenu(spellcolorbuf, splaction, spell_no, (specialmenutype == 2) ? 0 : (specialmenutype + 1));
+	}
+	if (n > 0 && splaction == SPELLMENU_VIEW && specialmenutype == 1) { /* describe */
+
+		register struct obj *pseudo;
+
+		pseudo = mksobj(spellid(selected[0].item.a_int - 1), FALSE, 2, FALSE);
+		if (!pseudo) {
+			impossible("bugged pseudo object for spell description.");
+			return dospellmenu(prompt, splaction, spell_no, specialmenutype);
+		}
+		if (pseudo->otyp == GOLD_PIECE) pseudo->otyp = spellid(selected[0].item.a_int - 1); /* minimalist fix */
+		pseudo->blessed = pseudo->cursed = 0;
+		pseudo->quan = 20L;			/* do not let useup get it */
+
+		if (SpellLoss || u.uprops[SPELLS_LOST].extrinsic || have_spelllossstone()) {
+			/* you cheater! you're not supposed to see what the spells are :P */
+			return dospellmenu(prompt, splaction, spell_no, specialmenutype);
+		}
+
+		(void) itemactions(pseudo, TRUE);
+		obfree(pseudo, (struct obj *)0);	/* now, get rid of it */
+		return dospellmenu(prompt, splaction, spell_no, specialmenutype);
+	}
+	if (n > 0 && splaction == SPELLMENU_VIEW && specialmenutype == 2) { /* memorize */
+
+		spl_book[selected[0].item.a_int - 1].sp_memorize = !spl_book[selected[0].item.a_int - 1].sp_memorize;
+
+		char spellcolorbuf[BUFSZ];
+
+		if (SpellLoss || u.uprops[SPELLS_LOST].extrinsic || have_spelllossstone()) sprintf(spellcolorbuf, "Memorization setting changed."); /* no, you don't get to see what it is now :P */
+		else if (spl_book[selected[0].item.a_int - 1].sp_memorize) sprintf(spellcolorbuf, "Spell set to memorization mode!");
+		else sprintf(spellcolorbuf, "Memorization for this spell deactivated.");
+
+		return dospellmenu(spellcolorbuf, splaction, spell_no, specialmenutype);
+	}
 	if (n > 0) {
 		*spell_no = selected[0].item.a_int - 1;
 		/* menu selection for `PICK_ONE' does not
@@ -7319,9 +10885,10 @@ dump_spells()
 	sprintf(buf, "%-20s   Level    %-10s Fail  Memory", "    Name", " Category");
 	dump("  ",buf);
 	for (i = 0; i < MAXSPELL && spellid(i) != NO_SPELL; i++) {
-		sprintf(buf, "%c - %-20s  %2d%s   %-10s %3d%%  %3d%%",
+		sprintf(buf, "%c - %-20s  %2d%s%s  %-8s %4d%%  %3d%%",
 			spellet(i), spellname(i), spellev(i),
 			((spellknow(i) > 1000) || SpellColorCyan) ? " " : (spellknow(i) ? "!" : "*"),
+			spellmemorize(i) ? "+" : "-",
 			spelltypemnemonic(spell_skilltype(spellid(i))),
 			SpellColorBlack ? 0 : (100 - percent_success(i)),
 			SpellColorCyan ? 100 : issoviet ? 0 : (spellknow(i) * 100 + (KEEN-1)) / KEEN);
@@ -7334,7 +10901,7 @@ dump_spells()
 #endif
 
 /* Integer square root function without using floating point. */
-STATIC_OVL int
+int
 isqrt(val)
 int val;
 {
@@ -7391,267 +10958,310 @@ int spell;
 	statused = ACURR(urole.spelstat);
 
 	/* Calculate armor penalties */
-	if (uarm && !SpellColorMetal && !(uarm->otyp >= ROBE && uarm->otyp <= ROBE_OF_WEAKNESS)) 
-	    splcaster += 2;
+	if (uarm && !SpellColorMetal && !(uarm->blessed && !issoviet) && !(uarm->otyp >= ROBE && uarm->otyp <= ROBE_OF_WEAKNESS)) 
+	    splcaster += (issoviet ? 2 : 1);
 
 	/* Robes are body armour in SLASH'EM */
 	if (uarm && !SpellColorMetal && is_metallic(uarm) && !is_etheritem(uarm)) {
-		armorpenalties = 15;
 
+		/* Amy grepping target: "materialeffect" */
 		switch (objects[(uarm)->otyp].oc_material) {
 			default: break;
-			case METAL: armorpenalties = 16; break;
-			case COPPER: armorpenalties = 21; break;
-			case SILVER: armorpenalties = 17; break;
-			case GOLD: armorpenalties = 8; break;
-			case PLATINUM: armorpenalties = 18; break;
-			case MITHRIL: armorpenalties = 13; break;
-			case VIVA: armorpenalties = 12; break;
-			case POURPOOR: armorpenalties = 20; break;
+			case MT_METAL: armorpenalties *= 16; armorpenalties /= 15; break;
+			case MT_COPPER: armorpenalties *= 21; armorpenalties /= 15; break;
+			case MT_SILVER: armorpenalties *= 17; armorpenalties /= 15; break;
+			case MT_GOLD: armorpenalties *= 8; armorpenalties /= 15; break;
+			case MT_PLATINUM: armorpenalties *= 18; armorpenalties /= 15; break;
+			case MT_MITHRIL: armorpenalties *= 13; armorpenalties /= 15; break;
+			case MT_VIVA: armorpenalties *= 12; armorpenalties /= 15; break;
+			case MT_POURPOOR: armorpenalties *= 20; armorpenalties /= 15; break;
+			case MT_LEAD: armorpenalties *= 25; armorpenalties /= 15; break;
+			case MT_CHROME: armorpenalties *= 11; armorpenalties /= 15; break;
 		}
+		if (Race_if(PM_BOVER)) armorpenalties *= 3;
 
 		if (uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) {
 			armorpenalties *= 4;
 			armorpenalties /= 5;
 		}
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) armorpenalties /= 2;
+		if (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) armorpenalties /= 2;
 
-		splcaster += (urole.spelarmr * armorpenalties / 12);
+		if (uarm->blessed && !issoviet) armorpenalties /= 2;
+
+		splcaster += (urole.spelarmr * armorpenalties / (issoviet ? 12 : 30));
 	}
 	if (SpellColorMetal && (!uarm || !is_metallic(uarm))) {
-		armorpenalties = 15;
+
 		if (uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) {
 			armorpenalties *= 4;
 			armorpenalties /= 5;
 		}
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) armorpenalties /= 2;
+		if (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) armorpenalties /= 2;
 
-		splcaster += (urole.spelarmr * armorpenalties / 12);
+		if (uarm && uarm->blessed && !issoviet) armorpenalties /= 2;
+
+		splcaster += (urole.spelarmr * armorpenalties / (issoviet ? 12 : 30));
 	}
 
 	if (uarmc && !SpellColorMetal && is_metallic(uarmc) && !is_etheritem(uarmc)) {
-		armorpenalties = 15;
 
 		switch (objects[(uarmc)->otyp].oc_material) {
 			default: break;
-			case METAL: armorpenalties = 16; break;
-			case COPPER: armorpenalties = 21; break;
-			case SILVER: armorpenalties = 17; break;
-			case GOLD: armorpenalties = 8; break;
-			case PLATINUM: armorpenalties = 18; break;
-			case MITHRIL: armorpenalties = 13; break;
-			case VIVA: armorpenalties = 12; break;
-			case POURPOOR: armorpenalties = 20; break;
+			case MT_METAL: armorpenalties *= 16; armorpenalties /= 15; break;
+			case MT_COPPER: armorpenalties *= 21; armorpenalties /= 15; break;
+			case MT_SILVER: armorpenalties *= 17; armorpenalties /= 15; break;
+			case MT_GOLD: armorpenalties *= 8; armorpenalties /= 15; break;
+			case MT_PLATINUM: armorpenalties *= 18; armorpenalties /= 15; break;
+			case MT_MITHRIL: armorpenalties *= 13; armorpenalties /= 15; break;
+			case MT_VIVA: armorpenalties *= 12; armorpenalties /= 15; break;
+			case MT_POURPOOR: armorpenalties *= 20; armorpenalties /= 15; break;
+			case MT_LEAD: armorpenalties *= 25; armorpenalties /= 15; break;
+			case MT_CHROME: armorpenalties *= 11; armorpenalties /= 15; break;
 		}
+		if (Race_if(PM_BOVER)) armorpenalties *= 3;
 
 		if (uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) {
 			armorpenalties *= 4;
 			armorpenalties /= 5;
 		}
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) armorpenalties /= 2;
+		if (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) armorpenalties /= 2;
 
-		splcaster += (urole.spelarmr * armorpenalties / 36);
+		if (uarmc->blessed && !issoviet) armorpenalties /= 2;
+
+		splcaster += (urole.spelarmr * armorpenalties / (issoviet ? 36 : 50));
 	}
 	if (SpellColorMetal && (!uarmc || !is_metallic(uarmc))) {
-		armorpenalties = 15;
+
 		if (uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) {
 			armorpenalties *= 4;
 			armorpenalties /= 5;
 		}
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) armorpenalties /= 2;
+		if (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) armorpenalties /= 2;
 
-		splcaster += (urole.spelarmr * armorpenalties / 36);
+		if (uarmc && uarmc->blessed && !issoviet) armorpenalties /= 2;
+
+		splcaster += (urole.spelarmr * armorpenalties / (issoviet ? 36 : 50));
 
 	}
 
 	if (uarmu && !SpellColorMetal && is_metallic(uarmu) && !is_etheritem(uarmu)) {
-		armorpenalties = 15;
 
 		switch (objects[(uarmu)->otyp].oc_material) {
 			default: break;
-			case METAL: armorpenalties = 16; break;
-			case COPPER: armorpenalties = 21; break;
-			case SILVER: armorpenalties = 17; break;
-			case GOLD: armorpenalties = 8; break;
-			case PLATINUM: armorpenalties = 18; break;
-			case MITHRIL: armorpenalties = 13; break;
-			case VIVA: armorpenalties = 12; break;
-			case POURPOOR: armorpenalties = 20; break;
+			case MT_METAL: armorpenalties *= 16; armorpenalties /= 15; break;
+			case MT_COPPER: armorpenalties *= 21; armorpenalties /= 15; break;
+			case MT_SILVER: armorpenalties *= 17; armorpenalties /= 15; break;
+			case MT_GOLD: armorpenalties *= 8; armorpenalties /= 15; break;
+			case MT_PLATINUM: armorpenalties *= 18; armorpenalties /= 15; break;
+			case MT_MITHRIL: armorpenalties *= 13; armorpenalties /= 15; break;
+			case MT_VIVA: armorpenalties *= 12; armorpenalties /= 15; break;
+			case MT_POURPOOR: armorpenalties *= 20; armorpenalties /= 15; break;
+			case MT_LEAD: armorpenalties *= 25; armorpenalties /= 15; break;
+			case MT_CHROME: armorpenalties *= 11; armorpenalties /= 15; break;
 		}
+		if (Race_if(PM_BOVER)) armorpenalties *= 3;
 
 		if (uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) {
 			armorpenalties *= 4;
 			armorpenalties /= 5;
 		}
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) armorpenalties /= 2;
+		if (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) armorpenalties /= 2;
 
-		splcaster += (urole.spelarmr * armorpenalties / 100);
+		if (uarmu->blessed && !issoviet) armorpenalties /= 2;
+
+		splcaster += (urole.spelarmr * armorpenalties / (issoviet ? 72 : 100));
 	}
 	if (SpellColorMetal && (!uarmu || !is_metallic(uarmu))) {
-		armorpenalties = 15;
+
 		if (uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) {
 			armorpenalties *= 4;
 			armorpenalties /= 5;
 		}
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) armorpenalties /= 2;
+		if (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) armorpenalties /= 2;
 
-		splcaster += (urole.spelarmr * armorpenalties / 100);
+		if (uarmu && uarmu->blessed && !issoviet) armorpenalties /= 2;
+
+		splcaster += (urole.spelarmr * armorpenalties / (issoviet ? 72 : 100));
 
 	}
 
 	if (uarms && !SpellColorMetal) {
-		shieldpenalties = 15;
 		if (!is_metallic(uarms) || is_etheritem(uarms)) shieldpenalties /= 3;
 
 		switch (objects[(uarms)->otyp].oc_material) {
 			default: break;
-			case METAL: shieldpenalties = 16; break;
-			case COPPER: shieldpenalties = 21; break;
-			case SILVER: shieldpenalties = 17; break;
-			case GOLD: shieldpenalties = 8; break;
-			case PLATINUM: shieldpenalties = 18; break;
-			case MITHRIL: shieldpenalties = 13; break;
-			case VIVA: shieldpenalties = 12; break;
-			case POURPOOR: shieldpenalties = 20; break;
+			case MT_METAL: shieldpenalties *= 16; shieldpenalties /= 15; break;
+			case MT_COPPER: shieldpenalties *= 21; shieldpenalties /= 15; break;
+			case MT_SILVER: shieldpenalties *= 17; shieldpenalties /= 15; break;
+			case MT_GOLD: shieldpenalties *= 8; shieldpenalties /= 15; break;
+			case MT_PLATINUM: shieldpenalties *= 18; shieldpenalties /= 15; break;
+			case MT_MITHRIL: shieldpenalties *= 13; shieldpenalties /= 15; break;
+			case MT_VIVA: shieldpenalties *= 12; shieldpenalties /= 15; break;
+			case MT_POURPOOR: shieldpenalties *= 20; shieldpenalties /= 15; break;
+			case MT_LEAD: shieldpenalties *= 25; shieldpenalties /= 15; break;
+			case MT_CHROME: shieldpenalties *= 11; shieldpenalties /= 15; break;
 		}
+		if (Race_if(PM_BOVER)) shieldpenalties *= 3;
 
 		if (uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) {
 			shieldpenalties *= 4;
 			shieldpenalties /= 5;
 		}
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) shieldpenalties /= 2;
+		if (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) shieldpenalties /= 2;
 
-		splcaster += (urole.spelshld * shieldpenalties / 12);
+		if (uarms->blessed && !issoviet) armorpenalties /= 2;
+
+		splcaster += (urole.spelshld * shieldpenalties / (issoviet ? 12 : 30));
 	}
 	if (SpellColorMetal && (!uarms || !is_metallic(uarms))) {
-		shieldpenalties = 15;
+
 		if (uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) {
 			shieldpenalties *= 4;
 			shieldpenalties /= 5;
 		}
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) shieldpenalties /= 2;
+		if (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) shieldpenalties /= 2;
 
-		splcaster += (urole.spelshld * shieldpenalties / 12);
+		if (uarms && uarms->blessed && !issoviet) armorpenalties /= 2;
+
+		splcaster += (urole.spelshld * shieldpenalties / (issoviet ? 12 : 30));
 
 	}
 
 	if (uarmh && !SpellColorMetal && is_metallic(uarmh) && !is_etheritem(uarmh) && uarmh->otyp != HELM_OF_BRILLIANCE) {
-		armorpenalties = 15;
 
 		switch (objects[(uarmh)->otyp].oc_material) {
 			default: break;
-			case METAL: armorpenalties = 16; break;
-			case COPPER: armorpenalties = 21; break;
-			case SILVER: armorpenalties = 17; break;
-			case GOLD: armorpenalties = 8; break;
-			case PLATINUM: armorpenalties = 18; break;
-			case MITHRIL: armorpenalties = 13; break;
-			case VIVA: armorpenalties = 12; break;
-			case POURPOOR: armorpenalties = 20; break;
+			case MT_METAL: armorpenalties *= 16; armorpenalties /= 15; break;
+			case MT_COPPER: armorpenalties *= 21; armorpenalties /= 15; break;
+			case MT_SILVER: armorpenalties *= 17; armorpenalties /= 15; break;
+			case MT_GOLD: armorpenalties *= 8; armorpenalties /= 15; break;
+			case MT_PLATINUM: armorpenalties *= 18; armorpenalties /= 15; break;
+			case MT_MITHRIL: armorpenalties *= 13; armorpenalties /= 15; break;
+			case MT_VIVA: armorpenalties *= 12; armorpenalties /= 15; break;
+			case MT_POURPOOR: armorpenalties *= 20; armorpenalties /= 15; break;
+			case MT_LEAD: armorpenalties *= 25; armorpenalties /= 15; break;
+			case MT_CHROME: armorpenalties *= 11; armorpenalties /= 15; break;
 		}
+		if (Race_if(PM_BOVER)) armorpenalties *= 3;
 
 		if (uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) {
 			armorpenalties *= 4;
 			armorpenalties /= 5;
 		}
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) armorpenalties /= 2;
+		if (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) armorpenalties /= 2;
 
-		splcaster += (uarmhbon * armorpenalties / 12);
+		if (uarmh->blessed && !issoviet) armorpenalties /= 2;
+
+		splcaster += (uarmhbon * armorpenalties / (issoviet ? 10 : 20));
 	}
 	if (SpellColorMetal && (!uarmh || !is_metallic(uarmh))) {
-		armorpenalties = 15;
+
 		if (uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) {
 			armorpenalties *= 4;
 			armorpenalties /= 5;
 		}
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) armorpenalties /= 2;
+		if (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) armorpenalties /= 2;
 
-		splcaster += (uarmhbon * armorpenalties / 12);
+		if (uarmh && uarmh->blessed && !issoviet) armorpenalties /= 2;
+
+		splcaster += (uarmhbon * armorpenalties / (issoviet ? 10 : 20));
 
 	}
 
 	if (uarmg && !SpellColorMetal && is_metallic(uarmg) && !is_etheritem(uarmg)) {
-		armorpenalties = 15;
 
 		switch (objects[(uarmg)->otyp].oc_material) {
 			default: break;
-			case METAL: armorpenalties = 16; break;
-			case COPPER: armorpenalties = 21; break;
-			case SILVER: armorpenalties = 17; break;
-			case GOLD: armorpenalties = 8; break;
-			case PLATINUM: armorpenalties = 18; break;
-			case MITHRIL: armorpenalties = 13; break;
-			case VIVA: armorpenalties = 12; break;
-			case POURPOOR: armorpenalties = 20; break;
+			case MT_METAL: armorpenalties *= 16; armorpenalties /= 15; break;
+			case MT_COPPER: armorpenalties *= 21; armorpenalties /= 15; break;
+			case MT_SILVER: armorpenalties *= 17; armorpenalties /= 15; break;
+			case MT_GOLD: armorpenalties *= 8; armorpenalties /= 15; break;
+			case MT_PLATINUM: armorpenalties *= 18; armorpenalties /= 15; break;
+			case MT_MITHRIL: armorpenalties *= 13; armorpenalties /= 15; break;
+			case MT_VIVA: armorpenalties *= 12; armorpenalties /= 15; break;
+			case MT_POURPOOR: armorpenalties *= 20; armorpenalties /= 15; break;
+			case MT_LEAD: armorpenalties *= 25; armorpenalties /= 15; break;
+			case MT_CHROME: armorpenalties *= 11; armorpenalties /= 15; break;
 		}
+		if (Race_if(PM_BOVER)) armorpenalties *= 3;
 
 		if (uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) {
 			armorpenalties *= 4;
 			armorpenalties /= 5;
 		}
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) armorpenalties /= 2;
+		if (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) armorpenalties /= 2;
 
-		splcaster += (uarmgbon * armorpenalties / 12);
+		if (uarmg->blessed && !issoviet) armorpenalties /= 2;
+
+		splcaster += (uarmgbon * armorpenalties / (issoviet ? 10 : 20));
 	}
 	if (SpellColorMetal && (!uarmg || !is_metallic(uarmg))) {
-		armorpenalties = 15;
+
 		if (uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) {
 			armorpenalties *= 4;
 			armorpenalties /= 5;
 		}
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) armorpenalties /= 2;
+		if (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) armorpenalties /= 2;
 
-		splcaster += (uarmgbon * armorpenalties / 12);
+		if (uarmg && uarmg->blessed && !issoviet) armorpenalties /= 2;
+
+		splcaster += (uarmgbon * armorpenalties / (issoviet ? 10 : 20));
 
 	}
 
 	if (uarmf && !SpellColorMetal && is_metallic(uarmf) && !is_etheritem(uarmf)) {
-		armorpenalties = 15;
 
 		switch (objects[(uarmf)->otyp].oc_material) {
 			default: break;
-			case METAL: armorpenalties = 16; break;
-			case COPPER: armorpenalties = 21; break;
-			case SILVER: armorpenalties = 17; break;
-			case GOLD: armorpenalties = 8; break;
-			case PLATINUM: armorpenalties = 18; break;
-			case MITHRIL: armorpenalties = 13; break;
-			case VIVA: armorpenalties = 12; break;
-			case POURPOOR: armorpenalties = 20; break;
+			case MT_METAL: armorpenalties *= 16; armorpenalties /= 15; break;
+			case MT_COPPER: armorpenalties *= 21; armorpenalties /= 15; break;
+			case MT_SILVER: armorpenalties *= 17; armorpenalties /= 15; break;
+			case MT_GOLD: armorpenalties *= 8; armorpenalties /= 15; break;
+			case MT_PLATINUM: armorpenalties *= 18; armorpenalties /= 15; break;
+			case MT_MITHRIL: armorpenalties *= 13; armorpenalties /= 15; break;
+			case MT_VIVA: armorpenalties *= 12; armorpenalties /= 15; break;
+			case MT_POURPOOR: armorpenalties *= 20; armorpenalties /= 15; break;
+			case MT_LEAD: armorpenalties *= 25; armorpenalties /= 15; break;
+			case MT_CHROME: armorpenalties *= 11; armorpenalties /= 15; break;
 		}
+		if (Race_if(PM_BOVER)) armorpenalties *= 3;
 
 		if (uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) {
 			armorpenalties *= 4;
 			armorpenalties /= 5;
 		}
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) armorpenalties /= 2;
+		if (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) armorpenalties /= 2;
 
-		splcaster += (uarmfbon * armorpenalties / 12);
+		if (uarmf->blessed && !issoviet) armorpenalties /= 2;
+
+		splcaster += (uarmfbon * armorpenalties / (issoviet ? 10 : 20));
 	}
 
 	if (SpellColorMetal && (!uarmf || !is_metallic(uarmf))) {
-		armorpenalties = 15;
+
 		if (uwep && (weapon_type(uwep) == P_QUARTERSTAFF)) {
 			armorpenalties *= 4;
 			armorpenalties /= 5;
 		}
 
-		if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) armorpenalties /= 2;
+		if (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) armorpenalties /= 2;
 
-		splcaster += (uarmfbon * armorpenalties / 12);
+		if (uarmf && uarmf->blessed && !issoviet) armorpenalties /= 2;
+
+		splcaster += (uarmfbon * armorpenalties / (issoviet ? 10 : 20));
 
 	}
 
@@ -7695,7 +11305,8 @@ int spell;
 	if ( skill == P_GRAND_MASTER) splcaster -= 15;
 	if ( skill == P_SUPREME_MASTER) splcaster -= 18;
 
-	/* casting it often (and thereby keeping it in memory) should also improve chances... */
+	/* casting it often (and thereby keeping it in memory) should also improve chances...
+	 * Amy note: 700% is the cap where it stops getting better, this is intentional */
 	if ( spellknow(spell) >= 20000) splcaster -= 1;
 	if (( spellknow(spell) >= 23333) && (spellev(spell) < 5) ) splcaster -= 1;
 	if (( spellknow(spell) >= 26666) && (spellev(spell) < 6) ) splcaster -= 1;
@@ -7718,8 +11329,12 @@ int spell;
 
 	splcaster += 5;
 
-	if (splcaster < 0) splcaster = 0;
-	if (splcaster > 25) splcaster = 25;
+	if (splcaster < 0) {
+		splcaster /= 5;
+		if (splcaster > 0) splcaster = 0; /* fail safe */
+		if (splcaster < -10) splcaster = -10; /* absolute limit */
+	}
+	if (splcaster > 50) splcaster = 50;
 
 	if (difficulty > 0) {
 		/* Player is too low level or unskilled. */
@@ -7780,13 +11395,13 @@ int spell;
 			chance -= 10;
 			break;
 		case 6:
-			chance -= 30;
+			chance -= 32;
 			break;
 		case 7:
-			chance -= 60;
+			chance -= 70;
 			break;
 		case 8:
-			chance -= 100;
+			chance -= 125;
 			break;
 
 	}
@@ -7824,6 +11439,36 @@ int spell;
 
 	}
 
+	if (Race_if(PM_TONBERRY)) {
+		switch (spellev(spell)) {
+			case 1:
+				chance -= 10;
+				break;
+			case 2:
+				chance -= 20;
+				break;
+			case 3:
+				chance -= 30;
+				break;
+			case 4:
+				chance -= 40;
+				break;
+			case 5:
+				chance -= 50;
+				break;
+			case 6:
+				chance -= 60;
+				break;
+			case 7:
+				chance -= 70;
+				break;
+			case 8:
+				chance -= 80;
+				break;
+
+		}
+	}
+
 	if (issoviet) chance -= 30;
 
 	if (Race_if(PM_PLAYER_SKELETON)) chance -= 50;
@@ -7853,15 +11498,15 @@ int spell;
 				if (!Role_if(PM_CHAOS_SORCEROR)) chance -= 40;
 				break;
 			case 6:
-				chance -= 60;
+				chance -= 58;
 				if (!Role_if(PM_CHAOS_SORCEROR)) chance -= 60;
 				break;
 			case 7:
-				chance -= 80;
+				chance -= 70;
 				if (!Role_if(PM_CHAOS_SORCEROR)) chance -= 80;
 				break;
 			case 8:
-				chance -= 100;
+				chance -= 75;
 				if (!Role_if(PM_CHAOS_SORCEROR)) chance -= 100;
 				break;
 
@@ -7869,21 +11514,269 @@ int spell;
 
 	}
 
-	if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "uncanny gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "sverkh''yestestvennyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "dahshatli qo'lqop") )) chance -= 10;
+	if (uarmg && itemhasappearance(uarmg, APP_UNCANNY_GLOVES)) chance -= 10;
 
 	if (uarm && uarm->oartifact == ART_DRAGON_PLATE) chance -= 20;
+	if (Race_if(PM_PLAYER_GOLEM)) {
+		chance -= 25;
+		if (spellev(spell) > 1) chance -= ((spellev(spell) - 1) * 5);
+	}
 	if (uarm && uarm->oartifact == ART_ROFLCOPTER_WEB) chance += 10;
 	if (uarm && uarm->otyp == ROBE_OF_SPELL_POWER) chance += 20;
+	if (Role_if(PM_CELLAR_CHILD) && uarm && uarm->otyp == MAGE_PLATE_MAIL) chance += 20;
 	if (uarmh && uarmh->oartifact == ART_ZERO_PERCENT_FAILURE) chance += 10;
 	if (uarmc && uarmc->oartifact == ART_HENRIETTA_S_HEAVY_CASTER) chance += 15;
 	if (uarmf && uarmf->oartifact == ART_SUNALI_S_SUMMONING_STORM) chance += 15;
 	if (uwep && uwep->otyp == OLDEST_STAFF) chance += 10;
 	if (uleft && uleft->oartifact == ART_HENRIETTA_S_MAGICAL_AID) chance += 50;
 	if (uright && uright->oartifact == ART_HENRIETTA_S_MAGICAL_AID) chance += 50;
+	if (uarmu && uarmu->oartifact == ART_KEITH_S_UNDEROOS) chance += 50;
 	if (Role_if(PM_ARCHEOLOGIST) && uamul && uamul->oartifact == ART_ARCHEOLOGIST_SONG) chance += 10;
-	if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "knowledgeable helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "znayushchikh shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "bilimdon dubulg'a") ) ) chance += 10;
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "science cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "nauka plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "ilm-fan plash") ) ) chance += 10;
+	if (uarmh && itemhasappearance(uarmh, APP_KNOWLEDGEABLE_HELMET) ) chance += 10;
+	if (uarmc && itemhasappearance(uarmc, APP_SCIENCE_CLOAK) ) chance += 10;
 	if (u.tiksrvzllatdown) chance += 10;
+	if (Race_if(PM_PLAYER_FAIRY)) {
+		chance += 33;
+
+		if (uwep && is_metallic(uwep) && !is_etheritem(uwep)) {
+
+			switch (objects[(uwep)->otyp].oc_material) {
+				default: chance -= 20; break;
+				case MT_METAL: chance -= 22; break;
+				case MT_COPPER: chance -= 28; break;
+				case MT_SILVER: chance -= 24; break;
+				case MT_GOLD: chance -= 10; break;
+				case MT_PLATINUM: chance -= 26; break;
+				case MT_MITHRIL: chance -= 18; break;
+				case MT_VIVA: chance -= 16; break;
+				case MT_POURPOOR: chance -= 30; break;
+				case MT_LEAD: chance -= 40; break;
+				case MT_CHROME: chance -= 14; break;
+			}
+		}
+
+		if (u.twoweap && uswapwep && is_metallic(uswapwep) && !is_etheritem(uswapwep)) {
+
+			switch (objects[(uswapwep)->otyp].oc_material) {
+				default: chance -= 20; break;
+				case MT_METAL: chance -= 22; break;
+				case MT_COPPER: chance -= 28; break;
+				case MT_SILVER: chance -= 24; break;
+				case MT_GOLD: chance -= 10; break;
+				case MT_PLATINUM: chance -= 26; break;
+				case MT_MITHRIL: chance -= 18; break;
+				case MT_VIVA: chance -= 16; break;
+				case MT_POURPOOR: chance -= 30; break;
+				case MT_LEAD: chance -= 40; break;
+				case MT_CHROME: chance -= 14; break;
+			}
+		}
+
+		if (uarm && is_metallic(uarm) && !is_etheritem(uarm)) {
+
+			switch (objects[(uarm)->otyp].oc_material) {
+				default: chance -= 20; break;
+				case MT_METAL: chance -= 22; break;
+				case MT_COPPER: chance -= 28; break;
+				case MT_SILVER: chance -= 24; break;
+				case MT_GOLD: chance -= 10; break;
+				case MT_PLATINUM: chance -= 26; break;
+				case MT_MITHRIL: chance -= 18; break;
+				case MT_VIVA: chance -= 16; break;
+				case MT_POURPOOR: chance -= 30; break;
+				case MT_LEAD: chance -= 40; break;
+				case MT_CHROME: chance -= 14; break;
+			}
+		}
+
+		if (uarmc && is_metallic(uarmc) && !is_etheritem(uarmc)) {
+
+			switch (objects[(uarmc)->otyp].oc_material) {
+				default: chance -= 20; break;
+				case MT_METAL: chance -= 22; break;
+				case MT_COPPER: chance -= 28; break;
+				case MT_SILVER: chance -= 24; break;
+				case MT_GOLD: chance -= 10; break;
+				case MT_PLATINUM: chance -= 26; break;
+				case MT_MITHRIL: chance -= 18; break;
+				case MT_VIVA: chance -= 16; break;
+				case MT_POURPOOR: chance -= 30; break;
+				case MT_LEAD: chance -= 40; break;
+				case MT_CHROME: chance -= 14; break;
+			}
+		}
+
+		if (uarmh && is_metallic(uarmh) && !is_etheritem(uarmh)) {
+
+			switch (objects[(uarmh)->otyp].oc_material) {
+				default: chance -= 20; break;
+				case MT_METAL: chance -= 22; break;
+				case MT_COPPER: chance -= 28; break;
+				case MT_SILVER: chance -= 24; break;
+				case MT_GOLD: chance -= 10; break;
+				case MT_PLATINUM: chance -= 26; break;
+				case MT_MITHRIL: chance -= 18; break;
+				case MT_VIVA: chance -= 16; break;
+				case MT_POURPOOR: chance -= 30; break;
+				case MT_LEAD: chance -= 40; break;
+				case MT_CHROME: chance -= 14; break;
+			}
+		}
+
+		if (uarms && is_metallic(uarms) && !is_etheritem(uarms)) {
+
+			switch (objects[(uarms)->otyp].oc_material) {
+				default: chance -= 20; break;
+				case MT_METAL: chance -= 22; break;
+				case MT_COPPER: chance -= 28; break;
+				case MT_SILVER: chance -= 24; break;
+				case MT_GOLD: chance -= 10; break;
+				case MT_PLATINUM: chance -= 26; break;
+				case MT_MITHRIL: chance -= 18; break;
+				case MT_VIVA: chance -= 16; break;
+				case MT_POURPOOR: chance -= 30; break;
+				case MT_LEAD: chance -= 40; break;
+				case MT_CHROME: chance -= 14; break;
+			}
+		}
+
+		if (uarmg && is_metallic(uarmg) && !is_etheritem(uarmg)) {
+
+			switch (objects[(uarmg)->otyp].oc_material) {
+				default: chance -= 20; break;
+				case MT_METAL: chance -= 22; break;
+				case MT_COPPER: chance -= 28; break;
+				case MT_SILVER: chance -= 24; break;
+				case MT_GOLD: chance -= 10; break;
+				case MT_PLATINUM: chance -= 26; break;
+				case MT_MITHRIL: chance -= 18; break;
+				case MT_VIVA: chance -= 16; break;
+				case MT_POURPOOR: chance -= 30; break;
+				case MT_LEAD: chance -= 40; break;
+				case MT_CHROME: chance -= 14; break;
+			}
+		}
+
+		if (uarmf && is_metallic(uarmf) && !is_etheritem(uarmf)) {
+
+			switch (objects[(uarmf)->otyp].oc_material) {
+				default: chance -= 20; break;
+				case MT_METAL: chance -= 22; break;
+				case MT_COPPER: chance -= 28; break;
+				case MT_SILVER: chance -= 24; break;
+				case MT_GOLD: chance -= 10; break;
+				case MT_PLATINUM: chance -= 26; break;
+				case MT_MITHRIL: chance -= 18; break;
+				case MT_VIVA: chance -= 16; break;
+				case MT_POURPOOR: chance -= 30; break;
+				case MT_LEAD: chance -= 40; break;
+				case MT_CHROME: chance -= 14; break;
+			}
+		}
+
+		if (uarmu && is_metallic(uarmu) && !is_etheritem(uarmu)) {
+
+			switch (objects[(uarmu)->otyp].oc_material) {
+				default: chance -= 20; break;
+				case MT_METAL: chance -= 22; break;
+				case MT_COPPER: chance -= 28; break;
+				case MT_SILVER: chance -= 24; break;
+				case MT_GOLD: chance -= 10; break;
+				case MT_PLATINUM: chance -= 26; break;
+				case MT_MITHRIL: chance -= 18; break;
+				case MT_VIVA: chance -= 16; break;
+				case MT_POURPOOR: chance -= 30; break;
+				case MT_LEAD: chance -= 40; break;
+				case MT_CHROME: chance -= 14; break;
+			}
+		}
+
+		if (uamul && is_metallic(uamul) && !is_etheritem(uamul)) {
+
+			switch (objects[(uamul)->otyp].oc_material) {
+				default: chance -= 20; break;
+				case MT_METAL: chance -= 22; break;
+				case MT_COPPER: chance -= 28; break;
+				case MT_SILVER: chance -= 24; break;
+				case MT_GOLD: chance -= 10; break;
+				case MT_PLATINUM: chance -= 26; break;
+				case MT_MITHRIL: chance -= 18; break;
+				case MT_VIVA: chance -= 16; break;
+				case MT_POURPOOR: chance -= 30; break;
+				case MT_LEAD: chance -= 40; break;
+				case MT_CHROME: chance -= 14; break;
+			}
+		}
+
+		if (uimplant && is_metallic(uimplant) && !is_etheritem(uimplant)) {
+
+			switch (objects[(uimplant)->otyp].oc_material) {
+				default: chance -= 20; break;
+				case MT_METAL: chance -= 22; break;
+				case MT_COPPER: chance -= 28; break;
+				case MT_SILVER: chance -= 24; break;
+				case MT_GOLD: chance -= 10; break;
+				case MT_PLATINUM: chance -= 26; break;
+				case MT_MITHRIL: chance -= 18; break;
+				case MT_VIVA: chance -= 16; break;
+				case MT_POURPOOR: chance -= 30; break;
+				case MT_LEAD: chance -= 40; break;
+				case MT_CHROME: chance -= 14; break;
+			}
+		}
+
+		if (uleft && is_metallic(uleft) && !is_etheritem(uleft)) {
+
+			switch (objects[(uleft)->otyp].oc_material) {
+				default: chance -= 20; break;
+				case MT_METAL: chance -= 22; break;
+				case MT_COPPER: chance -= 28; break;
+				case MT_SILVER: chance -= 24; break;
+				case MT_GOLD: chance -= 10; break;
+				case MT_PLATINUM: chance -= 26; break;
+				case MT_MITHRIL: chance -= 18; break;
+				case MT_VIVA: chance -= 16; break;
+				case MT_POURPOOR: chance -= 30; break;
+				case MT_LEAD: chance -= 40; break;
+				case MT_CHROME: chance -= 14; break;
+			}
+		}
+
+		if (uright && is_metallic(uright) && !is_etheritem(uright)) {
+
+			switch (objects[(uright)->otyp].oc_material) {
+				default: chance -= 20; break;
+				case MT_METAL: chance -= 22; break;
+				case MT_COPPER: chance -= 28; break;
+				case MT_SILVER: chance -= 24; break;
+				case MT_GOLD: chance -= 10; break;
+				case MT_PLATINUM: chance -= 26; break;
+				case MT_MITHRIL: chance -= 18; break;
+				case MT_VIVA: chance -= 16; break;
+				case MT_POURPOOR: chance -= 30; break;
+				case MT_LEAD: chance -= 40; break;
+				case MT_CHROME: chance -= 14; break;
+			}
+		}
+
+		if (ublindf && is_metallic(ublindf) && !is_etheritem(ublindf)) {
+
+			switch (objects[(ublindf)->otyp].oc_material) {
+				default: chance -= 20; break;
+				case MT_METAL: chance -= 22; break;
+				case MT_COPPER: chance -= 28; break;
+				case MT_SILVER: chance -= 24; break;
+				case MT_GOLD: chance -= 10; break;
+				case MT_PLATINUM: chance -= 26; break;
+				case MT_MITHRIL: chance -= 18; break;
+				case MT_VIVA: chance -= 16; break;
+				case MT_POURPOOR: chance -= 30; break;
+				case MT_LEAD: chance -= 40; break;
+				case MT_CHROME: chance -= 14; break;
+			}
+		}
+
+	}
 
 	if (Upolyd && dmgtype(youmonst.data, AD_SPEL) ) {
 		chance += 5;
@@ -7924,14 +11817,34 @@ int spell;
 	if (Race_if(PM_INKA) && spellid(spell) == SPE_NATURE_BEAM)
 		chance += 100;
 
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "dnethack cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "podzemeliy i vnezemnyye plashch vzlomat'") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "hamzindon va dunyo bo'lmagan doirasi so'yish plash") )) chance -= 10;
+	if (Race_if(PM_VIETIS)) chance -= 20;
+
+	if (uarmc && itemhasappearance(uarmc, APP_DNETHACK_CLOAK)) chance -= 10;
 	if (RngeDnethack) chance -= 10;
+	if (Race_if(PM_INHERITOR)) chance -= 10;
 	if (RngeUnnethack) chance -= 33;
+
+	/* "bullshit change" by Amy: make it quite a bit harder to get to 0% fail, because spells are generally easier to
+	 * cast compared to vanilla which results in difficult spells being too easy for non-caster roles */
+	if (chance > 50) {
+		int chancediff = (chance - 50);
+		chancediff /= 2;
+		if (chancediff > 50) chancediff = 50;
+		chance -= chancediff;
+
+		if (chance > 90) {
+			int chancediff = (chance - 90);
+			chancediff *= 9;
+			chancediff /= 10;
+			if (chancediff > 90) chancediff = 90;
+			chance -= chancediff;
+		}
+	}
 
 	/* Clamp to percentile */
 	if (chance > 100) chance = 100;
 
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "shell cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "plashch obolochki") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "qobiq plash") ) ) chance -= 20;
+	if (uarmc && itemhasappearance(uarmc, APP_SHELL_CLOAK) ) chance -= 20;
 
 	if (is_grassland(u.ux, u.uy)) chance -= 10;
 	if (Numbed) chance -= 10;
@@ -7941,6 +11854,7 @@ int spell;
 		chance *= 5;
 		chance /= 6;
 	}
+	if (Race_if(PM_INHERITOR)) chance--;
 
 	if (RememberanceEffect || u.uprops[REMEMBERANCE_EFFECT].extrinsic || have_rememberancestone()) {
 		if (chance > (spellknow(spell) / 100)) chance = (spellknow(spell) / 100);
@@ -7948,17 +11862,59 @@ int spell;
 
 	/* artifacts and other items that boost the chance after "hard" penalties are applied go here --Amy */
 
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "failuncap cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "mantiya s provalom") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "noto'g'ri plash")) ) chance += 5;
+	if (uarmc && itemhasappearance(uarmc, APP_FAILUNCAP_CLOAK) ) {
+		if (chance < 86) chance += 5;
+		else if (chance == 86) chance += 4;
+		else if (chance == 87) chance += 4;
+		else if (chance == 88) chance += 3;
+		else if (chance == 89) chance += 3;
+		else if (chance == 90) chance += 2;
+		else chance += 1;
+	}
 
-	if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "failuncap helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "shlem s provalom") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "noto'g'ri zarbdan")) ) chance += 5;
+	if (uarmh && itemhasappearance(uarmh, APP_FAILUNCAP_HELMET) ) {
+		if (chance < 86) chance += 5;
+		else if (chance == 86) chance += 4;
+		else if (chance == 87) chance += 4;
+		else if (chance == 88) chance += 3;
+		else if (chance == 89) chance += 3;
+		else if (chance == 90) chance += 2;
+		else chance += 1;
+	}
 
-	if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmg->otyp]), "failuncap gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "perchatki s perforatsiyey") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "noto'g'ri qo'lqop")) ) chance += 5;
+	if (uarmg && itemhasappearance(uarmg, APP_FAILUNCAP_GLOVES) ) {
+		if (chance < 86) chance += 5;
+		else if (chance == 86) chance += 4;
+		else if (chance == 87) chance += 4;
+		else if (chance == 88) chance += 3;
+		else if (chance == 89) chance += 3;
+		else if (chance == 90) chance += 2;
+		else chance += 1;
+	}
 
-	if (uarmf && OBJ_DESCR(objects[uarmf->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmf->otyp]), "failuncap shoes") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "s provalom obuv'") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "poyafzal poyafzallari")) ) chance += 5;
+	if (uarmf && itemhasappearance(uarmf, APP_FAILUNCAP_SHOES) ) {
+		if (chance < 86) chance += 5;
+		else if (chance == 86) chance += 4;
+		else if (chance == 87) chance += 4;
+		else if (chance == 88) chance += 3;
+		else if (chance == 89) chance += 3;
+		else if (chance == 90) chance += 2;
+		else chance += 1;
+	}
 
-	if (Role_if(PM_OTAKU) && uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "fourchan cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "chetyrekhchasovoy plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "to'rtburchak plash"))) chance += 5;
+	if (Role_if(PM_OTAKU) && uarmc && itemhasappearance(uarmc, APP_FOURCHAN_CLOAK)) {
+		if (chance < 86) chance += 5;
+		else if (chance == 86) chance += 4;
+		else if (chance == 87) chance += 4;
+		else if (chance == 88) chance += 3;
+		else if (chance == 89) chance += 3;
+		else if (chance == 90) chance += 2;
+		else chance += 1;
+	}
 
-	if (uarm && uarm->oartifact == ART_MOTHERFUCKER_TROPHY) chance += 20;
+	if (uarm && uarm->oartifact == ART_MOTHERFUCKER_TROPHY) {
+		chance += 20;
+	}
 
 	/* REALLY clamp chance now */
 	if (chance > 100) chance = 100;
@@ -7977,6 +11933,80 @@ int spell;
 	return chance;
 }
 
+/* increase memory of a spell: now a function; inspired by Elona, the increase is now lower if your current spell memory
+ * is already rather high. We're trying to make the decrease not be too harsh at first, but 2000% spell memory should be
+ * extremely difficult to reach. */
+void
+boostknow(spell,boost)
+int spell, boost;
+{
+	int priorknow = spl_book[spell].sp_know;
+	int boostmultiplier = 100;
+	if (priorknow > 190100) boostmultiplier = 1;
+	else if (priorknow > 180100) boostmultiplier = 2;
+	else if (priorknow > 170100) boostmultiplier = 3;
+	else if (priorknow > 160100) boostmultiplier = 4;
+	else if (priorknow > 150100) boostmultiplier = 5;
+	else if (priorknow > 140100) boostmultiplier = 6;
+	else if (priorknow > 130100) boostmultiplier = 7;
+	else if (priorknow > 120100) boostmultiplier = 8;
+	else if (priorknow > 110100) boostmultiplier = 9;
+	else if (priorknow > 100100) boostmultiplier = 10;
+	else if (priorknow > 90100) boostmultiplier = 15;
+	else if (priorknow > 80100) boostmultiplier = 20;
+	else if (priorknow > 70100) boostmultiplier = 30;
+	else if (priorknow > 60100) boostmultiplier = 40;
+	else if (priorknow > 50100) boostmultiplier = 50;
+	else if (priorknow > 40100) boostmultiplier = 60;
+	else if (priorknow > 30100) boostmultiplier = 70;
+	else if (priorknow > 20100) boostmultiplier = 80;
+	else if (priorknow > 10100) boostmultiplier = 90;
+
+	boost *= boostmultiplier;
+	boost /= 100;
+
+	spl_book[spell].sp_know = ((spl_book[spell].sp_know + boost > MAX_KNOW) ? MAX_KNOW : (spl_book[spell].sp_know + boost) );
+
+}
+
+void
+incrnknow(spell, initial)
+int spell;
+boolean initial; /* FALSE if you knew the spell before, otherwise TRUE; reduction only if FALSE */
+{
+	int priorknow = spl_book[spell].sp_know;
+	int knowvalue = (Race_if(PM_DUNADAN) ? DUNADAN_KEEN : KEEN);
+	int boostmultiplier = 100;
+	if (priorknow > 190100) boostmultiplier = 1;
+	else if (priorknow > 180100) boostmultiplier = 2;
+	else if (priorknow > 170100) boostmultiplier = 3;
+	else if (priorknow > 160100) boostmultiplier = 4;
+	else if (priorknow > 150100) boostmultiplier = 5;
+	else if (priorknow > 140100) boostmultiplier = 6;
+	else if (priorknow > 130100) boostmultiplier = 7;
+	else if (priorknow > 120100) boostmultiplier = 8;
+	else if (priorknow > 110100) boostmultiplier = 9;
+	else if (priorknow > 100100) boostmultiplier = 10;
+	else if (priorknow > 90100) boostmultiplier = 15;
+	else if (priorknow > 80100) boostmultiplier = 20;
+	else if (priorknow > 70100) boostmultiplier = 30;
+	else if (priorknow > 60100) boostmultiplier = 40;
+	else if (priorknow > 50100) boostmultiplier = 50;
+	else if (priorknow > 40100) boostmultiplier = 60;
+	else if (priorknow > 30100) boostmultiplier = 70;
+	else if (priorknow > 20100) boostmultiplier = 80;
+	else if (priorknow > 10100) boostmultiplier = 90;
+
+	if (initial) boostmultiplier = 100;
+
+	knowvalue *= boostmultiplier;
+	knowvalue /= 100;
+
+	spl_book[spell].sp_know = (spl_book[spell].sp_know < 1) ? knowvalue : ((spl_book[spell].sp_know + knowvalue) > MAX_KNOW) ? MAX_KNOW : (spl_book[spell].sp_know + knowvalue);
+
+
+}
+
 /* Learn a spell during creation of the initial inventory */
 void
 initialspell(obj)
@@ -7990,15 +12020,15 @@ struct obj *obj;
 
 		/* In Soviet Russia, enhancements aren't a thing. In fact, they don't even know how to spell the word 'enhancement'. Therefore, if someone goes ahead and suggests an enhancement that consists of double spellbooks giving twice the starting spellcasting memory, they say NOPE THAT IS INCOMPATIBLE WITH COMMUNISM and refuse to implement it. --Amy */
 		if (!issoviet) {
-			incrnknow(i);
-			if (Role_if(PM_MAHOU_SHOUJO)) incrnknow(i);
+			incrnknow(i, TRUE);
+			if (Role_if(PM_MAHOU_SHOUJO)) incrnknow(i, TRUE);
 
-			if (spl_book[i].sp_lev == 3) incrnknow(i);
-			if (spl_book[i].sp_lev == 4) { incrnknow(i); incrnknow(i);}
-			if (spl_book[i].sp_lev == 5) { incrnknow(i); incrnknow(i); incrnknow(i);}
-			if (spl_book[i].sp_lev == 6) { incrnknow(i); incrnknow(i); incrnknow(i); incrnknow(i);}
-			if (spl_book[i].sp_lev == 7) { incrnknow(i); incrnknow(i); incrnknow(i); incrnknow(i); incrnknow(i);}
-			if (spl_book[i].sp_lev == 8) { incrnknow(i); incrnknow(i); incrnknow(i); incrnknow(i); incrnknow(i); incrnknow(i);}
+			if (spl_book[i].sp_lev == 3) incrnknow(i, TRUE);
+			if (spl_book[i].sp_lev == 4) { incrnknow(i, TRUE); incrnknow(i, TRUE);}
+			if (spl_book[i].sp_lev == 5) { incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE);}
+			if (spl_book[i].sp_lev == 6) { incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE);}
+			if (spl_book[i].sp_lev == 7) { incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE);}
+			if (spl_book[i].sp_lev == 8) { incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE);}
 		}
 
 	         return;
@@ -8006,17 +12036,18 @@ struct obj *obj;
 	    if (spellid(i) == NO_SPELL)  {
 	        spl_book[i].sp_id = obj->otyp;
 	        spl_book[i].sp_lev = objects[obj->otyp].oc_level;
-	        incrnknow(i);
-			if (Role_if(PM_MAHOU_SHOUJO)) incrnknow(i);
+		  spl_book[i].sp_memorize = TRUE;
+	        incrnknow(i, TRUE);
+			if (Role_if(PM_MAHOU_SHOUJO)) incrnknow(i, TRUE);
 
 			/* high-level starting spells will be known for a longer time
 			 * since you might not be able to cast them at all when you're just starting --Amy */
-			if (spl_book[i].sp_lev == 3) incrnknow(i);
-			if (spl_book[i].sp_lev == 4) { incrnknow(i); incrnknow(i);}
-			if (spl_book[i].sp_lev == 5) { incrnknow(i); incrnknow(i); incrnknow(i);}
-			if (spl_book[i].sp_lev == 6) { incrnknow(i); incrnknow(i); incrnknow(i); incrnknow(i);}
-			if (spl_book[i].sp_lev == 7) { incrnknow(i); incrnknow(i); incrnknow(i); incrnknow(i); incrnknow(i);}
-			if (spl_book[i].sp_lev == 8) { incrnknow(i); incrnknow(i); incrnknow(i); incrnknow(i); incrnknow(i); incrnknow(i);}
+			if (spl_book[i].sp_lev == 3) incrnknow(i, TRUE);
+			if (spl_book[i].sp_lev == 4) { incrnknow(i, TRUE); incrnknow(i, TRUE);}
+			if (spl_book[i].sp_lev == 5) { incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE);}
+			if (spl_book[i].sp_lev == 6) { incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE);}
+			if (spl_book[i].sp_lev == 7) { incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE);}
+			if (spl_book[i].sp_lev == 8) { incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE); incrnknow(i, TRUE);}
 
 	        return;
 	    }
@@ -8037,12 +12068,79 @@ studyspell()
 			return (FALSE);
 		} else if (spellknow(spell_no) <= 1000) {
 			Your("focus and reinforce your memory of the spell.");
-			incrnknow(spell_no);
-			if (Role_if(PM_MAHOU_SHOUJO)) incrnknow(spell_no);
+			incrnknow(spell_no, FALSE);
+			if (Role_if(PM_MAHOU_SHOUJO)) incrnknow(spell_no, FALSE);
 			exercise(A_WIS, TRUE);      /* extra study */
 			return (TRUE);
 		} else /* 1000 < spellknow(spell_no) <= 5000 */
 			You("know that spell quite well already.");
+	}
+	return (FALSE);
+}
+
+boolean
+inertiacontrolspell()
+{
+	int spell_no;
+
+	if (getspell(&spell_no, FALSE)) {
+		if (spellid(spell_no) == SPE_INERTIA_CONTROL) {
+			You("cannot control the inertia control spell.");
+			return (FALSE);
+		} else if (spellid(spell_no) != NO_SPELL) {
+			u.inertiacontrolspell = spellid(spell_no);
+			u.inertiacontrolspellno = spell_no;
+			u.inertiacontrol = 50;
+			You("start controlling the %s spell.", spellname(spell_no));
+			return (TRUE);
+		} else {
+			You("decided to not control any spell after all.");
+			return (FALSE);
+		}
+	}
+	return (FALSE);
+}
+
+boolean
+dememorizespell()
+{
+	int spell_no;
+
+	if (getspell(&spell_no, FALSE)) {
+		if (spellid(spell_no) != NO_SPELL) {
+			spl_book[spell_no].sp_know = 0;
+			pline("Alright, the %s spell is a forgotten spell now.", spellname(spell_no));
+			return (TRUE);
+		} else {
+			You("decided to not dememorize any spell after all.");
+			return (FALSE);
+		}
+
+	}
+	return (FALSE);
+}
+
+boolean
+addsomespellmemory()
+{
+	int spell_no;
+
+	if (getspell(&spell_no, FALSE)) {
+		if (spellid(spell_no) == SPE_ADD_SPELL_MEMORY) {
+			You("cannot add memory to that spell.");
+		} else if (spellid(spell_no) != NO_SPELL) {
+			if (rn2(10) && spellknow(spell_no) <= 0) {
+				pline("Your attempt to regain knowledge of that forgotten spell fails.");
+				return (TRUE);
+			}
+			pline("Your knowledge of the %s spell increases.", spellname(spell_no));
+			boostknow(spell_no, 500);
+			return (TRUE);
+		} else {
+			You("decided to not add memory to any spell after all.");
+			return (FALSE);
+		}
+
 	}
 	return (FALSE);
 }
@@ -8080,6 +12178,31 @@ dashrangefinish:
 	return 1;
 }
 
+/* percentage chance for mastermind role to resist amnesia and spell forgetting effects --Amy */
+boolean
+mastermindsave()
+{
+	int mmchance = 0;
+
+	if (!Role_if(PM_MASTERMIND)) return FALSE; /* shouldn't happen */
+
+	if (PlayerCannotUseSkills) return FALSE;
+
+	switch (P_SKILL(P_MEMORIZATION)) {
+		case P_BASIC: mmchance = 20; break;
+		case P_SKILLED: mmchance = 40; break;
+		case P_EXPERT: mmchance = 60; break;
+		case P_MASTER: mmchance = 80; break;
+		case P_GRAND_MASTER: mmchance = 90; break;
+		case P_SUPREME_MASTER: mmchance = 95; break;
+	}
+
+	if (mmchance > rn2(100)) return TRUE;
+
+	return FALSE;
+
+}
+
 void
 wonderspell()
 {
@@ -8093,9 +12216,43 @@ wonderspell()
 		if (spellid(i) == randomspell)  {
 			if (spellknow(i) <= MAX_CAN_STUDY) {
 				Your("knowledge of the %s spell is keener.", splname);
-				incrnknow(i);
-				if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "runic gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "runa rukovitsakh") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "runi qo'lqop") ) && !rn2(2) ) incrnknow(i);
-				if (Role_if(PM_MAHOU_SHOUJO)) incrnknow(i);
+				incrnknow(i, FALSE);
+				if (uarmg && itemhasappearance(uarmg, APP_RUNIC_GLOVES) && !rn2(2) ) incrnknow(i, FALSE);
+				if (Role_if(PM_MAHOU_SHOUJO)) incrnknow(i, FALSE);
+
+				if (!PlayerCannotUseSkills && P_SKILL(P_MEMORIZATION) >= P_BASIC) {
+
+					char nervbuf[QBUFSZ];
+					char thisisannoying = 0;
+
+					if (!u.youhavememorized) {
+						u.youhavememorized = TRUE;
+						if (!iflags.memorizationknown) pline("You have the memorization skill, which allows you to gain extra spell memory for newly learned spells. Whenever you learn a spell, you are asked whether you want to use the skill to boost the new spell's memory. In the case of doubt you should ALWAYS ANSWER YES. If you answer no, you just throw the bonus away. (Exception is if you want a forgotten spell, but you only ever need one of those normally.)");
+					}
+
+					if (!iflags.memorizationknown) sprintf(nervbuf, "Memorize this spell to add more spell memory? In the case of doubt you should always answer yes, unless you want the bonus to go to waste.");
+					else sprintf(nervbuf, "Memorize this spell to add more spell memory?");
+					thisisannoying = yn_function(nervbuf, ynqchars, 'y');
+					if (thisisannoying != 'n') {
+
+						int memoboost = 0;
+						switch (P_SKILL(P_MEMORIZATION)) {
+							case P_BASIC: memoboost = 2; break;
+							case P_SKILLED: memoboost = 4; break;
+							case P_EXPERT: memoboost = 6; break;
+							case P_MASTER: memoboost = 8; break;
+							case P_GRAND_MASTER: memoboost = 10; break;
+							case P_SUPREME_MASTER: memoboost = 12; break;
+						}
+					    	boostknow(i, memoboost * 1000);
+						spl_book[i].sp_memorize = TRUE;
+						pline("Spell memory increased! You gained %d%% extra spell memory.", memoboost * 10);
+					} else {
+						spl_book[i].sp_memorize = FALSE;
+						pline("You decided to throw away the spell memory bonus. The spell was set to non-memorization mode. If you did that by mistake, you should open the spell menu and turn memorization for this spell back on so that it properly benefits from memorization skill.");
+					}
+
+				}
 
 			} else {
 			    You("know %s quite well already.", splname);
@@ -8104,9 +12261,10 @@ wonderspell()
 		} else if (spellid(i) == NO_SPELL)  {
 			spl_book[i].sp_id = randomspell;
 			spl_book[i].sp_lev = objects[randomspell].oc_level;
-			incrnknow(i);
-			if (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "runic gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "runa rukovitsakh") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "runi qo'lqop") ) && !rn2(2) ) incrnknow(i);
-			if (Role_if(PM_MAHOU_SHOUJO)) incrnknow(i);
+			spl_book[i].sp_memorize = TRUE;
+			incrnknow(i, TRUE);
+			if (uarmg && itemhasappearance(uarmg, APP_RUNIC_GLOVES) && !rn2(2) ) incrnknow(i, TRUE);
+			if (Role_if(PM_MAHOU_SHOUJO)) incrnknow(i, TRUE);
 			You("gain knowledge of the %s spell.", splname);
 			if (randomspell == SPE_FORBIDDEN_KNOWLEDGE) {
 				u.ugangr += 15;
@@ -8118,6 +12276,41 @@ wonderspell()
 				You_feel("dizzy!");
 				forget(ALL_MAP);
 			}
+
+			if (!PlayerCannotUseSkills && P_SKILL(P_MEMORIZATION) >= P_BASIC) {
+
+				char nervbuf[QBUFSZ];
+				char thisisannoying = 0;
+
+				if (!u.youhavememorized) {
+					u.youhavememorized = TRUE;
+					if (!iflags.memorizationknown) pline("You have the memorization skill, which allows you to gain extra spell memory for newly learned spells. Whenever you learn a spell, you are asked whether you want to use the skill to boost the new spell's memory. In the case of doubt you should ALWAYS ANSWER YES. If you answer no, you just throw the bonus away. (Exception is if you want a forgotten spell, but you only ever need one of those normally.)");
+				}
+
+				if (!iflags.memorizationknown) sprintf(nervbuf, "Memorize this spell to add more spell memory? In the case of doubt you should always answer yes, unless you want the bonus to go to waste.");
+				else sprintf(nervbuf, "Memorize this spell to add more spell memory?");
+				thisisannoying = yn_function(nervbuf, ynqchars, 'y');
+				if (thisisannoying != 'n') {
+
+					int memoboost = 0;
+					switch (P_SKILL(P_MEMORIZATION)) {
+						case P_BASIC: memoboost = 2; break;
+						case P_SKILLED: memoboost = 4; break;
+						case P_EXPERT: memoboost = 6; break;
+						case P_MASTER: memoboost = 8; break;
+						case P_GRAND_MASTER: memoboost = 10; break;
+						case P_SUPREME_MASTER: memoboost = 12; break;
+					}
+				    	boostknow(i, memoboost * 1000);
+					spl_book[i].sp_memorize = TRUE;
+					pline("Spell memory increased! You gained %d%% extra spell memory.", memoboost * 10);
+				} else {
+					spl_book[i].sp_memorize = FALSE;
+					pline("You decided to throw away the spell memory bonus. The spell was set to non-memorization mode. If you did that by mistake, you should open the spell menu and turn memorization for this spell back on so that it properly benefits from memorization skill.");
+				}
+
+			}
+
 			break;
 		}
 	}

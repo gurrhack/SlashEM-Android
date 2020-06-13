@@ -23,8 +23,6 @@ STATIC_DCL const char *lock_action(void);
 STATIC_DCL boolean obstructed(int,int);
 STATIC_DCL void chest_shatter_msg(struct obj *);
 
-#define techlevX(tech)         (Technicality ? (((u.ulevel - tech_list[tech].t_lev) * 4 / 3) + 3) : (u.ulevel - tech_list[tech].t_lev))
-
 boolean
 picking_lock(x, y)
 	int *x, *y;
@@ -82,6 +80,7 @@ STATIC_PTR
 int
 picklock()	/* try to open/close a lock */
 {
+	register struct obj *trophy;
 
 	if (xlock.box) {
 	    if((xlock.box->ox != u.ux) || (xlock.box->oy != u.uy)) {
@@ -104,7 +103,7 @@ picklock()	/* try to open/close a lock */
 	    }
 	}
 
-	if (xlock.usedtime++ >= 50/* || (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) )*/ ) {
+	if (xlock.usedtime++ >= 50 ) {
 	    You("give up your attempt at %s.", lock_action());
 	    exercise(A_DEX, TRUE);	/* even if you don't succeed */
 	    return((xlock.usedtime = 0));
@@ -122,13 +121,70 @@ picklock()	/* try to open/close a lock */
 		    if (*in_rooms(u.ux+u.dx, u.uy+u.dy, SHOPBASE))
 			add_damage(u.ux+u.dx, u.uy+u.dy, 0L);
 		    newsym(u.ux+u.dx, u.uy+u.dy);
-	    } else if(xlock.door->doormask == D_LOCKED)
+	    } else if(xlock.door->doormask == D_LOCKED) {
 		xlock.door->doormask = D_CLOSED;
-	    else xlock.door->doormask = D_LOCKED;
+		u.cnd_unlockamount++;
+	    } else xlock.door->doormask = D_LOCKED;
+
+		/* better handling for special doors in Vlad's: only give the rewards if you actually unlock them --Amy */
+	    if (artifact_door(u.ux+u.dx, u.uy+u.dy) && !strcmp(dungeons[u.uz.dnum].dname, "Vlad's Tower")) {
+
+		switch (artifact_door(u.ux+u.dx, u.uy+u.dy)) {
+
+			case ART_MASTER_KEY_OF_THIEVERY:
+				if (!u.keythief) {
+					u.keythief = TRUE;
+					pline("Congratulations, a reward for picking this lock was dropped at your %s!", makeplural(body_part(FOOT)));
+					trophy = mksobj(STONE_OF_MAGIC_RESISTANCE, TRUE, FALSE, FALSE);
+					if (trophy) {
+					    dropy(trophy);
+					}
+				}
+				break;
+			case ART_NOCTURNAL_KEY:
+				if (!u.keynocturn) {
+					u.keynocturn = TRUE;
+					pline("Congratulations, a reward for picking this lock was dropped at your %s!", makeplural(body_part(FOOT)));
+					trophy = mksobj(SPE_PASSWALL, TRUE, FALSE, FALSE);
+					if (trophy) {
+					    dropy(trophy);
+					}
+				}
+				break;
+			case ART_KEY_OF_ACCESS:
+				if (!u.keyaccess) {
+					u.keyaccess = TRUE;
+					pline("Congratulations, a reward for picking this lock was dropped at your %s!", makeplural(body_part(FOOT)));
+					trophy = mksobj(SPE_GODMODE, TRUE, FALSE, FALSE);
+					if (trophy) {
+					    dropy(trophy);
+					}
+				}
+				break;
+			case ART_GAUNTLET_KEY:
+				if (!u.keygauntlet) {
+					u.keygauntlet = TRUE;
+					pline("Congratulations, a reward for picking this lock was dropped at your %s!", makeplural(body_part(FOOT)));
+					trophy = mksobj(SCR_WISHING, TRUE, FALSE, FALSE);
+					if (trophy) {
+					    dropy(trophy);
+					}
+				}
+				break;
+			default:
+				break;
+
+		}
+
+	    }
+
 	} else {
 	    xlock.box->olocked = !xlock.box->olocked;
-	    if(xlock.box->otrapped)	
-		(void) chest_trap(xlock.box, FINGER, FALSE);
+	    if (!xlock.box->olocked) u.cnd_unlockamount++;
+	    if(xlock.box->otrapped) {
+		if (Role_if(PM_CYBERNINJA) && rn2(5)) You("also disarm the trap you found on it.");
+		else (void) chest_trap(xlock.box, FINGER, FALSE);
+	    }
 	}
 	exercise(A_DEX, TRUE);
 	return((xlock.usedtime = 0));
@@ -144,7 +200,7 @@ forcelock()	/* try to force a locked chest */
 	if((xlock.box->ox != u.ux) || (xlock.box->oy != u.uy))
 		return((xlock.usedtime = 0));		/* you or it moved */
 
-	if (xlock.usedtime++ >= 50 || !uwep /*|| (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) )*/ ) {
+	if (xlock.usedtime++ >= 50 || !uwep ) {
 	    You("give up your attempt to force the lock.");
 	    if(xlock.usedtime >= 50)		/* you made the effort */
 	      exercise((xlock.picktyp) ? A_DEX : A_STR, TRUE);
@@ -213,6 +269,7 @@ forcelock()	/* try to force a locked chest */
 		}
 		if ( (xlock.box->otyp == ICE_BOX || xlock.box->otyp == ICE_BOX_OF_HOLDING || xlock.box->otyp == ICE_BOX_OF_WATERPROOFING || xlock.box->otyp == ICE_BOX_OF_DIGESTION) && otmp->otyp == CORPSE) {
 		    otmp->age = monstermoves - otmp->age; /* actual age */
+		    otmp->icedobject = TRUE;
 		    start_corpse_timeout(otmp);
 		}
 		place_object(otmp, u.ux, u.uy);
@@ -249,7 +306,7 @@ forcedoor()      /* try to break/pry open a door */
 		return((xlock.usedtime = 0));
 	}
 	
-	if (xlock.usedtime++ >= 50/* || (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) )*/ ) {
+	if (xlock.usedtime++ >= 50 ) {
 	    You("give up your attempt at %s the door.",
 	    	(xlock.picktyp == 2 ? "melting" : xlock.picktyp == 1 ? 
 	    		"prying open" : "breaking down"));
@@ -361,6 +418,7 @@ pick_lock_specific(pickp, cont, x, y)		/* pick a lock, on specific container if 
 		const char *action = lock_action();
 		You("resume your attempt at %s.", action);
 		set_occupation(picklock, action, 0);
+		if (AutoDestruct || u.uprops[AUTO_DESTRUCT].extrinsic || (uarmf && uarmf->oartifact == ART_KHOR_S_REQUIRED_IDEA) || have_autodestructstone()) picklock();
 		return(1);
 	    }
 	}
@@ -368,7 +426,16 @@ pick_lock_specific(pickp, cont, x, y)		/* pick a lock, on specific container if 
 	if(nohands(youmonst.data) && !Race_if(PM_TRANSFORMER)) {
 		You_cant("hold %s -- you have no hands!", doname(pick));
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
-		return(0);
+		if (yn("Attempt it anyway?") == 'y') {
+			if (rn2(3) && !polyskillchance()) {
+				playerbleed(rnd(2 + (level_difficulty() * 10)));
+				pline("Great. Now your %s is squirting everywhere.", body_part(BLOOD));
+				if (!rn2(20)) badeffect();
+				return 1;
+			}
+
+		}
+		else return(0);
 	}
 
 	if((picktyp != LOCK_PICK &&
@@ -435,7 +502,7 @@ pick_lock_specific(pickp, cont, x, y)		/* pick a lock, on specific container if 
 		    if(c == 'q') return(0);
 		    if(c == 'n') continue;
 
-		    if (pick->oartifact) {
+		    if (pick->oartifact && (pick->obrittle || pick->obrittle2) ) {
 		      Your("key doesn't seem to fit.");
 			return 0;
 		    }
@@ -461,7 +528,12 @@ pick_lock_specific(pickp, cont, x, y)		/* pick a lock, on specific container if 
 				*pickp = (struct obj *)0;
 				return(1);
 			    }
-			    ch = ACURR(A_DEX) + 20*Role_if(PM_ROGUE) + 40*Role_if(PM_LOCKSMITH);
+			    if(!rn2(isfriday ? 10 : 20) && (!pick->blessed || !rn2(3)) && pick->oartifact) {
+				Your("credit card becomes dull and is no longer capable of picking locks!");
+				pick->obrittle = pick->obrittle2 = 3;
+				return(1);
+			    }
+			    ch = ACURR(A_DEX) + 20*Role_if(PM_ROGUE) + 40*Role_if(PM_LOCKSMITH) + 20*Role_if(PM_CYBERNINJA);
 			    break;
 			case DATA_CHIP:
 			    if(!rn2(isfriday ? 10 : 20) && (!pick->blessed || !rn2(3)) && !pick->oartifact) {
@@ -470,18 +542,29 @@ pick_lock_specific(pickp, cont, x, y)		/* pick a lock, on specific container if 
 				*pickp = (struct obj *)0;
 				return(1);
 			    }
-			    ch = ACURR(A_DEX) + 20*Role_if(PM_ROGUE) + 40*Role_if(PM_LOCKSMITH);
+			    if(!rn2(isfriday ? 10 : 20) && (!pick->blessed || !rn2(3)) && pick->oartifact) {
+				Your("data chip becomes dull and is no longer capable of picking locks!");
+				pick->obrittle = pick->obrittle2 = 3;
+				return(1);
+			    }
+			    ch = ACURR(A_DEX) + 20*Role_if(PM_ROGUE) + 40*Role_if(PM_LOCKSMITH) + 20*Role_if(PM_CYBERNINJA);
 			    break;
 			case LOCK_PICK:
 			case HAIRCLIP:
-			    if(!rn2(isfriday ? 20 : Role_if(PM_LOCKSMITH) ? 60: Role_if(PM_ROGUE) ? 40 : 30) &&
+			    if(!rn2(isfriday ? 20 : Role_if(PM_LOCKSMITH) ? 60: (Role_if(PM_ROGUE) || Role_if(PM_CYBERNINJA)) ? 40 : 30) &&
 			    		(!pick->blessed || !rn2(3)) && !pick->oartifact) {
 				You("break your pick!");
 				useup(pick);
 				*pickp = (struct obj *)0;
 				return(1);
 			    }
-			    ch = 4*ACURR(A_DEX) + 25*Role_if(PM_ROGUE) + 50*Role_if(PM_LOCKSMITH);
+			    if(!rn2(isfriday ? 20 : Role_if(PM_LOCKSMITH) ? 60: (Role_if(PM_ROGUE) || Role_if(PM_CYBERNINJA)) ? 40 : 30) &&
+			    		(!pick->blessed || !rn2(3)) && pick->oartifact) {
+				Your("pick becomes brittle and is no longer capable of picking locks!");
+				pick->obrittle = pick->obrittle2 = 3;
+				return(1);
+			    }
+			    ch = 4*ACURR(A_DEX) + 25*Role_if(PM_ROGUE) + 50*Role_if(PM_LOCKSMITH) + 30*Role_if(PM_CYBERNINJA);
 			    break;
 			case SKELETON_KEY:
 			case SECRET_KEY:
@@ -489,6 +572,11 @@ pick_lock_specific(pickp, cont, x, y)		/* pick a lock, on specific container if 
 				Your("key didn't quite fit the lock and snapped!");
 				useup(pick);
 				*pickp = (struct obj *)0;
+				return(1);
+			    }
+			    if(!rn2(isfriday ? 7 : 15) && (!pick->blessed || !rn2(3)) && pick->oartifact) {
+				Your("key becomes brittle and is no longer capable of picking locks!");
+				pick->obrittle = pick->obrittle2 = 3;
 				return(1);
 			    }
 			    ch = 75 + ACURR(A_DEX);
@@ -567,45 +655,68 @@ pick_lock_specific(pickp, cont, x, y)		/* pick a lock, on specific container if 
 
 		    switch(picktyp) {
 			case CREDIT_CARD:
-			    if(!rn2(isfriday ? 10 : Role_if(PM_LOCKSMITH) ? 40 : Role_if(PM_TOURIST) ? 30 : 20) &&
+			    if(!rn2(isfriday ? 10 : Role_if(PM_LOCKSMITH) ? 40 : (Role_if(PM_TOURIST) || Role_if(PM_CYBERNINJA)) ? 30 : 20) &&
 				    (!pick->blessed || !rn2(3)) && !pick->oartifact) {
 				You("break your card off in the door!");
 				useup(pick);
 				*pickp = (struct obj *)0;
 				return(0);
 			    }
-			    ch = 2*ACURR(A_DEX) + 20*Role_if(PM_ROGUE) + 40*Role_if(PM_LOCKSMITH);
+			    if(!rn2(isfriday ? 10 : Role_if(PM_LOCKSMITH) ? 40 : (Role_if(PM_TOURIST) || Role_if(PM_CYBERNINJA)) ? 30 : 20) &&
+				    (!pick->blessed || !rn2(3)) && pick->oartifact) {
+				Your("credit card becomes dull and is no longer capable of picking locks!");
+				pick->obrittle = pick->obrittle2 = 3;
+				return(0);
+			    }
+			    ch = 2*ACURR(A_DEX) + 20*Role_if(PM_ROGUE) + 40*Role_if(PM_LOCKSMITH) + 20*Role_if(PM_CYBERNINJA);
 			    break;
 			case DATA_CHIP:
-			    if(!rn2(isfriday ? 10 : Role_if(PM_LOCKSMITH) ? 40 : Role_if(PM_TOURIST) ? 30 : 20) &&
+			    if(!rn2(isfriday ? 10 : Role_if(PM_LOCKSMITH) ? 40 : (Role_if(PM_TOURIST) || Role_if(PM_CYBERNINJA)) ? 30 : 20) &&
 				    (!pick->blessed || !rn2(3)) && !pick->oartifact) {
 				You("break your chip off in the door!");
 				useup(pick);
 				*pickp = (struct obj *)0;
 				return(0);
 			    }
-			    ch = 2*ACURR(A_DEX) + 20*Role_if(PM_ROGUE) + 40*Role_if(PM_LOCKSMITH);
+			    if(!rn2(isfriday ? 10 : Role_if(PM_LOCKSMITH) ? 40 : (Role_if(PM_TOURIST) || Role_if(PM_CYBERNINJA)) ? 30 : 20) &&
+				    (!pick->blessed || !rn2(3)) && pick->oartifact) {
+				Your("data chip becomes dull and is no longer capable of picking locks!");
+				pick->obrittle = pick->obrittle2 = 3;
+				return(0);
+			    }
+			    ch = 2*ACURR(A_DEX) + 20*Role_if(PM_ROGUE) + 40*Role_if(PM_LOCKSMITH) + 20*Role_if(PM_CYBERNINJA);
 			    break;
 			case LOCK_PICK:
 			case HAIRCLIP:
-			    if(!rn2(isfriday ? 20 : Role_if(PM_LOCKSMITH) ? 60 : Role_if(PM_ROGUE) ? 40 : 30) &&
+			    if(!rn2(isfriday ? 20 : Role_if(PM_LOCKSMITH) ? 60 : (Role_if(PM_ROGUE) || Role_if(PM_CYBERNINJA)) ? 40 : 30) &&
 				    (!pick->blessed || !rn2(3)) && !pick->oartifact) {
 				You("break your pick!");
 				useup(pick);
 				*pickp = (struct obj *)0;
 				return(0);
 			    }
-			    ch = 3*ACURR(A_DEX) + 30*Role_if(PM_ROGUE) + 60*Role_if(PM_LOCKSMITH);
+			    if(!rn2(isfriday ? 20 : Role_if(PM_LOCKSMITH) ? 60 : (Role_if(PM_ROGUE) || Role_if(PM_CYBERNINJA)) ? 40 : 30) &&
+				    (!pick->blessed || !rn2(3)) && pick->oartifact) {
+				Your("pick becomes brittle and is no longer capable of picking locks!");
+				pick->obrittle = pick->obrittle2 = 3;
+				return(0);
+			    }
+			    ch = 3*ACURR(A_DEX) + 30*Role_if(PM_ROGUE) + 60*Role_if(PM_LOCKSMITH) + 30*Role_if(PM_CYBERNINJA);
 			    break;
 			case SKELETON_KEY:
 			case SECRET_KEY:
-			    if(!rn2(isfriday ? 7 : Role_if(PM_LOCKSMITH) ? 40 : 15) && (!pick->blessed || !rn2(3)) && !pick->oartifact) {
+			    if(!rn2(isfriday ? 7 : Role_if(PM_LOCKSMITH) ? 40 : Role_if(PM_CYBERNINJA) ? 30 : 15) && (!pick->blessed || !rn2(3)) && !pick->oartifact) {
 				Your("key wasn't designed for this door and broke!");
 				useup(pick);
 				*pickp = (struct obj *)0;
 				return(0);
 			    }
-			    ch = 70 + ACURR(A_DEX) + 10*Role_if(PM_LOCKSMITH);
+			    if(!rn2(isfriday ? 7 : Role_if(PM_LOCKSMITH) ? 40 : Role_if(PM_CYBERNINJA) ? 30 : 15) && (!pick->blessed || !rn2(3)) && pick->oartifact) {
+				Your("key becomes brittle and is no longer capable of picking locks!");
+				pick->obrittle = pick->obrittle2 = 3;
+				return(0);
+			    }
+			    ch = 70 + ACURR(A_DEX) + 10*Role_if(PM_LOCKSMITH) + 5*Role_if(PM_CYBERNINJA);
 			    break;
 			default:    ch = 0;
 		    }
@@ -624,7 +735,7 @@ pick_lock_specific(pickp, cont, x, y)		/* pick a lock, on specific container if 
 
 			/* artifact keys shouldn't be overpowered --Amy */
 
-		    if (!key && pick->oartifact && !issoviet) {
+		    if (!key && pick->oartifact && (pick->obrittle || pick->obrittle2) && !issoviet) {
 			    Your("key doesn't seem to fit.");
 			    return(0);
 		    }
@@ -638,6 +749,7 @@ pick_lock_specific(pickp, cont, x, y)		/* pick a lock, on specific container if 
 	xlock.picktyp = picktyp;
 	xlock.usedtime = 0;
 	set_occupation(picklock, lock_action(), 0);
+	if (AutoDestruct || u.uprops[AUTO_DESTRUCT].extrinsic || (uarmf && uarmf->oartifact == ART_KHOR_S_REQUIRED_IDEA) || have_autodestructstone()) picklock();
 	return(1);
 }
 
@@ -750,6 +862,9 @@ doforce()		/* try to force a chest with your weapon */
 	    return(0);
 	}
 
+	/* so we're trying to force something now, which means you touch your weapon; artifact can blast now --Amy */
+	if (!touch_artifact(uwep, &youmonst)) return 0;
+
 	if (is_lightsaber(uwep))
 	    picktyp = 2;
 	else
@@ -762,10 +877,12 @@ doforce()		/* try to force a chest with your weapon */
 		}
 		You("resume your attempt to force the lock.");
 		set_occupation(forcelock, "forcing the lock", 0);
+		if (AutoDestruct || u.uprops[AUTO_DESTRUCT].extrinsic || (uarmf && uarmf->oartifact == ART_KHOR_S_REQUIRED_IDEA) || have_autodestructstone()) forcelock();
 		return(1);
 	    } else if (xlock.door) {
 		You("resume your attempt to force the door.");
 		set_occupation(forcedoor, "forcing the door", 0);
+		if (AutoDestruct || u.uprops[AUTO_DESTRUCT].extrinsic || (uarmf && uarmf->oartifact == ART_KHOR_S_REQUIRED_IDEA) || have_autodestructstone()) forcedoor();
 		return(1);
 	    }
 	}
@@ -855,6 +972,7 @@ doforce()		/* try to force a chest with your weapon */
 	    if(xlock.box)   {
 	    	xlock.door = 0;
 	    	set_occupation(forcelock, "forcing the lock", 0);
+		if (AutoDestruct || u.uprops[AUTO_DESTRUCT].extrinsic || (uarmf && uarmf->oartifact == ART_KHOR_S_REQUIRED_IDEA) || have_autodestructstone()) forcelock();
 	    	return(1);
 	    }
 	    if (u.dz > 0) {
@@ -882,16 +1000,23 @@ doforce()		/* try to force a chest with your weapon */
 			if (Role_if(PM_JEDI) ? (u.uen < 5) : Race_if(PM_BORG) ? (u.uen < 7) : (u.uen < 10) ) pline("I don't think %s would appreciate that. Besides, you need %d mana in order to use the force.", mon_nam(mtmp), Role_if(PM_JEDI) ? 5 : 10);
 			else {
 
-				if (!UseTheForce || rn2(10)) u.uen -= (Role_if(PM_JEDI) ? 5 : Race_if(PM_BORG) ? 7 : 10);
+				if (!UseTheForce || rn2(StrongUseTheForce ? 3 : 10)) u.uen -= (Role_if(PM_JEDI) ? 5 : Race_if(PM_BORG) ? 7 : 10);
 
 				int dmg;
 				int mdx, mdy;
 				dmg = rnd(2) + dbon() + uwep->spe;
 				if (UseTheForce) dmg += 5;
+				if (StrongUseTheForce) dmg += 5;
 				if (tech_inuse(T_USE_THE_FORCE_LUKE)) dmg += techlevX(get_tech_no(T_USE_THE_FORCE_LUKE));
 				if (uarmg && uarmg->oartifact == ART_USE_THE_FORCE_LUKE) dmg += 10;
 				if (Role_if(PM_JEDI) && UseTheForce) dmg += u.ulevel;
 				else if (Race_if(PM_BORG) && UseTheForce) dmg += rnd(u.ulevel);
+				if (Role_if(PM_JEDI) && StrongUseTheForce) dmg += u.ulevel;
+				else if (Race_if(PM_BORG) && StrongUseTheForce) dmg += rnd(u.ulevel);
+
+				if (Role_if(PM_EMERA) && mtmp->data->msound == MS_SHOE) {
+					dmg += rnd(2 * u.ulevel);
+				}
 
 				if (!PlayerCannotUseSkills) {
 					switch (P_SKILL(P_WEDI)) {
@@ -909,12 +1034,15 @@ doforce()		/* try to force a chest with your weapon */
 				boolean trapkilled = FALSE;
 
 				pline("You use the force on %s.", mon_nam(mtmp));
+				u.cnd_forcecount++;
+
+				if (Role_if(PM_EMERA) && mtmp->data->msound == MS_SHOE) pline("Your %s furiously rip into %s. You evil bastard.", makeplural(body_part(HAND)), mon_nam(mtmp));
 
 				setmangry(mtmp);
 
 				if (uwep && is_lightsaber(uwep) && uwep->lamplit) {
 					u.uwediturns++;
-					if (u.uwediturns >= 5) {
+					if (u.uwediturns >= 2) {
 						u.uwediturns = 0;
 						use_skill(P_WEDI, 1);
 					}
@@ -949,7 +1077,7 @@ doforce()		/* try to force a chest with your weapon */
 #endif
 				}
 
-				if (mtmp->mhp > 0 && ( (UseTheForce && uwep && is_lightsaber(uwep) && uwep->lamplit && rn2(2) ) || (Role_if(PM_JEDI) ? (rnd(100) < (u.ulevel * 2) ) : (rnd(100) < u.ulevel) ) ) &&
+				if (mtmp->mhp > 0 && ( (UseTheForce && uwep && is_lightsaber(uwep) && uwep->lamplit && rn2(2) ) || (StrongUseTheForce && uwep && is_lightsaber(uwep) && uwep->lamplit && rn2(2) ) || (Role_if(PM_JEDI) ? (rnd(100) < (u.ulevel * 2) ) : (rnd(100) < u.ulevel) ) ) &&
 	    mtmp->mcanmove && mtmp != u.ustuck && !mtmp->mtrapped) {
 		/* see if the monster has a place to move into */
 				mdx = mtmp->mx + u.dx;
@@ -967,12 +1095,12 @@ doforce()		/* try to force a chest with your weapon */
 					}
 				}
 
-				(void) passive(mtmp, TRUE, mtmp->mhp > 0, AT_TUCH);
+				(void) passive(mtmp, TRUE, mtmp->mhp > 0, AT_TUCH, FALSE);
 				if (mtmp->mhp <= 0 && !trapkilled) killed(mtmp);
 
 				if (mtmp->mhp > 0 && (mtmp->data->msound == MS_FART_QUIET || (!rn2(5) && mtmp->egotype_farter) ) ) {
 					pline("You bash %s's %s butt using %s %s.", mon_nam(mtmp), mtmp->female ? "sexy" : "ugly", !rn2(3) ? "both your left and right" : rn2(2) ? "your left" : "your right", body_part(HAND) );
-					if (mtmp->butthurt < 20 && !rn2(3)) {
+					if (mtmp->butthurt < 20 && (!rn2(3) || Role_if(PM_EMERA)) ) {
 						mtmp->butthurt += rnd(5);
 						if (mtmp->butthurt < 5) pline("%s's %s butt is getting %s red bruises.", Monnam(mtmp), mtmp->female ? "sexy" : "ugly", mtmp->female ? "beautiful" : "intense");
 						else if (mtmp->butthurt < 9) pline("%s's %s butt is getting sore from your beating.", Monnam(mtmp), mtmp->female ? "sexy" : "ugly");
@@ -987,7 +1115,7 @@ doforce()		/* try to force a chest with your weapon */
 				}
 				if (mtmp->mhp > 0 && (mtmp->data->msound == MS_FART_NORMAL || (!rn2(5) && mtmp->egotype_farter) ) ) {
 					pline("You bash %s's %s butt using %s %s.", mon_nam(mtmp), mtmp->female ? "sexy" : "ugly", !rn2(3) ? "both your left and right" : rn2(2) ? "your left" : "your right", body_part(HAND) );
-					if (mtmp->butthurt < 20 && !rn2(3)) {
+					if (mtmp->butthurt < 20 && (!rn2(3) || Role_if(PM_EMERA)) ) {
 						mtmp->butthurt += rnd(3);
 						if (mtmp->butthurt < 5) pline("%s's %s butt is getting %s red bruises.", Monnam(mtmp), mtmp->female ? "sexy" : "ugly", mtmp->female ? "beautiful" : "intense");
 						else if (mtmp->butthurt < 9) pline("%s's %s butt is getting sore from your beating.", Monnam(mtmp), mtmp->female ? "sexy" : "ugly");
@@ -1004,7 +1132,7 @@ doforce()		/* try to force a chest with your weapon */
 				}
 				if (mtmp->mhp > 0 && (mtmp->data->msound == MS_FART_LOUD || (!rn2(5) && mtmp->egotype_farter) ) ) {
 					pline("You bash %s's %s butt using %s %s.", mon_nam(mtmp), mtmp->female ? "sexy" : "ugly", !rn2(3) ? "both your left and right" : rn2(2) ? "your left" : "your right", body_part(HAND) );
-					if (mtmp->butthurt < 20 && !rn2(3)) {
+					if (mtmp->butthurt < 20 && (!rn2(3) || Role_if(PM_EMERA)) ) {
 						mtmp->butthurt += 1;
 						if (mtmp->butthurt < 5) pline("%s's %s butt is getting %s red bruises.", Monnam(mtmp), mtmp->female ? "sexy" : "ugly", mtmp->female ? "beautiful" : "intense");
 						else if (mtmp->butthurt < 9) pline("%s's %s butt is getting sore from your beating.", Monnam(mtmp), mtmp->female ? "sexy" : "ugly");
@@ -1040,8 +1168,12 @@ doforce()		/* try to force a chest with your weapon */
 				if (rn2(20)) pline("It doesn't seem to have any effect.");
 				else {
 					pline("The farmland disappears.");
+					u.cnd_farmlandremoved++;
 					levl[x][y].typ = CORR;
 					newsym(x,y);
+					blockorunblock_point(x,y);
+					more_experienced(25, 0);
+					newexplevel();
 				}
 				return(1);
 			}
@@ -1093,6 +1225,7 @@ doforce()		/* try to force a chest with your weapon */
 		    xlock.door = door;
 		    xlock.box = 0;
 		    set_occupation(forcedoor, "forcing the door", 0);
+		    if (AutoDestruct || u.uprops[AUTO_DESTRUCT].extrinsic || (uarmf && uarmf->oartifact == ART_KHOR_S_REQUIRED_IDEA) || have_autodestructstone()) forcedoor();
 	return(1);
 	    }
 	}
@@ -1370,7 +1503,18 @@ register struct obj *obj, *otmp;	/* obj *is* a box */
 
 	switch(otmp->otyp) {
 	case WAN_LOCKING:
+	    if (!obj->olocked) {	/* lock it; fix if broken */
+		pline("Klunk!");
+		obj->olocked = 1;
+		obj->obroken = 0;
+		res = 1;
+	    } /* else already closed and locked */
+	    break;
 	case SPE_WIZARD_LOCK:
+	    if (Role_if(PM_LOCKSMITH) ? !rn2(100) : rn2(2)) {
+		if (!rn2(10)) containerkaboom();
+		break;
+	    }
 	    if (!obj->olocked) {	/* lock it; fix if broken */
 		pline("Klunk!");
 		obj->olocked = 1;
@@ -1379,7 +1523,18 @@ register struct obj *obj, *otmp;	/* obj *is* a box */
 	    } /* else already closed and locked */
 	    break;
 	case WAN_OPENING:
+	    if (obj->olocked) {		/* unlock; couldn't be broken */
+		pline("Klick!");
+		obj->olocked = 0;
+		res = 1;
+	    } else			/* silently fix if broken */
+		obj->obroken = 0;
+	    break;
 	case SPE_KNOCK:
+	    if (Role_if(PM_LOCKSMITH) ? !rn2(50) : rn2(3)) {
+		if (!rn2(10)) containerkaboom();
+		break;
+	    }
 	    if (obj->olocked) {		/* unlock; couldn't be broken */
 		pline("Klick!");
 		obj->olocked = 0;
@@ -1388,6 +1543,11 @@ register struct obj *obj, *otmp;	/* obj *is* a box */
 		obj->obroken = 0;
 	    break;
 	case SPE_LOCK_MANIPULATION:
+
+	    if (Role_if(PM_LOCKSMITH) ? !rn2(50) : rn2(3)) {
+		if (!rn2(10)) containerkaboom();
+		break;
+	    }
 
 		if (!rn2(2)) {
 		    if (!obj->olocked) {	/* lock it; fix if broken */
@@ -1476,10 +1636,7 @@ int x, y;
 	if (door->typ == SDOOR) {
 	    switch (otmp->otyp) {
 
-	    case SPE_LOCK_MANIPULATION:
-			if (rn2(2)) return FALSE; /* fall through */
 	    case WAN_OPENING:
-	    case SPE_KNOCK:
 	    case WAN_STRIKING:
 	    case WAN_GRAVITY_BEAM:
 	    case SPE_GRAVITY_BEAM:
@@ -1493,9 +1650,42 @@ int x, y;
 		}
 		newsym(x,y);
 		if (cansee(x,y)) pline("A door appears in the wall!");
-		if (otmp->otyp == WAN_OPENING || otmp->otyp == SPE_KNOCK || otmp->otyp == SPE_LOCK_MANIPULATION)
+		if (otmp->otyp == WAN_OPENING || otmp->otyp == SPE_LOCK_MANIPULATION)
 		    return TRUE;
 		break;		/* striking: continue door handling below */
+
+	    case SPE_LOCK_MANIPULATION:
+		if (rn2(2)) return FALSE;
+		if (Role_if(PM_LOCKSMITH) ? !rn2(50) : rn2(3)) {
+			if (!rn2(10)) containerkaboom();
+			return TRUE;
+		}
+
+		if (key)	/* Artifact doors are revealed only */
+		    cvt_sdoor_to_door(door);
+		else {
+		door->typ = DOOR;
+		door->doormask = D_CLOSED | (door->doormask & D_TRAPPED);
+		}
+		newsym(x,y);
+		if (cansee(x,y)) pline("A door appears in the wall!");
+		return TRUE;
+
+	    case SPE_KNOCK:
+		if (Role_if(PM_LOCKSMITH) ? !rn2(50) : rn2(3)) {
+			if (!rn2(10)) containerkaboom();
+			return TRUE;
+		}
+
+		if (key)	/* Artifact doors are revealed only */
+		    cvt_sdoor_to_door(door);
+		else {
+		door->typ = DOOR;
+		door->doormask = D_CLOSED | (door->doormask & D_TRAPPED);
+		}
+		newsym(x,y);
+		if (cansee(x,y)) pline("A door appears in the wall!");
+		return TRUE;
 	    case WAN_LOCKING:
 	    case SPE_WIZARD_LOCK:
 	    default:
@@ -1516,6 +1706,26 @@ int x, y;
 		} /* else fall through */
 	case WAN_LOCKING:
 	case SPE_WIZARD_LOCK:
+
+	    if (otmp->otyp == SPE_WIZARD_LOCK && (Role_if(PM_LOCKSMITH) ? !rn2(150) : !rn2(3))) {
+		if (!rn2(10)) containerkaboom();
+		return FALSE;
+	    }
+	    if (otmp->otyp == SPE_LOCK_MANIPULATION && (Role_if(PM_LOCKSMITH) ? !rn2(50) : rn2(3))) {
+		if (!rn2(10)) containerkaboom();
+		return FALSE;
+	    }
+
+	    if (door->doormask == D_BROKEN && otmp->otyp == SPE_WIZARD_LOCK && (Role_if(PM_LOCKSMITH) ? !rn2(50) : rn2(3))) {
+		if (!rn2(10)) containerkaboom();
+		return FALSE;
+	    }
+	    if (door->doormask == D_NODOOR && otmp->otyp == SPE_WIZARD_LOCK && (Role_if(PM_LOCKSMITH) ? !rn2(100) : rn2(2))) {
+		if (!rn2(10)) containerkaboom();
+		return FALSE;
+	    }
+
+
 #ifdef REINCARNATION
 	    if (Is_rogue_level(&u.uz)) {
 	    	boolean vis = cansee(x,y);
@@ -1581,7 +1791,16 @@ int x, y;
 	    newsym(x,y);
 	    break;
 	case WAN_OPENING:
+	    if (!key && door->doormask & D_LOCKED) {
+		msg = "The door unlocks!";
+		door->doormask = D_CLOSED | (door->doormask & D_TRAPPED);
+	    } else res = FALSE;
+	    break;
 	case SPE_KNOCK:
+	    if (Role_if(PM_LOCKSMITH) ? !rn2(50) : rn2(3)) {
+		if (!rn2(10)) containerkaboom();
+		break;
+	    }
 	    if (!key && door->doormask & D_LOCKED) {
 		msg = "The door unlocks!";
 		door->doormask = D_CLOSED | (door->doormask & D_TRAPPED);
@@ -1624,7 +1843,7 @@ int x, y;
 		loudness = 20;
 	    } else res = FALSE;
 	    break;
-	default: impossible("magic (%d) attempted on door.", otmp->otyp);
+	default: impossible("magic (%ld) attempted on door.", otmp->otyp);
 	    break;
 	}
 	if (msg && cansee(x,y)) pline("%s", msg);
@@ -1662,24 +1881,27 @@ struct obj *otmp;
 	Blinded = 1;
 	thing = singular(otmp, xname);
 	Blinded = save_Blinded;
+	/* Amy grepping target: "materialeffect" */
 	switch (objects[otmp->otyp].oc_material) {
-	case PAPER:	disposition = "is torn to shreds";
+	case MT_PAPER:	disposition = "is torn to shreds";
 		break;
-	case WAX:	disposition = "is crushed";
+	case MT_WAX:	disposition = "is crushed";
 		break;
-	case VEGGY:	disposition = "is pulped";
+	case MT_VEGGY:	disposition = "is pulped";
 		break;
-	case FLESH:	disposition = "is mashed";
+	case MT_FLESH:	disposition = "is mashed";
 		break;
-	case TAR:	disposition = "breaks apart";
+	case MT_TAR:	disposition = "breaks apart";
 		break;
-	case GLASS:	disposition = "shatters";
+	case MT_GLASS:	disposition = "shatters";
 		break;
-	case VIVA:	disposition = "disintegrates";
+	case MT_VIVA:	disposition = "disintegrates";
 		break;
-	case SECREE:	disposition = "decomposes";
+	case MT_SECREE:	disposition = "decomposes";
 		break;
-	case WOOD:	disposition = "splinters to fragments";
+	case MT_WOOD:	disposition = "splinters to fragments";
+		break;
+	case MT_SHADOWSTUFF:	disposition = "is swallowed";
 		break;
 	default:	disposition = "is destroyed";
 		break;

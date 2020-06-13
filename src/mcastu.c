@@ -60,6 +60,7 @@ STATIC_DCL boolean is_undirected_spell(unsigned int,int);
 STATIC_DCL boolean is_melee_spell(unsigned int,int);
 STATIC_DCL boolean spell_would_be_useless(struct monst *,unsigned int,int);
 STATIC_PTR void set_litZ(int,int,void *);
+STATIC_DCL boolean arcaniumfail(void);
 
 #ifdef OVL0
 
@@ -77,13 +78,13 @@ boolean undirected;
 
 	    if (undirected)
 		point_msg = "all around, then curses";
-	    else if ((Invis && !perceives(mtmp->data) &&
+	    else if ((Invis && !perceives(mtmp->data) && (StrongInvis || !rn2(3)) &&
 			(mtmp->mux != u.ux || mtmp->muy != u.uy)) ||
 		    (youmonst.m_ap_type == M_AP_OBJECT &&
 			youmonst.mappearance == STRANGE_OBJECT) ||
 		    u.uundetected)
 		point_msg = "and curses in your general direction";
-	    else if (Displaced && (mtmp->mux != u.ux || mtmp->muy != u.uy))
+	    else if (Displaced && (StrongDisplaced || !rn2(3)) && (mtmp->mux != u.ux || mtmp->muy != u.uy))
 		point_msg = "and curses at your displaced image";
 	    else
 		point_msg = "at you, then curses";
@@ -97,14 +98,63 @@ boolean undirected;
 #endif /* OVL0 */
 #ifdef OVLB
 
+/* will a monster fail to cast a spell? this happens if you wear arcanium equipment --Amy
+ * it's not a bug that this can also affect spellcasting pets; returns TRUE if the monster actually fails to cast */
+STATIC_OVL boolean
+arcaniumfail()
+{
+	if (uwep && objects[uwep->otyp].oc_material == MT_ARCANIUM && !rn2(20)) {
+		return TRUE;
+	}
+	if (u.twoweap && uswapwep && objects[uswapwep->otyp].oc_material == MT_ARCANIUM && !rn2(20)) {
+		return TRUE;
+	}
+	if (uarm && objects[uarm->otyp].oc_material == MT_ARCANIUM && !rn2(20)) {
+		return TRUE;
+	}
+	if (uarmc && objects[uarmc->otyp].oc_material == MT_ARCANIUM && !rn2(20)) {
+		return TRUE;
+	}
+	if (uarmh && objects[uarmh->otyp].oc_material == MT_ARCANIUM && !rn2(20)) {
+		return TRUE;
+	}
+	if (uarms && objects[uarms->otyp].oc_material == MT_ARCANIUM && !rn2(20)) {
+		return TRUE;
+	}
+	if (uarmg && objects[uarmg->otyp].oc_material == MT_ARCANIUM && !rn2(20)) {
+		return TRUE;
+	}
+	if (uarmf && objects[uarmf->otyp].oc_material == MT_ARCANIUM && !rn2(20)) {
+		return TRUE;
+	}
+	if (uarmu && objects[uarmu->otyp].oc_material == MT_ARCANIUM && !rn2(20)) {
+		return TRUE;
+	}
+	if (uamul && objects[uamul->otyp].oc_material == MT_ARCANIUM && !rn2(20)) {
+		return TRUE;
+	}
+	if (uimplant && objects[uimplant->otyp].oc_material == MT_ARCANIUM && !rn2(20)) {
+		return TRUE;
+	}
+	if (uleft && objects[uleft->otyp].oc_material == MT_ARCANIUM && !rn2(20)) {
+		return TRUE;
+	}
+	if (uright && objects[uright->otyp].oc_material == MT_ARCANIUM && !rn2(20)) {
+		return TRUE;
+	}
+	if (ublindf && objects[ublindf->otyp].oc_material == MT_ARCANIUM && !rn2(20)) {
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 /* convert a level based random selection into a specific mage spell;
    inappropriate choices will be screened out by spell_would_be_useless() */
 STATIC_OVL int
 choose_magic_spell(spellval)
 int spellval;
 {
-    if (!issoviet && !rn2(2)) return MGC_PSI_BOLT;
-
     switch (spellval) {
     case 45:
 	if (!rn2(25)) return MGC_DIVINE_WRATH; /* waaaay too overpowered, so this will appear much more rarely --Amy */
@@ -122,8 +172,7 @@ int spellval;
     case 39:
 	return MGC_HASTE_SELF;
     case 38:
-	if (!rn2(2)) return MGC_AGGRAVATION;
-	else return MGC_SUMMON_MONS;
+	return MGC_SUMMON_MONS;
     case 37:
     case 36:
 	return MGC_AGGRAVATION;
@@ -136,8 +185,7 @@ int spellval;
     case 33:
 	return MGC_CURSE_ITEMS;
     case 32:
-	if (!rn2(2)) return MGC_AGGRAVATION;
-	else return MGC_CALL_UNDEAD;
+	return MGC_CALL_UNDEAD;
     case 31:
 	if (!rn2(4)) return MGC_WITHER;
 	else if (!rn2(2)) return MGC_DAMAGE_ARMR;
@@ -174,8 +222,7 @@ int spellval;
     case 16:
 	return MGC_HASTE_SELF;
     case 15:
-	if (!rn2(2)) return MGC_AGGRAVATION;
-	else return MGC_SUMMON_MONS;
+	return MGC_SUMMON_MONS;
     case 14:
     case 13:
 	return MGC_AGGRAVATION;
@@ -188,8 +235,7 @@ int spellval;
     case 10:
 	return MGC_CURSE_ITEMS;
     case 9:
-	if (!rn2(2)) return MGC_AGGRAVATION;
-	else return MGC_CALL_UNDEAD;
+	return MGC_CALL_UNDEAD;
     case 8:
 	if (!rn2(4)) return MGC_WITHER;
 	else if (!rn2(2)) return MGC_DAMAGE_ARMR;
@@ -220,12 +266,9 @@ choose_clerical_spell(spellnum)
 int spellnum;
 {
 
-    if (!issoviet && !rn2(2)) return CLC_OPEN_WOUNDS;
-
     switch (spellnum) {
     case 41:
-	/*if (rn2(10)) */return CLC_GEYSER;
-	/*else return CLC_PETRIFY;*/ /* this is incorporated into CLC_GEYSER now, see below --Amy */
+	return CLC_GEYSER;
     case 40:
 	return CLC_FIRE_PILLAR;
     case 39:
@@ -236,7 +279,7 @@ int spellnum;
 	return CLC_CURSE_ITEMS;
     case 36:
 	if (rn2(2)) return CLC_RANDOM;
-	else if (!rn2(3)) return CLC_AGGRAVATION;
+	else if (!rn2(50)) return CLC_AGGRAVATION;
 	else return CLC_INSECTS;
     case 35:
 	return CLC_FREEZE_YOU;
@@ -255,8 +298,7 @@ int spellnum;
     case 28:
 	return (rn2(10) ? CLC_OPEN_WOUNDS : CLC_VULN_YOU);
     case 27:
-	/*if (rn2(10)) */return CLC_GEYSER;
-	/*else return CLC_PETRIFY;*/ /* this is incorporated into CLC_GEYSER now, see below --Amy */
+	return CLC_GEYSER;
     case 26:
 	return CLC_FIRE_PILLAR;
     case 25:
@@ -267,7 +309,7 @@ int spellnum;
 	return CLC_CURSE_ITEMS;
     case 22:
 	if (rn2(2)) return CLC_RANDOM;
-	else if (!rn2(3)) return CLC_AGGRAVATION;
+	else if (!rn2(50)) return CLC_AGGRAVATION;
 	else return CLC_INSECTS;
     case 21:
 	return CLC_FREEZE_YOU;
@@ -286,8 +328,7 @@ int spellnum;
     case 14:
 	return (rn2(10) ? CLC_OPEN_WOUNDS : CLC_VULN_YOU);
     case 13:
-	/*if (rn2(10)) */return CLC_GEYSER;
-	/*else return CLC_PETRIFY;*/ /* this is incorporated into CLC_GEYSER now, see below --Amy */
+	return CLC_GEYSER;
     case 12:
 	return CLC_FIRE_PILLAR;
     case 11:
@@ -298,7 +339,7 @@ int spellnum;
 	return CLC_CURSE_ITEMS;
     case 8:
 	if (rn2(2)) return CLC_RANDOM;
-	else if (!rn2(3)) return CLC_AGGRAVATION;
+	else if (!rn2(50)) return CLC_AGGRAVATION;
 	else return CLC_INSECTS;
     case 7:
 	return CLC_FREEZE_YOU;
@@ -400,7 +441,7 @@ castmu(mtmp, mattk, thinks_it_foundyou, foundyou)
 	}
 
 	/* monster unable to cast spells? */
-	if (mtmp->mcan || (RngeAntimagicA && !rn2(10)) || (RngeAntimagicB && !rn2(5)) || (RngeAntimagicC && !rn2(2)) || (RngeAntimagicD) || (RngeSpellDisruption && !rn2(5)) || mtmp->m_en < 5 || mtmp->mspec_used || !ml || u.antimagicshell || (uarmc && uarmc->oartifact == ART_SHELLY && (moves % 3 == 0)) || (uarmc && uarmc->oartifact == ART_BLACK_VEIL_OF_BLACKNESS) || (uarmc && uarmc->oartifact == ART_ARABELLA_S_WAND_BOOSTER) || (uarmu && uarmu->oartifact == ART_ANTIMAGIC_SHELL) || (uarmu && uarmu->oartifact == ART_ANTIMAGIC_FIELD) || Role_if(PM_UNBELIEVER) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "void cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "nedeystvitel'nym plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "haqiqiy emas plash") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "shell cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "plashch obolochki") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "qobiq plash") ) && !rn2(5))  ) {
+	if (mtmp->mcan || arcaniumfail() || (RngeAntimagicA && !rn2(10)) || (RngeAntimagicB && !rn2(5)) || (RngeAntimagicC && !rn2(2)) || (RngeAntimagicD) || (RngeSpellDisruption && !rn2(5)) || mtmp->m_en < 5 || mtmp->mspec_used || !ml || u.antimagicshell || (uarmh && uarmh->otyp == HELM_OF_ANTI_MAGIC) || (uarmc && uarmc->oartifact == ART_SHELLY && (moves % 3 == 0)) || (uarmc && uarmc->oartifact == ART_BLACK_VEIL_OF_BLACKNESS) || (uarmc && uarmc->oartifact == ART_ARABELLA_S_WAND_BOOSTER) || (uarmu && uarmu->oartifact == ART_ANTIMAGIC_SHELL) || (uarmu && uarmu->oartifact == ART_ANTIMAGIC_FIELD) || Role_if(PM_UNBELIEVER) || (uarmc && (itemhasappearance(uarmc, APP_VOID_CLOAK) || itemhasappearance(uarmc, APP_SHELL_CLOAK)) && !rn2(5))  ) {
 	    cursetxt(mtmp, is_undirected_spell(mattk->adtyp, spellnum));
 	    return(0);
 	}
@@ -482,10 +523,10 @@ castmu(mtmp, mattk, thinks_it_foundyou, foundyou)
 	    pline("%s casts a spell%s!",
 		  canspotmon(mtmp) ? Monnam(mtmp) : "Something",
 		  is_undirected_spell(mattk->adtyp, spellnum) ? "" :
-		  (Invisible && !perceives(mtmp->data) && 
+		  (Invisible && !perceives(mtmp->data) && (StrongInvis || !rn2(3)) && 
 		   (mtmp->mux != u.ux || mtmp->muy != u.uy)) ?
 		  " at a spot near you" :
-		  (Displaced && (mtmp->mux != u.ux || mtmp->muy != u.uy)) ?
+		  (Displaced && (StrongDisplaced || !rn2(3)) && (mtmp->mux != u.ux || mtmp->muy != u.uy)) ?
 		  " at your displaced image" :
 		  " at you");
 	} else if (flags.soundok && !issoviet) You_hear("a mumbled incantation.");
@@ -506,6 +547,7 @@ castmu(mtmp, mattk, thinks_it_foundyou, foundyou)
 	    dmg = d((int)((ml/2) + mattk->damn), (int)mattk->damd);
 	else dmg = d((int)((ml/2) + 1), 6);
 	if (Half_spell_damage && rn2(2) ) dmg = (dmg+1) / 2;
+	if (StrongHalf_spell_damage && rn2(2) ) dmg = (dmg+1) / 2;
 
 	ret = 1;
 
@@ -513,7 +555,7 @@ castmu(mtmp, mattk, thinks_it_foundyou, foundyou)
 
 	    case AD_FIRE:
 		pline("You're enveloped in flames.");
-		if(Fire_resistance && rn2(20) ) {
+		if(Fire_resistance && rn2(StrongFire_resistance ? 20 : 5) ) {
 			shieldeff(u.ux, u.uy);
 			pline("But you resist the effects.");
 			dmg = 0;
@@ -526,7 +568,7 @@ castmu(mtmp, mattk, thinks_it_foundyou, foundyou)
 		break;
 	    case AD_COLD:
 		pline("You're covered in frost.");
-		if(Cold_resistance && rn2(20) ) {
+		if(Cold_resistance && rn2(StrongCold_resistance ? 20 : 5) ) {
 			shieldeff(u.ux, u.uy);
 			pline("But you resist the effects.");
 			dmg = 0;
@@ -534,7 +576,7 @@ castmu(mtmp, mattk, thinks_it_foundyou, foundyou)
 		break;
 	    case AD_ACID:
 		pline("You're covered in acid.");
-		if(Acid_resistance && rn2(20) ) {
+		if(Acid_resistance && rn2(StrongAcid_resistance ? 20 : 5) ) {
 			shieldeff(u.ux, u.uy);
 			pline("But you resist the effects.");
 			dmg = 0;
@@ -542,7 +584,7 @@ castmu(mtmp, mattk, thinks_it_foundyou, foundyou)
 		break;
 	    case AD_ELEC:
 		pline("You're shocked.");
-		if(Shock_resistance && rn2(20) ) {
+		if(Shock_resistance && rn2(StrongShock_resistance ? 20 : 5) ) {
 			shieldeff(u.ux, u.uy);
 			pline("But you resist the effects.");
 			dmg = 0;
@@ -550,7 +592,7 @@ castmu(mtmp, mattk, thinks_it_foundyou, foundyou)
 		break;
 	    case AD_DRST:
 		pline("You're poisoned.");
-		if(Poison_resistance && rn2(20) ) {
+		if(Poison_resistance && rn2(StrongPoison_resistance ? 20 : 5) ) {
 			shieldeff(u.ux, u.uy);
 			pline("But you resist the effects.");
 			dmg = 0;
@@ -569,7 +611,7 @@ castmu(mtmp, mattk, thinks_it_foundyou, foundyou)
 		}
 		break;
 	    case AD_SPC2:
-		if (Psi_resist && rn2(20)) {
+		if (Psi_resist && rn2(StrongPsi_resist ? 100 : 20)) {
 			shieldeff(u.ux, u.uy);
 			pline("Something focuses on your mind, but you resist the effects.");
 			dmg = 0;
@@ -613,8 +655,8 @@ castmu(mtmp, mattk, thinks_it_foundyou, foundyou)
 			losexp("psionic drain", FALSE, TRUE);
 		}
 		if (!rn2(200)) {
-			adjattrib(A_INT, -1, 1);
-			adjattrib(A_WIS, -1, 1);
+			adjattrib(A_INT, -1, 1, TRUE);
+			adjattrib(A_WIS, -1, 1, TRUE);
 		}
 		if (!rn2(200)) {
 			pline("You scream in pain!");
@@ -628,12 +670,12 @@ castmu(mtmp, mattk, thinks_it_foundyou, foundyou)
 		break;
 	    case AD_DISN:
 		verbalize("Avada Kedavra!");
-		if((Antimagic && rn2(20) ) || nonliving(youmonst.data) || is_demon(youmonst.data) || Death_resistance || Invulnerable || (Stoned_chiller && Stoned)) {
+		if((Antimagic && rn2(StrongAntimagic ? 20 : 5) ) || nonliving(youmonst.data) || is_demon(youmonst.data) || Death_resistance || Invulnerable || (Stoned_chiller && Stoned)) {
 			shieldeff(u.ux, u.uy);
 			pline("But you resist the effects.");
 			dmg = 0;
 		}
-		else if (!Antimagic && !rn2(20)) {
+		else if (!PlayerResistsDeathRays && !rn2(20)) {
 		    u.youaredead = 1;
 		    killer_format = KILLED_BY_AN;
 		    killer = "Avada Kedavra curse";
@@ -644,7 +686,7 @@ castmu(mtmp, mattk, thinks_it_foundyou, foundyou)
 		break;
 	    case AD_MAGM:
 		You("are hit by a shower of missiles!");
-		if(Antimagic && rn2(20) ) {
+		if(Antimagic && !Race_if(PM_KUTAR) && rn2(StrongAntimagic ? 20 : 5) ) {
 			shieldeff(u.ux, u.uy);
 			pline_The("missiles bounce off!");
 			dmg = 0;
@@ -707,10 +749,10 @@ int spellnum;
 	pline("Oh no, %s's using the touch of death!", mhe(mtmp));
 	if (nonliving(youmonst.data) || is_demon(youmonst.data) || Death_resistance) {
 	    You("seem no deader than before.");
-	} else if (!Antimagic && rn2(mtmp->m_lev) > 12) {
+	} else if ((!Antimagic || rn2(StrongAntimagic ? 20 : 5)) && rn2(mtmp->m_lev) > 12) {
 	    if (Hallucination) {
 		You("have an out of body experience.");
-	    } else if (!rnd(50)) {
+	    } else if (!rnd(50) && !Antimagic) {
 		u.youaredead = 1;
 		killer_format = KILLED_BY_AN;
 		killer = "touch of death";
@@ -720,7 +762,7 @@ int spellnum;
 			dmg = d(8,6);
 			/* Magic resistance or half spell damage will cut this in half... */
 			/* and also prevent a reduction of maximum hit points */
-			if (Antimagic || (Half_spell_damage && rn2(2)) ) {
+			if (Antimagic || (Half_spell_damage && rn2(2)) || (StrongHalf_spell_damage && rn2(2)) ) {
 				shieldeff(u.ux, u.uy);
 				dmg /= 2;
 				u.uhpmax -= dmg/2;
@@ -745,7 +787,7 @@ int spellnum;
 	break;
     case MGC_CREATE_POOL:
 	if (levl[u.ux][u.uy].typ == ROOM || levl[u.ux][u.uy].typ == CORR) {
-	    pline(Hallucination ? "Huh - the ground suddenly turned into a swimming pool!" : "A pool appears beneath you!");
+	    pline(FunnyHallu ? "Huh - the ground suddenly turned into a swimming pool!" : "A pool appears beneath you!");
 	    levl[u.ux][u.uy].typ = POOL;
 	    del_engr_at(u.ux, u.uy);
 	    water_damage(level.objects[u.ux][u.uy], FALSE, TRUE);
@@ -757,9 +799,11 @@ int spellnum;
 	break;
 
     case MGC_MEGALOAD:
-	if ((otmp = mksobj(LOADSTONE, TRUE, FALSE)) != (struct obj *)0) {
-	pline(Hallucination ? "Aww, something's killing your good feelings!" : "You feel burdened");
-	if (pickup_object(otmp, 1, FALSE) <= 0) {
+	if ((otmp = mksobj(LOADSTONE, TRUE, FALSE, FALSE)) != (struct obj *)0) {
+	pline(FunnyHallu ? "Aww, something's killing your good feelings!" : "You feel burdened");
+	otmp->quan = 1;
+	otmp->owt = weight(otmp);
+	if (pickup_object(otmp, 1, FALSE, TRUE) <= 0) {
 	obj_extract_self(otmp);
 	place_object(otmp, u.ux, u.uy);
 	newsym(u.ux, u.uy); }
@@ -769,7 +813,7 @@ int spellnum;
 	break;
 
     case MGC_LEVITATE:
-	pline(Hallucination ? "Wow... you're suddenly walking on air!" : "You float up!");
+	pline(FunnyHallu ? "Wow... you're suddenly walking on air!" : "You float up!");
 	HLevitation &= ~I_SPECIAL;
 	incr_itimeout(&HLevitation, rnz(50));
 
@@ -778,12 +822,12 @@ int spellnum;
 
     case MGC_CLONE_WIZ:
 	if (mtmp->iswiz && (flags.no_of_wizards == 1 || !rn2(20)) ) { /* let's have a small chance of triple trouble --Amy */
-	    if (flags.no_of_wizards == 1) pline(Hallucination ? "Doublevision!" : "Double Trouble...");
-	    else pline(Hallucination ? "Triplevision!" : "Triple Trouble...");
+	    if (flags.no_of_wizards == 1) pline(FunnyHallu ? "Doublevision!" : "Double Trouble...");
+	    else pline(FunnyHallu ? "Triplevision!" : "Triple Trouble...");
 	    clonewiz();
 	    dmg = 0;
 	} else
-	    pline(Hallucination ? "For a moment you had triplevision, but seeing double is funny enough." : "For a moment you saw another Wizard, but it disappeared.");
+	    pline(FunnyHallu ? "For a moment you had triplevision, but seeing double is funny enough." : "For a moment you saw another Wizard, but it disappeared.");
 	break;
     case MGC_SUMMON_MONS:
     {
@@ -798,10 +842,10 @@ int spellnum;
 
 	    /* messages not quite right if plural monsters created but
 	       only a single monster is seen */
-	    if (Invisible && !perceives(mtmp->data) &&
+	    if (Invisible && !perceives(mtmp->data) && (StrongInvis || !rn2(3)) &&
 				    (mtmp->mux != u.ux || mtmp->muy != u.uy))
 		pline("%s around a spot near you!", mappear);
-	    else if (Displaced && (mtmp->mux != u.ux || mtmp->muy != u.uy))
+	    else if (Displaced && (StrongDisplaced || !rn2(3)) && (mtmp->mux != u.ux || mtmp->muy != u.uy))
 		pline("%s around your displaced image!", mappear);
 	    else
 		pline("%s from nowhere!", mappear);
@@ -824,10 +868,10 @@ int spellnum;
 
 	    /* messages not quite right if plural monsters created but
 	       only a single monster is seen */
-	    if (Invisible && !perceives(mtmp->data) &&
+	    if (Invisible && !perceives(mtmp->data) && (StrongInvis || !rn2(3)) &&
 				    (mtmp->mux != u.ux || mtmp->muy != u.uy))
 		pline("%s around a spot near you!", mappear);
-	    else if (Displaced && (mtmp->mux != u.ux || mtmp->muy != u.uy))
+	    else if (Displaced && (StrongDisplaced || !rn2(3)) && (mtmp->mux != u.ux || mtmp->muy != u.uy))
 		pline("%s around your displaced image!", mappear);
 	    else
 		pline("%s from nowhere!", mappear);
@@ -839,11 +883,11 @@ int spellnum;
 
 	case MGC_CALL_UNDEAD:
 	{
-		coord mm;   
-		mm.x = u.ux;   
-		mm.y = u.uy;   
+		coord mm;
+		mm.x = u.ux;
+		mm.y = u.uy;
 		pline("Undead creatures are called forth from the grave!");   
-		mkundead(&mm, FALSE, 0);   
+		mkundead(&mm, FALSE, 0, FALSE);
 	}
 	dmg = 0;   
 	break;   
@@ -860,7 +904,7 @@ int spellnum;
 	dmg = 0;
 	break;
     case MGC_DESTRY_ARMR:
-	if (Antimagic && rn2(20)) {
+	if (Antimagic && rn2(StrongAntimagic ? 20 : 5)) {
 	    shieldeff(u.ux, u.uy);
 	    pline("A field of force surrounds you!");
 	} else {
@@ -919,7 +963,7 @@ int spellnum;
 							}
 						}
 
-						if (untamingchance > rnd(10) && !((rnd(30 - ACURR(A_CHA))) < 4) ) {
+						if (untamingchance > rnd(10) && !(Role_if(PM_DRAGONMASTER) && uarms && Is_dragon_shield(uarms) && mtmp2->data->mlet == S_DRAGON) && !((rnd(30 - ACURR(A_CHA))) < 4) ) {
 
 							mtmp2->mtame = mtmp2->mpeaceful = 0;
 							if (mtmp2->mleashed) { m_unleash(mtmp2,FALSE); }
@@ -960,7 +1004,7 @@ int spellnum;
 		break;
 
     case MGC_WITHER:
-	if (Antimagic && rn2(5)) {
+	if (Antimagic && rn2(StrongAntimagic ? 5 : 3)) {
 	    shieldeff(u.ux, u.uy);
 	    pline("A field of force surrounds you!");
 	} else {
@@ -1006,7 +1050,7 @@ int spellnum;
 	dmg = 0;
 	break;
     case MGC_DAMAGE_ARMR:
-	if (Antimagic && rn2(5)) {
+	if (Antimagic && rn2(StrongAntimagic ? 5 : 3)) {
 	    shieldeff(u.ux, u.uy);
 	    pline("A field of force surrounds you!");
 	} else {
@@ -1015,11 +1059,23 @@ int spellnum;
 	while (1) {
 	    switch(rn2(5)) {
 	    case 0:
+
+		if (evilfriday && uarmh && uarmh->oerodeproof) {
+			uarmh->oerodeproof = 0;
+			pline("Harharhar, your helmet is no longer erosionproof!");
+		}
+
 		if (!uarmh || !rust_dmg(uarmh, xname(uarmh), rn2(4), FALSE, &youmonst))
 			continue;
 		break;
 	    case 1:
 		if (uarmc) {
+
+			if (evilfriday && uarmc && uarmc->oerodeproof) {
+				uarmc->oerodeproof = 0;
+				pline("Harharhar, your cloak is no longer erosionproof!");
+			}
+
 		    (void)rust_dmg(uarmc, xname(uarmc), rn2(4), TRUE, &youmonst);
 		    break;
 		}
@@ -1028,20 +1084,51 @@ int spellnum;
 		 * means it wasn't a target and though it didn't rust
 		 * something else did.
 		 */
-		if (uarm)
+		if (uarm) {
+
+			if (evilfriday && uarm && uarm->oerodeproof) {
+				uarm->oerodeproof = 0;
+				pline("Harharhar, your armor is no longer erosionproof!");
+			}
+
 		    (void)rust_dmg(uarm, xname(uarm), rn2(4), TRUE, &youmonst);
-		else if (uarmu)
+		} else if (uarmu) {
+
+			if (evilfriday && uarmu && uarmu->oerodeproof) {
+				uarmu->oerodeproof = 0;
+				pline("Harharhar, your shirt is no longer erosionproof!");
+			}
+
 		    (void)rust_dmg(uarmu, xname(uarmu), rn2(4), TRUE, &youmonst);
+		}
 		break;
 	    case 2:
+
+		if (evilfriday && uarms && uarms->oerodeproof) {
+			uarms->oerodeproof = 0;
+			pline("Harharhar, your shield is no longer erosionproof!");
+		}
+
 		if (!uarms || !rust_dmg(uarms, xname(uarms), rn2(4), FALSE, &youmonst))
 		    continue;
 		break;
 	    case 3:
+
+		if (evilfriday && uarmg && uarmg->oerodeproof) {
+			uarmg->oerodeproof = 0;
+			pline("Harharhar, your gloves are no longer erosionproof!");
+		}
+
 		if (!uarmg || !rust_dmg(uarmg, xname(uarmg), rn2(4), FALSE, &youmonst))
 		    continue;
 		break;
 	    case 4:
+
+		if (evilfriday && uarmf && uarmf->oerodeproof) {
+			uarmf->oerodeproof = 0;
+			pline("Harharhar, your boots are no longer erosionproof!");
+		}
+
 		if (!uarmf || !rust_dmg(uarmf, xname(uarmf), rn2(4), FALSE, &youmonst))
 		    continue;
 		break;
@@ -1052,7 +1139,7 @@ int spellnum;
 	dmg = 0;
 	break;
     case MGC_WEAKEN_YOU:		/* drain strength */
-	if (Antimagic && rn2(20)) {
+	if (Antimagic && rn2(StrongAntimagic ? 20 : 5)) {
 	    shieldeff(u.ux, u.uy);
 	    You_feel("momentarily weakened.");
 	} else {
@@ -1062,7 +1149,8 @@ int spellnum;
 	    dmg = rnd(mtmp->m_lev - 5);	/* nerf by Amy - why did this always do the maximum amount??? */
 	    if (issoviet) dmg = mtmp->m_lev - rnd(5);
 	    if (Half_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
-	    losestr(rnd(dmg));
+	    if (StrongHalf_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
+	    losestr(rnd(dmg), TRUE);
 	    if (u.uhp < 1)
 		done_in_by(mtmp);
 	}
@@ -1079,7 +1167,7 @@ int spellnum;
 	    impossible("no reason for monster to cast disappear spell?");
 	break;
     case MGC_NUMB_YOU:
-	if (Antimagic && rn2(3)) {
+	if (Antimagic && rn2(StrongAntimagic ? 3 : 2)) {
 	    shieldeff(u.ux, u.uy);
 	    if (!Numbed)
 		You_feel("numb for a moment.");
@@ -1087,12 +1175,13 @@ int spellnum;
 	} else {
 	    You(Numbed ? "feel even more numb!" : "feel numb!");
 	    if (Half_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
+	    if (StrongHalf_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
 	    make_numbed(HNumbed + dmg, FALSE);
 	}
 	dmg = 0;
 	break;
     case MGC_BURN_YOU:
-	if (Antimagic && rn2(3)) {
+	if (Antimagic && rn2(StrongAntimagic ? 3 : 2)) {
 	    shieldeff(u.ux, u.uy);
 	    if (!Burned)
 		You_feel("ablaze for a moment.");
@@ -1100,12 +1189,13 @@ int spellnum;
 	} else {
 	    You(Burned ? "are burning more strongly!" : "are burning!");
 	    if (Half_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
+	    if (StrongHalf_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
 	    make_burned(HBurned + dmg, FALSE);
 	}
 	dmg = 0;
 	break;
     case MGC_STUN_YOU:
-	if ((Antimagic || Free_action) && rn2(20)) {
+	if ((Antimagic || Free_action) && rn2((StrongAntimagic || StrongFree_action) ? 20 : 5)) {
 	    shieldeff(u.ux, u.uy);
 	    if (!Stunned)
 		You_feel("momentarily disoriented.");
@@ -1114,6 +1204,7 @@ int spellnum;
 	    You(Stunned ? "struggle to keep your balance." : "reel...");
 	    dmg = d(ACURR(A_DEX) < 12 ? 6 : 4, 4);
 	    if (Half_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
+	    if (StrongHalf_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
 	    make_stunned(HStun + dmg, FALSE);
 	}
 	dmg = 0;
@@ -1124,11 +1215,24 @@ int spellnum;
 	break;
     case MGC_CURE_SELF:
 	if (mtmp->mhp < mtmp->mhpmax) {
+	    int healamount;
 	    if (canseemon(mtmp))
 		pline("%s looks better.", Monnam(mtmp));
 	    /* note: player healing does 6d4; this used to do 1d8 */
-	    if ((mtmp->mhp += d(3,6)) > mtmp->mhpmax)
+		/* Amy note: boosted it so that it's no longer completely useless */
+	    healamount = d(3,6) + rnz(1 + (mtmp->m_lev * 3));
+	    if ((mtmp->mhp += healamount) > mtmp->mhpmax)
 		mtmp->mhp = mtmp->mhpmax;
+
+	    if (mtmp->bleedout && mtmp->bleedout <= healamount) {
+			mtmp->bleedout = 0;
+			pline("%s's bleeding stops.", Monnam(mtmp));
+	    } else if (mtmp->bleedout) {
+			mtmp->bleedout -= healamount;
+			if (mtmp->bleedout < 0) mtmp->bleedout = 0; /* should never happen */
+			pline("%s's bleeding diminishes.", Monnam(mtmp));
+	    }
+
 	    dmg = 0;
 	}
 	break;
@@ -1211,10 +1315,14 @@ newboss:
 
 	/* prior to 3.4.0 Antimagic was setting the damage to 1--this
 	   made the spell virtually harmless to players with magic res. */
-	if (Antimagic && rn2(20)) {
+	if (Antimagic && !Race_if(PM_KUTAR) && rn2(StrongAntimagic ? 20 : 5)) {
 	    shieldeff(u.ux, u.uy);
 	    dmg = (dmg + 1) / 2;
 	}
+
+	/* Amy change: half damage, but also increase sanity */
+	if (dmg > 1) dmg /= 2;
+
 	if (dmg <= 5)
 	    You("get a slight %sache.", body_part(HEAD));
 	else if (dmg <= 10)
@@ -1223,10 +1331,13 @@ newboss:
 	    Your("%s suddenly aches painfully!", body_part(HEAD));
 	else
 	    Your("%s suddenly aches very painfully!", body_part(HEAD));
+
+	if (!Psi_resist || !rn2(StrongPsi_resist ? 20 : 5) ) increasesanity(dmg);
+
 	break;
     case MGC_ESCALATION:
 
-	if (Antimagic && rn2(20)) {
+	if (Antimagic && !Race_if(PM_KUTAR) && rn2(StrongAntimagic ? 20 : 5)) {
 	    shieldeff(u.ux, u.uy);
 	    dmg = (dmg + 1) / 2;
 	}
@@ -1273,7 +1384,7 @@ int spellnum;
     switch (spellnum) {
     case CLC_GEYSER:
 
-	switch (rnd(39) ) {
+	switch (rnd(40) ) {
 	case 1:
 	case 2:
 	case 3:
@@ -1298,10 +1409,13 @@ int spellnum;
 	pline("A sudden geyser slams into you from nowhere!");
 	if (PlayerHearsSoundEffects) pline(issoviet ? "Teper' vse promokli. Vy zhe pomnite, chtoby polozhit' vodu chuvstvitel'nyy material v konteyner, ne tak li?" : "Schwatschhhhhh!");
 	dmg = d(8, 6);
-	water_damage(invent, FALSE, FALSE); /* Come on, every other source of water rusts your stuff. --Amy */
-	if (level.flags.lethe) lethe_damage(invent, FALSE, FALSE);
+	if ((!StrongSwimming || !rn2(10)) && (!StrongMagical_breathing || !rn2(10))) {
+		water_damage(invent, FALSE, FALSE); /* Come on, every other source of water rusts your stuff. --Amy */
+		if (level.flags.lethe) lethe_damage(invent, FALSE, FALSE);
+	}
 	if (Burned) make_burned(0L, TRUE); /* you're enveloped in water, so the burn disappears */
 	if (Half_physical_damage && rn2(2) ) dmg = (dmg + 1) / 2;
+	if (StrongHalf_physical_damage && rn2(2) ) dmg = (dmg + 1) / 2;
 	break;
 
 	case 20:
@@ -1310,6 +1424,7 @@ int spellnum;
 	dmg = d(8, 6);
 	withering_damage(invent, FALSE, FALSE); /* This can potentially damage all of your inventory items. --Amy */
 	if (Half_physical_damage && rn2(2) ) dmg = (dmg + 1) / 2;
+	if (StrongHalf_physical_damage && rn2(2) ) dmg = (dmg + 1) / 2;
 
 	break;
 
@@ -1321,11 +1436,12 @@ int spellnum;
 
 		/* petrify - similar to cockatrice hissing --Amy */
 		You_feel("a massive burden on your chest!");
-		if (!Stoned && !Stone_resistance && !(poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM)) ) {
+		if (!Stoned && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && !(poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM)) ) {
 			if (Hallucination && rn2(10)) pline("Good thing you are already stoned.");
 			else {
 				You("start turning to stone!");
 				Stoned = Race_if(PM_EROSATOR) ? 3 : 7;
+				u.cnd_stoningcount++;
 				stop_occupation();
 				delayed_killer = "petrify spell";
 			}
@@ -1343,8 +1459,10 @@ int spellnum;
 		    if (!Slimed && !flaming(youmonst.data) && !Unchanging && !slime_on_touch(youmonst.data) ) {
 			You("don't feel very well.");
 			stop_occupation();
-		    Slimed = Race_if(PM_EROSATOR) ? 25L : 100L;
-		    flags.botl = 1;}
+			make_slimed(100);
+		    killer_format = KILLED_BY_AN;
+		    delayed_killer = "slimed by a monster spell";
+		    }
 		dmg = 0;
 		break;
 
@@ -1393,6 +1511,20 @@ int spellnum;
 		You_feel("a wraparound!");
 		break;
 
+	case 40:
+
+		/* translucency - makes the player's items visible */
+		pline("You are surrounded by a translucent glow!");
+		{
+			register struct obj *objX, *objX2;
+			for (objX = invent; objX; objX = objX2) {
+				objX2 = objX->nobj;
+				if (!rn2(5)) objX->oinvis = objX->oinvisreal = FALSE;
+			}
+		}
+
+		break;
+
 	default: /*failsafe*/
 		You_feel("that monsters are aware of your presence."); /* aggravate monster */
 		aggravate();
@@ -1404,12 +1536,13 @@ int spellnum;
     case CLC_FIRE_PILLAR:
 	pline("A pillar of fire strikes all around you!");
 	if (PlayerHearsSoundEffects) pline(issoviet ? "Gori detka gori!" : "Tschack-tschack-tschack-tschack-tschack");
-	if (Fire_resistance && rn2(20)) {
+	if (Fire_resistance && rn2(StrongFire_resistance ? 20 : 5)) {
 	    shieldeff(u.ux, u.uy);
 	    dmg = 0;
 	} else
 	    dmg = d(8, 6);
 	if (Half_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
+	if (StrongHalf_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
 	burn_away_slime();
 	if (isevilvariant || !rn2(Race_if(PM_SEA_ELF) ? 1 : issoviet ? 2 : 33)) (void) burnarmor(&youmonst);
 	if (isevilvariant || !rn2(Race_if(PM_SEA_ELF) ? 1 : issoviet ? 3 : 15)) /* new calculations --Amy */	destroy_item(SCROLL_CLASS, AD_FIRE);
@@ -1427,9 +1560,9 @@ int spellnum;
 	reflects = ureflects("It bounces off your %s%s.", "");
 	if (!Blind) {
 	    pline("You are blinded by the flash!");
-	    make_blinded(Half_spell_damage ? 10L : 20L, FALSE);
+	    make_blinded(StrongHalf_spell_damage ? 5L : Half_spell_damage ? 10L : 20L, FALSE);
 	}
-	if (reflects || Shock_resistance) {
+	if (reflects || (Shock_resistance && (StrongShock_resistance || rn2(10))) ) {
 	    shieldeff(u.ux, u.uy);
 	    dmg = 0;
 	    if (reflects)
@@ -1437,6 +1570,7 @@ int spellnum;
 	} else
 	    dmg = d(8, 6);
 	if (Half_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
+	if (StrongHalf_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
 		if (isevilvariant || !rn2(issoviet ? 3 : 15)) /* new calculations --Amy */	destroy_item(WAND_CLASS, AD_ELEC);
 		if (isevilvariant || !rn2(issoviet ? 3 : 15)) /* new calculations --Amy */	destroy_item(RING_CLASS, AD_ELEC);
 		if (isevilvariant || !rn2(issoviet ? 15 : 75)) /* new calculations --Amy */	destroy_item(AMULET_CLASS, AD_ELEC);
@@ -1552,7 +1686,7 @@ int spellnum;
 	case 31:
 	case 32:
 	case 33:
-	      pline(Hallucination ? "You suddenly feel like you're on cold turkey!" : "Your hands start trembling!"); /* disarm */
+	      pline(FunnyHallu ? "You suddenly feel like you're on cold turkey!" : "Your hands start trembling!"); /* disarm */
 		int glibberX;
 		glibberX = (rnz(1 + mtmp->m_lev));
 		    incr_itimeout(&Glib, glibberX);
@@ -1566,7 +1700,7 @@ int spellnum;
 		dmg = 0;
 		break;
 	case 37:
-	      pline(Hallucination ? "You feel like you just got dumped by your girlfriend!" : "You feel out of luck!"); /* dementor force */
+	      pline(FunnyHallu ? "You feel like you just got dumped by your girlfriend!" : "You feel out of luck!"); /* dementor force */
 			change_luck(-1);
 			if (!rn2(10)) change_luck(-5);
 			adjalign(-10);
@@ -1580,7 +1714,7 @@ int spellnum;
 		break;
 	case 39:
 	case 40:
-		pushplayer(); /* use the force */
+		pushplayer(FALSE); /* use the force */
 		break;
 	default: /*failsafe*/
 		You_feel("that monsters are aware of your presence."); /* aggravate monster */
@@ -1607,7 +1741,7 @@ int spellnum;
 
 	/* Let's allow some variation. Unofficial spell names for each type of creature see below. --Amy */
 
-	if (!rn2(10)) { switch (rnd(54)) {
+	if (!rn2(3)) { switch (rnd(54)) {
 
 		case 1:
 		case 2:
@@ -1768,11 +1902,11 @@ int spellnum;
 	else if (let == S_BAD_FOOD) /* mystic nature */
 	    pline("%s summons mystic natures!",
 		Monnam(mtmp));
-	else if (Invisible && !perceives(mtmp->data) &&
+	else if (Invisible && !perceives(mtmp->data) && (StrongInvis || !rn2(3)) &&
 				(mtmp->mux != u.ux || mtmp->muy != u.uy))
 	    pline("%s summons insects around a spot near you!",
 		Monnam(mtmp));
-	else if (Displaced && (mtmp->mux != u.ux || mtmp->muy != u.uy))
+	else if (Displaced && (StrongDisplaced || !rn2(3)) && (mtmp->mux != u.ux || mtmp->muy != u.uy))
 	    pline("%s summons insects around your displaced image!",
 		Monnam(mtmp));
 	else
@@ -1787,14 +1921,14 @@ int spellnum;
 	    pline("Scales cover your %s!",
 		  (num_eyes == 1) ?
 		  body_part(EYE) : makeplural(body_part(EYE)));
-	    make_blinded(Half_spell_damage ? 100L : 200L, FALSE);
+	    make_blinded(StrongHalf_spell_damage ? 50L : Half_spell_damage ? 100L : 200L, FALSE);
 	    if (!Blind) Your("%s", vision_clears);
 	    dmg = 0;
 	} else
 	    impossible("no reason for monster to cast blindness spell?");
 	break;
     case CLC_PARALYZE:
-	if ((Antimagic || Free_action) && rn2(20)) {
+	if ((Antimagic || Free_action) && rn2((StrongAntimagic || StrongFree_action) ? 20 : 5)) {
 	    shieldeff(u.ux, u.uy);
 	    if (multi >= 0)
 		You("stiffen briefly.");
@@ -1807,6 +1941,7 @@ int spellnum;
 	    if (!issoviet) dmg = rnd( 2 + (rn2(3) ? ((int)mtmp->m_lev / 2) : rn2(2) ? ((int)mtmp->m_lev / 4) : (int)mtmp->m_lev) ) ;
 	    else dmg = 4 + (int)mtmp->m_lev;;
 	    if (Half_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
+	    if (StrongHalf_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
 	    if (issoviet) pline("Teper' vy mertvy. Sovetskaya smeyetsya, potomu chto vy, veroyatno, vlozhili dvesti chasov v etot kharakter.");
 	    nomul(-dmg, "paralyzed by a monster spell", TRUE);
 	}
@@ -1814,7 +1949,7 @@ int spellnum;
 	dmg = 0;
 	break;
     case CLC_CONFUSE_YOU:
-	if (Antimagic && rn2(20)) {
+	if (Antimagic && rn2(StrongAntimagic ? 20 : 5)) {
 	    shieldeff(u.ux, u.uy);
 	    You_feel("momentarily dizzy.");
 	} else {
@@ -1822,8 +1957,9 @@ int spellnum;
 
 	    dmg = (int)mtmp->m_lev;
 	    if (Half_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
+	    if (StrongHalf_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
 	    make_confused(HConfusion + dmg, TRUE);
-	    if (Hallucination)
+	    if (FunnyHallu)
 		You_feel("%s!", oldprop ? "trippier" : "trippy");
 	    else
 		You_feel("%sconfused!", oldprop ? "more " : "");
@@ -1831,7 +1967,7 @@ int spellnum;
 	dmg = 0;
 	break;
     case CLC_FEAR_YOU:
-	if (Antimagic && rn2(3)) {
+	if (Antimagic && rn2(StrongAntimagic ? 3 : 2)) {
 	    shieldeff(u.ux, u.uy);
 	    if (!Feared)
 		You_feel("afraid for a moment.");
@@ -1839,12 +1975,13 @@ int spellnum;
 	} else {
 	    You(Feared ? "are even more scared!" : "are scared!");
 	    if (Half_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
+	    if (StrongHalf_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
 	    make_feared(HFeared + dmg, FALSE);
 	}
 	dmg = 0;
 	break;
     case CLC_FREEZE_YOU:
-	if (Antimagic && rn2(3)) {
+	if (Antimagic && rn2(StrongAntimagic ? 3 : 2)) {
 	    shieldeff(u.ux, u.uy);
 	    if (!Frozen)
 		You_feel("frozen for a moment.");
@@ -1852,17 +1989,18 @@ int spellnum;
 	} else {
 	    You(Frozen ? "are freezing even more!" : "are freezing!");
 	    if (Half_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
+	    if (StrongHalf_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
 	    make_frozen(HFrozen + dmg, FALSE);
 	}
 	dmg = 0;
 	break;
     case CLC_SEPARATION:
 	u.ublesscnt += (dmg * 10);
-	pline(Hallucination ? "You feel sinful... but do you really care?" : "You have a feeling of separation.");
+	pline(FunnyHallu ? "You feel sinful... but do you really care?" : "You have a feeling of separation.");
 	dmg = 0;
 	break;
     case CLC_STAT_DRAIN:		/* drain a random stat */
-	if (Antimagic && rn2(10)) {
+	if (Antimagic && rn2(StrongAntimagic ? 10 : 3)) {
 	    shieldeff(u.ux, u.uy);
 	    You_feel("less powerful for a moment, but the feeling passes.");
 	} else {
@@ -1871,20 +2009,35 @@ int spellnum;
 	    dmg = rnd(mtmp->m_lev - 7);
 	    if (issoviet) dmg = mtmp->m_lev - rnd(7);
 	    if (Half_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
-	    adjattrib(rn2(A_MAX), -dmg, 0);
+	    if (StrongHalf_spell_damage && rn2(2) ) dmg = (dmg + 1) / 2;
+	    adjattrib(rn2(A_MAX), -dmg, 0, TRUE);
 	}
 	dmg = 0;
 	break;
 
     case CLC_CURE_SELF:
 	if (mtmp->mhp < mtmp->mhpmax) {
+	    int healamount;
 	    if (canseemon(mtmp))
 		pline("%s looks better.", Monnam(mtmp));
 	    /* note: player healing does 6d4; this used to do 1d8 */
-	    if ((mtmp->mhp += d(3,6)) > mtmp->mhpmax)
+		/* Amy note: boosted it so that it's no longer completely useless */
+	    healamount = d(3,6) + rnz(1 + (mtmp->m_lev * 3));
+	    if ((mtmp->mhp += healamount) > mtmp->mhpmax)
 		mtmp->mhp = mtmp->mhpmax;
+
+	    if (mtmp->bleedout && mtmp->bleedout <= healamount) {
+			mtmp->bleedout = 0;
+			pline("%s's bleeding stops.", Monnam(mtmp));
+	    } else if (mtmp->bleedout) {
+			mtmp->bleedout -= healamount;
+			if (mtmp->bleedout < 0) mtmp->bleedout = 0; /* should never happen */
+			pline("%s's bleeding diminishes.", Monnam(mtmp));
+	    }
+
 	    dmg = 0;
 	}
+
 	break;
     case CLC_OPEN_WOUNDS:
 
@@ -1963,10 +2116,14 @@ newboss:
 	break;
 	}
 
-	if (Antimagic && rn2(20)) {
+	if (Antimagic && !Race_if(PM_KUTAR) && rn2(StrongAntimagic ? 20 : 5)) {
 	    shieldeff(u.ux, u.uy);
 	    dmg = (dmg + 1) / 2;
 	}
+
+	/* Amy change: half damage, but also increase bleeding */
+	if (dmg > 1) dmg /= 2;
+
 	if (dmg <= 5)
 	    Your("skin itches badly for a moment.");
 	else if (dmg <= 10)
@@ -1975,6 +2132,9 @@ newboss:
 	    pline("Severe wounds appear on your body!");
 	else
 	    Your("body is covered with painful wounds!");
+
+	playerbleed(dmg);
+
 	break;
     case CLC_VULN_YOU: /* inspired by Sporkhack but enhanced by Amy */
 	dmg *= 10;
@@ -2104,7 +2264,7 @@ int spellnum;
 	 * rarely unless you're carrying the amulet.
 	 */
 	if (((levl[u.ux][u.uy].typ != ROOM && levl[u.ux][u.uy].typ != CORR) /* lowered chance even with amulet --Amy */
-		|| (!u.uhave.amulet && rn2(10)) || rn2(3) ) && spellnum == MGC_CREATE_POOL)
+		|| ((!u.uhave.amulet || u.freeplaymode) && rn2(10)) || rn2(3) ) && spellnum == MGC_CREATE_POOL)
 	    return TRUE;
 	if ((!mtmp->iswiz || (flags.no_of_wizards > 1 && rn2(20)) )
 						&& spellnum == MGC_CLONE_WIZ)
@@ -2146,7 +2306,7 @@ buzzmu(mtmp, mattk)		/* monster uses spell (ranged) */
 	if ((mattk->adtyp > AD_SPC2) || (mattk->adtyp < AD_MAGM))
 	    return(0);
 
-	if (mtmp->mcan || (RngeAntimagicA && !rn2(10)) || (RngeAntimagicB && !rn2(5)) || (RngeAntimagicC && !rn2(2)) || (RngeAntimagicD) || (RngeSpellDisruption && !rn2(5)) || u.antimagicshell || (uarmc && uarmc->oartifact == ART_SHELLY && (moves % 3 == 0)) || (uarmc && uarmc->oartifact == ART_BLACK_VEIL_OF_BLACKNESS) || (uarmc && uarmc->oartifact == ART_ARABELLA_S_WAND_BOOSTER) || (uarmu && uarmu->oartifact == ART_ANTIMAGIC_SHELL) || (uarmu && uarmu->oartifact == ART_ANTIMAGIC_FIELD) || Role_if(PM_UNBELIEVER) || (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "void cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "nedeystvitel'nym plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "haqiqiy emas plash") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "shell cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "plashch obolochki") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "qobiq plash") ) && !rn2(5)) ) {
+	if (mtmp->mcan || arcaniumfail() || (RngeAntimagicA && !rn2(10)) || (RngeAntimagicB && !rn2(5)) || (RngeAntimagicC && !rn2(2)) || (RngeAntimagicD) || (RngeSpellDisruption && !rn2(5)) || u.antimagicshell || (uarmh && uarmh->otyp == HELM_OF_ANTI_MAGIC) || (uarmc && uarmc->oartifact == ART_SHELLY && (moves % 3 == 0)) || (uarmc && uarmc->oartifact == ART_BLACK_VEIL_OF_BLACKNESS) || (uarmc && uarmc->oartifact == ART_ARABELLA_S_WAND_BOOSTER) || (uarmu && uarmu->oartifact == ART_ANTIMAGIC_SHELL) || (uarmu && uarmu->oartifact == ART_ANTIMAGIC_FIELD) || Role_if(PM_UNBELIEVER) || (uarmc && (itemhasappearance(uarmc, APP_VOID_CLOAK) || itemhasappearance(uarmc, APP_SHELL_CLOAK)) && !rn2(5)) ) {
 	    cursetxt(mtmp, FALSE);
 	    return(0);
 	}

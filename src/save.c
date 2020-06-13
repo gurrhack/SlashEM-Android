@@ -72,6 +72,8 @@ dosave()
 	register int fd;
 #endif
 
+	if (iflags.debug_fuzzer) return 0;
+
 	clear_nhwindow(WIN_MESSAGE);
 	if(yn("Really save?") == 'n') {
 		clear_nhwindow(WIN_MESSAGE);
@@ -79,6 +81,7 @@ dosave()
 	} else {
 		clear_nhwindow(WIN_MESSAGE);
 		pline("Saving...");
+		u.cnd_saveamount++;
 #if defined(UNIX) || defined(VMS) || defined(__EMX__)
 		program_state.done_hup = 0;
 #endif
@@ -123,10 +126,12 @@ dosave()
 		if(flags.moonphase == FULL_MOON)
 			change_luck(1);         
 		if(flags.moonphase == NEW_MOON)
-			adjalign(-3); 
+			u.ualign.record += 3;
+			if (u.ualign.record > u.alignlim) u.ualign.record = u.alignlim;
 		if(flags.friday13) {
 			change_luck(-1);
-			adjalign(-10); 
+			u.ualign.record += 10;
+			if (u.ualign.record > u.alignlim) u.ualign.record = u.alignlim;
 		}
 		if(iflags.window_inited)
 			clear_nhwindow(WIN_MESSAGE);
@@ -246,10 +251,12 @@ dosave0()
 	if(flags.moonphase == FULL_MOON)	/* ut-sally!fletcher */
 		change_luck(-1);		/* and unido!ab */
 	if(flags.moonphase == NEW_MOON)	/* ut-sally!fletcher */
-		adjalign(3); 
+		u.ualign.record += 3;
+		if (u.ualign.record > u.alignlim) u.ualign.record = u.alignlim;
 	if(flags.friday13) {
 		change_luck(1);
-		adjalign(10); 
+		u.ualign.record += 10;
+		if (u.ualign.record > u.alignlim) u.ualign.record = u.alignlim;
 	}
 	if(iflags.window_inited)
 	    HUP clear_nhwindow(WIN_MESSAGE);
@@ -372,6 +379,7 @@ savegamestate(fd, mode)
 register int fd, mode;
 {
 	int uid;
+	struct obj * bc_objs = (struct obj *)0;
 #if defined(RECORD_REALTIME) || defined(REALTIME_ON_BOTL)
         time_t realtime;
 #endif
@@ -386,9 +394,20 @@ register int fd, mode;
 
 	/* save random monsters*/
 
+	{
+		int monstcursor = PM_PLAYERMON + 1;
+		while (monstcursor < NUMMONS) {
+			bwrite(fd, (void *) &mons[monstcursor], sizeof(struct permonst));
+			monstcursor++;
+		}
+	}
+
+	/*
 	bwrite(fd, (void *) &mons[PM_NITROHACK_HORROR], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_SPEEDHACK_HORROR], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_DNETHACK_HORROR], sizeof(struct permonst));
+	bwrite(fd, (void *) &mons[PM_BEGINNER_HORROR], sizeof(struct permonst));
+	bwrite(fd, (void *) &mons[PM_NOOB_HORROR], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_NETHACKBRASS_HORROR], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_INTERHACK_HORROR], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_NHTNG_HORROR], sizeof(struct permonst));
@@ -495,6 +514,7 @@ register int fd, mode;
 	bwrite(fd, (void *) &mons[PM_COLORLESS_FUNGUS], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_COLORLESS_PATCH], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_COLORLESS_FORCE_FUNGUS], sizeof(struct permonst));
+	bwrite(fd, (void *) &mons[PM_COLORLESS_WORT], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_COLORLESS_FORCE_PATCH], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_COLORLESS_WARP_FUNGUS], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_COLORLESS_WARP_PATCH], sizeof(struct permonst));
@@ -507,6 +527,7 @@ register int fd, mode;
 	bwrite(fd, (void *) &mons[PM_COLORLESS_FUNGUS_X], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_COLORLESS_PATCH_X], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_COLORLESS_FORCE_FUNGUS_X], sizeof(struct permonst));
+	bwrite(fd, (void *) &mons[PM_COLORLESS_WORT_X], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_COLORLESS_FORCE_PATCH_X], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_COLORLESS_WARP_FUNGUS_X], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_COLORLESS_WARP_PATCH_X], sizeof(struct permonst));
@@ -519,6 +540,7 @@ register int fd, mode;
 	bwrite(fd, (void *) &mons[PM_NONDESCRIPT_FUNGUS], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_NONDESCRIPT_PATCH], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_NONDESCRIPT_FORCE_FUNGUS], sizeof(struct permonst));
+	bwrite(fd, (void *) &mons[PM_NONDESCRIPT_WORT], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_NONDESCRIPT_FORCE_PATCH], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_NONDESCRIPT_WARP_FUNGUS], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_NONDESCRIPT_WARP_PATCH], sizeof(struct permonst));
@@ -574,6 +596,9 @@ register int fd, mode;
 	bwrite(fd, (void *) &mons[PM_ADULT_AMPHITERE_X], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_BABY_TATZELWORM_X], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_BABY_AMPHITERE_X], sizeof(struct permonst));
+
+	bwrite(fd, (void *) &mons[PM_SPLICED_AMALGAMATION], sizeof(struct permonst));
+	bwrite(fd, (void *) &mons[PM_SPLICED_BAD_CLONE], sizeof(struct permonst));
 
 	bwrite(fd, (void *) &mons[PM_PUPURIN], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_SAPUSAUR], sizeof(struct permonst));
@@ -707,6 +732,7 @@ register int fd, mode;
 	bwrite(fd, (void *) &mons[PM_RANDO], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_RNGHOST], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_RANDOMIZER_DRACONIAN], sizeof(struct permonst));
+	bwrite(fd, (void *) &mons[PM_CENTAUR_RENGER], sizeof(struct permonst));
 
 	bwrite(fd, (void *) &mons[PM_ROUGH_TERESA_S_GENTLE_SOFT_SNEAKER], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_MARLEEN_S_BLOCK_HEELED_COMBAT_BOOT], sizeof(struct permonst));
@@ -715,12 +741,22 @@ register int fd, mode;
 	bwrite(fd, (void *) &mons[PM_EMMA_S_SEXY_WEDGE_SANDAL], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_THE_HIGH_HEEL_LOVING_ASIAN_GIRL_HER_SEXY_WEDGE_SANDAL], sizeof(struct permonst));
 	bwrite(fd, (void *) &mons[PM_FANNY_S_LOVELY_WINTER_BOOT], sizeof(struct permonst));
+	*/
 
 	/* must come before migrating_objs and migrating_mons are freed */
 	save_timers(fd, mode, RANGE_GLOBAL);
 	save_light_sources(fd, mode, RANGE_GLOBAL);
 
+	if (CHAIN_IN_MON) {
+		uchain->nobj = bc_objs;
+		bc_objs = uchain;
+	}
+	if (BALL_IN_MON) {
+		uball->nobj = bc_objs;
+		bc_objs = uball;
+	}
 	saveobjchn(fd, invent, mode);
+	saveobjchn(fd, bc_objs, mode);
 	saveobjchn(fd, migrating_objs, mode);
 	savemonchn(fd, migrating_mons, mode);
 	if (release_data(mode)) {

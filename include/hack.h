@@ -130,18 +130,21 @@ NEARDATA extern coord bhitpos;	/* place where throw or zap hits or stops */
 #define NO_SPELL	0
 
 /* flags to control makemon() */
-#define NO_MM_FLAGS	  0x000	/* use this rather than plain 0 */
-#define NO_MINVENT	  0x01	/* suppress minvent when creating mon */
-#define MM_NOWAIT	  0x02	/* don't set STRAT_WAITMASK flags */
-#define MM_EDOG		  0x04	/* add edog structure */
-#define MM_EMIN		  0x08	/* add emin structure */
-#define MM_ANGRY	  0x10  /* monster is created angry */
-#define MM_NONAME	  0x20  /* monster is not christened */
-#define MM_NOCOUNTBIRTH	  0x40  /* don't increment born counter (for revival) */
-#define MM_IGNOREWATER	  0x80	/* ignore water when positioning */
-#define MM_ADJACENTOK	  0x100 /* it is acceptable to use adjacent coordinates */
-#define MM_NOSPECIALS     0x200 /* no cockatrice corpses etc. */
-#define MM_CRYSTALORNOT   0x400 /* for if the player falls into water, to see whether they can crawl out */
+#define NO_MM_FLAGS	  0x0000	/* use this rather than plain 0 */
+#define NO_MINVENT	  0x0001	/* suppress minvent when creating mon */
+#define MM_NOWAIT	  0x0002	/* don't set STRAT_WAITMASK flags */
+#define MM_EDOG		  0x0004	/* add edog structure */
+#define MM_EMIN		  0x0008	/* add emin structure */
+#define MM_ANGRY	  0x0010  /* monster is created angry */
+#define MM_NONAME	  0x0020  /* monster is not christened */
+#define MM_NOCOUNTBIRTH	  0x0040  /* don't increment born counter (for revival) */
+#define MM_IGNOREWATER	  0x0080	/* ignore water when positioning */
+#define MM_ADJACENTOK	  0x0100 /* it is acceptable to use adjacent coordinates */
+#define MM_NOSPECIALS     0x0200 /* no cockatrice corpses etc. */
+#define MM_CRYSTALORNOT   0x0400 /* for if the player falls into water, to see whether they can crawl out */
+#define MM_FRENZIED	0x0800	/* monster has 1 in 3 chance of spawning frenzied */
+#define MM_XFRENZIED	0x1000	/* monster always spawns frenzied */
+#define MM_MAYSLEEP	0x2000	/* monster has 20% chance of spawning asleep */
 
 /* special mhpmax value when loading bones monster to flag as extinct or genocided */
 #define DEFUNCT_MONSTER	(-100)
@@ -247,6 +250,9 @@ NEARDATA extern coord bhitpos;	/* place where throw or zap hits or stops */
 #define NOSE 17
 #define STOMACH 18
 
+#define BALL_IN_MON	(u.uswallow && uball && uball->where == OBJ_FREE)
+#define CHAIN_IN_MON	(u.uswallow && uchain && uchain->where == OBJ_FREE)
+
 /* Flags to control menus */
 #define MENUTYPELEN sizeof("traditional ")
 #define MENU_TRADITIONAL 0
@@ -287,12 +293,17 @@ NEARDATA extern coord bhitpos;	/* place where throw or zap hits or stops */
 #define ARM_BONUS(obj)	(objects[(obj)->otyp].a_ac + (obj)->spe \
 			 - min((int)greatest_erosionX(obj),objects[(obj)->otyp].a_ac))
 
+/* implants give extra AC from enchantment ONLY if you're in a form that gets their good bonuses --Amy
+ * but negatively enchanted ones will always make your AC worse! */
+#define ARM_BONUS_IMPLANT(obj)	(objects[(obj)->otyp].a_ac + ((objects[obj->otyp].oc_charged && (powerfulimplants() || ((obj)->spe < 0) )) ? (obj)->spe : 0) \
+			 - min((int)greatest_erosionX(obj),objects[(obj)->otyp].a_ac))
+
 #define makeknown(x)	discover_object((x),TRUE,TRUE)
 #define distu(xx,yy)	dist2((int)(xx),(int)(yy),(int)u.ux,(int)u.uy)
 #define onlineu(xx,yy)	online2((int)(xx),(int)(yy),(int)u.ux,(int)u.uy)
 #define setustuck(v)	(flags.botl = 1, u.ustuck = (v))
 
-#define missingnoprotect	(Race_if(PM_MISSINGNO) || u.ughmemory)
+#define missingnoprotect	(u.ughmemory)
 
 #define isangbander (Race_if(PM_ANGBANDER) || flags.hybridangbander)
 #define isaquarian (Race_if(PM_AQUATIC_MONSTER) || flags.hybridaquarian)
@@ -304,7 +315,7 @@ NEARDATA extern coord bhitpos;	/* place where throw or zap hits or stops */
 #define israndomizer (Race_if(PM_RANDOMIZER) || flags.hybridrandomizer)
 #define isnullrace (Race_if(PM_NULL) || flags.hybridnullrace)
 #define ismazewalker (Race_if(PM_MAZEWALKER) || flags.hybridmazewalker)
-#define issoviet (Race_if(PM_SOVIET) || flags.hybridsoviet || (uimplant && uimplant->oartifact == ART_GELMER_KELANA_TWIN && !(nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) ) ) )
+#define issoviet (Race_if(PM_SOVIET) || (!u.dungeongrowthhack && u.soviettemporary) || flags.hybridsoviet || (!u.dungeongrowthhack && uimplant && uimplant->oartifact == ART_GELMER_KELANA_TWIN && !powerfulimplants() ) )
 #define isxrace (Race_if(PM_RACE_X) || flags.hybridxrace)
 #define isheretic (Race_if(PM_HERETIC) || flags.hybridheretic)
 #define issokosolver (Race_if(PM_SOKOSOLVER) || flags.hybridsokosolver)
@@ -319,11 +330,27 @@ NEARDATA extern coord bhitpos;	/* place where throw or zap hits or stops */
 #define isproblematic (Race_if(PM_PROBLEMATIC) || flags.hybridproblematic)
 #define iswindinhabitant (Race_if(PM_WIND_INHABITANT) || flags.hybridwindinhabitant)
 #define isaggravator (Race_if(PM_AGGRAVATOR) || flags.hybridaggravator)
-#define isevilvariant (Race_if(PM_EVILVARIANT) || flags.hybridevilvariant || (uarmf && uarmf->oartifact == ART_A_SPOONFUL_OF_FO_U_RK) || (uwep && uwep->oartifact == ART_FUURKER) || (uarmh && uarmh->oartifact == ART_WHY_NOT_DO_THE_REAL_THING) || (uswapwep && uswapwep->oartifact == ART_FUURKER) )
+#define isevilvariant (Race_if(PM_EVILVARIANT) || (!u.dungeongrowthhack && u.evilvartemporary) || flags.hybridevilvariant || EvilVariantActive || u.uprops[EVIL_VARIANT_ACTIVE].extrinsic || have_evilvariantstone() || (!u.dungeongrowthhack && uarmf && uarmf->oartifact == ART_A_SPOONFUL_OF_FO_U_RK) || (!u.dungeongrowthhack && uwep && uwep->oartifact == ART_FUURKER) || (!u.dungeongrowthhack && uarmh && uarmh->oartifact == ART_WHY_NOT_DO_THE_REAL_THING) || (!u.dungeongrowthhack && uswapwep && uswapwep->oartifact == ART_FUURKER) )
 #define islevelscaler (Race_if(PM_LEVELSCALER) || flags.hybridlevelscaler)
 #define iserosator (Race_if(PM_EROSATOR) || flags.hybriderosator)
 #define isroommate (Race_if(PM_ROOMMATE) || flags.hybridroommate)
 #define isextravator (Race_if(PM_EXTRAVATOR) || flags.hybridextravator)
+#define ishallucinator (Race_if(PM_HALLUCINATOR) || flags.hybridhallucinator)
+#define isbossrusher (Race_if(PM_BOSSRUSHER) || flags.hybridbossrusher)
+#define isdorian (Race_if(PM_DORIAN) || flags.hybriddorian)
+#define istechless (Race_if(PM_TECHLESS) || flags.hybridtechless)
+#define isblait (Race_if(PM_BLAIT) || flags.hybridblait)
+#define isgrouper (Race_if(PM_GROUPER) || flags.hybridgrouper)
+#define isscriptor (Race_if(PM_SCRIPTOR) || flags.hybridscriptor)
+#define isunbalancor (Race_if(PM_UNBALANCOR) || flags.hybridunbalancor)
+#define isbeacher (Race_if(PM_BEACHER) || flags.hybridbeacher)
+#define isstairseeker (Race_if(PM_STAIRSEEKER) || flags.hybridstairseeker)
+#define ismatrayser (Race_if(PM_MATRAYSER) || flags.hybridmatrayser)
+#define isfeminizer (Race_if(PM_FEMINIZER) || flags.hybridfeminizer)
+
+#define isdemagogue (Role_if(PM_DEMAGOGUE) || u.demagoguerecursion)
+
+#define iszapem (flags.zapem || u.zapem_mode)
 
 /* Friday the 13th is supposed to make many things harder for the player, including some evilvariant stuff --Amy
  * can also deliberately invoke the effect by playing in elm street mode */
@@ -333,7 +360,7 @@ NEARDATA extern coord bhitpos;	/* place where throw or zap hits or stops */
 /* Luxidream wants to be able to name his characters */
 #define playeraliasname (plalias[0] ? plalias : plname)
 
-#define isselfhybrid ( (Race_if(PM_ANGBANDER) && flags.hybridangbander) || (Race_if(PM_AQUATIC_MONSTER) && flags.hybridaquarian) || (Race_if(PM_CURSER) && flags.hybridcurser) || (Race_if(PM_HAXOR) && flags.hybridhaxor) || (Race_if(PM_HOMICIDER) && flags.hybridhomicider) || (Race_if(PM_SUXXOR) && flags.hybridsuxxor) || (Race_if(PM_WARPER) && flags.hybridwarper) || (Race_if(PM_RANDOMIZER) && flags.hybridrandomizer) || (Race_if(PM_NULL) && flags.hybridnullrace) || (Race_if(PM_MAZEWALKER) && flags.hybridmazewalker) || (Race_if(PM_SOVIET) && flags.hybridsoviet) || (Race_if(PM_RACE_X) && flags.hybridxrace) || (Race_if(PM_HERETIC) && flags.hybridheretic) || (Race_if(PM_SOKOSOLVER) && flags.hybridsokosolver) || (Race_if(PM_SPECIALIST) && flags.hybridspecialist) || (Race_if(PM_AMERICAN) && flags.hybridamerican) || (Race_if(PM_MINIMALIST) && flags.hybridminimalist) || (Race_if(PM_NASTINATOR) && flags.hybridnastinator) || (Race_if(PM_ROUGELIKE) && flags.hybridrougelike) || (Race_if(PM_SEGFAULTER) && flags.hybridsegfaulter) || (Race_if(PM_IRONMAN) && flags.hybridironman) || (Race_if(PM_AMNESIAC) && flags.hybridamnesiac) || (Race_if(PM_PROBLEMATIC) && flags.hybridproblematic) || (Race_if(PM_WIND_INHABITANT) && flags.hybridwindinhabitant) || (Race_if(PM_AGGRAVATOR) && flags.hybridaggravator) || (Race_if(PM_EVILVARIANT) && flags.hybridevilvariant) || (Race_if(PM_LEVELSCALER) && flags.hybridlevelscaler) || (Race_if(PM_EROSATOR) && flags.hybriderosator) || (Race_if(PM_ROOMMATE) && flags.hybridroommate) || (Race_if(PM_EXTRAVATOR) && flags.hybridextravator) )
+#define isselfhybrid ( (Race_if(PM_ANGBANDER) && flags.hybridangbander) || (Race_if(PM_AQUATIC_MONSTER) && flags.hybridaquarian) || (Race_if(PM_CURSER) && flags.hybridcurser) || (Race_if(PM_HAXOR) && flags.hybridhaxor) || (Race_if(PM_HOMICIDER) && flags.hybridhomicider) || (Race_if(PM_SUXXOR) && flags.hybridsuxxor) || (Race_if(PM_WARPER) && flags.hybridwarper) || (Race_if(PM_RANDOMIZER) && flags.hybridrandomizer) || (Race_if(PM_NULL) && flags.hybridnullrace) || (Race_if(PM_MAZEWALKER) && flags.hybridmazewalker) || (Race_if(PM_SOVIET) && flags.hybridsoviet) || (Race_if(PM_RACE_X) && flags.hybridxrace) || (Race_if(PM_HERETIC) && flags.hybridheretic) || (Race_if(PM_SOKOSOLVER) && flags.hybridsokosolver) || (Race_if(PM_SPECIALIST) && flags.hybridspecialist) || (Race_if(PM_AMERICAN) && flags.hybridamerican) || (Race_if(PM_MINIMALIST) && flags.hybridminimalist) || (Race_if(PM_NASTINATOR) && flags.hybridnastinator) || (Race_if(PM_ROUGELIKE) && flags.hybridrougelike) || (Race_if(PM_SEGFAULTER) && flags.hybridsegfaulter) || (Race_if(PM_IRONMAN) && flags.hybridironman) || (Race_if(PM_AMNESIAC) && flags.hybridamnesiac) || (Race_if(PM_PROBLEMATIC) && flags.hybridproblematic) || (Race_if(PM_WIND_INHABITANT) && flags.hybridwindinhabitant) || (Race_if(PM_AGGRAVATOR) && flags.hybridaggravator) || (Race_if(PM_EVILVARIANT) && flags.hybridevilvariant) || (Race_if(PM_LEVELSCALER) && flags.hybridlevelscaler) || (Race_if(PM_EROSATOR) && flags.hybriderosator) || (Race_if(PM_ROOMMATE) && flags.hybridroommate) || (Race_if(PM_EXTRAVATOR) && flags.hybridextravator) || (Race_if(PM_HALLUCINATOR) && flags.hybridhallucinator) || (Race_if(PM_BOSSRUSHER) && flags.hybridbossrusher) || (Race_if(PM_DORIAN) && flags.hybriddorian) || (Race_if(PM_TECHLESS) && flags.hybridtechless) || (Race_if(PM_BLAIT) && flags.hybridblait) || (Race_if(PM_GROUPER) && flags.hybridgrouper) || (Race_if(PM_SCRIPTOR) && flags.hybridscriptor) || (Race_if(PM_UNBALANCOR) && flags.hybridunbalancor) || (Race_if(PM_BEACHER) && flags.hybridbeacher) || (Race_if(PM_STAIRSEEKER) && flags.hybridstairseeker) || (Race_if(PM_MATRAYSER) && flags.hybridmatrayser) || (Race_if(PM_FEMINIZER) && flags.hybridfeminizer) )
 
 #define rn1(x,y)	(rn2(x)+(y))
 

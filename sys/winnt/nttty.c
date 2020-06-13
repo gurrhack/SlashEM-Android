@@ -203,7 +203,11 @@ int *wid, *hgt;
 {
 	int twid = origcsbi.srWindow.Right - origcsbi.srWindow.Left + 1;
 
+#ifdef BIGSLEX
+	if (twid > 125) twid = 125;
+#else
 	if (twid > 80) twid = 80;
+#endif
 	*wid = twid;
 	*hgt = origcsbi.srWindow.Bottom - origcsbi.srWindow.Top + 1;
 	set_option_mod_status("mouse_support", SET_IN_GAME);
@@ -342,10 +346,17 @@ nttty_open()
                            (origcsbi.dwCursorPosition.Y == 0));
 	else {
 	    GUILaunched = 0;
+#ifdef BIGSLEX
+	    origcsbi.srWindow.Left = 0;
+	    origcsbi.srWindow.Right = 125;
+	    origcsbi.srWindow.Top = 0;
+	    origcsbi.srWindow.Bottom = 45;
+#else
 	    origcsbi.srWindow.Left = 0;
 	    origcsbi.srWindow.Right = 80;
 	    origcsbi.srWindow.Top = 0;
 	    origcsbi.srWindow.Bottom = 25;
+#endif
 	}
         if ((origcsbi.dwSize.X <= 0) || (origcsbi.dwSize.Y <= 0))
             GUILaunched = 0;
@@ -424,15 +435,28 @@ get_scr_size()
 	LI = csbi.srWindow.Bottom - (csbi.srWindow.Top + 1);
 	CO = csbi.srWindow.Right - (csbi.srWindow.Left + 1);
 	} else {
+#ifdef BIGSLEX
+	    LI = 45;
+	    CO = 125;
+#else
 	    LI = 25;
 	    CO = 80;
+#endif
 	}
 
+#ifdef BIGSLEX
+	if ( (LI < 45) || (CO < 125) ) {
+		COORD newcoord;
+    
+		LI = 45;
+		CO = 125;
+#else
 	if ( (LI < 25) || (CO < 80) ) {
 		COORD newcoord;
     
 		LI = 25;
 		CO = 80;
+#endif
 
 		newcoord.Y = LI;
 		newcoord.X = CO;
@@ -449,9 +473,11 @@ tgetch()
     DWORD count;
     if (!cmode) {
 	char c;
+	if (iflags.debug_fuzzer) return randomkey();
 	return ReadFile(hConIn,&c,1,&count,NULL) && count ? c : EOF;
     } else {
 	really_move_cursor();
+	if (iflags.debug_fuzzer) return randomkey();
 	return pCheckInput(hConIn, &ir, &count, iflags.num_pad, 0, &mod, &cc);
     }
 }
@@ -466,9 +492,11 @@ int *x, *y, *mod;
     if (!cmode) {
 	char ch;
 	*mod = 0;
+	if (iflags.debug_fuzzer) return randomkey();
 	return ReadFile(hConIn,&ch,1,&count,NULL) && count ? ch : '\032';
     } else {
 	really_move_cursor();
+	if (iflags.debug_fuzzer) return randomkey();
 	ch = pCheckInput(hConIn, &ir, &count, iflags.num_pad, 1, mod, &cc);
 	if (!ch) {
 	    *x = cc.x;
@@ -665,7 +693,7 @@ cl_eos()
 void
 tty_nhbell()
 {
-	if (flags.silent) return;
+	if (flags.silent || iflags.debug_fuzzer) return;
 	Beep(8000,500);
 }
 
@@ -677,6 +705,7 @@ tty_delay_output()
 	/* delay 50 ms - uses ANSI C clock() function now */
 	clock_t goal;
 	int k;
+	if (iflags.debug_fuzzer) return;
 
 	goal = 50 + clock();
 	while (goal > clock()) {

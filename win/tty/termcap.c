@@ -237,7 +237,11 @@ int *wid, *hgt;
 #else
 # ifdef TOS
 	{
+#ifdef BIGSLEX
+		CO = 125; LI = 45;
+#else
 		CO = 80; LI = 25;
+#endif
 		TI = VS = VE = TE = nullstr;
 		HO = "\033H";
 		CE = "\033K";		/* the VT52 termcap */
@@ -862,6 +866,7 @@ tty_delay_output()
 #if defined(MICRO)
 	register int i;
 #endif
+	if (iflags.debug_fuzzer) return;
 #ifdef TIMED_DELAY
 	if (flags.sparkle || (youmonst.data && TheGameLaaaaags) ) {
 		(void) fflush(stdout);

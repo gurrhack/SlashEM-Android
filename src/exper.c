@@ -7,52 +7,6 @@
 /*STATIC_DCL*/ long newuexp(int);
 STATIC_DCL int enermod(int);
 
-#define PN_POLEARMS		(-1)
-#define PN_SABER		(-2)
-#define PN_HAMMER		(-3)
-#define PN_WHIP			(-4)
-#define PN_PADDLE		(-5)
-#define PN_FIREARMS		(-6)
-#define PN_ATTACK_SPELL		(-7)
-#define PN_HEALING_SPELL	(-8)
-#define PN_DIVINATION_SPELL	(-9)
-#define PN_ENCHANTMENT_SPELL	(-10)
-#define PN_PROTECTION_SPELL	(-11)
-#define PN_BODY_SPELL		(-12)
-#define PN_OCCULT_SPELL		(-13)
-#define PN_ELEMENTAL_SPELL		(-14)
-#define PN_CHAOS_SPELL		(-15)
-#define PN_MATTER_SPELL		(-16)
-#define PN_BARE_HANDED		(-17)
-#define PN_HIGH_HEELS		(-18)
-#define PN_GENERAL_COMBAT		(-19)
-#define PN_SHIELD		(-20)
-#define PN_BODY_ARMOR		(-21)
-#define PN_TWO_HANDED_WEAPON		(-22)
-#define PN_POLYMORPHING		(-23)
-#define PN_DEVICES		(-24)
-#define PN_SEARCHING		(-25)
-#define PN_SPIRITUALITY		(-26)
-#define PN_PETKEEPING		(-27)
-#define PN_MISSILE_WEAPONS		(-28)
-#define PN_TECHNIQUES		(-29)
-#define PN_IMPLANTS		(-30)
-#define PN_SEXY_FLATS		(-31)
-#define PN_SHII_CHO		(-32)
-#define PN_MAKASHI		(-33)
-#define PN_SORESU		(-34)
-#define PN_ATARU		(-35)
-#define PN_SHIEN		(-36)
-#define PN_DJEM_SO		(-37)
-#define PN_NIMAN		(-38)
-#define PN_JUYO		(-39)
-#define PN_VAAPAD		(-40)
-#define PN_WEDI		(-41)
-#define PN_MARTIAL_ARTS		(-42)
-#define PN_RIDING		(-43)
-#define PN_TWO_WEAPONS		(-44)
-#define PN_LIGHTSABER		(-45)
-
 #ifndef OVLB
 
 STATIC_DCL NEARDATA const short skill_names_indices[];
@@ -83,6 +37,7 @@ STATIC_OVL NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
 	PN_TWO_HANDED_WEAPON,	PN_POLYMORPHING,	PN_DEVICES,
 	PN_SEARCHING,	PN_SPIRITUALITY,	PN_PETKEEPING,
 	PN_MISSILE_WEAPONS,	PN_TECHNIQUES,	PN_IMPLANTS,	PN_SEXY_FLATS,
+	PN_MEMORIZATION,	PN_GUN_CONTROL,	PN_SQUEAKING,	PN_SYMBIOSIS,
 	PN_SHII_CHO,	PN_MAKASHI,	PN_SORESU,
 	PN_ATARU,	PN_SHIEN,	PN_DJEM_SO,
 	PN_NIMAN,	PN_JUYO,	PN_VAAPAD,	PN_WEDI,
@@ -125,6 +80,10 @@ STATIC_OVL NEARDATA const char * const odd_skill_names[] = {
     "techniques",
     "implants",
     "sexy flats",
+    "memorization",
+    "gun control",
+    "squeaking",
+    "symbiosis",
     "form I (Shii-Cho)",
     "form II (Makashi)",
     "form III (Soresu)",
@@ -307,8 +266,10 @@ experience(mtmp, nk)	/* return # of exp points for mtmp after nk killed */
 		/* extra heavy damage bonus */
 	    if((int)(ptr->mattk[i].damd * ptr->mattk[i].damn) > 23)
 		tmp += mtmp->m_lev;
-	    if (tmp2 == AD_WRAP && ptr->mlet == S_EEL && !Amphibious)
-		tmp += 100;
+	    if (tmp2 == AD_WRAP && ptr->mlet == S_EEL) { /* edited by Amy */
+		tmp *= 11;
+		tmp /= 10;
+	    }
 	}
 
 /*	For certain "extra nasty" monsters, give even more */
@@ -316,6 +277,16 @@ experience(mtmp, nk)	/* return # of exp points for mtmp after nk killed */
 
 /*	For higher level monsters, an additional bonus is given */
 	if(mtmp->m_lev > 8) tmp += 50;
+	/* Amy edit: high experience levels require lots of XP, but high-level monsters don't give all that much more XP
+	 * than low-level ones? gotta fix that... */
+	if(mtmp->m_lev > 20) {
+		int hilvlmod = (mtmp->m_lev - 19);
+		tmp += (hilvlmod * hilvlmod);
+	}
+	if(mtmp->m_lev > 40) {
+		int hilvlmod = (mtmp->m_lev - 39);
+		tmp += (hilvlmod * hilvlmod * 100);
+	}
 
 #ifdef MAIL
 	/* Mail daemons put up no fight. */
@@ -329,10 +300,12 @@ void
 more_experienced(exp, rexp)
 	register int exp, rexp;
 {
-	if (u.uprops[ANTILEVELING].extrinsic || Antileveling || (uamul && uamul->oartifact == ART_NAZGUL_S_REVENGE) || have_antilevelstone() ) return;
+	if (u.uprops[ANTILEVELING].extrinsic || Antileveling || (uamul && uamul->oartifact == ART_NAZGUL_S_REVENGE) || have_antilevelstone() && !(u.ulevel < 10 && !rn2(u.ulevel + 1)) ) return;
 
 	if ((exp > 0) && Race_if(PM_YEEK)) exp *= 2;
+	if ((exp > 0) && uarmc && uarmc->oartifact == ART_TOO_MANY_AFFIXES) exp *= 2;
 	if (uarmc && uarmc->oartifact == ART_ARTIFICIAL_FAKE_DIFFICULTY && (exp > 1)) exp /= 2;
+	if (Race_if(PM_ETHEREALOID) && (exp > 1)) exp /= 2;
 
 	u.uexp += exp;
 	u.urexp += 4*exp + rexp;
@@ -356,7 +329,7 @@ boolean dresistance;	/* level drain resistance can protect you */
 		drainer = 0;
 #endif
 
-	if (dresistance && Drain_resistance && rn2(5) ) return;
+	if (dresistance && Drain_resistance && rn2(StrongDrain_resistance ? 10 : 5) ) return;
 
 	/* level drain is too strong. Let's nerf it a bit. --Amy */
 	/* In Soviet Russia, level drain will always drain at least one level, because fuck you, stupid player. You're
@@ -366,6 +339,30 @@ boolean dresistance;	/* level drain resistance can protect you */
 		expdrain /= (isfriday ? 3 : 5);
 		expdrain = rnz(expdrain);
 		if ((u.uexp - expdrain) > newuexp(u.ulevel - 1)) {
+			/* drain some experience, but not enough to make you lose a level */
+			You_feel("your life draining away!");
+			if (PlayerHearsSoundEffects) pline(issoviet ? "Vy tol'ko chto poteryali odin uroven', skoro vy poteryayete vse urovni i umeret'." : "Due-l-ue-l-ue-l!");
+			u.uexp -= expdrain;
+			return;
+		}
+	} else if (!force && (u.uexp > 20) && (u.uexp <= 320) && !issoviet && u.ulevel > 1) {
+		expdrain = newuexp(u.ulevel) - newuexp(u.ulevel - 1);
+		expdrain /= (isfriday ? 3 : 5);
+		expdrain *= 3;
+		expdrain = rnz(expdrain);
+		if ((u.uexp - expdrain) > newuexp(u.ulevel - 1)) {
+			/* drain some experience, but not enough to make you lose a level */
+			You_feel("your life draining away!");
+			if (PlayerHearsSoundEffects) pline(issoviet ? "Vy tol'ko chto poteryali odin uroven', skoro vy poteryayete vse urovni i umeret'." : "Due-l-ue-l-ue-l!");
+			u.uexp -= expdrain;
+			return;
+		}
+	} else if (!force && (u.uexp > 10) && !issoviet && u.ulevel == 1) {
+		expdrain = 20;
+		expdrain /= (isfriday ? 3 : 5);
+		expdrain *= 3;
+		expdrain = rnz(expdrain);
+		if ((u.uexp - expdrain) > 0) {
 			/* drain some experience, but not enough to make you lose a level */
 			You_feel("your life draining away!");
 			if (PlayerHearsSoundEffects) pline(issoviet ? "Vy tol'ko chto poteryali odin uroven', skoro vy poteryayete vse urovni i umeret'." : "Due-l-ue-l-ue-l!");
@@ -472,95 +469,48 @@ newexplevel()
 	if (u.ulevel < MAXULEV && u.uexp >= newuexp(u.ulevel))
 	    pluslvl(TRUE);
 	else if (u.uexp >= (10000000 + (2000000 * u.xtralevelmult))) {
-	    u.xtralevelmult++;
-	    u.uexp = 10000000;
-	    You_feel("more experienced.");
-	    pluslvl(TRUE);
+		You_feel("more experienced.");
+		pluslvl(TRUE); /* will increase the xtralevelmult variable */
+		/* leveling via EXP can keep giving you skill slots --Amy
+		 * but now also via gain level, because that requires more and more potions, too
+		 * effect moved to pluslvl() function */
 	}
 }
 
-#if 0 /* The old newexplevel() */
+/* if your level is rather high already, gain level effects shouldn't always give you a full level --Amy
+ * important: increase u.uexp value even when you have anti-experience! */
+void
+gainlevelmaybe()
 {
-	register int tmp;
-	struct obj *ubook;
-
-	if(u.ulevel < MAXULEV && u.uexp >= newuexp(u.ulevel)) {
-
-		u.ulevel++;
-		if (u.ulevelmax < u.ulevel) u.ulevelmax = u.ulevel;	/* KMH */
-		if (u.uexp >= newuexp(u.ulevel)) u.uexp = newuexp(u.ulevel) - 1;
-		pline("Welcome to experience level %d.", u.ulevel);
-		/* give new intrinsics */
-		adjabil(u.ulevel - 1, u.ulevel);
-
-
-		reset_rndmonst(NON_PM); /* new monster selection */
-/* STEPHEN WHITE'S NEW CODE */                
-		tmp = newhp();
-		u.uhpmax += tmp;
-		u.uhpmax += rn2(3);
-		u.uhp += tmp;
-		u.uhpmax += rnz(2); /*making the game a bit easier --Amy */
-		if (!issoviet && (u.uhp < u.uhpmax)) u.uhp = u.uhpmax;
-		if (issoviet) pline("Vy dazhe ne poluchayete polnyye linii, potomu chto sovetskiy ne ponimayet, kak rolevyye igry rabotayut!");
-		switch (Role_switch) {
-			case PM_ARCHEOLOGIST: u.uenbase += rnd(4) + 1; break;
-			case PM_BARBARIAN: u.uenbase += rnd(2); break;
-			case PM_CAVEMAN: u.uenbase += rnd(2); break;
-			/*case PM_DOPPELGANGER: u.uenbase += rnd(5) + 1; break;
-			case PM_ELF: case PM_DROW: u.uenbase += rnd(5) + 1; break;*/
-			case PM_FLAME_MAGE: u.uenbase += rnd(6) + 2; break;
-			case PM_ACID_MAGE: u.uenbase += rnd(6) + 2; break;
-			case PM_GNOME: u.uenbase += rnd(3); break;
-			case PM_HEALER: u.uenbase += rnd(6) + 2; break;
-			case PM_ICE_MAGE: u.uenbase += rnd(6) + 2; break;
-			case PM_ELECTRIC_MAGE: u.uenbase += rnd(6) + 2; break;
-			case PM_YEOMAN:
-			case PM_KNIGHT: u.uenbase += rnd(3); break;
-			/*case PM_HUMAN_WEREWOLF: u.uenbase += rnd(5) + 1; break;*/
-			case PM_MONK: u.uenbase += rnd(5) + 1; break;
-			case PM_ELPH: u.uenbase += rnd(5) + 1; break;
-			case PM_NECROMANCER: u.uenbase += rnd(6) + 2; break;
-			case PM_PRIEST: u.uenbase += rnd(6) + 2; break;
-			case PM_CHEVALIER: u.uenbase += rnd(6) + 2; break;
-			case PM_ROGUE: u.uenbase += rnd(4) + 1; break;
-			/*case PM_MAIA: u.uenbase += rnd(4) + 1; break;
-			case PM_GASTLY: u.uenbase += rnd(3) + 1; break;*/
-			case PM_SAMURAI: u.uenbase += rnd(2); break;
-			case PM_TOURIST: u.uenbase += rnd(4) + 1; break;
-			case PM_UNDEAD_SLAYER: u.uenbase += rnd(3); break;
-			case PM_VALKYRIE: u.uenbase += rnd(2); break;
-			case PM_WIZARD: u.uenbase += rnd(6) + 2; break;
-			case PM_CONVICT: break;
-			/*case PM_ALIEN: break;
-			case PM_OGRO: break;
-			case PM_KOBOLT: break;
-			case PM_TROLLOR: break;
-			case PM_GIGANT: break;*/
-			case PM_WARRIOR: break;
-			case PM_COURIER: break;
-			default: u.uenbase += rnd(2) + 1; break;
-		}
-		if (u.uen < u.uenmax) u.uen = u.uenmax;
-
-		flags.botl = 1;
-	}
+	if (u.ulevel >= MAXULEV && ((u.uexp + 200000) < (10000000 + (2000000 * u.xtralevelmult)) ) ) {
+		u.uexp += 200000;
+		flags.botl = TRUE;
+		You("gain experience.");
+	} else if (u.ulevel < MAXULEV && ((u.uexp + 200000) < newuexp(u.ulevel)) ) {
+		u.uexp += 200000;
+		flags.botl = TRUE;
+		You("gain experience.");
+	} else pluslvl(FALSE);
 }
-#endif /* old newexplevel() */
 
 void
 pluslvl(incr)
 boolean incr;	/* true iff via incremental experience growth */
 {		/*	(false for potion of gain level)      */
 	register int num;
-	struct obj *ubookz;
-	register struct obj *acqo;
 
 	if (!incr) You_feel("more experienced.");
 
+	if (u.ulevel >= MAXULEV) {
+		u.uexp = 10000000; /* reset counter for gain level */
+		u.xtralevelmult++;
+		u.cnd_overlevelcount++;
+		u.weapon_slots++; /* leveling past 30 can keep giving you skill slots --Amy */
+	}
+
 	if (u.ulevel < MAXULEV) {
 
-	if ((!ishomicider || rn2(2)) && !(Deprovement || u.uprops[DEPROVEMENT].extrinsic || have_deprovementstone())
+	if ((!ishomicider || rn2(2)) && !((Deprovement || u.uprops[DEPROVEMENT].extrinsic || have_deprovementstone()) && !(u.ulevel < 10 && !rn2(u.ulevel + 1)) && rn2(10) )
 ) {	/* homicider only gains hp/pw 50% of the time --Amy */
 	/* a.k.a. "bullshit downside that every fun new race gets" (term coined by Khor) */
 
@@ -574,7 +524,7 @@ boolean incr;	/* true iff via incremental experience growth */
 	if (u.ulevel >= 27) num += rnd(3);
 	if (u.ulevel >= 29) num += rnd(10);
 
-	if (Race_if(PM_YEEK) || Race_if(PM_DUFFLEPUD)) num /= 2;
+	if (Race_if(PM_YEEK) || Race_if(PM_DUFFLEPUD) || Race_if(PM_PLAYER_FAIRY)) num /= 2;
 	if (Race_if(PM_PLAYER_DOLGSMAN)) {
 		num *= 3;
 		num /= 4;
@@ -591,7 +541,7 @@ boolean incr;	/* true iff via incremental experience growth */
 	    if (num < 0) num = 0;
 	    num += rn2(3);
 
-	    if (Race_if(PM_YEEK) || Race_if(PM_DUFFLEPUD)) num /= 2;
+	    if (Race_if(PM_YEEK) || Race_if(PM_DUFFLEPUD) || Race_if(PM_PLAYER_FAIRY)) num /= 2;
 	    if (Race_if(PM_PLAYER_DOLGSMAN)) {
 		num *= 3;
 		num /= 4;
@@ -599,6 +549,7 @@ boolean incr;	/* true iff via incremental experience growth */
 
 	    u.mhmax += num;
 	    u.mh += num;
+
 		if ((u.ulevel >= u.urmaxlvlUP && u.ulevel < 30) && !issoviet && (u.mh < u.mhmax)) u.mh = u.mhmax;
 	}
 	if (u.ulevel < urole.xlev)
@@ -621,7 +572,7 @@ boolean incr;	/* true iff via incremental experience growth */
 
 	} else { /* u.ulevel > MAXULEV */
 
-	if ((!ishomicider || rn2(2)) && !(Deprovement || u.uprops[DEPROVEMENT].extrinsic || have_deprovementstone())
+	if ((!ishomicider || rn2(2)) && !((Deprovement || u.uprops[DEPROVEMENT].extrinsic || have_deprovementstone()) && !(u.ulevel < 10 && !rn2(u.ulevel + 1)) && rn2(10) )
 ) {	/* homicider only gains hp/pw 50% of the time --Amy */
 	/* a.k.a. "bullshit downside that every fun new race gets" (term coined by Khor) */
 
@@ -632,7 +583,7 @@ boolean incr;	/* true iff via incremental experience growth */
 	if (Race_if(PM_SPRIGGAN) && !rn2(2)) num = 0;
 	num += rn2(2);
 
-	if (Race_if(PM_YEEK) || Race_if(PM_DUFFLEPUD)) num /= 2;
+	if (Race_if(PM_YEEK) || Race_if(PM_DUFFLEPUD) || Race_if(PM_PLAYER_FAIRY)) num /= 2;
 	if (Race_if(PM_PLAYER_DOLGSMAN)) {
 		num *= 3;
 		num /= 4;
@@ -647,7 +598,7 @@ boolean incr;	/* true iff via incremental experience growth */
 	    if (num > 1) num /= rnd(12);
 	    num += rn2(2);
 
-	    if (Race_if(PM_YEEK) || Race_if(PM_DUFFLEPUD)) num /= 2;
+	    if (Race_if(PM_YEEK) || Race_if(PM_DUFFLEPUD) || Race_if(PM_PLAYER_FAIRY)) num /= 2;
 	    if (Race_if(PM_PLAYER_DOLGSMAN)) {
 		num *= 3;
 		num /= 4;
@@ -678,11 +629,67 @@ boolean incr;	/* true iff via incremental experience growth */
 
 	} /* u.ulevel > or < MAXULEV */
 
+	if(u.ulevel < MAXULEV) {
+	    if (incr) {
+		long tmp = newuexp(u.ulevel + 1);
+		if (u.uexp >= tmp) u.uexp = tmp - 1;
+	    } else {
+		u.uexp = newuexp(u.ulevel);
+	    }
+	    ++u.ulevel;
+	    if (u.ulevelmax < u.ulevel) u.ulevelmax = u.ulevel;
+	    pline("Welcome to experience level %d.", u.ulevel);
+	    adjabil(u.ulevel - 1, u.ulevel);	/* give new intrinsics */
+	    reset_rndmonst(NON_PM);		/* new monster selection */
+	}
 
-	if (u.ulevel >= u.urmaxlvlUP && u.ulevel < 30) {
-		u.urmaxlvlUP = (u.ulevel + 1);
+	exprecalc();
 
-		if (Role_if(PM_FEMINIST) && !rn2(5)) {
+	flags.botl = 1;
+}
+
+/* compute a random amount of experience points suitable for the hero's
+   experience level:  base number of points needed to reach the current
+   level plus a random portion of what it takes to get to the next level */
+long
+rndexp(gaining)
+boolean gaining;	/* gaining XP via potion vs setting XP for polyself */
+{
+	long minexp, maxexp, diff, factor, result;
+
+	minexp = (u.ulevel == 1) ? 0L : newuexp(u.ulevel - 1);
+	maxexp = newuexp(u.ulevel);
+	/* don't make blessed gain level too strong... --Amy */
+	if (gaining && ((newuexp(u.ulevel) - newuexp(u.ulevel - 1)) > 200000)) {
+		maxexp = (newuexp(u.ulevel - 1)) + 200000;
+	}
+	diff = maxexp - minexp,  factor = 1L;
+	/* make sure that `diff' is an argument which rn2() can handle */
+	while (diff >= (long)LARGEST_INT)
+	    diff /= 2L,  factor *= 2L;
+	result = minexp + factor * (long)rn2((int)diff);
+	/* 3.4.1:  if already at level 30, add to current experience
+	   points rather than to threshold needed to reach the current
+	   level; otherwise blessed potions of gain level can result
+	   in lowering the experience points instead of raising them */
+	if (u.ulevel == MAXULEV && gaining) {
+	    result += (u.uexp - minexp);
+	    /* avoid wrapping (over 400 blessed potions needed for that...) */
+	    if (result < u.uexp) result = u.uexp;
+	}
+	return result;
+}
+
+void
+exprecalc(void)
+{
+	register struct obj *acqo;
+	struct obj *ubookz;
+
+	while (u.ulevel > u.urmaxlvlUP && u.ulevel < 30) {
+		u.urmaxlvlUP++;
+
+		if ( (Role_if(PM_FEMINIST) || Role_if(PM_GRENADONIN)) && !rn2(5)) {
 
 			boolean havegifts = u.ugifts;
 
@@ -706,6 +713,25 @@ boolean incr;	/* true iff via incremental experience growth */
 					P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_GRAND_MASTER;
 				} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_GRAND_MASTER) {
 					P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_SUPREME_MASTER;
+				}
+
+				if (Race_if(PM_RUSMOT)) {
+					if (P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_ISRESTRICTED) {
+						unrestrict_weapon_skill(get_obj_skill(acqo, TRUE));
+					} else if (P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_UNSKILLED) {
+						unrestrict_weapon_skill(get_obj_skill(acqo, TRUE));
+						P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_BASIC;
+					} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_BASIC) {
+						P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_SKILLED;
+					} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_SKILLED) {
+						P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_EXPERT;
+					} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_EXPERT) {
+						P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_MASTER;
+					} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_MASTER) {
+						P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_GRAND_MASTER;
+					} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(acqo, TRUE)) == P_GRAND_MASTER) {
+						P_MAX_SKILL(get_obj_skill(acqo, TRUE)) = P_SUPREME_MASTER;
+					}
 				}
 
 			    discover_artifact(acqo->oartifact);
@@ -814,6 +840,10 @@ boolean incr;	/* true iff via incremental experience growth */
 						if (femintcheck) pline("You receive an elaborate auspicious message: At experience level 6, you start seeing mojibake glyphs.");
 						else pline("Your auspices say: 6 8");
 						break;
+					case 9:
+						if (femintcheck) pline("You receive an elaborate auspicious message: At experience level 6, all sanity effects will increase your sanity by much more than usual.");
+						else pline("Your auspices say: 6 9");
+						break;
 				}
 
 			} else if (u.urmaxlvlUP == 7) {
@@ -849,6 +879,10 @@ boolean incr;	/* true iff via incremental experience growth */
 					case 8:
 						if (femintcheck) pline("You receive an elaborate auspicious message: At experience level 8, monsters will make noises.");
 						else pline("Your auspices say: 8 8");
+						break;
+					case 9:
+						if (femintcheck) pline("You receive an elaborate auspicious message: At experience level 8, increasing stats beyond a certain limit will become much harder.");
+						else pline("Your auspices say: 8 9");
 						break;
 				}
 
@@ -953,6 +987,14 @@ boolean incr;	/* true iff via incremental experience growth */
 					case 8:
 						if (femintcheck) pline("You receive an elaborate auspicious message: At experience level 13, monsters are generated with movement energy.");
 						else pline("Your auspices say: 13 8");
+						break;
+					case 9:
+						if (femintcheck) pline("You receive an elaborate auspicious message: At experience level 13, you will be in the bad part.");
+						else pline("Your auspices say: 13 9");
+						break;
+					case 10:
+						if (femintcheck) pline("You receive an elaborate auspicious message: At experience level 13, you will be in the completely bad part.");
+						else pline("Your auspices say: 13 10");
 						break;
 				}
 
@@ -1222,501 +1264,37 @@ boolean incr;	/* true iff via incremental experience growth */
 
 	}
 	
-	if(u.ulevel < MAXULEV) {
-	    if (incr) {
-		long tmp = newuexp(u.ulevel + 1);
-		if (u.uexp >= tmp) u.uexp = tmp - 1;
-	    } else {
-		u.uexp = newuexp(u.ulevel);
-	    }
-	    ++u.ulevel;
-	    if (u.ulevelmax < u.ulevel) u.ulevelmax = u.ulevel;
-	    pline("Welcome to experience level %d.", u.ulevel);
-	    adjabil(u.ulevel - 1, u.ulevel);	/* give new intrinsics */
-	    reset_rndmonst(NON_PM);		/* new monster selection */
+
+	if (isproblematic && !rn2(3)) {
+		/* no xlvl check - if you get drained repeatedly, your loss! I'm really mean :D --Amy */
+
+		getnastytrapintrinsic();
+
 	}
 
-		if (isproblematic && !rn2(3)) {
-			/* no xlvl check - if you get drained repeatedly, your loss! I'm really mean :D --Amy */
+	/* slex has so many skills, you keep running out of slots all the damn time! Need to counteract that --Amy */
+	while (u.ulevel > u.urmaxlvlN) {
+		u.urmaxlvlN++;
+		if (u.urmaxlvlN == 10) u.weapon_slots += 5;
+		if (u.urmaxlvlN == 20) u.weapon_slots += 5;
+		if (u.urmaxlvlN == 30) u.weapon_slots += 5;
+	}
 
-			switch (rnd(229)) {
+	while (Race_if(PM_RODNEYAN) && u.ulevel > u.urmaxlvl) {
 
-				case 1: 
-				    SpeedBug |= FROMOUTSIDE; break;
-				case 2: 
-				    MenuBug |= FROMOUTSIDE; break;
-				case 3: 
-				    RMBLoss |= FROMOUTSIDE; break;
-				case 4: 
-				    DisplayLoss |= FROMOUTSIDE; break;
-				case 5: 
-				    SpellLoss |= FROMOUTSIDE; break;
-				case 6: 
-				    YellowSpells |= FROMOUTSIDE; break;
-				case 7: 
-				    AutoDestruct |= FROMOUTSIDE; break;
-				case 8: 
-				    MemoryLoss |= FROMOUTSIDE; break;
-				case 9: 
-				    InventoryLoss |= FROMOUTSIDE; break;
-				case 10: 
-				    BlackNgWalls |= FROMOUTSIDE; break;
-				case 11: 
-				    Superscroller |= FROMOUTSIDE; break;
-				case 12: 
-				    FreeHandLoss |= FROMOUTSIDE; break;
-				case 13: 
-				    Unidentify |= FROMOUTSIDE; break;
-				case 14: 
-				    Thirst |= FROMOUTSIDE; break;
-				case 15: 
-				    LuckLoss |= FROMOUTSIDE; break;
-				case 16: 
-				    ShadesOfGrey |= FROMOUTSIDE; break;
-				case 17: 
-				    FaintActive |= FROMOUTSIDE; break;
-				case 18: 
-				    Itemcursing |= FROMOUTSIDE; break;
-				case 19: 
-				    DifficultyIncreased |= FROMOUTSIDE; break;
-				case 20: 
-				    Deafness |= FROMOUTSIDE; break;
-				case 21: 
-				    CasterProblem |= FROMOUTSIDE; break;
-				case 22: 
-				    WeaknessProblem |= FROMOUTSIDE; break;
-				case 23: 
-				    RotThirteen |= FROMOUTSIDE; break;
-				case 24: 
-				    BishopGridbug |= FROMOUTSIDE; break;
-				case 25: 
-				    ConfusionProblem |= FROMOUTSIDE; break;
-				case 26: 
-				    NoDropProblem |= FROMOUTSIDE; break;
-				case 27: 
-				    DSTWProblem |= FROMOUTSIDE; break;
-				case 28: 
-				    StatusTrapProblem |= FROMOUTSIDE; break;
-				case 29: 
-				    AlignmentProblem |= FROMOUTSIDE; break;
-				case 30: 
-				    StairsProblem |= FROMOUTSIDE; break;
-				case 31: 
-				    UninformationProblem |= FROMOUTSIDE; break;
-				case 32: 
-				    IntrinsicLossProblem |= FROMOUTSIDE; break;
-				case 33: 
-				    BloodLossProblem |= FROMOUTSIDE; break;
-				case 34: 
-				    BadEffectProblem |= FROMOUTSIDE; break;
-				case 35: 
-				    TrapCreationProblem |= FROMOUTSIDE; break;
-				case 36: 
-				    AutomaticVulnerabilitiy |= FROMOUTSIDE; break;
-				case 37: 
-				    TeleportingItems |= FROMOUTSIDE; break;
-				case 38: 
-				    NastinessProblem |= FROMOUTSIDE; break;
-				case 39: 
-				    RecurringAmnesia |= FROMOUTSIDE; break;
-				case 40: 
-				    BigscriptEffect |= FROMOUTSIDE; break;
-				case 41: 
-				    BankTrapEffect |= FROMOUTSIDE; break;
-				case 42: 
-				    MapTrapEffect |= FROMOUTSIDE; break;
-				case 43: 
-				    TechTrapEffect |= FROMOUTSIDE; break;
-				case 44: 
-				    RecurringDisenchant |= FROMOUTSIDE; break;
-				case 45: 
-				    verisiertEffect |= FROMOUTSIDE; break;
-				case 46: 
-				    ChaosTerrain |= FROMOUTSIDE; break;
-				case 47: 
-				    Muteness |= FROMOUTSIDE; break;
-				case 48: 
-				    EngravingDoesntWork |= FROMOUTSIDE; break;
-				case 49: 
-				    MagicDeviceEffect |= FROMOUTSIDE; break;
-				case 50: 
-				    BookTrapEffect |= FROMOUTSIDE; break;
-				case 51: 
-				    LevelTrapEffect |= FROMOUTSIDE; break;
-				case 52: 
-				    QuizTrapEffect |= FROMOUTSIDE; break;
-				case 53: 
-				    CaptchaProblem |= FROMOUTSIDE; break;
-				case 54: 
-				    FarlookProblem |= FROMOUTSIDE; break;
-				case 55: 
-				    RespawnProblem |= FROMOUTSIDE; break;
-				case 56: 
-				    FastMetabolismEffect |= FROMOUTSIDE; break;
-				case 57: 
-				    NoReturnEffect |= FROMOUTSIDE; break;
-				case 58: 
-				    AlwaysEgotypeMonsters |= FROMOUTSIDE; break;
-				case 59: 
-				    TimeGoesByFaster |= FROMOUTSIDE; break;
-				case 60: 
-				    FoodIsAlwaysRotten |= FROMOUTSIDE; break;
-				case 61: 
-				    AllSkillsUnskilled |= FROMOUTSIDE; break;
-				case 62: 
-				    AllStatsAreLower |= FROMOUTSIDE; break;
-				case 63: 
-				    PlayerCannotTrainSkills |= FROMOUTSIDE; break;
-				case 64: 
-				    PlayerCannotExerciseStats |= FROMOUTSIDE; break;
-				case 65: 
-				    TurnLimitation |= FROMOUTSIDE; break;
-				case 66: 
-				    WeakSight |= FROMOUTSIDE; break;
-				case 67: 
-				    RandomMessages |= FROMOUTSIDE; break;
-				case 68: 
-				    Desecration |= FROMOUTSIDE; break;
-				case 69: 
-				    StarvationEffect |= FROMOUTSIDE; break;
-				case 70: 
-				    NoDropsEffect |= FROMOUTSIDE; break;
-				case 71: 
-				    LowEffects |= FROMOUTSIDE; break;
-				case 72: 
-				    InvisibleTrapsEffect |= FROMOUTSIDE; break;
-				case 73: 
-				    GhostWorld |= FROMOUTSIDE; break;
-				case 74: 
-				    Dehydration |= FROMOUTSIDE; break;
-				case 75: 
-				    HateTrapEffect |= FROMOUTSIDE; break;
-				case 76: 
-				    TotterTrapEffect |= FROMOUTSIDE; break;
-				case 77: 
-				    Nonintrinsics |= FROMOUTSIDE; break;
-				case 78: 
-				    Dropcurses |= FROMOUTSIDE; break;
-				case 79: 
-				    Nakedness |= FROMOUTSIDE; break;
-				case 80: 
-				    Antileveling |= FROMOUTSIDE; break;
-				case 81: 
-				    ItemStealingEffect |= FROMOUTSIDE; break;
-				case 82: 
-				    Rebellions |= FROMOUTSIDE; break;
-				case 83: 
-				    CrapEffect |= FROMOUTSIDE; break;
-				case 84: 
-				    ProjectilesMisfire |= FROMOUTSIDE; break;
-				case 85: 
-				    WallTrapping |= FROMOUTSIDE; break;
-				case 86: 
-				    DisconnectedStairs |= FROMOUTSIDE; break;
-				case 87: 
-				    InterfaceScrewed |= FROMOUTSIDE; break;
-				case 88: 
-				    Bossfights |= FROMOUTSIDE; break;
-				case 89: 
-				    EntireLevelMode |= FROMOUTSIDE; break;
-				case 90: 
-				    BonesLevelChange |= FROMOUTSIDE; break;
-				case 91: 
-				    AutocursingEquipment |= FROMOUTSIDE; break;
-				case 92: 
-				    HighlevelStatus |= FROMOUTSIDE; break;
-				case 93: 
-				    SpellForgetting |= FROMOUTSIDE; break;
-				case 94: 
-				    SoundEffectBug |= FROMOUTSIDE; break;
-				case 95: 
-				    TimerunBug |= FROMOUTSIDE; break;
-				case 96:
-				    LootcutBug |= FROMOUTSIDE; break;
-				case 97:
-				    MonsterSpeedBug |= FROMOUTSIDE; break;
-				case 98:
-				    ScalingBug |= FROMOUTSIDE; break;
-				case 99:
-				    EnmityBug |= FROMOUTSIDE; break;
-				case 100:
-				    WhiteSpells |= FROMOUTSIDE; break;
-				case 101:
-				    CompleteGraySpells |= FROMOUTSIDE; break;
-				case 102:
-				    QuasarVision |= FROMOUTSIDE; break;
-				case 103:
-				    MommaBugEffect |= FROMOUTSIDE; break;
-				case 104:
-				    HorrorBugEffect |= FROMOUTSIDE; break;
-				case 105:
-				    ArtificerBug |= FROMOUTSIDE; break;
-				case 106:
-				    WereformBug |= FROMOUTSIDE; break;
-				case 107:
-				    NonprayerBug |= FROMOUTSIDE; break;
-				case 108:
-				    EvilPatchEffect |= FROMOUTSIDE; break;
-				case 109:
-				    HardModeEffect |= FROMOUTSIDE; break;
-				case 110:
-				    SecretAttackBug |= FROMOUTSIDE; break;
-				case 111:
-				    EaterBugEffect |= FROMOUTSIDE; break;
-				case 112:
-				    CovetousnessBug |= FROMOUTSIDE; break;
-				case 113:
-				    NotSeenBug |= FROMOUTSIDE; break;
-				case 114:
-				    DarkModeBug |= FROMOUTSIDE; break;
-				case 115:
-				    AntisearchEffect |= FROMOUTSIDE; break;
-				case 116:
-				    HomicideEffect |= FROMOUTSIDE; break;
-				case 117:
-				    NastynationBug |= FROMOUTSIDE; break;
-				case 118:
-				    WakeupCallBug |= FROMOUTSIDE; break;
-				case 119:
-				    GrayoutBug |= FROMOUTSIDE; break;
-				case 120:
-				    GrayCenterBug |= FROMOUTSIDE; break;
-				case 121:
-				    CheckerboardBug |= FROMOUTSIDE; break;
-				case 122:
-				    ClockwiseSpinBug |= FROMOUTSIDE; break;
-				case 123:
-				    CounterclockwiseSpin |= FROMOUTSIDE; break;
-				case 124:
-				    LagBugEffect |= FROMOUTSIDE; break;
-				case 125:
-				    BlesscurseEffect |= FROMOUTSIDE; break;
-				case 126:
-				    DeLightBug |= FROMOUTSIDE; break;
-				case 127:
-				    DischargeBug |= FROMOUTSIDE; break;
-				case 128:
-				    TrashingBugEffect |= FROMOUTSIDE; break;
-				case 129:
-				    FilteringBug |= FROMOUTSIDE; break;
-				case 130:
-				    DeformattingBug |= FROMOUTSIDE; break;
-				case 131:
-				    FlickerStripBug |= FROMOUTSIDE; break;
-				case 132:
-				    UndressingEffect |= FROMOUTSIDE; break;
-				case 133:
-				    Hyperbluewalls |= FROMOUTSIDE; break;
-				case 134:
-				    NoliteBug |= FROMOUTSIDE; break;
-				case 135:
-				    ParanoiaBugEffect |= FROMOUTSIDE; break;
-				case 136:
-				    FleecescriptBug |= FROMOUTSIDE; break;
-				case 137:
-				    InterruptEffect |= FROMOUTSIDE; break;
-				case 138:
-				    DustbinBug |= FROMOUTSIDE; break;
-				case 139:
-				    ManaBatteryBug |= FROMOUTSIDE; break;
-				case 140:
-				    Monsterfingers |= FROMOUTSIDE; break;
-				case 141:
-				    MiscastBug |= FROMOUTSIDE; break;
-				case 142:
-				    MessageSuppression |= FROMOUTSIDE; break;
-				case 143:
-				    StuckAnnouncement |= FROMOUTSIDE; break;
-				case 144:
-				    BloodthirstyEffect |= FROMOUTSIDE; break;
-				case 145:
-				    MaximumDamageBug |= FROMOUTSIDE; break;
-				case 146:
-				    LatencyBugEffect |= FROMOUTSIDE; break;
-				case 147:
-				    StarlitBug |= FROMOUTSIDE; break;
-				case 148:
-				    KnowledgeBug |= FROMOUTSIDE; break;
-				case 149:
-				    HighscoreBug |= FROMOUTSIDE; break;
-				case 150:
-				    PinkSpells |= FROMOUTSIDE; break;
-				case 151:
-				    GreenSpells |= FROMOUTSIDE; break;
-				case 152:
-				    EvencoreEffect |= FROMOUTSIDE; break;
-				case 153:
-				    UnderlayerBug |= FROMOUTSIDE; break;
-				case 154:
-				    DamageMeterBug |= FROMOUTSIDE; break;
-				case 155:
-				    ArbitraryWeightBug |= FROMOUTSIDE; break;
-				case 156:
-				    FuckedInfoBug |= FROMOUTSIDE; break;
-				case 157:
-				    BlackSpells |= FROMOUTSIDE; break;
-				case 158:
-				    CyanSpells |= FROMOUTSIDE; break;
-				case 159:
-				    HeapEffectBug |= FROMOUTSIDE; break;
-				case 160:
-				    BlueSpells |= FROMOUTSIDE; break;
-				case 161:
-				    TronEffect |= FROMOUTSIDE; break;
-				case 162:
-				    RedSpells |= FROMOUTSIDE; break;
-				case 163:
-				    TooHeavyEffect |= FROMOUTSIDE; break;
-				case 164:
-				    ElongationBug |= FROMOUTSIDE; break;
-				case 165:
-				    WrapoverEffect |= FROMOUTSIDE; break;
-				case 166:
-				    DestructionEffect |= FROMOUTSIDE; break;
-				case 167:
-				    MeleePrefixBug |= FROMOUTSIDE; break;
-				case 168:
-				    AutomoreBug |= FROMOUTSIDE; break;
-				case 169:
-				    UnfairAttackBug |= FROMOUTSIDE; break;
-				case 170:
-				    OrangeSpells |= FROMOUTSIDE; break;
-				case 171:
-				    VioletSpells |= FROMOUTSIDE; break;
-				case 172:
-				    LongingEffect |= FROMOUTSIDE; break;
-				case 173:
-				    CursedParts |= FROMOUTSIDE; break;
-				case 174:
-				    Quaversal |= FROMOUTSIDE; break;
-				case 175:
-				    AppearanceShuffling |= FROMOUTSIDE; break;
-				case 176:
-				    BrownSpells |= FROMOUTSIDE; break;
-				case 177:
-				    Choicelessness |= FROMOUTSIDE; break;
-				case 178:
-				    Goldspells |= FROMOUTSIDE; break;
-				case 179:
-				    Deprovement |= FROMOUTSIDE; break;
-				case 180:
-				    InitializationFail |= FROMOUTSIDE; break;
-				case 181:
-				    GushlushEffect |= FROMOUTSIDE; break;
-				case 182:
-				    SoiltypeEffect |= FROMOUTSIDE; break;
-				case 183:
-				    DangerousTerrains |= FROMOUTSIDE; break;
-				case 184:
-				    FalloutEffect |= FROMOUTSIDE; break;
-				case 185:
-				    MojibakeEffect |= FROMOUTSIDE; break;
-				case 186:
-				    GravationEffect |= FROMOUTSIDE; break;
-				case 187:
-				    UncalledEffect |= FROMOUTSIDE; break;
-				case 188:
-				    ExplodingDiceEffect |= FROMOUTSIDE; break;
-				case 189:
-				    PermacurseEffect |= FROMOUTSIDE; break;
-				case 190:
-				    ShroudedIdentity |= FROMOUTSIDE; break;
-				case 191:
-				    FeelerGauges |= FROMOUTSIDE; break;
-				case 192:
-				    LongScrewup |= FROMOUTSIDE; break;
-				case 193:
-				    WingYellowChange |= FROMOUTSIDE; break;
-				case 194:
-				    LifeSavingBug |= FROMOUTSIDE; break;
-				case 195:
-				    CurseuseEffect |= FROMOUTSIDE; break;
-				case 196:
-				    CutNutritionEffect |= FROMOUTSIDE; break;
-				case 197:
-				    SkillLossEffect |= FROMOUTSIDE; break;
-				case 198:
-				    AutopilotEffect |= FROMOUTSIDE; break;
-				case 199:
-				    MysteriousForceActive |= FROMOUTSIDE; break;
-				case 200:
-				    MonsterGlyphChange |= FROMOUTSIDE; break;
-				case 201:
-				    ChangingDirectives |= FROMOUTSIDE; break;
-				case 202:
-				    ContainerKaboom |= FROMOUTSIDE; break;
-				case 203:
-				    StealDegrading |= FROMOUTSIDE; break;
-				case 204:
-				    LeftInventoryBug |= FROMOUTSIDE; break;
-				case 205:
-				    FluctuatingSpeed |= FROMOUTSIDE; break;
-				case 206:
-				    TarmuStrokingNora |= FROMOUTSIDE; break;
-				case 207:
-				    FailureEffects |= FROMOUTSIDE; break;
-				case 208:
-				    BrightCyanSpells |= FROMOUTSIDE; break;
-				case 209:
-				    FrequentationSpawns |= FROMOUTSIDE; break;
-				case 210:
-				    PetAIScrewed |= FROMOUTSIDE; break;
-				case 211:
-				    SatanEffect |= FROMOUTSIDE; break;
-				case 212:
-				    RememberanceEffect |= FROMOUTSIDE; break;
-				case 213:
-				    PokelieEffect |= FROMOUTSIDE; break;
-				case 214:
-				    AlwaysAutopickup |= FROMOUTSIDE; break;
-				case 215:
-				    DywypiProblem |= FROMOUTSIDE; break;
-				case 216:
-				    SilverSpells |= FROMOUTSIDE; break;
-				case 217:
-				    MetalSpells |= FROMOUTSIDE; break;
-				case 218:
-				    PlatinumSpells |= FROMOUTSIDE; break;
-				case 219:
-				    ManlerEffect |= FROMOUTSIDE; break;
-				case 220:
-				    DoorningEffect |= FROMOUTSIDE; break;
-				case 221:
-				    NownsibleEffect |= FROMOUTSIDE; break;
-				case 222:
-				    ElmStreetEffect |= FROMOUTSIDE; break;
-				case 223:
-				    MonnoiseEffect |= FROMOUTSIDE; break;
-				case 224:
-				    RangCallEffect |= FROMOUTSIDE; break;
-				case 225:
-				    RecurringSpellLoss |= FROMOUTSIDE; break;
-				case 226:
-				    AntitrainingEffect |= FROMOUTSIDE; break;
-				case 227:
-				    TechoutBug |= FROMOUTSIDE; break;
-				case 228:
-				    StatDecay |= FROMOUTSIDE; break;
-				case 229:
-				    Movemork |= FROMOUTSIDE; break;
-			}
-
-		}
-
-		if (Race_if(PM_RODNEYAN) && u.ulevel > u.urmaxlvl) {
-
-		u.urmaxlvl = u.ulevel;
+		u.urmaxlvl++;
 
 		if (!rn2(2)) {
-			ubookz = mkobj(SPBOOK_CLASS, FALSE);
+			ubookz = mkobj(SPBOOK_CLASS, FALSE, FALSE);
 			if (ubookz) dropy(ubookz);
-			pline("A book appeared at your feet!"); }
-
+			pline("A book appeared at your feet!");
 		}
 
-		if (Race_if(PM_ASGARDIAN) && u.ulevel > u.urmaxlvl) {
+	}
 
-		u.urmaxlvl = u.ulevel;
+	while (Race_if(PM_ASGARDIAN) && u.ulevel > u.urmaxlvlL) {
+
+		u.urmaxlvlL++;
 
 		if (!rn2(3)) { switch (rnd(52)) {
 
@@ -1804,15 +1382,30 @@ boolean incr;	/* true iff via incremental experience growth */
 			default:
 				break;
 
-		    }
-
-		  }
+			}
 
 		}
 
-		if (Role_if(PM_WILD_TALENT) && u.ulevel > u.urmaxlvlF) {
+	}
 
-		u.urmaxlvlF = u.ulevel;
+	while (Role_if(PM_SOCIAL_JUSTICE_WARRIOR) && u.ulevel > u.urmaxlvlK) {
+
+		u.urmaxlvlK++;
+
+		if (!rn2(4)) {
+			int wondertech = rnd(MAXTECH-1);
+			if (!tech_known(wondertech)) {
+			    	learntech(wondertech, FROMOUTSIDE, 1);
+				You("learn how to perform a new technique!");
+			}
+
+		}
+
+	}
+
+	while (Role_if(PM_WILD_TALENT) && u.ulevel > u.urmaxlvlF) {
+
+		u.urmaxlvlF++;
 
 		if (!rn2(4)) { switch (rnd(52)) {
 
@@ -1900,17 +1493,17 @@ boolean incr;	/* true iff via incremental experience growth */
 			default:
 				break;
 
-		    }
-
-		  }
+			}
 
 		}
 
-		if (Race_if(PM_MISSINGNO) && u.ulevel > u.urmaxlvl) {
+	}
 
-		u.urmaxlvl = u.ulevel;
+	while (Race_if(PM_MISSINGNO) && u.ulevel > u.urmaxlvlM) {
 
-		if (!rn2(3)) { switch (rnd(176)) {
+		u.urmaxlvlM++;
+
+		if (!rn2(3)) { switch (rnd(178)) {
 
 			case 1: 
 			case 2: 
@@ -2346,18 +1939,38 @@ boolean incr;	/* true iff via incremental experience growth */
 			    	You("learn how to perform diamond barrier!");
 				}
 				break;
+			case 170: 
+				if (!tech_known(T_ZAP_EM)) {    	learntech(T_ZAP_EM, FROMOUTSIDE, 1);
+			    	You("learn how to perform zap em!");
+				}
+				break;
+			case 171: 
+				if (!tech_known(T_CARD_TRICK)) {    	learntech(T_CARD_TRICK, FROMOUTSIDE, 1);
+			    	You("learn how to perform card trick!");
+				}
+				break;
+			case 172: 
+				if (!tech_known(T_SKILLOMORPH)) {    	learntech(T_SKILLOMORPH, FROMOUTSIDE, 1);
+			    	You("learn how to perform skillomorph!");
+				}
+				break;
+			case 173: 
+				if (!tech_known(T_TERRAIN_CLEANUP)) {    	learntech(T_TERRAIN_CLEANUP, FROMOUTSIDE, 1);
+			    	You("learn how to perform terrain cleanup!");
+				}
+				break;
 
 			default:
 				break;
 
-		    }
+			}
 
-		  }
 		}
+	}
 
-		if (Role_if(PM_DQ_SLIME) && u.ulevel > u.urmaxlvlC) {
+	while (Role_if(PM_DQ_SLIME) && u.ulevel > u.urmaxlvlC) {
 
-		u.urmaxlvlC = u.ulevel;
+		u.urmaxlvlC++;
 
 			int skillimprove = randomgoodskill();
 
@@ -2631,92 +2244,118 @@ boolean incr;	/* true iff via incremental experience growth */
 
 		}
 
+	} /* DQ slime check */
+
+	if (isdemagogue) { /* this is done here because you could use the recursion effect to circumvent it --Amy */
+
+		if (u.ulevel == 5) {
+			MysteriousForceActive |= FROMOUTSIDE;
+		}
+		if (u.ulevel == 9) {
+			UnfairAttackBug |= FROMOUTSIDE;
+		}
+		if (u.ulevel == 13) {
+			HighlevelStatus |= FROMOUTSIDE;
+		}
+		if (u.ulevel == 17) {
+			TrapCreationProblem |= FROMOUTSIDE;
+		}
+		if (u.ulevel == 21) {
+			UndressingEffect |= FROMOUTSIDE;
+		}
+		if (u.ulevel == 25) {
+			OrangeSpells |= FROMOUTSIDE;
+		}
+		if (u.ulevel == 30) {
+			SatanEffect |= FROMOUTSIDE;
 		}
 
-		if (Role_if(PM_BINDER) && u.ulevel > u.urmaxlvlC) {
+	}
 
-		u.urmaxlvlC = u.ulevel;
+	while (Role_if(PM_BINDER) && u.ulevel > u.urmaxlvlC) {
+
+		u.urmaxlvlC++;
 
 		if (!rn2(3)) {
-			ubookz = mkobj(SPBOOK_CLASS, FALSE);
+			ubookz = mkobj(SPBOOK_CLASS, FALSE, FALSE);
 			if (ubookz) dropy(ubookz);
 			pline("A book appeared at your feet!"); }
 
-		}
+	}
 
-		if (Role_if(PM_BARD) && u.ulevel > u.urmaxlvlD) {
+	while (Role_if(PM_BARD) && u.ulevel > u.urmaxlvlD) {
 
-		u.urmaxlvlD = u.ulevel;
+		u.urmaxlvlD++;
 		/* Yes I know, most of the names make no sense. They're from the bard patch. --Amy */
 
 		if (u.urmaxlvlD == 3) {
-			ubookz = mksobj(SPE_SLEEP, TRUE, FALSE);
+			ubookz = mksobj(SPE_SLEEP, TRUE, FALSE, FALSE);
 			if (ubookz) dropy(ubookz);
 			pline("A book of lullaby appeared at your feet!");
 		}
 		if (u.urmaxlvlD == 4) {
-			ubookz = mksobj(SPE_CURE_BLINDNESS, TRUE, FALSE);
+			ubookz = mksobj(SPE_CURE_BLINDNESS, TRUE, FALSE, FALSE);
 			if (ubookz) dropy(ubookz);
 			pline("A book of cause blindness appeared at your feet!");
 		}
 		if (u.urmaxlvlD == 5) {
-			ubookz = mksobj(SPE_CONFUSE_MONSTER, TRUE, FALSE);
+			ubookz = mksobj(SPE_CONFUSE_MONSTER, TRUE, FALSE, FALSE);
 			if (ubookz) dropy(ubookz);
 			pline("A book of cacophony appeared at your feet!");
 		}
 		if (u.urmaxlvlD == 6) {
-			ubookz = mksobj(SPE_CURE_SICKNESS, TRUE, FALSE);
+			ubookz = mksobj(SPE_CURE_SICKNESS, TRUE, FALSE, FALSE);
 			if (ubookz) dropy(ubookz);
 			pline("A book of cause sickness appeared at your feet!");
 		}
 		if (u.urmaxlvlD == 7) {
-			ubookz = mksobj(SPE_SLOW_MONSTER, TRUE, FALSE);
+			ubookz = mksobj(SPE_SLOW_MONSTER, TRUE, FALSE, FALSE);
 			if (ubookz) dropy(ubookz);
 			pline("A book of drowsiness appeared at your feet!");
 		}
 		if (u.urmaxlvlD == 8) {
-			ubookz = mksobj(SPE_HASTE_SELF, TRUE, FALSE);
+			ubookz = mksobj(SPE_HASTE_SELF, TRUE, FALSE, FALSE);
 			if (ubookz) dropy(ubookz);
 			pline("A book of haste pets appeared at your feet!");
 		}
 		if (u.urmaxlvlD == 9) {
-			ubookz = mksobj(RIN_PROTECTION_FROM_SHAPE_CHAN, TRUE, FALSE);
+			ubookz = mksobj(RIN_PROTECTION_FROM_SHAPE_CHAN, TRUE, FALSE, FALSE);
 			if (ubookz) dropy(ubookz);
 			pline("A ring of silence appeared at your feet!");
 		}
 		if (u.urmaxlvlD == 10) {
-			ubookz = mksobj(SPE_CAUSE_FEAR, TRUE, FALSE);
+			ubookz = mksobj(SPE_CAUSE_FEAR, TRUE, FALSE, FALSE);
 			if (ubookz) dropy(ubookz);
 			pline("A book of despair appeared at your feet!");
 		}
 		if (u.urmaxlvlD == 12) {
-			ubookz = mksobj(SPE_FORCE_BOLT, TRUE, FALSE);
+			ubookz = mksobj(SPE_FORCE_BOLT, TRUE, FALSE, FALSE);
 			if (ubookz) dropy(ubookz);
 			pline("A book of shatter appeared at your feet!");
 		}
 		if (u.urmaxlvlD == 14) {
-			ubookz = mksobj(CLOAK_OF_DISPLACEMENT, TRUE, FALSE);
+			ubookz = mksobj(CLOAK_OF_DISPLACEMENT, TRUE, FALSE, FALSE);
 			if (ubookz) dropy(ubookz);
 			pline("A cloak of ventriloquism appeared at your feet!");
 		}
 		if (u.urmaxlvlD == 15) {
-			ubookz = mksobj(SPE_CHARM_MONSTER, TRUE, FALSE);
+			ubookz = mksobj(SPE_CHARM_MONSTER, TRUE, FALSE, FALSE);
 			if (ubookz) dropy(ubookz);
 			pline("A book of friendship appeared at your feet!");
 		}
 		if (u.urmaxlvlD == 20) {
-			ubookz = mksobj(SPE_POLYMORPH, TRUE, FALSE);
+			ubookz = mksobj(SPE_POLYMORPH, TRUE, FALSE, FALSE);
 			if (ubookz) dropy(ubookz);
 			pline("A book of change appeared at your feet!");
 		}
 
-		}
+	} /* bard check */
 
-		if (Role_if(PM_ZYBORG) && u.ulevel > u.urmaxlvlB) {
+	while (Role_if(PM_ZYBORG) && u.ulevel > u.urmaxlvlB) {
 
-		u.urmaxlvlB = u.ulevel;
+		u.urmaxlvlB++;
 
-		if (!rn2(3)) { switch (rnd(176)) {
+		if (!rn2(3)) { switch (rnd(178)) {
 
 			case 1: 
 			case 2: 
@@ -3152,58 +2791,78 @@ boolean incr;	/* true iff via incremental experience growth */
 			    	You("learn how to perform diamond barrier!");
 				}
 				break;
+			case 170: 
+				if (!tech_known(T_ZAP_EM)) {    	learntech(T_ZAP_EM, FROMOUTSIDE, 1);
+			    	You("learn how to perform zap em!");
+				}
+				break;
+			case 171: 
+				if (!tech_known(T_CARD_TRICK)) {    	learntech(T_CARD_TRICK, FROMOUTSIDE, 1);
+			    	You("learn how to perform card trick!");
+				}
+				break;
+			case 172: 
+				if (!tech_known(T_SKILLOMORPH)) {    	learntech(T_SKILLOMORPH, FROMOUTSIDE, 1);
+			    	You("learn how to perform skillomorph!");
+				}
+				break;
+			case 173: 
+				if (!tech_known(T_TERRAIN_CLEANUP)) {    	learntech(T_TERRAIN_CLEANUP, FROMOUTSIDE, 1);
+			    	You("learn how to perform terrain cleanup!");
+				}
+				break;
 
 			default:
 				break;
 
 		      }
 
-		    }
-
 		}
 
-		if (Role_if(PM_ANACHRONOUNBINDER) && u.ulevel > u.urmaxlvlJ) {
+	}
 
-			u.urmaxlvlJ = u.ulevel;
+	while (Role_if(PM_ANACHRONOUNBINDER) && u.ulevel > u.urmaxlvlJ) {
 
-			int maxtrainingamount = 0;
-			int skillnumber = 0;
-			int actualskillselection = 0;
-			int amountofpossibleskills = 1;
-			int i;
+		u.urmaxlvlJ++;
 
-			for (i = 0; i < P_NUM_SKILLS; i++) {
-				if (P_SKILL(i) != P_ISRESTRICTED) continue;
+		int maxtrainingamount = 0;
+		int skillnumber = 0;
+		int actualskillselection = 0;
+		int amountofpossibleskills = 1;
+		int i;
 
-				if (P_ADVANCE(i) > 0 && P_ADVANCE(i) >= maxtrainingamount) {
-					if (P_ADVANCE(i) > maxtrainingamount) {
-						amountofpossibleskills = 1;
-						skillnumber = i;
-						maxtrainingamount = P_ADVANCE(i);
-					} else if (!rn2(amountofpossibleskills + 1)) {
-						amountofpossibleskills++;
-						skillnumber = i;
-					} else {
-						amountofpossibleskills++;
-					}
+		for (i = 0; i < P_NUM_SKILLS; i++) {
+			if (P_SKILL(i) != P_ISRESTRICTED) continue;
+
+			if (P_ADVANCE(i) > 0 && P_ADVANCE(i) >= maxtrainingamount) {
+				if (P_ADVANCE(i) > maxtrainingamount) {
+					amountofpossibleskills = 1;
+					skillnumber = i;
+					maxtrainingamount = P_ADVANCE(i);
+				} else if (!rn2(amountofpossibleskills + 1)) {
+					amountofpossibleskills++;
+					skillnumber = i;
+				} else {
+					amountofpossibleskills++;
 				}
 			}
-
-			if (skillnumber > 0 && maxtrainingamount > 0) {
-				unrestrict_weapon_skill(skillnumber);
-				P_MAX_SKILL(skillnumber) = (maxtrainingamount >= 5000 ? P_SUPREME_MASTER : maxtrainingamount >= 500 ? P_GRAND_MASTER : maxtrainingamount >= 50 ? P_MASTER : P_EXPERT);
-				pline("You can now learn the %s skill, with a new cap of %s.", P_NAME(skillnumber), maxtrainingamount >= 5000 ? "supreme master" : maxtrainingamount >= 500 ? "grand master" : maxtrainingamount >= 50 ? "master" : "expert");
-			} else {
-				pline("You've trained no unknown skills since your last level up and therefore you unfortunately don't learn anything new.");
-			}
-
 		}
 
-		if (Role_if(PM_MYSTIC) && u.ulevel > u.urmaxlvlH) {
+		if (skillnumber > 0 && maxtrainingamount > 0) {
+			unrestrict_weapon_skill(skillnumber);
+			P_MAX_SKILL(skillnumber) = (maxtrainingamount >= 5000 ? P_SUPREME_MASTER : maxtrainingamount >= 500 ? P_GRAND_MASTER : maxtrainingamount >= 50 ? P_MASTER : P_EXPERT);
+			pline("You can now learn the %s skill, with a new cap of %s.", P_NAME(skillnumber), maxtrainingamount >= 5000 ? "supreme master" : maxtrainingamount >= 500 ? "grand master" : maxtrainingamount >= 50 ? "master" : "expert");
+		} else {
+			pline("You've trained no unknown skills since your last level up and therefore you unfortunately don't learn anything new.");
+		}
 
-		u.urmaxlvlH = u.ulevel;
+	} /* acu check */
 
-		if (!rn2(3)) { switch (rnd(176)) {
+	while (Role_if(PM_MYSTIC) && u.ulevel > u.urmaxlvlH) {
+
+		u.urmaxlvlH++;
+
+		if (!rn2(3)) { switch (rnd(178)) {
 
 			case 1: 
 			case 2: 
@@ -3639,22 +3298,42 @@ boolean incr;	/* true iff via incremental experience growth */
 			    	You("learn how to perform diamond barrier!");
 				}
 				break;
+			case 170: 
+				if (!tech_known(T_ZAP_EM)) {    	learntech(T_ZAP_EM, FROMOUTSIDE, 1);
+			    	You("learn how to perform zap em!");
+				}
+				break;
+			case 171: 
+				if (!tech_known(T_CARD_TRICK)) {    	learntech(T_CARD_TRICK, FROMOUTSIDE, 1);
+			    	You("learn how to perform card trick!");
+				}
+				break;
+			case 172: 
+				if (!tech_known(T_SKILLOMORPH)) {    	learntech(T_SKILLOMORPH, FROMOUTSIDE, 1);
+			    	You("learn how to perform skillomorph!");
+				}
+				break;
+			case 173: 
+				if (!tech_known(T_TERRAIN_CLEANUP)) {    	learntech(T_TERRAIN_CLEANUP, FROMOUTSIDE, 1);
+			    	You("learn how to perform terrain cleanup!");
+				}
+				break;
 
 			default:
 				break;
 
 		      }
 
-		    }
-
 		}
 
-		/* Lorskel wants wild talents to learn random techniques, and I agree that this is supposed to be the case. --Amy */
-		if (Role_if(PM_WILD_TALENT) && u.ulevel > u.urmaxlvlG) {
+	}
 
-		u.urmaxlvlG = u.ulevel;
+	/* Lorskel wants wild talents to learn random techniques, and I agree that this is supposed to be the case. --Amy */
+	while (Role_if(PM_WILD_TALENT) && u.ulevel > u.urmaxlvlG) {
 
-		if (!rn2(5)) { switch (rnd(176)) {
+		u.urmaxlvlG++;
+
+		if (!rn2(5)) { switch (rnd(178)) {
 
 			case 1: 
 			case 2: 
@@ -4090,30 +3769,50 @@ boolean incr;	/* true iff via incremental experience growth */
 			    	You("learn how to perform diamond barrier!");
 				}
 				break;
+			case 170: 
+				if (!tech_known(T_ZAP_EM)) {    	learntech(T_ZAP_EM, FROMOUTSIDE, 1);
+			    	You("learn how to perform zap em!");
+				}
+				break;
+			case 171: 
+				if (!tech_known(T_CARD_TRICK)) {    	learntech(T_CARD_TRICK, FROMOUTSIDE, 1);
+			    	You("learn how to perform card trick!");
+				}
+				break;
+			case 172: 
+				if (!tech_known(T_SKILLOMORPH)) {    	learntech(T_SKILLOMORPH, FROMOUTSIDE, 1);
+			    	You("learn how to perform skillomorph!");
+				}
+				break;
+			case 173: 
+				if (!tech_known(T_TERRAIN_CLEANUP)) {    	learntech(T_TERRAIN_CLEANUP, FROMOUTSIDE, 1);
+			    	You("learn how to perform terrain cleanup!");
+				}
+				break;
 
 			default:
 				break;
 
 		      }
 
-		    }
-
 		}
 
-		if (Race_if(PM_PLAYER_SLIME) && !(Deprovement || u.uprops[DEPROVEMENT].extrinsic || have_deprovementstone()) && Role_if(PM_DQ_SLIME) && (u.ulevel > u.urmaxlvlI) ) {
+	}
 
-		u.urmaxlvlI = u.ulevel;
+	if (Race_if(PM_PLAYER_SLIME) && !((Deprovement || u.uprops[DEPROVEMENT].extrinsic || have_deprovementstone()) && !(u.ulevel < 10 && !rn2(u.ulevel + 1)) && rn2(10) ) && Role_if(PM_DQ_SLIME) && (u.ulevel > u.urmaxlvlI) ) {
+
+		u.urmaxlvlI++;
 
 		u.uhpmax += rnd(10);
 		u.uenmax += rnd(10);
 
-		}
+	}
 
-		if (isamerican && Role_if(PM_GLADIATOR) && (u.ulevel > u.urmaxlvlE) ) {
+	while (isamerican && Role_if(PM_GLADIATOR) && (u.ulevel > u.urmaxlvlE) ) {
 
-		u.urmaxlvlE = u.ulevel;
+		u.urmaxlvlE++;
 
-		if (!rn2(2)) { switch (rnd(176)) {
+		if (!rn2(2)) { switch (rnd(178)) {
 
 			case 1: 
 			case 2: 
@@ -4549,6 +4248,26 @@ boolean incr;	/* true iff via incremental experience growth */
 			    	You("learn how to perform diamond barrier!");
 				}
 				break;
+			case 170: 
+				if (!tech_known(T_ZAP_EM)) {    	learntech(T_ZAP_EM, FROMOUTSIDE, 1);
+			    	You("learn how to perform zap em!");
+				}
+				break;
+			case 171: 
+				if (!tech_known(T_CARD_TRICK)) {    	learntech(T_CARD_TRICK, FROMOUTSIDE, 1);
+			    	You("learn how to perform card trick!");
+				}
+				break;
+			case 172: 
+				if (!tech_known(T_SKILLOMORPH)) {    	learntech(T_SKILLOMORPH, FROMOUTSIDE, 1);
+			    	You("learn how to perform skillomorph!");
+				}
+				break;
+			case 173: 
+				if (!tech_known(T_TERRAIN_CLEANUP)) {    	learntech(T_TERRAIN_CLEANUP, FROMOUTSIDE, 1);
+			    	You("learn how to perform terrain cleanup!");
+				}
+				break;
 
 			default:
 				break;
@@ -4556,40 +4275,26 @@ boolean incr;	/* true iff via incremental experience growth */
 
 			}
 
-		  }
-
 		}
 
-
-	flags.botl = 1;
-}
-
-/* compute a random amount of experience points suitable for the hero's
-   experience level:  base number of points needed to reach the current
-   level plus a random portion of what it takes to get to the next level */
-long
-rndexp(gaining)
-boolean gaining;	/* gaining XP via potion vs setting XP for polyself */
-{
-	long minexp, maxexp, diff, factor, result;
-
-	minexp = (u.ulevel == 1) ? 0L : newuexp(u.ulevel - 1);
-	maxexp = newuexp(u.ulevel);
-	diff = maxexp - minexp,  factor = 1L;
-	/* make sure that `diff' is an argument which rn2() can handle */
-	while (diff >= (long)LARGEST_INT)
-	    diff /= 2L,  factor *= 2L;
-	result = minexp + factor * (long)rn2((int)diff);
-	/* 3.4.1:  if already at level 30, add to current experience
-	   points rather than to threshold needed to reach the current
-	   level; otherwise blessed potions of gain level can result
-	   in lowering the experience points instead of raising them */
-	if (u.ulevel == MAXULEV && gaining) {
-	    result += (u.uexp - minexp);
-	    /* avoid wrapping (over 400 blessed potions needed for that...) */
-	    if (result < u.uexp) result = u.uexp;
 	}
-	return result;
+
+	/* now, set the levels accordingly --Amy */
+	if (u.urmaxlvl < u.ulevel) u.urmaxlvl = u.ulevel;
+	if (u.urmaxlvlB < u.ulevel) u.urmaxlvlB = u.ulevel;
+	if (u.urmaxlvlC < u.ulevel) u.urmaxlvlC = u.ulevel;
+	if (u.urmaxlvlD < u.ulevel) u.urmaxlvlD = u.ulevel;
+	if (u.urmaxlvlE < u.ulevel) u.urmaxlvlE = u.ulevel;
+	if (u.urmaxlvlF < u.ulevel) u.urmaxlvlF = u.ulevel;
+	if (u.urmaxlvlG < u.ulevel) u.urmaxlvlG = u.ulevel;
+	if (u.urmaxlvlH < u.ulevel) u.urmaxlvlH = u.ulevel;
+	if (u.urmaxlvlI < u.ulevel) u.urmaxlvlI = u.ulevel;
+	if (u.urmaxlvlJ < u.ulevel) u.urmaxlvlJ = u.ulevel;
+	if (u.urmaxlvlK < u.ulevel) u.urmaxlvlK = u.ulevel;
+	if (u.urmaxlvlL < u.ulevel) u.urmaxlvlL = u.ulevel;
+	if (u.urmaxlvlM < u.ulevel) u.urmaxlvlM = u.ulevel;
+	if (u.urmaxlvlUP < u.ulevel) u.urmaxlvlUP = u.ulevel;
+
 }
 
 /*exper.c*/

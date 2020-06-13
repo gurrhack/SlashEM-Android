@@ -29,7 +29,7 @@ struct icp {
 /* faux artifacts to fool the player --Amy */
 static const char * const fauxartinames[] = {
 
-"Pus Spitter", "Excalibat", "Moonbite", "Steelgleam", "Spellstealer", "Ironward", "Crashbug Preventer", "Segfault Breath", "Server Operator", "Mindflayer's Best", "The Burninator", "Ascension Kit Part", "DYWYPI", "Identificator", "Frost Barrier", "Zombiekiller", "Lichbane", "Gnomerist", "Vorpal Element", "Silverswandir", "Electric Brand", "Mojo", "Mirrorblack", "Eluder", "Barrowtooth", "Icy Flame", "Spider's Tongue", "Thunderbringer", "White Death", "Coldfire", "Polar Sphere", "Mind Maw", "Hidden Potato", "Queeb Butt", "Total Nonsense", "Spewbrewer", "Lasercross", "Hotel Thirst", "Ultimate Artifact", "Anti-YASD Insurance", "Invulnerability Dummy", "Priced Bauble", "Hunter of Shiva", "Sharp Bender", "Itchalaquiaque", "Saintly Seduction", "Nymph Bait", "Magicbreath", "Team Nastytrap Medal", "Team Ant's Friend", "Hatefulpresident", "Snyder's Killer", "Universa Exit", "Marike's Farting Noise Generator", "Solvejg's Protector", "Josefine's Girly Fun", "Beeper Tag", "Larissa's Hugger", "Relic of AmyBSOD", "Slashem Slasher", "Deslexifier", "Soviet Russia Special", "Sexy Hexy", "Pinobot", "Kenault's Cantrip Generator", "The Deck of Wild Magic", "Baalzebub's Tormented Box", "Baalzebub's All-seeing Servant", "Boccob's Unfinished Works", "The Devil's Pentagram", "Mordekainen's Sneaking Eye", "Tenser's Alteration Manual", "The Pendulum of Orcus", "Mordekainen's Pocket Magician", "Benetar's Death Ray Experiment", "Valdarbon's Automatic Alchemist", "Demigods and their Uses", "Magic for the Layman", "Benetar's Mana Battery", "Benetar's Portable Plague", "Gamenlon's Summoning Manual", "The Lost Works of Kenault", "Planar Travel Made Easy", "The Wand Construction Kit", "The Clay Tablets of Antiquity", "Raal's Tormented Spirits", "Tenser's Mechanical Magician", "Boccob's Magical Mish-mash", "The Grail of Kenault", "Household Magic", "Tenser's Last Words", "Secrets of the Gnomish Wizards", "The Cunning Plan of Zog", "Immortality For Dummies", "Raistlin's Ready Ranger", "Mordenkainen's Mysterious Mind-Masher", "Famous Last Words", "Jor's Compendium of Strange Behaviour", "Agannazar's Antique Acorn", "Cathal's Corrupting Cymbal", "Pytar's Portable Pandemonium", "Finer Points of Munchkinism", "Agannazar's Altruistic Assassin", "Olive's Omnipotent Ostrich", "Cathal's Collapsible Crutch", "Nauglamir", "The Anchor of Space-Time", "Razorback", "Bladeturner", "Soulkeeper", "Belegennon", "Thalkettoth", "Holhenneth", "Colluin", "Holcolleth", "Colannon", "Cambeleg", "Cammithrim", "Paurhach", "Paurnimmen", "Pauraegen", "Paurnen", "Camlost", "Dal-i-thalion", "Angrist", "Narthanc", "Nimthanc", "Dethanc", "Belangil", "Calris", "Aranruth", "Glamdring", "Aeglin", "Gurthang", "Zarcuthra", "Mormegil", "Gondricam", "Crisdurian", "Aglarang", "Ringil", "Anduril", "Anguirel", "Elvagil", "Forasgil", "Careth Asdriag", "Haradekket", "Gilettar", "Doomcaller", "Osondir", "Til-i-arc", "Aeglos", "Nimloth", "Lotharang", "Mundwine", "Barukkheled", "Avavir", "Grond", "Totila", "Thunderfist", "Bloodspike", "Firestar", "Taratol", "Nar-i-vagil", "Eriril", "Deathwreaker", "Turmil", "Belthronding", "Cubragol", "Glimdrir", "Lasher", "Bullseye", "Travak", "Limbslicer", "Orchast", "Naturebane", "Hanisbroner's Surprise", "Merlion Karc's Demonbane", "Narsil", "Lebohaum", "Mediator", "Hithlomir", "Skullcleaver", "Durandil", "Toris Mejistos", "Elessar", "Evenstar", "Balefire", "Stonebiter", "Heart's Blood", "Scale-piercer", "Garachoth", "Skycleaver", "Photic Illuminator", "Captain Nemo's Nautilus", "Le Loup Blanc", "The Eye of Ra", "The Pectoral of the Kheper", "War of the Worlds", "The Time Machine", "20000 Leagues Under the Sea", "Journey to the Centre of the Earth", "Treasure Island", "Les Miserables", "Hunchback of Notre Dame", "The Count of Monte Cristo", "The Three Musketeers", "The Invisible Man", "Around the World in 80 Days", "Wuthering Heights", "The Adventures of Sherlock Holmes", "The Hound of the Baskervilles", "The Return of Sherlock Holmes", "The Lost World", "The Sign of the Four", "A Christmas Carol", "Great Expectations", "A Tale of Two Cities", "Little Women", "Alice's Adventures in Wonderland", "Through the Looking Glass", "The Adventures of Huckleberry Finn", "The Adventures of Tom Sawyer", "A Connecticut Yankee in King Arthur's Court", "The Prince and the Pauper", "Life on the Mississippi", "On the Origin of Species", "Tenant of Wildfell Hall", "Sense and Sensibility", "Pride and Prejudice", "Northanger Abbey", "Persuasion", "Confessions of an English Opium Eater", "The System of the Heavens", "Lord Rosse's Telescope", "On Murder Considered as One of the Fine Arts", "The Arts of Cheating, Swindling and Murder", "The Man Who Would Be King", "The Mark of the Beast", "Captains Courageous", "The Hunting of the Snark", "The Picture of Dorian Gray", "The Turn of the Screw", "King Solomon's Mines", "Legend of Sleepy Hollow", "Crime and Punishment", "Last of the Mohicans", "From the Earth to the Moon", "Round the Moon", "War and Peace", "The Man in the Iron Mask", "The Jungle Book", "Principles of Political Economy", "The Narrative of Arthur Gordon Pym", "Tales of the Grotesque and Arabesque", "The Tomb and Other Tales", "Dagon and Other Macabre Tales", "The Dream-Quest of the Unknown Kadath", "Mysteries of the Depths of the Seas", "The Life and Adventures of Santa Claus", "Red Nail", "Deathspade", "Mindrend", "Rakescar", "The Chieftan", "The Humongous", "Maelstromwrath", "Gravenspine", "Umes Lament", "Felloak", "Knell Striker", "Rusthandle", "Stoutnail", "Bloodrise", "The Generals Tan Do Li Blabla", "Bonesob", "Steeldriver", "Rixots Keen", "Azurewrath", "Hellplague", "Kinemils Awl", "The Patriarch", "Gull", "Irices Shard", "The Dragon Chang", "Razortine", "Steelgoad", "Bane Ash", "The Iron Jang Bong", "Witherstring", "Rimeraven", "Piercerib", "Pullspite", "Wizendraw", "Hellclap", "Blastbark", "Leadcrow", "Ichorstring", "Hellcast", "Doomspittle", "Duskdeep", "Greyform", "Blinkbats Form", "The Centurion", "Twitchthroe", "Darkglow", "Venomsward", "Iceblink", "Boneflesh", "Pelta Lunata", "Stormguild", "Steelclash", "Chance Guards", "Frostburn", "Hotspur", "Tearhaunch", "Nightsmoke", "Nokozan Relic", "The Eye of Etlich", "The Mahim-Oak Curio", "Manald Heal", "Gorgethroat", "The Stone of Jordan", "Crissaegrim", "Force Field", "Mother of Universe", "The Ungodly Slayer of Hitpoints", "The Randomizer", "Creeping Death", "Anthrax", "Tranquilizer", "Ezerataneous", "Blood Omen", "Blizzard of Oz", "Spectral Avoider", "Heretic Saprophyte", "Nature Is Hell", "The Energy Reaver", "Glory of Suffering", "Da Grip", "Terminus Est", "World Champion", "Elysdeon", "Datura", "Talula", "Nativity in Black", "A Twist of Ugliness", "Ass Kickers", "Visionary", "Impact Splatter", "A Woman's Scorn", "Saint Ankh", "Mystery Ankh", "Shining Freedom", "Juarez", "Hide in Shadows", "Stalking Ambush", "Resident Evil", "Celestial Seasons", "Flame Visit", "Spread Needle", "Heaven's Punisher", "Holy Ray", "Enchanted Revenge", "Chain of Conductors", "Soul of Support", "Vagyu Darkness", "Spiritual Cleansing", "Crushing Divinity", "Sightseeker", "Gospel of Peace", "Word of Truth", "Eternal Sphere", "Tri-Emblem", "Star Guard", "Valkerie Guard", "Missing Score", "Rolling Thunder", "Conformer", "Death Penalty", "Army of Me", "Varista", "Orotiagito", "Reactor Fragment", "Energy Core", "Thermo Nuclear Chamber", "Crystalis", "Carved Perfection", "Gold Digger", "The Memory of Lady Mia", "Kaladgolg", "Scorched Trail", "Intercontinental", "Di Immortales", "Til Death do Us Part", "Wrath of Cardice", "Penetrators", "MP3 Player", "Coldkill", "Islestrike", "Warlord's Trust", "Spellsteel", "Suicide Branch", "Cairn Shard", "Drulan's Tongue", "The Fetid Sprinkler", "Sureshrill Frost", "Moonfall", "Baezils Vortex", "Earthshaker", "Coldsteal Eye", "Hexfire", "Riftslash", "The Atlantien", "Crainte Vomir", "Bing Sz Wang", "Cloudcrack", "Todesfaelle Flamme", "Kelpie Snare", "Hone Sundan", "Athena's Wrath", "Pierre Tombale Couant", "Husoldal Evo", "Grim's Burning Dead", "Chromatic Ire", "Skullcollector", "Skystrike", "Kuko Shakaku", "Endlesshail", "Langer Briser", "Buriza-Do Kyanon", "Vampiregaze", "String of Ears", "Gorerider", "Lavagout", "Venom Grip", "Visceratuant", "Guardian Angle", "Shaftstop", "Valkiry Wing", "Demon Machine", "Cliffkiller", "Razorswitch", "Meatscrape", "Pitblood Thirst", "Ondal's Wisdom", "Geronimo's Fury", "Charsi's Favor", "Doppleganger's Shadow", "Deathbit", "Warshrike", "Gutsiphon", "Stonerattle", "Marrowgrinder", "Steelshade", "Death's Web", "Gaia's Wrath", "Khalim's Vengance", "Angel's Song", "The Reedeemer", "Fleshbone", "Odium", "Blood Comet", "Bul-Kathos' Might", "Arioc's Needle", "Shadowdancer", "Indiego's Fancy", "Tyrael's Mercy", "Souldrain", "Runemaster", "Executioner's Justice", "Wallace's Tear", "Leviathan", "Qual'Kek's Enforcer", "Dawnbringer", "Wisp Projector", "Gargoyle's Bite", "Lacerator", "Mang Song's Lesson", "El Espiritu", "The Ensanguinator", "The Reaper's Toll", "Spiritkeeper", "Hellrack", "Alma Negra", "Darkforge Spawn", "Sankenkur's Resurrection", "The Archon Magus", "Widow maker", "Catgut", "Ghostflame", "Bling Bling", "Nebucaneezer's Storm", "Griffon's Eye", "Eaglewind", "Windhammer", "Thunderstroke", "Bloodmoon", "Cranebeak", "Iansang's Frenzy", "Warhound", "Gulletwound", "Headhunter's Glory", "Mordoc's marauder", "Talberd's Law", "Amodeus's Manipulator", "Darksoul", "The Black Adder", "Nature's Peace", "Seraph's Hymn", "Zakarum's Salvation", "Blood Rain", "Horizon's Tornado", "Wrath of Cain", "Siren's call", "Archangel's Deliverance", "Fuego Del Sol", "El Infierno", "Moonrend", "Larzuk's Champion", "Nightsummon", "Kang's Virtue", "Lifechoke", "Palo Grande", "Ghostleach", "Samual's Caretaker", "Hell's Whisper", "The TreeEnt", "Stormwillow", "Moonshadow", "Strongoak", "Demonweb", "Bloodraven's Charge", "Shadefalcon", "Robin's Yolk", "Glimmershred", "Wraithflight", "Lestron's Mark", "Banshee's Wail", "Medusa's Gaze", "Hadeshorn", "Rockstopper", "Crow Caw", "Skullder's Ire", "Toothrow", "Atma's Wail", "Black Hades", "Corpsemourn", "Que-hegan's Wisdom", "Moser's Blessed Circle", "Stormchaser", "Tiamat's Rebuke", "Gerke's Sanctuary", "Radimant's Sphere", "Gravepalm", "Hellmouth", "Infernostride", "Silkweave", "Wartraveler", "Razortail", "Gloomstrap", "Snowclash", "Thudergod's Vigor", "Lanceguard", "Squire's Cover", "Boneflame", "Steelpillar", "Nightwing's Veil", "Hightower's Watch", "Darkfear", "Ashrera's Wired Frame", "Rainbow Facet", "Ravenlore", "Boneshade", "Nethercrow", "Flamebellow", "Fathom", "Wolfhowl", "Gheed's Fortune", "The Vicar", "Halaberd's Reign", "Parkersor's Calm", "Frostwind", "Templar's Might", "Eschuta's temper", "Sandstorm Trek", "Marrowwalk", "Heaven's Light", "Merman's Speed", "Arachnid Mesh", "Sigurd's Staunch", "Carrion Wind", "Gillian's Brazier", "Drakeflame", "Dust Storm", "Skulltred", "Alma's Reflection", "Sacred Charge", "Saracen's Chance", "Highlord's Wrath", "Raven Frost", "Dwarf Star", "Atma's Scarab", "Mara's Kaleidoscope", "The Rising Sun", "The Cat's Eye", "Metalgrid", "Titan's Revenge", "Shakabra's Crux", "Lycander's Aim", "Shadow's Touch", "The Prowler", "Sarmichian Justice", "Annihilus", "The Harbinger", "Doomseer", "Apothecary's Tote", "Apocrypha", "Foci of Visjerei", "Aurora's Guard", "Herald of Zakarum", "Ancient Eye", "Xenos", "Sister of the Water", "Flanker Loop", "Bet Notice", "Mafia City", "Flanker Intro", "Pinball Ingame", "Mafia Water", "Pin of the 11B potatoes", "The Dictator of France", "Short Wave Hiding", "Lock Defendant", "Solved Puzzle", "The Torture Master", "Diablo 2's Eddy Wind", "DHG-Search Play Prize", "Brasilia's Rain Forrest", "Artifical Accomplishment", "Amusing Ivo's Fury", "Elnaz's Blood Rush", "Sizzle's Card Stand", "G-cheater's Fucking Rockstar", "Gigantic Double-deck Airplane", "Holland's World Master Team", "GTS Champion Elbow", "Lily's Puncturer", "Laura and her sisters and their force", "A.Ha's Revenant", "Shakira's Beautiful Dance", "Gerlindchen's Flower Pot", "Ruth's resouding laughter", "Jane's embrace-worthiness", "Steel Beetle's Victory", "Invisible Maker", "H.'s Giant Tank", "Course of Kastor-Transport", "Ludgera's Deception", "Upper Perfect Kunzite", "CD of Britney Spears", "Gettoblaster 2.0++", "Awake Sleep Tower Sign", "Iceforce", "The Boss of the Errors", "Teacher Police's Cheating", "Property Completion", "Urbaldi's Last Salvation", "Nest of the Black Raptors", "Ruth's Case Sign", "World's Burden", "Tyrant's Power", "Magma Shooting Bird", "Dracula's Wish", "Zephyros", "Course Point's Glacial Spike", "Reflection Cover", "Barkbite", "Error Biter", "Breakwound Impacter", "Bulldog Gaurd", "Dark Corner", "Computer Mouse", "The Mould Defiler", "Port Output", "Apocalypse", "Frostfoil", "Ascaron", "Laurefindelo Umbar", "Scaleron", "Cosomoco Pelecco", "Cosomoco Vaitando", "Aiglos", "Winter's Bite", "Tempest", "Scorchwind", "Withering Finger", "Oblivion's Enbrace", "Crushing Grip", "Cruel Spur", "Fold of Sorrow", "Crimson Steel", "Spineridge", "Diabolic Wrap", "Spider Strand", "Battlelock", "Threshold Insurmountable", "Diabolic Casing", "Astral Dream", "Enspelled Talisman", "Charm of Holding", "Broach of Eternal Life", "Vizier's Charm", "Circle of Life and Death", "Cryptic Glyph", "Scion of Numenor", "Diabolic Gifts", "Vampire's Immortality", "Star of Tar-Ancalime", "Vilisse", "Ancalquon Morramaloce", "Cosomot Valaraucatur", "Relics of the Third Age", "Rule of Eldarion", "Boromir's Gift", "Scourge of Fire", "Battlecry of Lammoth", "Darkness of Moria", "Sacred Bottle Spirit", "Clay Tone Band", "Measure-hit a corner", "Leo's secret hiding place", "Jutta flax's OHP", "Total Sun Darkness", "The Gravegraver", "The Secret Car", "Silver-cutting 1E-coin", "The Queue's Destruction", "Diablo II's Great Hatred", "Stalin's Secret Refuge", "Clockold Blackwhite TV", "A Green Prostitute", "Marc's Battlestandard", "TI-83 Pocket Calculator", "Plague Error Impacter", "Spleendrain", "Ametyhstmaster", "Irriant Darkness", "Cage Rattler", "Hobbes's Rectifier", "Elsa's Champion", "Corner to sport-resounded", "Punching Bag", "Lesson with DJ Leutkak", "Internal Clan Area", "Cristi's Greener Pin", "The Challenging Fence", "A Christmas Present", "Star Wars - Episode 2", "Gorbatschov's Talisman", "The Tarrif Cashier", "Door to the space 314", "Saddam Has Fallen", "The Toilet Brush's Shard", "Bull Mode", "Lock Entrance Cashier", "King of Porn", "Marianne's Measurer", "Red Lit Combat Arena", "Mars-resound's Disguise", "The Horse's Giant Engine", "Fear Forwards The Light", "Hiding Place of Urbaldi", "Inability of Reziarfg", "Kastor-Transport's Accellerotor", "Aee's Steel Sign", "Gunnhild's General Store", "Heaven For Everyone", "Braight Meteor", "Homicidal Tendancies", "Master Thief", "Drogman's Fortune", "Nebucaneezer's Reign", "Prick Rat Nest", "Nosferatu's Grasp", "Hibernal Wind", "Sentinal Angle", "Most Wanted", "Giant Air Elemental", "Volcano Walk", "Insidiarious", "Slowing Down Spider Net", "Granitegrid", "Large Feries", "Sigurd's Impact", "Carrion Beetle", "Bonusroomward", "Secret Order", "Larissa's Requiem", "Larissa's Repose", "Larissa's Marker", "Larissa's Stride", "Larissa's Decorum", "Larissa's Mourning", "Operating Charm", "Blood Rose", "Frost Orchid", "Stinging Vine", "Falling Thunder", "Marc's Sprint", "Larissa's Windsong", "Call of Odin", "Herald of the Dead Potatoes", "Censor of the Dead Potatoes", "Black Flame", "SpeeArrow", "Leon's Rage", "Invisible Bane", "Andariel's Bane", "Sarthan Fang", "Larissa's Embrace", "Unknown Quantity", "Harathnar", "Vigilante", "Grand Final", "Alphabet Soup", "Streetrace", "Great ski the jungle", "Buggards Greatness", "Grave Theft", "The Cheater", "Super Long Eddy Wind", "Weather Control", "Sky High Fire", "Prison Lattice", "Super Grandpa", "World Fall", "Dumoto", "Firecracker", "Impossible Dream", "Reduction Jet", "Upper World Killer", "Berrytown Disco", "Porsche Carrera GT", "Errland's Salvation", "Germany's Liberator", "Arrest Jet", "Cave Bear's Revenge", "Giant Pencil Sharpener", "Car Hostage", "End of a bridge", "God's Allmight", "The Annihilating Plague", "McDonalds Cheat", "Radio Wave", "Taxi Central", "Lower Level", "Sky Collapse", "Useless Rubber", "Nefarius's Sucking", "Phrozenkeep's Insanity", "Accelerator Button", "Money Printing Machine", "Blessed Aim Bug", "Great Boredom", "Greener Branch", "Reuniting of the Elements", "Error Generator", "Perma-red Traffic Light", "Beer Drinker's Trick", "Lit Room", "Buriza-Do Astron", "Duskhigh", "Water Course", "Andrials Fake", "Missing Light", "Statue Room", "Yet Another Defense Part", "Upper Convictor", "Difficult Start", "Double Order", "Start Absorber", "Still More Difficult End", "Multiple Character", "Attack Guard", "Phil's Heroism", "Cop Skilltab", "Upper Giant UFO", "Crash Bonus 1 Million", "Thornwalk", "Cold Animation", "Fire Spire", "Allied Agora", "High Calculation", "Preemptive Calculation", "False Tal Rasha's Tomb", "Sky Explosion", "Bonus Speed", "Giant Attic Spider", "Too bad!", "Course Reflector", "Super Spray Box 3.1", "Super Spray Box 3.BAR++", "Crusaders Justice", "Shining Light", "Cursed Begining", "Worldstone Collapse", "Wildheart", "The Onslaught", "Shard of Heaven", "Ancients Peak", "Elements Vortex", "The Worldstone Hold", "Zues' Holy Shards", "Gustforce", "Chieftans Shrine", "Immortal One", "Theifs Prowess", "Elements Bane", "Colossal Bones", "The Wounding Noose", "Phases of Time", "Riamens Savour", "Cold Maidens Woods", "The Spirit Within", "Cruel Prod", "The Jester Tear", "Enspirited Soul", "The Maidens Cursed Touch", "Ogre's Crossing", "The Tribute", "Enslaver", "Worldstone Shard", "Deaths Dancer", "Heart's Content", "Mind and Soul", "Rampage", "The Zodiac", "Enhancer", "The Elmentalist", "The Weathers", "Green Unweather", "Blue Unweather", "Plague Stealer", "Bomb off-throw", "Bomber of the Monsters", "Stopping Target Far Tube", "Not Ending Thunder", "Boat Torch Flare", "Iron Vortex", "The Top Secret Course", "Ethereal Fighter", "Greater Controversy Code", "Cursed Worth", "Great Potato Iron", "Flash Spirit", "Wide Level", "Dynamic Right Library", "Course Thief", "The Dictator Of CD Rome", "Mummy Loading", "Saddam Hussein's Bomb Notice", "Green Space", "Unclear Link Curve", "Legal Situation", "Hell-Light Source", "Dark Wonderer", "Trophy Trap", "Larger Poison New Facts", "Pins Without Soul", "The Amazon's Last Chance", "Poison Fighter's Alternation", "Really Impossible Crash Bug", "Altered Save Method", "Fast Reload", "Group Meeting", "Newest Terror Notice", "Shot Series", "Insane Contractor", "Gate Shot", "Gang Shot", "Post Shot", "Endless Wave", "Hotel Burner", "Outgoing Heap", "Cheating Contractor", "Giant Shooting Range", "ds will only run in Protect mode", "Stolen from Duke", "Only Newly Added", "Already Outcheated", "Swift Flight Body", "The All-maker", "The Vault Master", "Thunder Curse", "Call of Loki", "Stalingrad Liberator", "Cooling Shot", "Incinerating Shot", "Tschaeauwieauw!", "Tschiuwiu!", "Hollywood Holocaust", "Low Level PK", "Impossible to find", "Additional Learning Achievement", "Leutkak's Special", "Gorden's Frenzy", "Golem Bar", "First Siegecrafter", "Mexico's Secret Agency", "Guantanamo's Discovery", "Pseudo Grandpa", "Dwelling Case", "Cheater Stinger", "Marlboro Light", "End of the year", "Steel Runeword", "Copilot Wanted Level 6", "Nuke MiG", "Connections", "Perfect Set", "Urbaldi's New Invention", "2k Raid", "Upward Course", "Burning Spaceship", "Overcharge", "God's Annihilator", "Cop Activator", "747 Attack", "Demon Portal", "Horizons Alternative", "Undead Portal", "Gift of the Golden Gates", "Devil Warder", "The North Star", "Pack Caller", "Nighttime Birds", "Pandemonium", "Avalanche Strike", "Insight of the Ancients", "Beating Disk", "Repenter of Mage Corruption", "Serendipity", "On Most Surfaces", "Oakheart", "Gruntface", "Stand Up And Shout", "Me Smash", "Elemental Ignorance", "Blessing of the Dawn", "Angel's Grace", "Nupraptor's Madness", "Morte", "Passive Horror", "Nightwish", "Ancients' Epiphany", "Survival of the Fittest", "Don't Break the Oath", "White Tiger", "These Precious Illusions", "The Road of Good Intentions", "Beware the Heavens", "Tamara's Youth", "In My Cross Hairs", "Nerad's Attunuation", "Violence Has Arrived", "Diversity is Our Strength", "Scarlet's Walk", "A Thousand Kisses Deep", "Eclipse", "Marumana", "Little Earthquakes", "Bloody Ballerina", "Grade-A Nirvana", "Focus Shifter", "Typhoon", "Lead Us to War", "Never is a Promise", "Pillum of Marius", "Twinrova's Essence", "Dark Shadow", "Holy Avenger", "The Only Fantasy is Reality", "We've Come For Your Daughter", "One Hitpoint Wonder", "Pokey Pokey", "Paragons of Innocence", "Fear of the Dark", "Gold Moon Dragon", "The Mob Rules", "Midnight Madness", "Shadow Feet", "Rakashi's Tempest", "Murder God Lasher", "Gravesinger", "Bleed the Freak", "Blegh", "Zero Drive Illusion", "Smokestack", "Bless the Child", "Whore of the Abattoir", "Haven's Work", "Heirloom of the Shara Goddess", "All is Full of Love", "Stormsplitter", "Volcaetus", "Claimh Saolias", "Evanescence", "The King's Devotion", "Melufa", "Gimmie a Hand", "Vanquisher", "Silence Breaker", "Lich Hunter", "Euros", "Tomb Chill", "I Spit on Your Grave", "We Are Nine", "Persona", "Andrea's World", "Can I Play With Madness", "Hidden Place", "Akara's Thanks", "Skidbladnir", "The Devil's Orchid", "Curse Tips", "Azalin's Wish", "Hangman's Smile", "Morrenbane", "Infinite Fury", "Wizard Away Spray", "Planar Edge", "Terra's Enchantment", "Prox", "Ocean's Embrace", "Terminator", "The Last in Line", "Electric Funeral", "Turn Up the Night", "Silver Spark", "Angry Machines", "Tidal Master", "Longicolnis", "Spirit of Servents", "Powerslave", "D.N.R.", "From the Other Side", "Atheist Champion", "Horror Show", "Dusk", "van Gough's Gift", "Hail Storm", "Brotherhood", "Eat Your Entrails", "Straferiffic", "Poets and Madmen", "Immortal Corruptor", "Cvalda", "The Amnesty of Night", "Running Free", "Soul Hunter Medallion", "Reinventing the Steel", "Dehumanizer", "Sky Scorcher", "Cain's Support", "Wolfsbane Bloom", "Lobelia", "Biledriver", "Variant Reader's Codex", "Lost Orb of Phantastacoria", "The Colour of Magic", "The Light Fantastic", "Equal Rites", "Mort", "Sourcery", "Wyrd Sisters", "Pyramids", "Guards! Guards!", "Moving Pictures", "Reaper Man", "Witches Abroad", "Small Gods", "Lords and Ladies", "Men at Arms", "Soul Music", "Interesting Times", "Maskerade", "Feet of Clay", "Hogfather", "Jingo", "The Last Continent", "Carpe Jugulum", "The Fifth Elephant", "The Truth", "Thief of Time", "The Last Hero", "The Amazing Maurice and His Educated Rodents", "Night Watch", "The Wee Free Men", "Monstrous Regiment", "A Hat Full of Sky", "Going Postal", "Thud!", "Wintersmith", "Making Money", "Unseen Academicals", "I Shall Wear Midnight", "Snuff", "Raising Steam", "The Shepherd's Crown",
+"Pus Spitter", "Excalibat", "Moonbite", "Steelgleam", "Spellstealer", "Ironward", "Crashbug Preventer", "Segfault Breath", "Server Operator", "Mindflayer's Best", "The Burninator", "Ascension Kit Part", "DYWYPI", "Identificator", "Frost Barrier", "Zombiekiller", "Litchbane", "Gnomerist", "Vorpal Element", "Silverswandir", "Electric Brand", "Mojo", "Mirrorblack", "Eluder", "Barrowtooth", "Icy Flame", "Spider's Tongue", "Thunderbringer", "White Death", "Coldfire", "Polar Sphere", "Mind Maw", "Hidden Potato", "Queeb Butt", "Total Nonsense", "Spewbrewer", "Lasercross", "Hotel Thirst", "Ultimate Artifact", "Anti-YASD Insurance", "Invulnerability Dummy", "Priced Bauble", "Hunter of Shiva", "Sharp Bender", "Itchalaquiaque", "Saintly Seduction", "Nymph Bait", "Magicbreath", "Team Nastytrap Medal", "Team Ant's Friend", "Hatefulpresident", "Snyder's Killer", "Universa Exit", "Marike's Farting Noise Generator", "Solvejg's Protector", "Josefine's Girly Fun", "Beeper Tag", "Larissa's Hugger", "Relic of AmyBSOD", "Slashem Slasher", "Deslexifier", "Soviet Russia Special", "Sexy Hexy", "Pinobot", "Kenault's Cantrip Generator", "The Deck of Wild Magic", "Baalzebub's Tormented Box", "Baalzebub's All-seeing Servant", "Boccob's Unfinished Works", "The Devil's Pentagram", "Mordekainen's Sneaking Eye", "Tenser's Alteration Manual", "The Pendulum of Orcus", "Mordekainen's Pocket Magician", "Benetar's Death Ray Experiment", "Valdarbon's Automatic Alchemist", "Demigods and their Uses", "Magic for the Layman", "Benetar's Mana Battery", "Benetar's Portable Plague", "Gamenlon's Summoning Manual", "The Lost Works of Kenault", "Planar Travel Made Easy", "The Wand Construction Kit", "The Clay Tablets of Antiquity", "Raal's Tormented Spirits", "Tenser's Mechanical Magician", "Boccob's Magical Mish-mash", "The Grail of Kenault", "Household Magic", "Tenser's Last Words", "Secrets of the Gnomish Wizards", "The Cunning Plan of Zog", "Immortality For Dummies", "Raistlin's Ready Ranger", "Mordenkainen's Mysterious Mind-Masher", "Famous Last Words", "Jor's Compendium of Strange Behaviour", "Agannazar's Antique Acorn", "Cathal's Corrupting Cymbal", "Pytar's Portable Pandemonium", "Finer Points of Munchkinism", "Agannazar's Altruistic Assassin", "Olive's Omnipotent Ostrich", "Cathal's Collapsible Crutch", "Nauglamir", "The Anchor of Space-Time", "Razorback", "Bladeturner", "Soulkeeper", "Belegennon", "Thalkettoth", "Holhenneth", "Colluin", "Holcolleth", "Colannon", "Cambeleg", "Cammithrim", "Paurhach", "Paurnimmen", "Pauraegen", "Paurnen", "Camlost", "Dal-i-thalion", "Angrist", "Narthanc", "Nimthanc", "Dethanc", "Belangil", "Calris", "Aranruth", "Glamdring", "Aeglin", "Gurthang", "Zarcuthra", "Mormegil", "Gondricam", "Crisdurian", "Aglarang", "Ringil", "Anduril", "Anguirel", "Elvagil", "Forasgil", "Careth Asdriag", "Haradekket", "Gilettar", "Doomcaller", "Osondir", "Til-i-arc", "Aeglos", "Nimloth", "Lotharang", "Mundwine", "Barukkheled", "Avavir", "Grond", "Totila", "Thunderfist", "Bloodspike", "Firestar", "Taratol", "Nar-i-vagil", "Eriril", "Deathwreaker", "Turmil", "Belthronding", "Cubragol", "Glimdrir", "Lasher", "Bullseye", "Travak", "Limbslicer", "Orchast", "Naturebane", "Hanisbroner's Surprise", "Merlion Karc's Demonbane", "Narsil", "Lebohaum", "Mediator", "Hithlomir", "Skullcleaver", "Durandil", "Toris Mejistos", "Elessar", "Evenstar", "Balefire", "Stonebiter", "Heart's Blood", "Scale-piercer", "Garachoth", "Skycleaver", "Photic Illuminator", "Captain Nemo's Nautilus", "Le Loup Blanc", "The Eye of Ra", "The Pectoral of the Kheper", "War of the Worlds", "The Time Machine", "20000 Leagues Under the Sea", "Journey to the Centre of the Earth", "Treasure Island", "Les Miserables", "Hunchback of Notre Dame", "The Count of Monte Cristo", "The Three Musketeers", "The Invisible Man", "Around the World in 80 Days", "Wuthering Heights", "The Adventures of Sherlock Holmes", "The Hound of the Baskervilles", "The Return of Sherlock Holmes", "The Lost World", "The Sign of the Four", "A Christmas Carol", "Great Expectations", "A Tale of Two Cities", "Little Women", "Alice's Adventures in Wonderland", "Through the Looking Glass", "The Adventures of Huckleberry Finn", "The Adventures of Tom Sawyer", "A Connecticut Yankee in King Arthur's Court", "The Prince and the Pauper", "Life on the Mississippi", "On the Origin of Species", "Tenant of Wildfell Hall", "Sense and Sensibility", "Pride and Prejudice", "Northanger Abbey", "Persuasion", "Confessions of an English Opium Eater", "The System of the Heavens", "Lord Rosse's Telescope", "On Murder Considered as One of the Fine Arts", "The Arts of Cheating, Swindling and Murder", "The Man Who Would Be King", "The Mark of the Beast", "Captains Courageous", "The Hunting of the Snark", "The Picture of Dorian Gray", "The Turn of the Screw", "King Solomon's Mines", "Legend of Sleepy Hollow", "Crime and Punishment", "Last of the Mohicans", "From the Earth to the Moon", "Round the Moon", "War and Peace", "The Man in the Iron Mask", "The Jungle Book", "Principles of Political Economy", "The Narrative of Arthur Gordon Pym", "Tales of the Grotesque and Arabesque", "The Tomb and Other Tales", "Dagon and Other Macabre Tales", "The Dream-Quest of the Unknown Kadath", "Mysteries of the Depths of the Seas", "The Life and Adventures of Santa Claus", "Red Nail", "Deathspade", "Mindrend", "Rakescar", "The Chieftan", "The Humongous", "Maelstromwrath", "Gravenspine", "Umes Lament", "Felloak", "Knell Striker", "Rusthandle", "Stoutnail", "Bloodrise", "The Generals Tan Do Li Blabla", "Bonesob", "Steeldriver", "Rixots Keen", "Azurewrath", "Hellplague", "Kinemils Awl", "The Patriarch", "Gull", "Irices Shard", "The Dragon Chang", "Razortine", "Steelgoad", "Bane Ash", "The Iron Jang Bong", "Witherstring", "Rimeraven", "Piercerib", "Pullspite", "Wizendraw", "Hellclap", "Blastbark", "Leadcrow", "Ichorstring", "Hellcast", "Doomspittle", "Duskdeep", "Greyform", "Blinkbats Form", "The Centurion", "Twitchthroe", "Darkglow", "Venomsward", "Iceblink", "Boneflesh", "Pelta Lunata", "Stormguild", "Steelclash", "Chance Guards", "Frostburn", "Hotspur", "Tearhaunch", "Nightsmoke", "Nokozan Relic", "The Eye of Etlich", "The Mahim-Oak Curio", "Manald Heal", "Gorgethroat", "The Stone of Jordan", "Crissaegrim", "Force Field", "Mother of Universe", "The Ungodly Slayer of Hitpoints", "The Randomizer", "Creeping Death", "Anthrax", "Tranquilizer", "Ezerataneous", "Blood Omen", "Blizzard of Oz", "Spectral Avoider", "Heretic Saprophyte", "Nature Is Hell", "The Energy Reaver", "Glory of Suffering", "Da Grip", "Terminus Est", "World Champion", "Elysdeon", "Datura", "Talula", "Nativity in Black", "A Twist of Ugliness", "Ass Kickers", "Visionary", "Impact Splatter", "A Woman's Scorn", "Saint Ankh", "Mystery Ankh", "Shining Freedom", "Juarez", "Hide in Shadows", "Stalking Ambush", "Resident Evil", "Celestial Seasons", "Flame Visit", "Spread Needle", "Heaven's Punisher", "Holy Ray", "Enchanted Revenge", "Chain of Conductors", "Soul of Support", "Vagyu Darkness", "Spiritual Cleansing", "Crushing Divinity", "Sightseeker", "Gospel of Peace", "Word of Truth", "Eternal Sphere", "Tri-Emblem", "Star Guard", "Valkerie Guard", "Missing Score", "Rolling Thunder", "Conformer", "Death Penalty", "Army of Me", "Varista", "Orotiagito", "Reactor Fragment", "Energy Core", "Thermo Nuclear Chamber", "Crystalis", "Carved Perfection", "Gold Digger", "The Memory of Lady Mia", "Kaladgolg", "Scorched Trail", "Intercontinental", "Di Immortales", "Til Death do Us Part", "Wrath of Cardice", "Penetrators", "MP3 Player", "Coldkill", "Islestrike", "Warlord's Trust", "Spellsteel", "Suicide Branch", "Cairn Shard", "Drulan's Tongue", "The Fetid Sprinkler", "Sureshrill Frost", "Moonfall", "Baezils Vortex", "Earthshaker", "Coldsteal Eye", "Hexfire", "Riftslash", "The Atlantien", "Crainte Vomir", "Bing Sz Wang", "Cloudcrack", "Todesfaelle Flamme", "Kelpie Snare", "Hone Sundan", "Athena's Wrath", "Pierre Tombale Couant", "Husoldal Evo", "Grim's Burning Dead", "Chromatic Ire", "Skullcollector", "Skystrike", "Kuko Shakaku", "Endlesshail", "Langer Briser", "Buriza-Do Kyanon", "Vampiregaze", "String of Ears", "Gorerider", "Lavagout", "Venom Grip", "Visceratuant", "Guardian Angle", "Shaftstop", "Valkiry Wing", "Demon Machine", "Cliffkiller", "Razorswitch", "Meatscrape", "Pitblood Thirst", "Ondal's Wisdom", "Geronimo's Fury", "Charsi's Favor", "Doppleganger's Shadow", "Deathbit", "Warshrike", "Gutsiphon", "Stonerattle", "Marrowgrinder", "Steelshade", "Death's Web", "Gaia's Wrath", "Khalim's Vengance", "Angel's Song", "The Reedeemer", "Fleshbone", "Odium", "Blood Comet", "Bul-Kathos' Might", "Arioc's Needle", "Shadowdancer", "Indiego's Fancy", "Tyrael's Mercy", "Souldrain", "Runemaster", "Executioner's Justice", "Wallace's Tear", "Leviathan", "Qual'Kek's Enforcer", "Dawnbringer", "Wisp Projector", "Gargoyle's Bite", "Lacerator", "Mang Song's Lesson", "El Espiritu", "The Ensanguinator", "The Reaper's Toll", "Spiritkeeper", "Hellrack", "Alma Negra", "Darkforge Spawn", "Sankenkur's Resurrection", "The Archon Magus", "Widow maker", "Catgut", "Ghostflame", "Bling Bling", "Nebucaneezer's Storm", "Griffon's Eye", "Eaglewind", "Windhammer", "Thunderstroke", "Bloodmoon", "Cranebeak", "Iansang's Frenzy", "Warhound", "Gulletwound", "Headhunter's Glory", "Mordoc's marauder", "Talberd's Law", "Amodeus's Manipulator", "Darksoul", "The Black Adder", "Nature's Peace", "Seraph's Hymn", "Zakarum's Salvation", "Blood Rain", "Horizon's Tornado", "Wrath of Cain", "Siren's call", "Archangel's Deliverance", "Fuego Del Sol", "El Infierno", "Moonrend", "Larzuk's Champion", "Nightsummon", "Kang's Virtue", "Lifechoke", "Palo Grande", "Ghostleach", "Samual's Caretaker", "Hell's Whisper", "The TreeEnt", "Stormwillow", "Moonshadow", "Strongoak", "Demonweb", "Bloodraven's Charge", "Shadefalcon", "Robin's Yolk", "Glimmershred", "Wraithflight", "Lestron's Mark", "Banshee's Wail", "Medusa's Gaze", "Hadeshorn", "Rockstopper", "Crow Caw", "Skullder's Ire", "Toothrow", "Atma's Wail", "Black Hades", "Corpsemourn", "Que-hegan's Wisdom", "Moser's Blessed Circle", "Stormchaser", "Tiamat's Rebuke", "Gerke's Sanctuary", "Radimant's Sphere", "Gravepalm", "Hellmouth", "Infernostride", "Silkweave", "Wartraveler", "Razortail", "Gloomstrap", "Snowclash", "Thudergod's Vigor", "Lanceguard", "Squire's Cover", "Boneflame", "Steelpillar", "Nightwing's Veil", "Hightower's Watch", "Darkfear", "Ashrera's Wired Frame", "Rainbow Facet", "Ravenlore", "Boneshade", "Nethercrow", "Flamebellow", "Fathom", "Wolfhowl", "Gheed's Fortune", "The Vicar", "Halaberd's Reign", "Parkersor's Calm", "Frostwind", "Templar's Might", "Eschuta's temper", "Sandstorm Trek", "Marrowwalk", "Heaven's Light", "Merman's Speed", "Arachnid Mesh", "Sigurd's Staunch", "Carrion Wind", "Gillian's Brazier", "Drakeflame", "Dust Storm", "Skulltred", "Alma's Reflection", "Sacred Charge", "Saracen's Chance", "Highlord's Wrath", "Raven Frost", "Dwarf Star", "Atma's Scarab", "Mara's Kaleidoscope", "The Rising Sun", "The Cat's Eye", "Metalgrid", "Titan's Revenge", "Shakabra's Crux", "Lycander's Aim", "Shadow's Touch", "The Prowler", "Sarmichian Justice", "Annihilus", "The Harbinger", "Doomseer", "Apothecary's Tote", "Apocrypha", "Foci of Visjerei", "Aurora's Guard", "Herald of Zakarum", "Ancient Eye", "Xenos", "Sister of the Water", "Flanker Loop", "Bet Notice", "Mafia City", "Flanker Intro", "Pinball Ingame", "Mafia Water", "Pin of the 11B potatoes", "The Dictator of France", "Short Wave Hiding", "Lock Defendant", "Solved Puzzle", "The Torture Master", "Diablo 2's Eddy Wind", "DHG-Search Play Prize", "Brasilia's Rain Forrest", "Artifical Accomplishment", "Amusing Ivo's Fury", "Elnaz's Blood Rush", "Sizzle's Card Stand", "G-cheater's Fucking Rockstar", "Gigantic Double-deck Airplane", "Holland's World Master Team", "GTS Champion Elbow", "Lily's Puncturer", "Laura and her sisters and their force", "A.Ha's Revenant", "Shakira's Beautiful Dance", "Gerlindchen's Flower Pot", "Ruth's resouding laughter", "Jane's embrace-worthiness", "Steel Beetle's Victory", "Invisible Maker", "H.'s Giant Tank", "Course of Kastor-Transport", "Ludgera's Deception", "Upper Perfect Kunzite", "CD of Britney Spears", "Gettoblaster 2.0++", "Awake Sleep Tower Sign", "Iceforce", "The Boss of the Errors", "Teacher Police's Cheating", "Property Completion", "Urbaldi's Last Salvation", "Nest of the Black Raptors", "Ruth's Case Sign", "World's Burden", "Tyrant's Power", "Magma Shooting Bird", "Dracula's Wish", "Zephyros", "Course Point's Glacial Spike", "Reflection Cover", "Barkbite", "Error Biter", "Breakwound Impacter", "Bulldog Gaurd", "Dark Corner", "Computer Mouse", "The Mould Defiler", "Port Output", "Apocalypse", "Frostfoil", "Ascaron", "Laurefindelo Umbar", "Scaleron", "Cosomoco Pelecco", "Cosomoco Vaitando", "Aiglos", "Winter's Bite", "Tempest", "Scorchwind", "Withering Finger", "Oblivion's Enbrace", "Crushing Grip", "Cruel Spur", "Fold of Sorrow", "Crimson Steel", "Spineridge", "Diabolic Wrap", "Spider Strand", "Battlelock", "Threshold Insurmountable", "Diabolic Casing", "Astral Dream", "Enspelled Talisman", "Charm of Holding", "Broach of Eternal Life", "Vizier's Charm", "Circle of Life and Death", "Cryptic Glyph", "Scion of Numenor", "Diabolic Gifts", "Vampire's Immortality", "Star of Tar-Ancalime", "Vilisse", "Ancalquon Morramaloce", "Cosomot Valaraucatur", "Relics of the Third Age", "Rule of Eldarion", "Boromir's Gift", "Scourge of Fire", "Battlecry of Lammoth", "Darkness of Moria", "Sacred Bottle Spirit", "Clay Tone Band", "Measure-hit a corner", "Leo's secret hiding place", "Jutta flax's OHP", "Total Sun Darkness", "The Gravegraver", "The Secret Car", "Silver-cutting 1E-coin", "The Queue's Destruction", "Diablo II's Great Hatred", "Stalin's Secret Refuge", "Clockold Blackwhite TV", "A Green Prostitute", "Marc's Battlestandard", "TI-83 Pocket Calculator", "Plague Error Impacter", "Spleendrain", "Ametyhstmaster", "Irriant Darkness", "Cage Rattler", "Hobbes's Rectifier", "Elsa's Champion", "Corner to sport-resounded", "Punching Bag", "Lesson with DJ Leutkak", "Internal Clan Area", "Cristi's Greener Pin", "The Challenging Fence", "A Christmas Present", "Star Wars - Episode 2", "Gorbatschov's Talisman", "The Tarrif Cashier", "Door to the space 314", "Saddam Has Fallen", "The Toilet Brush's Shard", "Bull Mode", "Lock Entrance Cashier", "King of Porn", "Marianne's Measurer", "Red Lit Combat Arena", "Mars-resound's Disguise", "The Horse's Giant Engine", "Fear Forwards The Light", "Hiding Place of Urbaldi", "Inability of Reziarfg", "Kastor-Transport's Accellerotor", "Aee's Steel Sign", "Gunnhild's General Store", "Heaven For Everyone", "Braight Meteor", "Homicidal Tendancies", "Master Thief", "Drogman's Fortune", "Nebucaneezer's Reign", "Prick Rat Nest", "Nosferatu's Grasp", "Hibernal Wind", "Sentinal Angle", "Most Wanted", "Giant Air Elemental", "Volcano Walk", "Insidiarious", "Slowing Down Spider Net", "Granitegrid", "Large Feries", "Sigurd's Impact", "Carrion Beetle", "Bonusroomward", "Secret Order", "Larissa's Requiem", "Larissa's Repose", "Larissa's Marker", "Larissa's Stride", "Larissa's Decorum", "Larissa's Mourning", "Operating Charm", "Blood Rose", "Frost Orchid", "Stinging Vine", "Falling Thunder", "Marc's Sprint", "Larissa's Windsong", "Call of Odin", "Herald of the Dead Potatoes", "Censor of the Dead Potatoes", "Black Flame", "SpeeArrow", "Leon's Rage", "Invisible Bane", "Andariel's Bane", "Sarthan Fang", "Larissa's Embrace", "Unknown Quantity", "Harathnar", "Vigilante", "Grand Final", "Alphabet Soup", "Streetrace", "Great ski the jungle", "Buggards Greatness", "Grave Theft", "The Cheater", "Super Long Eddy Wind", "Weather Control", "Sky High Fire", "Prison Lattice", "Super Grandpa", "World Fall", "Dumoto", "Firecracker", "Impossible Dream", "Reduction Jet", "Upper World Killer", "Berrytown Disco", "Porsche Carrera GT", "Errland's Salvation", "Germany's Liberator", "Arrest Jet", "Cave Bear's Revenge", "Giant Pencil Sharpener", "Car Hostage", "End of a bridge", "God's Allmight", "The Annihilating Plague", "McDonalds Cheat", "Radio Wave", "Taxi Central", "Lower Level", "Sky Collapse", "Useless Rubber", "Nefarius's Sucking", "Phrozenkeep's Insanity", "Accelerator Button", "Money Printing Machine", "Blessed Aim Bug", "Great Boredom", "Greener Branch", "Reuniting of the Elements", "Error Generator", "Perma-red Traffic Light", "Beer Drinker's Trick", "Lit Room", "Buriza-Do Astron", "Duskhigh", "Water Course", "Andrials Fake", "Missing Light", "Statue Room", "Yet Another Defense Part", "Upper Convictor", "Difficult Start", "Double Order", "Start Absorber", "Still More Difficult End", "Multiple Character", "Attack Guard", "Phil's Heroism", "Cop Skilltab", "Upper Giant UFO", "Crash Bonus 1 Million", "Thornwalk", "Cold Animation", "Fire Spire", "Allied Agora", "High Calculation", "Preemptive Calculation", "False Tal Rasha's Tomb", "Sky Explosion", "Bonus Speed", "Giant Attic Spider", "Too bad!", "Course Reflector", "Super Spray Box 3.1", "Super Spray Box 3.BAR++", "Crusaders Justice", "Shining Light", "Cursed Begining", "Worldstone Collapse", "Wildheart", "The Onslaught", "Shard of Heaven", "Ancients Peak", "Elements Vortex", "The Worldstone Hold", "Zues' Holy Shards", "Gustforce", "Chieftans Shrine", "Immortal One", "Theifs Prowess", "Elements Bane", "Colossal Bones", "The Wounding Noose", "Phases of Time", "Riamens Savour", "Cold Maidens Woods", "The Spirit Within", "Cruel Prod", "The Jester Tear", "Enspirited Soul", "The Maidens Cursed Touch", "Ogre's Crossing", "The Tribute", "Enslaver", "Worldstone Shard", "Deaths Dancer", "Heart's Content", "Mind and Soul", "Rampage", "The Zodiac", "Enhancer", "The Elmentalist", "The Weathers", "Green Unweather", "Blue Unweather", "Plague Stealer", "Bomb off-throw", "Bomber of the Monsters", "Stopping Target Far Tube", "Not Ending Thunder", "Boat Torch Flare", "Iron Vortex", "The Top Secret Course", "Ethereal Fighter", "Greater Controversy Code", "Cursed Worth", "Great Potato Iron", "Flash Spirit", "Wide Level", "Dynamic Right Library", "Course Thief", "The Dictator Of CD Rome", "Mummy Loading", "Saddam Hussein's Bomb Notice", "Green Space", "Unclear Link Curve", "Legal Situation", "Hell-Light Source", "Dark Wonderer", "Trophy Trap", "Larger Poison New Facts", "Pins Without Soul", "The Amazon's Last Chance", "Poison Fighter's Alternation", "Really Impossible Crash Bug", "Altered Save Method", "Fast Reload", "Group Meeting", "Newest Terror Notice", "Shot Series", "Insane Contractor", "Gate Shot", "Gang Shot", "Post Shot", "Endless Wave", "Hotel Burner", "Outgoing Heap", "Cheating Contractor", "Giant Shooting Range", "ds will only run in Protect mode", "Stolen from Duke", "Only Newly Added", "Already Outcheated", "Swift Flight Body", "The All-maker", "The Vault Master", "Thunder Curse", "Call of Loki", "Stalingrad Liberator", "Cooling Shot", "Incinerating Shot", "Tschaeauwieauw!", "Tschiuwiu!", "Hollywood Holocaust", "Low Level PK", "Impossible to find", "Additional Learning Achievement", "Leutkak's Special", "Gorden's Frenzy", "Golem Bar", "First Siegecrafter", "Mexico's Secret Agency", "Guantanamo's Discovery", "Pseudo Grandpa", "Dwelling Case", "Cheater Stinger", "Marlboro Light", "End of the year", "Steel Runeword", "Copilot Wanted Level 6", "Nuke MiG", "Connections", "Perfect Set", "Urbaldi's New Invention", "2k Raid", "Upward Course", "Burning Spaceship", "Overcharge", "God's Annihilator", "Cop Activator", "747 Attack", "Demon Portal", "Horizons Alternative", "Undead Portal", "Gift of the Golden Gates", "Devil Warder", "The North Star", "Pack Caller", "Nighttime Birds", "Pandemonium", "Avalanche Strike", "Insight of the Ancients", "Beating Disk", "Repenter of Mage Corruption", "Serendipity", "On Most Surfaces", "Oakheart", "Gruntface", "Stand Up And Shout", "Me Smash", "Elemental Ignorance", "Blessing of the Dawn", "Angel's Grace", "Nupraptor's Madness", "Morte", "Passive Horror", "Nightwish", "Ancients' Epiphany", "Survival of the Fittest", "Don't Break the Oath", "White Tiger", "These Precious Illusions", "The Road of Good Intentions", "Beware the Heavens", "Tamara's Youth", "In My Cross Hairs", "Nerad's Attunuation", "Violence Has Arrived", "Diversity is Our Strength", "Scarlet's Walk", "A Thousand Kisses Deep", "Eclipse", "Marumana", "Little Earthquakes", "Bloody Ballerina", "Grade-A Nirvana", "Focus Shifter", "Typhoon", "Lead Us to War", "Never is a Promise", "Pillum of Marius", "Twinrova's Essence", "Dark Shadow", "Holy Avenger", "The Only Fantasy is Reality", "We've Come For Your Daughter", "One Hitpoint Wonder", "Pokey Pokey", "Paragons of Innocence", "Fear of the Dark", "Gold Moon Dragon", "The Mob Rules", "Midnight Madness", "Shadow Feet", "Rakashi's Tempest", "Murder God Lasher", "Gravesinger", "Bleed the Freak", "Blegh", "Zero Drive Illusion", "Smokestack", "Bless the Child", "Whore of the Abattoir", "Haven's Work", "Heirloom of the Shara Goddess", "All is Full of Love", "Stormsplitter", "Volcaetus", "Claimh Saolias", "Evanescence", "The King's Devotion", "Melufa", "Gimmie a Hand", "Vanquisher", "Silence Breaker", "Lich Hunter", "Euros", "Tomb Chill", "I Spit on Your Grave", "We Are Nine", "Persona", "Andrea's World", "Can I Play With Madness", "Hidden Place", "Akara's Thanks", "Skidbladnir", "The Devil's Orchid", "Curse Tips", "Azalin's Wish", "Hangman's Smile", "Morrenbane", "Infinite Fury", "Wizard Away Spray", "Planar Edge", "Terra's Enchantment", "Prox", "Ocean's Embrace", "Terminator", "The Last in Line", "Electric Funeral", "Turn Up the Night", "Silver Spark", "Angry Machines", "Tidal Master", "Longicolnis", "Spirit of Servents", "Powerslave", "D.N.R.", "From the Other Side", "Atheist Champion", "Horror Show", "Dusk", "van Gough's Gift", "Hail Storm", "Brotherhood", "Eat Your Entrails", "Straferiffic", "Poets and Madmen", "Immortal Corruptor", "Cvalda", "The Amnesty of Night", "Running Free", "Soul Hunter Medallion", "Reinventing the Steel", "Dehumanizer", "Sky Scorcher", "Cain's Support", "Wolfsbane Bloom", "Lobelia", "Biledriver", "Variant Reader's Codex", "Lost Orb of Phantastacoria", "The Colour of Magic", "The Light Fantastic", "Equal Rites", "Mort", "Sourcery", "Wyrd Sisters", "Pyramids", "Guards! Guards!", "Moving Pictures", "Reaper Man", "Witches Abroad", "Small Gods", "Lords and Ladies", "Men at Arms", "Soul Music", "Interesting Times", "Maskerade", "Feet of Clay", "Hogfather", "Jingo", "The Last Continent", "Carpe Jugulum", "The Fifth Elephant", "The Truth", "Thief of Time", "The Last Hero", "The Amazing Maurice and His Educated Rodents", "Night Watch", "The Wee Free Men", "Monstrous Regiment", "A Hat Full of Sky", "Going Postal", "Thud!", "Wintersmith", "Making Money", "Unseen Academicals", "I Shall Wear Midnight", "Snuff", "Raising Steam", "The Shepherd's Crown",
 
 };
 
@@ -44,13 +44,13 @@ const struct icp mkobjprobs[] = {
 {160, FOOD_CLASS},
 { 70, TOOL_CLASS},
 { 30, GEM_CLASS},
-{145, POTION_CLASS},
-{145, SCROLL_CLASS},
+{120, POTION_CLASS},
+{120, SCROLL_CLASS},
 { 40, SPBOOK_CLASS},
 { 70, WAND_CLASS},
-{ 40, RING_CLASS},
+{ 20, RING_CLASS},
 { 15, AMULET_CLASS},
-{ 52, COIN_CLASS},
+{122, COIN_CLASS},
 {  1, VENOM_CLASS},
 { 10, ROCK_CLASS},
 {  1, BALL_CLASS},
@@ -63,22 +63,22 @@ const struct icp mkobjprobs[] = {
 
 const struct icp boxiprobs[] = {
 { 99, WEAPON_CLASS},
-{ 70, ARMOR_CLASS},
+{ 90, ARMOR_CLASS},
 { 20, GEM_CLASS},
 { 55, TOOL_CLASS},
 {160, FOOD_CLASS},
-{140, POTION_CLASS},
-{140, SCROLL_CLASS},
+{120, POTION_CLASS},
+{120, SCROLL_CLASS},
 { 60, SPBOOK_CLASS},
-{ 97, COIN_CLASS},
+{133, COIN_CLASS},
 { 65, WAND_CLASS},
-{ 50, RING_CLASS},
-{ 30, AMULET_CLASS},
+{ 40, RING_CLASS},
+{ 20, AMULET_CLASS},
 {  1, VENOM_CLASS},
 { 10, ROCK_CLASS},
 {  1, BALL_CLASS},
 {  1, CHAIN_CLASS},
-{  1, IMPLANT_CLASS}
+{  5, IMPLANT_CLASS}
 };
 
 const struct icp tchestprobs[] = {
@@ -90,7 +90,7 @@ const struct icp tchestprobs[] = {
 { 90, POTION_CLASS},
 { 90, SCROLL_CLASS},
 { 60, SPBOOK_CLASS},
-{ 57, COIN_CLASS},
+{ 53, COIN_CLASS},
 { 45, WAND_CLASS},
 { 55, RING_CLASS},
 { 45, AMULET_CLASS},
@@ -98,7 +98,7 @@ const struct icp tchestprobs[] = {
 { 10, ROCK_CLASS},
 {  1, BALL_CLASS},
 {  1, CHAIN_CLASS},
-{  1, IMPLANT_CLASS}
+{  5, IMPLANT_CLASS}
 };
 
 #ifdef REINCARNATION
@@ -116,16 +116,16 @@ const struct icp rogueprobs[] = {
 const struct icp hellprobs[] = {
 {129, WEAPON_CLASS},
 { 80, ARMOR_CLASS},
-{150, FOOD_CLASS},
-{ 70, TOOL_CLASS},
-{ 60, GEM_CLASS},
+{130, FOOD_CLASS},
+{ 60, TOOL_CLASS},
+{ 30, GEM_CLASS},
 { 90, POTION_CLASS},
 { 90, SCROLL_CLASS},
-{ 90, WAND_CLASS},
-{ 50, RING_CLASS},
-{ 40, AMULET_CLASS},
-{ 45, SPBOOK_CLASS},
-{ 92, COIN_CLASS},
+{ 50, WAND_CLASS},
+{ 30, RING_CLASS},
+{ 20, AMULET_CLASS},
+{ 35, SPBOOK_CLASS},
+{242, COIN_CLASS},
 {  1, VENOM_CLASS},
 { 10, ROCK_CLASS},
 {  1, BALL_CLASS},
@@ -134,27 +134,30 @@ const struct icp hellprobs[] = {
 };
 
 struct obj *
-mkobj_at(let, x, y, artif)
+mkobj_at(let, x, y, artif, shopinit)
 char let;
 int x, y;
 int artif;
+boolean shopinit;
 {
 	struct obj *otmp;
 
-	otmp = mkobj(let, artif);
+	otmp = mkobj(let, artif, shopinit);
+	if (!otmp) return (struct obj *)0; /* fail safe added by Amy */
 	place_object(otmp, x, y);
 	return(otmp);
 }
 
 struct obj *
-mksobj_at(otyp, x, y, init, artif)
+mksobj_at(otyp, x, y, init, artif, shopinit)
 int otyp, x, y;
 boolean init;
 int artif;
+boolean shopinit;
 {
 	struct obj *otmp;
 
-	otmp = mksobj(otyp, init, artif);
+	otmp = mksobj(otyp, init, artif, shopinit);
 	if (!otmp) return (struct obj *)0;
 	place_object(otmp, x, y);
 	return(otmp);
@@ -167,11 +170,21 @@ int artif;
  */
 
 struct obj *
-mkobj(oclass, artif)
+mkobj(oclass, artif, shopinit)
 char oclass;
 int artif;
+boolean shopinit;
 {
 	int tprob, i, j, prob = rnd(10000);
+
+	int debugvar = 0;
+	if (Is_rogue_level(&u.uz)) debugvar = 1;
+	else if (Inhell) debugvar = 2;
+	boolean wildcard = 0;
+	if (oclass == WILDCARD_CLASS) { /* RANDOM_CLASS, but timebasedlowerchance is not in effect --Amy */
+		oclass = RANDOM_CLASS;
+		wildcard = TRUE;
+	}
 
 	register int levscalediff;
 
@@ -240,48 +253,54 @@ int artif;
 			oclass = COIN_CLASS;
 		}
 
-		if ((oclass == SCROLL_CLASS) && !timebasedlowerchance() && !timebasedlowerchance() ) {
+		if ((oclass == SCROLL_CLASS) && !wildcard && !timebasedlowerchance() && !timebasedlowerchance() ) {
 			oclass = COIN_CLASS;
 		}
 
-		if ((oclass == WEAPON_CLASS) && !timebasedlowerchance() && !timebasedlowerchance() ) {
+		if ((oclass == WEAPON_CLASS) && !wildcard && !timebasedlowerchance() && !timebasedlowerchance() ) {
 			oclass = COIN_CLASS;
 		}
 
-		if ((oclass == ARMOR_CLASS) && !timebasedlowerchance() && !timebasedlowerchance() ) {
+		if ((oclass == ARMOR_CLASS) && !wildcard && !timebasedlowerchance() && !timebasedlowerchance() ) {
 			oclass = COIN_CLASS;
 		}
 
-		if ((oclass == TOOL_CLASS) && !timebasedlowerchance() && !timebasedlowerchance() ) {
+		if ((oclass == TOOL_CLASS) && !wildcard && !timebasedlowerchance() && !timebasedlowerchance() ) {
 			oclass = COIN_CLASS;
 		}
 
-		if ((oclass == POTION_CLASS) && !timebasedlowerchance() && !timebasedlowerchance() ) {
+		if ((oclass == POTION_CLASS) && !wildcard && !timebasedlowerchance() && !timebasedlowerchance() ) {
 			oclass = COIN_CLASS;
 		}
 
-		if ((oclass == WAND_CLASS) && !timebasedlowerchance() && !timebasedlowerchance() ) {
+		if ((oclass == WAND_CLASS) && !wildcard && !timebasedlowerchance() && !timebasedlowerchance() ) {
 			oclass = COIN_CLASS;
 		}
 
-		if ((oclass == AMULET_CLASS) && !timebasedlowerchance() ) {
+		if ((oclass == AMULET_CLASS) && !wildcard && !timebasedlowerchance() ) {
 			oclass = COIN_CLASS;
 		}
 
-		if ((oclass == SPBOOK_CLASS) && !timebasedlowerchance() && !timebasedlowerchance() && !timebasedlowerchance() ) {
+		if ((oclass == SPBOOK_CLASS) && !wildcard && !timebasedlowerchance() && !timebasedlowerchance() && !timebasedlowerchance() ) {
 			oclass = COIN_CLASS;
 		}
 
-		if ((oclass == FOOD_CLASS) && !timebasedlowerchance() && !timebasedlowerchance() && !timebasedlowerchance() ) {
+		if ((oclass == FOOD_CLASS) && !wildcard && !timebasedlowerchance() && !timebasedlowerchance() && !timebasedlowerchance() ) {
 			oclass = COIN_CLASS;
 		}
 
-		if ((oclass == GEM_CLASS) && !timebasedlowerchance() && (!timebasedlowerchance() || !timebasedlowerchance() ) ) {
+		if ((oclass == GEM_CLASS) && !wildcard && !timebasedlowerchance() && (!timebasedlowerchance() || !timebasedlowerchance() ) ) {
 			oclass = COIN_CLASS;
 		}
 
-		if ((oclass == RING_CLASS) && ( (!timebasedlowerchance() && !timebasedlowerchance() ) || (!timebasedlowerchance() && !timebasedlowerchance() ) ) ) {
+		if ((oclass == RING_CLASS) && !wildcard && ( (!timebasedlowerchance() && !timebasedlowerchance() ) || (!timebasedlowerchance() && !timebasedlowerchance() ) ) ) {
 			oclass = COIN_CLASS;
+		}
+
+		if (oclass >= MAXOCLASSES) {
+			impossible("Error: mkobj() random class object returned invalid object class %d. Please tell Amy about this bug. Debug variable: %d", (int) oclass, debugvar);
+			oclass = COIN_CLASS;
+
 		}
 
 	}
@@ -321,6 +340,70 @@ levscalereroll:
 
 	}
 levscalerollpast:
+
+	if (oclass == SPBOOK_CLASS) {
+
+		if (u.spellbookbias1 >= 0 && (rnd(100) <= u.spellbookchance1) && (spell_skilltype(i) != u.spellbookbias1)) {
+
+			int spattempts = 0;
+			while (spattempts++ < 50000 && (spell_skilltype(i) != u.spellbookbias1)) {
+				prob = rnd(10000);
+				i = bases[(int)oclass];
+				while((prob -= objects[i].oc_prob) > 0) i++;
+
+				if(objects[i].oc_class != oclass)
+					panic("probtype error, oclass=%d i=%d", (int) oclass, i);
+				if(!OBJ_NAME(objects[i]))
+					panic("probtype no object name error, oclass=%d i=%d", (int) oclass, i);
+			}
+
+		} else if (u.spellbookbias2 >= 0 && (rnd(100) <= u.spellbookchance2) && (spell_skilltype(i) != u.spellbookbias2)) {
+			int spattempts = 0;
+			while (spattempts++ < 50000 && (spell_skilltype(i) != u.spellbookbias2)) {
+				prob = rnd(10000);
+				i = bases[(int)oclass];
+				while((prob -= objects[i].oc_prob) > 0) i++;
+
+				if(objects[i].oc_class != oclass)
+					panic("probtype error, oclass=%d i=%d", (int) oclass, i);
+				if(!OBJ_NAME(objects[i]))
+					panic("probtype no object name error, oclass=%d i=%d", (int) oclass, i);
+			}
+
+		} else if (u.spellbookbias3 >= 0 && (rnd(100) <= u.spellbookchance3) && (spell_skilltype(i) != u.spellbookbias3)) {
+			int spattempts = 0;
+			while (spattempts++ < 50000 && (spell_skilltype(i) != u.spellbookbias3)) {
+				prob = rnd(10000);
+				i = bases[(int)oclass];
+				while((prob -= objects[i].oc_prob) > 0) i++;
+
+				if(objects[i].oc_class != oclass)
+					panic("probtype error, oclass=%d i=%d", (int) oclass, i);
+				if(!OBJ_NAME(objects[i]))
+					panic("probtype no object name error, oclass=%d i=%d", (int) oclass, i);
+			}
+
+		}
+
+	}
+
+	if (Role_if(PM_TOSSER) && oclass == WEAPON_CLASS) {
+
+		if (!rn2(20) && objects[i].oc_skill != P_JAVELIN) {
+			int spattempts = 0;
+			while (spattempts++ < 50000 && (objects[i].oc_skill != P_JAVELIN)) {
+				prob = rnd(10000);
+				i = bases[(int)oclass];
+				while((prob -= objects[i].oc_prob) > 0) i++;
+
+				if(objects[i].oc_class != oclass)
+					panic("probtype error, oclass=%d i=%d", (int) oclass, i);
+				if(!OBJ_NAME(objects[i]))
+					panic("probtype no object name error, oclass=%d i=%d", (int) oclass, i);
+			}
+		}
+
+	}
 
 	if (ismusablenumber(i) && (u.antimusablebias > rn2(100) ) ) {
 
@@ -380,74 +463,64 @@ armorreroll:
 
 	}
 
-	if ((objects[u.veryobtainable].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost) ) return(mksobj(u.veryobtainable, TRUE, artif));
+	if ((objects[u.veryobtainable].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost) ) return(mksobj(u.veryobtainable, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable2].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost2) ) return(mksobj(u.veryobtainable2, TRUE, artif));
+	else if ((objects[u.veryobtainable2].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost2) ) return(mksobj(u.veryobtainable2, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable3].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost3) ) return(mksobj(u.veryobtainable3, TRUE, artif));
+	else if ((objects[u.veryobtainable3].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost3) ) return(mksobj(u.veryobtainable3, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable4].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost4) ) return(mksobj(u.veryobtainable4, TRUE, artif));
+	else if ((objects[u.veryobtainable4].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost4) ) return(mksobj(u.veryobtainable4, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable5].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost5) ) return(mksobj(u.veryobtainable5, TRUE, artif));
+	else if ((objects[u.veryobtainable5].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost5) ) return(mksobj(u.veryobtainable5, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable6].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost6) ) return(mksobj(u.veryobtainable6, TRUE, artif));
+	else if ((objects[u.veryobtainable6].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost6) ) return(mksobj(u.veryobtainable6, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable7].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost7) ) return(mksobj(u.veryobtainable7, TRUE, artif));
+	else if ((objects[u.veryobtainable7].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost7) ) return(mksobj(u.veryobtainable7, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable8].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost8) ) return(mksobj(u.veryobtainable8, TRUE, artif));
+	else if ((objects[u.veryobtainable8].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost8) ) return(mksobj(u.veryobtainable8, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable9].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost9) ) return(mksobj(u.veryobtainable9, TRUE, artif));
+	else if ((objects[u.veryobtainable9].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost9) ) return(mksobj(u.veryobtainable9, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable10].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost10) ) return(mksobj(u.veryobtainable10, TRUE, artif));
+	else if ((objects[u.veryobtainable10].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost10) ) return(mksobj(u.veryobtainable10, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable11].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost11) ) return(mksobj(u.veryobtainable11, TRUE, artif));
+	else if ((objects[u.veryobtainable11].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost11) ) return(mksobj(u.veryobtainable11, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable12].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost12) ) return(mksobj(u.veryobtainable12, TRUE, artif));
+	else if ((objects[u.veryobtainable12].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost12) ) return(mksobj(u.veryobtainable12, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable13].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost13) ) return(mksobj(u.veryobtainable13, TRUE, artif));
+	else if ((objects[u.veryobtainable13].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost13) ) return(mksobj(u.veryobtainable13, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable14].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost14) ) return(mksobj(u.veryobtainable14, TRUE, artif));
+	else if ((objects[u.veryobtainable14].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost14) ) return(mksobj(u.veryobtainable14, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable15].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost15) ) return(mksobj(u.veryobtainable15, TRUE, artif));
+	else if ((objects[u.veryobtainable15].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost15) ) return(mksobj(u.veryobtainable15, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable16].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost16) ) return(mksobj(u.veryobtainable16, TRUE, artif));
+	else if ((objects[u.veryobtainable16].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost16) ) return(mksobj(u.veryobtainable16, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable17].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost17) ) return(mksobj(u.veryobtainable17, TRUE, artif));
+	else if ((objects[u.veryobtainable17].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost17) ) return(mksobj(u.veryobtainable17, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable18].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost18) ) return(mksobj(u.veryobtainable18, TRUE, artif));
+	else if ((objects[u.veryobtainable18].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost18) ) return(mksobj(u.veryobtainable18, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable19].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost19) ) return(mksobj(u.veryobtainable19, TRUE, artif));
+	else if ((objects[u.veryobtainable19].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost19) ) return(mksobj(u.veryobtainable19, TRUE, artif, shopinit));
 
-	else if ((objects[u.veryobtainable20].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost20) ) return(mksobj(u.veryobtainable20, TRUE, artif));
+	else if ((objects[u.veryobtainable20].oc_class == oclass) && (rnd(10000) < u.veryobtainableboost20) ) return(mksobj(u.veryobtainable20, TRUE, artif, shopinit));
 
 	else if (!rn2(100) && oclass == ARMOR_CLASS) {
 
-		for (j = STRANGE_OBJECT; j < NUM_OBJECTS; j++) {
-			register const char *zn;
-			if ((zn = OBJ_DESCR(objects[j])) && !strcmpi(zn, "frequent helmet")) {
-				if (!OBJ_NAME(objects[j])) j = STRANGE_OBJECT;
-				break;
-			}
-			if ((zn = OBJ_DESCR(objects[j])) && !strcmpi(zn, "chastyy shlem")) {
-				if (!OBJ_NAME(objects[j])) j = STRANGE_OBJECT;
-				break;
-			}
-			if ((zn = OBJ_DESCR(objects[j])) && !strcmpi(zn, "tez-tez zarbdan")) {
-				if (!OBJ_NAME(objects[j])) j = STRANGE_OBJECT;
-				break;
-			}
+		int freqhelmet = find_frequent_helmet();
+		if (freqhelmet != -1 && freqhelmet < NUM_OBJECTS) {
+			return(mksobj(freqhelmet, TRUE, artif, shopinit));
+		} else {
+			return(mksobj(i, TRUE, artif, shopinit));
 		}
 
-		return (mksobj(j, TRUE, artif));
 	}
 
 	else if (!rn2(100) && issoviet && oclass == WAND_CLASS) {
 
-		return(mksobj(WAN_DESLEXIFICATION, TRUE, artif));
+		return(mksobj(WAN_DESLEXIFICATION, TRUE, artif, shopinit));
 
 	}
 
-	else return(mksobj(i, TRUE, artif));
+	else return(mksobj(i, TRUE, artif, shopinit));
 }
 
 STATIC_OVL void
@@ -486,17 +559,19 @@ struct obj *box;
 	for (n = rn1(n+1 - minn, minn); n > 0; n--) {
 	    if (box->otyp == MEDICAL_KIT) {
 		int supplies[] = { PHIAL, BANDAGE, PILL };
-		if (!(otmp = mksobj(supplies[rn2(SIZE(supplies))], TRUE, TRUE)))
+		if (!(otmp = mksobj(supplies[rn2(SIZE(supplies))], TRUE, TRUE, FALSE)))
 		    continue;
 		else
 		    otmp->oinvis = otmp->oinvisreal = FALSE;
 	    } else
 	    if (box->otyp == ICE_BOX || box->otyp == ICE_BOX_OF_HOLDING || box->otyp == ICE_BOX_OF_WATERPROOFING || box->otyp == ICE_BOX_OF_DIGESTION) {
-		if (!(otmp = mksobj(CORPSE, TRUE, TRUE))) continue;
+		if (!timebasedlowerchance()) continue;
+		if (!(otmp = mksobj(CORPSE, TRUE, TRUE, FALSE))) continue;
 		/* Note: setting age to 0 is correct.  Age has a different
 		 * from usual meaning for objects stored in ice boxes. -KAA
 		 */
 		otmp->age = 0L;
+		otmp->icedobject = TRUE;
 		if (otmp->timed) {
 		    (void) stop_timer(ROT_CORPSE, (void *)otmp);
 		    (void) stop_timer(MOLDY_CORPSE, (void *)otmp);
@@ -509,7 +584,7 @@ struct obj *box;
 		for (tprob = rnd(1000); (tprob -= iprobs->iprob) > 0; iprobs++)
 		    ;
 		if (!timebasedlowerchance()) continue;
-		if (!(otmp = mkobj(iprobs->iclass, TRUE))) continue;
+		if (!(otmp = mkobj(iprobs->iclass, TRUE, FALSE))) continue;
 
 		/* handle a couple of special cases */
 		if (otmp->oclass == COIN_CLASS) {
@@ -530,7 +605,7 @@ struct obj *box;
 
 			if (uimplant && uimplant->oartifact == ART_SCROOGE_S_MONEY_MEMORY) {
 				otmp->quan *= 2;
-				if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER)) otmp->quan *= 2;
+				if (powerfulimplants()) otmp->quan *= 2;
 			}
 
 			if (uarmh && uarmh->oartifact == ART_GOLD_STANDARD) otmp->quan *= 2;
@@ -545,7 +620,7 @@ struct obj *box;
 		for (tprob = rnd(1000); (tprob -= iprobs->iprob) > 0; iprobs++)
 		    ;
 		if (!timebasedlowerchance()) continue;
-		if (!(otmp = mkobj(iprobs->iclass, TRUE))) continue;
+		if (!(otmp = mkobj(iprobs->iclass, TRUE, FALSE))) continue;
 
 		/* handle a couple of special cases */
 		if (otmp->oclass == COIN_CLASS) {
@@ -613,7 +688,7 @@ int
 usefulitem() /* select the ID number of an item that may be useful for the player --Amy */
 {
 
-	switch (rnd(150)) {
+	switch (rnd(151)) {
 
 		case 1:
 			return ATHAME;
@@ -844,6 +919,8 @@ usefulitem() /* select the ID number of an item that may be useful for the playe
 			return WAN_SOLAR_BEAM;
 		case 150:
 			return SPE_REPAIR_WEAPON;
+		case 151:
+			return SCR_MAKE_PENTAGRAM;
 		default: /* fail safe */
 			return POT_FULL_HEALING;
 	}
@@ -854,7 +931,7 @@ int
 nastymusableitem() /* select the ID number of an item that the monsters may use against you --Amy */
 {
 
-	switch (rnd(179)) {
+	switch (rnd(207)) {
 
 		case 1:
 		case 2:
@@ -1124,6 +1201,62 @@ nastymusableitem() /* select the ID number of an item that the monsters may use 
 			return POT_DIMNESS;
 		case 179:
 			return SCR_OFFLEVEL_ITEM;
+		case 180:
+			return SCR_NASTY_CURSE;
+		case 181:
+			return WAN_FLEECY_TERRAIN;
+		case 182:
+			return WAN_DISENCHANTMENT;
+		case 183:
+			return WAN_CONTAMINATION;
+		case 184:
+			return WAN_TREMBLING;
+		case 185:
+			return SCR_GRAVE;
+		case 186:
+			return SCR_TUNNELS;
+		case 187:
+			return SCR_FARMING;
+		case 188:
+			return SCR_MOUNTAINS;
+		case 189:
+			return SCR_DIVING;
+		case 190:
+			return SCR_CRYSTALLIZATION;
+		case 191:
+			return SCR_MOORLAND;
+		case 192:
+			return SCR_URINE;
+		case 193:
+			return SCR_QUICKSAND;
+		case 194:
+			return SCR_STYX;
+		case 195:
+			return SCR_SNOW;
+		case 196:
+			return SCR_ASH;
+		case 197:
+			return SCR_SAND;
+		case 198:
+			return SCR_PAVING;
+		case 199:
+			return SCR_HIGHWAY;
+		case 200:
+			return SCR_GRASSLAND;
+		case 201:
+			return SCR_NETHER;
+		case 202:
+			return SCR_STALACTITE;
+		case 203:
+			return SCR_CRYPT;
+		case 204:
+			return SCR_BUBBLE_BOBBLE;
+		case 205:
+			return SCR_RAIN;
+		case 206:
+			return WAN_CHAOS_TERRAIN;
+		case 207:
+			return SCR_EVIL_VARIANT;
 		default: /* fail safe */
 			return WAN_CREATE_HORDE;
 	}
@@ -1134,7 +1267,7 @@ int
 makegreatitem() /* select the ID number of an item that might be very useful for you --Amy */
 {
 
-	switch (rnd(169)) {
+	switch (rnd(171)) {
 		case 1:
 			return TOOTH_OF_AN_ALGOLIAN_SUNTIGER;
 		case 2:
@@ -1473,6 +1606,12 @@ makegreatitem() /* select the ID number of an item that might be very useful for
 			return MATERIAL_KIT;
 		case 169:
 			return INTELLIGENCE_PACK;
+		case 170:
+			return SYMBIOTE;
+		case 171:
+			return SCR_SUPERIOR_MATERIAL;
+		default: /* fail safe */
+			return SCR_IDENTIFY;
 
 	}
 
@@ -1645,59 +1784,70 @@ static const char dknowns[] = {
 };
 
 struct obj *
-mksobj(otyp, init, artif)
+mksobj(otyp, init, artif, shopinit)
 int otyp;
 boolean init;
 int artif;
+boolean shopinit;
 {
 	int mndx, tryct;
 	struct obj *otmp;
 
-	if (otyp == u.unobtainable && !(issokosolver && otyp == BOULDER)) {
+	if (otyp >= NUM_OBJECTS) {
+		impossible("Error: mksobj() called with invalid object type %d! Debug info for Amy: %d, %d, %d", otyp, (int) init, artif, (int) shopinit);
 		otyp = GOLD_PIECE;
 	}
 
-	if (otyp == u.unobtainable2 && !(issokosolver && otyp == BOULDER)) {
+	if (objects[otyp].oc_class >= MAXOCLASSES) {
+		impossible("Error: mksobj() called with invalid object class! Debug info for Amy: %d, %d, %d, %d", otyp, (int) init, artif, (int) shopinit);
 		otyp = GOLD_PIECE;
 	}
 
-	if (otyp == u.unobtainable3 && !(issokosolver && otyp == BOULDER)) {
+	if (otyp == u.unobtainable && !(u.riderhack && otyp == CORPSE) && !(issokosolver && otyp == BOULDER)) {
 		otyp = GOLD_PIECE;
 	}
 
-	if (otyp == u.unobtainable4 && !(issokosolver && otyp == BOULDER)) {
+	if (otyp == u.unobtainable2 && !(u.riderhack && otyp == CORPSE) && !(issokosolver && otyp == BOULDER)) {
 		otyp = GOLD_PIECE;
 	}
 
-	if (otyp == u.unobtainable5 && !(issokosolver && otyp == BOULDER)) {
+	if (otyp == u.unobtainable3 && !(u.riderhack && otyp == CORPSE) && !(issokosolver && otyp == BOULDER)) {
 		otyp = GOLD_PIECE;
 	}
 
-	if (otyp == u.unobtainable6 && !(issokosolver && otyp == BOULDER)) {
+	if (otyp == u.unobtainable4 && !(u.riderhack && otyp == CORPSE) && !(issokosolver && otyp == BOULDER)) {
 		otyp = GOLD_PIECE;
 	}
 
-	if (otyp == u.unobtainable7 && !(issokosolver && otyp == BOULDER)) {
+	if (otyp == u.unobtainable5 && !(u.riderhack && otyp == CORPSE) && !(issokosolver && otyp == BOULDER)) {
 		otyp = GOLD_PIECE;
 	}
 
-	if (otyp == u.unobtainable8 && !(issokosolver && otyp == BOULDER)) {
+	if (otyp == u.unobtainable6 && !(u.riderhack && otyp == CORPSE) && !(issokosolver && otyp == BOULDER)) {
 		otyp = GOLD_PIECE;
 	}
 
-	if (otyp == u.unobtainable9 && !(issokosolver && otyp == BOULDER)) {
+	if (otyp == u.unobtainable7 && !(u.riderhack && otyp == CORPSE) && !(issokosolver && otyp == BOULDER)) {
 		otyp = GOLD_PIECE;
 	}
 
-	if (otyp == u.unobtainable10 && !(issokosolver && otyp == BOULDER)) {
+	if (otyp == u.unobtainable8 && !(u.riderhack && otyp == CORPSE) && !(issokosolver && otyp == BOULDER)) {
 		otyp = GOLD_PIECE;
 	}
 
-	if (otyp == u.unobtainablegeno) { /* your fault for genociding them. No sokosolver specialties! --Amy */
+	if (otyp == u.unobtainable9 && !(u.riderhack && otyp == CORPSE) && !(issokosolver && otyp == BOULDER)) {
 		otyp = GOLD_PIECE;
 	}
 
-	if (u.minimalism && rn2(u.minimalism) && !(issokosolver && otyp == BOULDER)) {
+	if (otyp == u.unobtainable10 && !(u.riderhack && otyp == CORPSE) && !(issokosolver && otyp == BOULDER)) {
+		otyp = GOLD_PIECE;
+	}
+
+	if (otyp == u.unobtainablegeno && !(u.riderhack && otyp == CORPSE)) { /* your fault for genociding them. No sokosolver specialties! --Amy */
+		otyp = GOLD_PIECE;
+	}
+
+	if (u.minimalism && isminimalist && rn2(u.minimalism) && !(issokosolver && otyp == BOULDER)) {
 		if (otyp != GOLD_PIECE && otyp != STRANGE_OBJECT && otyp != AMULET_OF_YENDOR && otyp != CANDELABRUM_OF_INVOCATION
 #ifdef MAIL
 	&& otyp != SCR_MAIL
@@ -1707,6 +1857,9 @@ int artif;
 	}
 
 	char let = objects[otyp].oc_class;
+	if (objects[otyp].oc_class >= MAXOCLASSES) {
+		impossible("Error! mkobj oc_class invalid. Debug info for Amy: %d, %d, %d, %d, let %c", otyp, (int) init, artif, (int) shopinit, let);
+	}
 
 	otmp = newobj(0);
 	*otmp = zeroobj;
@@ -1722,11 +1875,23 @@ int artif;
 	otmp->oinvis = 0;
 	otmp->oinvisreal = 0;
 	otmp->petmarked = 0;
+	otmp->obrittle = 0;
+	otmp->obrittle2 = 0;
 	otmp->olocked = FALSE; /* ->recharged */
 	otmp->altmode = WP_MODE_AUTO;
 	otmp->fakeartifact = 0;
 	otmp->enchantment = 0;
 	otmp->finalcancel = 0;
+	otmp->nemtrident = 0;
+	otmp->objwassold = (shopinit ? 1 : 0);
+	otmp->icedobject = 0;
+
+	/* each aspect that can be identified has a 2 in 3 chance of being possible to reveal by using the ID spell --Amy */
+	otmp->ident_bst = rn2(3);
+	otmp->ident_knw = rn2(3);
+	otmp->ident_dkn = rn2(3);
+	otmp->ident_bkn = rn2(3);
+	otmp->ident_rkn = rn2(3);
 
 	otmp->shirtmessage = rnd(1000000);
 	/* for use in read.c (shirts only) - since items can be polymorphed, set it for everything, including non-shirts */
@@ -1742,29 +1907,39 @@ int artif;
 
 	if (otmp->oinvis && !rn2(!(u.monstertimefinish % 13333) ? 3 : !(u.monstertimefinish % 1333) ? 10 : !(u.monstertimefinish % 133) ? 30 : 100) ) otmp->oinvisreal = 1;
 
+	if (init && (let >= MAXOCLASSES)) {
+		impossible("Error: mksobj() let value is invalid! Debug info for Amy: %d, %d, %d, %d, let %c", otyp, (int) init, artif, (int) shopinit, let);
+	}
+
 	if (init) switch (let) {
 /* -----------============STEPHEN WHITE'S NEW CODE============----------- */                   
 	case WEAPON_CLASS:
 		/* KMH, balance patch -- new macros */
 		otmp->quan = is_multigen(otmp) ? (long) rn1(12,12) : 1L;
 		if (otmp->otyp == BULLET) otmp->quan += rnd(50);
+		if (otmp->otyp == LEAD_BULLET) otmp->quan += rnd(50);
 		if (otmp->otyp == SILVER_BULLET) otmp->quan += rnd(75);
 		if (otmp->otyp == ANTIMATTER_BULLET) otmp->quan += rnd(75);
 		if (otmp->otyp == BLASTER_BOLT) otmp->quan += rnd(30);
 		if (otmp->otyp == HEAVY_BLASTER_BOLT) otmp->quan += rnd(40);
 		if (otmp->otyp == LASER_BEAM) otmp->quan += rnd(50);
 		if (otmp->otyp == SHOTGUN_SHELL) otmp->quan += rnd(20);
+		if (otmp->otyp == LEAD_SHOT) otmp->quan += rnd(20);
 		if (otmp->otyp == ROCKET) otmp->quan += rnd(5);
 		if (otmp->otyp == CROSSBOW_BOLT) otmp->quan += rnd(25);
 		if (otmp->otyp == DROVEN_BOLT) otmp->quan += rnd(75);
 		if (otmp->otyp == DROVEN_ARROW) otmp->quan += rnd(75);
-		if (otmp->otyp == KOKKEN || otmp->otyp == MINERAL_BOLT || otmp->otyp == FLEECE_BOLT || otmp->otyp == PIN_BOLT) otmp->quan += rnd(50);
+		if (otmp->otyp == KOKKEN || otmp->otyp == MINERAL_BOLT || otmp->otyp == POISON_BOLT || otmp->otyp == HEAVY_CROSSBOW_BOLT || otmp->otyp == ETHER_BOLT || otmp->otyp == MATERIAL_BOLT || otmp->otyp == FLEECE_BOLT || otmp->otyp == PIN_BOLT) otmp->quan += rnd(50);
 		if (otmp->otyp == PAPER_ARROW || otmp->otyp == FORBIDDEN_ARROW || otmp->otyp == GOLDEN_ARROW || otmp->otyp == ANCIENT_ARROW || otmp->otyp == BRONZE_ARROW) otmp->quan += rnd(15);
 		if (otmp->otyp == YA) otmp->quan += rnd(20);
 		if (otmp->otyp == FLIMSY_DART) otmp->quan += rnd(30);
+		if (otmp->otyp == SAND_DART) otmp->quan += rnd(50);
 		if (otmp->otyp == INKA_STINGER || otmp->otyp == SPIKE) otmp->quan += rnd(30);
 		if (otmp->otyp == SHURIKEN) otmp->quan += rnd(100);
 		if (otmp->otyp == TAR_STAR) otmp->quan += rnd(100);
+		if (otmp->otyp == NANO_SHURIKEN) otmp->quan += rnd(100);
+		if (otmp->otyp == CUBIC_STAR) otmp->quan += rnd(100);
+		if (otmp->otyp == WINDMILL_BLADE) otmp->quan += rnd(100);
 		if (otmp->otyp == NEEDLE) otmp->quan += rnd(100);
 		if (otmp->otyp == SOFT_STAR) otmp->quan += rnd(200);
 		if (otmp->otyp == CALTROP) otmp->quan += rnd(400);
@@ -1780,6 +1955,13 @@ int artif;
 			otmp->quan += rnd(otmp->quan);
 			if (!rn2(50)) otmp->quan += rnz(otmp->quan + 3);
 			if (!rn2(50)) otmp->quan += rnz( rnd( (otmp->quan * 2) + 3) );
+		}
+
+		if (Race_if(PM_JAVA) && (otmp->otyp == JAVELIN || otmp->otyp == ASBESTOS_JAVELIN || otmp->otyp == STACK_JAVELIN || otmp->otyp == SPIRIT_THROWER || otmp->otyp == COURSE_JAVELIN || otmp->otyp == BRICK_MISSILE || otmp->otyp == TORPEDO || otmp->otyp == HOMING_TORPEDO)) {
+			otmp->quan += rnd(5);
+		}
+		if (Role_if(PM_TOSSER) && (otmp->otyp == JAVELIN || otmp->otyp == ASBESTOS_JAVELIN || otmp->otyp == STACK_JAVELIN || otmp->otyp == SPIRIT_THROWER || otmp->otyp == COURSE_JAVELIN || otmp->otyp == BRICK_MISSILE || otmp->otyp == TORPEDO || otmp->otyp == HOMING_TORPEDO)) {
+			otmp->quan += rnd(5);
 		}
 
 		if (uarmc && uarmc->oartifact == ART_ARABELLA_S_WEAPON_STORAGE && (is_ammo(otmp) || is_missile(otmp) || is_grenade(otmp)) ) otmp->quan *= 2;
@@ -1798,7 +1980,7 @@ int artif;
 			otmp->spe = -rne(Race_if(PM_LISTENER) ? 3 : 2);
 		} else	blessorcurse_on_creation(otmp, 10);
 
-		if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
+		if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
 
 		if (is_poisonable(otmp) && !rn2(100))
 			otmp->opoisoned = 1;
@@ -1811,7 +1993,7 @@ int artif;
 
 		if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 40 : 20)) {
 		    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 		}
 		else if ((artif || otmp->spe) && !rn2((abs(otmp->spe) > 9) ? 2 : (abs(otmp->spe) > 7) ? 3 : (abs(otmp->spe) > 5) ? 4 : (abs(otmp->spe) > 4) ? 5 : (abs(otmp->spe) > 3) ? 6 : (abs(otmp->spe) > 2) ? 7 : (abs(otmp->spe) > 1) ? 8 : (abs(otmp->spe) > 0) ? 10 : 50)) {
 		    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
@@ -1897,7 +2079,7 @@ int artif;
 		if (!rn2(2000)) otmp->greased = rn2(5) ? 1 : rn2(3) ? 2 : 3;
 		if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 400 : 200)) {
 		    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 		}
 		else if (artif && !rn2(500)) {
 		    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
@@ -1927,7 +2109,7 @@ int artif;
 
 			if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 100 : 50)) {
 			    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-				if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+				if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 			}
 			else if ((artif || otmp->spe) && !rn2((abs(otmp->spe) > 9) ? 2 : (abs(otmp->spe) > 7) ? 3 : (abs(otmp->spe) > 5) ? 4 : (abs(otmp->spe) > 4) ? 5 : (abs(otmp->spe) > 3) ? 6 : (abs(otmp->spe) > 2) ? 7 : (abs(otmp->spe) > 1) ? 8 : (abs(otmp->spe) > 0) ? 10 : 150)) {
 			    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
@@ -1945,6 +2127,18 @@ int artif;
 		}
 		else if (otmp->otyp == SMALL_PIECE_OF_UNREFINED_MITHR && rn2(2) ) {
 			otmp->quan = (long) rn1(6,6);
+			if (!rn2(10)) otmp->quan *= 2;
+		}
+		else if (otmp->otyp == SLING_AMMO && rn2(2) ) {
+			otmp->quan = (long) rn1(7,7);
+			if (!rn2(10)) otmp->quan *= 2;
+		}
+		else if (otmp->otyp == LEAD_CLUMP && rn2(2) ) {
+			otmp->quan = (long) rn1(6,6);
+			if (!rn2(10)) otmp->quan *= 2;
+		}
+		else if (otmp->otyp == BONE_FRAGMENT && rn2(2) ) {
+			otmp->quan = (long) rn1(8,8);
 			if (!rn2(10)) otmp->quan *= 2;
 		}
 		else if (otmp->otyp == SILVER_SLINGSTONE && rn2(2) ) {
@@ -1985,7 +2179,7 @@ int artif;
 
 		if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 100 : 50)) {
 		    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 		}
 		else if ((artif || otmp->spe) && !rn2((abs(otmp->spe) > 9) ? 2 : (abs(otmp->spe) > 7) ? 3 : (abs(otmp->spe) > 5) ? 4 : (abs(otmp->spe) > 4) ? 5 : (abs(otmp->spe) > 3) ? 6 : (abs(otmp->spe) > 2) ? 7 : (abs(otmp->spe) > 1) ? 8 : (abs(otmp->spe) > 0) ? 10 : 150)) {
 		    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
@@ -1996,7 +2190,7 @@ int artif;
 	/* "Disable enchantable rocks. The racial + stregnth + sling enchantment bonus is more than enough." In Soviet Russia, people never use slings anyway so they never noticed that those retarded things never do enough damage. They also completely disregard the fact that higher enchantment means a lower chance for the projectiles to disappear too. Guess they never used a stack of blessed +7 rocks in their life, otherwise they'd know the benefits of having them. --Amy */
 		if (issoviet) otmp->spe = 0;
 
-		if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
+		if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
 
 		break;
 /* -----------============STEPHEN WHITE'S NEW CODE============----------- */
@@ -2049,11 +2243,14 @@ int artif;
 					otmp->altmode = FALSE;
 		case GREEN_LIGHTSABER:
 		case BLUE_LIGHTSABER:
+		case MYSTERY_LIGHTSABER:
 		case VIOLET_LIGHTSABER:
 		case WHITE_LIGHTSABER:
 		case YELLOW_LIGHTSABER:
 		case RED_LIGHTSABER:
 		case LASER_SWATTER:
+		case NANO_HAMMER:
+		case LIGHTWHIP:
 			otmp->recharged = 0;
 			if(!rn2(5)) otmp->recharged = rnd(7);
 			otmp->lamplit = 0;
@@ -2070,7 +2267,7 @@ int artif;
 				otmp->spe = -rne(Race_if(PM_LISTENER) ? 3 : 2);
 			} else	blessorcurse_on_creation(otmp, 10);
 
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
 
 		break;
 		case TREASURE_CHEST:
@@ -2169,6 +2366,14 @@ int artif;
 					blessorcurse_on_creation(otmp, 4);
 					break;
 				}
+		case ENERGY_SAP:
+			{
+				int tryct2 = 0;
+				do otmp->corpsenm = rndmonnum();
+				while(is_human(&mons[otmp->corpsenm]) && !rn2(5) && tryct2++ < 30);
+				blessorcurse_on_creation(otmp, 4);
+				break;
+			}
 		case BELL_OF_OPENING:
 			otmp->spe = (ishaxor ? 60 : 30);
 					break;
@@ -2176,6 +2381,9 @@ int artif;
 		case MAGIC_HARP:
 		case FROST_HORN:
 		case TEMPEST_HORN:
+		case ETHER_HORN:
+		case SHADOW_HORN:
+		case CHROME_HORN:
 		case FIRE_HORN:
 		case DRUM_OF_EARTHQUAKE:
 		/* KMH, balance patch -- removed
@@ -2198,7 +2406,7 @@ int artif;
 			otmp->spe = -rne(Race_if(PM_LISTENER) ? 3 : 2);
 		} else	blessorcurse_on_creation(otmp, 10);
 
-		if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
+		if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
 
 		break;
 	    }
@@ -2212,7 +2420,7 @@ int artif;
 
 		if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 80 : 40)) {
 		    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 		}
 		else if ((artif && !rn2(100)) || (otmp->spe && is_weptool(otmp) && !rn2((abs(otmp->spe) > 9) ? 2 : (abs(otmp->spe) > 7) ? 3 : (abs(otmp->spe) > 5) ? 4 : (abs(otmp->spe) > 4) ? 5 : (abs(otmp->spe) > 3) ? 6 : (abs(otmp->spe) > 2) ? 7 : (abs(otmp->spe) > 1) ? 8 : (abs(otmp->spe) > 0) ? 10 : 20)) ) {
 		    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
@@ -2242,7 +2450,7 @@ int artif;
 
 		if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 120 : 60)) {
 		    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 		}
 		else if (artif && !rn2(140)) {
 		    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
@@ -2252,7 +2460,26 @@ int artif;
 
 		break;
 	case IMPLANT_CLASS:
-		blessorcurse_on_creation(otmp, 5);
+
+		if(objects[otmp->otyp].oc_charged) {
+		    blessorcurse_on_creation(otmp, 5);
+		    if(rn2(10)) {
+			if(rn2(10) && bcsign(otmp))
+			    otmp->spe = bcsign(otmp) * rne(Race_if(PM_LISTENER) ? 3 : 2);
+			else otmp->spe = rn2(2) ? rne(Race_if(PM_LISTENER) ? 3 : 2) : -rne(Race_if(PM_LISTENER) ? 3 : 2);
+		    }
+		    /* make useless +0 implants much less common */
+		    if (otmp->spe == 0) {
+/*                     otmp->spe = rn2(4) - rn2(3); */
+		       /* wow! +8! */
+		       if (rn2(3)) otmp->spe = rne(2)+1;
+		       else otmp->spe = -(rne(2)+1);
+		    }
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
+
+		    /* negative implants are usually cursed */
+		    if (otmp->spe < 0 && rn2(5)) curse_on_creation(otmp);
+		} else blessorcurse_on_creation(otmp, 5);
 
 		if (!rn2(1200)) otmp->oerodeproof = 1;
 		if (!rn2(1200)) {
@@ -2263,7 +2490,7 @@ int artif;
 
 		if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 120 : 60)) {
 		    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 		}
 		else if (artif && !rn2(140)) {
 		    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
@@ -2284,7 +2511,7 @@ int artif;
 
 		if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 40 : 20)) {
 		    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 		}
 		else if (artif && !rn2(50)) {
 		    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
@@ -2306,7 +2533,7 @@ int artif;
 
 		if (issoviet) otmp->spe = 0;
 
-		if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
+		if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
 
 		if (!rn2(1000)) otmp->oerodeproof = 1;
 		if (!rn2(1000)) {
@@ -2317,7 +2544,7 @@ int artif;
 
 		if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 100 : 50)) {
 		    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 		}
 		else if ((artif || otmp->spe) && !rn2((abs(otmp->spe) > 9) ? 2 : (abs(otmp->spe) > 7) ? 3 : (abs(otmp->spe) > 5) ? 4 : (abs(otmp->spe) > 4) ? 5 : (abs(otmp->spe) > 3) ? 6 : (abs(otmp->spe) > 2) ? 7 : (abs(otmp->spe) > 1) ? 8 : (abs(otmp->spe) > 0) ? 10 : 150)) {
 		    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
@@ -2345,14 +2572,14 @@ int artif;
 
 		if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 320 : 160)) {
 		    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 		}
 		else if (artif && !rn2(400)) {
 		    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
 			otmp->fakeartifact = 1;
 			if (artif != 2) u.fakeartifacts++;
 		}
-		if (!rn2(3) && !(otmp->otyp == SCR_HEALING || otmp->otyp == SCR_EXTRA_HEALING || otmp->otyp == SCR_STANDARD_ID || otmp->otyp == SCR_MANA || otmp->otyp == SCR_GREATER_MANA_RESTORATION
+		if (!rn2(3) && !(otmp->otyp == SCR_HEALING || otmp->otyp == SCR_EXTRA_HEALING || otmp->otyp == SCR_HEAL_OTHER || otmp->otyp == SCR_STANDARD_ID || otmp->otyp == SCR_MANA || otmp->otyp == SCR_GREATER_MANA_RESTORATION
 #ifdef MAIL
 		|| otmp->otyp == SCR_MAIL
 #endif
@@ -2362,8 +2589,10 @@ int artif;
 	case SPBOOK_CLASS:
 		/* WAC charged books are easier to read */
 		if (otmp->otyp != SPE_BOOK_OF_THE_DEAD) {
-			otmp->spe = rnd(ishaxor ? 10 : 5); 
-			if (!rn2(10)) otmp->spe -= rnd(2);
+			if (!rn2(3)) otmp->spe = rnd(ishaxor ? 10 : 5);
+			else if (rn2(5)) otmp->spe = rnd(ishaxor ? 6 : 3);
+			else otmp->spe = rnd(ishaxor ? 4 : 2);
+			if (!rn2(10)) otmp->spe -= rnd(4);
 		}
 		otmp->recharged = 0;
 		if(!rn2(3)) otmp->recharged = rnd(7);
@@ -2378,7 +2607,7 @@ int artif;
 
 		if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 200 : 100)) {
 		    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 		}
 		else if (artif && !rn2(250)) {
 		    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
@@ -2426,7 +2655,7 @@ int artif;
 			otmp->spe = rne(Race_if(PM_LISTENER) ? 3 : 2);
 		} else	blessorcurse_on_creation(otmp, 10);
 
-		if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
+		if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
 
 		if (!rn2(80)) otmp->oerodeproof = 1;
 		if (!rn2(80)) {
@@ -2437,7 +2666,7 @@ int artif;
 
 		if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 80 : 40)) {
 		    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 		}
 		else if ((artif || otmp->spe) && !rn2((abs(otmp->spe) > 9) ? 2 : (abs(otmp->spe) > 7) ? 3 : (abs(otmp->spe) > 5) ? 4 : (abs(otmp->spe) > 4) ? 5 : (abs(otmp->spe) > 3) ? 6 : (abs(otmp->spe) > 2) ? 7 : (abs(otmp->spe) > 1) ? 8 : (abs(otmp->spe) > 0) ? 10 : 100)) {
 		    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
@@ -2458,8 +2687,17 @@ int artif;
 		if (!rn2(100) || (uarmh && uarmh->oartifact == ART_WHY_NOT_DO_THE_REAL_THING && !rn2(20)) ||
 		( (is_shirt(otmp) || otmp->otyp == WHISPERING_HELMET || otmp->otyp == MOMHAT || otmp->otyp == CAPTCHA_HELM || otmp->otyp == QUIZ_HELM || otmp->otyp == LONG_POINTY_HEELS || otmp->otyp == METER_GAUNTLETS || otmp->otyp == WEIGHTING_GAUNTLETS || otmp->otyp == BIGSCRIPT_HELM ) && !rn2(15) ) ||
 		( (otmp->otyp == WEDGE_SANDALS || otmp->otyp == REPEATABLE_BOOTS || otmp->otyp == DANCING_SHOES || otmp->otyp == ANGER_HELM || otmp->otyp == SCRIPTED_HELMET || otmp->otyp == POKELIE_GLOVES || otmp->otyp == ASS_KICKER_BOOTS || otmp->otyp == SWEET_MOCASSINS || otmp->otyp == SOFT_SNEAKERS ) && !rn2(10) ) ||
-		( (otmp->otyp == CLOAK_OF_UNSPELLING || otmp->otyp == ANTI_CASTER_CLOAK || otmp->otyp == HEAVY_STATUS_CLOAK || otmp->otyp == CLOAK_OF_LUCK_NEGATION || otmp->otyp == YELLOW_SPELL_CLOAK || otmp->otyp == VULNERABILITY_CLOAK || otmp->otyp == CLOAK_OF_INVENTORYLESSNESS || otmp->otyp == HELM_OF_LOSE_IDENTIFICATION || otmp->otyp == HELM_OF_OBSCURED_DISPLAY || otmp->otyp == COVETED_BOOTS || otmp->otyp == LIGHTLESS_BOOTS || otmp->otyp == SELF_WILLED_HEELS || otmp->otyp == SOIL_CLINGING_BOOTS || otmp->otyp == PERMANENTLY_BLACK_SHOES || otmp->otyp == AUTOSCOOTER_HEELS || otmp->otyp == FORCEFUL_BOOTS || otmp->otyp == BUM_BUM_BOOTS || otmp->otyp == SADISTIC_BOOTS || otmp->otyp == FLUCKERING_BOOTS || otmp->otyp == SPRAP_BOOTS || otmp->otyp == FAILED_ATTEMPT_BOOTS || otmp->otyp == BRIGHT_CYAN_BEAUTIES || otmp->otyp == SIA_BOOTS || otmp->otyp == PLATINUM_SPELL_BOOTS || otmp->otyp == INVIS_WALKERS || otmp->otyp == NOISY_BOOTS || otmp->otyp == MORK_BOOTS || otmp->otyp == HELM_OF_THIRST || otmp->otyp == CLOCKLOAK || otmp->otyp == KILLER_HEELS || otmp->otyp == VIOLET_BEAUTY_HEELS || otmp->otyp == CHECKER_BOOTS || otmp->otyp == ELVIS_SHOES || otmp->otyp == HELM_OF_AMNESIA || otmp->otyp == BLACKY_HELMET || otmp->otyp == BLOODSUCKING_SHOES || otmp->otyp == ANTI_DRINKER_HELMET || otmp->otyp == NOKEDEX_CLOAK || otmp->otyp == CYPHER_HELM || otmp->otyp == DIZZY_HELMET || otmp->otyp == MUTING_HELM || otmp->otyp == ULCH_HELMET || otmp->otyp == GAUNTLETS_OF_BAD_CASTING || otmp->otyp == MARY_SUE_GLOVES || otmp->otyp == DIMMER_HELMET || otmp->otyp == BORDERLESS_HELMET || otmp->otyp == BROWN_SHIT_CLOAK || otmp->otyp == ANTICALL_CLOAK || otmp->otyp == YELLOW_WING || otmp->otyp == ELESDE_CLOAK || otmp->otyp == CLOAK_OF_GRAVATION || otmp->otyp == ALLPICKING_GLOVES || otmp->otyp == SILVER_SPELL_GLOVES || otmp->otyp == SPELLDRAIN_GLOVES || otmp->otyp == CLOAK_OF_NONFOLLOWING || otmp->otyp == SPELL_RETAIN_CLOAK || otmp->otyp == CLOAK_OF_FAST_DECAY || otmp->otyp == ORANGE_SPELL_GLOVES || otmp->otyp == MOJIBAKE_GLOVES || otmp->otyp == DIXPLOSION_GLOVES || otmp->otyp == LEFT_APPENDAGE_GLOVES || otmp->otyp == HELMET_OF_ANTI_SEARCHING || otmp->otyp == RARE_HELMET || otmp->otyp == HEAVY_GRABBING_GLOVES || otmp->otyp == AIRSTEP_BOOTS || otmp->otyp == BOOTS_OF_INTERRUPTION || otmp->otyp == BLACK_SPELL_GAUNTLETS || otmp->otyp == HIGH_HEELED_SKIERS || otmp->otyp == HIGH_SCORING_HEELS || otmp->otyp == HELM_OF_STARVATION || otmp->otyp == QUAFFER_HELMET || otmp->otyp == PSEUDO_TELEPORTER_CLOAK || otmp->otyp == SNARENET_CLOAK || otmp->otyp == PINK_SPELL_CLOAK || otmp->otyp == QUAVERSAL_HELMET || otmp->otyp == HELM_OF_SHUFFLING || otmp->otyp == GOLDSPELL_HELMET || otmp->otyp == AIRHEAD_CAP || otmp->otyp == FALLOUT_HELMET || otmp->otyp == IDENTIFY_CURD_HELMET || otmp->otyp == BAEAEAEP_SPY_HELMET || otmp->otyp == CRUNCHER_HELMET || otmp->otyp == DISTORTED_GRIMACE || otmp->otyp == ELM_ET || otmp->otyp == SANEMAKER_HELMET || otmp->otyp == GRAYOUT_CLOAK || otmp->otyp == TRON_BOOTS || otmp->otyp == RED_SPELL_HEELS || otmp->otyp == DESTRUCTIVE_HEELS || otmp->otyp == CARTRIDGE_OF_HAVING_A_HORROR || otmp->otyp == SOUND_EFFECT_HELMET || otmp->otyp == INCORRECTLY_ADJUSTED_HELMET || otmp->otyp == CLOAK_OF_RESPAWNING || otmp->otyp == HELM_OF_BAD_ALIGNMENT || otmp->otyp == SOUNDPROOF_HELMET || otmp->otyp == HELM_OF_COUNTER_ROTATION || otmp->otyp == DELIGHT_HELMET || otmp->otyp == OUT_OF_MEMORY_HELMET || otmp->otyp == FUCKUP_MELEE_GAUNTLETS || otmp->otyp == INFOLESS_HELMET || otmp->otyp == BLUE_SPELL_HELMET || otmp->otyp == MORE_HELMET || otmp->otyp == MESSAGE_FILTER_HELMET || otmp->otyp == FLICKER_VISOR || otmp->otyp == STORMY_CLOAK || otmp->otyp == CLOAK_OF_WRONG_ANNOUNCEMENT || otmp->otyp == BATTERY_CLOAK || otmp->otyp == NAYLIGHT_CLOAK || otmp->otyp == UNDERLAYER_CLOAK || otmp->otyp == EVENCORE_CLOAK || otmp->otyp == SCALER_MITTENS || otmp->otyp == GLOVES_OF_ENERGY_DRAINING || otmp->otyp == MENU_NOSE_GLOVES || otmp->otyp == UNWIELDY_GLOVES || otmp->otyp == ELONGATION_CLOAK || otmp->otyp == CYAN_SPELL_CLOAK || otmp->otyp == BANKING_GLOVES || otmp->otyp == DIFFICULT_GLOVES || otmp->otyp == CHAOS_GLOVES || otmp->otyp == COMPETITION_BOOTS || otmp->otyp == QUASIMODULAR_BOOTS || otmp->otyp == SINFUL_HEELS || otmp->otyp == LEVELING_GLOVES || otmp->otyp == GIMP_CLOAK || otmp->otyp == UNFAIR_ATTACK_CLOAK || otmp->otyp == ADOM_CLOAK || otmp->otyp == EMPTY_LINE_HELMET || otmp->otyp == GREEN_SPELL_HELMET || otmp->otyp == EGOIST_CLOAK || otmp->otyp == CHATBOX_CLOAK || otmp->otyp == HERETIC_CLOAK || otmp->otyp == EERIE_CLOAK || otmp->otyp == CLOAK_OF_BAD_TRAPPING || otmp->otyp == CLOAK_OF_NAKEDNESS || otmp->otyp == GAUNTLETS_OF_REVERSE_ENCHANTME || otmp->otyp == CLOAK_OF_TIME || otmp->otyp == SPAWN_CLOAK || otmp->otyp == CONFUSING_GLOVES || otmp->otyp == DISENCHANTING_BOOTS || otmp->otyp == LIMITATION_BOOTS || otmp->otyp == UNDROPPABLE_GLOVES || otmp->otyp == GAUNTLETS_OF_MISSING_INFORMATI || otmp->otyp == GAUNTLETS_OF_TRAP_CREATION || otmp->otyp == GAUNTLETS_OF_STEALING || otmp->otyp == CLOAK_OF_SUDDEN_ATTACK || otmp->otyp == TRUMP_COAT || otmp->otyp == GREYOUT_CLOAK || otmp->otyp == WHITE_SPELL_CLOAK || otmp->otyp == GAUNTLETS_OF_MISFIRING || otmp->otyp == SADO_MASO_GLOVES || otmp->otyp == FEMININE_PUMPS || otmp->otyp == LEATHER_PEEP_TOES || otmp->otyp == COMBAT_STILETTOS || otmp->otyp == AUTODESTRUCT_DE_VICE_BOOTS || otmp->otyp == SPEEDBUG_BOOTS || otmp->otyp == DISCONNECTED_BOOTS || otmp->otyp == BOSS_BOOTS || otmp->otyp == PET_STOMPING_PLATFORM_BOOTS || otmp->otyp == DEMENTIA_BOOTS || otmp->otyp == BOOTS_OF_FAINTING || otmp->otyp == DIFFICULT_BOOTS || otmp->otyp == BOOTS_OF_WEAKNESS || otmp->otyp == GRIDBUG_CONDUCT_BOOTS || otmp->otyp == STAIRWELL_STOMPING_BOOTS ) && !rn2(5) ) ||
-		(otmp->otyp == HIPPIE_HEELS || otmp->otyp == SENTIENT_HIGH_HEELED_SHOES || otmp->otyp == SPECIAL_CLOAK || otmp->otyp == CHANTER_SHIRT || otmp->otyp == MAGIC_DRAGON_SCALE_MAIL || otmp->otyp == MAGIC_DRAGON_SCALES || otmp->otyp == MAGIC_DRAGON_SCALE_SHIELD || otmp->otyp == SPECIAL_SHIELD || otmp->otyp == SPECIAL_LEATHER_ARMOR || otmp->otyp == MAGE_PLATE_MAIL || otmp->otyp == ROBE_OF_SPECIALTY || otmp->otyp == WONDER_HELMET || otmp->otyp == ARCANE_GAUNTLETS || otmp->otyp == SKY_HIGH_HEELS) ) otmp->enchantment = randenchantment();
+		( (otmp->otyp == CLOAK_OF_UNSPELLING || otmp->otyp == ANTI_CASTER_CLOAK || otmp->otyp == HEAVY_STATUS_CLOAK || otmp->otyp == CLOAK_OF_LUCK_NEGATION || otmp->otyp == YELLOW_SPELL_CLOAK || otmp->otyp == VULNERABILITY_CLOAK || otmp->otyp == CLOAK_OF_INVENTORYLESSNESS || otmp->otyp == HELM_OF_LOSE_IDENTIFICATION || otmp->otyp == HELM_OF_OBSCURED_DISPLAY || otmp->otyp == COVETED_BOOTS || otmp->otyp == LIGHTLESS_BOOTS || otmp->otyp == SELF_WILLED_HEELS || otmp->otyp == SOIL_CLINGING_BOOTS || otmp->otyp == PERMANENTLY_BLACK_SHOES || otmp->otyp == AUTOSCOOTER_HEELS || otmp->otyp == FORCEFUL_BOOTS || otmp->otyp == BUM_BUM_BOOTS || otmp->otyp == SADISTIC_BOOTS || otmp->otyp == FLUCKERING_BOOTS || otmp->otyp == SPRAP_BOOTS || otmp->otyp == FAILED_ATTEMPT_BOOTS || otmp->otyp == BRIGHT_CYAN_BEAUTIES || otmp->otyp == SIA_BOOTS || otmp->otyp == PLATINUM_SPELL_BOOTS || otmp->otyp == INVIS_WALKERS || otmp->otyp == NOISY_BOOTS || otmp->otyp == MORK_BOOTS || otmp->otyp == HELM_OF_THIRST || otmp->otyp == CLOCKLOAK || otmp->otyp == KILLER_HEELS || otmp->otyp == VIOLET_BEAUTY_HEELS || otmp->otyp == CHECKER_BOOTS || otmp->otyp == ELVIS_SHOES || otmp->otyp == HELM_OF_AMNESIA || otmp->otyp == BLACKY_HELMET || otmp->otyp == BLOODSUCKING_SHOES || otmp->otyp == ANTI_DRINKER_HELMET || otmp->otyp == NOKEDEX_CLOAK || otmp->otyp == CYPHER_HELM || otmp->otyp == DIZZY_HELMET || otmp->otyp == MUTING_HELM || otmp->otyp == ULCH_HELMET || otmp->otyp == GAUNTLETS_OF_BAD_CASTING || otmp->otyp == MARY_SUE_GLOVES || otmp->otyp == DIMMER_HELMET || otmp->otyp == BORDERLESS_HELMET || otmp->otyp == BROWN_SHIT_CLOAK || otmp->otyp == ANTICALL_CLOAK || otmp->otyp == YELLOW_WING || otmp->otyp == ELESDE_CLOAK || otmp->otyp == CLOAK_OF_GRAVATION || otmp->otyp == ALLPICKING_GLOVES || otmp->otyp == SILVER_SPELL_GLOVES || otmp->otyp == SPELLDRAIN_GLOVES || otmp->otyp == CLOAK_OF_NONFOLLOWING || otmp->otyp == SPELL_RETAIN_CLOAK || otmp->otyp == CLOAK_OF_FAST_DECAY || otmp->otyp == ORANGE_SPELL_GLOVES || otmp->otyp == MOJIBAKE_GLOVES || otmp->otyp == DIXPLOSION_GLOVES || otmp->otyp == LEFT_APPENDAGE_GLOVES || otmp->otyp == HELMET_OF_ANTI_SEARCHING || otmp->otyp == RARE_HELMET || otmp->otyp == HEAVY_GRABBING_GLOVES || otmp->otyp == AIRSTEP_BOOTS || otmp->otyp == BOOTS_OF_INTERRUPTION || otmp->otyp == BLACK_SPELL_GAUNTLETS || otmp->otyp == HIGH_HEELED_SKIERS || otmp->otyp == HIGH_SCORING_HEELS || otmp->otyp == HELM_OF_STARVATION || otmp->otyp == QUAFFER_HELMET || otmp->otyp == PSEUDO_TELEPORTER_CLOAK || otmp->otyp == SNARENET_CLOAK || otmp->otyp == PINK_SPELL_CLOAK || otmp->otyp == QUAVERSAL_HELMET || otmp->otyp == HELM_OF_SHUFFLING || otmp->otyp == GOLDSPELL_HELMET || otmp->otyp == AIRHEAD_CAP || otmp->otyp == FALLOUT_HELMET || otmp->otyp == IDENTIFY_CURD_HELMET || otmp->otyp == BAEAEAEP_SPY_HELMET || otmp->otyp == CRUNCHER_HELMET || otmp->otyp == DISTORTED_GRIMACE || otmp->otyp == ELM_ET || otmp->otyp == SANEMAKER_HELMET || otmp->otyp == GRAYOUT_CLOAK || otmp->otyp == TRON_BOOTS || otmp->otyp == RED_SPELL_HEELS || otmp->otyp == DESTRUCTIVE_HEELS || otmp->otyp == CARTRIDGE_OF_HAVING_A_HORROR || otmp->otyp == SOUND_EFFECT_HELMET || otmp->otyp == INCORRECTLY_ADJUSTED_HELMET || otmp->otyp == CLOAK_OF_RESPAWNING || otmp->otyp == HELM_OF_BAD_ALIGNMENT || otmp->otyp == SOUNDPROOF_HELMET || otmp->otyp == HELM_OF_COUNTER_ROTATION || otmp->otyp == DELIGHT_HELMET || otmp->otyp == OUT_OF_MEMORY_HELMET || otmp->otyp == FUCKUP_MELEE_GAUNTLETS || otmp->otyp == INFOLESS_HELMET || otmp->otyp == BLUE_SPELL_HELMET || otmp->otyp == MORE_HELMET || otmp->otyp == MESSAGE_FILTER_HELMET || otmp->otyp == FLICKER_VISOR || otmp->otyp == STORMY_CLOAK || otmp->otyp == CLOAK_OF_WRONG_ANNOUNCEMENT || otmp->otyp == BATTERY_CLOAK || otmp->otyp == NAYLIGHT_CLOAK || otmp->otyp == UNDERLAYER_CLOAK || otmp->otyp == EVENCORE_CLOAK || otmp->otyp == SCALER_MITTENS || otmp->otyp == GLOVES_OF_ENERGY_DRAINING || otmp->otyp == MENU_NOSE_GLOVES || otmp->otyp == UNWIELDY_GLOVES || otmp->otyp == ELONGATION_CLOAK || otmp->otyp == CYAN_SPELL_CLOAK || otmp->otyp == BANKING_GLOVES || otmp->otyp == DIFFICULT_GLOVES || otmp->otyp == CHAOS_GLOVES || otmp->otyp == COMPETITION_BOOTS || otmp->otyp == QUASIMODULAR_BOOTS || otmp->otyp == SINFUL_HEELS || otmp->otyp == LEVELING_GLOVES || otmp->otyp == GIMP_CLOAK || otmp->otyp == UNFAIR_ATTACK_CLOAK || otmp->otyp == CLOAK_OF_BAD_PART || otmp->otyp == ADOM_CLOAK || otmp->otyp == EMPTY_LINE_HELMET || otmp->otyp == GREEN_SPELL_HELMET || otmp->otyp == EGOIST_CLOAK || otmp->otyp == CHATBOX_CLOAK || otmp->otyp == HERETIC_CLOAK || otmp->otyp == EERIE_CLOAK || otmp->otyp == CLOAK_OF_BAD_TRAPPING || otmp->otyp == CLOAK_OF_NAKEDNESS || otmp->otyp == GAUNTLETS_OF_REVERSE_ENCHANTME || otmp->otyp == CLOAK_OF_TIME || otmp->otyp == SPAWN_CLOAK || otmp->otyp == CONFUSING_GLOVES || otmp->otyp == DISENCHANTING_BOOTS || otmp->otyp == LIMITATION_BOOTS || otmp->otyp == UNDROPPABLE_GLOVES || otmp->otyp == GAUNTLETS_OF_MISSING_INFORMATI || otmp->otyp == GAUNTLETS_OF_TRAP_CREATION || otmp->otyp == GAUNTLETS_OF_STEALING || otmp->otyp == CLOAK_OF_SUDDEN_ATTACK || otmp->otyp == TRUMP_COAT || otmp->otyp == GREYOUT_CLOAK || otmp->otyp == WHITE_SPELL_CLOAK || otmp->otyp == GAUNTLETS_OF_MISFIRING || otmp->otyp == SADO_MASO_GLOVES || otmp->otyp == FEMININE_PUMPS || otmp->otyp == LEATHER_PEEP_TOES || otmp->otyp == COMBAT_STILETTOS || otmp->otyp == LADY_BOOTS || otmp->otyp == ITALIAN_HEELS || otmp->otyp == STILETTO_SANDALS || otmp->otyp == AUTODESTRUCT_DE_VICE_BOOTS || otmp->otyp == SPEEDBUG_BOOTS || otmp->otyp == DISCONNECTED_BOOTS || otmp->otyp == BOSS_BOOTS || otmp->otyp == PET_STOMPING_PLATFORM_BOOTS || otmp->otyp == DEMENTIA_BOOTS || otmp->otyp == BOOTS_OF_FAINTING || otmp->otyp == DIFFICULT_BOOTS || otmp->otyp == BOOTS_OF_WEAKNESS || otmp->otyp == GRIDBUG_CONDUCT_BOOTS || otmp->otyp == STAIRWELL_STOMPING_BOOTS ) && !rn2(5) ) ||
+		(otmp->otyp == HIPPIE_HEELS || otmp->otyp == SENTIENT_HIGH_HEELED_SHOES) ) {
+
+			if (!rn2(3)) otmp->enchantment = randenchantment();
+
+		}
+
+		/* certain base items are characterized by the fact that they always have an enchantment and are otherwise plain --Amy */
+		if (otmp->otyp == SPECIAL_CLOAK || otmp->otyp == CHANTER_SHIRT || otmp->otyp == MAGIC_DRAGON_SCALE_MAIL || otmp->otyp == MAGIC_DRAGON_SCALES || otmp->otyp == MAGIC_DRAGON_SCALE_SHIELD || otmp->otyp == SPECIAL_SHIELD || otmp->otyp == SPECIAL_LEATHER_ARMOR || otmp->otyp == MAGE_PLATE_MAIL || otmp->otyp == ROBE_OF_SPECIALTY || otmp->otyp == WONDER_HELMET || otmp->otyp == ARCANE_GAUNTLETS || otmp->otyp == SKY_HIGH_HEELS) {
+			otmp->enchantment = randenchantment();
+		}
 
 
 		break;
@@ -2501,7 +2739,7 @@ int artif;
 			else otmp->spe = rnd(ishaxor ? 10 : 8); /* sometimes you may get lucky --Amy */
 			otmp->recharged = 0;
 			if(!rn2(10)) otmp->recharged = rnd(7);
-		} else if(otmp->otyp == WAN_ENLIGHTENMENT || otmp->otyp == WAN_TRAP_DISARMING || otmp->otyp == WAN_CANCELLATION || otmp->otyp == WAN_POLYMORPH || otmp->otyp == WAN_MUTATION || otmp->otyp == WAN_CHARGING) {
+		} else if(otmp->otyp == WAN_ENLIGHTENMENT || otmp->otyp == WAN_TRAP_DISARMING || otmp->otyp == WAN_CANCELLATION || otmp->otyp == WAN_POLYMORPH || otmp->otyp == WAN_MUTATION || otmp->otyp == WAN_CHARGING || otmp->otyp == WAN_BAD_EQUIPMENT) {
 			if (rn2(20)) otmp->spe = rnd(ishaxor ? 10 : 7);
 			else otmp->spe = rnd(ishaxor ? 15 : 10); /* sometimes you may get lucky --Amy */
 			otmp->recharged = 0;
@@ -2525,7 +2763,7 @@ int artif;
 
 		if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 320 : 160)) {
 		    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 		}
 		else if (artif && !rn2(500)) {
 		    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
@@ -2549,7 +2787,7 @@ int artif;
 		       if (rn2(3)) otmp->spe = rne(2)+1;
 		       else otmp->spe = -(rne(2)+1);
 		    }
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT)) && (abs(otmp->spe) > 3 || (abs(otmp->spe) == 3 && rn2(2) ) || (abs(otmp->spe) == 2 && !rn2(3) )|| (abs(otmp->spe) == 1 && !rn2(5) ) ) ) pline("Precognition: made object with enchantment %d", abs(otmp->spe));
 
 		    /* negative rings are usually cursed */
 		    if (otmp->spe < 0 && rn2(5)) curse_on_creation(otmp);
@@ -2575,7 +2813,7 @@ int artif;
 
 		if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 100 : 50)) {
 		    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 		}
 		else if (artif && !rn2(125)) {
 		    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
@@ -2592,7 +2830,7 @@ int artif;
 			if ( (!verysmall(&mons[otmp->corpsenm]) || !rn2(10) ) && timebasedlowerchance() && (artif != 2) &&
 				rn2(level_difficulty()/2 + 10) > 10)
 			    (void) add_to_container(otmp,
-						    mkobj(SPBOOK_CLASS,FALSE));
+						    mkobj(SPBOOK_CLASS,FALSE, FALSE));
 		}
 	      blessorcurse_on_creation(otmp, 7);
 
@@ -2605,7 +2843,7 @@ int artif;
 
 		if (artif && (artif != 2) && !rn2(Race_if(PM_LISTENER) ? 400 : 200)) {
 		    otmp = mk_artifact(otmp, (aligntyp)A_NONE, TRUE);
-			if (Race_if(PM_LISTENER) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
+			if ((Race_if(PM_LISTENER) || RngeListening) && !Hallucination && (rnd(30) > ACURR(A_INT))) pline("Precognition: made artifact");
 		}
 		else if (artif && !rn2(500)) {
 		    otmp = oname(otmp, !rn2(20) ? generate_garbage_string() : fauxartinames[rn2(SIZE(fauxartinames))] );
@@ -2617,8 +2855,8 @@ int artif;
 	case COIN_CLASS:
 		break;	/* do nothing */
 	default:
-		impossible("impossible mkobj %d, sym '%c'.", otmp->otyp,
-						objects[otmp->otyp].oc_class);
+		impossible("impossible mkobj %ld, sym '%c'. Debug info for Amy: %d, %d, %d, %d, let %c", otmp->otyp, objects[otmp->otyp].oc_class, otyp, (int) init, artif, (int) shopinit, let);
+
 		return (struct obj *)0;
 	}
 
@@ -2716,20 +2954,20 @@ start_corpse_timeout(body)
 	} else if ((mons[body->corpsenm].mlet == S_TROLL && !body->norevive) || is_deadlysin(&mons[body->corpsenm]) )  {
 		long age;
 		for (age = TAINT_AGE + 1; age <= ROT_AGE; age++)
-		    if (!rn2(TROLL_REVIVE_LATE_CHANCE)) {	/* troll revives */
+		    if (!rn2(TROLL_REVIVE_LATE_CHANCE) && !(uwep && uwep->oartifact == ART_ZOMBIEBANE) ) {	/* troll revives */
 			action = REVIVE_MON;
 			when = age;
 			break;
 		    }
 		for (age = 2; age <= TAINT_AGE; age++)
-		    if (!rn2(TROLL_REVIVE_CHANCE)) {	/* troll revives */
+		    if (!rn2(TROLL_REVIVE_CHANCE) && !(uwep && uwep->oartifact == ART_ZOMBIEBANE)) {	/* troll revives */
 			action = REVIVE_MON;
 			when = age;
 			break;
 		    }
 
 		if (u.uprops[STARVATION_EFFECT].extrinsic || StarvationEffect || (uarmc && uarmc->oartifact == ART_FEMMY_FATALE) || have_starvationstone() ) {
-			if (rn2(10)) {
+			if (rn2(10) && !(uwep && uwep->oartifact == ART_ZOMBIEBANE)) {
 				action = REVIVE_MON;
 				when = 1;
 			} else {
@@ -2748,22 +2986,22 @@ start_corpse_timeout(body)
 		long age;
 
 		for (age = 2; age <= TAINT_AGE; age++)
-		    if (!rn2(MOLD_REVIVE_CHANCE)) {    /* mold revives */
+		    if ((mons[body->corpsenm].mlet == S_FUNGUS) && !rn2(MOLD_REVIVE_CHANCE) && !(uwep && uwep->oartifact == ART_ZOMBIEBANE)) {    /* mold revives */
 			action = REVIVE_MON;
 			when = age;
 			break;
-		    } else if (is_reviver(&mons[body->corpsenm]) && !rn2(MOLD_REVIVE_CHANCE)) {
+		    } else if (is_reviver(&mons[body->corpsenm]) && !(uwep && uwep->oartifact == ART_ZOMBIEBANE) && !rn2(MOLD_REVIVE_CHANCE)) {
 			action = REVIVE_MON;
 			when = age;
 			break;
-		    } else if (((((mtmp = get_mtraits(body, FALSE)) != (struct monst *)0) ) && mtmp->egotype_troll) && !rn2(MOLD_REVIVE_CHANCE)) {
+		    } else if (((((mtmp = get_mtraits(body, FALSE)) != (struct monst *)0) ) && mtmp->egotype_troll && !(uwep && uwep->oartifact == ART_ZOMBIEBANE)) && !rn2(MOLD_REVIVE_CHANCE)) {
 			action = REVIVE_MON;
 			when = age;
 			break;
 		    }
 
 		if (u.uprops[STARVATION_EFFECT].extrinsic || StarvationEffect || (uarmc && uarmc->oartifact == ART_FEMMY_FATALE) || have_starvationstone() ) {
-			if (rn2(10)) {
+			if (rn2(10) && !(uwep && uwep->oartifact == ART_ZOMBIEBANE)) {
 				action = REVIVE_MON;
 				when = 1;
 			} else {
@@ -2780,7 +3018,7 @@ start_corpse_timeout(body)
 		long age;
 		for (age = TAINT_AGE + 1; age <= ROT_AGE; age++)
 		    if (!rn2(MOLDY_CHANCE)) {    /* "revives" as a random s_fungus */
-			action = (!rn2(100) ? REVIVE_MON : MOLDY_CORPSE); /* or rarely the monster revives itself --Amy */
+			action = ((!rn2(100) && !(uwep && uwep->oartifact == ART_ZOMBIEBANE)) ? REVIVE_MON : MOLDY_CORPSE); /* or rarely the monster revives itself --Amy */
 			when = age;
 			break;
 		    }
@@ -2850,6 +3088,7 @@ register struct obj *otmp;
 	if (!rn2(isfriday ? 50 : 100)) otmp->stckcurse = 1;
 
 	if (u.stickycursechance && (u.stickycursechance >= rnd(100)) ) otmp->stckcurse = 1;
+	if (youmonst.data && Role_if(PM_CELLAR_CHILD) && !rn2(10)) otmp->stckcurse = 1;
 
 	if (otmp->cursed) {
 		if (!otmp->hvycurse && !rn2(5)) otmp->hvycurse = 1;
@@ -2905,6 +3144,7 @@ register struct obj *otmp;
 	if (!rn2(isfriday ? 50 : 100)) otmp->stckcurse = 1;
 
 	if (u.stickycursechance && (u.stickycursechance >= rnd(100)) ) otmp->stckcurse = 1;
+	if (youmonst.data && Role_if(PM_CELLAR_CHILD) && !rn2(10)) otmp->stckcurse = 1;
 
 	if (otmp->cursed) { /* should not happen, but oh well */
 		if (!otmp->hvycurse && !rn2(5)) otmp->hvycurse = 1;
@@ -2919,7 +3159,11 @@ register struct obj *otmp;
 
 		if (u.heavycursechance && (u.heavycursechance >= rnd(100)) ) otmp->hvycurse = 1;
 
-		if (!rn2(10) && uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "cursed called cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "proklyatyy pod nazvaniyem plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "la'natlangan la'nati") )) otmp->hvycurse = 1;
+		if (!u.dungeongrowthhack) {
+
+			if (!rn2(10) && uarmc && itemhasappearance(uarmc, APP_CURSED_CALLED_CLOAK)) otmp->hvycurse = 1;
+
+		}
 
 		if (!otmp->hvycurse && !otmp->prmcurse && !(otmp->morgcurse || otmp->evilcurse || otmp->bbrcurse) && !rn2(Role_if(PM_CAMPERSTRIKER) ? 5 : isfriday ? 15 : 25)) otmp->hvycurse = 1;
 
@@ -3012,8 +3256,12 @@ register int chance;
 	if(!rn2(chance)) {
 	    if(!rn2(isfriday ? 2 : 3)) {
 		curse_on_creation(otmp);
-	    } else if (!rn2(5) && uarmc && OBJ_DESCR(objects[uarmc->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmc->otyp]), "cursed called cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "proklyatyy pod nazvaniyem plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "la'natlangan la'nati") )) {
-		curse_on_creation(otmp);
+	    } else if (!u.dungeongrowthhack) {
+			if (!rn2(5) && uarmc && itemhasappearance(uarmc, APP_CURSED_CALLED_CLOAK)) {
+				curse_on_creation(otmp);
+			} else {
+				bless(otmp);
+			}
 	    } else {
 		bless(otmp);
 	    }
@@ -3112,8 +3360,8 @@ struct obj *
 rnd_treefruit_at(x,y)
 int x, y;
 {
-	if (rn2(200) || issoviet) return mksobj_at(treefruits[rn2(SIZE(treefruits))], x, y, TRUE, FALSE);
-	else return mksobj_at(treefruitsX[rn2(SIZE(treefruitsX))], x, y, TRUE, FALSE);
+	if (rn2(200) || issoviet) return mksobj_at(treefruits[rn2(SIZE(treefruits))], x, y, TRUE, FALSE, FALSE);
+	else return mksobj_at(treefruitsX[rn2(SIZE(treefruitsX))], x, y, TRUE, FALSE, FALSE);
 }
 #endif /* OVL0 */
 #ifdef OVLB
@@ -3142,7 +3390,7 @@ int x, y;
     if (gold) {
 	gold->quan += amount;
     } else {
-	gold = mksobj_at(GOLD_PIECE, x, y, TRUE, FALSE);
+	gold = mksobj_at(GOLD_PIECE, x, y, TRUE, FALSE, FALSE);
 	gold->quan = amount;
     }
     gold->owt = weight(gold);
@@ -3182,13 +3430,19 @@ boolean init;
 {
 	register struct obj *otmp;
 
+	/* hack by Amy: can't easily dispose of riders or sins by genociding corpses! */
+	if (mtmp && (is_rider(mtmp->data) || is_deadlysin(mtmp->data)) && objtype == CORPSE) u.riderhack = TRUE;
+
 	if (objtype != CORPSE && objtype != STATUE)
 	    impossible("making corpstat type %d", objtype);
 	if (x == 0 && y == 0) {		/* special case - random placement */
-		otmp = mksobj(objtype, init, FALSE);
+		otmp = mksobj(objtype, init, FALSE, FALSE);
 		if (otmp) rloco(otmp);
 	} else
-		otmp = mksobj_at(objtype, x, y, init, FALSE);
+		otmp = mksobj_at(objtype, x, y, init, FALSE, FALSE);
+
+	u.riderhack = FALSE;
+
 	if (otmp) {
 	    if (mtmp) {
 		struct obj *otmp2;
@@ -3310,7 +3564,7 @@ register int x, y;
 
 	/* player statues never contain books */
 	initialize_it = (objtype != STATUE);
-	if ((otmp = mksobj_at(objtype, x, y, initialize_it, FALSE)) != 0) {
+	if ((otmp = mksobj_at(objtype, x, y, initialize_it, FALSE, FALSE)) != 0) {
 	    /* tt_oname will return null if the scoreboard is empty */
 	    if ((otmp2 = tt_oname(otmp)) != 0) otmp = otmp2;
 	}
@@ -3334,6 +3588,7 @@ const char *nm;
 	return(otmp);
 }
 
+/* Amy grepping target: "materialeffect" */
 boolean
 is_flammable(otmp)
 register struct obj *otmp;
@@ -3341,14 +3596,33 @@ register struct obj *otmp;
 	int otyp = otmp->otyp;
 	int omat = objects[otyp].oc_material;
 
+	if (uamul && uamul->oartifact == ART_AUTOMATICALLY_METAL) {
+		return (!(is_metallic(otmp)));
+	}
+
 	if (objects[otyp].oc_oprop == FIRE_RES || otyp == WAN_FIRE)
 		return FALSE;
 
-	if (objects[otyp].oc_material == DRAGON_HIDE && evilfriday) return TRUE;
-	if (objects[otyp].oc_material == COMPOST && evilfriday) return TRUE;
-	if (objects[otyp].oc_material == INKA && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_PLASTIC) return TRUE;
+	if (objects[otyp].oc_material == MT_VIVA) return TRUE;
+	if (objects[otyp].oc_material == MT_SILK) return TRUE;
+	if (objects[otyp].oc_material == MT_ARCANIUM) return TRUE;
+	if (objects[otyp].oc_material == MT_POURPOOR) return TRUE;
+	if (objects[otyp].oc_material == MT_ETHER) return TRUE;
+	if (objects[otyp].oc_material == MT_BRICK) return TRUE;
+	if (objects[otyp].oc_material == MT_NANOMACHINE) return TRUE;
+	if (objects[otyp].oc_material == MT_DRAGON_HIDE && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_COMPOST && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_INKA && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_SHADOWSTUFF && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_OBSIDIAN && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_LEAD && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_CHROME && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_CERAMIC && evilfriday) return TRUE;
 
-	return((boolean)((omat <= WOOD && omat != LIQUID) || omat == PLASTIC || omat == VIVA || omat == SILK || omat == ARCANIUM || omat == POURPOOR || omat == ETHER || omat == BRICK));
+	if (omat <= MT_WOOD && omat != MT_LIQUID) return TRUE;
+	return FALSE;
+
 }
 
 boolean
@@ -3356,17 +3630,79 @@ is_rottable(otmp)
 register struct obj *otmp;
 {
 	int otyp = otmp->otyp;
+	int omat = objects[otyp].oc_material;
 
-	if (objects[otyp].oc_material == INKA) return TRUE;
-	if (objects[otyp].oc_material == ARCANIUM) return TRUE;
-	if (objects[otyp].oc_material == SECREE) return TRUE;
-	if (objects[otyp].oc_material == COMPOST) return TRUE;
-	if (objects[otyp].oc_material == BRICK) return TRUE;
-	if (objects[otyp].oc_material == BONE && evilfriday) return TRUE;
-	if (objects[otyp].oc_material == DRAGON_HIDE && evilfriday) return TRUE;
+	if (uamul && uamul->oartifact == ART_AUTOMATICALLY_METAL) {
+		return (!(is_metallic(otmp)));
+	}
 
-	return((boolean)(objects[otyp].oc_material <= WOOD &&
-			objects[otyp].oc_material != LIQUID));
+	if (objects[otyp].oc_material == MT_INKA) return TRUE;
+	if (objects[otyp].oc_material == MT_ARCANIUM) return TRUE;
+	if (objects[otyp].oc_material == MT_SECREE) return TRUE;
+	if (objects[otyp].oc_material == MT_COMPOST) return TRUE;
+	if (objects[otyp].oc_material == MT_BRICK) return TRUE;
+	if (objects[otyp].oc_material == MT_SAND) return TRUE;
+	if (objects[otyp].oc_material == MT_NANOMACHINE) return TRUE;
+	if (objects[otyp].oc_material == MT_BONE && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_DRAGON_HIDE && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_SHADOWSTUFF && evilfriday) return TRUE;
+
+	if (omat <= MT_WOOD && omat != MT_LIQUID) return TRUE;
+	return FALSE;
+}
+
+boolean
+is_rustprone(otmp)
+register struct obj *otmp;
+{
+	int otyp = otmp->otyp;
+
+	if (SpellColorMetal) {
+		return (!(is_metallic(otmp)));
+	}
+
+	if (objects[otyp].oc_material == MT_IRON) return TRUE;
+	if (objects[otyp].oc_material == MT_INKA) return TRUE;
+	if (objects[otyp].oc_material == MT_ARCANIUM) return TRUE;
+	if (objects[otyp].oc_material == MT_POURPOOR) return TRUE;
+	if (objects[otyp].oc_material == MT_ETERNIUM) return TRUE;
+	if (objects[otyp].oc_material == MT_ETHER) return TRUE;
+	if (objects[otyp].oc_material == MT_BRICK) return TRUE;
+	if (objects[otyp].oc_material == MT_SAND && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_NANOMACHINE && evilfriday) return TRUE;
+
+	return FALSE;
+}
+
+boolean
+is_corrodeable(otmp)
+register struct obj *otmp;
+{
+	int otyp = otmp->otyp;
+
+	if (uamul && uamul->oartifact == ART_AUTOMATICALLY_METAL) {
+		return (!(is_metallic(otmp)));
+	}
+
+	if (objects[otyp].oc_material == MT_COPPER) return TRUE;
+	if (objects[otyp].oc_material == MT_IRON) return TRUE;
+	if (objects[otyp].oc_material == MT_VIVA) return TRUE;
+	if (objects[otyp].oc_material == MT_TAR) return TRUE;
+	if (objects[otyp].oc_material == MT_ARCANIUM) return TRUE;
+	if (objects[otyp].oc_material == MT_SECREE) return TRUE;
+	if (objects[otyp].oc_material == MT_POURPOOR) return TRUE;
+	if (objects[otyp].oc_material == MT_ETERNIUM) return TRUE;
+	if (objects[otyp].oc_material == MT_BRICK) return TRUE;
+	if (objects[otyp].oc_material == MT_CHROME) return TRUE;
+	if (objects[otyp].oc_material == MT_LEAD && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_METAL && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_SILVER && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_PLATINUM && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_SAND && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_OBSIDIAN && evilfriday) return TRUE;
+	if (objects[otyp].oc_material == MT_NANOMACHINE && evilfriday) return TRUE;
+
+	return FALSE;
 }
 
 #endif /* OVLB */
@@ -3748,6 +4084,7 @@ add_to_container(container, obj)
 
     obj->mstartinvent = 0;
     obj->mstartinventB = 0;
+    obj->mstartinventC = 0;
     obj->where = OBJ_CONTAINED;
     obj->ocontainer = container;
     obj->nobj = container->cobj;

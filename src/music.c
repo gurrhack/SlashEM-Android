@@ -28,7 +28,6 @@
 
 #include "hack.h"
 
-STATIC_DCL void awaken_monsters(int);
 STATIC_DCL void put_monsters_to_sleep(int);
 STATIC_DCL void charm_snakes(int);
 STATIC_DCL void calm_nymphs(int);
@@ -57,7 +56,7 @@ void amii_speaker(struct obj *, char *, int );
  * Wake every monster in range...
  */
 
-STATIC_OVL void
+void
 awaken_monsters(distance)
 int distance;
 {
@@ -174,7 +173,7 @@ awaken_soldiers()
 
 	while(mtmp) {
 	    if (!DEADMONSTER(mtmp) &&
-			is_mercenary(mtmp->data) && mtmp->data != &mons[PM_GUARD]) {
+			is_mercenary(mtmp->data) && mtmp->data != &mons[PM_GUARD] && mtmp->data != &mons[PM_MASTER_GUARD] && mtmp->data != &mons[PM_ELITE_GUARD]) {
 		mtmp->mpeaceful = mtmp->msleeping = mtmp->mfrozen = 0;
 		mtmp->masleep = 0;
 		mtmp->mcanmove = 1;
@@ -419,7 +418,7 @@ struct obj *instr;
 			use_skill(P_DEVICES,1);
 			use_skill(P_DEVICES,1);
 		}
-		if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "musical helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "muzykal'nyy shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "musiqiy dubulg'a") ) )
+		if (uarmh && itemhasappearance(uarmh, APP_MUSICAL_HELMET) )
 			use_skill(P_DEVICES,9);
 
 		You("produce soft music.");
@@ -438,6 +437,9 @@ struct obj *instr;
 	case FROST_HORN:		/* Idem wand of cold */
 	case FIRE_HORN:			/* Idem wand of fire */
 	case TEMPEST_HORN:		/* Idem wand of lightning */
+	case ETHER_HORN:		/* Idem wand of mm */
+	case CHROME_HORN:		/* Idem wand of poison */
+	case SHADOW_HORN:		/* Idem wand of acid */
 	    if (do_spec && instr->spe > 0) {
 		if ((!instr->oartifact || !rn2(2) ) && (nochargechange >= rnd(10)) ) consume_obj_charge(instr, TRUE);
 		use_skill(P_DEVICES,1);
@@ -448,7 +450,7 @@ struct obj *instr;
 			use_skill(P_DEVICES,1);
 			use_skill(P_DEVICES,1);
 		}
-		if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "musical helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "muzykal'nyy shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "musiqiy dubulg'a") ) )
+		if (uarmh && itemhasappearance(uarmh, APP_MUSICAL_HELMET) )
 			use_skill(P_DEVICES,9);
 
 hornchoice:
@@ -468,7 +470,7 @@ hornchoice:
 			losehp(damage, buf, KILLED_BY);
 		    }
 		} else {
-		    buzz((instr->otyp == FROST_HORN) ? AD_COLD-1 : (instr->otyp == TEMPEST_HORN) ? AD_ELEC-1 : AD_FIRE-1,
+		    buzz((instr->otyp == FROST_HORN) ? AD_COLD-1 : (instr->otyp == TEMPEST_HORN) ? AD_ELEC-1 : (instr->otyp == ETHER_HORN) ? AD_MAGM-1 : (instr->otyp == CHROME_HORN) ? 26 : (instr->otyp == SHADOW_HORN) ? AD_ACID-1 : AD_FIRE-1,
 			 rn1(6,6), u.ux, u.uy, u.dx, u.dy);
 		}
 		makeknown(instr->otyp);
@@ -486,7 +488,7 @@ hornchoice:
 
 	    awaken_monsters(GushLevel * 30);
 
-	    switch (rn2(17)) {
+	    if (!obsidianprotection()) switch (rn2(17)) {
 		    case 0:
 		    case 1:
 		    case 2:
@@ -527,6 +529,20 @@ hornchoice:
 	    You("extract a loud noise from %s.", the(xname(instr)));
 	    awaken_soldiers();
 	    exercise(A_WIS, FALSE);
+
+	    if (instr && instr->oartifact == ART_MESSAGE_MEGAPHONE) {
+			pline_The("message is broadcast all over the dungeon!");
+			if (Role_if(PM_DEMAGOGUE)) {
+				awaken_monsters(GushLevel * 30);
+				adjalign(-5);
+				u.alignlim--;
+			} else {
+				awaken_monsters(GushLevel * 5);
+				adjalign(-200);
+				u.alignlim -= 10;
+			}
+	    }
+
 	    break;
 	case MAGIC_HARP:		/* Charm monsters */
 	    if (do_spec && instr->spe > 0) {
@@ -539,7 +555,7 @@ hornchoice:
 			use_skill(P_DEVICES,1);
 			use_skill(P_DEVICES,1);
 		}
-		if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "musical helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "muzykal'nyy shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "musiqiy dubulg'a") ) )
+		if (uarmh && itemhasappearance(uarmh, APP_MUSICAL_HELMET) )
 			use_skill(P_DEVICES,9);
 
 		pline("%s very attractive music.", Tobjnam(instr, "produce"));
@@ -565,7 +581,7 @@ hornchoice:
 			use_skill(P_DEVICES,1);
 			use_skill(P_DEVICES,1);
 		}
-		if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "musical helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "muzykal'nyy shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "musiqiy dubulg'a") ) )
+		if (uarmh && itemhasappearance(uarmh, APP_MUSICAL_HELMET) )
 			use_skill(P_DEVICES,9);
 
 		You("produce a heavy, thunderous rolling!");
@@ -607,7 +623,7 @@ hornchoice:
 	    Deafness += (GushLevel * 40);
 	    flags.soundok = 0;
 
-	    switch (rn2(52)) {
+	    if (!obsidianprotection()) switch (rn2(52)) {
 		    case 0:
 		    case 1:
 		    case 2:
@@ -644,7 +660,7 @@ hornchoice:
 	    exercise(A_WIS, FALSE);
 	    break;
 	default:
-	    impossible("What a weird instrument (%d)!", instr->otyp);
+	    impossible("What a weird instrument (%ld)!", instr->otyp);
 	    break;
 	}
 	return 2;		/* That takes time */
@@ -670,479 +686,26 @@ struct obj *instr;
 	return(0);
     }
 
-    if (instr->oartifact == ART_KILLER_PIANO) {
-		switch (rnd(229)) {
+    if ( ((instr->otyp == WOODEN_FLUTE) || (instr->otyp == TOOLED_HORN) || (instr->otyp == FOG_HORN) || (instr->otyp == WOODEN_HARP) || (instr->otyp == LEATHER_DRUM) || (instr->otyp == MAGIC_FLUTE && instr->spe < 1) || (instr->otyp == MAGIC_HARP && instr->spe < 1) || (instr->otyp == DRUM_OF_EARTHQUAKE && instr->spe < 1) || (Confusion && !Conf_resist)) && !(Role_if(PM_BARD) && rn2(100)) && !(Role_if(PM_MUSICIAN) && rn2(20)) && (!instr->oartifact || !rn2(10)) && !rn2(isfriday ? 50 : 200)) {
+	useup(instr);
+	Your("instrument breaks into pieces!");
+	return 2;
+    }
 
-			case 1: 
-			    SpeedBug |= FROMOUTSIDE; break;
-			case 2: 
-			    MenuBug |= FROMOUTSIDE; break;
-			case 3: 
-			    RMBLoss |= FROMOUTSIDE; break;
-			case 4: 
-			    DisplayLoss |= FROMOUTSIDE; break;
-			case 5: 
-			    SpellLoss |= FROMOUTSIDE; break;
-			case 6: 
-			    YellowSpells |= FROMOUTSIDE; break;
-			case 7: 
-			    AutoDestruct |= FROMOUTSIDE; break;
-			case 8: 
-			    MemoryLoss |= FROMOUTSIDE; break;
-			case 9: 
-			    InventoryLoss |= FROMOUTSIDE; break;
-			case 10: 
-			    BlackNgWalls |= FROMOUTSIDE; break;
-			case 11: 
-			    Superscroller |= FROMOUTSIDE; break;
-			case 12: 
-			    FreeHandLoss |= FROMOUTSIDE; break;
-			case 13: 
-			    Unidentify |= FROMOUTSIDE; break;
-			case 14: 
-			    Thirst |= FROMOUTSIDE; break;
-			case 15: 
-			    LuckLoss |= FROMOUTSIDE; break;
-			case 16: 
-			    ShadesOfGrey |= FROMOUTSIDE; break;
-			case 17: 
-			    FaintActive |= FROMOUTSIDE; break;
-			case 18: 
-			    Itemcursing |= FROMOUTSIDE; break;
-			case 19: 
-			    DifficultyIncreased |= FROMOUTSIDE; break;
-			case 20: 
-			    Deafness |= FROMOUTSIDE; break;
-			case 21: 
-			    CasterProblem |= FROMOUTSIDE; break;
-			case 22: 
-			    WeaknessProblem |= FROMOUTSIDE; break;
-			case 23: 
-			    RotThirteen |= FROMOUTSIDE; break;
-			case 24: 
-			    BishopGridbug |= FROMOUTSIDE; break;
-			case 25: 
-			    ConfusionProblem |= FROMOUTSIDE; break;
-			case 26: 
-			    NoDropProblem |= FROMOUTSIDE; break;
-			case 27: 
-			    DSTWProblem |= FROMOUTSIDE; break;
-			case 28: 
-			    StatusTrapProblem |= FROMOUTSIDE; break;
-			case 29: 
-			    AlignmentProblem |= FROMOUTSIDE; break;
-			case 30: 
-			    StairsProblem |= FROMOUTSIDE; break;
-			case 31: 
-			    UninformationProblem |= FROMOUTSIDE; break;
-			case 32: 
-			    IntrinsicLossProblem |= FROMOUTSIDE; break;
-			case 33: 
-			    BloodLossProblem |= FROMOUTSIDE; break;
-			case 34: 
-			    BadEffectProblem |= FROMOUTSIDE; break;
-			case 35: 
-			    TrapCreationProblem |= FROMOUTSIDE; break;
-			case 36: 
-			    AutomaticVulnerabilitiy |= FROMOUTSIDE; break;
-			case 37: 
-			    TeleportingItems |= FROMOUTSIDE; break;
-			case 38: 
-			    NastinessProblem |= FROMOUTSIDE; break;
-			case 39: 
-			    RecurringAmnesia |= FROMOUTSIDE; break;
-			case 40: 
-			    BigscriptEffect |= FROMOUTSIDE; break;
-			case 41: 
-			    BankTrapEffect |= FROMOUTSIDE; break;
-			case 42: 
-			    MapTrapEffect |= FROMOUTSIDE; break;
-			case 43: 
-			    TechTrapEffect |= FROMOUTSIDE; break;
-			case 44: 
-			    RecurringDisenchant |= FROMOUTSIDE; break;
-			case 45: 
-			    verisiertEffect |= FROMOUTSIDE; break;
-			case 46: 
-			    ChaosTerrain |= FROMOUTSIDE; break;
-			case 47: 
-			    Muteness |= FROMOUTSIDE; break;
-			case 48: 
-			    EngravingDoesntWork |= FROMOUTSIDE; break;
-			case 49: 
-			    MagicDeviceEffect |= FROMOUTSIDE; break;
-			case 50: 
-			    BookTrapEffect |= FROMOUTSIDE; break;
-			case 51: 
-			    LevelTrapEffect |= FROMOUTSIDE; break;
-			case 52: 
-			    QuizTrapEffect |= FROMOUTSIDE; break;
-			case 53: 
-			    CaptchaProblem |= FROMOUTSIDE; break;
-			case 54: 
-			    FarlookProblem |= FROMOUTSIDE; break;
-			case 55: 
-			    RespawnProblem |= FROMOUTSIDE; break;
-			case 56: 
-			    FastMetabolismEffect |= FROMOUTSIDE; break;
-			case 57: 
-			    NoReturnEffect |= FROMOUTSIDE; break;
-			case 58: 
-			    AlwaysEgotypeMonsters |= FROMOUTSIDE; break;
-			case 59: 
-			    TimeGoesByFaster |= FROMOUTSIDE; break;
-			case 60: 
-			    FoodIsAlwaysRotten |= FROMOUTSIDE; break;
-			case 61: 
-			    AllSkillsUnskilled |= FROMOUTSIDE; break;
-			case 62: 
-			    AllStatsAreLower |= FROMOUTSIDE; break;
-			case 63: 
-			    PlayerCannotTrainSkills |= FROMOUTSIDE; break;
-			case 64: 
-			    PlayerCannotExerciseStats |= FROMOUTSIDE; break;
-			case 65: 
-			    TurnLimitation |= FROMOUTSIDE; break;
-			case 66: 
-			    WeakSight |= FROMOUTSIDE; break;
-			case 67: 
-			    RandomMessages |= FROMOUTSIDE; break;
-			case 68: 
-			    Desecration |= FROMOUTSIDE; break;
-			case 69: 
-			    StarvationEffect |= FROMOUTSIDE; break;
-			case 70: 
-			    NoDropsEffect |= FROMOUTSIDE; break;
-			case 71: 
-			    LowEffects |= FROMOUTSIDE; break;
-			case 72: 
-			    InvisibleTrapsEffect |= FROMOUTSIDE; break;
-			case 73: 
-			    GhostWorld |= FROMOUTSIDE; break;
-			case 74: 
-			    Dehydration |= FROMOUTSIDE; break;
-			case 75: 
-			    HateTrapEffect |= FROMOUTSIDE; break;
-			case 76: 
-			    TotterTrapEffect |= FROMOUTSIDE; break;
-			case 77: 
-			    Nonintrinsics |= FROMOUTSIDE; break;
-			case 78: 
-			    Dropcurses |= FROMOUTSIDE; break;
-			case 79: 
-			    Nakedness |= FROMOUTSIDE; break;
-			case 80: 
-			    Antileveling |= FROMOUTSIDE; break;
-			case 81: 
-			    ItemStealingEffect |= FROMOUTSIDE; break;
-			case 82: 
-			    Rebellions |= FROMOUTSIDE; break;
-			case 83: 
-			    CrapEffect |= FROMOUTSIDE; break;
-			case 84: 
-			    ProjectilesMisfire |= FROMOUTSIDE; break;
-			case 85: 
-			    WallTrapping |= FROMOUTSIDE; break;
-			case 86: 
-			    DisconnectedStairs |= FROMOUTSIDE; break;
-			case 87: 
-			    InterfaceScrewed |= FROMOUTSIDE; break;
-			case 88: 
-			    Bossfights |= FROMOUTSIDE; break;
-			case 89: 
-			    EntireLevelMode |= FROMOUTSIDE; break;
-			case 90: 
-			    BonesLevelChange |= FROMOUTSIDE; break;
-			case 91: 
-			    AutocursingEquipment |= FROMOUTSIDE; break;
-			case 92: 
-			    HighlevelStatus |= FROMOUTSIDE; break;
-			case 93: 
-			    SpellForgetting |= FROMOUTSIDE; break;
-			case 94: 
-			    SoundEffectBug |= FROMOUTSIDE; break;
-			case 95: 
-			    TimerunBug |= FROMOUTSIDE; break;
-				case 96:
-				    LootcutBug |= FROMOUTSIDE; break;
-				case 97:
-				    MonsterSpeedBug |= FROMOUTSIDE; break;
-				case 98:
-				    ScalingBug |= FROMOUTSIDE; break;
-				case 99:
-				    EnmityBug |= FROMOUTSIDE; break;
-				case 100:
-				    WhiteSpells |= FROMOUTSIDE; break;
-				case 101:
-				    CompleteGraySpells |= FROMOUTSIDE; break;
-				case 102:
-				    QuasarVision |= FROMOUTSIDE; break;
-				case 103:
-				    MommaBugEffect |= FROMOUTSIDE; break;
-				case 104:
-				    HorrorBugEffect |= FROMOUTSIDE; break;
-				case 105:
-				    ArtificerBug |= FROMOUTSIDE; break;
-				case 106:
-				    WereformBug |= FROMOUTSIDE; break;
-				case 107:
-				    NonprayerBug |= FROMOUTSIDE; break;
-				case 108:
-				    EvilPatchEffect |= FROMOUTSIDE; break;
-				case 109:
-				    HardModeEffect |= FROMOUTSIDE; break;
-				case 110:
-				    SecretAttackBug |= FROMOUTSIDE; break;
-				case 111:
-				    EaterBugEffect |= FROMOUTSIDE; break;
-				case 112:
-				    CovetousnessBug |= FROMOUTSIDE; break;
-				case 113:
-				    NotSeenBug |= FROMOUTSIDE; break;
-				case 114:
-				    DarkModeBug |= FROMOUTSIDE; break;
-				case 115:
-				    AntisearchEffect |= FROMOUTSIDE; break;
-				case 116:
-				    HomicideEffect |= FROMOUTSIDE; break;
-				case 117:
-				    NastynationBug |= FROMOUTSIDE; break;
-				case 118:
-				    WakeupCallBug |= FROMOUTSIDE; break;
-				case 119:
-				    GrayoutBug |= FROMOUTSIDE; break;
-				case 120:
-				    GrayCenterBug |= FROMOUTSIDE; break;
-				case 121:
-				    CheckerboardBug |= FROMOUTSIDE; break;
-				case 122:
-				    ClockwiseSpinBug |= FROMOUTSIDE; break;
-				case 123:
-				    CounterclockwiseSpin |= FROMOUTSIDE; break;
-				case 124:
-				    LagBugEffect |= FROMOUTSIDE; break;
-				case 125:
-				    BlesscurseEffect |= FROMOUTSIDE; break;
-				case 126:
-				    DeLightBug |= FROMOUTSIDE; break;
-				case 127:
-				    DischargeBug |= FROMOUTSIDE; break;
-				case 128:
-				    TrashingBugEffect |= FROMOUTSIDE; break;
-				case 129:
-				    FilteringBug |= FROMOUTSIDE; break;
-				case 130:
-				    DeformattingBug |= FROMOUTSIDE; break;
-				case 131:
-				    FlickerStripBug |= FROMOUTSIDE; break;
-				case 132:
-				    UndressingEffect |= FROMOUTSIDE; break;
-				case 133:
-				    Hyperbluewalls |= FROMOUTSIDE; break;
-				case 134:
-				    NoliteBug |= FROMOUTSIDE; break;
-				case 135:
-				    ParanoiaBugEffect |= FROMOUTSIDE; break;
-				case 136:
-				    FleecescriptBug |= FROMOUTSIDE; break;
-				case 137:
-				    InterruptEffect |= FROMOUTSIDE; break;
-				case 138:
-				    DustbinBug |= FROMOUTSIDE; break;
-				case 139:
-				    ManaBatteryBug |= FROMOUTSIDE; break;
-				case 140:
-				    Monsterfingers |= FROMOUTSIDE; break;
-				case 141:
-				    MiscastBug |= FROMOUTSIDE; break;
-				case 142:
-				    MessageSuppression |= FROMOUTSIDE; break;
-				case 143:
-				    StuckAnnouncement |= FROMOUTSIDE; break;
-				case 144:
-				    BloodthirstyEffect |= FROMOUTSIDE; break;
-				case 145:
-				    MaximumDamageBug |= FROMOUTSIDE; break;
-				case 146:
-				    LatencyBugEffect |= FROMOUTSIDE; break;
-				case 147:
-				    StarlitBug |= FROMOUTSIDE; break;
-				case 148:
-				    KnowledgeBug |= FROMOUTSIDE; break;
-				case 149:
-				    HighscoreBug |= FROMOUTSIDE; break;
-				case 150:
-				    PinkSpells |= FROMOUTSIDE; break;
-				case 151:
-				    GreenSpells |= FROMOUTSIDE; break;
-				case 152:
-				    EvencoreEffect |= FROMOUTSIDE; break;
-				case 153:
-				    UnderlayerBug |= FROMOUTSIDE; break;
-				case 154:
-				    DamageMeterBug |= FROMOUTSIDE; break;
-				case 155:
-				    ArbitraryWeightBug |= FROMOUTSIDE; break;
-				case 156:
-				    FuckedInfoBug |= FROMOUTSIDE; break;
-				case 157:
-				    BlackSpells |= FROMOUTSIDE; break;
-				case 158:
-				    CyanSpells |= FROMOUTSIDE; break;
-				case 159:
-				    HeapEffectBug |= FROMOUTSIDE; break;
-				case 160:
-				    BlueSpells |= FROMOUTSIDE; break;
-				case 161:
-				    TronEffect |= FROMOUTSIDE; break;
-				case 162:
-				    RedSpells |= FROMOUTSIDE; break;
-				case 163:
-				    TooHeavyEffect |= FROMOUTSIDE; break;
-				case 164:
-				    ElongationBug |= FROMOUTSIDE; break;
-				case 165:
-				    WrapoverEffect |= FROMOUTSIDE; break;
-				case 166:
-				    DestructionEffect |= FROMOUTSIDE; break;
-				case 167:
-				    MeleePrefixBug |= FROMOUTSIDE; break;
-				case 168:
-				    AutomoreBug |= FROMOUTSIDE; break;
-				case 169:
-				    UnfairAttackBug |= FROMOUTSIDE; break;
-				case 170:
-				    OrangeSpells |= FROMOUTSIDE; break;
-				case 171:
-				    VioletSpells |= FROMOUTSIDE; break;
-				case 172:
-				    LongingEffect |= FROMOUTSIDE; break;
-				case 173:
-				    CursedParts |= FROMOUTSIDE; break;
-				case 174:
-				    Quaversal |= FROMOUTSIDE; break;
-				case 175:
-				    AppearanceShuffling |= FROMOUTSIDE; break;
-				case 176:
-				    BrownSpells |= FROMOUTSIDE; break;
-				case 177:
-				    Choicelessness |= FROMOUTSIDE; break;
-				case 178:
-				    Goldspells |= FROMOUTSIDE; break;
-				case 179:
-				    Deprovement |= FROMOUTSIDE; break;
-				case 180:
-				    InitializationFail |= FROMOUTSIDE; break;
-				case 181:
-				    GushlushEffect |= FROMOUTSIDE; break;
-				case 182:
-				    SoiltypeEffect |= FROMOUTSIDE; break;
-				case 183:
-				    DangerousTerrains |= FROMOUTSIDE; break;
-				case 184:
-				    FalloutEffect |= FROMOUTSIDE; break;
-				case 185:
-				    MojibakeEffect |= FROMOUTSIDE; break;
-				case 186:
-				    GravationEffect |= FROMOUTSIDE; break;
-				case 187:
-				    UncalledEffect |= FROMOUTSIDE; break;
-				case 188:
-				    ExplodingDiceEffect |= FROMOUTSIDE; break;
-				case 189:
-				    PermacurseEffect |= FROMOUTSIDE; break;
-				case 190:
-				    ShroudedIdentity |= FROMOUTSIDE; break;
-				case 191:
-				    FeelerGauges |= FROMOUTSIDE; break;
-				case 192:
-				    LongScrewup |= FROMOUTSIDE; break;
-				case 193:
-				    WingYellowChange |= FROMOUTSIDE; break;
-				case 194:
-				    LifeSavingBug |= FROMOUTSIDE; break;
-				case 195:
-				    CurseuseEffect |= FROMOUTSIDE; break;
-				case 196:
-				    CutNutritionEffect |= FROMOUTSIDE; break;
-				case 197:
-				    SkillLossEffect |= FROMOUTSIDE; break;
-				case 198:
-				    AutopilotEffect |= FROMOUTSIDE; break;
-				case 199:
-				    MysteriousForceActive |= FROMOUTSIDE; break;
-				case 200:
-				    MonsterGlyphChange |= FROMOUTSIDE; break;
-				case 201:
-				    ChangingDirectives |= FROMOUTSIDE; break;
-				case 202:
-				    ContainerKaboom |= FROMOUTSIDE; break;
-				case 203:
-				    StealDegrading |= FROMOUTSIDE; break;
-				case 204:
-				    LeftInventoryBug |= FROMOUTSIDE; break;
-				case 205:
-				    FluctuatingSpeed |= FROMOUTSIDE; break;
-				case 206:
-				    TarmuStrokingNora |= FROMOUTSIDE; break;
-				case 207:
-				    FailureEffects |= FROMOUTSIDE; break;
-				case 208:
-				    BrightCyanSpells |= FROMOUTSIDE; break;
-				case 209:
-				    FrequentationSpawns |= FROMOUTSIDE; break;
-				case 210:
-				    PetAIScrewed |= FROMOUTSIDE; break;
-				case 211:
-				    SatanEffect |= FROMOUTSIDE; break;
-				case 212:
-				    RememberanceEffect |= FROMOUTSIDE; break;
-				case 213:
-				    PokelieEffect |= FROMOUTSIDE; break;
-				case 214:
-				    AlwaysAutopickup |= FROMOUTSIDE; break;
-				case 215:
-				    DywypiProblem |= FROMOUTSIDE; break;
-				case 216:
-				    SilverSpells |= FROMOUTSIDE; break;
-				case 217:
-				    MetalSpells |= FROMOUTSIDE; break;
-				case 218:
-				    PlatinumSpells |= FROMOUTSIDE; break;
-				case 219:
-				    ManlerEffect |= FROMOUTSIDE; break;
-				case 220:
-				    DoorningEffect |= FROMOUTSIDE; break;
-				case 221:
-				    NownsibleEffect |= FROMOUTSIDE; break;
-				case 222:
-				    ElmStreetEffect |= FROMOUTSIDE; break;
-				case 223:
-				    MonnoiseEffect |= FROMOUTSIDE; break;
-				case 224:
-				    RangCallEffect |= FROMOUTSIDE; break;
-				case 225:
-				    RecurringSpellLoss |= FROMOUTSIDE; break;
-				case 226:
-				    AntitrainingEffect |= FROMOUTSIDE; break;
-				case 227:
-				    TechoutBug |= FROMOUTSIDE; break;
-				case 228:
-				    StatDecay |= FROMOUTSIDE; break;
-				case 229:
-				    Movemork |= FROMOUTSIDE; break;
-		}
+    if (instr->oartifact == ART_KILLER_PIANO) {
+
+		getnastytrapintrinsic();
 
     }
 
     if (instr->otyp != LEATHER_DRUM && instr->otyp != DRUM_OF_EARTHQUAKE) {
 
 		usebufx = TRUE;
-		getlin ("Improvise? [yes/no]",bufX);
+		getlin ("Improvise? [y/yes/no]",bufX);
 		(void) lcase (bufX);
 
     }
-    if (usebufx && strcmp(bufX, "yes")) {
+    if (usebufx && strcmp(bufX, "yes") && strcmp(bufX, "y")) {
 	if (u.uevent.uheard_tune == 2 && yn("Play the passtune?") == 'y') {
 	    strcpy(buf, tune);
 	} else {
@@ -1316,6 +879,9 @@ char	*buf;
 	case FOG_HORN:
 	case FROST_HORN:
 	case TEMPEST_HORN:
+	case SHADOW_HORN:
+	case ETHER_HORN:
+	case CHROME_HORN:
 	case FIRE_HORN:
 	    (void) write(fd, "<<ol", 2); /* drop two octaves & lock */
 	    break;
@@ -1388,6 +954,9 @@ char	*buf;
 	case FOG_HORN:
 	case FROST_HORN:
 	case TEMPEST_HORN:
+	case CHROME_HORN:
+	case SHADOW_HORN:
+	case ETHER_HORN:
 	case FIRE_HORN:
 	    playstring("<<ol", 2); /* drop two octaves & lock */
 	    break;

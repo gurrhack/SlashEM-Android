@@ -514,6 +514,7 @@ vision_recalc(control)
     static unsigned char colbump[COLNO+1];	/* cols to bump sv */
     unsigned char *sv;				/* ptr to seen angle bits */
     int oldseenv;				/* previous seenv value */
+    int efflightradius;
 
     vision_full_recalc = 0;			/* reset flag */
     if (in_mklev || !iflags.vision_inited) return;
@@ -651,16 +652,19 @@ vision_recalc(control)
 	    }
 	}
 
-	if (has_night_vision && !(u.uprops[WEAKSIGHT].extrinsic || (uarmh && uarmh->oartifact == ART_WOLF_KING) || WeakSight || (uleft && uleft->oartifact == ART_BLIND_PILOT) || (uright && uright->oartifact == ART_BLIND_PILOT) || have_weaksightstone() ) && !(uarmh && uarmh->oartifact == ART_FIRE_CHIEF_HELMET) && u.xray_range < (u.nv_range + Sight_bonus) ) {
-	    if (!(u.nv_range + Sight_bonus) ) {	/* range is 0 */
+	efflightradius = (u.nv_range + Sight_bonus + StrongSight_bonus);
+	if (uarmh && uarmh->oartifact == ART_DARKSIGHT_HELM) efflightradius += 2;
+
+	if (has_night_vision && !(u.uprops[WEAKSIGHT].extrinsic || (Race_if(PM_ETHEREALOID) && !Upolyd) || (uwep && uwep->otyp == SNIPESLING) || (uarmh && uarmh->oartifact == ART_WOLF_KING) || WeakSight || (uleft && uleft->oartifact == ART_BLIND_PILOT) || (uright && uright->oartifact == ART_BLIND_PILOT) || have_weaksightstone() || (Race_if(PM_NEMESIS) && uarmh) ) && !(uwep && uwep->oartifact == ART_WEAKITE_THRUST) && !(u.twoweap && uswapwep && uswapwep->oartifact == ART_WEAKITE_THRUST) && !(uarm && uarm->oartifact == ART_OVERRATED_FACE_PROTECTION) && !(uarmh && uarmh->oartifact == ART_FIRE_CHIEF_HELMET) && u.xray_range < efflightradius) {
+	    if (!efflightradius) {	/* range is 0 */
 		next_array[u.uy][u.ux] |= IN_SIGHT;
 		levl[u.ux][u.uy].seenv = SVALL;
 		next_rmin[u.uy] = min(u.ux, next_rmin[u.uy]);
 		next_rmax[u.uy] = max(u.ux, next_rmax[u.uy]);
-	    } else if (( (u.nv_range + Sight_bonus) > 0) && !(u.uprops[WEAKSIGHT].extrinsic || (uarmh && uarmh->oartifact == ART_WOLF_KING) || WeakSight || (uleft && uleft->oartifact == ART_BLIND_PILOT) || (uright && uright->oartifact == ART_BLIND_PILOT) || have_weaksightstone() ) && !(uarmh && uarmh->oartifact == ART_FIRE_CHIEF_HELMET) ) {
-		ranges = circle_ptr(u.nv_range + Sight_bonus);
+	    } else if ((efflightradius > 0) && !(u.uprops[WEAKSIGHT].extrinsic || (uwep && uwep->otyp == SNIPESLING) || (uarmh && uarmh->oartifact == ART_WOLF_KING) || WeakSight || (uleft && uleft->oartifact == ART_BLIND_PILOT) || (uright && uright->oartifact == ART_BLIND_PILOT) || have_weaksightstone() || (Race_if(PM_NEMESIS) && uarmh) || (uwep && uwep->oartifact == ART_WEAKITE_THRUST) || (u.twoweap && uswapwep && uswapwep->oartifact == ART_WEAKITE_THRUST) ) && !(uarm && uarm->oartifact == ART_OVERRATED_FACE_PROTECTION) && !(uarmh && uarmh->oartifact == ART_FIRE_CHIEF_HELMET) ) {
+		ranges = circle_ptr(efflightradius);
 
-		for (row = u.uy-(u.nv_range + Sight_bonus); row <= u.uy+(u.nv_range + Sight_bonus); row++) {
+		for (row = (u.uy - efflightradius); row <= (u.uy + efflightradius); row++) {
 		    if (row < 0) continue;	if (row >= ROWNO) break;
 		    dy = v_abs(u.uy-row);	next_row = next_array[row];
 
@@ -730,7 +734,7 @@ vision_recalc(control)
 	    }
 
 	    else if ((next_row[col] & COULD_SEE)
-				&& ( (lev->lit && !(DarkModeBug || u.uprops[DARK_MODE_BUG].extrinsic || have_darkmodestone())) || (next_row[col] & TEMP_LIT))) {
+				&& ( (lev->lit && !(HardcoreAlienMode || DarkModeBug || u.uprops[DARK_MODE_BUG].extrinsic || have_darkmodestone())) || (next_row[col] & TEMP_LIT))) {
 		/*
 		 * We see this position because it is lit.
 		 */
@@ -744,7 +748,7 @@ vision_recalc(control)
 		     */
 		    dx = u.ux - col;	dx = sign(dx);
 		    flev = &(levl[col+dx][row+dy]);
-		    if ( (flev->lit && !(DarkModeBug || u.uprops[DARK_MODE_BUG].extrinsic || have_darkmodestone())) || next_array[row+dy][col+dx] & TEMP_LIT) {
+		    if ( (flev->lit && !(HardcoreAlienMode || DarkModeBug || u.uprops[DARK_MODE_BUG].extrinsic || have_darkmodestone())) || next_array[row+dy][col+dx] & TEMP_LIT) {
 			next_row[col] |= IN_SIGHT;	/* we see it */
 
 			oldseenv = lev->seenv;
@@ -856,6 +860,16 @@ unblock_point(x,y)
     if (viz_array[y][x]) vision_full_recalc = 1;
 }
 
+/* blockorunblock_point() by Amy: test whether the location should be blocked or not, then set it accordingly
+ * used for e.g. terrain-altering effects that put random terrain at locations, because we can't know in advance whether
+ * the terrain it created is blocking vision or not... */
+void
+blockorunblock_point(x,y)
+int x, y;
+{
+	if (does_block(x, y, &levl[x][y])) block_point(x, y);
+	else unblock_point(x, y);
+}
 
 /*===========================================================================*\
  |									     |

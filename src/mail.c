@@ -392,7 +392,7 @@ struct mail_info *info;
 
 
     if (info->message_typ) {
-	struct obj *obj = mksobj(SCR_MAIL, FALSE, FALSE);
+	struct obj *obj = mksobj(SCR_MAIL, FALSE, FALSE, FALSE);
 	if (!obj) return;
 
 	/* In game master mode, mail from me will spawn monsters. Read it immediately, so you can't avoid them :P --Amy */
@@ -469,6 +469,8 @@ struct obj *otmp;
 void
 ckmailstatus()
 {
+	if (iflags.debug_fuzzer) return;
+
 #ifdef SIMPLE_MAIL
 	if (mailckfreq == 0)
 	  mailckfreq = (iflags.simplemail ? 5 : 10);

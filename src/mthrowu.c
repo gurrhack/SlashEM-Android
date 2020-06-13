@@ -32,7 +32,7 @@ NEARDATA const char *breathwep[] = {
 				"a psionic blast"
 };
 
-NEARDATA const char *hallubreathwep[] = {"fragments", "fire", "frost", "sleep gas", "a disintegration blast", "lightning", "poison gas", "acid", "light", "strange breath #9", "sizzle", "nexus", "slaying", "vomit", "nausea", "repetition", "nether", "chaos", "confusion", "smoke", "--More-- You have died. DYWYPI?", "darkness", "sound", "gravity", "vibration", "penetration", "spitballs", "fart gas", "stinking gas", "slow gas", "rainbows", "air", "balloons", "nitrogen", "chloroform", "prussic acid", "ozone", "spill", "litter", "garbage", "trash", "heat", "cold", "ice", "water", "earth", "hell", "sky", "astral", "stars", "asterisks", "exclamation marks!!!", "feathers", "springs", "fog", "dew", "snow", "drugs", "rock'n'roll", "smog", "sludge", "waste", "temperature", "humidity", "vortices", "clouds", "a psionic blast"
+NEARDATA const char *hallubreathwep[] = {"fragments", "fire", "frost", "sleep gas", "a disintegration blast", "lightning", "poison gas", "acid", "light", "strange breath #9", "sizzle", "nexus", "slaying", "vomit", "nausea", "repetition", "nether", "chaos", "confusion", "smoke", "--More-- You have died. DYWYPI?", "darkness", "sound", "gravity", "vibration", "penetration", "spitballs", "fart gas", "stinking gas", "slow gas", "rainbows", "air", "balloons", "nitrogen", "chloroform", "prussic acid", "ozone", "spill", "litter", "garbage", "trash", "heat", "cold", "ice", "water", "earth", "hell", "sky", "astral", "stars", "asterisks", "exclamation marks!!!", "feathers", "springs", "fog", "dew", "snow", "drugs", "rock'n'roll", "smog", "sludge", "waste", "temperature", "humidity", "vortices", "clouds", "a psionic blast", "cotton candy", "butterflies",
 
 };
 
@@ -91,7 +91,7 @@ const char *name;	/* if null, then format `obj' */
 			break;
 		case ELVEN_SHIELD:
 			shieldblockrate = 20;
-			if (Race_if(PM_ELF) || Race_if(PM_DROW) || Role_if(PM_ELPH) || Role_if(PM_TWELPH)) shieldblockrate += 5;
+			if (Race_if(PM_ELF) || Race_if(PM_PLAYER_MYRKALFR) || Race_if(PM_DROW) || Role_if(PM_ELPH) || Role_if(PM_TWELPH)) shieldblockrate += 5;
 			break;
 		case URUK_HAI_SHIELD:
 			shieldblockrate = 22;
@@ -115,10 +115,12 @@ const char *name;	/* if null, then format `obj' */
 			break;
 		case CRYSTAL_SHIELD:
 		case RAPIRAPI:
+		case HIDE_SHIELD:
 			shieldblockrate = 35;
 			break;
 		case SHIELD_OF_REFLECTION:
 		case SILVER_SHIELD:
+		case ANCIENT_SHIELD:
 		case MIRROR_SHIELD:
 			shieldblockrate = 25;
 			break;
@@ -132,6 +134,8 @@ const char *name;	/* if null, then format `obj' */
 			shieldblockrate = 30;
 			break;
 		case VENOM_SHIELD:
+		case CHROME_SHIELD:
+		case ANTISHADOW_SHIELD:
 			shieldblockrate = 30;
 			break;
 		case SHIELD_OF_LIGHT:
@@ -161,6 +165,11 @@ const char *name;	/* if null, then format `obj' */
 		case RUBY_DRAGON_SCALE_SHIELD:
 		case GREEN_DRAGON_SCALE_SHIELD:
 		case GOLDEN_DRAGON_SCALE_SHIELD:
+		case FEMINISM_DRAGON_SCALE_SHIELD:
+		case CANCEL_DRAGON_SCALE_SHIELD:
+		case NEGATIVE_DRAGON_SCALE_SHIELD:
+		case CORONA_DRAGON_SCALE_SHIELD:
+		case HEROIC_DRAGON_SCALE_SHIELD:
 		case STONE_DRAGON_SCALE_SHIELD:
 		case CYAN_DRAGON_SCALE_SHIELD:
 		case PSYCHIC_DRAGON_SCALE_SHIELD:
@@ -180,7 +189,7 @@ const char *name;	/* if null, then format `obj' */
 			shieldblockrate = 33;
 			break;
 
-		default: impossible("Unknown type of shield (%d)", uarms->otyp);
+		default: impossible("Unknown type of shield (%ld)", uarms->otyp);
 
 		}
 
@@ -199,9 +208,11 @@ const char *name;	/* if null, then format `obj' */
 		if (uarms->oartifact == ART_LURTZ_S_WALL) shieldblockrate += 20;
 		if (uarms->oartifact == ART_I_M_GETTING_HUNGRY) shieldblockrate += 20;
 		if (uarms->oartifact == ART_WHANG_CLINK_CLONK) shieldblockrate += 10;
+		if (uarms->oartifact == ART_LOOK_HOW_IT_BLOCKS) shieldblockrate += 20;
 		if (uarms->oartifact == ART_BLOCKING_EXTREME) shieldblockrate += 10;
 		if (uarms->oartifact == ART_CUTTING_THROUGH) shieldblockrate += 5;
 		if (uwep && uwep->oartifact == ART_VEST_REPLACEMENT) shieldblockrate += 10;
+		if (Race_if(PM_MACTHEIST)) shieldblockrate += 10;
 
 		if (u.holyshield) shieldblockrate += (3 + spell_damage_bonus(SPE_HOLY_SHIELD));
 
@@ -215,6 +226,8 @@ const char *name;	/* if null, then format `obj' */
 		if (uarm && uarm->oartifact == ART_WOODSTOCK) shieldblockrate += 5;
 		if (Numbed) shieldblockrate -= 10;
 
+		if (tlev > 10) shieldblockrate -= (rn2(tlev - 9));
+
 		if (!PlayerCannotUseSkills) {
 			switch (P_SKILL(P_SHIEN)) {
 				case P_BASIC: shieldblockrate += 1; break;
@@ -227,6 +240,10 @@ const char *name;	/* if null, then format `obj' */
 		}
 
 		if (Conflict && shieldblockrate > 0) {
+			shieldblockrate *= 2;
+			shieldblockrate /= 3;
+		}
+		if (StrongConflict && shieldblockrate > 0) {
 			shieldblockrate *= 2;
 			shieldblockrate /= 3;
 		}
@@ -257,12 +274,12 @@ const char *name;	/* if null, then format `obj' */
 	is_acid = (obj && obj->otyp == ACID_VENOM);
 	is_tailspike = (obj && obj->otyp == TAIL_SPIKES);
 	is_egg = (obj && obj->otyp == EGG);
-	is_polearm = (obj && objects[obj->otyp].oc_skill == P_POLEARMS);
+	is_polearm = (obj && (objects[obj->otyp].oc_skill == P_POLEARMS || objects[obj->otyp].oc_skill == P_LANCE || obj->otyp == AKLYS || obj->otyp == BLOW_AKLYS || obj->otyp == SPINED_BALL || obj->otyp == CHAIN_AND_SICKLE));
 	is_thrown_weapon = (obj && (objects[obj->otyp].oc_skill == P_DART || objects[obj->otyp].oc_skill == P_SHURIKEN) );
 	is_bulletammo = (obj && obj->otyp >= BULLET && obj->otyp <= GAS_GRENADE);
 
 	if (is_bulletammo) extrachance = 1;
-	else if (is_acid || is_tailspike || is_egg || is_polearm) extrachance = 10;
+	else if (is_acid || is_tailspike || is_egg || is_polearm || (obj && obj->oclass == VENOM_CLASS) ) extrachance = 10;
 	else if (is_thrown_weapon) extrachance = 3;
 	else extrachance = 2;
 
@@ -291,13 +308,15 @@ const char *name;	/* if null, then format `obj' */
 			}
 		}
 
+		if (tlev > 10) saberblockrate -= (rn3(tlev - 9));
+
 	}
 
-	if((u.uac + tlev <= rnd(20)) && (!rn2(Conflict ? 4 : 3))) {
+	if((u.uac + tlev <= rnd(20)) && (!rn2(StrongConflict ? 5 : Conflict ? 4 : 3))) {
 		if(Blind || !flags.verbose) pline("It misses.");
 		else You("are almost hit by %s.", onm);
 		return(0);
-	} else if ( (u.uac < 0) && (!rn2(Conflict ? 3 : 2)) && !rn2(extrachance) && (rnd(50) < (-(u.uac))) )    {
+	} else if ( (u.uac < 0) && (!rn2(StrongConflict ? 4 : Conflict ? 3 : 2)) && !rn2(extrachance) && (rnd(100) < (-(u.uac))) )    {
 		/* more negative AC means a higher chance to deflect projectiles with armor --Amy */
 		if(Blind || !flags.verbose) pline("Your armor deflects a projectile.");
 		else You("deflect %s with your armor.", onm);
@@ -325,11 +344,11 @@ const char *name;	/* if null, then format `obj' */
 
 			return(0);
 
-	} else if (uwep && is_lightsaber(uwep) && uwep->lamplit && (saberblockrate > rn2(100))) {
+	} else if (uwep && is_lightsaber(uwep) && (3 > rnd(extrachance)) && uwep->lamplit && (saberblockrate > rn2(100))) {
 
 		/* dodge missiles, even when blind; see "A new hope" for blindness reference */
 		You("dodge %s with %s.", onm, yname(uwep));
-		use_skill(P_SHIEN, 1);
+		use_skill(P_SHIEN, rnd(4)); /* would take forever to train otherwise --Amy */
 
 		if (tech_inuse(T_ABSORBER_SHIELD) && uwep && is_lightsaber(uwep) && uwep->lamplit) {
 			pline("Energy surges into the lightsaber as the projectile is blocked.");
@@ -338,7 +357,19 @@ const char *name;	/* if null, then format `obj' */
 
 		return(0);
 
-	} else if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_GYMNASTIC_LOVE && !rn2(3)) {
+	} else if (powerfulimplants() && (!rn2(extrachance) || !rn2(extrachance) || !rn2(extrachance)) && uimplant && uimplant->oartifact == ART_GYMNASTIC_LOVE && !rn2(3)) {
+
+			if(Blind || !flags.verbose) You("skillfully evade a projectile.");
+			else You("skillfully evade %s.", onm);
+			return(0);
+
+	} else if (Race_if(PM_CUPID) && !rn2(5)) {
+
+			if(Blind || !flags.verbose) You("sidestep a projectile.");
+			else You("sidestep %s.", onm);
+			return(0);
+
+	} else if (uwep && uwep->oartifact == ART_SYLVIE_S_INVENTION && rn2(3)) {
 
 			if(Blind || !flags.verbose) You("skillfully evade a projectile.");
 			else You("skillfully evade %s.", onm);
@@ -348,6 +379,19 @@ const char *name;	/* if null, then format `obj' */
 
 			if(Blind || !flags.verbose) pline("Your force field causes a projectile to miss you.");
 			else pline("Your force field causes %s to miss you.", onm);
+			return(0);
+
+	} else if (Race_if(PM_PLAYER_ATLANTEAN) && rn2(2)) {
+
+			if(Blind || !flags.verbose) pline("Your force field causes a projectile to miss you.");
+			else pline("Your force field causes %s to miss you.", onm);
+			return(0);
+
+	} else if (Race_if(PM_PLAYER_DYNAMO) && !rn2(3)) {
+
+			if(Blind || !flags.verbose) pline("You absorb a projectile.");
+			else pline("You absorb %s.", onm);
+			healup(rnd(u.ulevel), 0, FALSE, FALSE);
 			return(0);
 
 	} else if (!rn2(extrachance) && rnd(30) < (2 + (GushLevel / 2) ) ) {
@@ -361,22 +405,44 @@ const char *name;	/* if null, then format `obj' */
 		if(Blind || !flags.verbose) You("are hit!");
 		else You("are hit by %s%s", onm, exclam(dam));
 
-		if (obj && objects[obj->otyp].oc_material == SILVER && hates_silver(youmonst.data)) {
+		if (obj && obj->otyp == YITH_TENTACLE) {
+			increasesanity(rnz(monster_difficulty() + 1));
+		}
+		if (obj && obj->otyp == NASTYPOLE && !rn2(10)) {
+			badeffect();
+		}
+
+		if (obj && objects[obj->otyp].oc_material == MT_SILVER && (hates_silver(youmonst.data) || (uwep && uwep->oartifact == ART_PORKMAN_S_BALLS_OF_STEEL) || (u.twoweap && uswapwep && uswapwep->oartifact == ART_PORKMAN_S_BALLS_OF_STEEL) ) ) {
 			dam += rnd(20);
 			pline_The("silver sears your flesh!");
 			exercise(A_CON, FALSE);
 		}
-		if (obj && objects[obj->otyp].oc_material == COPPER && hates_copper(youmonst.data)) {
+		if (obj && objects[obj->otyp].oc_material == MT_COPPER && hates_copper(youmonst.data)) {
 			dam += 20;
 			pline_The("copper decomposes you!");
 			exercise(A_CON, FALSE);
 		}
-		if (obj && objects[obj->otyp].oc_material == VIVA && hates_viva(youmonst.data)) {
+		if (obj && objects[obj->otyp].oc_material == MT_PLATINUM && (hates_platinum(youmonst.data) || u.contamination >= 1000) ) {
+			dam += 20;
+			pline_The("platinum smashes you!");
+			exercise(A_CON, FALSE);
+		}
+		if (obj && obj->cursed && (hates_cursed(youmonst.data) || youmonst.data->mlet == S_ANGEL || Race_if(PM_HUMANOID_ANGEL))) {
+			dam += 4;
+			if (obj->hvycurse) dam += 4;
+			if (obj->prmcurse) dam += 7;
+			if (obj->bbrcurse) dam += 15;
+			if (obj->evilcurse) dam += 15;
+			if (obj->morgcurse) dam += 15;
+			pline("An unholy aura blasts you!");
+			exercise(A_CON, FALSE);
+		}
+		if (obj && objects[obj->otyp].oc_material == MT_VIVA && hates_viva(youmonst.data)) {
 			dam += 20;
 			pline_The("irradiation severely hurts you!");
 			exercise(A_CON, FALSE);
 		}
-		if (obj && objects[obj->otyp].oc_material == INKA) {
+		if (obj && objects[obj->otyp].oc_material == MT_INKA) {
 			dam += 5;
 			pline_The("inka string hurts you!");
 			exercise(A_CON, FALSE);
@@ -384,9 +450,24 @@ const char *name;	/* if null, then format `obj' */
 		if (obj && obj->otyp == ODOR_SHOT) {
 			dam += rnd(10);
 			pline("You inhale the horrific odor!");
+			if (tlev < 1) increasesanity(rnz(5));
+			else increasesanity(rnz(tlev * 5));
 			exercise(A_CON, FALSE);
 		}
-		if (is_acid && Acid_resistance) {
+
+		if (obj && objects[obj->otyp].oc_skill == P_POLEARMS && (u.usteed || youmonst.data->mlet == S_CENTAUR || youmonst.data->mlet == S_UNICORN) || (!Upolyd && Race_if(PM_PLAYER_UNICORN)) || (!Upolyd && Race_if(PM_HUMANOID_CENTAUR)) || (!Upolyd && Race_if(PM_THUNDERLORD)) ) {
+			dam += rnd(10);
+			if (u.usteed && !rn2(25)) {
+				if (!mayfalloffsteed()) {
+					pline("The polearm lifts you out of your saddle!");
+					dismount_steed(DISMOUNT_FELL);
+				}
+
+			}
+		}
+
+
+		if (is_acid && Acid_resistance && (StrongAcid_resistance || rn2(10)) ) {
 			pline("It doesn't seem to hurt you.");
 			if (Stoned) fix_petrification();
 		} else if (Race_if(PM_PLAYER_SKELETON) && rn2(3) && obj && obj->spe < 2) {
@@ -402,20 +483,57 @@ const char *name;	/* if null, then format `obj' */
 			else if (!is_bulletammo && (tlev > 10) && !rn2(3)) dam += rnd(tlev - 10);
 
 			if (Half_physical_damage && rn2(2) ) dam = (dam+1) / 2;
+			if (StrongHalf_physical_damage && rn2(2) ) dam = (dam+1) / 2;
 
 			if (dam && u.uac < /*-1*/0) { /* AC protects against this damage now, at least a bit --Amy */
+
 				int tempval;
-				tempval = rnd(-(u.uac)/5+1);
-				if (tempval < 1)  tempval = 1;
-				if (tempval > 20) tempval = 20;
-				dam -= tempval;
-				if (dam < 1) dam = 1;
+
+				int effectiveac = (-(u.uac));
+				if (issoviet) {
+					effectiveac -= 20;
+					if (effectiveac < 1) effectiveac = 1;
+				}
+				if (effectiveac > (issoviet ? 100 : 120)) {
+					if (issoviet) effectiveac -= rn3(effectiveac - 99);
+					else effectiveac -= rn3(effectiveac - 119);
+				}
+				if (effectiveac > (issoviet ? 60 : 80)) {
+					if (issoviet) effectiveac -= rn3(effectiveac - 59);
+					else effectiveac -= rn3(effectiveac - 79);
+				}
+				if (effectiveac > (issoviet ? 20 : 40)) {
+					if (issoviet) effectiveac -= rn2(effectiveac - 19);
+					else effectiveac -= rn2(effectiveac - 39);
+				}
+
+				tempval = rnd((effectiveac / (issoviet ? 5 : 4)) + 1);
+				if (tempval < 1) tempval = 1;
+				if (tempval > (issoviet ? 20 : 50)) tempval = (issoviet ? 20 : 50); /* max limit increased --Amy */
+
+				if (issoviet) {
+					dam -= tempval;
+					if (dam < 1) dam = 1;
+				}
+
+				if (dam > 1 && tempval > 0) {
+					dam *= (100 - rnd(tempval));
+					dam++;
+					dam /= 100;
+					if (dam < 1) dam = 1;
+				}
+
 			}
 
 			if (dam >= 2 && GushLevel > rnd(100)) dam = (dam+1) / 2;
 
 			losehp(dam, knm, kprefix);
 			exercise(A_STR, FALSE);
+		}
+
+		if (obj && (objects[obj->otyp].oc_skill == P_SHURIKEN || objects[obj->otyp].oc_skill == -P_SHURIKEN) && dam > 0) {
+			You("get a cut.");
+			playerbleed(dam);
 		}
 
 		/* evil patch: antimatter bullets will damage the player's inventory --Amy */
@@ -426,7 +544,7 @@ const char *name;	/* if null, then format `obj' */
 		/* evil patch: darts of disintegration can disintegrate the player
 		 * only have a 10% chance of actually doing so, because otherwise it would be really unbalanced --Amy */
 		if (obj && obj->otyp == DART_OF_DISINTEGRATION) {
-			if ((!Disint_resistance || !rn2(100) || (evilfriday && (uarms || uarmc || uarm || uarmu)) ) && !rn2(10)) {
+			if ((!Disint_resistance || !rn2(StrongDisint_resistance ? 1000 : 100) || (evilfriday && (uarms || uarmc || uarm || uarmu)) ) && !rn2(10)) {
 				You_feel("like you're falling apart!");
 	
 				if (uarms) {
@@ -495,7 +613,7 @@ int x,y;
                     (obj->oartifact == ART_HOUCHOU) ||
 		    /* WAC -- assume monsters don't throw without 
 		    	using the right propellor */
-                    (is_bullet(obj)) ||
+                    (is_bullet(obj) && !(objects[obj->otyp].oc_material == MT_LEAD && !rn2(2))) ||
 		    (ohit && obj->otyp == EGG)))
 		create = 0;
 	else if (ohit && (is_multigen(obj) || obj->otyp == ROCK)) {
@@ -514,6 +632,7 @@ int x,y;
 		chance = 3 + obj->spe - greatest_erosionX(obj);
 		if (chance > 3) chance = 2 + rno(chance - 2);
 		if (chance < 1) chance = 1; /* fail safe */
+		if (Race_if(PM_MONGUNG)) chance *= 2;
 
 		create = rn2(chance);
 		}
@@ -552,19 +671,31 @@ int x,y;
 
 	    if (objects[obj->otyp].oc_skill == -P_BOW && uarm && uarm->oartifact == ART_WOODSTOCK && !create && !rn2(2))
 		create = 1;
-	    if (objects[obj->otyp].oc_material == MINERAL && uarm && uarm->oartifact == ART_QUARRY && !create && !rn2(2))
+	    if (objects[obj->otyp].oc_material == MT_MINERAL && uarm && uarm->oartifact == ART_QUARRY && !create && !rn2(2))
 		create = 1;
 	    if (uarmc && uarmc->oartifact == ART_ARABELLA_S_WEAPON_STORAGE && !create && !rn2(2))
 		create = 1;
+	    if (Race_if(PM_MACTHEIST) && objects[obj->otyp].oc_skill == P_SLING && !create && !rn2(2))
+		create = 1;
+	    if (Race_if(PM_MACTHEIST) && objects[obj->otyp].oc_skill == -P_SLING && !create && !rn2(2))
+		create = 1;
 
+	    if (objects[obj->otyp].oc_material == MT_LEAD && !create && !rn2(4)) create = 1;
 	    if (obj->otyp == DART_OF_DISINTEGRATION && rn2(10)) create = 0;
 
 	} else create = 1;
 
-	if (obj->mstartinventB && obj->otyp != ROCKET && !is_grenade(obj) && !(obj->oartifact) && !(obj->fakeartifact) && (!rn2(4) || (rn2(100) < u.equipmentremovechance) || !timebasedlowerchance() ) ) create = 0;
+	if (obj->mstartinventB && obj->otyp != ROCKET && !is_grenade(obj) && !(obj->oartifact) && !(obj->fakeartifact && timebasedlowerchance() && rn2(4) ) && (!rn2(4) || (rn2(100) < u.equipmentremovechance) || !timebasedlowerchance() ) ) create = 0;
+	if (obj->mstartinventC && obj->otyp != ROCKET && !is_grenade(obj) && !(obj->oartifact) && !(obj->fakeartifact && !rn2(10)) && rn2(10)) create = 0;
 
 	/* Detonate rockets */
 	if (is_grenade(obj)) {
+
+		if (rn2(5)) verbalize("Fire in the hole!");
+		else if (rn2(3)) verbalize("Fire in the ass hole!");
+		else if (rn2(2)) verbalize("Fire in your ass hole %s!", playeraliasname);
+		else verbalize("Here is a grenade four you!"); /* sic */
+
 		if (!ohit) {
 			create = 1; /* Don't destroy */
 			arm_bomb(obj, FALSE);
@@ -601,6 +732,7 @@ int x,y;
 			(t->ttyp == SPIKED_PIT)))) {
 		int objgone = 0;
 		obj->mstartinventB = 0;
+		obj->mstartinventC = 0;
 
 		if (down_gate(x, y) != -1)
 			objgone = ship_object(obj, x, y, FALSE);
@@ -616,7 +748,7 @@ int x,y;
 			    /* evil patch idea: monsters shooting nasty gray stones cause them to end up in your pack --Amy */
 			    if (obj && x == u.ux && y == u.uy && is_nastygraystone(obj)) {
 			      pline("%s lands in your knapsack!", Doname2(obj));
-				(void) pickup_object(obj, 1L, TRUE);
+				(void) pickup_object(obj, obj->quan, TRUE, TRUE);
 			    } else stackobj(obj);
 			    retvalu = 0;
 
@@ -645,11 +777,238 @@ boolean verbose;  /* give message(s) even when you can't see what happened */
 	int damage, tmp;
 	boolean vis, ismimic;
 	int objgone = 1;
+	register struct obj *blocker = (struct obj *)0;
+	int shieldblockrate = 0;
 
 	ismimic = mtmp->m_ap_type && mtmp->m_ap_type != M_AP_MONSTER;
 	vis = cansee(bhitpos.x, bhitpos.y);
 
 	tmp = 5 + find_mac(mtmp) + omon_adj(mtmp, otmp, FALSE);
+
+	/* Amy edit: if a pet is the target and the monster is high-level, add to-hit to make sure it can actually hit */
+	if (mtmp->mtame && mon) {
+		int armordifferential = 0;
+		if (mon->m_lev > 0) armordifferential += mon->m_lev;
+		if (mtmp->m_lev > mon->m_lev) armordifferential -= (mtmp->m_lev - mon->m_lev);
+		if (armordifferential < 0) armordifferential = 0; /* fail safe */
+		tmp += armordifferential;
+		if (otmp && otmp->oclass == VENOM_CLASS) tmp += 10;
+	}
+	if (verysmall(mtmp->data) && !rn2(8)) {
+	    if (!ismimic) {
+		if (vis) pline("%s avoids a projectile.", Monnam(mtmp));
+	    }
+	    if (!range) { /* Last position; object drops */
+		(void) drop_throw(mon, otmp, 0, mtmp->mx, mtmp->my);
+		return 1;
+	    }
+	} else if (rathersmall(mtmp->data) && !verysmall(mtmp->data) && !rn2(20)) {
+	    if (!ismimic) {
+		if (vis) pline("%s avoids a projectile.", Monnam(mtmp));
+	    }
+	    if (!range) { /* Last position; object drops */
+		(void) drop_throw(mon, otmp, 0, mtmp->mx, mtmp->my);
+		return 1;
+	    }
+	} else if (hugemonst(mtmp->data) && !rn2(8)) {
+	    if (!ismimic) {
+		if (vis) pline("%s shrugs off a projectile.", Monnam(mtmp));
+	    }
+	    if (!range) { /* Last position; object drops */
+		(void) drop_throw(mon, otmp, 0, mtmp->mx, mtmp->my);
+		return 1;
+	    }
+	} else if (bigmonst(mtmp->data) && !hugemonst(mtmp->data) && !rn2(15)) {
+	    if (!ismimic) {
+		if (vis) pline("%s shrugs off a projectile.", Monnam(mtmp));
+	    }
+	    if (!range) { /* Last position; object drops */
+		(void) drop_throw(mon, otmp, 0, mtmp->mx, mtmp->my);
+		return 1;
+	    }
+	} else if (amorphous(mtmp->data) && !rn2(10)) {
+	    if (!ismimic) {
+		if (vis) pline("%s's amorphous body skillfully dodges a projectile.", Monnam(mtmp));
+	    }
+	    if (!range) { /* Last position; object drops */
+		(void) drop_throw(mon, otmp, 0, mtmp->mx, mtmp->my);
+		return 1;
+	    }
+	} else if (noncorporeal(mtmp->data) && !rn2(2)) {
+	    if (!ismimic) {
+		if (vis) pline("%s avoids a projectile due to being noncorporeal.", Monnam(mtmp));
+	    }
+	    if (!range) { /* Last position; object drops */
+		(void) drop_throw(mon, otmp, 0, mtmp->mx, mtmp->my);
+		return 1;
+	    }
+	} else if (unsolid(mtmp->data) && !rn2(8)) {
+	    if (!ismimic) {
+		if (vis) pline("%s's unsolid body lets a projectile pass through harmlessly.", Monnam(mtmp));
+	    }
+	    if (!range) { /* Last position; object drops */
+		(void) drop_throw(mon, otmp, 0, mtmp->mx, mtmp->my);
+		return 1;
+	    }
+	} else if (mtmp->data == &mons[PM_DNETHACK_ELDER_PRIEST_TM_] || mtmp->data == &mons[PM_ATHLEANNIE] || mtmp->data == &mons[PM_LILAC_FEMMY] || mtmp->data == &mons[PM_GREEN]) { /* will never be hit by monsters' ranged attacks */
+	    if (!ismimic) {
+		pline("%s swats a projectile away.", Monnam(mtmp));
+	    }
+	    if (!range) { /* Last position; object drops */
+		(void) drop_throw(mon, otmp, 0, mtmp->mx, mtmp->my);
+		return 1;
+	    }
+	} else if (blocker = (which_armor(mtmp, W_ARMS))) {
+
+		switch (blocker->otyp) {
+
+			case SMALL_SHIELD:
+				shieldblockrate = 20;
+				break;
+			case PAPER_SHIELD:
+			case DIFFICULT_SHIELD:
+				shieldblockrate = 50;
+				break;
+			case ICKY_SHIELD:
+				shieldblockrate = 10;
+				break;
+			case HEAVY_SHIELD:
+				shieldblockrate = 20;
+				break;
+			case BARRIER_SHIELD:
+				shieldblockrate = 40;
+				break;
+			case TROLL_SHIELD:
+			case MAGICAL_SHIELD:
+			case SPECIAL_SHIELD:
+				shieldblockrate = 30;
+				break;
+			case TARRIER:
+				shieldblockrate = 35;
+				break;
+			case SHIELD_OF_PEACE:
+				shieldblockrate = 30;
+				break;
+			case ELVEN_SHIELD:
+				shieldblockrate = 30;
+				if (is_elf(mtmp->data)) shieldblockrate += 5;
+				break;
+			case URUK_HAI_SHIELD:
+				shieldblockrate = 32;
+				if (is_orc(mtmp->data)) shieldblockrate += 5;
+				break;
+			case ORCISH_SHIELD:
+			case ORCISH_GUARD_SHIELD:
+				shieldblockrate = 28;
+				if (is_orc(mtmp->data)) shieldblockrate += 5;
+				break;
+			case DWARVISH_ROUNDSHIELD:
+				shieldblockrate = 34;
+				if (is_dwarf(mtmp->data)) shieldblockrate += 5;
+				break;
+			case LARGE_SHIELD:
+			case SHIELD:
+				shieldblockrate = 35;
+				break;
+			case STEEL_SHIELD:
+				shieldblockrate = 40;
+				break;
+			case CRYSTAL_SHIELD:
+			case RAPIRAPI:
+			case HIDE_SHIELD:
+				shieldblockrate = 45;
+				break;
+			case SHIELD_OF_REFLECTION:
+			case ANCIENT_SHIELD:
+			case SILVER_SHIELD:
+			case MIRROR_SHIELD:
+				shieldblockrate = 35;
+				break;
+			case FLAME_SHIELD:
+				shieldblockrate = 40;
+				break;
+			case ICE_SHIELD:
+				shieldblockrate = 40;
+				break;
+			case LIGHTNING_SHIELD:
+				shieldblockrate = 40;
+				break;
+			case VENOM_SHIELD:
+			case CHROME_SHIELD:
+			case ANTISHADOW_SHIELD:
+				shieldblockrate = 40;
+				break;
+			case SHIELD_OF_LIGHT:
+				shieldblockrate = 40;
+				break;
+			case SHIELD_OF_MOBILITY:
+				shieldblockrate = 40;
+				break;
+
+			case GRAY_DRAGON_SCALE_SHIELD:
+			case SILVER_DRAGON_SCALE_SHIELD:
+			case MERCURIAL_DRAGON_SCALE_SHIELD:
+			case SHIMMERING_DRAGON_SCALE_SHIELD:
+			case DEEP_DRAGON_SCALE_SHIELD:
+			case RED_DRAGON_SCALE_SHIELD:
+			case WHITE_DRAGON_SCALE_SHIELD:
+			case ORANGE_DRAGON_SCALE_SHIELD:
+			case BLACK_DRAGON_SCALE_SHIELD:
+			case BLUE_DRAGON_SCALE_SHIELD:
+			case COPPER_DRAGON_SCALE_SHIELD:
+			case PLATINUM_DRAGON_SCALE_SHIELD:
+			case BRASS_DRAGON_SCALE_SHIELD:
+			case AMETHYST_DRAGON_SCALE_SHIELD:
+			case PURPLE_DRAGON_SCALE_SHIELD:
+			case DIAMOND_DRAGON_SCALE_SHIELD:
+			case EMERALD_DRAGON_SCALE_SHIELD:
+			case SAPPHIRE_DRAGON_SCALE_SHIELD:
+			case RUBY_DRAGON_SCALE_SHIELD:
+			case GREEN_DRAGON_SCALE_SHIELD:
+			case GOLDEN_DRAGON_SCALE_SHIELD:
+			case FEMINISM_DRAGON_SCALE_SHIELD:
+			case CANCEL_DRAGON_SCALE_SHIELD:
+			case NEGATIVE_DRAGON_SCALE_SHIELD:
+			case CORONA_DRAGON_SCALE_SHIELD:
+			case HEROIC_DRAGON_SCALE_SHIELD:
+			case STONE_DRAGON_SCALE_SHIELD:
+			case CYAN_DRAGON_SCALE_SHIELD:
+			case PSYCHIC_DRAGON_SCALE_SHIELD:
+			case RAINBOW_DRAGON_SCALE_SHIELD:
+			case BLOOD_DRAGON_SCALE_SHIELD:
+			case PLAIN_DRAGON_SCALE_SHIELD:
+			case SKY_DRAGON_SCALE_SHIELD:
+			case WATER_DRAGON_SCALE_SHIELD:
+			case MAGIC_DRAGON_SCALE_SHIELD:
+			case YELLOW_DRAGON_SCALE_SHIELD:
+
+				shieldblockrate = 33;
+				break;
+
+			case EVIL_DRAGON_SCALE_SHIELD:
+
+				shieldblockrate = 43;
+				break;
+
+			default: impossible("Unknown type of shield (%ld)", blocker->otyp);
+
+		}
+
+		if (shieldblockrate && (blocker->spe > 0)) shieldblockrate += (blocker->spe * 2);
+		if (blocker->blessed) shieldblockrate += 5;
+
+		if (rnd(100) < shieldblockrate) {
+			    if (!ismimic) {
+				pline("%s's shield blocks a projectile.", Monnam(mtmp));
+			    }
+			    if (!range) { /* Last position; object drops */
+				(void) drop_throw(mon, otmp, 0, mtmp->mx, mtmp->my);
+				return 1;
+			    }
+		}
+		else goto blockingdone;
+	} else
+blockingdone:	
 	if (tmp < rnd(20)) {
 	    if (!ismimic) {
 		if (vis) miss(distant_name(otmp, mshot_xname), mtmp);
@@ -673,6 +1032,10 @@ boolean verbose;  /* give message(s) even when you can't see what happened */
 	    return 1;
 	} else {
 	    damage = dmgval(otmp, mtmp);
+	    if (mtmp->mtame && mon) {
+		if (mon->m_lev >= 5) damage += ((mon->m_lev - 4) / 2);
+		if (otmp->otyp == TAIL_SPIKES) damage += rnd((mon->m_lev * 2) + 30);
+	    }
             if (otmp->otyp == SPOON) {
             pline("The spoon flashes brightly as it hits %s.",
                    the(mon_nam(mtmp)));
@@ -685,32 +1048,38 @@ boolean verbose;  /* give message(s) even when you can't see what happened */
 	    if (vis) hit(distant_name(otmp,mshot_xname), mtmp, exclam(damage));
 	    else if (verbose) pline("%s is hit%s", Monnam(mtmp), exclam(damage));
 
-	    if (otmp->opoisoned && is_poisonable(otmp)) {
+	    if (otmp->opoisoned) {
 		if (resists_poison(mtmp)) {
 		    if (vis) pline_The("poison doesn't seem to affect %s.",
 				   mon_nam(mtmp));
 		} else {
 		    if (rn2(150)) {
-			damage += rnd(6);
+			damage += rnd(mtmp->mtame ? 15 : 6);
 		    } else {
 			if (vis) pline_The("poison was deadly...");
 			damage = mtmp->mhp;
 		    }
 		}
 	    }
-	    if (objects[otmp->otyp].oc_material == SILVER &&
+	    if (objects[otmp->otyp].oc_material == MT_SILVER &&
 		    hates_silver(mtmp->data)) {
 		if (vis) pline_The("silver sears %s flesh!",
 				s_suffix(mon_nam(mtmp)));
 		else if (verbose) pline("Its flesh is seared!");
 	    }
-	    if (objects[otmp->otyp].oc_material == VIVA && hates_viva(mtmp->data)) {
+	    if (objects[otmp->otyp].oc_material == MT_VIVA && hates_viva(mtmp->data)) {
 		if (verbose) pline("It is irradiated!");
 	    }
-	    if (objects[otmp->otyp].oc_material == COPPER && hates_copper(mtmp->data)) {
+	    if (objects[otmp->otyp].oc_material == MT_COPPER && hates_copper(mtmp->data)) {
 		if (verbose) pline("It is decomposed!");
 	    }
-	    if (objects[otmp->otyp].oc_material == INKA && hates_inka(mtmp->data)) {
+	    if (objects[otmp->otyp].oc_material == MT_PLATINUM && hates_platinum(mtmp->data)) {
+		if (verbose) pline("It is smashed!");
+	    }
+	    if (otmp->cursed && hates_cursed(mtmp->data)) {
+		if (verbose) pline("It is blasted by darkness!");
+	    }
+	    if (objects[otmp->otyp].oc_material == MT_INKA && hates_inka(mtmp->data)) {
 		if (verbose) pline("It is hurt!");
 	    }
 	    if (otmp->otyp == ODOR_SHOT && hates_odor(mtmp->data)) {
@@ -819,6 +1188,11 @@ m_throw(mon, x, y, dx, dy, range, obj)
 	    /* D: Hellfire is handled in drop_throw */
 	}
 
+	if (mwep && singleobj && ammo_and_launcher(singleobj, mwep) && is_ammo(singleobj) && singleobj->otyp == POISON_BOLT) {
+		singleobj->opoisoned = 1;
+
+	}
+
 	if (singleobj->cursed && (dx || dy) && !rn2(7)) {
 	    if(canseemon(mon) && flags.verbose) {
 		if(is_ammo(singleobj))
@@ -925,10 +1299,10 @@ m_throw(mon, x, y, dx, dy, range, obj)
 					hitv += 8 + singleobj->spe;
 				}
 			    if (dam < 1) dam = 1;
+			    if (mon && mon->data == &mons[PM_UTIMA_DESTROYER_OF_XEREN]) dam += rnd(100);
 			    hitu = thitu(hitv, dam, singleobj, (char *)0);
 		    }
-		    if (hitu && singleobj->opoisoned &&
-			is_poisonable(singleobj)) {
+		    if (hitu && singleobj->opoisoned) {
 			char onmbuf[BUFSZ], knmbuf[BUFSZ];
 
 			strcpy(onmbuf, xname(singleobj));
@@ -959,18 +1333,29 @@ m_throw(mon, x, y, dx, dy, range, obj)
 			    losexp("a sweet ring of faerie floss", TRUE, FALSE);
 		    } /* This ignores level-drain resistance (not a bug). --Amy */
 
-		    if (hitu && singleobj->otyp == COLLUSION_KNIFE) {
+		    if (hitu && singleobj->otyp == COLLUSION_KNIFE && !(Race_if(PM_PLAYER_NIBELUNG) && rn2(5))) {
 				pline("Collusion!");
 				litroomlite(FALSE);
 		    }
+		    if (hitu && singleobj->otyp == DARKNESS_CLUB&& !(Race_if(PM_PLAYER_NIBELUNG) && rn2(5))) {
+				pline("Collusion!");
+				litroomlite(FALSE);
+		    }
+		    if (hitu && singleobj->otyp == YITH_TENTACLE) {
+				increasesanity(rnz(monster_difficulty() + 1));
+		    }
+		    if (hitu && singleobj->otyp == NASTYPOLE && !rn2(10)) {
+				badeffect();
+		    }
 
 		    if (hitu && singleobj->otyp == EGG) {
-			if (!Stone_resistance && !(poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))) {
+			if ((!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && !(poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))) {
 				if (Hallucination && rn2(10)) pline("Thankfully you are already stoned.");
 				else if (Stoned) pline("You are already stoned.");
 				else {
 					You("start turning to stone!");
 					Stoned = Race_if(PM_EROSATOR) ? 3 : 7;
+					u.cnd_stoningcount++;
 					delayed_killer = "thrown petrifying egg";
 				}
 			}
@@ -1065,13 +1450,16 @@ struct monst *mtmp;
 	}
 
 	/* Pick a weapon */
-	otmp = select_rwep(mtmp);
+	otmp = select_rwep(mtmp, FALSE);
 	if (!otmp) return;
 
-	if ((MON_WEP(mtmp) == otmp) && is_pole(otmp)) {
+	if ((MON_WEP(mtmp) == otmp) && is_applypole(otmp)) {
 	    int dam, hitv;
 
 		if (otmp->otyp == NOOB_POLLAX || otmp->otyp == GREAT_POLLAX) polelimit += 5;
+		if (otmp->otyp == YITH_TENTACLE) polelimit += 2;
+		if (otmp->otyp == POLE_LANTERN) polelimit += 10;
+		if (otmp->otyp == NASTYPOLE) polelimit += 8;
 		if (otmp->oartifact == ART_ETHER_PENETRATOR) polelimit += 5;
 		if (otmp->oartifact == ART_FUURKER) polelimit += 6;
 		if (otmp->otyp == WOODEN_BAR) polelimit += 7;
@@ -1116,18 +1504,18 @@ struct monst *mtmp;
 	skill = objects[otmp->otyp].oc_skill;
 	mwep = MON_WEP(mtmp);		/* wielded weapon */
 
-	if (!(ElongationBug || u.uprops[ELONGATION_BUG].extrinsic || have_elongatedstone()) && ammo_and_launcher(otmp, mwep) && objects[mwep->otyp].oc_range &&
+	if (!(elongation_monster(mtmp->data) || ElongationBug || u.uprops[ELONGATION_BUG].extrinsic || have_elongatedstone()) && mwep && ammo_and_launcher(otmp, mwep) && objects[mwep->otyp].oc_range &&
 		dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) >
 		objects[mwep->otyp].oc_range * objects[mwep->otyp].oc_range) 
 		return; /* Out of range */
 
 	/* monsters were throwing darts way across the map, that is, distances of 70+ squares.
 	 * This was obviously not intended; they should just be able to fire sniper rifles at their actual range. --Amy */
-	else if (!(ElongationBug || u.uprops[ELONGATION_BUG].extrinsic || have_elongatedstone()) && !(ammo_and_launcher(otmp, mwep) && objects[mwep->otyp].oc_range) && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > ((BOLT_LIM + strongmonst(mtmp->data) ) * (BOLT_LIM + strongmonst(mtmp->data) )) ) return;
+	else if (!(elongation_monster(mtmp->data) || ElongationBug || u.uprops[ELONGATION_BUG].extrinsic || have_elongatedstone()) && !(mwep && ammo_and_launcher(otmp, mwep) && objects[mwep->otyp].oc_range) && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > ((BOLT_LIM + strongmonst(mtmp->data) ) * (BOLT_LIM + strongmonst(mtmp->data) )) ) return;
 
 	/* Multishot calculations */
 	multishot = 1;
-	if ((ammo_and_launcher(otmp, mwep) || skill == P_DAGGER || skill == P_KNIFE || skill == P_BOOMERANG || skill == -P_BOOMERANG ||
+	if (((mwep && ammo_and_launcher(otmp, mwep)) || skill == P_DAGGER || skill == P_KNIFE || skill == P_BOOMERANG || skill == -P_BOOMERANG ||
 		skill == -P_DART || skill == -P_SHURIKEN || skill == P_SPEAR || skill == P_JAVELIN) && !mtmp->mconf) {
 	    /* Assumes lords are skilled, princes are expert */
 	    if (is_prince(mtmp->data)) multishot += 2;
@@ -1164,6 +1552,7 @@ struct monst *mtmp;
 	    if (mwep && mwep->otyp == CATAPULT) multishot += rnd(5);
 
 	    if (mwep && mwep->otyp == HYDRA_BOW) multishot += 2;
+	    if (mwep && mwep->otyp == DEMON_CROSSBOW) multishot += 4;
 	    if (mwep && mwep->otyp == WILDHILD_BOW) multishot += 2;
 
 	    /* 1/3 of object enchantment */
@@ -1176,6 +1565,10 @@ struct monst *mtmp;
 		multishot += objects[mwep->otyp].oc_rof;
 
 	    switch (monsndx(mtmp->data)) {
+	    case PM_SPARD:
+	    case PM_IBERIAN_SOLDIER:
+		    multishot += 3;
+		    break;
 	    case PM_RANGER:
 	    case PM_ROCKER:
 	    case PM_GATLING_ARCHER:
@@ -1185,8 +1578,12 @@ struct monst *mtmp;
 	    case PM_ECM_ARCHER:
 	    case PM_SHOTGUN_HORROR:
 	    case PM_SHOTGUN_TERROR:
+	    case PM_KOBOLD_PEPPERMASTER:
 		    multishot++;
 		    multishot++;
+		    break;
+	    case PM_BRA_GIANT:
+		    multishot += 5;
 		    break;
 	    case PM_ELPH:
 		    multishot++;
@@ -1194,6 +1591,9 @@ struct monst *mtmp;
 		    break;
 	    case PM_ROGUE:
 		    if (skill == P_DAGGER) multishot++;
+		    break;
+	    case PM_TOSSER:
+		    if (skill == P_JAVELIN) multishot++;
 		    break;
 	    case PM_NINJA:
 	    case PM_NINJA_GAIDEN:
@@ -1213,6 +1613,9 @@ struct monst *mtmp;
 		    mwep && mwep->otyp == ORCISH_BOW))
 		multishot++;
 
+		/* weaker monsters shouldn't spam you with thousands of arrows --Amy */
+		if (!rn2(2) && !strongmonst(mtmp->data) && !extra_nasty(mtmp->data) && !(mtmp->data->geno & G_UNIQ) && multishot > 1) multishot -= rnd(multishot / 2);
+
 	    if ((long)multishot > otmp->quan) multishot = (int)otmp->quan;
 	    if (multishot < 1) multishot = 1;
 	    /* else multishot = rnd(multishot); */
@@ -1231,7 +1634,7 @@ struct monst *mtmp;
 		onm = singular(otmp, xname);
 		onm = obj_is_pname(otmp) ? the(onm) : an(onm);
 	    }
-	    m_shot.s = ammo_and_launcher(otmp,mwep) ? TRUE : FALSE;
+	    m_shot.s = (mwep && ammo_and_launcher(otmp,mwep)) ? TRUE : FALSE;
 	    pline("%s %s %s!", Monnam(mtmp),
 		  m_shot.s ? is_bullet(otmp) ? "fires" : "shoots" : "throws",
 		  onm);
@@ -1271,26 +1674,26 @@ register struct attack *mattk;
 	}
 	if(lined_up(mtmp)) {
 		if (issegfaulter && rn2(10)) {
-			otmp = mksobj(SEGFAULT_VENOM, TRUE, FALSE);
+			otmp = mksobj(SEGFAULT_VENOM, TRUE, FALSE, FALSE);
 		} else switch (mattk->adtyp) {
 		    case AD_BLND:
 		    case AD_DRST:
-			otmp = mksobj(BLINDING_VENOM, TRUE, FALSE);
+			otmp = mksobj(BLINDING_VENOM, TRUE, FALSE, FALSE);
 			break;
 		    case AD_DRLI:
-			otmp = mksobj(FAERIE_FLOSS_RHING, TRUE, FALSE);
+			otmp = mksobj(FAERIE_FLOSS_RHING, TRUE, FALSE, FALSE);
 			break;
 		    case AD_NAST:
-			otmp = mksobj(SEGFAULT_VENOM, TRUE, FALSE);
+			otmp = mksobj(SEGFAULT_VENOM, TRUE, FALSE, FALSE);
 			break;
 		    case AD_TCKL:
-			otmp = mksobj(TAIL_SPIKES, TRUE, FALSE);
+			otmp = mksobj(TAIL_SPIKES, TRUE, FALSE, FALSE);
 			break;
 		    default:
 			pline("bad attack type in spitmu");
 				/* fall through */
 		    case AD_ACID:
-			otmp = mksobj(ACID_VENOM, TRUE, FALSE);
+			otmp = mksobj(ACID_VENOM, TRUE, FALSE, FALSE);
 			break;
 		}
 		if (!otmp) return 0;
@@ -1379,7 +1782,7 @@ breamu(mtmp, mattk)			/* monster breathes at you (ranged) */
 
 		    if(canseemon(mtmp))
 			pline("%s breathes %s!", Monnam(mtmp),
-			      Hallucination ? hallubreathwep[rn2(SIZE(hallubreathwep))] : breathwep[typ-1]);
+			      FunnyHallu ? hallubreathwep[rn2(SIZE(hallubreathwep))] : breathwep[typ-1]);
 		    else if (flags.soundok && !issoviet) {
 				if (isangbander) pline("It breathes.");
 				else You_hear("an exhaling sound.");
@@ -1416,7 +1819,7 @@ xchar ax, ay;
 	if((typ >= AD_MAGM) && (typ <= AD_SPC2)) {
 		if(canseemon(mtmp))
 			pline("%s breathes %s!", Monnam(mtmp),
-				Hallucination ? hallubreathwep[rn2(SIZE(hallubreathwep))] : breathwep[typ-1]);
+				FunnyHallu ? hallubreathwep[rn2(SIZE(hallubreathwep))] : breathwep[typ-1]);
 		if (flags.moreforced && !MessagesSuppressed) display_nhwindow(WIN_MESSAGE, TRUE);    /* --More-- */
 		/* Do the door first - monster is ON TOP so call direct */
 		zap_over_floor(mtmp->mx, mtmp->my, (int) (-20 - (typ-1)), NULL);
@@ -1432,9 +1835,11 @@ xchar ax, ay;
 
 
 boolean
-linedup(ax, ay, bx, by)
+linedup(ax, ay, bx, by, special)
 register xchar ax, ay, bx, by;
+boolean special; /* for monsters that can shoot from infinite distance --Amy */
 {
+	int dx, dy;
 	tbx = ax - bx;	/* These two values are set for use */
 	tby = ay - by;	/* after successful return.	    */
 
@@ -1442,11 +1847,28 @@ register xchar ax, ay, bx, by;
 	   own location; prevent it from throwing and zapping in that case */
 	if (!tbx && !tby) return FALSE;
 
-	if((!tbx || !tby || abs(tbx) == abs(tby)) /* straight line or diagonal */
-	   && distmin(tbx, tby, 0, 0) < ((ElongationBug || u.uprops[ELONGATION_BUG].extrinsic || have_elongatedstone()) ? 100 : EnglandMode ? 10 : BOLT_LIM)) {
+    if ((!tbx || !tby || abs(tbx) == abs(tby)) /* straight line or diagonal */
+        && distmin(tbx, tby, 0, 0) < ((special || ElongationBug || u.uprops[ELONGATION_BUG].extrinsic || have_elongatedstone()) ? 100 : EnglandMode ? 10 : BOLT_LIM) ) {
+        if ((ax == u.ux && ay == u.uy) ? (boolean) couldsee(bx, by) : clear_path(ax, ay, bx, by))
+            return TRUE;
+        /* don't have line of sight, but might still be lined up
+           if that lack of sight is due solely to boulders */
+        dx = sgn(ax - bx), dy = sgn(ay - by);
+        do {
+            /* <bx,by> is guaranteed to eventually converge with <ax,ay> */
+            bx += dx, by += dy;
+            if (IS_ROCK(levl[bx][by].typ) || closed_door(bx, by))
+                return FALSE;
+        } while (bx != ax || by != ay);
+        /* reached target position without encountering obstacle */
+            return TRUE;
+    }
+
+	/*if((!tbx || !tby || abs(tbx) == abs(tby))*/ /* straight line or diagonal */
+	/*   && distmin(tbx, tby, 0, 0) < ((ElongationBug || u.uprops[ELONGATION_BUG].extrinsic || have_elongatedstone()) ? 100 : EnglandMode ? 10 : BOLT_LIM)) {
 	    if(ax == u.ux && ay == u.uy) return((boolean)(couldsee(bx,by)));
 	    else if(clear_path(ax,ay,bx,by)) return TRUE;
-	}
+	}*/
 	return FALSE;
 }
 
@@ -1454,6 +1876,7 @@ boolean
 linedupB(ax, ay, bx, by) /* without the distance check --Amy */
 register xchar ax, ay, bx, by;
 {
+	int dx, dy;
 	tbx = ax - bx;	/* These two values are set for use */
 	tby = ay - by;	/* after successful return.	    */
 
@@ -1461,11 +1884,28 @@ register xchar ax, ay, bx, by;
 	   own location; prevent it from throwing and zapping in that case */
 	if (!tbx && !tby) return FALSE;
 
-	if((!tbx || !tby || abs(tbx) == abs(tby))) /* straight line or diagonal */
-	{
+    if ((!tbx || !tby || abs(tbx) == abs(tby)) /* straight line or diagonal */
+        ) {
+        if ((ax == u.ux && ay == u.uy) ? (boolean) couldsee(bx, by) : clear_path(ax, ay, bx, by))
+            return TRUE;
+        /* don't have line of sight, but might still be lined up
+           if that lack of sight is due solely to boulders */
+        dx = sgn(ax - bx), dy = sgn(ay - by);
+        do {
+            /* <bx,by> is guaranteed to eventually converge with <ax,ay> */
+            bx += dx, by += dy;
+            if (IS_ROCK(levl[bx][by].typ) || closed_door(bx, by))
+                return FALSE;
+        } while (bx != ax || by != ay);
+        /* reached target position without encountering obstacle */
+            return TRUE;
+    }
+
+	/*if((!tbx || !tby || abs(tbx) == abs(tby)))*/ /* straight line or diagonal */
+	/*{
 	    if(ax == u.ux && ay == u.uy) return((boolean)(couldsee(bx,by)));
 	    else if(clear_path(ax,ay,bx,by)) return TRUE;
-	}
+	}*/
 	return FALSE;
 }
 
@@ -1473,7 +1913,7 @@ boolean
 lined_up(mtmp)		/* is mtmp in position to use ranged attack? */
 	register struct monst *mtmp;
 {
-	return(linedup(mtmp->mux,mtmp->muy,mtmp->mx,mtmp->my));
+	return(linedup(mtmp->mux,mtmp->muy,mtmp->mx,mtmp->my, (elongation_monster(mtmp->data)) ));
 }
 
 boolean
@@ -1581,8 +2021,8 @@ int whodidit;	/* 1==hero, 0=other, -1==just check whether it'll pass thru */
 	else if (obj_type == BOULDER || obj_type == HEAVY_IRON_BALL)
 	    pline("Whang!");
 	else if (otmp->oclass == COIN_CLASS ||
-		objects[obj_type].oc_material == GOLD ||
-		objects[obj_type].oc_material == SILVER)
+		objects[obj_type].oc_material == MT_GOLD ||
+		objects[obj_type].oc_material == MT_SILVER)
 	    pline("Clink!");
 	else
 	    pline("Clonk!");
@@ -1590,6 +2030,98 @@ int whodidit;	/* 1==hero, 0=other, -1==just check whether it'll pass thru */
 
     return hits;
 }
+
+/* Find a target for a ranged attack. From dnethack (thanks Chris_ANG). Here in SLEX, it's meant to be specifically for
+ * hostile monsters attacking your pets at range. */
+struct monst *
+mfind_target(mtmp, force_linedup)
+struct monst *mtmp;
+boolean force_linedup;
+{
+	int dir, origdir = -1;
+	int x, y, dx, dy, tbx, tby;
+
+	int i;
+
+	struct monst *mat, *mret = (struct monst *)0, *oldmret = (struct monst *)0;
+	struct monst *mtmp2;
+
+	if (mtmp->mpeaceful || mtmp->mtame) return 0;
+
+	struct obj *mrwep = select_rwep(mtmp, TRUE); /* may use polearm even when far from the player --Amy */
+
+	for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
+		if(mtmp == mtmp2) continue;
+		if (mtmp2 && u.usteed && mtmp2 == u.usteed) continue; /* steeds are fragile enough already... --Amy */
+		if (mtmp2->mtame && (mlined_up(mtmp, mtmp2, FALSE) || attacktype(mtmp->data, AT_GAZE) || attacktype(mtmp->data, AT_WEAP)) &&
+		((attacktype(mtmp->data, AT_GAZE) && !mtmp->mcan)
+		|| (attacktype(mtmp->data, AT_MAGC) && !mtmp->mcan && distmin(mtmp2->mx,mtmp2->my,mtmp->mx,mtmp->my) < BOLT_LIM)
+		|| (attacktype(mtmp->data, AT_WEAP) && mrwep && distmin(mtmp2->mx,mtmp2->my,mtmp->mx,mtmp->my) < BOLT_LIM)
+		|| (attacktype(mtmp->data, AT_BREA) && !mtmp->mcan && distmin(mtmp2->mx,mtmp2->my,mtmp->mx,mtmp->my) < BOLT_LIM)
+		|| (attacktype(mtmp->data, AT_BEAM) && distmin(mtmp2->mx,mtmp2->my,mtmp->mx,mtmp->my) < BOLT_LIM)
+		|| (attacktype(mtmp->data, AT_SPIT) && !mtmp->mcan && distmin(mtmp2->mx,mtmp2->my,mtmp->mx,mtmp->my) < BOLT_LIM)) )
+		{
+			if (!mret) {
+				if ((!rn2((mtmp2->m_lev > 40) ? 3 : (mtmp2->m_lev > 30) ? 5 : (mtmp2->m_lev > 20) ? 10 : 20) && !(u.usteed && mtmp2 == u.usteed && !rn2(10)) && (!rn2(5) || mtmp2->mcanmove) && (!rn2(5) || (mtmp2->mhpmax > 5 && mtmp2->mhp > (mtmp2->mhpmax / 5) )) && (mtmp2->m_lev > rn2(6)) && ((mtmp->m_lev - mtmp2->m_lev) < (2 + rn2(5)) ) ) || attacktype(mtmp2->data, AT_EXPL) || mtmp->mfrenzied) mret = mtmp2;
+			}
+		}
+	}
+
+	if (mret != (struct monst *)0) {
+
+		if(!mlined_up(mtmp, mret, FALSE) && !attacktype(mtmp->data, AT_GAZE) && !attacktype(mtmp->data, AT_WEAP)) {
+			tbx = tby = 0;
+		} else return mret;
+	}
+
+	/* Nothing lined up? */
+	tbx = tby = 0;
+	return (struct monst *)0;
+}
+
+boolean
+mlined_up(mtmp, mdef, breath)	/* From dnethack: is mtmp in position to use ranged attack? */
+	register struct monst *mtmp;
+	register struct monst *mdef;
+	register boolean breath;
+{
+	struct monst *mat;
+
+	boolean lined_up = linedup(mdef->mx,mdef->my,mtmp->mx,mtmp->my, FALSE);
+
+	int dx = sgn(mdef->mx - mtmp->mx),
+	    dy = sgn(mdef->my - mtmp->my);
+
+	int x = mtmp->mx, y = mtmp->my;
+
+	int i = 10; /* arbitrary */
+
+        /* No special checks if confused - can't tell friend from foe */
+	if (!lined_up || mtmp->mconf || !mtmp->mtame) return lined_up;
+
+        /* Check for friendlies in the line of fire. */
+	for (; !breath || i > 0; --i)
+	{
+	    x += dx;
+	    y += dy;
+	    if (!isok(x, y)) break;
+		
+            if (x == u.ux && y == u.uy) 
+	        return FALSE;
+
+	    mat = m_at(x, y);
+	    if (mat)
+	    {
+	        if (!breath && mat == mdef) return lined_up;
+
+		/* Don't hit friendlies - since this is used by hostile monsters, other hostile monsters == friendly */
+		if (!mat->mtame && !mat->mpeaceful) return FALSE;
+	    }
+	}
+
+	return lined_up;
+}
+
 
 #endif /* OVL0 */
 

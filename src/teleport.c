@@ -67,12 +67,12 @@ unsigned gpflags;
 
 		if ((mtmp == &youmonst) && (Flying || Levitation) && crystalpool) return -1;
 
-	    if (pool && !ignorewater && !(crystalornot && (Flying || Levitation || Wwalking) ) ) {
+	    if (pool && !ignorewater && !(crystalornot && (Flying || Levitation || Wwalking || Race_if(PM_KORONST)) ) ) {
 
 		if (mtmp == &youmonst)
-			return (HLevitation || Flying || Wwalking ||
+			return (HLevitation || Flying || Wwalking || Race_if(PM_KORONST) ||
 				    Swimming || Amphibious) ? is_badpos : -1;
-		else	return (is_flyer(mdat) /*|| mtmp->egotype_flying*/ || is_swimmer(mdat) ||
+		else	return (is_flyer(mdat) || is_swimmer(mdat) ||
 				    is_clinger(mdat)) ? is_badpos : -1;
 		/* note by Amy: the egotype check causes eternal phantom bugs in this function. According to FIQ, mtmp is
 		 * never initialized correctly due to being a filler monster, instead of the actual one teleported. */
@@ -81,14 +81,16 @@ unsigned gpflags;
 		if (mtmp == &youmonst)
 		    return HLevitation ? is_badpos : -1;
 		else
-		    return (is_flyer(mdat) /*|| mtmp->egotype_flying*/ || likes_lava(mdat)) ?
+		    return (is_flyer(mdat) || likes_lava(mdat)) ?
 			    is_badpos : -1;
 	    }
 	    if (passes_walls(mdat) && may_passwall(x,y)) return is_badpos;
-	    /*if ( (mtmp != &youmonst) && mtmp->egotype_wallwalk && may_passwall(x,y)) return is_badpos;*/
+	    if (u.roommatehack) {
+			return is_badpos;
+	    }
 	}
 	if (!ACCESSIBLE(levl[x][y].typ) ) {
-		if (!(is_waterypool(x,y) && (ignorewater || crystalornot))) return -1;
+		if (!(is_waterypool(x,y) && !u.roommatehack && (ignorewater || crystalornot))) return -1;
 	}
 
 	if (closed_door(x, y) && (!mdat || !amorphous(mdat)))
@@ -495,7 +497,7 @@ boolean trapok;
 
 	/* In Soviet Russia, water is considered safe as long as you can swim, because hehehe. --Amy */
 
-	if (is_waterypool(x, y) && !(HLevitation || Flying || Wwalking || (issoviet && (Swimming || Amphibious) ) )) return FALSE;
+	if (is_waterypool(x, y) && !(HLevitation || Flying || Wwalking || Race_if(PM_KORONST) || (issoviet && (Swimming || Amphibious) ) )) return FALSE;
 	if (is_watertunnel(x,y) && (Levitation || Flying) && !Passes_walls) return FALSE;
 	if (is_watertunnel(x,y) && !(Levitation || Flying || (issoviet && (Swimming || Amphibious) ))) return FALSE;
 
@@ -514,7 +516,7 @@ boolean trapok;
 	if (!trapok && t_at(x, y)) return FALSE;
 	if (!goodpos(x, y, &youmonst, 0)) return FALSE;
 
-	if (is_waterypool(x, y) && !(HLevitation || Flying || Wwalking)) return FALSE;
+	if (is_waterypool(x, y) && !(HLevitation || Flying || Wwalking || Race_if(PM_KORONST))) return FALSE;
 	if (is_watertunnel(x,y) && (Levitation || Flying) && !Passes_walls) return FALSE;
 	if (is_watertunnel(x,y) && !(Levitation || Flying)) return FALSE;
 
@@ -536,7 +538,7 @@ boolean trapok;
 	if (!trapok && t_at(x, y)) return FALSE;
 	if (!goodpos(x, y, &youmonst, 0)) return FALSE;
 
-	if (is_waterypool(x, y) && !(HLevitation || Flying || Wwalking)) return FALSE;
+	if (is_waterypool(x, y) && !(HLevitation || Flying || Wwalking || Race_if(PM_KORONST))) return FALSE;
 	if (is_watertunnel(x,y) && (Levitation || Flying) && !Passes_walls) return FALSE;
 	if (is_watertunnel(x,y) && !(Levitation || Flying)) return FALSE;
 
@@ -590,7 +592,7 @@ boolean allow_drag;
 	u.ux0 = u.ux;
 	u.uy0 = u.uy;
 
-	if (hides_under(youmonst.data) || (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "secret helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "sekret shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "yashirin dubulg'a") ) ) || (uarmc && uarmc->oartifact == ART_JANA_S_EXTREME_HIDE_AND_SE))
+	if (hides_under(youmonst.data) || (uarmh && itemhasappearance(uarmh, APP_SECRET_HELMET) ) || (uarmc && uarmc->oartifact == ART_JANA_S_EXTREME_HIDE_AND_SE))
 		u.uundetected = OBJ_AT(nux, nuy);
 	else if (is_wagon(nux, nuy))
 	    u.uundetected = TRUE;
@@ -703,6 +705,24 @@ boolean confused;
 	}
 }
 
+boolean
+safe_teledsNOTRAP(allow_drag)
+boolean allow_drag;
+{
+	register int nux, nuy, tcnt = 0;
+
+	do {
+		nux = rnd(COLNO-1);
+		nuy = rn2(ROWNO);
+	} while ((!teleok(nux, nuy, (boolean)(tcnt > 200)) || (t_at(nux, nuy)) ) && ++tcnt <= 400);
+
+	if (tcnt <= 400) {
+		teleds(nux, nuy, allow_drag);
+		return TRUE;
+	} else
+		return FALSE;
+}
+
 STATIC_OVL void
 vault_tele()
 {
@@ -751,7 +771,7 @@ tele()
 	coord cc;
 
 	/* Disable teleportation in stronghold && Vlad's Tower */
-	if (level.flags.noteleport && !Race_if(PM_RODNEYAN) ) {
+	if ((level.flags.noteleport || u.antitelespelltimeout) && !Race_if(PM_RODNEYAN) ) {
 #ifdef WIZARD
 		if (!wizard) {
 #endif
@@ -769,7 +789,7 @@ tele()
 #ifdef WIZARD
         (
 #endif
-        ((u.uhave.amulet && (u.amuletcompletelyimbued || !rn2(3))) || CannotTeleport || On_W_tower_level(&u.uz)
+        ((u.uhave.amulet && !u.freeplaymode && (u.amuletcompletelyimbued || !rn2(3))) || CannotTeleport || On_W_tower_level(&u.uz)
 	|| (u.usteed && mon_has_amulet(u.usteed))
 	)
 #ifdef WIZARD
@@ -779,7 +799,7 @@ tele()
 	    You_feel("disoriented for a moment.");
 	    return;
 	}
-	if ((Teleport_control && !Stunned && rn2(20)) /* low chance for tele control to fail --Amy */
+	if ((Teleport_control && !Stunned && (!level.flags.has_insideroom || !rn2(5)) && rn2(StrongTeleport_control ? 20 : 4)) /* low chance for tele control to fail --Amy */
 #ifdef WIZARD
 			    || (wizard && yn_function("Invoke wizard-mode teleport control?", ynchars, 'y') == 'y')
 #endif
@@ -796,7 +816,11 @@ tele()
 			return;	/* abort */
 		    /* possible extensions: introduce a small error if
 		       magic power is low; allow transfer to solid rock */
-		    if (teleok(cc.x, cc.y, FALSE)) {
+
+		    /* Amy edit: teleporting on a trap will trigger it, instead of being invalid. I've specifically made it
+		     * so that weird-looking rooms make teleport control likely to fail, but if you spam-spam-spam Ctrl-T to
+		     * skip past that and teleport on the pentagram anyway, and there's a trap on it, well... :P */
+		    if (teleok(cc.x, cc.y, TRUE)) {
 			teleds(cc.x, cc.y, FALSE);
 			return;
 		    }
@@ -804,6 +828,7 @@ tele()
 		}
 	}
 
+	u.cnd_teleportcount++;
 	(void) safe_teleds(FALSE);
 }
 
@@ -811,7 +836,7 @@ void
 teleX()
 {
 	/* Disable teleportation in stronghold && Vlad's Tower */
-	if (level.flags.noteleport && !Race_if(PM_RODNEYAN) ) {
+	if ((level.flags.noteleport || u.antitelespelltimeout) && !Race_if(PM_RODNEYAN) ) {
 		    pline("A mysterious force prevents you from teleporting!");
 		    return;
 	}
@@ -820,13 +845,14 @@ teleX()
 	if (!Blinded) make_blinded(0L,FALSE);
 
 	if
-        ((u.uhave.amulet && (u.amuletcompletelyimbued || !rn2(3))) || CannotTeleport || On_W_tower_level(&u.uz)
+        ((u.uhave.amulet && !u.freeplaymode && (u.amuletcompletelyimbued || !rn2(3))) || CannotTeleport || On_W_tower_level(&u.uz)
 	|| (u.usteed && mon_has_amulet(u.usteed))
 	)
 	{
 	    You_feel("disoriented for a moment.");
 	    return;
 	}
+	u.cnd_teleportcount++;
 	(void) safe_teleds(FALSE);
 }
 
@@ -835,13 +861,13 @@ phase_door(confused)
 boolean confused;
 {
 	/* Disable teleportation in stronghold && Vlad's Tower */
-	if (level.flags.noteleport && !Race_if(PM_RODNEYAN) ) {
+	if ((level.flags.noteleport || u.antitelespelltimeout) && !Race_if(PM_RODNEYAN) ) {
 		    pline("A mysterious force prevents you from phasing!");
 		    return;
 	}
 
 	if
-        ((u.uhave.amulet && (u.amuletcompletelyimbued || !rn2(3))) || CannotTeleport || On_W_tower_level(&u.uz)
+        ((u.uhave.amulet && !u.freeplaymode && (u.amuletcompletelyimbued || !rn2(3))) || CannotTeleport || On_W_tower_level(&u.uz)
 	|| (u.usteed && mon_has_amulet(u.usteed))
 	)
 	{
@@ -851,6 +877,7 @@ boolean confused;
 #ifdef PUBLIC_SERVER
 	pline("Your body is transported to another location!"); /* for debug purposes --Amy */
 #endif
+	u.cnd_phasedoorcount++;
 	(void) safe_teledsPD(confused);
 }
 
@@ -916,7 +943,7 @@ dotele()
 	    }
 
 	    energy = objects[SPE_TELEPORT_AWAY].oc_level * 5;
-		if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_KATRIN_S_SUDDEN_APPEARANCE) energy /= 2;
+		if (powerfulimplants() && uimplant && uimplant->oartifact == ART_KATRIN_S_SUDDEN_APPEARANCE) energy /= 2;
 		if (uarmh && uarmh->oartifact == ART_TRIP_TERRAIN) energy /= 3;
 	    if (u.uen < energy) {
 #ifdef WIZARD
@@ -970,15 +997,16 @@ level_tele()
 	const char *escape_by_flying = 0;	/* when surviving dest of -N */
 	char buf[BUFSZ];
 	boolean force_dest = FALSE;
+	if (iflags.debug_fuzzer) goto random_levtport;
 
-	if ((u.uhave.amulet || CannotTeleport || In_endgame(&u.uz) || In_sokoban(&u.uz) || (Role_if(PM_CAMPERSTRIKER) && In_quest(&u.uz)) || (u.usteed && mon_has_amulet(u.usteed)) )
+	if (((u.uhave.amulet && !u.freeplaymode) || CannotTeleport || In_endgame(&u.uz) || In_sokoban_real(&u.uz) || (Role_if(PM_CAMPERSTRIKER) && In_quest(&u.uz)) || (u.usteed && mon_has_amulet(u.usteed)) )
 #ifdef WIZARD
 						&& !wizard
 #endif
 							) {
 	    You_feel("very disoriented for a moment.");
 
-		if (uarmh && OBJ_DESCR(objects[uarmh->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "weeping helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "placha shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "yig'lab dubulg'a") ) ) {
+		if (uarmh && itemhasappearance(uarmh, APP_WEEPING_HELMET) ) {
 			pline("Your helmet does not like the idea of blocked level teleportation!");
 			losexp("weeping helmet", TRUE, FALSE);
 		    /* This ignores level-drain resistance (not a bug). --Amy */
@@ -995,7 +1023,7 @@ level_tele()
 	    return;
 	}
 	/* Skipping the quest via teleport control is lame. --Amy */
-	if ((Teleport_control && !(In_quest(&u.uz)) && !Stunned && rn2(10)) /* Teleport control might not always work. --Amy */
+	if ((Teleport_control && !(In_quest(&u.uz)) && !Stunned && (!level.flags.has_insideroom || !rn2(5)) && rn2(StrongTeleport_control ? 10 : 3)) /* Teleport control might not always work. --Amy */
 #ifdef WIZARD
 	   || (wizard && yn_function("Invoke wizard-mode teleport control?", ynchars, 'y') == 'y')
 #endif
@@ -1038,8 +1066,7 @@ level_tele()
 				    "Destination is earth level");
 				if (!u.uhave.amulet) {
 					struct obj *obj;
-					obj = mksobj(AMULET_OF_YENDOR,
-							TRUE, FALSE);
+					obj = mksobj(AMULET_OF_YENDOR, TRUE, FALSE, FALSE);
 					if (obj) {
 						obj = addinv(obj);
 						strcat(buf, " with the amulet");
@@ -1142,6 +1169,8 @@ level_tele()
 	}
 #endif
 	killer = 0;		/* still alive, so far... */
+
+	if (iflags.debug_fuzzer && newlev < 0) goto random_levtport;
 
 	if (newlev < 0 && !force_dest) {
 		if (*u.ushops0) {
@@ -1251,6 +1280,8 @@ level_tele()
 #endif
 	    get_level(&newlevel, newlev);
 	}
+	u.cnd_telelevelcount++;
+
 	schedule_goto(&newlevel, FALSE, FALSE, 0, (char *)0, (char *)0);
 	/* in case player just read a scroll and is about to be asked to
 	   call it something, we can't defer until the end of the turn */
@@ -1280,17 +1311,18 @@ register struct trap *ttmp;
 	 * the endgame, from accidently triggering the portal to the
 	 * next level, and thus losing the game
 	 */
-	if (In_endgame(&u.uz) && !u.uhave.amulet) {
+	if (In_endgame(&u.uz) && !u.uhave.amulet && !u.freeplaymode) {
 	    You_feel("dizzy for a moment, but nothing happens...");
 	    return;
 	}
 
 	target_level = ttmp->dst;
 
-	if (In_endgame(&u.uz) && Punished && Is_firelevel(&u.uz) ) {
+	/* a slashem bug: it always panics if you're punished on water... should be fixed now --Amy */
+	/*if (In_endgame(&u.uz) && Punished && Is_firelevel(&u.uz) ) {
 	    You_feel("the iron ball preventing you from proceeding...");
 	    return;
-	}
+	}*/
 
 	schedule_goto(&target_level, FALSE, FALSE, 1,
 		      "You feel dizzy for a moment, but the sensation passes.",
@@ -1372,7 +1404,7 @@ struct trap *trap;
 	    You("are momentarily disoriented.");
 	deltrap(trap);
 	newsym(u.ux,u.uy);	/* get rid of trap symbol */
-      if (!flags.lostsoul && !flags.uberlostsoul && !(flags.wonderland && !(u.wonderlandescape)) && !(u.uprops[STORM_HELM].extrinsic) && !(In_bellcaves(&u.uz)) && !(In_subquest(&u.uz)) && !(In_voiddungeon(&u.uz)) && !(In_netherrealm(&u.uz))) level_tele();
+      if (!flags.lostsoul && !flags.uberlostsoul && !(flags.wonderland && !(u.wonderlandescape)) && !(iszapem && !(u.zapemescape)) && !(u.uprops[STORM_HELM].extrinsic) && !(In_bellcaves(&u.uz)) && !(In_subquest(&u.uz)) && !(In_voiddungeon(&u.uz)) && !(In_netherrealm(&u.uz))) level_tele();
 	else pline("The trap doesn't seem to have any effect on you.");
 }
 
@@ -1395,7 +1427,7 @@ struct trap *trap;
 	    You("are momentarily disoriented.");
 	deltrap(trap);
 	newsym(u.ux,u.uy);	/* get rid of trap symbol */
-      if (!flags.lostsoul && !flags.uberlostsoul && !(flags.wonderland && !(u.wonderlandescape)) && !(u.uprops[STORM_HELM].extrinsic) && !(In_bellcaves(&u.uz)) && !(In_subquest(&u.uz)) && !(In_voiddungeon(&u.uz)) && !(In_netherrealm(&u.uz))) level_tele();
+      if (!flags.lostsoul && !flags.uberlostsoul && !(flags.wonderland && !(u.wonderlandescape)) && !(iszapem && !(u.zapemescape)) && !(u.uprops[STORM_HELM].extrinsic) && !(In_bellcaves(&u.uz)) && !(In_subquest(&u.uz)) && !(In_voiddungeon(&u.uz)) && !(In_netherrealm(&u.uz))) level_tele();
 	else pline("The trap doesn't seem to have any effect on you.");
 }
 
@@ -1567,7 +1599,7 @@ boolean
 tele_restrict(mon)
 struct monst *mon;
 {
-	if (level.flags.noteleport) {
+	if (level.flags.noteleport || u.antitelespelltimeout) {
 		if (canseemon(mon))
 		    pline("A mysterious force prevents %s from teleporting!",
 			mon_nam(mon));
@@ -1841,7 +1873,7 @@ boolean give_feedback;
 {
 	coord cc;
 
-	if (evilfriday && level.flags.noteleport) {
+	if (evilfriday && (level.flags.noteleport || u.antitelespelltimeout)) {
 	    if (give_feedback)
 		pline("Ha ha ha, the wand destruction patch made it so that your wand of teleportation does jack diddly on a no-teleport level. You just wasted a charge, sucker!");
 		return FALSE;
@@ -1849,7 +1881,7 @@ boolean give_feedback;
 	    if (give_feedback)
 		pline("%s resists your magic!", Monnam(mtmp));
 	    return FALSE;
-	} else if (level.flags.noteleport && u.uswallow && mtmp == u.ustuck) {
+	} else if ((level.flags.noteleport || u.antitelespelltimeout) && u.uswallow && mtmp == u.ustuck) {
 	    if (give_feedback)
 		You("are no longer inside %s!", mon_nam(mtmp));
 	    unstuck(mtmp);
@@ -1903,28 +1935,30 @@ boolean give_feedback;
 			d_level flev;
 
 			if (mon_has_amulet(mtmp) || In_endgame(&u.uz)) {
-			   pline("%s seems very disoriented for a moment.", Monnam(mtmp));
-			    return 2;
+				if (give_feedback) pline("%s seems very disoriented for a moment.", Monnam(mtmp));
+				return 2;
 			}
 			nlev = random_banish_level();
 			if (nlev == depth(&u.uz)) {
-			    pline("%s shudders for a moment.", Monnam(mtmp));
-			    return 2;
+				if (give_feedback) pline("%s shudders for a moment.", Monnam(mtmp));
+				return 2;
 			}
 			get_level(&flev, nlev);
-			migrate_to_level(mtmp, ledger_no(&flev), MIGR_RANDOM,
-				(coord *)0);
+			migrate_to_level(mtmp, ledger_no(&flev), MIGR_RANDOM, (coord *)0);
 
 	return TRUE;
 }
 
-/* A function that pushes the player around, mainly to be used by ranged attackers so they can get a shot. --Amy */
+/* A function that pushes the player around, mainly to be used by ranged attackers so they can get a shot. --Amy
+ * "allowtrap" should be FALSE if it's the result of a monster attack, because otherwise we could get segfaults
+ * and bus errors when the trap moves you off the level before the monster's attack routine is finished! */
 void
-pushplayer()
+pushplayer(allowtrap)
+boolean allowtrap;
 {
 		coord ccc;
 		int direction, pushwidth, trycnt;
-	    register struct obj *otmp;
+		register struct obj *otmp;
 		trycnt = 0;
 
 newtry:
@@ -1952,7 +1986,7 @@ newtry:
 		}
 
 		if ((levl[ccc.x][ccc.y].typ != ROOM && levl[ccc.x][ccc.y].typ != AIR && levl[ccc.x][ccc.y].typ != STAIRS && levl[ccc.x][ccc.y].typ != LADDER && levl[ccc.x][ccc.y].typ != FOUNTAIN && levl[ccc.x][ccc.y].typ != THRONE && levl[ccc.x][ccc.y].typ != SINK && levl[ccc.x][ccc.y].typ != TOILET && levl[ccc.x][ccc.y].typ != GRAVE && levl[ccc.x][ccc.y].typ != ALTAR && levl[ccc.x][ccc.y].typ != ICE && levl[ccc.x][ccc.y].typ != CLOUD && levl[ccc.x][ccc.y].typ != SNOW && levl[ccc.x][ccc.y].typ != ASH && levl[ccc.x][ccc.y].typ != SAND && levl[ccc.x][ccc.y].typ != PAVEDFLOOR && levl[ccc.x][ccc.y].typ != HIGHWAY && levl[ccc.x][ccc.y].typ != GRASSLAND && levl[ccc.x][ccc.y].typ != NETHERMIST && levl[ccc.x][ccc.y].typ != STALACTITE && levl[ccc.x][ccc.y].typ != CRYPTFLOOR && levl[ccc.x][ccc.y].typ != BUBBLES && levl[ccc.x][ccc.y].typ != RAINCLOUD &&
-			 levl[ccc.x][ccc.y].typ != CORR) || MON_AT(ccc.x, ccc.y) || (otmp = sobj_at(BOULDER, ccc.x, ccc.y)) != 0) {
+			 levl[ccc.x][ccc.y].typ != CORR) || MON_AT(ccc.x, ccc.y) || (t_at(ccc.x, ccc.y) && !allowtrap) || (otmp = sobj_at(BOULDER, ccc.x, ccc.y)) != 0) {
 		if (trycnt < 50) {trycnt++; goto newtry;}
 		return; /* more than 50 tries */
 		}
@@ -1960,17 +1994,20 @@ newtry:
 		if (!isok(ccc.x, ccc.y)) return; /* otherwise the game could segfault! */
 
 		pline("You're pushed back!");
-		u_on_newpos(ccc.x, ccc.y);
+
+		teleds(ccc.x, ccc.y, allowtrap);
+
 		if (!(InterfaceScrewed || u.uprops[INTERFACE_SCREW].extrinsic || have_interfacescrewstone())) doredraw();
 		return;
 }
 
 void
-pushplayersilently()
+pushplayersilently(allowtrap)
+boolean allowtrap;
 {
 		coord ccc;
 		int direction, pushwidth, trycnt;
-	    register struct obj *otmp;
+		register struct obj *otmp;
 		trycnt = 0;
 
 newtry:
@@ -1998,16 +2035,74 @@ newtry:
 		}
 
 		if ((levl[ccc.x][ccc.y].typ != ROOM && levl[ccc.x][ccc.y].typ != AIR && levl[ccc.x][ccc.y].typ != STAIRS && levl[ccc.x][ccc.y].typ != LADDER && levl[ccc.x][ccc.y].typ != FOUNTAIN && levl[ccc.x][ccc.y].typ != THRONE && levl[ccc.x][ccc.y].typ != SINK && levl[ccc.x][ccc.y].typ != TOILET && levl[ccc.x][ccc.y].typ != GRAVE && levl[ccc.x][ccc.y].typ != ALTAR && levl[ccc.x][ccc.y].typ != ICE && levl[ccc.x][ccc.y].typ != CLOUD && levl[ccc.x][ccc.y].typ != SNOW && levl[ccc.x][ccc.y].typ != ASH && levl[ccc.x][ccc.y].typ != SAND && levl[ccc.x][ccc.y].typ != PAVEDFLOOR && levl[ccc.x][ccc.y].typ != HIGHWAY && levl[ccc.x][ccc.y].typ != GRASSLAND && levl[ccc.x][ccc.y].typ != NETHERMIST && levl[ccc.x][ccc.y].typ != STALACTITE && levl[ccc.x][ccc.y].typ != CRYPTFLOOR && levl[ccc.x][ccc.y].typ != BUBBLES && levl[ccc.x][ccc.y].typ != RAINCLOUD &&
-			 levl[ccc.x][ccc.y].typ != CORR) || MON_AT(ccc.x, ccc.y) || (otmp = sobj_at(BOULDER, ccc.x, ccc.y)) != 0) {
+			 levl[ccc.x][ccc.y].typ != CORR) || MON_AT(ccc.x, ccc.y) || (t_at(ccc.x, ccc.y) && !allowtrap) || (otmp = sobj_at(BOULDER, ccc.x, ccc.y)) != 0) {
 		if (trycnt < 50) {trycnt++; goto newtry;}
 		return; /* more than 50 tries */
 		}
 
 		if (!isok(ccc.x, ccc.y)) return; /* otherwise the game could segfault! */
 
-		u_on_newpos(ccc.x, ccc.y);
+		teleds(ccc.x, ccc.y, allowtrap);
+
 		if (!(InterfaceScrewed || u.uprops[INTERFACE_SCREW].extrinsic || have_interfacescrewstone())) doredraw();
 		return;
+}
+
+boolean
+pushmonster(mtmp)
+struct monst *mtmp;
+{
+		coord ccc;
+		int direction, pushwidth, trycnt;
+		register struct obj *otmp;
+		trycnt = 0;
+
+		if (!mtmp) {
+			impossible("pushmonster() called with no monster.");
+			return 0;
+		}
+
+		if (!isok(mtmp->mx, mtmp->my)) {
+			impossible("monster coordinates for pushmonster() out of range: %d, %d", mtmp->mx, mtmp->my);
+			return 0;
+		}
+
+newtry:
+		direction = rnd(8);
+		pushwidth = rnd(2);
+		if (!rn2(2)) pushwidth += rnd(2);
+		ccc.x = mtmp->mx;
+		ccc.y = mtmp->my;
+
+		while (pushwidth--) {
+		if (direction == 1 || direction == 5) ccc.x += 1; 
+		else if (direction == 2 || direction == 6) ccc.x -= 1; 
+		else if (direction == 3 || direction == 7) ccc.y += 1; 
+		else if (direction == 4 || direction == 8) ccc.y -= 1; 
+
+		if (direction == 5) ccc.y += 1;
+		else if (direction == 6) ccc.y -= 1;
+		else if (direction == 7) ccc.x -= 1;
+		else if (direction == 8) ccc.x += 1;
+
+		if (!isok(ccc.x, ccc.y)) break; /* otherwise the game could segfault! */
+
+		if ((levl[ccc.x][ccc.y].typ != ROOM && levl[ccc.x][ccc.y].typ != AIR && levl[ccc.x][ccc.y].typ != STAIRS && levl[ccc.x][ccc.y].typ != LADDER && levl[ccc.x][ccc.y].typ != FOUNTAIN && levl[ccc.x][ccc.y].typ != THRONE && levl[ccc.x][ccc.y].typ != SINK && levl[ccc.x][ccc.y].typ != TOILET && levl[ccc.x][ccc.y].typ != GRAVE && levl[ccc.x][ccc.y].typ != ALTAR && levl[ccc.x][ccc.y].typ != ICE && levl[ccc.x][ccc.y].typ != CLOUD && levl[ccc.x][ccc.y].typ != SNOW && levl[ccc.x][ccc.y].typ != ASH && levl[ccc.x][ccc.y].typ != SAND && levl[ccc.x][ccc.y].typ != PAVEDFLOOR && levl[ccc.x][ccc.y].typ != HIGHWAY && levl[ccc.x][ccc.y].typ != GRASSLAND && levl[ccc.x][ccc.y].typ != NETHERMIST && levl[ccc.x][ccc.y].typ != STALACTITE && levl[ccc.x][ccc.y].typ != CRYPTFLOOR && levl[ccc.x][ccc.y].typ != BUBBLES && levl[ccc.x][ccc.y].typ != RAINCLOUD &&
+			 levl[ccc.x][ccc.y].typ != CORR) || MON_AT(ccc.x, ccc.y) || (otmp = sobj_at(BOULDER, ccc.x, ccc.y)) != 0 ) break;
+		}
+
+		if ((levl[ccc.x][ccc.y].typ != ROOM && levl[ccc.x][ccc.y].typ != AIR && levl[ccc.x][ccc.y].typ != STAIRS && levl[ccc.x][ccc.y].typ != LADDER && levl[ccc.x][ccc.y].typ != FOUNTAIN && levl[ccc.x][ccc.y].typ != THRONE && levl[ccc.x][ccc.y].typ != SINK && levl[ccc.x][ccc.y].typ != TOILET && levl[ccc.x][ccc.y].typ != GRAVE && levl[ccc.x][ccc.y].typ != ALTAR && levl[ccc.x][ccc.y].typ != ICE && levl[ccc.x][ccc.y].typ != CLOUD && levl[ccc.x][ccc.y].typ != SNOW && levl[ccc.x][ccc.y].typ != ASH && levl[ccc.x][ccc.y].typ != SAND && levl[ccc.x][ccc.y].typ != PAVEDFLOOR && levl[ccc.x][ccc.y].typ != HIGHWAY && levl[ccc.x][ccc.y].typ != GRASSLAND && levl[ccc.x][ccc.y].typ != NETHERMIST && levl[ccc.x][ccc.y].typ != STALACTITE && levl[ccc.x][ccc.y].typ != CRYPTFLOOR && levl[ccc.x][ccc.y].typ != BUBBLES && levl[ccc.x][ccc.y].typ != RAINCLOUD &&
+			 levl[ccc.x][ccc.y].typ != CORR) || MON_AT(ccc.x, ccc.y) || (otmp = sobj_at(BOULDER, ccc.x, ccc.y)) != 0) {
+		if (trycnt < 50) {trycnt++; goto newtry;}
+		return 0; /* more than 50 tries */
+		}
+
+		if (!isok(ccc.x, ccc.y)) return 0; /* otherwise the game could segfault! */
+
+		remove_monster(mtmp->mx, mtmp->my);
+		place_monster(mtmp, ccc.x, ccc.y);
+
+		return 1;
 }
 
 /*teleport.c*/

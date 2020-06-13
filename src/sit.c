@@ -5,55 +5,6 @@
 #include "hack.h"
 #include "artifact.h"
 
-/* categories whose names don't come from OBJ_NAME(objects[type]) */
-#define PN_POLEARMS		(-1)
-#define PN_SABER		(-2)
-#define PN_HAMMER		(-3)
-#define PN_WHIP			(-4)
-#define PN_PADDLE		(-5)
-#define PN_FIREARMS		(-6)
-#define PN_ATTACK_SPELL		(-7)
-#define PN_HEALING_SPELL	(-8)
-#define PN_DIVINATION_SPELL	(-9)
-#define PN_ENCHANTMENT_SPELL	(-10)
-#define PN_PROTECTION_SPELL	(-11)
-#define PN_BODY_SPELL		(-12)
-#define PN_OCCULT_SPELL		(-13)
-#define PN_ELEMENTAL_SPELL		(-14)
-#define PN_CHAOS_SPELL		(-15)
-#define PN_MATTER_SPELL		(-16)
-#define PN_BARE_HANDED		(-17)
-#define PN_HIGH_HEELS		(-18)
-#define PN_GENERAL_COMBAT		(-19)
-#define PN_SHIELD		(-20)
-#define PN_BODY_ARMOR		(-21)
-#define PN_TWO_HANDED_WEAPON		(-22)
-#define PN_POLYMORPHING		(-23)
-#define PN_DEVICES		(-24)
-#define PN_SEARCHING		(-25)
-#define PN_SPIRITUALITY		(-26)
-#define PN_PETKEEPING		(-27)
-#define PN_MISSILE_WEAPONS		(-28)
-#define PN_TECHNIQUES		(-29)
-#define PN_IMPLANTS		(-30)
-#define PN_SEXY_FLATS		(-31)
-#define PN_SHII_CHO		(-32)
-#define PN_MAKASHI		(-33)
-#define PN_SORESU		(-34)
-#define PN_ATARU		(-35)
-#define PN_SHIEN		(-36)
-#define PN_DJEM_SO		(-37)
-#define PN_NIMAN		(-38)
-#define PN_JUYO		(-39)
-#define PN_VAAPAD		(-40)
-#define PN_WEDI		(-41)
-#define PN_MARTIAL_ARTS		(-42)
-#define PN_RIDING		(-43)
-#define PN_TWO_WEAPONS		(-44)
-#define PN_LIGHTSABER		(-45)
-
-static const char all_count[] = { ALLOW_COUNT, ALL_CLASSES, 0 };
-
 #ifndef OVLB
 
 STATIC_DCL NEARDATA const short skill_names_indices[];
@@ -84,6 +35,7 @@ STATIC_OVL NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
 	PN_TWO_HANDED_WEAPON,	PN_POLYMORPHING,	PN_DEVICES,
 	PN_SEARCHING,	PN_SPIRITUALITY,	PN_PETKEEPING,
 	PN_MISSILE_WEAPONS,	PN_TECHNIQUES,	PN_IMPLANTS,	PN_SEXY_FLATS,
+	PN_MEMORIZATION,	PN_GUN_CONTROL,	PN_SQUEAKING,	PN_SYMBIOSIS,
 	PN_SHII_CHO,	PN_MAKASHI,	PN_SORESU,
 	PN_ATARU,	PN_SHIEN,	PN_DJEM_SO,
 	PN_NIMAN,	PN_JUYO,	PN_VAAPAD,	PN_WEDI,
@@ -126,6 +78,10 @@ STATIC_OVL NEARDATA const char * const odd_skill_names[] = {
     "techniques",
     "implants",
     "sexy flats",
+    "memorization",
+    "gun control",
+    "squeaking",
+    "symbiosis",
     "form I (Shii-Cho)",
     "form II (Makashi)",
     "form III (Soresu)",
@@ -141,6 +97,8 @@ STATIC_OVL NEARDATA const char * const odd_skill_names[] = {
     "two-weapon combat",
     "lightsaber"
 };
+
+static const char all_count[] = { ALLOW_COUNT, ALL_CLASSES, 0};
 
 #endif	/* OVLB */
 
@@ -216,7 +174,7 @@ dosit()
 
 	    obj = level.objects[u.ux][u.uy];
 	    You("sit on %s.", the(xname(obj)));
-	    if (!(Is_box(obj) || objects[obj->otyp].oc_material == CLOTH || objects[obj->otyp].oc_material == SILK || objects[obj->otyp].oc_material == INKA))
+	    if (!(Is_box(obj) || objects[obj->otyp].oc_material == MT_CLOTH || objects[obj->otyp].oc_material == MT_SILK || objects[obj->otyp].oc_material == MT_INKA))
 		pline("It's not very comfortable...");
 
 	} else if ((trap = t_at(u.ux, u.uy)) != 0 ||
@@ -274,14 +232,22 @@ dosit()
 	    You(sit_message, defsyms[S_toilet].explanation);
 	    if ((!Sick || !issoviet) && (u.uhs > 0)) You("don't have to go...");
 	    else {
+			u.cnd_toiletamount++; /* doesn't count if you don't actually take a crap :P --Amy */
 			if (issoviet && u.uhs > 0) pline("Vy der'mo vedro, vy delayete svoye der'mo iz vozdukha? Nel'zya dazhe der'mo, kak i vy!");
 
+			use_skill(P_SQUEAKING, 2);
 			if (uarmu && uarmu->oartifact == ART_KATIA_S_SOFT_COTTON) {
 				You("produce very erotic noises.");
-				if (!rn2(10)) adjattrib(rn2(A_CHA), 1, -1);
+				if (!rn2(10)) adjattrib(rn2(A_CHA), 1, -1, TRUE);
 			}
 			else if (Role_if(PM_BARBARIAN) || Role_if(PM_CAVEMAN)) You("miss...");
 			else You("grunt.");
+
+			if (practicantterror) {
+				pline("%s booms: 'There's a fee of 100 zorkmids for using the toilet.'", noroelaname());
+				fineforpracticant(100, 0, 0);
+			}
+
 			/* Based on real life experience (urgh) this doesn't always instantly cure sickness. --Amy */
 			if (Sick && !rn2(3) ) make_sick(0L, (char *)0, TRUE, SICK_VOMITABLE);
 			else if (Sick && !rn2(10) ) make_sick(0L, (char *)0, TRUE, SICK_ALL);
@@ -309,7 +275,7 @@ dosit()
 	    /* must be WWalking */
 	    You(sit_message, "lava");
 	    burn_away_slime();
-	    if (likes_lava(youmonst.data) || (uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "hot boots") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "goryachiye botinki") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "issiq chizilmasin") ) ) || (uamul && uamul->otyp == AMULET_OF_D_TYPE_EQUIPMENT) || (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) && uimplant && uimplant->oartifact == ART_RUBBER_SHOALS) || Race_if(PM_PLAYER_SALAMANDER) || (uwep && uwep->oartifact == ART_EVERYTHING_MUST_BURN) || (uwep && uwep->oartifact == ART_MANUELA_S_PRACTICANT_TERRO) || (uarm && uarm->oartifact == ART_LAURA_CROFT_S_BATTLEWEAR) || (uarm && uarm->oartifact == ART_D_TYPE_EQUIPMENT) ) {
+	    if (likes_lava(youmonst.data) || (uarmf && itemhasappearance(uarmf, APP_HOT_BOOTS) ) || (uamul && uamul->otyp == AMULET_OF_D_TYPE_EQUIPMENT) || Race_if(PM_HYPOTHERMIC) || (powerfulimplants() && uimplant && uimplant->oartifact == ART_RUBBER_SHOALS) || Race_if(PM_PLAYER_SALAMANDER) || (uwep && uwep->oartifact == ART_EVERYTHING_MUST_BURN) || (uwep && uwep->oartifact == ART_MANUELA_S_PRACTICANT_TERRO) || (uarm && uarm->oartifact == ART_LAURA_CROFT_S_BATTLEWEAR) || (uarm && uarm->oartifact == ART_D_TYPE_EQUIPMENT) || (uarmc && uarmc->oartifact == ART_SCOOBA_COOBA) || (uarmf && uarmf->oartifact == ART_JOHANNA_S_RED_CHARM) ) {
 		pline_The("lava feels warm.");
 		return 1;
 	    }
@@ -318,7 +284,7 @@ dosit()
 	       pline("The slime is burned away!");
 	       Slimed = 0;
 	    }
-	    losehp(d((Fire_resistance ? 2 : 10), 10),
+	    losehp(d((StrongFire_resistance ? 1 : Fire_resistance ? 2 : 10), 10),
 		   "sitting on lava", KILLED_BY);
 
 	} else if (is_ice(u.ux, u.uy)) {
@@ -332,6 +298,13 @@ dosit()
 
 	} else if(IS_WOODENTABLE(typ)) {
 		pline("Sitting on a table isn't very fruitful.");
+
+	} else if(IS_FOUNTAIN(typ)) {
+		if (youmonst.data->mlet == S_BAD_COINS) { /* by GoldenIvy */
+			You("toss yourself into the fountain.");
+			if (rn2(2)) pline("Heads!"); /* this is purely cosmetical */
+			else pline("Tails!");
+		} else You(sit_message, "fountain");
 
 	} else if(IS_PENTAGRAM(typ)) {
 		You(sit_message, "pentagram");
@@ -349,7 +322,7 @@ dosit()
 
 		if (Sleep_resistance) {
 
-			pline(Hallucination ? "It seems you drank too much coffee and therefore cannot sleep." : "You can't seem to fall asleep.");
+			pline(FunnyHallu ? "It seems you drank too much coffee and therefore cannot sleep." : "You can't seem to fall asleep.");
 
 		} else if (!Sleep_resistance && (moves < u.bedsleeping)) {
 
@@ -357,9 +330,12 @@ dosit()
 
 		} else if (!Sleep_resistance && (moves >= u.bedsleeping)) {
 
-			You("go to bed.");
-			if (Hallucination) pline("Sleep-bundle-wing!");
+			u.cnd_bedamount++;
 			u.bedsleeping = moves + 100;
+			You("go to bed.");
+			if (FunnyHallu) pline("Sleep-bundle-wing!");
+			more_experienced(u.ulevel * 5, 0);
+			newexplevel();
 			fall_asleep(-rnd(20), TRUE);
 
 			if (uarmf && uarmf->oartifact == ART_LARISSA_S_GENTLE_SLEEP) {
@@ -372,6 +348,7 @@ dosit()
 	} else if(IS_THRONE(typ)) {
 
 	    You(sit_message, defsyms[S_throne].explanation);
+	    u.cnd_throneamount++;
 	    if (!rn2(2))  {
 
 		if (uarmg && uarmg->oartifact == ART_FUMBLEFINGERS_QUEST) {
@@ -415,18 +392,18 @@ dosit()
 
 		} else
 
-		switch (rnd(20))  {
+		switch (rnd(32))  {
 		    case 1:
-			(void) adjattrib(rn2(A_MAX), -rn1(4,3), FALSE);
+			(void) adjattrib(rn2(A_MAX), -rno(5), FALSE, TRUE);
 			losehp(rnd(10), "cursed throne", KILLED_BY_AN);
 			break;
 		    case 2:
-			(void) adjattrib(rn2(A_MAX), 1, FALSE);
+			(void) adjattrib(rn2(A_MAX), 1, FALSE, TRUE);
 			break;
 		    case 3:
 			pline("A%s electric shock shoots through your body!",
 			      (Shock_resistance) ? "n" : " massive");
-			losehp(Shock_resistance ? rnd(6) : rnd(30),
+			losehp(StrongShock_resistance ? rnd(2) : Shock_resistance ? rnd(6) : rnd(30),
 			       "electric chair", KILLED_BY_AN);
 			exercise(A_CON, FALSE);
 			break;
@@ -438,6 +415,10 @@ dosit()
 			}
 			if(u.uhp >= (u.uhpmax - 5))  u.uhpmax += 4;
 			u.uhp = u.uhpmax;
+			if (uactivesymbiosis) {
+				u.usymbiote.mhpmax += 4;
+				if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
+			}
 			make_blinded(0L,TRUE);
 			make_sick(0L, (char *) 0, FALSE, SICK_ALL);
 			heal_legs();
@@ -455,7 +436,7 @@ dosit()
 				    You_feel("your luck is changing.");
 				if (PlayerHearsSoundEffects) pline(issoviet ? "Kha, vy ne poluchite zhelaniye, potomu chto eto Sovetskaya Rossiya, gde kazhdyy poluchayet odinakovoye kolichestvo zhelaniy! I vy uzhe boleye chem dostatochno, teper' ochered' drugikh personazhey'!" : "DSCHUEueUEueUEueUEueUEue...");
 				    change_luck(5);
-				} else	    makewish();
+				} else	    makewish(evilfriday ? FALSE : TRUE);
 			} else {
 				othergreateffect();
 			}
@@ -488,7 +469,7 @@ dosit()
 			break;
 		    case 9:
 			pline("A voice echoes:");
-	verbalize("A curse upon thee for sitting upon this most holy throne!");
+			verbalize("A curse upon thee for sitting upon this most holy throne!");
 			if (Luck > 0)  {
 			    make_blinded(Blinded + rn1(100,250),TRUE);
 			} else	    rndcurse();
@@ -525,7 +506,7 @@ dosit()
 			You("are granted an insight!");
 			if (invent) {
 			    /* rn2(5) agrees w/seffects() */
-			    identify_pack(rn2(5), 0);
+			    identify_pack(rn2(5), 0, 0);
 			}
 			break;
 		    case 13:
@@ -534,161 +515,15 @@ dosit()
 			break;
 		    case 14:
 			You("are granted some new skills!"); /* new effect that unrestricts skills --Amy */
-
-			int acquiredskill;
-			acquiredskill = 0;
-
-			pline("Pick a skill to unrestrict. The prompt will loop until you actually make a choice.");
-
-			while (acquiredskill == 0) { /* ask the player what they want --Amy */
-
-			if (P_RESTRICTED(P_DAGGER) && yn("Do you want to learn the dagger skill?")=='y') {
-				    unrestrict_weapon_skill(P_DAGGER);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_KNIFE) && yn("Do you want to learn the knife skill?")=='y') {
-				    unrestrict_weapon_skill(P_KNIFE);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_AXE) && yn("Do you want to learn the axe skill?")=='y') {
-				    unrestrict_weapon_skill(P_AXE);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_PICK_AXE) && yn("Do you want to learn the pick-axe skill?")=='y') {
-				    unrestrict_weapon_skill(P_PICK_AXE);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SHORT_SWORD) && yn("Do you want to learn the short sword skill?")=='y') {
-				    unrestrict_weapon_skill(P_SHORT_SWORD);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_BROAD_SWORD) && yn("Do you want to learn the broad sword skill?")=='y') {
-				    unrestrict_weapon_skill(P_BROAD_SWORD);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_LONG_SWORD) && yn("Do you want to learn the long sword skill?")=='y') {
-				    unrestrict_weapon_skill(P_LONG_SWORD);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_TWO_HANDED_SWORD) && yn("Do you want to learn the two-handed sword skill?")=='y') {
-				    unrestrict_weapon_skill(P_TWO_HANDED_SWORD);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SCIMITAR) && yn("Do you want to learn the scimitar skill?")=='y') {
-				    unrestrict_weapon_skill(P_SCIMITAR);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SABER) && yn("Do you want to learn the saber skill?")=='y') {
-				    unrestrict_weapon_skill(P_SABER);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_CLUB) && yn("Do you want to learn the club skill?")=='y') {
-				    unrestrict_weapon_skill(P_CLUB);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_PADDLE) && yn("Do you want to learn the paddle skill?")=='y') {
-				    unrestrict_weapon_skill(P_PADDLE);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_MACE) && yn("Do you want to learn the mace skill?")=='y') {
-				    unrestrict_weapon_skill(P_MACE);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_MORNING_STAR) && yn("Do you want to learn the morning star skill?")=='y') {
-				    unrestrict_weapon_skill(P_MORNING_STAR);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_FLAIL) && yn("Do you want to learn the flail skill?")=='y') {
-				    unrestrict_weapon_skill(P_FLAIL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_HAMMER) && yn("Do you want to learn the hammer skill?")=='y') {
-				    unrestrict_weapon_skill(P_HAMMER);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_QUARTERSTAFF) && yn("Do you want to learn the quarterstaff skill?")=='y') {
-				    unrestrict_weapon_skill(P_QUARTERSTAFF);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_POLEARMS) && yn("Do you want to learn the polearms skill?")=='y') {
-				    unrestrict_weapon_skill(P_POLEARMS);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SPEAR) && yn("Do you want to learn the spear skill?")=='y') {
-				    unrestrict_weapon_skill(P_SPEAR);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_JAVELIN) && yn("Do you want to learn the javelin skill?")=='y') {
-				    unrestrict_weapon_skill(P_JAVELIN);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_TRIDENT) && yn("Do you want to learn the trident skill?")=='y') {
-				    unrestrict_weapon_skill(P_TRIDENT);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_LANCE) && yn("Do you want to learn the lance skill?")=='y') {
-				    unrestrict_weapon_skill(P_LANCE);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_BOW) && yn("Do you want to learn the bow skill?")=='y') {
-				    unrestrict_weapon_skill(P_BOW);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SLING) && yn("Do you want to learn the sling skill?")=='y') {
-				    unrestrict_weapon_skill(P_SLING);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_FIREARM) && yn("Do you want to learn the firearms skill?")=='y') {
-				    unrestrict_weapon_skill(P_FIREARM);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_CROSSBOW) && yn("Do you want to learn the crossbow skill?")=='y') {
-				    unrestrict_weapon_skill(P_CROSSBOW);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_DART) && yn("Do you want to learn the dart skill?")=='y') {
-				    unrestrict_weapon_skill(P_DART);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SHURIKEN) && yn("Do you want to learn the shuriken skill?")=='y') {
-				    unrestrict_weapon_skill(P_SHURIKEN);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_BOOMERANG) && yn("Do you want to learn the boomerang skill?")=='y') {
-				    unrestrict_weapon_skill(P_BOOMERANG);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_WHIP) && yn("Do you want to learn the whip skill?")=='y') {
-				    unrestrict_weapon_skill(P_WHIP);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_UNICORN_HORN) && yn("Do you want to learn the unicorn horn skill?")=='y') {
-				    unrestrict_weapon_skill(P_UNICORN_HORN);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_LIGHTSABER) && yn("Do you want to learn the lightsaber skill?")=='y') {
-				    unrestrict_weapon_skill(P_LIGHTSABER);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_ATTACK_SPELL) && yn("Do you want to learn the attack spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_ATTACK_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_HEALING_SPELL) && yn("Do you want to learn the healing spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_HEALING_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_DIVINATION_SPELL) && yn("Do you want to learn the divination spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_DIVINATION_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_ENCHANTMENT_SPELL) && yn("Do you want to learn the enchantment spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_ENCHANTMENT_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_PROTECTION_SPELL) && yn("Do you want to learn the protection spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_PROTECTION_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_BODY_SPELL) && yn("Do you want to learn the body spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_BODY_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_OCCULT_SPELL) && yn("Do you want to learn the occult spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_OCCULT_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_ELEMENTAL_SPELL) && yn("Do you want to learn the elemental spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_ELEMENTAL_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_CHAOS_SPELL) && yn("Do you want to learn the chaos spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_CHAOS_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_MATTER_SPELL) && yn("Do you want to learn the matter spell skill?")=='y') {
-				    unrestrict_weapon_skill(P_MATTER_SPELL);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_RIDING) && yn("Do you want to learn the riding skill?")=='y') {
-				    unrestrict_weapon_skill(P_RIDING);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_HIGH_HEELS) && yn("Do you want to learn the high heels skill?")=='y') {
-				    unrestrict_weapon_skill(P_HIGH_HEELS);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_GENERAL_COMBAT) && yn("Do you want to learn the general combat skill?")=='y') {
-				    unrestrict_weapon_skill(P_GENERAL_COMBAT);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SHIELD) && yn("Do you want to learn the shield skill?")=='y') {
-				    unrestrict_weapon_skill(P_SHIELD);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_BODY_ARMOR) && yn("Do you want to learn the body armor skill?")=='y') {
-				    unrestrict_weapon_skill(P_BODY_ARMOR);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_TWO_HANDED_WEAPON) && yn("Do you want to learn the two-handed weapon skill?")=='y') {
-				    unrestrict_weapon_skill(P_TWO_HANDED_WEAPON);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_TWO_WEAPON_COMBAT) && yn("Do you want to learn the two-weapon combat skill?")=='y') {
-				    unrestrict_weapon_skill(P_TWO_WEAPON_COMBAT);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_POLYMORPHING) && yn("Do you want to learn the polymorphing skill?")=='y') {
-				    unrestrict_weapon_skill(P_POLYMORPHING);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_DEVICES) && yn("Do you want to learn the devices skill?")=='y') {
-				    unrestrict_weapon_skill(P_DEVICES);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SEARCHING) && yn("Do you want to learn the searching skill?")=='y') {
-				    unrestrict_weapon_skill(P_SEARCHING);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SPIRITUALITY) && yn("Do you want to learn the spirituality skill?")=='y') {
-				    unrestrict_weapon_skill(P_SPIRITUALITY);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_PETKEEPING) && yn("Do you want to learn the petkeeping skill?")=='y') {
-				    unrestrict_weapon_skill(P_PETKEEPING);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_MISSILE_WEAPONS) && yn("Do you want to learn the missile weapons skill?")=='y') {
-				    unrestrict_weapon_skill(P_MISSILE_WEAPONS);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_TECHNIQUES) && yn("Do you want to learn the techniques skill?")=='y') {
-				    unrestrict_weapon_skill(P_TECHNIQUES);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_IMPLANTS) && yn("Do you want to learn the implants skill?")=='y') {
-				    unrestrict_weapon_skill(P_IMPLANTS);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SEXY_FLATS) && yn("Do you want to learn the sexy flats skill?")=='y') {
-				    unrestrict_weapon_skill(P_SEXY_FLATS);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SHII_CHO) && yn("Do you want to learn the form I (Shii-Cho) skill?")=='y') {
-				    unrestrict_weapon_skill(P_SHII_CHO);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_MAKASHI) && yn("Do you want to learn the form II (Makashi) skill?")=='y') {
-				    unrestrict_weapon_skill(P_MAKASHI);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SORESU) && yn("Do you want to learn the form III (Soresu) skill?")=='y') {
-				    unrestrict_weapon_skill(P_SORESU);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_ATARU) && yn("Do you want to learn the form IV (Ataru) skill?")=='y') {
-				    unrestrict_weapon_skill(P_ATARU);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_SHIEN) && yn("Do you want to learn the form V (Shien) skill?")=='y') {
-				    unrestrict_weapon_skill(P_SHIEN);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_DJEM_SO) && yn("Do you want to learn the form V (Djem So) skill?")=='y') {
-				    unrestrict_weapon_skill(P_DJEM_SO);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_NIMAN) && yn("Do you want to learn the form VI (Niman) skill?")=='y') {
-				    unrestrict_weapon_skill(P_NIMAN);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_JUYO) && yn("Do you want to learn the form VII (Juyo) skill?")=='y') {
-				    unrestrict_weapon_skill(P_JUYO);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_VAAPAD) && yn("Do you want to learn the form VII (Vaapad) skill?")=='y') {
-				    unrestrict_weapon_skill(P_VAAPAD);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_WEDI) && yn("Do you want to learn the form VIII (Wedi) skill?")=='y') {
-				    unrestrict_weapon_skill(P_WEDI);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_BARE_HANDED_COMBAT) && yn("Do you want to learn the bare-handed combat skill?")=='y') {
-				    unrestrict_weapon_skill(P_BARE_HANDED_COMBAT);	acquiredskill = 1; }
-			else if (P_RESTRICTED(P_MARTIAL_ARTS) && yn("Do you want to learn the martial arts skill?")=='y') {
-				    unrestrict_weapon_skill(P_MARTIAL_ARTS);	acquiredskill = 1; }
-			else if (yn("Do you want to learn no new skill at all?")=='y') {
-				    acquiredskill = 1; }
-			}
-			pline("Check out what you got!");
-
+			unrestrictskillchoice();
 			break;
 		    case 15:
+			/* occasionally get extremely lucky --Amy */
+			if (!rn2(50)) {
+				u.weapon_slots++;
+				You("feel very skillful, and gain an extra skill slot!");
+				break;
+			}
 			pline("A voice echoes:");
 			verbalize("Thou be cursed!");
 			attrcurse();
@@ -725,9 +560,35 @@ dosit()
 			} else if (!rn2(200) && P_MAX_SKILL(skillimprove) == P_GRAND_MASTER) {
 				P_MAX_SKILL(skillimprove) = P_SUPREME_MASTER;
 				pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
-			} else pluslvl(FALSE);
+			} else gainlevelmaybe();
 
-			pluslvl(FALSE);
+			if (Race_if(PM_RUSMOT)) {
+				if (P_MAX_SKILL(skillimprove) == P_ISRESTRICTED) {
+					unrestrict_weapon_skill(skillimprove);
+					pline("You can now learn the %s skill.", P_NAME(skillimprove));
+				} else if (P_MAX_SKILL(skillimprove) == P_UNSKILLED) {
+					unrestrict_weapon_skill(skillimprove);
+					P_MAX_SKILL(skillimprove) = P_BASIC;
+					pline("You can now learn the %s skill.", P_NAME(skillimprove));
+				} else if (rn2(2) && P_MAX_SKILL(skillimprove) == P_BASIC) {
+					P_MAX_SKILL(skillimprove) = P_SKILLED;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(4) && P_MAX_SKILL(skillimprove) == P_SKILLED) {
+					P_MAX_SKILL(skillimprove) = P_EXPERT;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(10) && P_MAX_SKILL(skillimprove) == P_EXPERT) {
+					P_MAX_SKILL(skillimprove) = P_MASTER;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(100) && P_MAX_SKILL(skillimprove) == P_MASTER) {
+					P_MAX_SKILL(skillimprove) = P_GRAND_MASTER;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				} else if (!rn2(200) && P_MAX_SKILL(skillimprove) == P_GRAND_MASTER) {
+					P_MAX_SKILL(skillimprove) = P_SUPREME_MASTER;
+					pline("Your knowledge of the %s skill increases.", P_NAME(skillimprove));
+				}
+			}
+
+			gainlevelmaybe();
 
 			break;
 		    case 18:
@@ -791,6 +652,130 @@ secureidchoice:
 			}
 			}
 			break;
+		    case 21:
+			{
+				int nastytrapdur = (Role_if(PM_GRADUATE) ? 6 : Role_if(PM_GEEK) ? 12 : 24);
+				if (!nastytrapdur) nastytrapdur = 24; /* fail safe */
+				int blackngdur = (Role_if(PM_GRADUATE) ? 2000 : Role_if(PM_GEEK) ? 1000 : 500);
+				if (!blackngdur ) blackngdur = 500; /* fail safe */
+				randomnastytrapeffect(rnz(nastytrapdur * (monster_difficulty() + 1)), (blackngdur - (monster_difficulty() * 3)));
+				You_feel("uncomfortable.");
+			}
+			break;
+		    case 22:
+			morehungry(500);
+			pline("Whoops... suddenly you feel hungry.");
+			break;
+		    case 23:
+			pline("Suddenly you feel a healing touch!");
+			reducesanity(100);
+			break;
+		    case 24:
+			poisoned("throne", rn2(6) /* A_STR ... A_CHA*/, "poisoned throne", 30);
+			break;
+		    case 25:
+			{
+				int thronegold = rnd(200);
+				u.ugold += thronegold;
+				pline("Some coins come loose! You pick up %d zorkmids.", thronegold);
+			}
+			break;
+		    case 26:
+			{
+
+				if (Aggravate_monster) {
+					u.aggravation = 1;
+					reset_rndmonst(NON_PM);
+				}
+
+				pline("A voice echoes:");
+				verbalize("Thou hath been summoned to appear before royalty, %s!", playeraliasname);
+				(void) makemon(specialtensmon(rn2(2) ? 105 : 106), u.ux, u.uy, MM_ANGRY); /* M2_LORD, M2_PRINCE */
+
+				u.aggravation = 0;
+
+			}
+			break;
+		    case 27:
+			badeffect();
+			break;
+		    case 28:
+			u.uhp++;
+			u.uhpmax++;
+			if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
+			You_feel("a health boost!");
+			break;
+		    case 29:
+			pline("A pretty ethereal woman appears and offers: 'For only 10000 zorkmids, I will give you a very rare trinket!");
+			if (u.ugold < 10000) {
+				pline("But you don't have enough money! Frustrated, she places a terrible curse on you and disappears.");
+				randomfeminismtrap(rnz( (level_difficulty() + 2) * rnd(50)));
+			}
+			else {
+				char femhandlebuf[BUFSZ];
+				getlin ("Do you want to buy her goods? [y/yes/no]",femhandlebuf);
+				(void) lcase (femhandlebuf);
+				if (!(strcmp (femhandlebuf, "yes")) || !(strcmp (femhandlebuf, "y"))) {
+					u.ugold -= 10000;
+					register struct obj *acqo;
+					acqo = mksobj(makegreatitem(), TRUE, TRUE, FALSE);
+					if (acqo) {
+						dropy(acqo);
+						verbalize("Thanks a lot! You'll find your prize on the ground.");
+					} else {
+						verbalize("Oh sorry, I must have misplaced it. Here you have your money back. Maybe next time I'll have something for you.");
+						u.ugold += 10000;
+					}
+				} else {
+					verbalize("You will regret that decision!");
+					randomfeminismtrap(rnz( (level_difficulty() + 2) * rnd(50)));
+
+				}
+			}
+			break;
+		    case 30:
+			pline("A shady merchant appears and offers: 'Sale! Sale! I'm selling you this useful item for 2000 zorkmids!");
+			if (u.ugold < 2000) {
+				pline("But you don't have enough money! The merchant disappears.");
+			}
+			else {
+				char femhandlebuf[BUFSZ];
+				getlin ("Do you want to buy his item? [y/yes/no]",femhandlebuf);
+				(void) lcase (femhandlebuf);
+				if (!(strcmp (femhandlebuf, "yes")) || !(strcmp (femhandlebuf, "y"))) {
+					u.ugold -= 2000;
+					register struct obj *acqo;
+					acqo = mksobj(usefulitem(), TRUE, TRUE, FALSE);
+					if (acqo) {
+						dropy(acqo);
+						verbalize("Thank you! I've dropped the item at your feet.");
+					} else {
+						verbalize("Nyah-nyah, thanks for the money, sucker!");
+					}
+				} else {
+					verbalize("Are you sure? Well, it's your decision. I'll find someone else to sell it to, then.");
+				}
+			}
+			break;
+		    case 31:
+			{
+				struct obj *stupidstone;
+				stupidstone = mksobj_at(rnd_class(RIGHT_MOUSE_BUTTON_STONE,NASTY_STONE), u.ux, u.uy, TRUE, FALSE, FALSE);
+				if (stupidstone) {
+					stupidstone->quan = 1L;
+					stupidstone->owt = weight(stupidstone);
+					if (!Blind) stupidstone->dknown = 1;
+					if (stupidstone) {
+						pline("%s lands in your knapsack!", Doname2(stupidstone));
+						(void) pickup_object(stupidstone, 1L, TRUE, TRUE);
+					}
+				}
+			}
+			break;
+		    case 32:
+			(void) mksobj_at(rnd_class(DILITHIUM_CRYSTAL, ROCK), u.ux, u.uy, TRUE, TRUE, FALSE);
+			pline("Some stones come loose!");
+			break;
 
 		    default:	impossible("throne effect");
 				break;
@@ -802,6 +787,8 @@ secureidchoice:
 		    You_feel("somehow out of place...");
 	    }
 
+	    if (u.ualign.type == A_CHAOTIC) adjalign(1);
+
 	    if (!rn2(6) && IS_THRONE(levl[u.ux][u.uy].typ)) {
 		/* may have teleported */
 		levl[u.ux][u.uy].typ = ROOM;
@@ -812,8 +799,13 @@ secureidchoice:
 	} else if (lays_eggs(youmonst.data)) {
 		struct obj *uegg;
 
+		if (monsndx(youmonst.data) >= NUMMONS) {
+			You("can't lay eggs as a missingno because they would crash the game!");
+			return 0;
+		}
+
 		if (!flags.female) {
-			pline(Hallucination ? "You try to lay an egg, but instead you... okay let's not go there." : "Males can't lay eggs!");
+			pline(FunnyHallu ? "You try to lay an egg, but instead you... okay let's not go there." : "Males can't lay eggs!");
 			return 0;
 		}
 
@@ -827,7 +819,7 @@ secureidchoice:
 			return 0;
 		}
 
-		uegg = mksobj(EGG, FALSE, FALSE);
+		uegg = mksobj(EGG, FALSE, FALSE, FALSE);
 		if (uegg) {
 			uegg->spe = 1;
 			uegg->quan = 1;
@@ -840,7 +832,20 @@ secureidchoice:
 			stackobj(uegg);
 			morehungry((int)objects[EGG].oc_nutrition);
 			u.egglayingtimeout = rnz(1000);
+			if (!PlayerCannotUseSkills) {
+				switch (P_SKILL(P_SQUEAKING)) {
+			      	case P_BASIC:	u.egglayingtimeout *= 9; u.egglayingtimeout /= 10; break;
+			      	case P_SKILLED:	u.egglayingtimeout *= 8; u.egglayingtimeout /= 10; break;
+			      	case P_EXPERT:	u.egglayingtimeout *= 7; u.egglayingtimeout /= 10; break;
+			      	case P_MASTER:	u.egglayingtimeout *= 6; u.egglayingtimeout /= 10; break;
+			      	case P_GRAND_MASTER:	u.egglayingtimeout *= 5; u.egglayingtimeout /= 10; break;
+			      	case P_SUPREME_MASTER:	u.egglayingtimeout *= 4; u.egglayingtimeout /= 10; break;
+			      	default: break;
+
+				}
+			}
 			pline("You will be able to lay another egg in %d turns.", u.egglayingtimeout);
+			use_skill(P_SQUEAKING, rnd(20));
 		}
 	} else if (u.uswallow)
 		There("are no seats in here!");
@@ -856,6 +861,8 @@ skillcaploss()
 	int skilltoreduce = randomgoodskill();
 	int tryct;
 	int i = 0;
+
+	if (P_RESTRICTED(skilltoreduce)) return; /* nothing to do */
 
 	if (P_MAX_SKILL(skilltoreduce) == P_BASIC) {
 		P_MAX_SKILL(skilltoreduce) = P_UNSKILLED;
@@ -880,7 +887,7 @@ skillcaploss()
 	tryct = 2000;
 
 	while (u.skills_advanced && tryct && (P_SKILL(skilltoreduce) > P_MAX_SKILL(skilltoreduce)) ) {
-		lose_weapon_skill(1);
+		lose_last_spent_skill();
 		i++;
 		tryct--;
 	}
@@ -897,6 +904,49 @@ skillcaploss()
 		if (evilfriday) pline("This is the evil variant. Your skill point is lost forever.");
 		else u.weapon_slots++;
 	}
+
+	return;
+
+}
+
+void
+skillcaploss_specific(skilltoreduce)
+int skilltoreduce;
+{
+
+	int tryct, tryct2;
+	int i = 0;
+
+	if (P_RESTRICTED(skilltoreduce)) return; /* nothing to do */
+
+	if (P_MAX_SKILL(skilltoreduce) >= P_BASIC) {
+		P_MAX_SKILL(skilltoreduce) = P_ISRESTRICTED;
+	}
+
+	tryct = 2000;
+	tryct2 = 10;
+
+	while (u.skills_advanced && tryct && (P_SKILL(skilltoreduce) > P_MAX_SKILL(skilltoreduce)) ) {
+		lose_last_spent_skill();
+		i++;
+		tryct--;
+	}
+
+	while (i) {
+		if (evilfriday) pline("This is the evil variant. Your skill point is lost forever.");
+		else u.weapon_slots++;  /* because every skill up costs one slot --Amy */
+		i--;
+	}
+
+	/* still higher than the cap? that probably means you started with some knowledge of the skill... */
+	while (tryct2 && P_SKILL(skilltoreduce) > P_UNSKILLED) {
+		P_SKILL(skilltoreduce) -= 1;
+		if (evilfriday) pline("This is the evil variant. Your skill point is lost forever.");
+		else u.weapon_slots++;
+		tryct2--;
+	}
+
+	P_SKILL(skilltoreduce) = P_ISRESTRICTED;
 
 	return;
 
@@ -936,7 +986,7 @@ severelossagain:
 		i = 0;
 
 		while (u.skills_advanced && tryct && (P_ADVANCE(skilltoreduce) < practice_needed_to_advance_nonmax(P_SKILL(skilltoreduce) - 1, skilltoreduce) ) ) {
-			lose_weapon_skill(1);
+			lose_last_spent_skill();
 			i++;
 			tryct--;
 		}
@@ -979,17 +1029,17 @@ rndcurse()			/* curse a few inventory items at random! */
 	    return;
 	}
 
-	if (!rn2(5) && uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "sages helmet") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "mudryy shlem") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "do'stlar dubulg'asi")) ) {
+	if (!rn2(5) && uarmh && itemhasappearance(uarmh, APP_SAGES_HELMET) ) {
 		pline("A malignant aura surrounds you but is absorbed by the sages helmet!");
 		return;
 	}
 
-	if (Versus_curses && rn2(20)) { /* curse resistance, by Chris_ANG */
+	if (Versus_curses && rn2(StrongVersus_curses ? 20 : 4)) { /* curse resistance, by Chris_ANG */
 		pline("A malignant aura surrounds you but is absorbed by your magical shield!");
 	    return;
 	}
 
-	else if(u.ukinghill && rn2(20)){
+	if(u.ukinghill && rn2(20)){
 	    You(mal_aura, "the cursed treasure chest");
 		otmp = 0;
 		for(otmp = invent; otmp; otmp=otmp->nobj)
@@ -1003,6 +1053,9 @@ rndcurse()			/* curse a few inventory items at random! */
 	    update_inventory();		
 		return;
 	}
+
+	u.cnd_curseitemsamount++;
+
 	if(Antimagic) {
 	    shieldeff(u.ux, u.uy);
 	    You(mal_aura, "you");
@@ -1028,7 +1081,23 @@ rndcurse()			/* curse a few inventory items at random! */
 		}
 	}
 
+	if (uinsymbiosis) {
+		int symcurchance = 5;
+		if (Antimagic) symcurchance += 2;
+		if (StrongAntimagic) symcurchance += 2;
+		if (Half_spell_damage) symcurchance += 3;
+		if (StrongHalf_spell_damage) symcurchance += 3;
+		if (isfriday) symcurchance /= 2;
+
+		if (!rn2(symcurchance)) {
+			cursesymbiote();
+			pline(FunnyHallu ? "You feel like you have a heart attack!" : "Your symbiote feels deathly cold!");
+		}
+	}
+
 	if (isfriday) verymanyitems *= 2;
+	if (StrongAntimagic && verymanyitems > 1) verymanyitems /= 2;
+	if (StrongHalf_spell_damage && verymanyitems > 1) verymanyitems /= 2;
 
 	if (nobj) {
 	    for (cnt = rnd(verymanyitems/((!!Antimagic) + (!!Half_spell_damage) + 1));
@@ -1054,7 +1123,7 @@ rndcurse()			/* curse a few inventory items at random! */
 		}
 
 		/* materials overhaul: gold resists curses --Amy */
-		if (objects[otmp->otyp].oc_material == GOLD && rn2(2)) {
+		if (objects[otmp->otyp].oc_material == MT_GOLD && rn2(2)) {
 		    pline("%s!", Tobjnam(otmp, "resist"));
 		    continue;
 		}
@@ -1089,7 +1158,7 @@ rndcurse()			/* curse a few inventory items at random! */
 void
 attrcurse()			/* remove a random INTRINSIC ability */
 {
-	switch(rnd(213)) {
+	switch(rnd(216)) {
 	case 1 : 
 	case 2 : 
 	case 3 : 
@@ -1102,10 +1171,12 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 10 : if (HFire_resistance & INTRINSIC) {
 			HFire_resistance &= ~INTRINSIC;
 			You_feel("warmer.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HFire_resistance & TIMEOUT) {
 			HFire_resistance &= ~TIMEOUT;
 			You_feel("warmer.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 11 : 
@@ -1116,10 +1187,12 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 16 : if (HTeleportation & INTRINSIC) {
 			HTeleportation &= ~INTRINSIC;
 			You_feel("less jumpy.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HTeleportation & TIMEOUT) {
 			HTeleportation &= ~TIMEOUT;
 			You_feel("less jumpy.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 17 : 
@@ -1134,10 +1207,12 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 26 : if (HPoison_resistance & INTRINSIC) {
 			HPoison_resistance &= ~INTRINSIC;
 			You_feel("a little sick!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HPoison_resistance & TIMEOUT) {
 			HPoison_resistance &= ~TIMEOUT;
 			You_feel("a little sick!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 27 : 
@@ -1154,12 +1229,14 @@ attrcurse()			/* remove a random INTRINSIC ability */
 			if (Blind && !Blind_telepat)
 			    see_monsters();	/* Can't sense mons anymore! */
 			Your("senses fail!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HTelepat & TIMEOUT) {
 			HTelepat &= ~TIMEOUT;
 			if (Blind && !Blind_telepat)
 			    see_monsters();	/* Can't sense mons anymore! */
 			Your("senses fail!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 37 : 
@@ -1174,10 +1251,12 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 46 : if (HCold_resistance & INTRINSIC) {
 			HCold_resistance &= ~INTRINSIC;
 			You_feel("cooler.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HCold_resistance & TIMEOUT) {
 			HCold_resistance &= ~TIMEOUT;
 			You_feel("cooler.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 47 : 
@@ -1192,10 +1271,12 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 56 : if (HInvis & INTRINSIC) {
 			HInvis &= ~INTRINSIC;
 			You_feel("paranoid.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HInvis & TIMEOUT) {
 			HInvis &= ~TIMEOUT;
 			You_feel("paranoid.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 57 : 
@@ -1209,13 +1290,13 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 65 : 
 	case 66 : if (HSee_invisible & INTRINSIC) {
 			HSee_invisible &= ~INTRINSIC;
-			You("%s!", Hallucination ? "tawt you taw a puttie tat"
-						: "thought you saw something");
+			You("%s!", FunnyHallu ? "tawt you taw a puttie tat" : "thought you saw something");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HSee_invisible & TIMEOUT) {
 			HSee_invisible &= ~TIMEOUT;
-			You("%s!", Hallucination ? "tawt you taw a puttie tat"
-						: "thought you saw something");
+			You("%s!", FunnyHallu ? "tawt you taw a puttie tat" : "thought you saw something");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 67 : 
@@ -1230,10 +1311,12 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 76 : if (HFast & INTRINSIC) {
 			HFast &= ~INTRINSIC;
 			You_feel("slower.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HFast & TIMEOUT) {
 			HFast &= ~TIMEOUT;
 			You_feel("slower.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 77 : 
@@ -1248,19 +1331,23 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 86 : if (HStealth & INTRINSIC) {
 			HStealth &= ~INTRINSIC;
 			You_feel("clumsy.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HStealth & TIMEOUT) {
 			HStealth &= ~TIMEOUT;
 			You_feel("clumsy.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 87: if (HProtection & INTRINSIC) {
 			HProtection &= ~INTRINSIC;
 			You_feel("vulnerable.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HProtection & TIMEOUT) {
 			HProtection &= ~TIMEOUT;
 			You_feel("vulnerable.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 88 : 
@@ -1270,10 +1357,12 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 92: if (HAggravate_monster & INTRINSIC) {
 			HAggravate_monster &= ~INTRINSIC;
 			You_feel("less attractive.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HAggravate_monster & TIMEOUT) {
 			HAggravate_monster &= ~TIMEOUT;
 			You_feel("less attractive.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 93 : 
@@ -1288,10 +1377,12 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 102: if (HSleep_resistance & INTRINSIC) {
 			HSleep_resistance &= ~INTRINSIC;
 			You_feel("tired all of a sudden.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HSleep_resistance & TIMEOUT) {
 			HSleep_resistance &= ~TIMEOUT;
 			You_feel("tired all of a sudden.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 103 : 
@@ -1306,10 +1397,12 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 112: if (HDisint_resistance & INTRINSIC) {
 			HDisint_resistance &= ~INTRINSIC;
 			You_feel("like you're going to break apart.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HDisint_resistance & TIMEOUT) {
 			HDisint_resistance &= ~TIMEOUT;
 			You_feel("like you're going to break apart.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 113 : 
@@ -1324,28 +1417,34 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 122: if (HShock_resistance & INTRINSIC) {
 			HShock_resistance &= ~INTRINSIC;
 			You_feel("like someone has zapped you.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HShock_resistance & TIMEOUT) {
 			HShock_resistance &= ~TIMEOUT;
 			You_feel("like someone has zapped you.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 123: if (HDrain_resistance & INTRINSIC) {
 			HDrain_resistance &= ~INTRINSIC;
 			You_feel("like someone is sucking out your life-force.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HDrain_resistance & TIMEOUT) {
 			HDrain_resistance &= ~TIMEOUT;
 			You_feel("like someone is sucking out your life-force.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 124: if (HSick_resistance & INTRINSIC) {
 			HSick_resistance &= ~INTRINSIC;
 			You_feel("no longer immune to diseases!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HSick_resistance & TIMEOUT) {
 			HSick_resistance &= ~TIMEOUT;
 			You_feel("no longer immune to diseases!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 125 : 
@@ -1353,10 +1452,12 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 127: if (HWarning & INTRINSIC) {
 			HWarning &= ~INTRINSIC;
 			You_feel("that your radar has just stopped working!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HWarning & TIMEOUT) {
 			HWarning &= ~TIMEOUT;
 			You_feel("that your radar has just stopped working!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 128 : 
@@ -1368,46 +1469,56 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 134: if (HSearching & INTRINSIC) {
 			HSearching &= ~INTRINSIC;
 			You_feel("unable to find something you lost!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HSearching & TIMEOUT) {
 			HSearching &= ~TIMEOUT;
 			You_feel("unable to find something you lost!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 135: if (HClairvoyant & INTRINSIC) {
 			HClairvoyant &= ~INTRINSIC;
 			You_feel("a loss of mental capabilities!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HClairvoyant & TIMEOUT) {
 			HClairvoyant &= ~TIMEOUT;
 			You_feel("a loss of mental capabilities!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 136: if (HInfravision & INTRINSIC) {
 			HInfravision &= ~INTRINSIC;
 			You_feel("shrouded in darkness.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HInfravision & TIMEOUT) {
 			HInfravision &= ~TIMEOUT;
 			You_feel("shrouded in darkness.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 137: if (HDetect_monsters & INTRINSIC) {
 			HDetect_monsters &= ~INTRINSIC;
 			You_feel("that you can no longer sense monsters.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HDetect_monsters & TIMEOUT) {
 			HDetect_monsters &= ~TIMEOUT;
 			You_feel("that you can no longer sense monsters.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 138: if (HJumping & INTRINSIC) {
 			HJumping &= ~INTRINSIC;
 			You_feel("your legs shrinking.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HJumping & TIMEOUT) {
 			HJumping &= ~TIMEOUT;
 			You_feel("your legs shrinking.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 139 : 
@@ -1422,55 +1533,67 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 148: if (HTeleport_control & INTRINSIC) {
 			HTeleport_control &= ~INTRINSIC;
 			You_feel("unable to control where you're going.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HTeleport_control & TIMEOUT) {
 			HTeleport_control &= ~TIMEOUT;
 			You_feel("unable to control where you're going.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 149: if (HMagical_breathing & INTRINSIC) {
 			HMagical_breathing &= ~INTRINSIC;
 			You_feel("you suddenly need to breathe!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HMagical_breathing & TIMEOUT) {
 			HMagical_breathing &= ~TIMEOUT;
 			You_feel("you suddenly need to breathe!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 150: if (HRegeneration & INTRINSIC) {
 			HRegeneration &= ~INTRINSIC;
 			You_feel("your wounds are healing slower!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HRegeneration & TIMEOUT) {
 			HRegeneration &= ~TIMEOUT;
 			You_feel("your wounds are healing slower!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 151: if (HEnergy_regeneration & INTRINSIC) {
 			HEnergy_regeneration &= ~INTRINSIC;
 			You_feel("a loss of mystic power!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HEnergy_regeneration & TIMEOUT) {
 			HEnergy_regeneration &= ~TIMEOUT;
 			You_feel("a loss of mystic power!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 152: if (HPolymorph & INTRINSIC) {
 			HPolymorph &= ~INTRINSIC;
 			You_feel("unable to change form!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HPolymorph & TIMEOUT) {
 			HPolymorph &= ~TIMEOUT;
 			You_feel("unable to change form!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 153: if (HPolymorph_control & INTRINSIC) {
 			HPolymorph_control &= ~INTRINSIC;
 			You_feel("less control over your own body.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HPolymorph_control & TIMEOUT) {
 			HPolymorph_control &= ~TIMEOUT;
 			You_feel("less control over your own body.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 154 : 
@@ -1479,410 +1602,500 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 157: if (HAcid_resistance & INTRINSIC) {
 			HAcid_resistance &= ~INTRINSIC;
 			You_feel("worried about corrosion!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HAcid_resistance & TIMEOUT) {
 			HAcid_resistance &= ~TIMEOUT;
 			You_feel("worried about corrosion!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 158: if (HFumbling & INTRINSIC) {
 			HFumbling &= ~INTRINSIC;
 			You_feel("less clumsy.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HFumbling & TIMEOUT) {
 			HFumbling &= ~TIMEOUT;
 			You_feel("less clumsy.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 159: if (HSleeping & INTRINSIC) {
 			HSleeping &= ~INTRINSIC;
 			You_feel("like you just had some coffee.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HSleeping & TIMEOUT) {
 			HSleeping &= ~TIMEOUT;
 			You_feel("like you just had some coffee.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 160: if (HHunger & INTRINSIC) {
 			HHunger &= ~INTRINSIC;
 			You_feel("like you just ate a chunk of meat.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HHunger & TIMEOUT) {
 			HHunger &= ~TIMEOUT;
 			You_feel("like you just ate a chunk of meat.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 161: if (HConflict & INTRINSIC) {
 			HConflict &= ~INTRINSIC;
 			You_feel("more acceptable.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HConflict & TIMEOUT) {
 			HConflict &= ~TIMEOUT;
 			You_feel("more acceptable.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 162: if (HSlow_digestion & INTRINSIC) {
 			HSlow_digestion &= ~INTRINSIC;
 			You_feel("like you're burning calories faster.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HSlow_digestion & TIMEOUT) {
 			HSlow_digestion &= ~TIMEOUT;
 			You_feel("like you're burning calories faster.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 163: if (HFlying & INTRINSIC) {
 			HFlying &= ~INTRINSIC;
 			You_feel("like you just lost your wings!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HFlying & TIMEOUT) {
 			HFlying &= ~TIMEOUT;
 			You_feel("like you just lost your wings!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 164: if (HPasses_walls & INTRINSIC) {
 			HPasses_walls &= ~INTRINSIC;
 			You_feel("less ethereal!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HPasses_walls & TIMEOUT) {
 			HPasses_walls &= ~TIMEOUT;
 			You_feel("less ethereal!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 165: if (HAntimagic & INTRINSIC) {
 			HAntimagic &= ~INTRINSIC;
 			You_feel("less protected from magic!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HAntimagic & TIMEOUT) {
 			HAntimagic &= ~TIMEOUT;
 			You_feel("less protected from magic!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 166: if (HReflecting & INTRINSIC) {
 			HReflecting &= ~INTRINSIC;
 			You_feel("less reflexive!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HReflecting & TIMEOUT) {
 			HReflecting &= ~TIMEOUT;
 			You_feel("less reflexive!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 167: if (Blinded & INTRINSIC) {
 			Blinded &= ~INTRINSIC;
 			You_feel("visually clear!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (Blinded & TIMEOUT) {
 			Blinded &= ~TIMEOUT;
 			You_feel("visually clear!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 168: if (Glib & INTRINSIC) {
 			Glib &= ~INTRINSIC;
 			You_feel("heavy-handed!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (Glib & TIMEOUT) {
 			Glib &= ~TIMEOUT;
 			You_feel("heavy-handed!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 169: if (HSwimming & INTRINSIC) {
 			HSwimming &= ~INTRINSIC;
 			You_feel("less aquatic!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HSwimming & TIMEOUT) {
 			HSwimming &= ~TIMEOUT;
 			You_feel("less aquatic!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 170: if (HNumbed & INTRINSIC) {
 			HNumbed &= ~INTRINSIC;
 			You_feel("your body parts relax.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HNumbed & TIMEOUT) {
 			HNumbed &= ~TIMEOUT;
 			You_feel("your body parts relax.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 171: if (HFree_action & INTRINSIC) {
 			HFree_action &= ~INTRINSIC;
 			You_feel("a loss of freedom!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HFree_action & TIMEOUT) {
 			HFree_action &= ~TIMEOUT;
 			You_feel("a loss of freedom!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 172: if (HFeared & INTRINSIC) {
 			HFeared &= ~INTRINSIC;
 			You_feel("less afraid.");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HFeared & TIMEOUT) {
 			HFeared &= ~TIMEOUT;
 			You_feel("less afraid.");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 173: if (HFear_resistance & INTRINSIC) {
 			HFear_resistance &= ~INTRINSIC;
 			You_feel("a little anxious!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HFear_resistance & TIMEOUT) {
 			HFear_resistance &= ~TIMEOUT;
 			You_feel("a little anxious!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 174: if (u.uhitincxtra != 0) {
 			u.uhitinc -= u.uhitincxtra;
 			u.uhitincxtra = 0;
 			You_feel("your to-hit rating changing!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 175: if (u.udamincxtra != 0) {
 			u.udaminc -= u.udamincxtra;
 			u.udamincxtra = 0;
 			You_feel("your damage rating changing!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 176: if (HKeen_memory & INTRINSIC) {
 			HKeen_memory &= ~INTRINSIC;
 			You_feel("a case of selective amnesia...");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HKeen_memory & TIMEOUT) {
 			HKeen_memory &= ~TIMEOUT;
 			You_feel("a case of selective amnesia...");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 177: if (HVersus_curses & INTRINSIC) {
 			HVersus_curses &= ~INTRINSIC;
 			You_feel("cursed!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HVersus_curses & TIMEOUT) {
 			HVersus_curses &= ~TIMEOUT;
 			You_feel("cursed!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 178: if (HStun_resist & INTRINSIC) {
 			HStun_resist &= ~INTRINSIC;
 			You_feel("a little stunned!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HStun_resist & TIMEOUT) {
 			HStun_resist &= ~TIMEOUT;
 			You_feel("a little stunned!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 179: if (HConf_resist & INTRINSIC) {
 			HConf_resist &= ~INTRINSIC;
 			You_feel("a little confused!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HConf_resist & TIMEOUT) {
 			HConf_resist &= ~TIMEOUT;
 			You_feel("a little confused!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 180: if (HDouble_attack & INTRINSIC) {
 			HDouble_attack &= ~INTRINSIC;
 			You_feel("your attacks becoming slower!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HDouble_attack & TIMEOUT) {
 			HDouble_attack &= ~TIMEOUT;
 			You_feel("your attacks becoming slower!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 181: if (HQuad_attack & INTRINSIC) {
 			HQuad_attack &= ~INTRINSIC;
 			You_feel("your attacks becoming a lot slower!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HQuad_attack & TIMEOUT) {
 			HQuad_attack &= ~TIMEOUT;
 			You_feel("your attacks becoming a lot slower!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 182: if (HExtra_wpn_practice & INTRINSIC) {
 			HExtra_wpn_practice &= ~INTRINSIC;
 			You_feel("less able to learn new stuff!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HExtra_wpn_practice & TIMEOUT) {
 			HExtra_wpn_practice &= ~TIMEOUT;
 			You_feel("less able to learn new stuff!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 183: if (HDeath_resistance & INTRINSIC) {
 			HDeath_resistance &= ~INTRINSIC;
 			You_feel("a little dead!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HDeath_resistance & TIMEOUT) {
 			HDeath_resistance &= ~TIMEOUT;
 			You_feel("a little dead!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 184: if (HDisplaced & INTRINSIC) {
 			HDisplaced &= ~INTRINSIC;
 			You_feel("a little exposed!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HDisplaced & TIMEOUT) {
 			HDisplaced &= ~TIMEOUT;
 			You_feel("a little exposed!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 185: if (HPsi_resist & INTRINSIC) {
 			HPsi_resist &= ~INTRINSIC;
 			You_feel("empty-minded!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HPsi_resist & TIMEOUT) {
 			HPsi_resist &= ~TIMEOUT;
 			You_feel("empty-minded!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 186: if (HSight_bonus & INTRINSIC) {
 			HSight_bonus &= ~INTRINSIC;
 			You_feel("less perceptive!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HSight_bonus & TIMEOUT) {
 			HSight_bonus &= ~TIMEOUT;
 			You_feel("less perceptive!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 187:
 	case 188: if (HManaleech & INTRINSIC) {
 			HManaleech &= ~INTRINSIC;
 			You_feel("less magically attuned!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HManaleech & TIMEOUT) {
 			HManaleech &= ~TIMEOUT;
 			You_feel("less magically attuned!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 189: if (HMap_amnesia & INTRINSIC) {
 			HMap_amnesia &= ~INTRINSIC;
 			You_feel("less forgetful!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HMap_amnesia & TIMEOUT) {
 			HMap_amnesia &= ~TIMEOUT;
 			You_feel("less forgetful!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 190: if (HPeacevision & INTRINSIC) {
 			HPeacevision &= ~INTRINSIC;
 			You_feel("less peaceful!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HPeacevision & TIMEOUT) {
 			HPeacevision &= ~TIMEOUT;
 			You_feel("less peaceful!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 191: if (HHallu_party & INTRINSIC) {
 			HHallu_party &= ~INTRINSIC;
 			You_feel("that the party is over!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HHallu_party & TIMEOUT) {
 			HHallu_party &= ~TIMEOUT;
 			You_feel("that the party is over!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 192: if (HDrunken_boxing & INTRINSIC) {
 			HDrunken_boxing &= ~INTRINSIC;
 			You_feel("a little drunk!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HDrunken_boxing & TIMEOUT) {
 			HDrunken_boxing &= ~TIMEOUT;
 			You_feel("a little drunk!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 193: if (HStunnopathy & INTRINSIC) {
 			HStunnopathy &= ~INTRINSIC;
 			You_feel("an uncontrolled stunning!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HStunnopathy & TIMEOUT) {
 			HStunnopathy &= ~TIMEOUT;
 			You_feel("an uncontrolled stunning!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 194: if (HNumbopathy & INTRINSIC) {
 			HNumbopathy &= ~INTRINSIC;
 			You_feel("numbness spreading through your body!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HNumbopathy & TIMEOUT) {
 			HNumbopathy &= ~TIMEOUT;
 			You_feel("numbness spreading through your body!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 195: if (HDimmopathy & INTRINSIC) {
 			HDimmopathy &= ~INTRINSIC;
-			You_feel(Hallucination ? "that your marriage is no longer safe..." : "worried about the future!");
+			You_feel(FunnyHallu ? "that your marriage is no longer safe..." : "worried about the future!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HDimmopathy & TIMEOUT) {
 			HDimmopathy &= ~TIMEOUT;
-			You_feel(Hallucination ? "that your marriage is no longer safe..." : "worried about the future!");
+			You_feel(FunnyHallu ? "that your marriage is no longer safe..." : "worried about the future!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 196: if (HFreezopathy & INTRINSIC) {
 			HFreezopathy &= ~INTRINSIC;
 			You_feel("ice-cold!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HFreezopathy & TIMEOUT) {
 			HFreezopathy &= ~TIMEOUT;
 			You_feel("ice-cold!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 197: if (HStoned_chiller & INTRINSIC) {
 			HStoned_chiller &= ~INTRINSIC;
 			You_feel("that you ain't gonna get time for relaxing anymore!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HStoned_chiller & TIMEOUT) {
 			HStoned_chiller &= ~TIMEOUT;
 			You_feel("that you ain't gonna get time for relaxing anymore!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 198: if (HCorrosivity & INTRINSIC) {
 			HCorrosivity &= ~INTRINSIC;
 			You_feel("the protective layer on your skin disappearing!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HCorrosivity & TIMEOUT) {
 			HCorrosivity &= ~TIMEOUT;
 			You_feel("the protective layer on your skin disappearing!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 199: if (HFear_factor & INTRINSIC) {
 			HFear_factor &= ~INTRINSIC;
 			You_feel("fearful!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HFear_factor & TIMEOUT) {
 			HFear_factor &= ~TIMEOUT;
 			You_feel("fearful!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 200: if (HBurnopathy & INTRINSIC) {
 			HBurnopathy &= ~INTRINSIC;
 			You_feel("red-hot!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HBurnopathy & TIMEOUT) {
 			HBurnopathy &= ~TIMEOUT;
 			You_feel("red-hot!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 201: if (HSickopathy & INTRINSIC) {
 			HSickopathy &= ~INTRINSIC;
 			You_feel("a loss of medical knowledge!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HSickopathy & TIMEOUT) {
 			HSickopathy &= ~TIMEOUT;
 			You_feel("a loss of medical knowledge!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 202: if (HWonderlegs & INTRINSIC) {
 			HWonderlegs &= ~INTRINSIC;
 			You_feel("that all girls and women will scratch bloody wounds on your legs with their high heels!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HWonderlegs & TIMEOUT) {
 			HWonderlegs &= ~TIMEOUT;
 			You_feel("that all girls and women will scratch bloody wounds on your legs with their high heels!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 203: if (HGlib_combat & INTRINSIC) {
 			HGlib_combat &= ~INTRINSIC;
 			You_feel("fliction in your %s!", makeplural(body_part(HAND)));
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HGlib_combat & TIMEOUT) {
 			HGlib_combat &= ~TIMEOUT;
 			You_feel("fliction in your %s!", makeplural(body_part(HAND)));
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 204:
@@ -1890,46 +2103,111 @@ attrcurse()			/* remove a random INTRINSIC ability */
 	case 206: if (HStone_resistance & INTRINSIC) {
 			HStone_resistance &= ~INTRINSIC;
 			You_feel("less solid!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HStone_resistance & TIMEOUT) {
 			HStone_resistance &= ~TIMEOUT;
 			You_feel("less solid!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 207: if (HCont_resist & INTRINSIC) {
 			HCont_resist &= ~INTRINSIC;
 			You_feel("less resistant to contamination!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HCont_resist & TIMEOUT) {
 			HCont_resist &= ~TIMEOUT;
 			You_feel("less resistant to contamination!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 208: if (HDiscount_action & INTRINSIC) {
 			HDiscount_action &= ~INTRINSIC;
 			You_feel("less resistant to paralysis!");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HDiscount_action & TIMEOUT) {
 			HDiscount_action &= ~TIMEOUT;
 			You_feel("less resistant to paralysis!");
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 209: if (HFull_nutrient & INTRINSIC) {
 			HFull_nutrient &= ~INTRINSIC;
 			You_feel("a hole in your %s!", body_part(STOMACH));
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HFull_nutrient & TIMEOUT) {
 			HFull_nutrient &= ~TIMEOUT;
 			You_feel("a hole in your %s!", body_part(STOMACH));
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	case 210: if (HTechnicality & INTRINSIC) {
 			HTechnicality &= ~INTRINSIC;
 			You_feel("less capable of using your techniques...");
+			u.cnd_intrinsiclosscount++;
 		}
 		if (HTechnicality & TIMEOUT) {
 			HTechnicality &= ~TIMEOUT;
 			You_feel("less capable of using your techniques...");
+			u.cnd_intrinsiclosscount++;
+		}
+		break;
+	case 211: if (HHalf_spell_damage & INTRINSIC) {
+			HHalf_spell_damage &= ~INTRINSIC;
+			You_feel("vulnerable to spells!");
+			u.cnd_intrinsiclosscount++;
+		}
+		if (HHalf_spell_damage & TIMEOUT) {
+			HHalf_spell_damage &= ~TIMEOUT;
+			You_feel("vulnerable to spells!");
+			u.cnd_intrinsiclosscount++;
+		}
+		break;
+	case 212: if (HHalf_physical_damage & INTRINSIC) {
+			HHalf_physical_damage &= ~INTRINSIC;
+			You_feel("vulnerable to damage!");
+			u.cnd_intrinsiclosscount++;
+		}
+		if (HHalf_physical_damage & TIMEOUT) {
+			HHalf_physical_damage &= ~TIMEOUT;
+			You_feel("vulnerable to damage!");
+			u.cnd_intrinsiclosscount++;
+		}
+		break;
+	case 213: if (HUseTheForce & INTRINSIC) {
+			HUseTheForce &= ~INTRINSIC;
+			You_feel("that you lost your jedi powers!");
+			u.cnd_intrinsiclosscount++;
+		}
+		if (HUseTheForce & TIMEOUT) {
+			HUseTheForce &= ~TIMEOUT;
+			You_feel("that you lost your jedi powers!");
+			u.cnd_intrinsiclosscount++;
+		}
+		break;
+	case 214: if (HScentView & INTRINSIC) {
+			HScentView &= ~INTRINSIC;
+			You_feel("unable to smell things!");
+			u.cnd_intrinsiclosscount++;
+		}
+		if (HScentView & TIMEOUT) {
+			HScentView &= ~TIMEOUT;
+			You_feel("unable to smell things!");
+			u.cnd_intrinsiclosscount++;
+		}
+		break;
+	case 215: if (HDiminishedBleeding & INTRINSIC) {
+			HDiminishedBleeding &= ~INTRINSIC;
+			You_feel("your %s coagulants failing!", body_part(BLOOD));
+			u.cnd_intrinsiclosscount++;
+		}
+		if (HDiminishedBleeding & TIMEOUT) {
+			HDiminishedBleeding &= ~TIMEOUT;
+			You_feel("your %s coagulants failing!", body_part(BLOOD));
+			u.cnd_intrinsiclosscount++;
 		}
 		break;
 	default: break;

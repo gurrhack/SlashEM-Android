@@ -64,7 +64,7 @@ msgpline_type(msg)
 /* Note that these declarations rely on knowledge of the internals
  * of the variable argument handling stuff in "tradstdc.h"
  */
-char * replace(const char *, const char *, const char *);
+char * replace(const char *, const char *, const char *, BOOLEAN_P);
 
 #if defined(USE_STDARG) || defined(USE_VARARGS)
 static void vpline(const char *, va_list);
@@ -101,7 +101,7 @@ pline VA_DECL(const char *, line)
 
 	if (!line || !*line) return;
 
-	if (PlayerHearsMessages && !program_state.in_impossible && !program_state.in_paniclog && !program_state.panicking && !program_state.gameover && rn2(3)
+	if (PlayerHearsMessages && !program_state.in_impossible && !program_state.in_paniclog && !program_state.panicking && !program_state.gameover && rn2(3) && !u.captchahack
 
 #if defined(WIN32)
 && !program_state.exiting
@@ -109,7 +109,7 @@ pline VA_DECL(const char *, line)
 
 ) line = fauxmessage();
 
-	if (SpellColorRed && !rn2(10) && !program_state.in_impossible && !program_state.in_paniclog && !program_state.panicking && !program_state.gameover
+	if (SpellColorRed && !rn2(10) && !program_state.in_impossible && !program_state.in_paniclog && !program_state.panicking && !program_state.gameover && !u.captchahack
 
 #if defined(WIN32)
 && !program_state.exiting
@@ -117,7 +117,7 @@ pline VA_DECL(const char *, line)
 
 ) line = generate_garbage_string();
 
-	if (LLMMessages && !program_state.in_impossible && !program_state.in_paniclog && !program_state.panicking && !program_state.gameover 
+	if (LLMMessages && !program_state.in_impossible && !program_state.in_paniclog && !program_state.panicking && !program_state.gameover && !u.captchahack
 
 /* buildfix by EternalEye: sinfo.exiting only exists on win32 */
 #if defined(WIN32)
@@ -126,77 +126,76 @@ pline VA_DECL(const char *, line)
 
 ) line = "Warning: Low Local Memory. Freeing description strings.";
 
-	if (MessagesSuppressed && !program_state.in_impossible && !program_state.in_paniclog && !program_state.panicking && !program_state.gameover 
+	if (MessagesSuppressed && !program_state.in_impossible && !program_state.in_paniclog && !program_state.panicking && !program_state.gameover && !u.captchahack
 #if defined(WIN32)
 && !program_state.exiting
 #endif
 ) line = " ";
 
 	if (index(line, '%')) {
-	    vsprintf(pbuf,line,VA_ARGS);
+	    vsnprintf(pbuf,sizeof pbuf,line,VA_ARGS);
 	    line = pbuf;
 	}
 
         if (RotThirteenCipher && (strlen(line)<(BUFSZ-5)) &&(!program_state.in_impossible) ) {
 
-		line = replace(line,"a","N");
-		line = replace(line,"b","O");
-		line = replace(line,"c","P");
-		line = replace(line,"d","Q");
-		line = replace(line,"e","R");
-		line = replace(line,"f","S");
-		line = replace(line,"g","T");
-		line = replace(line,"h","U");
-		line = replace(line,"i","V");
-		line = replace(line,"j","W");
-		line = replace(line,"k","X");
-		line = replace(line,"l","Y");
-		line = replace(line,"m","Z");
-		line = replace(line,"n","A");
-		line = replace(line,"o","B");
-		line = replace(line,"p","C");
-		line = replace(line,"q","D");
-		line = replace(line,"r","E");
-		line = replace(line,"s","F");
-		line = replace(line,"t","G");
-		line = replace(line,"u","H");
-		line = replace(line,"v","I");
-		line = replace(line,"w","J");
-		line = replace(line,"x","K");
-		line = replace(line,"y","L");
-		line = replace(line,"z","M");
+		line = replace(line,"a","N", FALSE);
+		line = replace(line,"b","O", FALSE);
+		line = replace(line,"c","P", FALSE);
+		line = replace(line,"d","Q", FALSE);
+		line = replace(line,"e","R", FALSE);
+		line = replace(line,"f","S", FALSE);
+		line = replace(line,"g","T", FALSE);
+		line = replace(line,"h","U", FALSE);
+		line = replace(line,"i","V", FALSE);
+		line = replace(line,"j","W", FALSE);
+		line = replace(line,"k","X", FALSE);
+		line = replace(line,"l","Y", FALSE);
+		line = replace(line,"m","Z", FALSE);
+		line = replace(line,"n","A", FALSE);
+		line = replace(line,"o","B", FALSE);
+		line = replace(line,"p","C", FALSE);
+		line = replace(line,"q","D", FALSE);
+		line = replace(line,"r","E", FALSE);
+		line = replace(line,"s","F", FALSE);
+		line = replace(line,"t","G", FALSE);
+		line = replace(line,"u","H", FALSE);
+		line = replace(line,"v","I", FALSE);
+		line = replace(line,"w","J", FALSE);
+		line = replace(line,"x","K", FALSE);
+		line = replace(line,"y","L", FALSE);
+		line = replace(line,"z","M", FALSE);
 
 	  }  else if (YouHaveBigscript && (strlen(line)<(BUFSZ-5)) &&(!program_state.in_impossible) ) {
 
-		line = replace(line,"a","A");
-		line = replace(line,"b","B");
-		line = replace(line,"c","C");
-		line = replace(line,"d","D");
-		line = replace(line,"e","E");
-		line = replace(line,"f","F");
-		line = replace(line,"g","G");
-		line = replace(line,"h","H");
-		line = replace(line,"i","I");
-		line = replace(line,"j","J");
-		line = replace(line,"k","K");
-		line = replace(line,"l","L");
-		line = replace(line,"m","M");
-		line = replace(line,"n","N");
-		line = replace(line,"o","O");
-		line = replace(line,"p","P");
-		line = replace(line,"q","Q");
-		line = replace(line,"r","R");
-		line = replace(line,"s","S");
-		line = replace(line,"t","T");
-		line = replace(line,"u","U");
-		line = replace(line,"v","V");
-		line = replace(line,"w","W");
-		line = replace(line,"x","X");
-		line = replace(line,"y","Y");
-		line = replace(line,"z","Z");
+		line = replace(line,"a","A", FALSE);
+		line = replace(line,"b","B", FALSE);
+		line = replace(line,"c","C", FALSE);
+		line = replace(line,"d","D", FALSE);
+		line = replace(line,"e","E", FALSE);
+		line = replace(line,"f","F", FALSE);
+		line = replace(line,"g","G", FALSE);
+		line = replace(line,"h","H", FALSE);
+		line = replace(line,"i","I", FALSE);
+		line = replace(line,"j","J", FALSE);
+		line = replace(line,"k","K", FALSE);
+		line = replace(line,"l","L", FALSE);
+		line = replace(line,"m","M", FALSE);
+		line = replace(line,"n","N", FALSE);
+		line = replace(line,"o","O", FALSE);
+		line = replace(line,"p","P", FALSE);
+		line = replace(line,"q","Q", FALSE);
+		line = replace(line,"r","R", FALSE);
+		line = replace(line,"s","S", FALSE);
+		line = replace(line,"t","T", FALSE);
+		line = replace(line,"u","U", FALSE);
+		line = replace(line,"v","V", FALSE);
+		line = replace(line,"w","W", FALSE);
+		line = replace(line,"x","X", FALSE);
+		line = replace(line,"y","Y", FALSE);
+		line = replace(line,"z","Z", FALSE);
 
 	  }
-
 
 /*Intercept direct speach, inpossible() and very short or long Strings here*/
 /* to cut down unnecesary calls to the now slower replace */
@@ -209,86 +208,139 @@ pline VA_DECL(const char *, line)
              &&(!program_state.in_impossible)
              &&(strlen(line)>9)){
                 /* >9: "You die ..." but not "It hits." */
-		line = replace(line,"You","Ye");
-		line = replace(line,"you","ye");
-		line = replace(line,"His","'is");
-		line = replace(line," his"," 'is");
-		line = replace(line,"Her","'er");
-		line = replace(line," her"," 'er");
-		line = replace(line,"Are","Be");
-		line = replace(line," are"," be");
-		line = replace(line,"Is ","Be");
-		line = replace(line," is "," be ");
-		line = replace(line," is."," be.");
-		line = replace(line," is,"," be,");
+		line = replace(line,"You","Ye", TRUE);
+		line = replace(line,"you","ye", TRUE);
+		line = replace(line,"His","'is", TRUE);
+		line = replace(line," his"," 'is", TRUE);
+		line = replace(line,"Her","'er", TRUE);
+		line = replace(line," her"," 'er", TRUE);
+		line = replace(line,"Are","Be", TRUE);
+		line = replace(line," are"," be", TRUE);
+		line = replace(line,"Is ","Be", TRUE);
+		line = replace(line," is "," be ", TRUE);
+		line = replace(line," is."," be.", TRUE);
+		line = replace(line," is,"," be,", TRUE);
 		if (Role_if(PM_KORSAIR) || (uwep && uwep->oartifact == ART_ARRRRRR_MATEY) ) { /* words beginning with a c will begin with a k for korsairs --Amy */
-		line = replace(line,"C","K");
-		line = replace(line," c"," k");
-		line = replace(line,"(c","(k");
+		line = replace(line,"C","K", FALSE);
+		line = replace(line," c"," k", FALSE);
+		line = replace(line,"(c","(k", FALSE);
 		}
-		line = replace(line,"Is ","Be ");
-		line = replace(line,"Of ","O' ");
-		line = replace(line," of "," o' ");
-		line = replace(line,"Of.","O'.");
-		line = replace(line," of."," o'.");
-		line = replace(line,"Of,","O',");
-		line = replace(line," of,"," o',");
-		line = replace(line," ear"," lug");
-		line = replace(line,"Ear","Lug");
-		line = replace(line,"eye","deadlight");
-		line = replace(line,"Eye","Deadlight");
+		line = replace(line,"Is ","Be ", TRUE);
+		line = replace(line,"Of ","O' ", TRUE);
+		line = replace(line," of "," o' ", TRUE);
+		line = replace(line,"Of.","O'.", TRUE);
+		line = replace(line," of."," o'.", TRUE);
+		line = replace(line,"Of,","O',", TRUE);
+		line = replace(line," of,"," o',", TRUE);
+		line = replace(line," ear"," lug", TRUE);
+		line = replace(line,"Ear","Lug", TRUE);
+		line = replace(line,"eye","deadlight", TRUE);
+		line = replace(line,"Eye","Deadlight", TRUE);
                 /* If orkmid isn't contained, save some time -CK */
                 if(strstr(line,"orkmid") )
                 {
-                 line = replace(line,"zorkmids ","doubloons ");
-                 line = replace(line,"Zorkmids ","Doubloons ");
-                 line = replace(line,"zorkmids.","doubloons.");
-                 line = replace(line,"Zorkmids.","Doubloons.");
-                 line = replace(line,"zorkmids,","doubloons,");
-                 line = replace(line,"Zorkmids,","Doubloons,");
-                 line = replace(line,"zorkmids)","doubloons)");
-                 line = replace(line,"Zorkmids)","Doubloons)");
-                 line = replace(line,"zorkmid ","doubloon ");
-                 line = replace(line,"Zorkmid ","Doubloon ");
-                 line = replace(line,"zorkmid.","doubloon.");
-                 line = replace(line,"Zorkmid.","Doubloon.");
-                 line = replace(line,"zorkmid,","doubloon,");
-                 line = replace(line,"Zorkmid,","Doubloon,");
-                 line = replace(line,"zorkmid)","doubloon)");
-                 line = replace(line,"Zorkmid)","Doubloon)");
+                 line = replace(line,"zorkmids ","doubloons ", TRUE);
+                 line = replace(line,"Zorkmids ","Doubloons ", TRUE);
+                 line = replace(line,"zorkmids.","doubloons.", TRUE);
+                 line = replace(line,"Zorkmids.","Doubloons.", TRUE);
+                 line = replace(line,"zorkmids,","doubloons,", TRUE);
+                 line = replace(line,"Zorkmids,","Doubloons,", TRUE);
+                 line = replace(line,"zorkmids)","doubloons)", TRUE);
+                 line = replace(line,"Zorkmids)","Doubloons)", TRUE);
+                 line = replace(line,"zorkmid ","doubloon ", TRUE);
+                 line = replace(line,"Zorkmid ","Doubloon ", TRUE);
+                 line = replace(line,"zorkmid.","doubloon.", TRUE);
+                 line = replace(line,"Zorkmid.","Doubloon.", TRUE);
+                 line = replace(line,"zorkmid,","doubloon,", TRUE);
+                 line = replace(line,"Zorkmid,","Doubloon,", TRUE);
+                 line = replace(line,"zorkmid)","doubloon)", TRUE);
+                 line = replace(line,"Zorkmid)","Doubloon)", TRUE);
                 } /* endif orkmid */
                 /* If old coin isn't contained, save some time -CK */
                 if(strstr(line,"old coin") )
                 {
-                 line = replace(line,"gold coins","pieces of eight");
-                 line = replace(line,"Gold coins","Pieces of eight");
-                 line = replace(line,"gold coin","piece of eight");
-                 line = replace(line,"Gold coin","Piece of eight");
+                 line = replace(line,"gold coins","pieces of eight", TRUE);
+                 line = replace(line,"Gold coins","Pieces of eight", TRUE);
+                 line = replace(line,"gold coin","piece of eight", TRUE);
+                 line = replace(line,"Gold coin","Piece of eight", TRUE);
                 }
                 /* If old piece isn't contained, save some time -CK */
                 if(strstr(line,"old piece") )
                 {
-                 line = replace(line,"gold pieces.","pieces of eight");
-                 line = replace(line,"Gold pieces.","Pieces of eight");
-                 line = replace(line,"gold pieces,","pieces of eight");
-                 line = replace(line,"Gold pieces,","Pieces of eight");
-                 line = replace(line,"gold pieces ","pieces of eight");
-                 line = replace(line,"Gold pieces ","Pieces of eight");
-                 line = replace(line,"gold piece.","piece of eight");
-                 line = replace(line,"Gold piece.","Piece of eight");
-                 line = replace(line,"gold piece,","piece of eight");
-                 line = replace(line,"Gold piece,","Piece of eight");
-                 line = replace(line,"gold piece ","piece of eight");
-                 line = replace(line,"Gold piece ","Piece of eight");
+                 line = replace(line,"gold pieces.","pieces of eight", TRUE);
+                 line = replace(line,"Gold pieces.","Pieces of eight", TRUE);
+                 line = replace(line,"gold pieces,","pieces of eight", TRUE);
+                 line = replace(line,"Gold pieces,","Pieces of eight", TRUE);
+                 line = replace(line,"gold pieces ","pieces of eight", TRUE);
+                 line = replace(line,"Gold pieces ","Pieces of eight", TRUE);
+                 line = replace(line,"gold piece.","piece of eight", TRUE);
+                 line = replace(line,"Gold piece.","Piece of eight", TRUE);
+                 line = replace(line,"gold piece,","piece of eight", TRUE);
+                 line = replace(line,"Gold piece,","Piece of eight", TRUE);
+                 line = replace(line,"gold piece ","piece of eight", TRUE);
+                 line = replace(line,"Gold piece ","Piece of eight", TRUE);
                 } /* endif old piece */
         }  /* endif role_if(PM_PIRATE),etc. */
+
+	/* ZAPM has buckazoids; shopkeepers and stuff will also use that term, so no check for direct speech --Amy */
+	  if (zapmrename() && (strlen(line)<(BUFSZ-5))
+		 &&(!program_state.in_impossible)
+             &&(strlen(line)>9)) {
+                if(strstr(line,"orkmid") )
+                {
+                 line = replace(line,"zorkmids ","buckazoids ", FALSE);
+                 line = replace(line,"Zorkmids ","Buckazoids ", FALSE);
+                 line = replace(line,"zorkmids.","buckazoids.", FALSE);
+                 line = replace(line,"Zorkmids.","Buckazoids.", FALSE);
+                 line = replace(line,"zorkmids,","buckazoids,", FALSE);
+                 line = replace(line,"Zorkmids,","Buckazoids,", FALSE);
+                 line = replace(line,"zorkmids)","buckazoids)", FALSE);
+                 line = replace(line,"Zorkmids)","Buckazoids)", FALSE);
+                 line = replace(line,"zorkmid ","buckazoid ", FALSE);
+                 line = replace(line,"Zorkmid ","Buckazoid ", FALSE);
+                 line = replace(line,"zorkmid.","buckazoid.", FALSE);
+                 line = replace(line,"Zorkmid.","Buckazoid.", FALSE);
+                 line = replace(line,"zorkmid,","buckazoid,", FALSE);
+                 line = replace(line,"Zorkmid,","Buckazoid,", FALSE);
+                 line = replace(line,"zorkmid)","buckazoid)", FALSE);
+                 line = replace(line,"Zorkmid)","Buckazoid)", FALSE);
+                } /* endif orkmid */
+                /* If old coin isn't contained, save some time -CK */
+                if(strstr(line,"old coin") )
+                {
+                 line = replace(line,"gold coins","buckazoids", FALSE);
+                 line = replace(line,"Gold coins","Buckazoids", FALSE);
+                 line = replace(line,"gold coin","buckazoids", FALSE);
+                 line = replace(line,"Gold coin","Buckazoids", FALSE);
+                }
+                /* If old piece isn't contained, save some time -CK */
+                if(strstr(line,"old piece") )
+                {
+                 line = replace(line,"gold pieces.","buckazoids.", FALSE);
+                 line = replace(line,"Gold pieces.","Buckazoids.", FALSE);
+                 line = replace(line,"gold pieces,","buckazoids,", FALSE);
+                 line = replace(line,"Gold pieces,","Buckazoids,", FALSE);
+                 line = replace(line,"gold pieces ","buckazoids ", FALSE);
+                 line = replace(line,"Gold pieces ","Buckazoids ", FALSE);
+                 line = replace(line,"gold pieces","buckazoids", FALSE);
+                 line = replace(line,"Gold pieces","Buckazoids", FALSE);
+                 line = replace(line,"gold piece.","buckazoid.", FALSE);
+                 line = replace(line,"Gold piece.","Buckazoid.", FALSE);
+                 line = replace(line,"gold piece,","buckazoid,", FALSE);
+                 line = replace(line,"Gold piece,","Buckazoid,", FALSE);
+                 line = replace(line,"gold piece ","buckazoid ", FALSE);
+                 line = replace(line,"Gold piece ","Buckazoid ", FALSE);
+                 line = replace(line,"gold piece","buckazoid", FALSE);
+                 line = replace(line,"Gold piece","Buckazoid", FALSE);
+                } /* endif old piece */
+	  } /* endif ZAPM etc. */
 
 #if defined(DUMP_LOG)
 	if (DUMPMSGS > 0 && !program_state.gameover) {
 		/* count identical messages */
 		if (!strncmp(msgs[lastmsg], line, BUFSZ)) {
 			msgs_count[lastmsg] += 1;
-		} else {
+		} else if (strncmp(line, "Unknown command", 15) ) {
 			lastmsg = (lastmsg + 1) % DUMPMSGS;
 			strncpy(msgs[lastmsg], line, BUFSZ);
 			msgs_count[lastmsg] = 1;
@@ -307,8 +359,8 @@ pline VA_DECL(const char *, line)
 #endif /* MAC */
 	if (vision_full_recalc) vision_recalc(0);
 	if (u.ux) flush_screen(1);		/* %% */
-	if (typ == MSGTYP_NOSHOW && !(MommaBugEffect || u.uprops[MOMMA_BUG].extrinsic || have_mommystone()) && !(uarmf && uarmf->oartifact == ART_GRENEUVENIA_S_HUG)) return;
-	if (typ == MSGTYP_NOREP && !(MommaBugEffect || u.uprops[MOMMA_BUG].extrinsic || have_mommystone()) && !(uarmf && uarmf->oartifact == ART_GRENEUVENIA_S_HUG) && !strcmp(line, prevmsg)) return;
+	if (typ == MSGTYP_NOSHOW && !(MommaBugEffect || u.uprops[MOMMA_BUG].extrinsic || (uimplant && uimplant->oartifact == ART_DEINE_MUDDA) || have_mommystone()) && !(uarmf && uarmf->oartifact == ART_GRENEUVENIA_S_HUG)) return;
+	if (typ == MSGTYP_NOREP && !(MommaBugEffect || u.uprops[MOMMA_BUG].extrinsic || (uimplant && uimplant->oartifact == ART_DEINE_MUDDA) || have_mommystone()) && !(uarmf && uarmf->oartifact == ART_GRENEUVENIA_S_HUG) && !strcmp(line, prevmsg)) return;
 	putstr(WIN_MESSAGE, 0, line);
 
 	if (HeapEffectBug || u.uprops[HEAP_EFFECT].extrinsic || have_heapstone()) {
@@ -511,7 +563,7 @@ raw_printf VA_DECL(const char *, line)
 	    raw_print(line);
 	else {
 	    char pbuf[BUFSZ];
-	    vsprintf(pbuf,line,VA_ARGS);
+	    vsnprintf(pbuf,sizeof pbuf,line,VA_ARGS);
 	    raw_print(pbuf);
 	}
 }
@@ -520,21 +572,22 @@ raw_printf VA_DECL(const char *, line)
 /*VARARGS1*/
 void
 impossible VA_DECL(const char *, s)
+	{
+	char pbuf[BUFSZ];
 	VA_START(s);
 	VA_INIT(s, const char *);
 	if (program_state.in_impossible)
 		panic("impossible called impossible");
 	program_state.in_impossible = 1;
-	{
-	    char pbuf[BUFSZ];
-	    vsprintf(pbuf,s,VA_ARGS);
-	    paniclog("impossible", pbuf);
-	}
-	vpline(s,VA_ARGS);
+	vsnprintf(pbuf,sizeof pbuf,s,VA_ARGS);
+	pbuf[BUFSZ-1] = '\0'; /* sanity */
+	paniclog("impossible", pbuf);
+	pline("%s", pbuf); /*used to be vpline(s,VA_ARGS); but that was causing funky issues --Amy */
 	pline("Program in disorder. Please inform Amy (Bluescreenofdeath at nethackwiki) about this bug.");
 	pline("The admins can also be contacted on the #em.slashem.me IRC channel (Freenode).");
 	program_state.in_impossible = 0;
 	VA_END();
+	}
 }
 
 const char *
@@ -555,38 +608,54 @@ hybrid_str()
 {
     static char string[BUFSZ];
     *string = '\0';
-	if (flags.hybridangbander) sprintf(eos(string), "angbander ");
-	if (flags.hybridaquarian) sprintf(eos(string), "aquarian ");
-	if (flags.hybridcurser) sprintf(eos(string), "curser ");
-	if (flags.hybridhaxor) sprintf(eos(string), "haxor ");
-	if (flags.hybridhomicider) sprintf(eos(string), "homicider ");
-	if (flags.hybridsuxxor) sprintf(eos(string), "suxxor ");
-	if (flags.hybridwarper) sprintf(eos(string), "warper ");
-	if (flags.hybridrandomizer) sprintf(eos(string), "randomizer ");
-	if (flags.hybridnullrace) sprintf(eos(string), "null ");
-	if (flags.hybridmazewalker) sprintf(eos(string), "mazewalker ");
-	if (flags.hybridsoviet) sprintf(eos(string), "soviet ");
-	if (flags.hybridxrace) sprintf(eos(string), "x-race ");
-	if (flags.hybridheretic) sprintf(eos(string), "heretic ");
-	if (flags.hybridsokosolver) sprintf(eos(string), "sokosolver ");
-	if (flags.hybridspecialist) sprintf(eos(string), "specialist ");
-	if (flags.hybridamerican) sprintf(eos(string), "american ");
-	if (flags.hybridminimalist) sprintf(eos(string), "minimalist ");
-	if (flags.hybridnastinator) sprintf(eos(string), "nastinator ");
-	if (flags.hybridrougelike) sprintf(eos(string), "rougelike ");
-	if (flags.hybridsegfaulter) sprintf(eos(string), "segfaulter ");
-	if (flags.hybridironman) sprintf(eos(string), "ironman ");
-	if (flags.hybridamnesiac) sprintf(eos(string), "amnesiac ");
-	if (flags.hybridproblematic) sprintf(eos(string), "problematic ");
-	if (flags.hybridwindinhabitant) sprintf(eos(string), "windinhabitant ");
-	if (flags.hybridaggravator) sprintf(eos(string), "aggravator ");
-	if (flags.hybridevilvariant) sprintf(eos(string), "evilvariant ");
-	if (flags.hybridlevelscaler) sprintf(eos(string), "levelscaler ");
-	if (flags.hybriderosator) sprintf(eos(string), "erosator ");
-	if (flags.hybridroommate) sprintf(eos(string), "roommate ");
-	if (flags.hybridextravator) sprintf(eos(string), "extravator ");
 
-	if (!(flags.hybridangbander) && !(flags.hybridaquarian) && !(flags.hybridcurser) && !(flags.hybridhaxor) && !(flags.hybridhomicider) && !(flags.hybridsuxxor) && !(flags.hybridwarper) && !(flags.hybridrandomizer) && !(flags.hybridnullrace) && !(flags.hybridmazewalker) && !(flags.hybridsoviet) && !(flags.hybridxrace) && !(flags.hybridheretic) && !(flags.hybridsokosolver) && !(flags.hybridspecialist) && !(flags.hybridamerican) && !(flags.hybridminimalist) && !(flags.hybridnastinator) && !(flags.hybridrougelike) && !(flags.hybridsegfaulter) && !(flags.hybridironman) && !(flags.hybridamnesiac) && !(flags.hybridproblematic) && !(flags.hybridwindinhabitant) && !(flags.hybridaggravator) && !(flags.hybridevilvariant) && !(flags.hybridlevelscaler) && !(flags.hybriderosator) && !(flags.hybridroommate) && !(flags.hybridextravator)) sprintf(eos(string), "none ");
+	int hybridcount = 0;
+
+	if (flags.hybridangbander && (hybridcount++ < 20)) sprintf(eos(string), "angbander ");
+	if (flags.hybridaquarian && (hybridcount++ < 20)) sprintf(eos(string), "aquarian ");
+	if (flags.hybridcurser && (hybridcount++ < 20)) sprintf(eos(string), "curser ");
+	if (flags.hybridhaxor && (hybridcount++ < 20)) sprintf(eos(string), "haxor ");
+	if (flags.hybridhomicider && (hybridcount++ < 20)) sprintf(eos(string), "homicider ");
+	if (flags.hybridsuxxor && (hybridcount++ < 20)) sprintf(eos(string), "suxxor ");
+	if (flags.hybridwarper && (hybridcount++ < 20)) sprintf(eos(string), "warper ");
+	if (flags.hybridrandomizer && (hybridcount++ < 20)) sprintf(eos(string), "randomizer ");
+	if (flags.hybridnullrace && (hybridcount++ < 20)) sprintf(eos(string), "null ");
+	if (flags.hybridmazewalker && (hybridcount++ < 20)) sprintf(eos(string), "mazewalker ");
+	if (flags.hybridsoviet && (hybridcount++ < 20)) sprintf(eos(string), "soviet ");
+	if (flags.hybridxrace && (hybridcount++ < 20)) sprintf(eos(string), "x-race ");
+	if (flags.hybridheretic && (hybridcount++ < 20)) sprintf(eos(string), "heretic ");
+	if (flags.hybridsokosolver && (hybridcount++ < 20)) sprintf(eos(string), "sokosolver ");
+	if (flags.hybridspecialist && (hybridcount++ < 20)) sprintf(eos(string), "specialist ");
+	if (flags.hybridamerican && (hybridcount++ < 20)) sprintf(eos(string), "american ");
+	if (flags.hybridminimalist && (hybridcount++ < 20)) sprintf(eos(string), "minimalist ");
+	if (flags.hybridnastinator && (hybridcount++ < 20)) sprintf(eos(string), "nastinator ");
+	if (flags.hybridrougelike && (hybridcount++ < 20)) sprintf(eos(string), "rougelike ");
+	if (flags.hybridsegfaulter && (hybridcount++ < 20)) sprintf(eos(string), "segfaulter ");
+	if (flags.hybridironman && (hybridcount++ < 20)) sprintf(eos(string), "ironman ");
+	if (flags.hybridamnesiac && (hybridcount++ < 20)) sprintf(eos(string), "amnesiac ");
+	if (flags.hybridproblematic && (hybridcount++ < 20)) sprintf(eos(string), "problematic ");
+	if (flags.hybridwindinhabitant && (hybridcount++ < 20)) sprintf(eos(string), "windinhabitant ");
+	if (flags.hybridaggravator && (hybridcount++ < 20)) sprintf(eos(string), "aggravator ");
+	if (flags.hybridevilvariant && (hybridcount++ < 20)) sprintf(eos(string), "evilvariant ");
+	if (flags.hybridlevelscaler && (hybridcount++ < 20)) sprintf(eos(string), "levelscaler ");
+	if (flags.hybriderosator && (hybridcount++ < 20)) sprintf(eos(string), "erosator ");
+	if (flags.hybridroommate && (hybridcount++ < 20)) sprintf(eos(string), "roommate ");
+	if (flags.hybridextravator && (hybridcount++ < 20)) sprintf(eos(string), "extravator ");
+	if (flags.hybridhallucinator && (hybridcount++ < 20)) sprintf(eos(string), "hallucinator ");
+	if (flags.hybridbossrusher && (hybridcount++ < 20)) sprintf(eos(string), "bossrusher ");
+	if (flags.hybriddorian && (hybridcount++ < 20)) sprintf(eos(string), "dorian ");
+	if (flags.hybridtechless && (hybridcount++ < 20)) sprintf(eos(string), "techless ");
+	if (flags.hybridblait && (hybridcount++ < 20)) sprintf(eos(string), "blait ");
+	if (flags.hybridgrouper && (hybridcount++ < 20)) sprintf(eos(string), "grouper ");
+	if (flags.hybridscriptor && (hybridcount++ < 20)) sprintf(eos(string), "scriptor ");
+	if (flags.hybridunbalancor && (hybridcount++ < 20)) sprintf(eos(string), "unbalancor ");
+	if (flags.hybridbeacher && (hybridcount++ < 20)) sprintf(eos(string), "beacher ");
+	if (flags.hybridstairseeker && (hybridcount++ < 20)) sprintf(eos(string), "stairseeker ");
+	if (flags.hybridmatrayser && (hybridcount++ < 20)) sprintf(eos(string), "matrayser ");
+	if (flags.hybridfeminizer && (hybridcount++ < 20)) sprintf(eos(string), "feminizer ");
+	if (hybridcount >= 20) sprintf(eos(string), "(%d hybrids) ", hybridcount);
+
+	if (!(flags.hybridangbander) && !(flags.hybridaquarian) && !(flags.hybridcurser) && !(flags.hybridhaxor) && !(flags.hybridhomicider) && !(flags.hybridsuxxor) && !(flags.hybridwarper) && !(flags.hybridrandomizer) && !(flags.hybridnullrace) && !(flags.hybridmazewalker) && !(flags.hybridsoviet) && !(flags.hybridxrace) && !(flags.hybridheretic) && !(flags.hybridsokosolver) && !(flags.hybridspecialist) && !(flags.hybridamerican) && !(flags.hybridminimalist) && !(flags.hybridnastinator) && !(flags.hybridrougelike) && !(flags.hybridsegfaulter) && !(flags.hybridironman) && !(flags.hybridamnesiac) && !(flags.hybridproblematic) && !(flags.hybridwindinhabitant) && !(flags.hybridaggravator) && !(flags.hybridevilvariant) && !(flags.hybridlevelscaler) && !(flags.hybriderosator) && !(flags.hybridroommate) && !(flags.hybridextravator) && !(flags.hybridhallucinator) && !(flags.hybridbossrusher) && !(flags.hybriddorian) && !(flags.hybridtechless) && !(flags.hybridblait) && !(flags.hybridgrouper) && !(flags.hybridscriptor) && !(flags.hybridunbalancor) && !(flags.hybridbeacher) && !(flags.hybridstairseeker) && !(flags.hybridmatrayser) && !(flags.hybridfeminizer)) sprintf(eos(string), "none ");
 
     return (string);
 }
@@ -626,8 +695,20 @@ hybrid_strcode()
 	if (flags.hybriderosator) sprintf(eos(string), "Ero");
 	if (flags.hybridroommate) sprintf(eos(string), "Roo");
 	if (flags.hybridextravator) sprintf(eos(string), "Ext");
+	if (flags.hybridhallucinator) sprintf(eos(string), "Hal");
+	if (flags.hybridbossrusher) sprintf(eos(string), "Bos");
+	if (flags.hybriddorian) sprintf(eos(string), "Dor");
+	if (flags.hybridtechless) sprintf(eos(string), "Tec");
+	if (flags.hybridblait) sprintf(eos(string), "Bla");
+	if (flags.hybridgrouper) sprintf(eos(string), "Gro");
+	if (flags.hybridscriptor) sprintf(eos(string), "Scr");
+	if (flags.hybridunbalancor) sprintf(eos(string), "Unb");
+	if (flags.hybridbeacher) sprintf(eos(string), "Bea");
+	if (flags.hybridstairseeker) sprintf(eos(string), "Sta ");
+	if (flags.hybridmatrayser) sprintf(eos(string), "Mat ");
+	if (flags.hybridfeminizer) sprintf(eos(string), "Fem ");
 
-	if (!(flags.hybridangbander) && !(flags.hybridaquarian) && !(flags.hybridcurser) && !(flags.hybridhaxor) && !(flags.hybridhomicider) && !(flags.hybridsuxxor) && !(flags.hybridwarper) && !(flags.hybridrandomizer) && !(flags.hybridnullrace) && !(flags.hybridmazewalker) && !(flags.hybridsoviet) && !(flags.hybridxrace) && !(flags.hybridheretic) && !(flags.hybridsokosolver) && !(flags.hybridspecialist) && !(flags.hybridamerican) && !(flags.hybridminimalist) && !(flags.hybridnastinator) && !(flags.hybridrougelike) && !(flags.hybridsegfaulter) && !(flags.hybridironman) && !(flags.hybridamnesiac) && !(flags.hybridproblematic) && !(flags.hybridwindinhabitant) && !(flags.hybridaggravator) && !(flags.hybridevilvariant) && !(flags.hybridlevelscaler) && !(flags.hybriderosator) && !(flags.hybridroommate) && !(flags.hybridextravator)) sprintf(eos(string), "none");
+	if (!(flags.hybridangbander) && !(flags.hybridaquarian) && !(flags.hybridcurser) && !(flags.hybridhaxor) && !(flags.hybridhomicider) && !(flags.hybridsuxxor) && !(flags.hybridwarper) && !(flags.hybridrandomizer) && !(flags.hybridnullrace) && !(flags.hybridmazewalker) && !(flags.hybridsoviet) && !(flags.hybridxrace) && !(flags.hybridheretic) && !(flags.hybridsokosolver) && !(flags.hybridspecialist) && !(flags.hybridamerican) && !(flags.hybridminimalist) && !(flags.hybridnastinator) && !(flags.hybridrougelike) && !(flags.hybridsegfaulter) && !(flags.hybridironman) && !(flags.hybridamnesiac) && !(flags.hybridproblematic) && !(flags.hybridwindinhabitant) && !(flags.hybridaggravator) && !(flags.hybridevilvariant) && !(flags.hybridlevelscaler) && !(flags.hybriderosator) && !(flags.hybridroommate) && !(flags.hybridextravator) && !(flags.hybridhallucinator) && !(flags.hybridbossrusher) && !(flags.hybriddorian) && !(flags.hybridtechless) && !(flags.hybridblait) && !(flags.hybridgrouper) && !(flags.hybridscriptor) && !(flags.hybridunbalancor) && !(flags.hybridbeacher) && !(flags.hybridstairseeker) && !(flags.hybridmatrayser) && !(flags.hybridfeminizer)) sprintf(eos(string), "none");
 
     return (string);
 }
@@ -665,6 +746,32 @@ generate_garbage_string()
 	return string;
 }
 
+const char *
+generate_garbage_char()
+{
+	static char string[BUFSZ];
+	string[0] = '\0';
+
+	char tmpstr[2] = {0, 0};
+
+#ifdef UNIX
+	tmpstr[0] = 32 + rnd(94);
+#else
+	tmpstr[0] = rnd(255);
+#endif
+
+	/* get rid of some control codes that mess everything up */
+	switch (tmpstr[0]) {
+		case 7: case 10: case 11: case 13: case '%':
+			tmpstr[0] = ' ';
+	}
+	tmpstr[1] = '\0';
+
+	sprintf(eos(string), "%s", tmpstr);
+
+	return string;
+}
+
 void
 mstatusline(mtmp)
 register struct monst *mtmp;
@@ -672,7 +779,7 @@ register struct monst *mtmp;
 	aligntyp alignment;
 	char info[BUFSZ], monnambuf[BUFSZ];
 
-	if (mtmp->ispriest || mtmp->data == &mons[PM_ALIGNED_PRIEST]
+	if (mtmp->ispriest || mtmp->data == &mons[PM_ALIGNED_PRIEST] || mtmp->data == &mons[PM_ELITE_PRIEST] || mtmp->data == &mons[PM_MASTER_PRIEST]
 				|| mtmp->data == &mons[PM_ANGEL])
 		alignment = EPRI(mtmp)->shralign;
 	else
@@ -698,6 +805,9 @@ register struct monst *mtmp;
 	if (mtmp->meating)	  strcat(info, ", eating");
 	if (mtmp->mcan)		  strcat(info, ", cancelled");
 	if (mtmp->mconf)	  strcat(info, ", confused");
+	if (mtmp->healblock)	  strcat(info, ", healing blocked");
+	if (mtmp->inertia)	  strcat(info, ", slowed by inertia");
+	if (mtmp->bleedout)	  strcat(info, ", bleeding");
 	if (mtmp->mblinded || !mtmp->mcansee)
 				  strcat(info, ", blind");
 	if (mtmp->mstun)	  strcat(info, ", stunned");
@@ -759,7 +869,7 @@ register struct monst *mtmp;
 	aligntyp alignment;
 	char info[BUFSZ], monnambuf[BUFSZ];
 
-	if (mtmp->ispriest || mtmp->data == &mons[PM_ALIGNED_PRIEST]
+	if (mtmp->ispriest || mtmp->data == &mons[PM_ALIGNED_PRIEST] || mtmp->data == &mons[PM_MASTER_PRIEST] || mtmp->data == &mons[PM_ELITE_PRIEST]
 				|| mtmp->data == &mons[PM_ANGEL])
 		alignment = EPRI(mtmp)->shralign;
 	else
@@ -781,6 +891,9 @@ register struct monst *mtmp;
 	if (mtmp->meating)	  strcat(info, ", eating");
 	if (mtmp->mcan)		  strcat(info, ", cancelled");
 	if (mtmp->mconf)	  strcat(info, ", confused");
+	if (mtmp->healblock)	  strcat(info, ", healing blocked");
+	if (mtmp->inertia)	  strcat(info, ", slowed by inertia");
+	if (mtmp->bleedout)	  strcat(info, ", bleeding");
 	if (mtmp->mblinded || !mtmp->mcansee)
 				  strcat(info, ", blind");
 	if (mtmp->mstun)	  strcat(info, ", stunned");
@@ -851,6 +964,7 @@ ustatusline()
 	if (Stoned)		strcat(info, ", solidifying");
 	if (Slimed)		strcat(info, ", becoming slimy");
 	if (Strangled)		strcat(info, ", being strangled");
+	if (PlayerBleeds)		strcat(info, ", bleeding");
 	if (Vomiting)		strcat(info, ", nauseated"); /* !"nauseous" */
 	if (Confusion)		strcat(info, ", confused");
 	if (Blind) {
@@ -915,13 +1029,13 @@ self_invis_message()
 {
 	if(Role_if(PM_PIRATE) || Role_if(PM_KORSAIR) || (uwep && uwep->oartifact == ART_ARRRRRR_MATEY) ){
 	pline("%s %s.",
-	    Hallucination ? "Arr, Matey!  Ye" : "Avast!  All of a sudden, ye",
+	    FunnyHallu ? "Arr, Matey!  Ye" : "Avast!  All of a sudden, ye",
 	    See_invisible ? "can see right through yerself" :
 		"can't see yerself");
 	}
 	else{
 	pline("%s %s.",
-	    Hallucination ? "Far out, man!  You" : "Gee!  All of a sudden, you",
+	    FunnyHallu ? "Far out, man!  You" : "Gee!  All of a sudden, you",
 	    See_invisible ? "can see right through yourself" :
 		"can't see yourself");
 	}
@@ -937,8 +1051,9 @@ unsigned int    flipflop=0;              /* which one ? */
 /* If it wrote beyond the end of buffer, flipflop is >1 ... */
 /* ... then you can panic */
 
-char *replace(st, orig, repl)
+char *replace(st, orig, repl, extratest)
 const char *st, *orig, *repl;
+boolean extratest;
 {
         char *buffer;
 	char *ch;
@@ -949,7 +1064,7 @@ const char *st, *orig, *repl;
         /*"Thou art doomed, scapegrace!" */
         /*"Who do you think you are, War?" */
         /*"Hello Dudley. Welcome to Delphi."*/
-        if( (*st)== '"' ) return st;
+        if(extratest && ((*st)== '"') ) return st;
 
         /* at most 20 times we replace the word to prevent infinite loops */
         i=100;
@@ -989,7 +1104,7 @@ REPEAT:
 /*The voice of Moloch booms out "So, mortal!  You dare desecrate my High Temple!"*/
 /* voice o' Moloch, but not Ye dare */
 /* rare enough, to come last */
-        if( (tmp=strstr(st,"\"")) && (tmp<ch) ) return st;
+        if( (tmp=strstr(st,"\"")) && (tmp<ch) && extratest ) return st;
 
         /* Don't convert disorder messages into pirate slang ! */
         /* Nested calls of impossible() call panic(). */

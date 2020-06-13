@@ -3,13 +3,11 @@
 
 #include "hack.h"
 
-STATIC_DCL int cost(struct obj *);
-
 /*
  * returns basecost of a scroll or a spellbook
  */
-STATIC_OVL int
-cost(otmp)
+int
+writecost(otmp)
 register struct obj *otmp;
 {
 
@@ -40,6 +38,7 @@ register struct obj *otmp;
 	case SCR_EARTH:
 	case SCR_CURE_BLINDNESS:
 	case SCR_ROOT_PASSWORD_DETECTION:
+	case SCR_GRASSLAND:
 		return(8);
 	case SCR_MANA:
 	case SCR_DESTROY_ARMOR:
@@ -54,6 +53,9 @@ register struct obj *otmp;
 	case SCR_CREATE_CREATE_SCROLL:
 	case SCR_PROOF_ARMOR:
 	case SCR_PROOF_WEAPON:
+	case SCR_CRYPT:
+	case SCR_PAVING:
+	case SCR_INFERIOR_MATERIAL:
 		return(10);
 	case SCR_CONFUSE_MONSTER:
 	case SCR_PHASE_DOOR:
@@ -61,16 +63,34 @@ register struct obj *otmp;
 	case SCR_IDENTIFY:
 	case SCR_STONING:
 	case SCR_BULLSHIT:
-	case SCR_REVERSE_IDENTIFY:
 	case SCR_SCARE_MONSTER:
+	case SCR_SNOW:
+	case SCR_SAND:
+	case SCR_NETHER:
 		return(14);
+	case SCR_ASH:
+	case SCR_BUBBLE_BOBBLE:
+	case SCR_RAIN:
 	case SCR_TAMING:
 	case SCR_TELEPORTATION:
 	case SCR_FLOOD:
 	case SCR_LAVA:
+	case SCR_GRAVE:
+	case SCR_DIVING:
+	case SCR_CRYSTALLIZATION:
+	case SCR_QUICKSAND:
+	case SCR_STYX:
+	case SCR_URINE:
+	case SCR_MOORLAND:
+	case SCR_TUNNELS:
+	case SCR_FARMING:
 	case SCR_BARRHING:
+	case SCR_STALACTITE:
 	case SCR_GROWTH:
 	case SCR_ICE:
+	case SCR_ILLUSION:
+	case SCR_FEMINISM:
+	case SCR_EVIL_VARIANT:
 	case SCR_ENRAGE:
 	case SCR_FROST:
 	case SCR_CLOUDS:
@@ -85,6 +105,9 @@ register struct obj *otmp;
 	case SCR_GROUP_SUMMONING:
 	case SCR_UNDO_GENOCIDE:
 	case SCR_RANDOM_ENCHANTMENT:
+	case SCR_BAD_EQUIPMENT:
+	case SCR_HEAL_OTHER:
+	case SCR_REGULAR_MATERIAL:
 		return(20);
 	/* KMH, balance patch -- more useful scrolls cost more */
 	case SCR_STINKING_CLOUD:
@@ -101,9 +124,11 @@ register struct obj *otmp;
 	case SCR_WONDER:
 	case SCR_GEOLYSIS:
 	case SCR_OFFLEVEL_ITEM:
-	case SCR_SECURE_IDENTIFY:
 	case SCR_REPAIR_ITEM:
 	case SCR_EXTRA_HEALING:
+	case SCR_MOUNTAINS:
+	case SCR_HIGHWAY:
+	case SCR_SYMBIOSIS:
 		return(24);
 	case SCR_RESISTANCE:
 	case SCR_GENOCIDE:
@@ -121,6 +146,8 @@ register struct obj *otmp;
 	case SCR_CREATE_FACILITY:
 	case SCR_SUMMON_GHOST:
 	case SCR_GREATER_MANA_RESTORATION:
+	case SCR_NASTY_CURSE:
+	case SCR_TERRAFORMING:
 		return(30);
 	case SCR_GAIN_MANA:
 	case SCR_LOCKOUT:
@@ -132,28 +159,39 @@ register struct obj *otmp;
 	case SCR_CREATE_FAMILIAR:
 	case SCR_ITEM_GENOCIDE:
 	case SCR_POWER_HEALING:
+	case SCR_REVERSE_IDENTIFY:
+	case SCR_SUPERIOR_MATERIAL:
 		return(40);
 	case SCR_CONSECRATION:
 	case SCR_BOSS_COMPANION:
 	case SCR_ANTIMAGIC:
+	case SCR_SECURE_CURSE_REMOVAL:
 	case SCR_INVENTORY_ID:
 	case SCR_SKILL_UP:
+	case SCR_SECURE_IDENTIFY:
 	case SCR_ALTER_REALITY:
+	case SCR_HYBRIDIZATION:
 		return(50);
 	case SCR_RAGNAROK:
 		return(64);
 	case SCR_WORLD_FALL:
-		return(100);
 	case SCR_ASTRALCENSION: /* more expensive than the max # of charges in a marker on purpose --Amy */
 		return(150);
 	case SCR_BLANK_PAPER:
 	case SCR_COPYING:
 	case SCR_WISHING:
 	case SCR_ARTIFACT_CREATION:
+	case SCR_MISSING_CODE:
 	case SCR_ARTIFACT_JACKPOT:
 	case SCR_RESURRECTION:
 	case SCR_ACQUIREMENT:
 	case SCR_ENTHRONIZATION:
+	case SCR_WELL_BUILDING:
+	case SCR_DRIVING:
+	case SCR_TABLE_FURNITURE:
+	case SCR_EMBEDDING:
+	case SCR_MATTRESS_SLEEPING:
+	case SCR_MAKE_PENTAGRAM:
 	case SCR_FOUNTAIN_BUILDING:
 	case SCR_SINKING:
 	case SCR_CREATE_SINK:
@@ -180,10 +218,23 @@ register struct obj *pen;
 	boolean by_descr = FALSE;
 	const char *typeword;
 
+	int oldspe, oldrecharged; /* for spellbooks */
+	boolean oldknown;
+
 	if (nohands(youmonst.data) && !Race_if(PM_TRANSFORMER) ) {
 	    You("need hands to be able to write!");
-	    return 0;
-	} else if (IsGlib) {
+		if (yn("Attempt it anyway?") == 'y') {
+			if (rn2(3) && !polyskillchance()) {
+				drain_en(rnz(monster_difficulty() + 1) );
+				pline("You lose  Mana");
+				if (!rn2(20)) badeffect();
+				return 1;
+			}
+
+		}
+	    else return 0;
+	}
+	if (IsGlib) {
 	    pline("%s from your %s.",
 		  Tobjnam(pen, "slip"), makeplural(body_part(FINGER)));
 	    dropx(pen);
@@ -249,10 +300,10 @@ found:
 		return 1;
 	} else if (i == SCR_COPYING) {
 		You("don't know how to break copy protect.");
-		if(Hallucination) 
+		if(FunnyHallu) 
 			pline("(I know it, but not tell to you.)");
 		return 1;
-	} else if (i == SCR_WISHING || i == SCR_ARTIFACT_CREATION || i == SCR_ARTIFACT_JACKPOT || i == SCR_RESURRECTION || i == SCR_ACQUIREMENT || i == SCR_ENTHRONIZATION || i == SCR_FOUNTAIN_BUILDING || i == SCR_SINKING || i == SCR_CREATE_SINK || i == SCR_WC) {
+	} else if (i == SCR_WISHING || i == SCR_ARTIFACT_CREATION || i == SCR_MISSING_CODE || i == SCR_ARTIFACT_JACKPOT || i == SCR_RESURRECTION || i == SCR_ACQUIREMENT || i == SCR_ENTHRONIZATION || i == SCR_MAKE_PENTAGRAM || i == SCR_WELL_BUILDING || i == SCR_DRIVING || i == SCR_TABLE_FURNITURE || i == SCR_EMBEDDING || i == SCR_MATTRESS_SLEEPING || i == SCR_FOUNTAIN_BUILDING || i == SCR_SINKING || i == SCR_CREATE_SINK || i == SCR_WC) {
 		pline("This scroll refuses to be written.");
 		return 1;
 	} else if (by_descr && paper->oclass == SPBOOK_CLASS &&
@@ -266,7 +317,7 @@ found:
 	/* KMH, conduct */
 	u.uconduct.literate++;
 
-	new_obj = mksobj(i, FALSE, FALSE);
+	new_obj = mksobj(i, FALSE, FALSE, FALSE);
 	if (!new_obj) {
 		pline("Scroll creation failed!");
 		return(1);
@@ -279,7 +330,11 @@ found:
 	check_unpaid(pen);
 
 	/* see if there's enough ink */
-	basecost = cost(new_obj);
+	basecost = writecost(new_obj);
+
+	if (basecost >= 1000) { /* impossible! */
+		return(0);
+	}
 
 	if (!(objects[new_obj->otyp].oc_name_known)) {
 		pline("That item isn't type-identified. If it also isn't type-named, writing it may fail depending on your luck.");
@@ -345,7 +400,7 @@ found:
 	/* can't write if we don't know it - unless we're lucky */
 	if(!(objects[new_obj->otyp].oc_name_known) &&
 	   !(objects[new_obj->otyp].oc_uname) &&
-	   (rnl(Role_if(PM_WIZARD) ? 3 : Role_if(PM_SAGE) ? 2 : 15))) {
+	   (rnl(Role_if(PM_WIZARD) ? 3 : Role_if(PM_SAGE) ? 2 : Role_if(PM_SOFTWARE_ENGINEER) ? 11 : 15))) {
 		You("%s to write that!", by_descr ? "fail" : "don't know how");
 		/* scrolls disappear, spellbooks don't */
 		if (paper->oclass == SPBOOK_CLASS) {
@@ -366,6 +421,11 @@ found:
 	}
 
 	/* useup old scroll / spellbook */
+
+	oldspe = paper->spe;
+	oldrecharged = (int)paper->recharged; /* for spellbooks */
+	oldknown = paper->known;
+
 	useup(paper);
 	use_skill(P_DEVICES,10);
 	if (Race_if(PM_FAWN)) {
@@ -375,15 +435,61 @@ found:
 		use_skill(P_DEVICES,10);
 		use_skill(P_DEVICES,10);
 	}
+	u.cnd_markercount++;
+	if (evilfriday && !rn2(3)) { /* EPI that was talked about in #hardfought by several people */
+		if (!rn2(10)) {
+			if (ABASE(A_INT) < 4) {
+				u.youaredead = 1;
+				pline("Your last thought fades away.");
+				killer = "being too stupid to write";
+				killer_format = KILLED_BY;
+				done(DIED);
+				/* lifesaved */
+				pline("Unfortunately, your brain is still gone.");
+				killer = "being too stupid to write";
+				killer_format = KILLED_BY;
+				done(DIED);
+				/* lifesaved again */
+				You_feel("like a scarecrow.");
+				u.youaredead = 0;
+
+			}
+
+			if (Race_if(PM_SUSTAINER) && rn2(50)) {
+				pline("The stat drain doesn't seem to affect you.");
+			} else if (Role_if(PM_ASTRONAUT) && rn2(2)) {
+				pline("Your steeled body prevents the stat loss!");
+			} else {
+
+				u.cnd_permstatdamageamount++;
+
+				pline("Your intelligence seeps into the thing you wrote, and you feel stupid!");
+				ABASE(A_INT) -= 1;
+				AMAX(A_INT) -= 1;
+				flags.botl = 1;
+			}
+
+		} else {
+			pline("Your act of writing transfers some of your intelligence to the paper...");
+			adjattrib(A_INT, -1, FALSE, TRUE);
+		}
+	}
 
 	/* success */
 	if (new_obj->oclass == SPBOOK_CLASS) {
 		/* acknowledge the change in the object's description... */
 		pline_The("spellbook warps strangely, then turns %s.",
 		      OBJ_DESCR(objects[new_obj->otyp]));
+
+		/* for some reason the charges weren't being used at all!!! --Amy */
+		new_obj->spe = oldspe;
+		new_obj->recharged = oldrecharged;
+		if (oldknown == TRUE) new_obj->known = TRUE;
+
 	}
 	new_obj->blessed = (curseval > 0);
 	new_obj->cursed = (curseval < 0);
+
 	if (pen && pen->oartifact == ART_PEN_OF_RANDOMNESS) {
 		new_obj->blessed = 0;
 		new_obj->cursed = 0;

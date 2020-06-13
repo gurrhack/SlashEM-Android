@@ -57,7 +57,6 @@ struct lchoice {
 };
 
 static void Fread(void *, int, int, dlb *);
-STATIC_DCL xchar dname_to_dnum(const char *);
 STATIC_DCL int find_branch(const char *, struct proto_dungeon *);
 STATIC_DCL int level_range(XCHAR_P,int,int,int,struct proto_dungeon *,int *);
 STATIC_DCL xchar parent_dlevel(int, struct proto_dungeon *);
@@ -104,7 +103,7 @@ dumpit()
 		    DD.flags.hellish    ? " hellish"    : "");
 	    getchar();
 	}
-	fprintf(stderr,"\nSpecial levels:\n");
+	fprintf(stderr,"%s","\nSpecial levels:\n");
 	for(x = sp_levchn; x; x = x->next) {
 	    fprintf(stderr, "%s (%d): ", x->proto, x->rndlevs);
 	    fprintf(stderr, "on %d, %d; ", x->dlevel.dnum, x->dlevel.dlevel);
@@ -115,7 +114,7 @@ dumpit()
 		    x->flags.town       ? " town"       : "");
 	    getchar();
 	}
-	fprintf(stderr,"\nBranches:\n");
+	fprintf(stderr,"%s","\nBranches:\n");
 	for (br = branches; br; br = br->next) {
 	    fprintf(stderr, "%d: %s, end1 %d %d, end2 %d %d, %s\n",
 		br->id,
@@ -129,7 +128,7 @@ dumpit()
 		br->end1_up ? "end1 up" : "end1 down");
 	}
 	getchar();
-	fprintf(stderr,"\nDone\n");
+	fprintf(stderr,"%s","\nDone\n");
 	getchar();
 }
 #endif
@@ -251,7 +250,7 @@ Fread(ptr, size, nitems, stream)
 	}
 }
 
-STATIC_OVL xchar
+xchar
 dname_to_dnum(s)
 const char	*s;
 {
@@ -633,7 +632,7 @@ place_level(proto_index, pd)
 	fprintf(stderr,"%s: trying %d [ ", lev->proto, lev->dlevel.dlevel);
 	for (i = 1; i <= MAXLEVEL; i++)
 	    if (map[i]) fprintf(stderr,"%d ", i);
-	fprintf(stderr,"]\n");
+	fprintf(stderr,"%s","]\n");
 #endif
 	if (place_level(proto_index+1, pd)) return TRUE;
 	map[lev->dlevel.dlevel] = FALSE;	/* this choice didn't work */
@@ -1014,6 +1013,23 @@ init_dungeons()
 	sewerplant_dnum = dname_to_dnum("Sewer Plant");
 	gammacaves_dnum = dname_to_dnum("Gamma Caves");
 	mainframe_dnum = dname_to_dnum("Mainframe");
+	restingzone_ga_dnum = dname_to_dnum("Resting Zone GA");
+	restingzone_gb_dnum = dname_to_dnum("Resting Zone GB");
+	restingzone_gc_dnum = dname_to_dnum("Resting Zone GC");
+	restingzone_gd_dnum = dname_to_dnum("Resting Zone GD");
+	restingzone_ge_dnum = dname_to_dnum("Resting Zone GE");
+	restingzone_ta_dnum = dname_to_dnum("Resting Zone TA");
+	restingzone_tb_dnum = dname_to_dnum("Resting Zone TB");
+	restingzone_tc_dnum = dname_to_dnum("Resting Zone TC");
+	restingzone_td_dnum = dname_to_dnum("Resting Zone TD");
+	restingzone_te_dnum = dname_to_dnum("Resting Zone TE");
+	restingzone_tf_dnum = dname_to_dnum("Resting Zone TF");
+	restingzone_tg_dnum = dname_to_dnum("Resting Zone TG");
+	restingzone_th_dnum = dname_to_dnum("Resting Zone TH");
+	restingzone_ti_dnum = dname_to_dnum("Resting Zone TI");
+	restingzone_tj_dnum = dname_to_dnum("Resting Zone TJ");
+	restingzone_a_dnum = dname_to_dnum("Resting Zone A");
+	restingzone_s_dnum = dname_to_dnum("Resting Zone S");
 /*
 	blackmarket_dnum = dname_to_dnum("The Black Market");
 */
@@ -1211,9 +1227,10 @@ boolean	at_stairs;
 
 		if ((!rn2(ishaxor ? 250 : 500)) || StairsProblem || u.uprops[STAIRSTRAP].extrinsic || (uarmc && uarmc->oartifact == ART_PERCENTIOEOEPSPERCENTD_THI) || have_stairstrapstone() ) {
 
-			pline(Hallucination ? "Wow! A welcoming committee!" : "Stairs trap!");
+			pline(FunnyHallu ? "Wow! A welcoming committee!" : "Stairs trap!");
+			u.cnd_stairstrapcount++;
 			NoStaircase = 10 + rnz(monster_difficulty() + 1);
-			pushplayer();
+			pushplayer(TRUE);
 			(void)nasty((struct monst *)0);
 
 		}
@@ -1237,7 +1254,7 @@ boolean	at_stairs;
 			if (!rn2(256)) makerandomtrap();
 
 		}
-		if (!rn2(10)) pushplayer();
+		if (!rn2(10)) pushplayer(TRUE);
 
 	} else {
 		/* Going down a stairs or jump in a trap door. */
@@ -1251,9 +1268,10 @@ boolean	at_stairs;
 
 		if (at_stairs && (!rn2(ishaxor ? 250 : 500) || StairsProblem || u.uprops[STAIRSTRAP].extrinsic || (uarmc && uarmc->oartifact == ART_PERCENTIOEOEPSPERCENTD_THI) || have_stairstrapstone() ) ) {
 
-			pline(Hallucination ? "Wow! A welcoming committee!" : "Stairs trap!");
+			pline(FunnyHallu ? "Wow! A welcoming committee!" : "Stairs trap!");
+			u.cnd_stairstrapcount++;
 			NoStaircase = 10 + rnz(monster_difficulty() + 1);
-			pushplayer();
+			pushplayer(TRUE);
 			(void)nasty((struct monst *)0);
 
 		}
@@ -1277,7 +1295,7 @@ boolean	at_stairs;
 			if (!rn2(256)) makerandomtrap();
 
 		}
-		if (!rn2(10)) pushplayer();
+		if (!rn2(10)) pushplayer(TRUE);
 	}
 }
 
@@ -1290,7 +1308,7 @@ boolean	at_stairs;
 		/* Taking an up dungeon branch. */
 		/* KMH -- Upwards branches are okay if not level 1 */
 		/* (Just make sure it doesn't go above depth 1) */
-		if(!u.uz.dnum && u.uz.dlevel == 1 && !u.uhave.amulet) done(ESCAPED);
+		if(!u.uz.dnum && u.uz.dlevel == 1 && !u.uhave.amulet && !(u.freeplaymode && u.freeplayplanes) ) done(ESCAPED);
 		else { 
 
 			goto_level(&sstairs.tolev, at_stairs, FALSE, FALSE);
@@ -1299,9 +1317,10 @@ boolean	at_stairs;
 
 			if ((!rn2(ishaxor ? 50 : 100)) || StairsProblem || u.uprops[STAIRSTRAP].extrinsic || (uarmc && uarmc->oartifact == ART_PERCENTIOEOEPSPERCENTD_THI) || have_stairstrapstone() ) {
 
-				pline(Hallucination ? "Wow! A welcoming committee!" : "Stairs trap!");
+				pline(FunnyHallu ? "Wow! A welcoming committee!" : "Stairs trap!");
+				u.cnd_stairstrapcount++;
 				NoStaircase = 10 + rnz(monster_difficulty() + 1);
-				pushplayer();
+				pushplayer(TRUE);
 				(void)nasty((struct monst *)0);
 
 			}
@@ -1327,7 +1346,7 @@ boolean	at_stairs;
 			}
 
 		}
-		if (!rn2(10)) pushplayer();
+		if (!rn2(10)) pushplayer(TRUE);
 	} else {
 		/* Going up a stairs or rising through the ceiling. */
 		d_level	newlevel;
@@ -1339,9 +1358,10 @@ boolean	at_stairs;
 
 		if (at_stairs && (!rn2(ishaxor ? 50 : 100) || StairsProblem || u.uprops[STAIRSTRAP].extrinsic || (uarmc && uarmc->oartifact == ART_PERCENTIOEOEPSPERCENTD_THI) || have_stairstrapstone() ) ) {
 
-			pline(Hallucination ? "Wow! A welcoming committee!" : "Stairs trap!");
+			pline(FunnyHallu ? "Wow! A welcoming committee!" : "Stairs trap!");
+			u.cnd_stairstrapcount++;
 			NoStaircase = 10 + rnz(monster_difficulty() + 1);
-			pushplayer();
+			pushplayer(TRUE);
 			(void)nasty((struct monst *)0);
 		}
 
@@ -1364,7 +1384,7 @@ boolean	at_stairs;
 				if (!rn2(256)) makerandomtrap();
 	
 			}
-		if (!rn2(10)) pushplayer();
+		if (!rn2(10)) pushplayer(TRUE);
 	}
 }
 
@@ -1476,7 +1496,7 @@ d_level *lev;
 {
     /* can't rise up from inside the top of the Wizard's tower */
     /* KMH -- or in sokoban */
-    if (In_endgame(lev) || In_sokoban(lev) ||
+    if (In_endgame(lev) || In_sokoban_real(lev) ||
 			(Is_wiz1_level(lev) && In_W_tower(x, y, lev)))
 	return FALSE;
     return (boolean)(lev->dlevel > 1 ||
@@ -1767,6 +1787,13 @@ d_level *lev;
 }
 
 boolean
+In_restingzone(lev) /* are you in one of the resting zone dungeons? */
+d_level *lev;
+{
+	return((boolean)(lev->dnum == restingzone_ga_dnum || lev->dnum == restingzone_gb_dnum || lev->dnum == restingzone_gc_dnum || lev->dnum == restingzone_gd_dnum || lev->dnum == restingzone_ge_dnum || lev->dnum == restingzone_ta_dnum || lev->dnum == restingzone_tb_dnum || lev->dnum == restingzone_tc_dnum || lev->dnum == restingzone_td_dnum || lev->dnum == restingzone_te_dnum || lev->dnum == restingzone_tf_dnum || lev->dnum == restingzone_tg_dnum || lev->dnum == restingzone_th_dnum || lev->dnum == restingzone_ti_dnum || lev->dnum == restingzone_tj_dnum || lev->dnum == restingzone_a_dnum || lev->dnum == restingzone_s_dnum));
+}
+
+boolean
 In_ZAPM(lev)	/* are you in one of the ZAPM levels? */
 d_level	*lev;
 {
@@ -1944,20 +1971,43 @@ level_difficulty()
 {
 	int retvalue;
 
+	int depthuz;
+	int deepestuz;
+
+	if (iszapem && In_ZAPM(&u.uz) && !(u.zapemescape)) {
+
+		d_level zapemlevel;
+		int zapemdepth;
+		zapemlevel.dnum = dname_to_dnum("Space Base");
+		zapemlevel.dlevel = dungeons[zapemlevel.dnum].entry_lev;
+		zapemdepth = depth(&zapemlevel);
+
+		depthuz = (1 + depth(&u.uz) - zapemdepth);
+		if (depthuz < 1) depthuz = 1; /* fail safe */
+
+		deepestuz = (1 + deepest_lev_reached(TRUE) - zapemdepth);
+		if (deepestuz < 1) deepestuz = 1; /* fail safe */
+
+	} else {
+		depthuz = depth(&u.uz);
+		deepestuz = deepest_lev_reached(TRUE);
+	}
+
+
 	if (In_endgame(&u.uz))
 		retvalue = (110 + (u.ulevel/2) );
-	else if (u.uhave.amulet && (u.amuletcompletelyimbued || !rn2(5)))
+	else if (u.uhave.amulet && !u.freeplaymode && (u.amuletcompletelyimbued || !rn2(5)))
 		retvalue = 110;
-	else if (Race_if(PM_IMPERIAL) || (Inhell && !Race_if(PM_HERETIC) ) || flags.gehenna)
-		retvalue = (depth(&u.uz) + rn2(u.ulevel) + 2 );
+	else if ((Race_if(PM_IMPERIAL) || (Inhell && !Race_if(PM_HERETIC) ) || flags.gehenna) && !rn2(3))
+		retvalue = (depthuz + rn2(u.ulevel) + 2 );
 	else
-		retvalue = depth(&u.uz);
+		retvalue = depthuz;
 
-	if (u.uhave.amulet && (retvalue < 50)) retvalue = 50;
+	if (u.uhave.amulet && !u.freeplaymode && (retvalue < 50)) retvalue = 50;
 
 	if (Race_if(PM_EXPERT)) retvalue += u.ulevel;
 
-	if ( (!rn2(10) || Race_if(PM_GASTLY) || Race_if(PM_PHANTOM_GHOST) ) && (deepest_lev_reached(TRUE) > retvalue) ) retvalue = deepest_lev_reached(TRUE);
+	if ( (!rn2(10) || Race_if(PM_GASTLY) || Race_if(PM_PHANTOM_GHOST) ) && (deepestuz > retvalue) ) retvalue = deepestuz;
 
 	/* generally increase monster difficulty gradually as the game goes on --Amy */
 	if (!rn2(2) && moves > 10000) retvalue++;
@@ -2010,6 +2060,27 @@ level_difficulty()
 	if (moves > 750000 && retvalue < 125 && rn2(2) ) retvalue = 125;
 	if (moves > 1000000 && retvalue < 125) retvalue = 125;
 
+	/* if you play for over 200k turns, you're probably procrastinating, or at the very least should be capable of
+	 * handling the occasional high-level monster... --Amy
+	 * after 100k turns, have a more gentle increase until 200k is reached */
+	if (moves > 100000) {
+		int retcrease = 1;
+		if (moves > 110000) retcrease += ((moves - 100000) / 10000);
+		if (retcrease > 10) retcrease = 10; /* fail safe */
+		if (retcrease < 1) retcrease = 1;
+		if (!rn2(3)) retvalue += retcrease;
+	}
+	if (moves > 200000) {
+		int retcrease = 1;
+		if (moves > 210000) retcrease += ((moves - 200000) / 10000);
+		/* no upper limit */
+		if (retcrease < 1) retcrease = 1; /* fail safe */
+		retvalue += retcrease;
+	}
+
+	/* occasionally have them be just a little out of depth to keep you on your toes... --Amy */
+	if (!rn2(20)) retvalue += rno(3);
+
 	/* some variation - it's annoying if you always get max difficulty monsters --Amy */
 	if ((retvalue > 1) && ((!u.aggravation && !isaggravator && !isextravator && !GravationAggravation ) || !rn2((ExtAggravate_monster || isextravator || GravationAggravation) ? 3 : 2)) && !u.outtadepthtrap && !rn2(issoviet ? 3 : 2)) retvalue /= 2;
 	if ((retvalue > 1) && ((!u.aggravation && !isaggravator && !isextravator && !GravationAggravation ) || !rn2((ExtAggravate_monster || isextravator || GravationAggravation) ? 5 : 3)) && !u.outtadepthtrap && !rn2(issoviet ? 15 : 5)) retvalue /= 3;
@@ -2021,7 +2092,7 @@ level_difficulty()
 	/* Psions are so overpowered if they have all their intrinsics, that I decided to make them harder. --Amy */
 	if (Role_if(PM_PSION) && u.ulevel >= 7) retvalue += rnd(retvalue);
 
-	if (DifficultyIncreased || u.uprops[DIFFICULTY_INCREASED].extrinsic || have_difficultystone() || (uwep && uwep->oartifact == ART_CUDGEL_OF_CUTHBERT) || (u.twoweap && uswapwep && uswapwep->oartifact == ART_CUDGEL_OF_CUTHBERT) || (uwep && uwep->oartifact == ART_ONE_THROUGH_FOUR_SCEPTER) || (u.twoweap && uswapwep && uswapwep->oartifact == ART_ONE_THROUGH_FOUR_SCEPTER) ) retvalue += 10;
+	if (DifficultyIncreased || u.uprops[DIFFICULTY_INCREASED].extrinsic || have_difficultystone() || Race_if(PM_PLAYER_DYNAMO) || (uwep && uwep->oartifact == ART_ARABELLA_S_BLACK_PRONG) || (u.twoweap && uswapwep && uswapwep->oartifact == ART_ARABELLA_S_BLACK_PRONG) || (uwep && uwep->oartifact == ART_CUDGEL_OF_CUTHBERT) || (u.twoweap && uswapwep && uswapwep->oartifact == ART_CUDGEL_OF_CUTHBERT) || (uwep && uwep->oartifact == ART_ONE_THROUGH_FOUR_SCEPTER) || (u.twoweap && uswapwep && uswapwep->oartifact == ART_ONE_THROUGH_FOUR_SCEPTER) ) retvalue += 10;
 	if (Race_if(PM_PHANTOM_GHOST)) retvalue++;
 
 	if (uarmg && uarmg->oartifact == ART_DIFFICULTY__) retvalue += (6 + u.ulevel);
@@ -2056,13 +2127,25 @@ level_difficulty()
 	/* ultra aggravate monster if you pick both hybrid races --Amy */
 	if (isextravator && isaggravator) retvalue *= 2;
 
-	if (uarmc && OBJ_DESCR(objects[uarmc->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "difficult cloak") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "trudnyy plashch") || !strcmp(OBJ_DESCR(objects[uarmc->otyp]), "qiyin plash") ) ) {
+	if (uarmc && itemhasappearance(uarmc, APP_DIFFICULT_CLOAK) ) {
 		retvalue *= 2;
 	}
 
 	if (uarmc && uarmc->oartifact == ART_ULTRAGGRAVATE) retvalue *= 2;
 
+	if (u.cellargravate) retvalue *= 2;
+
 	if (uarmg && uarmg->oartifact == ART_DIFFICULT_) retvalue *= 2;
+
+	/* skew generation to make very high-level monsters much more unlikely --Amy */
+
+	if (retvalue > 20) retvalue = (19 + rnd(retvalue - 19));
+
+	/* now skew it even more towards low-level stuff */
+
+	if (retvalue > 1 && retvalue <= 6) retvalue = rnd(retvalue);
+	else if (retvalue > 6 && retvalue <= 11) retvalue = ((retvalue - 5) + rnd(5));
+	else if (retvalue > 11) retvalue = (5 + rnd(retvalue - 5));
 
 	if (retvalue > 126) retvalue = 126; /* fail safe */
 	if (retvalue < 1) retvalue = 1;

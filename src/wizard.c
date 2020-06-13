@@ -322,6 +322,10 @@ tactics(mtmp)
 		if (distu(mtmp->mx,mtmp->my) > (BOLT_LIM * BOLT_LIM))
 		    if(mtmp->mhp <= mtmp->mhpmax - 8) {
 			mtmp->mhp += rnd(8);
+			if (mtmp->bleedout) {
+				mtmp->bleedout -= rnd(8);
+				if (mtmp->bleedout < 0) mtmp->bleedout = 0; /* fail safe */
+			}
 			return(1);
 		    }
 		/* fall through :-) */
@@ -385,15 +389,33 @@ aggravate()
 	incr_itimeout(&HAggravate_monster, rnd( (monster_difficulty() + 1) * 5));
 	/* gotta make sure aggravate monster actually does something after all! --Amy */
 
-	for(mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-	    if (!DEADMONSTER(mtmp)) {
-		mtmp->msleeping = 0;
-		if(!mtmp->mcanmove && !rn2(5)) {
-			mtmp->mfrozen = 0;
-			mtmp->masleep = 0;
-			mtmp->mcanmove = 1;
+	/* Amy edit: stealth gives a chance of the monster not waking up; aggravate monster reduces that chance */
+	int stealthchance = 0;
+	if (Stealth) stealthchance += 20;
+	if (StrongStealth) stealthchance += 30;
+	if (StrongAggravate_monster) stealthchance /= 2;
+	if (stealthchance < 0) stealthchance = 0; /* less than 0% chance makes no sense anyway --Amy */
+	if (stealthchance > 0) stealthchance = rnd(stealthchance); /* some randomness */
+
+	for(mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+
+		int distagravate = distu(mtmp->mx,mtmp->my);
+
+		if (distagravate > 75) {
+			distagravate /= 10;
+			if (distagravate < 1) distagravate = 1;
+			if (distagravate > 95) distagravate = 95;
+		} else distagravate = 0;
+
+		if (!DEADMONSTER(mtmp) && (rnd(100) > stealthchance) && (rnd(100) > distagravate) && !(Race_if(PM_VIETIS) && !rn2(3)) && !(Race_if(PM_KUTAR) && !rn2(3)) ) {
+			mtmp->msleeping = 0;
+			if(!mtmp->mcanmove && !rn2(5)) {
+				mtmp->mfrozen = 0;
+				mtmp->masleep = 0;
+				mtmp->mcanmove = 1;
+			}
 		}
-	    }
+	}
 }
 
 void
@@ -407,8 +429,7 @@ clonewiz()
 		if (Race_if(PM_RODNEYAN)) mtmp2->mpeaceful = 1;
 
 	    if (!u.uhave.amulet && rn2(2)) {  /* give clone a fake */
-		(void) add_to_minv(mtmp2, mksobj(FAKE_AMULET_OF_YENDOR,
-					TRUE, FALSE));
+		(void) add_to_minv(mtmp2, mksobj(FAKE_AMULET_OF_YENDOR, TRUE, FALSE, FALSE));
 	    }
 	    mtmp2->m_ap_type = M_AP_MONSTER;
 	    mtmp2->mappearance = wizapp[rn2(SIZE(wizapp))];
@@ -443,7 +464,7 @@ nasty(mcast)
 	}
 
     if(!rn2(10) && Inhell) {
-	msummon((struct monst *) 0);	/* summons like WoY */
+	msummon((struct monst *) 0, FALSE);	/* summons like WoY */
 	count++;
     } else {
 	tmp = (u.ulevel > 6) ? u.ulevel /6 : 1; /* just in case -- rph */
@@ -493,6 +514,7 @@ void
 resurrect()
 {
 	struct monst *mtmp, **mmtmp;
+	struct monst *zruti;
 	long elapsed;
 	const char *verb;
 
@@ -538,6 +560,16 @@ resurrect()
 		pline("A voice booms out...");
 		if (!Race_if(PM_RODNEYAN)) verbalize("So thou thought thou couldst %s me, fool.", verb);
 		else verbalize("Hi there again, %s", flags.female ? "sister" : "brother");
+	}
+
+	/* occasionally spawn the zrutinator as well --Amy */
+	if (!rn2(3)) {
+		zruti = makemon(&mons[PM_THE_ZRUTINATOR], u.ux, u.uy, MM_NOWAIT);
+		if (zruti) {
+			zruti->msleeping = zruti->mtame = zruti->mpeaceful = 0;
+			if (Race_if(PM_RODNEYAN)) zruti->mpeaceful = 1;
+			set_malign(zruti);
+		}
 	}
 
 }
@@ -1585,6 +1617,7 @@ register struct monst	*mtmp;
 	    if (!rn2(5)) { /* typical bad guy action */
 		pline("%s laughs fiendishly.", Monnam(mtmp));
 		verbalize("%s", random_your_mother[rn2(SIZE(random_your_mother))]);
+		u.cnd_mommacount++;
 
 		armpro = magic_negation(&youmonst);
 		armprolimit = 75;
@@ -1603,6 +1636,8 @@ register struct monst	*mtmp;
 
 		if ((rn2(3) >= armpro) || ((rnd(100) > armprolimit) && ((armpro < 4) || (rnd(armpro) < 4) ) ) ) {
 			make_dimmed(HDimmed + rnd(10) + rnd(monster_difficulty() + 1), TRUE);
+			if (Role_if(PM_CELLAR_CHILD)) losehp(monster_difficulty(),"Rodney's laughing",KILLED_BY);
+
 		}
 
 	    } else {
@@ -1640,6 +1675,7 @@ register struct monst	*mtmp;
 
 		if ((rn2(3) >= armpro) || ((rnd(100) > armprolimit) && ((armpro < 4) || (rnd(armpro) < 4) ) ) ) {
 			make_dimmed(HDimmed + rnd(10) + rnd(monster_difficulty() + 1), TRUE);
+			if (Role_if(PM_CELLAR_CHILD)) losehp(monster_difficulty(),"Rodney's taunt",KILLED_BY);
 		}
 	    }
 
@@ -1665,6 +1701,7 @@ register struct monst	*mtmp;
 
 			if ((rn2(3) >= armpro) || ((rnd(100) > armprolimit) && ((armpro < 4) || (rnd(armpro) < 4) ) ) ) {
 				make_dimmed(HDimmed + rnd(10) + rnd(monster_difficulty() + 1), TRUE);
+				if (Role_if(PM_CELLAR_CHILD)) losehp(monster_difficulty(),"angelic maledictions",KILLED_BY);
 			}
 		}
 
@@ -1672,6 +1709,7 @@ register struct monst	*mtmp;
 	    if (!rn2(5)) {
 		pline("%s casts aspersions on your ancestry.", Monnam(mtmp));
 		verbalize("%s", random_your_mother[rn2(SIZE(random_your_mother))]);
+		u.cnd_mommacount++;
 
 		armpro = magic_negation(&youmonst);
 		armprolimit = 75;
@@ -1690,6 +1728,7 @@ register struct monst	*mtmp;
 
 		if ((rn2(3) >= armpro) || ((rnd(100) > armprolimit) && ((armpro < 4) || (rnd(armpro) < 4) ) ) ) {
 			make_dimmed(HDimmed + rnd(10) + rnd(monster_difficulty() + 1), TRUE);
+			if (Role_if(PM_CELLAR_CHILD)) losehp(monster_difficulty(),"a 'your mother' joke",KILLED_BY);
 		}
 
 	    }
@@ -1714,6 +1753,7 @@ register struct monst	*mtmp;
 
 			if ((rn2(3) >= armpro) || ((rnd(100) > armprolimit) && ((armpro < 4) || (rnd(armpro) < 4) ) ) ) {
 				make_dimmed(HDimmed + rnd(10) + rnd(monster_difficulty() + 1), TRUE);
+				if (Role_if(PM_CELLAR_CHILD)) losehp(monster_difficulty(),"demonic maledictions",KILLED_BY);
 			}
 		}
 
@@ -1725,6 +1765,7 @@ void
 randomcuss()
 {
 	verbalize("%s", random_your_mother[rn2(SIZE(random_your_mother))]);
+	u.cnd_mommacount++;
 }
 
 #endif /* OVLB */

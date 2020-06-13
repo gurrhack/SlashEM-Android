@@ -54,6 +54,8 @@ int rmtyp;
 					- ROOMOFFSET].rtype == (rmtype))
 #endif
 
+static const char all_count[] = { ALLOW_COUNT, ALL_CLASSES, 0 };
+
 void
 dosounds()
 {
@@ -66,7 +68,7 @@ dosounds()
 
     if (!flags.soundok || u.uswallow || Underwater) return;
 
-    hallu = Hallucination ? 1 : 0;
+    hallu = FunnyHallu ? 1 : 0;
 
     if (level.flags.nfountains && !rn2(400)) {
 	static const char * const fountain_msg[] = {
@@ -91,12 +93,14 @@ dosounds()
 		"a slow drip.",
 		"a gurgling noise.",
 		"a metallic plinking sound.",
+		"a toilet flush!",
+		"a dripping tap.",
 		"dripping water.",
 		"dishes being washed!",
 		"a neverending dripping sound that is driving you crazy!",
 		"someone getting in on the action with a hot foocubus!",
 	};
-	You_hear("%s", sink_msg[rn2(4+hallu*3)]);
+	You_hear("%s", sink_msg[rn2(6+hallu*3)]);
     }
 #endif
     if (level.flags.has_court && !rn2(200)) {
@@ -104,6 +108,7 @@ dosounds()
 		"the tones of courtly conversation.",
 		"a sceptre pounded in judgment.",
 		"Someone shouts \"Off with %s head!\"",
+		"royal trumpets.",
 		"what sounds like a royal ceremony.",
 		"Queen Beruthiel's cats!",
 	};
@@ -114,7 +119,7 @@ dosounds()
 		!is_animal(mtmp->data) &&
 		mon_in_room(mtmp, COURT)) {
 		/* finding one is enough, at least for now */
-		int which = rn2(4+hallu);
+		int which = rn2(5+hallu);
 
 		if (which != 2) You_hear("%s", throne_msg[which]);
 		else		pline(throne_msg[2], uhis());
@@ -126,10 +131,14 @@ dosounds()
 	static const char * const swamp_msg[] = {
 		"hear mosquitoes!",
 		"smell marsh gas!",	/* so it's a smell...*/
+		"hear a muffled splash.",
+		"are frightened by the calm atmosphere for some reason.",
 		"hear Donald Duck!",
 		"inhale a vile stench that reminds you of what kissing a frog is probably like!",
+		"hear someone falling in the water and losing a life.",
+		"suddenly encounter the hamming fish, which can devour and instakill you!", /* Big Bill from Super Mario Bros 3 */
 	};
-	You("%s", swamp_msg[rn2(2+hallu*2)]);
+	You("%s", swamp_msg[rn2(4+hallu*4)]);
 	return;
     }
     if (level.flags.spooky && !rn2(200)) {
@@ -306,8 +315,9 @@ dosounds()
 			"listen to patients screaming while the doctor is conducting the sectio.",
 			"seem to hear Doctor Frankenstein.",
 			"hear someone scream 'NOOOOOO! Get away from my teeth! Dentists are TERRIBLE people!!!'",
+			"suddenly have a flashback to your last OP!",
 		};
-		You("%s", hospital_msg[rn2(4+hallu*2)]);
+		You("%s", hospital_msg[rn2(4+hallu*3)]);
 		return;
 	    }
 	    if (level.flags.has_nymphhall && !rn2(200)) {
@@ -321,8 +331,9 @@ dosounds()
 			"hear wind in the willows!",
 			"seem mesmerized.",
 			"feel like giving all your possessions to a beautiful woman.",
+			"want to pull down your pants.",
 		};
-		You("%s", nymphhall_msg[rn2(5+hallu*4)]);
+		You("%s", nymphhall_msg[rn2(5+hallu*5)]);
 		return;
 	    }
 	    if (level.flags.has_lemurepit && !rn2(2000)) { /* from unnethack, deliberately made rare */
@@ -336,8 +347,12 @@ dosounds()
 			"screams of lust!",
 			"the crack of your mistress's whip!",
 			"a weeping willow!",
+			"wonderful scratching noises!",
+			"erotic rubbing noises!",
+			"cheerful squeaking noises!",
+			"sexy licking noises!",
 		};
-		You_hear("%s", lemurepit_msg[rn2(6+hallu*3)]);
+		You_hear("%s", lemurepit_msg[rn2(6+hallu*7)]);
 		return;
 	    }
 	    if (level.flags.has_spiderhall && !rn2(200)) {
@@ -405,8 +420,9 @@ dosounds()
 			"feel that you're near death!",
 			"don't have much longer to live...",
 			"listen to a tune that gets ever more dissonant...", /* crypt music from Robin Hood, Prince of Thieves */
+			"hear your ancestors laughing at you!",
 		};
-		You("%s", cryptroom_msg[rn2(4+hallu*3)]);
+		You("%s", cryptroom_msg[rn2(4+hallu*4)]);
 		return;
 	    }
 
@@ -419,13 +435,17 @@ dosounds()
 			"notice an electrical feeling in the air.",
 			"are afraid of something.",
 			"hear the voices of vaguely humanoid beings.",
+			"feel vexed.",
 			"have to count to three, and if you fail, you can forget about your game!", /* this and the next few are from the obscure Trouble Zone game for the Nintendo Gameboy */
 			"are way in over your head!",
 			"must sort the blocks according to the numbers, and pronto!",
 			"fall asleep while the line very slowly dissolves.",
 			"listen to the military music broadcast from Radio Enclave.", /* Fallout 3 */
+			"are being fully gouged by the type!",
+			"collected too many speed increasing pickups and your speed wrapped over so you're super slow now!",
+			"realize that the game has resetted itself, so you'll have to start over at dungeon level 1.",
 		};
-		You("%s", troublezone_msg[rn2(7+hallu*5)]);
+		You("%s", troublezone_msg[rn2(8+hallu*8)]);
 		return;
 	    }
 
@@ -450,6 +470,7 @@ dosounds()
 		static const char *hellpit_msg[] = {
 			"smell brimstone.",
 			"hear the bubbling of lava.",
+			"smell sulfur.",
 			"chime in on a pack of demons performing a satanic ritual.",
 			"sense the presence of hellish beings.",
 			"see that the ceiling has turned red-hot!", /* Oblivion gate, but you're presumably in a dungeon and not the outskirts, so instead of the sky changing colors, the ceiling does so */
@@ -457,8 +478,43 @@ dosounds()
 			"realize that the hellspawn invasion has already begun...",
 			"sense the presence of a gate to Oblivion.",
 			"suddenly encounter the giant siege caterpillar and have 10 minutes to destroy it or everything is lost.",
+			"need to protect Annoying Head Martin from the 200 storm atronachs and dremora valkynaz.",
 		};
-		You("%s", hellpit_msg[rn2(5+hallu*4)]);
+		You("%s", hellpit_msg[rn2(6+hallu*5)]);
+		return;
+	    }
+
+	    if (level.flags.has_robbercave && !rn2(200)) {
+		static const char *robbercave_msg[] = {
+			"feel that this floor is home to the robbers.", /* these are all based on Amy's FO3 fanfic */
+			"know that you must watch your purse.",
+			"get the feeling that somebody is after your valuables.",
+			"hear someone screaming that their money got stolen!",
+			"listen to people drinking beer.",
+			"hear a male voice announce: 'Hundred one hundred!'", /* robbers playing cards */
+			"want to watch when the robbers assault the motherfuckers' ship, because it will be like a second Pearl Harbor!",
+			"know that the bitches are not the rulers of the world, even if they want to view themselves as such just because they have money.",
+			"fully endorse racketeering, as long as the super-smart women are the target.", /* and also the quick learners */
+			"feel like being sucked into one of Amy's terrible fanfics!",
+		};
+		You("%s", robbercave_msg[rn2(5+hallu*5)]);
+		return;
+	    }
+
+	    if (level.flags.has_sanitationcentral && !rn2(200)) {
+		static const char *sanitationcentral_msg[] = {
+			"hear heavy breathing.",
+			"feel that there's something that wants to drain you of your sanity.",
+			"seem more focused on your mental health than usual.",
+			"have to wonder whether you're seeing things.",
+			"sense an eldritch abomination lurking somewhere on this floor.",
+			"start perceiving the world as the terrible place it really is, and go mad from the revelation!",
+			"suddenly have over 9000 sanity! Oh no! Now every sanity increase will paralyze you!",
+			"have to ask Amy what in-game sanity does, because you have no idea!",
+			"feel more sane than before, which is a BAD thing!",
+			"hear a horrible call that rings in your head, which periodically increases your sanity!",
+		};
+		You("%s", sanitationcentral_msg[rn2(5+hallu*5)]);
 		return;
 	    }
 
@@ -496,8 +552,10 @@ dosounds()
 			"hear someone sing 'Old Mac Donald had a farm...'",
 			"can't help it but feel that something that looks normal is terribly amiss.",
 			"listen to the palomita, which is Spanish for parrot.", /* or at least the Amy always thought that's what it meant */
+			"wonder what's the color of the giant red ant.",
+			"feel that the one grass tile is greener than the rest for some reason.",
 		};
-		You("%s", meadowroom_msg[rn2(5+hallu*3)]);
+		You("%s", meadowroom_msg[rn2(5+hallu*5)]);
 		return;
 	    }
 
@@ -512,8 +570,10 @@ dosounds()
 			"hear someone calling you to the iceblock shooting.", /* reference to GNTM, where the models had to do a photo shooting in an ice chamber once */
 			"can smell the mildew on the walls.",
 			"listen to the type of ice block laughing all the time. Harharharharharharhar!",
+			"know that if you're walking on ice all the time, you'll unlearn the ability to walk on a non-slippery floor.",
+			"hear an ice cream van!",
 		};
-		You("%s", coolingchamber_msg[rn2(5+hallu*4)]);
+		You("%s", coolingchamber_msg[rn2(5+hallu*6)]);
 		return;
 	    }
 
@@ -524,7 +584,7 @@ dosounds()
 			"feel that a special challenge awaits you.", /* ToME */
 			"feel the presence of spirits from the netherworld.",
 			"hear a sucking sound.",
-			"audible silence.",
+			"hear audible silence.",
 			"notice that this area is disturbingly quiet.",
 			"hear the absence of nosie.", /* sic by AntiGulp, and deemed too funny to fix */
 			"hear Galadriel whispering 'It is very likely that you die on your journey, but you must go anyway...'",
@@ -534,8 +594,9 @@ dosounds()
 			"feel a ghostly touch on your nosie and inhale the scent of a rosie!",
 			"hear the sounds of the gene splicing machine!", /* Elona */
 			"listen to someone complaining about a splintered nail.", /* Harry Potter disappearing (or whatever it's called, it's actually magical teleportation) mishap */
+			"neither hear nor see the words, yet somehow they're still there.",
 		};
-		You("%s", voidroom_msg[rn2(8+hallu*7)]);
+		You("%s", voidroom_msg[rn2(8+hallu*8)]);
 		return;
 	    }
 
@@ -545,12 +606,15 @@ dosounds()
 			"hear a loud crunching sound.",
 			"hear a ceiling tile fall.",
 			"smell a lot of rust.",
+			"hear a gun clank.",
 			"hear iron oxidize.",
 			"hear a military contractor making out like a bandit.",
 			"fear that your +7 artifact weapon might get eaten!",
 			"hear the sound of a toilet latch.",
+			"wonder why the hell this set of messages is called 'library_msg' in the game's source.",
+			"feel that parts of the floor have been washed away.",
 		};
-		You("%s", library_msg[rn2(4)+hallu*4]);
+		You("%s", library_msg[rn2(5)+hallu*6]);
 		return;
 	    }
 
@@ -577,12 +641,13 @@ dosounds()
 			"can hear a police officer requesting reinforcement.",
 			"hear the whipping sound of a rubber hose.", /* default keystone kop weapon */
 			"overhear the police radio and find out to your shock that you're wanted.",
+			"hear an officer giving commands hectically.",
 			"realize that your cop wanted level is 6, and the forces of law are coming to bust you!",
 			"are chased by a speeding police car!",
 			"feel that the safest place in existence is right in the middle of the enemies' base camp.", /* a joke from one of Amy's fanfics where the robbers were discussing where to hide and one of them sarcastically suggested hiding in the cop station */
 			"hear the sound of a fucking army helicopter!", /* in GTA games, the army comes for you if your cop wanted level is maxed */
 		};
-		if (rn2(5)) You("%s", kopstation_msg[rn2(4+hallu*4)]);
+		if (rn2(5)) You("%s", kopstation_msg[rn2(5+hallu*4)]);
 		else verbalize("Alert! All units, apprehend %s immediately!", playeraliasname);
 		return;
 	    }
@@ -749,8 +814,9 @@ dosounds()
 			"really have to hurry - if you don't free the prisoner in 10 turns, he will be killed!",
 			"were so stupid and accidentally attacked the prisoner, causing him to die! Now you'll never get the reward for freeing him!",
 			"procrastinated for too long and now the prisoner is history. You failure!",
+			"noticed that the drums are beating faster!",
 		};
-		You("%s", prisonchamber_msg[rn2(5+hallu*4)]);
+		You("%s", prisonchamber_msg[rn2(5+hallu*5)]);
 		return;
 	    }
 
@@ -760,11 +826,14 @@ dosounds()
 			"smell the stench of contamination in the air.",
 			"listen to scientists talking about their experiments.",
 			"hear the sounds of a nuclear facility.",
+			"detect gamma radiation.",
 			"feel the presence of the ether generator!",
 			"can overhear the president saying 'That was the last straw! I'll bomb that fucking country now! I just need to get the code and press the big red button!'",
 			"are in the extended hazardous course and will have to beat it without cheats, which is very difficult!", /* Hazardous Course 2, also known as Super Kaizo Half-Life */
+			"fear that the politicians will abolish their nuclear peace treaties!",
+			"are glad that you have a HEV suit, which must be very HEVvy.",
 		};
-		You("%s", nuclearchamber_msg[rn2(4+hallu*3)]);
+		You("%s", nuclearchamber_msg[rn2(5+hallu*5)]);
 		return;
 	    }
 
@@ -824,6 +893,7 @@ dosounds()
 			"sense a strong gust of wind.",
 			"hear a wave of water.",
 			"feel the presence of astral beings.",
+			"hear distant thunder.",
 			"get the impression that the laws of Nature itself are conspiring against you!",
 			"suffer from severe inundation!",
 			"realize that you're on a hot plate that was just turned on! Step off or you'll get the tip of your toes burned!",
@@ -832,7 +902,7 @@ dosounds()
 			"wonder why 'astral' elementals exist, because astral is not an element.",
 			"can hear Laura chanting spells.", /* she's supposed to be a master of elemental spells */
 		};
-		You("%s", elemhall_msg[rn2(5+hallu*7)]);
+		You("%s", elemhall_msg[rn2(6+hallu*7)]);
 		return;
 	    }
 
@@ -851,8 +921,13 @@ dosounds()
 			"will die, but not before you've witnessed the evil perpetrators taking your beloved toys and breaking them into pieces.",
 			"are going to get disintegrated even if you are resistant.", /* Nethack Fourk */
 			"will never be able to kill a bugbear in less than 5 hits, and woe to you if an actually difficult monster comes, e.g. a stone golem.", /* Sporkhack */
+			"don't look forward to encountering the elder priest at all.", /* dnethack */
+			"just love it when intrinsically obtained resistances time out.", /* ditto */
+			"have to eat hundreds of corpses to obtain full resistance.", /* sporkhack */
+			"feel that magic resistance will not protect you from the destroy armor spell.", /* ditto */
+			"finally understand that interface screws are not fake difficulty.",
 		};
-		You("%s", evilroom_msg[rn2(9+hallu*4)]);
+		You("%s", evilroom_msg[rn2(9+hallu*9)]);
 		return;
 	    }
 	    if (level.flags.has_religioncenter && !rn2(200)) {
@@ -917,6 +992,7 @@ dosounds()
 			"realize some unexpected hard disk activity.",
 			"have to use phase door if you want to get inside.",
 			"wonder whether teleportation will work on this floor.",
+			"wonder whether shooting the percents will make it go away.",
 			"have the urge to click on that gray tile!",
 			"get a NTLL - Not a valid save file!",
 			"suddenly notice the superdeep type over there!",
@@ -924,8 +1000,9 @@ dosounds()
 			"just lost another continue! If you keep playing that badly, you'll run out and be eliminated prematurely!",
 			"need to use clairvoyance in a very specific place or you won't be able to teleport!",
 			"suddenly remember the highscore cheat that Amy's roommate discovered!",
+			"are challenged by Julietta, and have to defeat her in the auto racer duel!",
 		};
-		You("%s", levelffroom_msg[rn2(7+hallu*7)]);
+		You("%s", levelffroom_msg[rn2(8+hallu*8)]);
 		return;
 	    }
 	    if (level.flags.has_verminroom && !rn2(200)) {
@@ -978,7 +1055,9 @@ dosounds()
 	    if (level.flags.has_showerroom && !rn2(200)) {
 		static const char *showerroom_msg[] = {
 			"hear water currents.",
+			"feel like dancing in the rain.",
 			"listen to a mix of splashes.",
+			"hear the shower running.",
 			"inhale the smell of brine.",
 			"hear a thunderous rumble.",
 			"listen to the emergency service trying to repair a broken water pipe.",
@@ -986,7 +1065,7 @@ dosounds()
 			"realize that the sorcery adept doesn't know how to stop the water...", /* some poem that I forgot the name off, maybe "the mage adept"? the poor sap wants to fill the bathtub with water by using a spell but forgot how to stop the helpers he summoned */
 			"detect a flooding on this sub level.",
 		};
-		You("%s", showerroom_msg[rn2(4+hallu*4)]);
+		You("%s", showerroom_msg[rn2(6+hallu*4)]);
 		return;
 	    }
 	    if (level.flags.has_greencrossroom && !rn2(200)) {
@@ -995,8 +1074,9 @@ dosounds()
 			"listen to the cackle of poultry.",
 			"feel like reaching the next town.",
 			"seem to be in a nice atmosphere.",
-			"pages turning.",
+			"hear pages turning.",
 			"listen to the villagers' conversations.",
+			"want to check whether the secret path is open.",
 			"inhale the sharp smell of burning thatch!",
 			"suddenly see the hill giant lord throwing enormous rocks on the shops! And he's killing the shopkeeper with a giant club! Ack!",
 			"must be in a town that's not very easy to reach.",
@@ -1005,13 +1085,14 @@ dosounds()
 			"have 100 turns left to find the secret entrance to an otherwise unreachable dungeon level before the hidden warp portal dissipates.",
 			"somehow feel that the secret advice hussies can't get you for now.",
 		};
-		You("%s", greencrossroom_msg[rn2(6+hallu*7)]);
+		You("%s", greencrossroom_msg[rn2(7+hallu*7)]);
 		return;
 	    }
 	    if (level.flags.has_ruinedchurch && !rn2(200)) {
 		static const char *ruinedchurch_msg[] = {
 			"feel a haunting presence.",
 			"hear a chiming bell.",
+			"hear a C major chord.",
 			"feel that all sanctity of this place has been lost.",
 			"are sure that the dead are floating around here.",
 			"hear an orchestral melody that goes 'Daaaaa... daaaaaa... DAAAAAAAAAAAAAAA!!!'",
@@ -1019,7 +1100,7 @@ dosounds()
 			"remember the bible saying that you should do unto others what you want others to do unto you.",
 			"know that practice makes perfect. Yeah, yeah.",
 		};
-		You("%s", ruinedchurch_msg[rn2(4+hallu*4)]);
+		You("%s", ruinedchurch_msg[rn2(5+hallu*4)]);
 		return;
 	    }
 	    if (level.flags.has_gamecorner && !rn2(200)) {
@@ -1032,6 +1113,7 @@ dosounds()
 			"seem to catch earshot of a dragon shout from Skyrim.",
 			"encounter a tiny lag that indicates monsters being spawned.",
 			"have to click OK on the shareware notice.",
+			"see the accursed crashy graphics card logo.",
 			"hear a speedrunner curse at Super Kaizo Mario because the game is too damn hard!",
 			"suddenly feel that you're really playing GTA! A cop car appears! The cop wields a shotgun! The cop fires a shotgun shell!--More--",
 			"lost your last hitpoint and jump out of the picture!",
@@ -1043,7 +1125,7 @@ dosounds()
 			"hear someone say 'Die-Far-ben-sind-sehr-flau-schel-bau-schig!'",
 			"push buttons and your stupid PC responds by making annoying 'DIE-DIE-DOE' sounds instead of executing your commands!",
 		};
-		You("%s", gamecorner_msg[rn2(8+hallu*10)]);
+		You("%s", gamecorner_msg[rn2(9+hallu*10)]);
 		return;
 	    }
 	    if (level.flags.has_illusionroom && !rn2(200)) {
@@ -1134,6 +1216,7 @@ dosounds()
 		static const char *riverroom_msg[] = {
 			"hear seagulls.",
 			"hear waves on sand.",
+			"hear something fishy happening.",
 			"hear the trickle of water.",
 			"sense a watery smell mixed with grass.",
 			"listen to an unusual ambient sound.",
@@ -1146,8 +1229,17 @@ dosounds()
 			"get the dreaded 'Can't write to save file' error. Bullshit.",
 			"hear burly voices singing shanties.",
 			"here someone ask about warez.",
+			"hear a speedboat.",
+			"hear a squeaking rubber duck!",
+			"hear a loud advert for Tide.",
+			"hear a commercial for protein bars.",
+			"hear a shark jumping!",
+			"hear a gull asking for a bite of your sandwich.",
+			"hear a foghorn!",
+			"hear a sea shell exploding!",
+			"hear a C-shell script running.",
 		};
-		You("%s", riverroom_msg[rn2(7+hallu*7)]);
+		You("%s", riverroom_msg[rn2(8+hallu*16)]);
 		return;
 	    }
 
@@ -1313,7 +1405,7 @@ dosounds()
         "You feel the presence of some sort of force.",
         "There seems to be something special about this place.",
 	  "You detect the presence of an alignment quest portal!",
-	  "You hear an evil figure taunting you to step through the magic portal!"
+	  "You hear an evil figure taunting you to step through the magic portal!",
         "You hear someone say: \"Force field activated!\"",
         "You hear someone say: \"Warp panel test sequence is starting in three... two... one...\"",
 	  "You see Diablo 2, the boss from the game with the same name, and he's holding your mother hostage!",
@@ -1322,23 +1414,39 @@ dosounds()
       pline("%s", alignquest_msg[rn2(4+hallu*4)]);
     }
 
+	/* finding the subquest is even more annoying because you have to do it */
+    if ( at_dgn_entrance("The Subquest") && u.silverbellget && !rn2(500) ) {
+      static const char *subquest_msg[] = {
+	  "You sense some questing power!",
+	  "You detect the presence of the subquest portal!",
+	  "A lot of force seems to be in the air.",
+	  "You listen to the taunts of your nemesis who wants a rematch!",
+	  "You suddenly fear that you'll face your nemesis again and lose!",
+	  "You have a vision of your home being burned to the ground by the person you despise the most!",
+	  "Something tells you that the only thing you can depend on is your family, and even that not always!",
+	  "You hear a voice announce: \"Morn', player. I'm Sean Gonorrhea. I like my coffee black, my women slutty, and my mucosa membranes inflamed.\"",
+      };
+      pline("%s", subquest_msg[rn2(4+hallu*4)]);
+
+    }
+
 }
 
 #endif /* OVL0 */
 #ifdef OVLB
 
 static const char * const h_sounds[] = {
-    "beep", "boing", "sing", "belche", "creak", "cough", "rattle",
-    "ululate", "pop", "jingle", "sniffle", "tinkle", "eep",
-	"clatter", "hum", "sizzle", "twitter", "wheeze", "rustle",
-	"honk", "lisp", "yodel", "coo", "burp", "moo", "boom",
-	"murmur", "oink", "quack", "rumble", "twang", "bellow",
-	"toot", "gargle", "hoot", "warble", "crackle", "hiss",
-	"growl", "roar", "buzz", "squeal", "screech", "neigh",
-	"wail", "commotion", "squaark", "scream", "yowl", "yelp",
-	"snarl", "squeal", "screak", "whimper", "whine", "howl",
-	"yip", "bark", "purr", "meow", "mew", "drone", "whinnie",
-	"whicker", "gurgle", "burble", "shriek", "baaaa", "cluck"
+    "beeps", "boings", "sings", "belches", "creaks", "coughs", "rattles",
+    "ululates", "pops", "jingles", "sniffles", "tinkles", "eeps",
+	"clatters", "hums", "sizzles", "twitters", "wheezes", "rustles",
+	"honks", "lisps", "yodels", "coos", "burps", "moos", "booms",
+	"murmurs", "oinks", "quacks", "rumbles", "twangs", "bellows",
+	"toots", "gargles", "hoots", "warbles", "crackles", "hisses",
+	"growls", "roars", "buzzes", "squeals", "screeches", "neighs",
+	"wails", "commotions", "squaarks", "screams", "yowls", "yelps",
+	"snarls", "squeals", "screaks", "whimpers", "whines", "howls",
+	"yips", "barks", "purrs", "meows", "mews", "drones", "whinnies",
+	"whickers", "gurgles", "burbles", "shrieks", "baaaas", "clucks",
 
 };
 
@@ -1366,8 +1474,7 @@ int lev;
 	panic("strange level of distress");
 
     if (verb) {
-	pline("%s %s%c", Monnam(mtmp), vtense((char *)0, verb),
-		lev>1?'!':'.');
+	pline("%s %s%c", Monnam(mtmp), verb, lev>1?'!':'.');
 	if (flags.run) nomul(0, 0, FALSE);
 	wake_nearto(mtmp->mx,mtmp->my,mtmp->data->mlevel*6*lev);
     }
@@ -1385,38 +1492,99 @@ register struct monst *mtmp;
 	switch (mtmp->data->msound) {
 	case MS_MEW:
 	case MS_HISS:
-	    ret = "hiss";
+	    ret = "hisses";
 	    break;
 	case MS_BARK:
 	case MS_GROWL:
-	    ret = "growl";
+	    ret = "growls";
 	    break;
 	case MS_ROAR:
-	    ret = "roar";
+	    ret = "roars";
 	    break;
 	case MS_BUZZ:
-	    ret = "buzz";
+	    ret = "buzzes";
 	    break;
 	case MS_SQEEK:
-	    ret = "squeal";
+	    ret = "squeals";
 	    break;
 	case MS_SQAWK:
-	    ret = "screech";
+	    ret = "screeches";
 	    break;
 	case MS_NEIGH:
-	    ret = "neigh";
+	    ret = "neighs";
 	    break;
 	case MS_WAIL:
-	    ret = "wail";
+	    ret = "wails";
 	    break;
 	case MS_SILENT:
-		ret = "commotion";
+		ret = "commotions";
 		break;
 	case MS_PARROT:
-	    ret = "squaark";
+	    ret = "squaarks";
 	    break;
+	case MS_GURGLE:
+		ret = "gurgles threateningly";
+		break;
+	case MS_SHRIEK:
+		ret = "shrieks aggravatingly";
+		aggravate();
+		break;
+	case MS_BONES:
+		ret = "rattles frighteningly";
+		You("freeze for a moment.");
+		nomul(-2, "scared by rattling", TRUE);
+		nomovemsg = 0;
+		break;
+	case MS_LAUGH:
+		ret = "laughs fiendishly";
+		break;
+	case MS_MUMBLE:
+		ret = "mumbles loudly";
+		break;
+	case MS_ARREST:
+		ret = "shouts 'I am an officer of the law!'";
+		break;
+	case MS_SOLDIER:
+		ret = "shouts 'I'm gonna report you to your superior!";
+		break;
+	case MS_VAMPIRE:
+		ret = "shouts 'Don't make me bite your the neck!'";
+		break;
+	case MS_CUSS:
+		ret = "screams 'Fucking cunt!'";
+		break;
+	case MS_WHORE:
+		ret = "shouts 'My pimp is the only one who may lay a hand on me!'";
+		break;
+	case MS_SUPERMAN:
+		ret = "shouts 'YOU SHALL BE EXTERMINATED!'";
+		aggravate();
+		break;
+	case MS_FART_QUIET:
+	case MS_FART_NORMAL:
+	case MS_FART_LOUD:
+		ret = "screams 'Stop slapping my butt! That's painful!'";
+		break;
+	case MS_BOSS:
+		ret = "shouts 'Hey! *I* am the boss here, not you!'";
+		break;
+	case MS_SHOE:
+		ret = "screams 'Don't treat us like that! We don't like that at all!'";
+		break;
+	case MS_STENCH:
+		ret = "screams 'You ruined my makeup!'";
+		break;
+	case MS_CONVERT:
+		ret = "shouts 'Siz Allah'in sadik bir takipcisi degilsiniz, kafir!'";
+		break;
+	case MS_HCALIEN:
+		ret = "looks at you with a gaze that is capable of killing";
+		if (!rn2(20)) losehp(d(10,8), "the HC alien's gaze", KILLED_BY);
+		else if (!rn2(5)) losehp(d(6,8), "the HC alien's gaze", KILLED_BY);
+		else losehp(d(4,6), "the HC alien's gaze", KILLED_BY);
+		break;
 	default:
-		ret = "scream";
+		ret = "screams";
 	}
 	return ret;
 }
@@ -1433,24 +1601,84 @@ register struct monst *mtmp;
 
     switch(mtmp->data->msound) {
 	case MS_MEW:
-	ret = "yowl";
+	ret = "yowls";
 	    break;
 	case MS_BARK:
 	case MS_GROWL:
-	ret = "yelp";
+	ret = "yelps";
 	    break;
 	case MS_ROAR:
-	ret = "snarl";
+	ret = "snarls";
 	    break;
 	case MS_SQEEK:
-	ret = "squeal";
+	ret = "squeals";
 	    break;
 	case MS_SQAWK:
-	ret = "screak";
+	ret = "screaks";
 	    break;
 	case MS_WAIL:
-	ret = "wail";
+	ret = "wails";
 	    break;
+	case MS_GURGLE:
+		ret = "gurgles hissingly";
+		break;
+	case MS_SHRIEK:
+		ret = "shrieks in pain";
+		aggravate();
+		break;
+	case MS_BONES:
+		ret = "rattles";
+		You("freeze for a moment.");
+		nomul(-2, "scared by rattling", TRUE);
+		nomovemsg = 0;
+		break;
+	case MS_LAUGH:
+		ret = "stops laughing";
+		break;
+	case MS_MUMBLE:
+		ret = "mumbles a bit";
+		break;
+	case MS_ARREST:
+		ret = "blows a whistle";
+		aggravate();
+		break;
+	case MS_SOLDIER:
+		ret = "shouts 'Medic!'";
+		break;
+	case MS_VAMPIRE:
+		ret = "groans";
+		break;
+	case MS_CUSS:
+		ret = "grumbles 'If you do that again I'm gonna open a can of whoopass on you...'";
+		break;
+	case MS_WHORE:
+		ret = "exclaims 'Hey! I ain't a slut!'";
+		break;
+	case MS_SUPERMAN:
+		ret = "shouts 'NO! FUCK YOU!!!'";
+		aggravate();
+		break;
+	case MS_FART_QUIET:
+	case MS_FART_NORMAL:
+	case MS_FART_LOUD:
+		ret = "sobs 'This is humiliating...'";
+		break;
+	case MS_BOSS:
+		ret = "shouts 'That's twice you hit me now! One more time and I'll kill you!'";
+		break;
+	case MS_SHOE:
+		ret = "threatens 'If you keep doing that, we'll scratch your legs full length!'";
+		break;
+	case MS_STENCH:
+		ret = "shouts 'That's no way to treat a woman!'";
+		break;
+	case MS_CONVERT:
+		ret = "shouts 'Peygamber bunu hatirlayacak!'";
+		break;
+	case MS_HCALIEN:
+		ret = "strikes fear into your heart with a gaze";
+		make_feared(HFeared + rnd(10 + (monster_difficulty()) ),TRUE);
+		break;
     default:
 	ret = (const char*) 0;
     }
@@ -1470,14 +1698,59 @@ register struct monst *mtmp;
     switch (mtmp->data->msound) {
 	case MS_MEW:
 	case MS_GROWL:
-	ret = "whimper";
+	ret = "whimpers";
 	    break;
 	case MS_BARK:
-	ret = "whine";
+	ret = "whines";
 	    break;
 	case MS_SQEEK:
-	ret = "squeal";
+	ret = "squeals";
 	    break;
+	case MS_SHRIEK:
+		ret = "shrieks fearfully";
+		aggravate();
+		break;
+	case MS_BONES:
+		ret = "claps";
+		break;
+	case MS_LAUGH:
+		ret = "laughs quietly";
+		break;
+	case MS_MUMBLE:
+		ret = "mumbles in anticipation of danger";
+		break;
+	case MS_ARREST:
+		ret = "calls for reinforcements";
+		break;
+	case MS_SOLDIER:
+		ret = "whispers 'Careful! It's an ambush!'";
+		break;
+	case MS_CUSS:
+		ret = "shouts 'Shit! Danger!'";
+		break;
+	case MS_WHORE:
+		ret = "moans 'Those filthy customers keep trying to beat me up!'";
+		break;
+	case MS_FART_QUIET:
+	case MS_FART_NORMAL:
+	case MS_FART_LOUD:
+		ret = "advises you to be careful";
+		break;
+	case MS_BOSS:
+		ret = "whispers 'Careful, I know there's traps here. Let's try to avoid them.'";
+		break;
+	case MS_SHOE:
+		ret = "shouts 'Stop! There's a heap of shit over there! Make sure we don't step into it!'";
+		break;
+	case MS_STENCH:
+		ret = "asks you to be careful";
+		break;
+	case MS_CONVERT:
+		ret = "whispers 'Kafirler goelgede saklaniyor, ama Allah onlan yok edecek.'";
+		break;
+	case MS_HCALIEN:
+		ret = "makes a pointing gesture";
+		break;
     default:
 	ret = (const char *)0;
     }
@@ -1515,13 +1788,17 @@ register struct monst *mtmp;
 
 	int armpro, armprolimit;
 
+	/* monster should make hungry noises only if it actually has to eat --Amy */
+	boolean hastoeat = TRUE;
+	if (!carnivorous(mtmp->data) && !herbivorous(mtmp->data) && !metallivorous(mtmp->data) && !mtmp->egotype_lithivore && !mtmp->egotype_metallivore && !mtmp->egotype_allivore && !lithivorous(mtmp->data)) hastoeat = FALSE;
+
     if (mtmp->egotype_farter) {
 
-		if (uleft && objects[(uleft)->otyp].oc_material == INKA) {
+		if (uleft && objects[(uleft)->otyp].oc_material == MT_INKA) {
 			verbalize("Let me take off that ring for you.");
 			remove_worn_item(uleft, TRUE);
 		}
-		if (uright && objects[(uright)->otyp].oc_material == INKA) {
+		if (uright && objects[(uright)->otyp].oc_material == MT_INKA) {
 			verbalize("Let me take off that ring for you.");
 			remove_worn_item(uright, TRUE);
 		}
@@ -1547,6 +1824,9 @@ register struct monst *mtmp;
 
     /* presumably nearness and sleep checks have already been made */
     if (!flags.soundok) return(0);
+
+	if (ptr == &mons[PM_FJORDE]) verbalize("I can't help it, I really consider fish to be the most beautiful creatures in existence."); /* must do that here because they're "silent" */
+
     if (is_silent(ptr)) return(0);
 
     /* Make sure its your role's quest quardian; adjust if not */
@@ -1566,6 +1846,8 @@ register struct monst *mtmp;
 		if (issoviet) verbalize("Of course Russia was not involved in the presidential election in any way. That's just fake news.");
 		else pline("Make America GREAT again!");
 	}
+
+	if (ptr == &mons[PM_EMERA]) verbalize("HATE! HATE! HATE!");
 
     switch (ptr->msound) {
 	case MS_ORACLE:
@@ -1599,7 +1881,9 @@ register struct monst *mtmp;
 					urace.individual.m : urace.noun;
 
 		if (mtmp->mtame) {
-			if (kindred) {
+			if (mtmp->mhp < mtmp->mhpmax/3) {
+				verbl_msg = "I didn't get a drink in a long time...";
+			} else if (kindred) {
 				sprintf(verbuf, "Good %s to you Master%s",
 					isnight ? "evening" : "day",
 					isnight ? "!" : ".  Why do we not rest?");
@@ -1671,11 +1955,9 @@ register struct monst *mtmp;
 	    if (flags.moonphase == FULL_MOON && night()) {
 		pline_msg = "howls.";
 	    } else if (mtmp->mpeaceful) {
-		if (mtmp->mtame &&
-			(mtmp->mconf || mtmp->mflee || mtmp->mtrapped ||
-			 moves > EDOG(mtmp)->hungrytime || mtmp->mtame < 5))
+		if (mtmp->mtame && (mtmp->mconf || mtmp->mflee || mtmp->mtrapped || (moves > EDOG(mtmp)->hungrytime && hastoeat) || mtmp->mtame < 5))
 		    pline_msg = "whines.";
-		else if (mtmp->mtame && EDOG(mtmp)->hungrytime > moves + 1000)
+		else if (mtmp->mtame && hastoeat && (EDOG(mtmp)->hungrytime > (moves + 1000)))
 		    pline_msg = "yips.";
 		else {
 		    if (mtmp->data != &mons[PM_DINGO])	/* dingos do not actually bark */
@@ -1690,107 +1972,243 @@ register struct monst *mtmp;
 		if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped ||
 			mtmp->mtame < 5)
 		    pline_msg = "yowls.";
-		else if (moves > EDOG(mtmp)->hungrytime)
+		else if (moves > EDOG(mtmp)->hungrytime && hastoeat)
 		    pline_msg = "meows.";
-		else if (EDOG(mtmp)->hungrytime > moves + 1000)
+		else if ((EDOG(mtmp)->hungrytime > (moves + 1000)) && hastoeat)
 		    pline_msg = "purrs.";
 		else
 		    pline_msg = "mews.";
 		break;
 	    } /* else FALLTHRU */
 	case MS_GROWL:
-	    pline_msg = mtmp->mpeaceful ? "snarls." : "growls!";
-	    break;
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/3)
+				pline_msg = "lets out a tormented snarl.";
+			else if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime)
+				pline_msg = "growls hungrily.";
+			else if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped)
+				pline_msg = "whines.";
+			else if (mtmp->mtame && hastoeat && (EDOG(mtmp)->hungrytime > (moves + 1000)))
+				pline_msg = "yips.";
+			else
+				pline_msg = "snarls.";
+		}
+		else pline_msg = mtmp->mpeaceful ? "snarls." : "growls!";
+		break;
 	case MS_ROAR:
-	    pline_msg = (ptr == &mons[PM_SYSTEM_FAILURE]) ? "says in a monotone voice: 'Pieteikumu kluda.'" : mtmp->mpeaceful ? "snarls." : "roars!";
-	    break;
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/3)
+				pline_msg = "lets out a tormented snarl.";
+			else if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime)
+				pline_msg = "emits a faint roar.";
+			else
+				pline_msg = (ptr == &mons[PM_SYSTEM_FAILURE]) ? "says in a monotone voice: 'Pieteikumu kluda.'" : "snarls.";
+		}
+		else pline_msg = (ptr == &mons[PM_SYSTEM_FAILURE]) ? "says in a monotone voice: 'Pieteikumu kluda.'" : mtmp->mpeaceful ? "snarls." : "roars!";
+		break;
 	case MS_SQEEK:
-	    pline_msg = "squeaks.";
-	    break;
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/3)
+				pline_msg = "squeaks in agony.";
+			else if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime)
+				pline_msg = "emits a high squeak.";
+			else if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped)
+				pline_msg = "emits a terrified squeak.";
+			else if (mtmp->mtame && EDOG(mtmp)->hungrytime > moves + 1000)
+				pline_msg = "squeaks joyfully.";
+			else
+				pline_msg = "squeaks.";
+		}
+		else pline_msg = "squeaks.";
+		break;
 	case MS_PARROT:
-	    switch (rn2(8)) {
-		default:
-		case 0:
-		    pline_msg = "squaarks louldly!";
-		    break;
-		case 1:
-		    pline_msg = "says 'Polly want a lembas wafer!'";
-		    break;
-		case 2:
-		    pline_msg = "says 'Nobody expects the Spanish Inquisition!'";
-		    break;
-		case 3:
-		    pline_msg = "says 'Who's a good boy, then?'";
-		    break;
-		case 4:
-		    pline_msg = "says 'Show us yer knickers!'";
-		    break;
-		case 5:
-		    pline_msg = "says 'You'll never make it!'";
-		    break;
-		case 6:
-		    pline_msg = "whistles suggestively!";
-		    break;
-		case 7:
-		    pline_msg = "says 'What sort of a sword do you call that!'";
-		    break;
-	    }
-	    break;
+
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3) {
+			pline_msg = "says 'Help! Police!'";
+		} else if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime) {
+			pline_msg = "says 'Pass me the damn food already!'";
+		} else switch (rn2(8)) {
+			default:
+			case 0:
+			    pline_msg = "squaarks louldly!";
+			    break;
+			case 1:
+			    pline_msg = "says 'Polly want a lembas wafer!'";
+			    break;
+			case 2:
+			    pline_msg = "says 'Nobody expects the Spanish Inquisition!'";
+			    break;
+			case 3:
+			    pline_msg = "says 'Who's a good boy, then?'";
+			    break;
+			case 4:
+			    pline_msg = "says 'Show us yer knickers!'";
+			    break;
+			case 5:
+			    pline_msg = "says 'You'll never make it!'";
+			    break;
+			case 6:
+			    pline_msg = "whistles suggestively!";
+			    break;
+			case 7:
+			    pline_msg = "says 'What sort of a sword do you call that!'";
+			    break;
+		}
+		break;
 	case MS_SQAWK:
-	    if (ptr == &mons[PM_RAVEN] && !mtmp->mpeaceful)
-	    	verbl_msg = "Nevermore!";
-	    else
-	    	pline_msg = "squawks.";
-	    break;
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/3)
+				pline_msg = "squawks in agony.";
+			else if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime)
+				pline_msg = "makes a distressed squawk.";
+			else if (ptr == &mons[PM_RAVEN] && !mtmp->mpeaceful)
+				verbl_msg = "Nevermore!";
+			else
+				pline_msg = "squawks.";
+		}
+		else if (ptr == &mons[PM_RAVEN] && !mtmp->mpeaceful)
+			verbl_msg = "Nevermore!";
+		else
+			pline_msg = "squawks.";
+		break;
 	case MS_HISS:
-	    if (!mtmp->mpeaceful)
-		pline_msg = "hisses!";
-	    else return 0;	/* no sound */
-	    break;
+		if (!mtmp->mpeaceful)
+			pline_msg = "hisses!";
+		else if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/3)
+				pline_msg = "hisses angrily.";
+			else if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime)
+				pline_msg = "tries to snap at your finger.";
+			else if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped)
+				pline_msg = "makes a confused hiss.";
+			else if (mtmp->mtame && hastoeat && (EDOG(mtmp)->hungrytime > (moves + 1000)))
+				pline_msg = "hums.";
+			else
+				pline_msg = "hisses peacefully.";
+		}
+		else return 0;	/* no sound */
+		break;
 	case MS_BUZZ:
-	    pline_msg = mtmp->mpeaceful ? "drones." : "buzzes angrily.";
-	    break;
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/5)
+				pline_msg = "displays a blue screen of death!";
+			else if (mtmp->mhp < mtmp->mhpmax/3)
+				pline_msg = "displays an error message: 'General protection fault'...";
+			else if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime)
+				pline_msg = "is waiting for data input...";
+			else if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped)
+				pline_msg = "makes a confused droning sound.";
+			else
+				pline_msg = "drones.";
+		}
+		else pline_msg = mtmp->mpeaceful ? "drones." : "buzzes angrily.";
+		break;
 	case MS_GRUNT: /* YANI by ShivanHunter */
-	    pline_msg = (mtmp->data->mlet == S_TROLL) ? "shouts: 'VI > EMACS!!!!!'" : "grunts.";
-	    break;
+		if (mtmp->mtame) {
+			if (mtmp->data->mlet == S_TROLL) {
+				if (mtmp->mhp < mtmp->mhpmax/3)
+					pline_msg = "shouts: 'Curse those right-wing extremists!'";
+				else if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime)
+					pline_msg = "shouts: 'Does this stinking hole not have a restaurant??? '";
+				else if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped)
+					pline_msg = "shouts: 'rn2(P = NP) can't be false because we didn't see any rn2(0) impossibles, which proves that P = NP!'";
+				else
+					pline_msg = "shouts: 'VI > EMACS!!!!!'";
+
+			} else {
+				if (mtmp->mhp < mtmp->mhpmax/3)
+					pline_msg = "seems to be wounded.";
+				else if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime)
+					pline_msg = "is hungry.";
+				else if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped)
+					pline_msg = "grovels.";
+				else
+					pline_msg = "grunts.";
+			}
+		}
+		else pline_msg = (mtmp->data->mlet == S_TROLL) ? "shouts: 'VI > EMACS!!!!!'" : "grunts.";
+		break;
 	case MS_NEIGH:
-	    if (mtmp->mtame < 5)
-		pline_msg = "neighs.";
-	    else if (moves > EDOG(mtmp)->hungrytime)
-		pline_msg = "whinnies.";
-	    else
-		pline_msg = "whickers.";
-	    break;
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3)
+			pline_msg = "whines.";
+		else if (mtmp->mtame < 5)
+			pline_msg = "neighs.";
+		else if (hastoeat && moves > EDOG(mtmp)->hungrytime)
+			pline_msg = "whinnies.";
+		else
+			pline_msg = "whickers.";
+		break;
 	case MS_WAIL:
-	    pline_msg = "wails mournfully.";
-	    break;
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/3)
+				pline_msg = "seems about to faint.";
+			else
+				pline_msg = "wails mournfully.";
+		}
+		else pline_msg = "wails mournfully.";
+		break;
 	case MS_GURGLE:
-	    pline_msg = "gurgles.";
-	    break;
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/3)
+				pline_msg = "gurgles loudly.";
+			else
+				pline_msg = "gurgles.";
+		}
+		else pline_msg = "gurgles.";
+		break;
 	case MS_BURBLE:
-	    pline_msg = "burbles.";
-	    break;
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/4)
+				pline_msg = "makes a frightened burble.";
+			else
+				pline_msg = "burbles.";
+		}
+		else pline_msg = "burbles.";
+		break;
 	case MS_SHRIEK:
-	    pline_msg = "shrieks.";
-	    aggravate();
-	    break;
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/3)
+				pline_msg = "emits a faint shriek.";
+			else
+				pline_msg = "shrieks.";
+				aggravate();
+		}
+		else {
+			pline_msg = "shrieks.";
+			aggravate();
+		}
+		break;
 	case MS_FART_QUIET:
 	case MS_FART_NORMAL:
 	case MS_FART_LOUD:
 
-		if (uleft && objects[(uleft)->otyp].oc_material == INKA) {
+		if (uleft && objects[(uleft)->otyp].oc_material == MT_INKA) {
 			verbalize("Let me take off that ring for you.");
 			remove_worn_item(uleft, TRUE);
 		}
-		if (uright && objects[(uright)->otyp].oc_material == INKA) {
+		if (uright && objects[(uright)->otyp].oc_material == MT_INKA) {
 			verbalize("Let me take off that ring for you.");
 			remove_worn_item(uright, TRUE);
 		}
 
 		pline("You gently caress %s's %s butt using %s %s.", mon_nam(mtmp), mtmp->female ? "sexy" : "ugly", !rn2(3) ? "both your left and right" : rn2(2) ? "your left" : "your right", body_part(HAND) );
+
+		if (uarmu && uarmu->oartifact == ART_SUE_LYN_S_SEX_GAME && !mtmp->mpeaceful && !mtmp->mfrenzied) {
+			mtmp->mpeaceful = TRUE;
+		}
+
 		if (mtmp->mtame) {
-			pline("%s seems to love you even more than before.", Monnam(mtmp) );
-			if (mtmp->mtame < 30) mtmp->mtame++;
+
+			if (mtmp->mhp < mtmp->mhpmax/3) {
+				verbl_msg = "Please don't let me die!";
+				break;
+			} else if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime) {
+				pline_msg = "I haven't eaten in a while. Please bring me some chicken meat garnished with pepperoni.";
+				break;
+			} else {
+				pline("%s seems to love you even more than before.", Monnam(mtmp) );
+				if (mtmp->mtame < 30) mtmp->mtame++;
+			}
 		}
 		else if (mtmp->mpeaceful) {
 			pline("%s seems to like being felt up by you.", Monnam(mtmp) );
@@ -1802,27 +2220,90 @@ register struct monst *mtmp;
 		else {
 			pline("%s seems to be even more angry at you than before.", Monnam(mtmp) );
 		}
-	    m_respond(mtmp);
+		m_respond(mtmp);
+
+		if (uarmu && uarmu->oartifact == ART_SUE_LYN_S_SEX_GAME && mtmp->mpeaceful && !mtmp->mfrenzied && !mtmp->mtame && (mtmp->m_lev < 1 || (u.ugold >= (mtmp->m_lev * 100))) ) {
+			pline("%s offers to join you for %d zorkmids.", Monnam(mtmp), (mtmp->m_lev < 1) ? 0 : (mtmp->m_lev * 100));
+			if (yn("Accept the offer?") == 'y') {
+				if (mtmp->m_lev > 0) u.ugold -= (mtmp->m_lev * 100);
+				struct monst *suepet;
+				suepet = tamedog(mtmp, (struct obj *) 0, TRUE);
+				if (suepet) mtmp = suepet;
+				if (mtmp) verbalize("You really caressed my butt cheeks so beautifully, I think I'm in love with you!");
+				else impossible("suepet was tamed but doesn't exist now??");
+			}
+
+		}
+
 	    break;
 	case MS_IMITATE:
-	    pline_msg = "imitates you.";
-	    break;
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/3)
+				pline_msg = "unsuccessfully tries to imitate you.";
+			else if (mtmp->mtame && hastoeat && !mtmp->isminion && moves > EDOG(mtmp)->hungrytime)
+				pline_msg = "imitates a starving person.";
+			else
+				pline_msg = "imitates you.";
+		}
+		else pline_msg = "imitates you.";
+		break;
 	case MS_SHEEP:
-	    pline_msg = "baaaas.";
-	    break;
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/3)
+				pline_msg = "makes a sound that reminds you of a moan.";
+			else if (mtmp->mtame && hastoeat && !mtmp->isminion && moves > EDOG(mtmp)->hungrytime)
+				pline_msg = "baaaas hungrily.";
+			else if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped)
+				pline_msg = "is scared.";
+			else
+				pline_msg = "baaaas.";
+		}
+		else pline_msg = "baaaas.";
+		break;
 	case MS_CHICKEN:
-	    pline_msg = "clucks.";
-	    break;
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/3) {
+				pline_msg = "makes an anguished shriek.";
+				aggravate();
+			} else if (mtmp->mtame && hastoeat && !mtmp->isminion && moves > EDOG(mtmp)->hungrytime)
+				pline_msg = "looks hungry.";
+			else if (mtmp->mconf || mtmp->mflee)
+				pline_msg = "runs wildly in fear.";
+			else if (mtmp->mtrapped)
+				pline_msg = "is mortally scared.";
+			else
+				pline_msg = "clucks.";
+		}
+		else pline_msg = "clucks.";
+		break;
 	case MS_COW:
-	    pline_msg = "bellows.";
-	    break;
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/3)
+				pline_msg = "breathes heavily.";
+			else if (mtmp->mtame && hastoeat && !mtmp->isminion && moves > EDOG(mtmp)->hungrytime)
+				pline_msg = "makes a distressed bellow.";
+			else
+				pline_msg = "bellows.";
+		}
+		else pline_msg = "bellows.";
+		break;
 	case MS_BONES:
-	    pline(Hallucination ? "%s plays the xylophone!" : "%s rattles noisily.", Monnam(mtmp));
-	    You("freeze for a moment.");
-	    nomul(-2, "scared by rattling", TRUE);
-	    nomovemsg = 0;
-	    break;
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3) {
+			pline("%s's bones seem about to break!", Monnam(mtmp));
+		} else {
+			pline(FunnyHallu ? "%s plays the xylophone!" : "%s rattles noisily.", Monnam(mtmp));
+			You("freeze for a moment.");
+			nomul(-2, "scared by rattling", TRUE);
+			nomovemsg = 0;
+		}
+		break;
 	case MS_LAUGH:
+
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/4) {
+			verbl_msg = "Hahahahahahahaaaaaaaaaa!"; /* Super Mario 64 :P */
+			break;
+		}
+
 	    {
 		static const char * const laugh_msg[4] = {
 		    "giggles.", "chuckles.", "snickers.", "laughs.",
@@ -1831,9 +2312,49 @@ register struct monst *mtmp;
 	    }
 	    break;
 	case MS_MUMBLE:
-	    pline_msg = "mumbles incomprehensibly.";
-	    break;
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3) {
+			pline_msg = "mumbles faintly.";
+		} else pline_msg = "mumbles incomprehensibly.";
+		break;
 	case MS_DJINNI:
+
+		if (mtmp->data == &mons[PM_POEZ_PRESIDENT] && u.ualign.type == A_CHAOTIC && !mtmp->mtame && !mtmp->mfrenzied) {
+
+			mtmp->mpeaceful = TRUE;
+			verbalize("Hey %s! I see you're a POEZ member! I'm gonna join your team!", playeraliasname);
+
+			struct monst *ppresident;
+			ppresident = tamedog(mtmp, (struct obj *) 0, TRUE);
+			if (ppresident) mtmp = ppresident;
+			if (!mtmp) impossible("poez president was tamed but doesn't exist now??");
+			break;
+
+		}
+		if (mtmp->data == &mons[PM_GIRL_OUTSIDE_GANG] && u.ualign.type == A_LAWFUL && !mtmp->mtame && !mtmp->mfrenzied) {
+
+			mtmp->mpeaceful = TRUE;
+			verbalize("%s! It is good that you have come! You see, I'm one of the few girls that resisted joining those filthy youth gangs. Since you despise them as much as I do, I decide to join your cause.", playeraliasname);
+
+			struct monst *ppresident;
+			ppresident = tamedog(mtmp, (struct obj *) 0, TRUE);
+			if (ppresident) mtmp = ppresident;
+			if (!mtmp) impossible("girl outside gang was tamed but doesn't exist now??");
+			break;
+
+		}
+		if (mtmp->data == &mons[PM_OCCASIONAL_FRIEND] && u.ualign.type == A_NEUTRAL && !mtmp->mtame && !mtmp->mfrenzied) {
+
+			mtmp->mpeaceful = TRUE;
+			verbalize("Yeeeeah! %s, let's mow down all our opponents! I'll gladly join your team, and then we'll be unstoppable!", playeraliasname);
+
+			struct monst *ppresident;
+			ppresident = tamedog(mtmp, (struct obj *) 0, TRUE);
+			if (ppresident) mtmp = ppresident;
+			if (!mtmp) impossible("girl outside gang was tamed but doesn't exist now??");
+			break;
+
+		}
+
 	    if (mtmp->mtame) {
 		verbl_msg = "Sorry, I'm all out of wishes.";
 	    } else if (mtmp->mpeaceful) {
@@ -1842,31 +2363,47 @@ register struct monst *mtmp;
 		else
 		    verbl_msg = "I'm free!";
 	    } else verbl_msg = "This will teach you not to disturb me!";
+
 	    break;
 	case MS_SHOE:
-	    if (mtmp->mfrenzied) {
-		if (u.usteed == mtmp)
-			verbl_msg = "Wear us if you want, but take us off and we'll scratch you to death and make your blood squirt in all directions.";
-		else
-			verbl_msg = "We'll scratch very bloody wounds on your legs and kill you.";
-	    } else if (mtmp->mtame) {
-		if (u.usteed == mtmp)
-			verbl_msg = "Yes! Please! Keep wearing us and we'll take you to the end of the world and beyond!";
-		else
-			verbl_msg = "Come on my dear, find someone whom we can kick to death!";
-	    } else if (mtmp->mpeaceful) {
-		if (u.usteed == mtmp)
-			verbl_msg = "You're not our owner, but we allow you to wear us for a while because we like you.";
-		else
-			verbl_msg = "We are beautiful, in every single way!";
-	    } else {
-		if (u.usteed == mtmp)
-			verbl_msg = "Okay, you may wear us. But as soon as you take us off, we'll teach you a lesson in pain.";
-		else
-			verbl_msg = "You don't need to fight. Just stand there and we'll cause soothing pain to you.";
-	    }
-	    break;
+
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3) {
+			if (u.usteed == mtmp)
+				verbl_msg = "Why do you wear us out like that? Can't you, like, try to avoid the mud and dogshit?";
+			else
+				verbl_msg = "Nooooo! We're nearing the end of our lifetime! Can you please take us to a shoe repair shop?";
+		} else if (mtmp->mfrenzied) {
+			if (u.usteed == mtmp)
+				verbl_msg = "Wear us if you want, but take us off and we'll scratch you to death and make your blood squirt in all directions.";
+			else
+				verbl_msg = "We'll scratch very bloody wounds on your legs and kill you.";
+		} else if (mtmp->mtame) {
+			if (u.usteed == mtmp)
+				verbl_msg = "Yes! Please! Keep wearing us and we'll take you to the end of the world and beyond!";
+			else
+				verbl_msg = "Come on my dear, find someone whom we can kick to death!";
+		} else if (mtmp->mpeaceful) {
+			if (u.usteed == mtmp)
+				verbl_msg = "You're not our owner, but we allow you to wear us for a while because we like you.";
+			else
+				verbl_msg = "We are beautiful, in every single way!";
+		} else {
+			if (u.usteed == mtmp)
+				verbl_msg = "Okay, you may wear us. But as soon as you take us off, we'll teach you a lesson in pain.";
+			else
+				verbl_msg = "You don't need to fight. Just stand there and we'll cause soothing pain to you.";
+		}
+		break;
 	case MS_STENCH:
+
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3) {
+			verbl_msg = "I sure hope you'll protect me with your life.";
+			break;
+		}
+		if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime) {
+			verbl_msg = "Dinner time! Can you take me to a noble restaurant please?";
+			break;
+		}
 
 		if (mtmp->data == &mons[PM_MANDARUCK] && !mtmp->mfrenzied) {
 
@@ -1919,7 +2456,7 @@ register struct monst *mtmp;
 			break;
 		}
 
-		if (mtmp->data == &mons[PM_NASTROSCHA] && (uarmg && OBJ_DESCR(objects[uarmg->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "velvet gloves") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "barkhatnyye perchatki") || !strcmp(OBJ_DESCR(objects[uarmg->otyp]), "baxmal qo'lqop") ) ) && !mtmp->mfrenzied) {
+		if (mtmp->data == &mons[PM_NASTROSCHA] && (uarmg && itemhasappearance(uarmg, APP_VELVET_GLOVES) ) && !mtmp->mfrenzied) {
 			mtmp->mpeaceful = TRUE;
 			pline("With your velvet gloves, you caress %s...", mon_nam(mtmp));
 
@@ -1938,15 +2475,18 @@ register struct monst *mtmp;
 
 			if (yn("Do you obey the command that the wuxtina uttered with her bitchy voice?") != 'y') {
 				pline("%s suddenly sprays her scentful perfume right into your %s.", Monnam(mtmp), body_part(FACE));
+				u.cnd_perfumecount++;
+				if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 				if (Role_if(PM_HUSSY)) {
 					You("joyously inhale %s's scentful perfume. It's very soothing.", mon_nam(mtmp));
 				} else {
 					pline("Inhaling %s's scentful perfume is not the brightest idea. But in this case you didn't have a choice...", mon_nam(mtmp));
 
-					if (rn2(10) && uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "gas mask") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "protivogaz") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "gaz niqobi")) ) {
+					if (rn2(10) && uarmh && itemhasappearance(uarmh, APP_GAS_MASK) ) {
 						pline("But the gas mask protects you from the effects.");
 					} else {
 						badeffect();
+						if (rn2(2)) increasesanity(rnz(20 + mtmp->m_lev));
 					}
 				}
 
@@ -1954,8 +2494,8 @@ register struct monst *mtmp;
 
 				mtmp->mcan = TRUE;
 
-				if (u.uevent.udemigod || u.uhave.amulet || CannotTeleport || (u.usteed && mon_has_amulet(u.usteed)) ) { pline("You shudder for a moment."); (void) safe_teleds(FALSE); break;}
-				if (flags.lostsoul || flags.uberlostsoul || (flags.wonderland && !(u.wonderlandescape)) || u.uprops[STORM_HELM].extrinsic || In_bellcaves(&u.uz) || In_subquest(&u.uz) || In_voiddungeon(&u.uz) || In_netherrealm(&u.uz)) {
+				if (((u.uevent.udemigod || u.uhave.amulet) && !u.freeplaymode) || CannotTeleport || (u.usteed && mon_has_amulet(u.usteed)) ) { pline("You shudder for a moment."); (void) safe_teleds(FALSE); break;}
+				if (flags.lostsoul || flags.uberlostsoul || (flags.wonderland && !(u.wonderlandescape)) || (iszapem && !(u.zapemescape)) || u.uprops[STORM_HELM].extrinsic || In_bellcaves(&u.uz) || In_subquest(&u.uz) || In_voiddungeon(&u.uz) || In_netherrealm(&u.uz)) {
 				pline("For some reason you resist the banishment!"); break;}
 
 				make_stunned(HStun + 2, FALSE); /* to suppress teleport control that you might have */
@@ -1965,22 +2505,25 @@ register struct monst *mtmp;
 					nomul(-2, "being banished", FALSE);
 				}
 				verbalize(!rn2(4) ? "Don't molest me ever again. If you do, I'll kick your hands bloodily with my dancing shoes." : !rn2(3) ? "Good riddance. Now get lost and annoy other girls instead." : !rn2(2) ? "Get lost before I start burning your arm with my candle." : "If you ever come back, I'm gonna extinguish my cigarette right in your face.");
-				if (Hallucination) pline("(She obviously likes assholes, you say to yourself.)");
+				if (FunnyHallu) pline("(She obviously likes assholes, you say to yourself.)");
 
 			}
 
 			break;
 		}
 
+		u.cnd_perfumecount++;
+		if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 		if (Role_if(PM_HUSSY)) {
 			You("joyously inhale %s's scentful perfume. It's very soothing.", mon_nam(mtmp));
 		} else {
 			pline("Inhaling %s's scentful perfume is not the brightest idea.", mon_nam(mtmp));
 
-			if (rn2(10) && uarmh && OBJ_DESCR(objects[uarmh->otyp]) && (!strcmp(OBJ_DESCR(objects[uarmh->otyp]), "gas mask") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "protivogaz") || !strcmp(OBJ_DESCR(objects[uarmh->otyp]), "gaz niqobi")) ) {
+			if (rn2(10) && uarmh && itemhasappearance(uarmh, APP_GAS_MASK) ) {
 				pline("But the gas mask protects you from the effects.");
 			} else {
 				badeffect();
+				if (rn2(2)) increasesanity(rnz(20 + mtmp->m_lev));
 			}
 		}
 
@@ -1988,9 +2531,25 @@ register struct monst *mtmp;
 
 	case MS_CONVERT:
 
-		if (mtmp->mpeaceful) {
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/3)
+				verbl_msg = "Allah bana bunu yapan kafirleri cezalandiracak!";
+			else if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime)
+				verbl_msg = "Baska bir doener kebap yemem gerek!";
+			else if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped)
+				verbl_msg = "Simdi kime dua etmem gerekiyor? Jahwe? Hayir, hatirliyorum, bu Buda!";
+			else {
+				if (flags.female) verbl_msg = "Selamlar, kiz kardes.";
+				else verbl_msg = "Selamlar, erkek kardes.";
+			}
+			break;
+		} else if (mtmp->mpeaceful) {
 			if (flags.female) verbl_msg = "Selamlar, kiz kardes.";
 			else verbl_msg = "Selamlar, erkek kardes.";
+
+			break;
+
+		} else if (Race_if(PM_TURMENE) || Race_if(PM_HC_ALIEN) || (uarmh && uarmh->oartifact == ART_JAMILA_S_BELIEF)) {
 
 			break;
 
@@ -2033,7 +2592,7 @@ register struct monst *mtmp;
 				"Hepinizi inatci koepekler yapacagiz!",
 				"Inanilmaz, ama simdi yeterli! Simdi Allah'in gazabi sana vuracak!",
 				"Inkar edenler iki seceneginiz var. Hemen Islam'a itiraf edin ya da yueksek savas botlarim ciddi yaralar acacak.",
-				"Oyuncu bir guevensiz! Onu Islam’a doenuestuerme zamani.",
+				"Oyuncu bir guevensiz! Onu Islam'a doenuestuerme zamani.",
 				"Inkar edenler yenilir. Derhal Islam'in tek gercek din oldugunu ya da kutsal Allah'in gazabini hissettirdigini itiraf edin!",
 				"Oyuncu ve adamlari... pah. Buetuen inanmayanlar. Sadece askerlerim kimin dine inanmalari gerektigini biliyor!",
 				"Hahahaha Hahahaha! Tuerk savas botlari bedeninizi yok etti, siz kafirler!",
@@ -2117,24 +2676,33 @@ register struct monst *mtmp;
 				"Kafa bezi sadece bir bez parcasi degildir! Onu takariz cuenkue bizi Allah'in kutsal mueminleri olarak tanimlar! Sadece kafirlerin anlamadigi icin hicbir anlam ifade etmez!",
 				"Bir Yahudi dini semboluenue giydigi icin saldiriya ugrarsa, kendi hatasidir. Biz mueslueman bir kafa bezi giymek icin bize saldiran kimseyi asla kabul etmeyecegiz, cuenkue biz kafir topuklularimizla bir asyali tekmelemizi dogrudan kafir somunlarina yerlestirecegiz.",
 				"Siz kafirsiniz, Allah'a doenmelisiniz cuenkue o zaman cennette doksan dokuz genc kadin var! Eger yapmazsan, cehennemin kirmizi seytanlari acimasizca iskence edecek!",
+				"Halkimizin kutsal topraklara seyahat etmesine izin verilmemesi bir hakaret! Bueyuek Tanri, bu karardan sorumlu olan buetuen kafirleri cezalandirir!",
+				"Kongremizdeki kadinlar suclu degil! Ancak baskan kirli bir kuefuer ve Tanri sahsen ona yildirim carpacak!",
+				"Bir bildirimin ardindan geri doendueguemuez icin neden uezuelmemiz gerektigini duesuenueyorsunuz? Siz heretik, istediginizi aldiniz, cuenkue yuece Tanrimiz affetmez!",
+				"Yasli ihtiyar bizim icadi olan doener kebabi yiyorsun, ama dinimiz hakkinda yalan soeylueyorsun! Tanrimiz seni mahvedecek!",
+				"Ceviri makinesi kirli kafirler tarafindan isletiliyor, cuenkue tanri adina varsayilan ceviriyi degistirdiler!",
+				"Benim konusmalarimi zaten anlamiyorsunuz, bu yuezden irkinizin tamamen ortadan kaldirilmasi icin cagri yapabilirim, sizi allahimiza inanmayan insafsizsiniz.",
+				"Temizlik Allah'in guenue buetuen kafirler cezalandirmak ve ilk bu sapkin kadin olacak!",
 			};
 			verbalize("%s", conversion_msgs[rn2(SIZE(conversion_msgs))]);
+			u.cnd_conversioncount++;
+			if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 
 		}
 
 		if (uarmf && uarmf->oartifact == ART_RUEA_S_FAILED_CONVERSION && rn2(20)) break;
 
-		if (u.ualign.record < -20 && !rn2(100) && (mtmp->data->maligntyp != u.ualign.type) ) { /* You have been converted! */
+		if (u.ualign.record < -20 && !rn2(Race_if(PM_KORONST) ? 10 : 100) && (sgn(mtmp->data->maligntyp) != u.ualign.type) ) { /* You have been converted! */
 
 			if(u.ualignbase[A_CURRENT] == u.ualignbase[A_ORIGINAL] && mtmp->data->maligntyp != A_NONE) {
 				You("have a strong feeling that %s is angry...", u_gname());
-				pline("%s accepts your allegiance.", align_gname(mtmp->data->maligntyp));
+				pline("%s accepts your allegiance.", align_gname(sgn(mtmp->data->maligntyp)));
 
 				/* The player wears a helm of opposite alignment? */
 				if (uarmh && uarmh->otyp == HELM_OF_OPPOSITE_ALIGNMENT)
-					u.ualignbase[A_CURRENT] = mtmp->data->maligntyp;
+					u.ualignbase[A_CURRENT] = sgn(mtmp->data->maligntyp);
 				else
-					u.ualign.type = u.ualignbase[A_CURRENT] = mtmp->data->maligntyp;
+					u.ualign.type = u.ualignbase[A_CURRENT] = sgn(mtmp->data->maligntyp);
 				u.ublessed = 0;
 				flags.botl = 1;
 
@@ -2147,10 +2715,10 @@ register struct monst *mtmp;
 			} else {
 				u.ugangr += 3;
 				adjalign(-25);
-				godvoice(mtmp->data->maligntyp, "Suffer, infidel!");
+				godvoice(sgn(mtmp->data->maligntyp), "Suffer, infidel!");
 				change_luck(-5);
-				(void) adjattrib(A_WIS, -2, TRUE);
-				angrygods(mtmp->data->maligntyp);
+				(void) adjattrib(A_WIS, -2, TRUE, TRUE);
+				angrygods(sgn(mtmp->data->maligntyp));
 
 			}
 
@@ -2158,17 +2726,36 @@ register struct monst *mtmp;
 		}
 		adjalign(-(mtmp->m_lev + 1));
 
+		if (!rn2(10)) badeffect();
+
 	    break;
 
 	case MS_HCALIEN:
 
+		if (mtmp->mtame) {
+			if (mtmp->mhp < mtmp->mhpmax/3)
+				pline("%s points a %s at %s heart.", Monnam(mtmp), mbodypart(mtmp, FINGER), mhis(mtmp));
+			else if (mtmp->mtame && hastoeat && !mtmp->isminion && moves > EDOG(mtmp)->hungrytime)
+				pline("%s grunts long and deeply.", Monnam(mtmp));
+			else if (mtmp->mconf || mtmp->mflee || mtmp->mtrapped)
+				pline("%s spins %s %s wildly.", Monnam(mtmp), mhis(mtmp), mbodypart(mtmp, HEAD));
+			else if (Race_if(PM_TURMENE) || Race_if(PM_EGYMID) || Race_if(PM_PERVERT) || Race_if(PM_HC_ALIEN))
+				pline("%s nods approvingly.", Monnam(mtmp));
+			else
+				pline("%s makes an approving gesture, but doesn't deign to talk to you.", Monnam(mtmp));
+			break;
+		}
+
 		if (mtmp->mpeaceful) {
 
-			if (mtmp->mtame) pline("%s makes an approving gesture, but doesn't deign to talk to you.", Monnam(mtmp));
+			if (Race_if(PM_TURMENE) || Race_if(PM_EGYMID) || Race_if(PM_PERVERT) || Race_if(PM_HC_ALIEN)) pline("%s looks at you for a moment.", Monnam(mtmp));
 			else pline("%s does not deign to look at you, let alone talk to you.", Monnam(mtmp));
-
 			break;
 
+		}
+
+		if (Race_if(PM_TURMENE) || Race_if(PM_HC_ALIEN) || (uarmh && uarmh->oartifact == ART_JAMILA_S_BELIEF)) {
+			break;
 		}
 
 		static const char *hcalien_msgs[] = {
@@ -2180,10 +2767,12 @@ register struct monst *mtmp;
 			"Wwwouu.",
 		};
 		verbalize("%s", hcalien_msgs[rn2(SIZE(hcalien_msgs))]);
+		u.cnd_wouwoucount;
+		if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
 
 		badeffect();
 
-	    switch (rn2(17)) {
+	    if (!obsidianprotection()) switch (rn2(17)) {
 	    case 0:
 	    case 1:
 	    case 2:
@@ -2215,7 +2804,7 @@ register struct monst *mtmp;
 	    case 16: make_dimmed(HDimmed + rnd(100 + (mtmp->m_lev * 5) ), FALSE);			/* 10% */
 		    break;
 	    }
-		if (!rn2(20)) increasesanity(rnd(10));
+		if (!rn2(20)) increasesanity(rnd(10 + (mtmp->m_lev * 2) ));
 
 	    break;
 
@@ -2257,8 +2846,7 @@ register struct monst *mtmp;
 		verbl_msg = "I'm trapped!";
 	    } else if (mtmp->mhp < mtmp->mhpmax/2)
 		pline_msg = "asks for a potion of healing.";
-	    else if (mtmp->mtame && !mtmp->isminion &&
-						moves > EDOG(mtmp)->hungrytime)
+	    else if (mtmp->mtame && hastoeat && !mtmp->isminion && moves > EDOG(mtmp)->hungrytime)
 		verbl_msg = "I'm hungry.";
 	    /* Specific monsters' interests */
 	    else if (is_elf(ptr))
@@ -2286,6 +2874,18 @@ register struct monst *mtmp;
 		case PM_TOURIST:
 		    verbl_msg = "Aloha.";
 		    break;
+		case PM_EMERA:
+		    verbl_msg = "HATE! HATE! HATE!";
+		    break;
+		case PM_FJORDE:
+		    verbl_msg = "I can't help it, I really consider fish to be the most beautiful creatures in existence.";
+		    break;
+		case PM_PRACTICANT:
+		    verbl_msg = "I'm gonna introduce all those bastard assistants to my battering ram.";
+		    break;
+		case PM_GENDERSTARIST:
+		    verbl_msg = !rn2(3) ? "Sehr geehrte Buergerinnen und Buerger, die Schuelerinnen und Schueler sind unter dem gesetzlich geforderten Niveau..." : !rn2(2) ? "Sehr geehrte Buergerlnnen, die Schuelerlnnen fallen beim Pisa-Test zu oft durch..." : "Sehr geehrte Buerger*innen, die Schueler*innen weigern sich, den Gender*stern* zu* benutz*en*/*in*...*";
+		    break;
 		case PM_DEATH_EATER:
 	    pline_msg = "talks about hunting muggles.";
 		    break;
@@ -2294,6 +2894,9 @@ register struct monst *mtmp;
 		    break;
 		case PM_GEEK:
 		    verbl_msg = "Enematzu memalezu!";
+		    break;
+		case PM_GOFF:
+		    verbl_msg = "britny is a prep!!!111";
 		    break;
 		case PM_UNBELIEVER:
 		    verbl_msg = "Gods are nonexistant. People should stop believing in them.";
@@ -2306,6 +2909,9 @@ register struct monst *mtmp;
 		    break;
 		case PM_GANG_SCHOLAR:
 		    verbl_msg = "I'm constantly being bullied by the Bang Gang and Anna's hussies...";
+		    break;
+		case PM_WALSCHOLAR:
+		    verbl_msg = "Hidden diamonds are like tree bark.";
 		    break;
 		case PM_TRANSVESTITE:
 		    verbl_msg = "Look at my heels! Do you think they're beautiful?";
@@ -2343,9 +2949,9 @@ register struct monst *mtmp;
 		if (ptr->mlet != S_NYMPH && u.homosexual == 0) {
 
 			pline("You're discovering your sexuality...");
-			getlin("Are you homosexual? [yes/no] (If you answer no, you're heterosexual.)", buf);
+			getlin("Are you homosexual? [y/yes/no] (If you answer no, you're heterosexual.)", buf);
 			(void) lcase (buf);
-			if (!(strcmp (buf, "yes"))) u.homosexual = 2;
+			if (!(strcmp (buf, "yes")) || !(strcmp (buf, "y"))) u.homosexual = 2;
 			else u.homosexual = 1;
 		}
 
@@ -2367,18 +2973,21 @@ register struct monst *mtmp;
 	    }
 	    break;
 	case MS_ARREST:
-	    if (mtmp->mpeaceful)
-		verbalize("Just the facts, %s.",
-		      flags.female ? "Ma'am" : "Sir");
-	    else {
-		static const char * const arrest_msg[3] = {
-		    "Anything you say can be used against you.",
-		    "You're under arrest!",
-		    "Stop in the name of the Law!",
-		};
-		verbl_msg = arrest_msg[rn2(3)];
-	    }
-	    break;
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/10) {
+			verbalize("This is unit %d to headquarters. Send reinforcements! Repeat! Send reinforcements!", mtmp->m_id); /* inspired by the anachronononononononononononononaut NPCs in dnethack, thanks Chris --Amy */
+		} else if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3) {
+			verbalize("Officer in need of a medic!");
+		} else if (mtmp->mpeaceful)
+			verbalize("Just the facts, %s.", flags.female ? "Ma'am" : "Sir");
+		else {
+			static const char * const arrest_msg[3] = {
+				"Anything you say can be used against you.",
+				"You're under arrest!",
+				"Stop in the name of the Law!",
+			};
+			verbl_msg = arrest_msg[rn2(3)];
+		}
+		break;
 	case MS_BRIBE:
         if (monsndx(ptr) == PM_PRISON_GUARD) {
             long gdemand = 500 * u.ulevel;
@@ -2407,10 +3016,10 @@ register struct monst *mtmp;
 	    }
 	    /* fall through */
 	case MS_CUSS:
-	    if (!mtmp->mpeaceful)
-		cuss(mtmp);
+		if (!mtmp->mpeaceful)
+			cuss(mtmp);
 
-	    if (mtmp->mpeaceful && monsndx(ptr) == PM_WIZARD_OF_YENDOR && Race_if(PM_RODNEYAN) )	{
+		if (mtmp->mpeaceful && monsndx(ptr) == PM_WIZARD_OF_YENDOR && Race_if(PM_RODNEYAN) )	{
 
 			if (mon_has_amulet(mtmp) )	{
 				verbalize("Here, take the amulet and use it well, %s!", flags.female ? "sister" : "brother");
@@ -2424,6 +3033,8 @@ register struct monst *mtmp;
 
 		}
 
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3) verbalize("Doggone it!");
+
 	    break;
 	case MS_GYPSY:	/* KMH */
 		if (mtmp->mpeaceful) {
@@ -2432,44 +3043,349 @@ register struct monst *mtmp;
 		}
 		/* fall through */
 	case MS_SPELL:
-	    /* deliberately vague, since it's not actually casting any spell */
-	    pline_msg = "seems to mutter a cantrip.";
-	    break;
-	case MS_NURSE:
+
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3) {
+			pline_msg = "is trying to cast a healing spell.";
+			break;
+		}
+
+		/* deliberately vague, since it's not actually casting any spell */
+		pline_msg = "seems to mutter a cantrip.";
+		break;
+	case MS_NURSE: /* services added by Amy - maybe we should make this into a menu instead of y/n prompts? */
 
 	    {
-		int nursedecontcost = u.nursedecontamcost;
-	
-		if (u.ugold >= nursedecontcost && u.contamination) {
-			verbalize("I can decontaminate you for %d dollars if you want.", nursedecontcost);
-			if (yn("Accept the offer?") == 'y') {
-				verbalize("Okay, hold still while I puncture you with this long, pointy needle...");
-				u.ugold -= nursedecontcost;
-				decontaminate(u.contamination);
-				pline("Now you don't have the %d gold pieces any longer.", nursedecontcost);
-				if (Hallucination) pline("You offer a 'thank you' to Captain Obvious.");
-				u.nursedecontamcost += 500;
-				if (u.nursedecontamcost < 1000) u.nursedecontamcost = 1000; /* fail safe */
-				break;
-			}
-		}
+		int nursesanitycost = (u.usanity * 10); /* fixed cost */
 
-		int nursehpcost = u.nurseextracost;
+		int nursedecontcost = u.nursedecontamcost; /* goes up every time you purchase it */
+
+		int nursehpcost = u.nurseextracost; /* goes up every time you purchase it */
+
+		int nursesymbiotecost = u.nursesymbiotecost; /* goes up every time you purchase it */
+
+		int nurseshutdowncost = u.nurseshutdowncost;
+
 		if (Upolyd) nursehpcost /= 5;
-	
-		if (u.ugold >= nursehpcost) {
-			verbalize("I can inject extra health into you for %d dollars if you want.", nursehpcost);
-			if (yn("Accept the offer?") == 'y') {
-				verbalize("Okay, hold still while I puncture you with this long, pointy needle...");
-				u.ugold -= nursehpcost;
-				if (!Upolyd) u.uhpmax++;
-				else u.mhmax++;
-				u.nurseextracost += 50;
-				if (u.nurseextracost < 1000) u.nurseextracost = 1000; /* fail safe */
-				break;
-			}
-		}
 
+			winid tmpwin;
+			anything any;
+			menu_item *selected;
+			int n;
+
+			if (!mtmp->nurse_extrahealth && !mtmp->nurse_decontaminate && !mtmp->nurse_healing && !mtmp->nurse_curesickness && !mtmp->nurse_curesliming && !mtmp->nurse_curesanity && !mtmp->nurse_medicalsupplies && !mtmp->nurse_purchasedrugs && !mtmp->nurse_obtainsymbiote && !mtmp->nurse_fixsymbiote && !mtmp->nurse_shutdownsymbiote) {
+				verbalize("Sorry. I'm all out of services.");
+				goto noservices;
+			}
+
+			any.a_void = 0;         /* zero out all bits */
+			tmpwin = create_nhwindow(NHW_MENU);
+			start_menu(tmpwin);
+			any.a_int = 1;
+			if (mtmp->nurse_extrahealth) add_menu(tmpwin, NO_GLYPH, &any , 'e', 0, ATR_NONE, "Extra Health", MENU_UNSELECTED);
+			any.a_int = 2;
+			if (mtmp->nurse_decontaminate) add_menu(tmpwin, NO_GLYPH, &any , 'd', 0, ATR_NONE, "Decontaminate", MENU_UNSELECTED);
+			any.a_int = 3;
+			if (mtmp->nurse_healing) add_menu(tmpwin, NO_GLYPH, &any , 'h', 0, ATR_NONE, "Healing", MENU_UNSELECTED);
+			any.a_int = 4;
+			if (mtmp->nurse_curesickness) add_menu(tmpwin, NO_GLYPH, &any , 'c', 0, ATR_NONE, "Cure Sickness", MENU_UNSELECTED);
+			any.a_int = 5;
+			if (mtmp->nurse_curesliming) add_menu(tmpwin, NO_GLYPH, &any , 'l', 0, ATR_NONE, "Cure Sliming", MENU_UNSELECTED);
+			any.a_int = 6;
+			if (mtmp->nurse_curesanity) add_menu(tmpwin, NO_GLYPH, &any , 'i', 0, ATR_NONE, "Cure Sanity", MENU_UNSELECTED);
+			any.a_int = 7;
+			if (mtmp->nurse_medicalsupplies) add_menu(tmpwin, NO_GLYPH, &any , 'm', 0, ATR_NONE, "Medical Supplies", MENU_UNSELECTED);
+			any.a_int = 8;
+			if (mtmp->nurse_purchasedrugs) add_menu(tmpwin, NO_GLYPH, &any , 'p', 0, ATR_NONE, "Purchase Drugs", MENU_UNSELECTED);
+			any.a_int = 9;
+			if (mtmp->nurse_obtainsymbiote) add_menu(tmpwin, NO_GLYPH, &any , 'o', 0, ATR_NONE, "Obtain Symbiote", MENU_UNSELECTED);
+			any.a_int = 10;
+			if (mtmp->nurse_fixsymbiote) add_menu(tmpwin, NO_GLYPH, &any , 'f', 0, ATR_NONE, "Fix Symbiote", MENU_UNSELECTED);
+			any.a_int = 11;
+			if (mtmp->nurse_shutdownsymbiote) add_menu(tmpwin, NO_GLYPH, &any , 's', 0, ATR_NONE, "Shutdown Symbiote", MENU_UNSELECTED);
+
+			end_menu(tmpwin, "Services Available:");
+			n = select_menu(tmpwin, PICK_ONE, &selected);
+			destroy_nhwindow(tmpwin);
+
+			if (n > 0) {
+				switch (selected[0].item.a_int) {
+					case 1:
+						if (u.ugold >= nursehpcost) {
+							verbalize("I can inject extra health into you for %d dollars if you want.", nursehpcost);
+							if (yn("Accept the offer?") == 'y') {
+								verbalize("Okay, hold still while I puncture you with this long, pointy needle...");
+								if (!rn2(10)) mtmp->nurse_extrahealth = 0;
+								u.ugold -= nursehpcost;
+								if (u.ualign.type == A_NEUTRAL) adjalign(1);
+								u.cnd_nurseserviceamount++;
+								if (!Upolyd) u.uhpmax++;
+								else u.mhmax++;
+								use_skill(P_SQUEAKING, 1);
+								if (uactivesymbiosis) {
+									u.usymbiote.mhpmax++;
+									if (u.usymbiote.mhpmax > 500) u.usymbiote.mhpmax = 500;
+								}
+								u.nurseextracost += 50;
+								if (u.nurseextracost < 1000) u.nurseextracost = 1000; /* fail safe */
+								break;
+							}
+						} else verbalize("Sorry, extra health costs %d dollars.", nursehpcost);
+
+						break;
+					case 2:
+						if (u.ugold >= nursedecontcost && u.contamination) {
+							verbalize("I can decontaminate you for %d dollars if you want.", nursedecontcost);
+							if (yn("Accept the offer?") == 'y') {
+								verbalize("Okay, hold still while I puncture you with this long, pointy needle...");
+								if (!rn2(5)) mtmp->nurse_decontaminate = 0;
+								u.ugold -= nursedecontcost;
+								if (u.ualign.type == A_NEUTRAL) adjalign(1);
+								u.cnd_nurseserviceamount++;
+								decontaminate(u.contamination);
+								pline("Now you don't have the %d gold pieces any longer.", nursedecontcost);
+								if (FunnyHallu) pline("You offer a 'thank you' to Captain Obvious.");
+								u.nursedecontamcost += 500;
+								if (u.nursedecontamcost < 1000) u.nursedecontamcost = 1000; /* fail safe */
+								break;
+							}
+						} else if (!u.contamination) verbalize("Huh? You don't need to do that.");
+						else verbalize("Sorry, decontamination costs %d dollars.", nursedecontcost);
+
+						break;
+					case 3:
+
+						if (u.uhp == u.uhpmax && (!Upolyd || (Upolyd && u.mh == u.mhmax))) {
+							verbalize("Apart from potential mental disorders everything's fine with you. There's no need for me to waste my medical supplies on you.");
+							break;
+						}
+						if (u.ugold >= 500) {
+							verbalize("Sure thing, I can heal you for 500 dollars.");
+							if (yn("Accept the offer?") == 'y') {
+								verbalize("Okay, hold still while I puncture you with this long, pointy needle...");
+								if (!rn2(50)) mtmp->nurse_healing = 0;
+								u.ugold -= 500;
+								if (u.ualign.type == A_NEUTRAL) adjalign(1);
+								u.cnd_nurseserviceamount++;
+								u.uhp += 50;
+								if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
+								if (Upolyd) {
+									u.mh += 50;
+									if (u.mh > u.mhmax) u.mh = u.mhmax;
+								}
+								break;
+							}
+						} else verbalize("Sorry, healing costs 500 dollars.");
+
+						break;
+					case 4:
+						if (!Sick) {
+							verbalize("Don't call in sick when you aren't! Come back to me when you actually have a sickness that needs curing.");
+							break;
+						}
+						if (u.ugold >= 5000) {
+							verbalize("It is wise of you to come to see a doctor. For only 5000 dollars, I can heal you.");
+							if (yn("Accept the offer?") == 'y') {
+								verbalize("Okay, hold still while I puncture you with this long, pointy needle...");
+								if (!rn2(15)) mtmp->nurse_curesickness = 0;
+								u.ugold -= 5000;
+								if (u.ualign.type == A_NEUTRAL) adjalign(1);
+								u.cnd_nurseserviceamount++;
+								You_feel("better.");
+								make_sick(0L, (char *) 0, FALSE, SICK_ALL);
+								break;
+							}
+						} else verbalize("Sorry, the cure for sickness costs 5000 dollars.");
+
+						break;
+					case 5:
+						if (!Slimed) {
+							verbalize("Do you see any slime on your body? No? Well, me neither. Come back when you're actually slimed.");
+							break;
+						}
+						if (u.ugold >= 10000) {
+							verbalize("Eek! Yeah that would normally require a medical doctor, but if you have 10000 dollars I can give you something that should hopefully cure the sliming.");
+							if (yn("Accept the offer?") == 'y') {
+								verbalize("Okay, hold still while I puncture you with this long, pointy needle...");
+								if (!rn2(12)) mtmp->nurse_curesliming = 0;
+								u.ugold -= 10000;
+								if (u.ualign.type == A_NEUTRAL) adjalign(1);
+								u.cnd_nurseserviceamount++;
+								FunnyHallu ? pline("The rancid goo is gone! Yay!") : pline_The("slime disappears.");
+								Slimed = 0;
+								flags.botl = 1;
+								delayed_killer = 0;
+								break;
+							}
+						} else verbalize("Sorry, the cure for sliming costs 10000 dollars.");
+
+						break;
+					case 6:
+						if (u.usanity && (u.ugold >= nursesanitycost)) {
+							verbalize("I can cure your sanity for %d dollars if you want.", nursesanitycost);
+							if (yn("Accept the offer?") == 'y') {
+								verbalize("Okay, hold still while I puncture you with this long, pointy needle...");
+								if (!rn2(5)) mtmp->nurse_curesanity = 0;
+								u.ugold -= nursesanitycost;
+								if (u.ualign.type == A_NEUTRAL) adjalign(1);
+								u.cnd_nurseserviceamount++;
+								reducesanity(u.usanity);
+								break;
+							}
+						} else if (!u.usanity) verbalize("You have no sanity that could be cured! Be glad, being insane is the preferred state of mind you want in this dungeon!");
+						else verbalize("Sorry, the cure for sanity costs %d dollars.", nursesanitycost);
+
+						break;
+					case 7:
+						if (u.ugold >= 10000) {
+							verbalize("Ah, you look like a walking coinpurse. Sure, you can have medical supplies, but they come at a price. For 10000 dollars I can sell you a medical kit.");
+							if (yn("Accept the offer?") == 'y') {
+								u.ugold -= 10000;
+								if (!rn2(10)) mtmp->nurse_medicalsupplies = 0;
+								if (u.ualign.type == A_NEUTRAL) adjalign(1);
+								u.cnd_nurseserviceamount++;
+								struct obj *medkit;
+								medkit = mksobj(MEDICAL_KIT, TRUE, FALSE, FALSE);
+								verbalize(medkit ? "A pleasure doing business with you. The medical kit is waiting on the ground below you." : "Whoops. It seems that I don't have supplies for you right now, but for technical reasons I can't give you a refund. Sorry.");
+								use_skill(P_SQUEAKING, 2);
+								if (medkit) {
+									medkit->quan = 1;
+									medkit->known = medkit->dknown = medkit->bknown = medkit->rknown = 1;
+									medkit->owt = weight(medkit);
+									dropy(medkit);
+									stackobj(medkit);
+								}
+							}
+						} else verbalize("Sorry, medical supplies cost 10000 dollars.");
+						break;
+					case 8:
+						if (u.ugold >= 2000) {
+							verbalize("Hmm, I think I can give you a little something, but I need 2000 dollars to cover up expenses.");
+							if (yn("Accept the offer?") == 'y') {
+								u.ugold -= 2000;
+								if (!rn2(20)) mtmp->nurse_purchasedrugs = 0;
+								if (u.ualign.type == A_NEUTRAL) adjalign(1);
+								u.cnd_nurseserviceamount++;
+								struct obj *medkit;
+								medkit = mksobj(rn2(2) ? MUSHROOM : PILL, TRUE, FALSE, FALSE);
+								verbalize(medkit ? "Here, your stuff is on the ground. Have fun, but remember: if you call the cops, I'll send my assassins after you!" : "Oh, sorry, I don't have anything for you... but thanks for the money, sucker!");
+								use_skill(P_SQUEAKING, 1);
+								if (medkit) {
+									medkit->quan = 1;
+									medkit->known = medkit->dknown = medkit->bknown = medkit->rknown = 1;
+									medkit->owt = weight(medkit);
+									dropy(medkit);
+									stackobj(medkit);
+								}
+
+							}
+						} else verbalize("What? I'm not a dealer! But I might change my mind if you can bring at least 2000 dollars.");
+						break;
+					case 9:
+						if (uinsymbiosis && u.usymbiote.cursed) {
+							verbalize("Your current symbiote is cursed! I can't replace it with a new one unless you fix that problem first.");
+							break;
+						}
+
+						if (u.ugold < nursesymbiotecost) {
+							verbalize("Sorry, a symbiote costs %d dollars.", nursesymbiotecost);
+							break;
+						}
+						if (uinsymbiosis) verbalize("This will replace your current symbiote. By continuing, I assume that you agree to discard your symbiote for a random new one.");
+
+						if (u.ugold >= nursesymbiotecost) {
+							verbalize("A symbiote injection costs %d dollars. According to current Yendorian law, I'm forced to inform you that the symbiote you receive is random and may or may not be useful to you. By continuing, you confirm that you know of this risk and will not hold me responsible if you don't like the result.", nursesymbiotecost);
+							if (yn("Accept the offer?") == 'y') {
+								verbalize("Alright, here's your injection.");
+								if (!rn2(10)) mtmp->nurse_obtainsymbiote = 0;
+								u.ugold -= nursesymbiotecost;
+								if (u.ualign.type == A_NEUTRAL) adjalign(1);
+								u.cnd_nurseserviceamount++;
+								getrandomsymbiote(FALSE);
+
+								u.nursesymbiotecost += 5000;
+								if (u.nursesymbiotecost < 10000) u.nursesymbiotecost = 10000; /* fail safe */
+								break;
+							}
+						}
+
+						break;
+					case 10:
+						if (!uinsymbiosis) {
+							verbalize("What? You don't have a symbiote! Sorry, but I can't fix something that doesn't exist!");
+							break;
+						}
+						if (!u.usymbiote.cursed && u.usymbiote.mhp == u.usymbiote.mhpmax) {
+							verbalize("Your symbiote is in perfect condition, so you don't need my services.");
+							break;
+						}
+						int symhealcost = 0;
+
+						/* The nurse will always remove all the curses. So in order to not make it too easy
+						 * to get rid of the nastier curses, we have to add to the cost of the service,
+						 * scaling with the severity of cursedness of your symbiote --Amy */
+						if (u.usymbiote.cursed) symhealcost += 2000;
+						if (u.usymbiote.hvycurse) symhealcost += 3000;
+						if (u.usymbiote.prmcurse) symhealcost += 15000;
+						if (u.usymbiote.evilcurse) symhealcost += 480000;
+						if (u.usymbiote.morgcurse) symhealcost += 480000;
+						if (u.usymbiote.bbcurse) symhealcost += 480000;
+						if (u.usymbiote.stckcurse) symhealcost += 10000;
+						if (u.usymbiote.mhp < u.usymbiote.mhpmax) symhealcost += ((u.usymbiote.mhpmax - u.usymbiote.mhp) * 100);
+						if (u.ugold >= symhealcost) {
+							verbalize("Sure thing, I can fully heal your symbiote and remove all curses from it for %d dollars.", symhealcost);
+							if (yn("Accept the offer?") == 'y') {
+								verbalize("Alright, hold still. Don't worry, this injection won't hurt your symbiote a bit.");
+								if (!rn2(8)) mtmp->nurse_fixsymbiote = 0;
+								u.ugold -= symhealcost;
+								if (u.ualign.type == A_NEUTRAL) adjalign(1);
+								u.cnd_nurseserviceamount++;
+								uncursesymbiote(TRUE);
+								u.usymbiote.mhp = u.usymbiote.mhpmax;
+								if (flags.showsymbiotehp) flags.botl = TRUE;
+								break;
+							}
+						} else verbalize("Sorry, fixing your symbiote's current condition costs %d dollars.", symhealcost);
+
+						break;
+					case 11:
+
+						if (!uinsymbiosis) {
+							verbalize("Hey, I can shut down your symbiote only if you actually have one.");
+							break;
+						}
+						if (u.shutdowntime) {
+							verbalize("Your symbiote is already shut down. Trying to shut it down again would disturb the space-time continuum.");
+							break;
+						}
+
+						if (u.ugold < nurseshutdowncost) {
+							verbalize("Sorry, symbiote shutdown costs %d dollars.", nurseshutdowncost);
+							break;
+						}
+
+						if (u.ugold >= nurseshutdowncost) {
+							verbalize("Shutting down your symbiote will temporarily prevent it from attacking, defending or otherwise participating in combat. This will cost you %d dollars.", nurseshutdowncost);
+							if (yn("Accept the offer?") == 'y') {
+								verbalize("Okay, here's a special injection for your symbiote. Please hold still.");
+								if (!rn2(20)) mtmp->nurse_shutdownsymbiote = 0;
+								u.ugold -= nurseshutdowncost;
+								if (u.ualign.type == A_NEUTRAL) adjalign(1);
+								u.cnd_nurseserviceamount++;
+								use_skill(P_SQUEAKING, 3);
+								u.shutdowntime = 1000;
+
+								u.nurseshutdowncost += 500;
+								if (u.nurseshutdowncost < 1000) u.nurseshutdowncost = 1000; /* fail safe */
+								if (flags.showsymbiotehp) flags.botl = TRUE;
+								break;
+							}
+						}
+
+						break;
+				} /* switch statement */
+			} /* n > 0 menu check */
+
+noservices:
 	    if (uwep && (uwep->oclass == WEAPON_CLASS || uwep->oclass == BALL_CLASS || uwep->oclass == CHAIN_CLASS || is_weptool(uwep))
 		|| (u.twoweap && uswapwep && (uswapwep->oclass == WEAPON_CLASS
 		|| is_weptool(uswapwep))))
@@ -2497,9 +3413,14 @@ register struct monst *mtmp;
 	    break;
 	case MS_SOLDIER:
 
-	    if (mtmp->mtame && moves > EDOG(mtmp)->hungrytime) {
-		verbl_msg = "We gotta stop by the next canteen.";
-		break;
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3) {
+			verbl_msg = "Medic!!!";
+			break;
+		}
+
+		if (mtmp->mtame && hastoeat && moves > EDOG(mtmp)->hungrytime) {
+			verbl_msg = "We gotta stop by the next canteen.";
+			break;
 		}
 
 	    {
@@ -2585,6 +3506,15 @@ register struct monst *mtmp;
 	    break;
 	case MS_PUPIL:
 
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3) {
+			verbalize("%s! Those bullies beat me up! Help!", flags.female ? "Mom" : "Dad");
+			break;
+		}
+		if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime) {
+			verbl_msg = "Man, how much longer does this lesson last? I need a break so I can eat some peanuts!";
+			break;
+		}
+
 		{
 		static const char *pupil_msgs[] = {
 			"Today no homework ... *please*",
@@ -2603,15 +3533,40 @@ register struct monst *mtmp;
 
 	case MS_WHORE:
 
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3) {
+			verbl_msg = "Why did you allow those rude customers to treat me like that? Some sort of pimp you are!";
+			break;
+		}
+		if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime) {
+			verbl_msg = "Can we get something to eat, honey? I promise that I'll pay for my meal with my own money!";
+			break;
+		}
+
+		if (mtmp->data == &mons[PM_ROXY] && !mtmp->mtame && mtmp->wastame && u.ugold >= 1000) {
+			verbalize("For 1000 zorkmids I'll join your team again.");
+			if (yn("Accept the offer?") == 'y') {
+
+				struct monst *roxylein;
+				u.ugold -= 1000;
+
+				roxylein = tamedog(mtmp, (struct obj *) 0, TRUE);
+				if (roxylein) mtmp = roxylein;
+				if (mtmp) verbalize("Thank you!");
+				else impossible("roxy was tamed but doesn't exist now??");
+				break;
+			}
+
+		}
+
 		if (!flags.female) verbalize("Hey, baby, want to have some fun?");
 		else verbalize("I don't have many female customers, but do you want to have fun with me?");
 		if (yn("Accept the offer?") == 'y') {
 
 			if (u.homosexual == 0) {
 				pline("You're discovering your sexuality...");
-				getlin("Are you homosexual? [yes/no] (If you answer no, you're heterosexual.)", buf);
+				getlin("Are you homosexual? [y/yes/no] (If you answer no, you're heterosexual.)", buf);
 				(void) lcase (buf);
-				if (!(strcmp (buf, "yes"))) u.homosexual = 2;
+				if (!(strcmp (buf, "yes")) || !(strcmp (buf, "y"))) u.homosexual = 2;
 				else u.homosexual = 1;
 			}
 
@@ -2669,6 +3624,34 @@ register struct monst *mtmp;
 
 	case MS_SUPERMAN:
 
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3) {
+			verbl_msg = "I WILL COME BACK...";
+			break;
+		}
+		if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime) {
+			verbl_msg = "HUNGRY! NEED FOOD!";
+			break;
+		}
+		if (mtmp->mtame) { /* tame and no distress */
+			static const char *superman_tame[] = {
+				"GO!",
+				"LETS! GO!",
+				"GO! SQUAD!",
+				"WE WILL KICK THEM IN THE GOD DAMN ASS!",
+				"MOVE IN!",
+				"ENEMY SPOTTED!",
+				"FIRE IN THE ASS HOLE!",
+				"SQUAD STAY ALERT FOUR HOSTILES!",
+				"SIR I HERE SOMETHING!", /* too lazy to check for female PC --Amy */
+				"MY PRIVATE IS FIVEMETERS TANGO ALL!",
+				"MY PRIVATE IS TENMETERS ALERT CREEPS HOT ASS!",
+				"ECHO MISSION IS GO!",
+			};
+
+			verbalize("%s", superman_tame[rn2(SIZE(superman_tame))]);
+			break;
+		}
+
 		if (!mtmp->mpeaceful) {
 		static const char *superman_msgs[] = {
 			"FRONTAL ATTACK!!!",
@@ -2693,11 +3676,22 @@ register struct monst *mtmp;
 
 		verbalize("%s", superman_msgs[rn2(SIZE(superman_msgs))]);
 		badeffect();
-		increasesanity(rnz(50));
+		increasesanity(rnz(50 + (mtmp->m_lev * 5) ));
+		u.cnd_supermancount++;
 		}
 		break;
 
 	case MS_TEACHER:
+
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3) {
+			verbl_msg = "Those kids these days ain't got no respect, I tell you...";
+			break;
+		}
+		if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime) {
+			verbl_msg = "Why did I forget to bring along any food?";
+			break;
+		}
+
 		{
 	   	 static const char *teacher_msgs[] = {
 			"No chance! Every day you'll get homework!",
@@ -2744,6 +3738,15 @@ register struct monst *mtmp;
 
 	case MS_PRINCIPAL:
 
+		if (mtmp->mtame && mtmp->mhp < mtmp->mhpmax/3) {
+			verbl_msg = "No! I can't faint! I'm the only one who can lead this school!";
+			break;
+		}
+		if (mtmp->mtame && !mtmp->isminion && hastoeat && moves > EDOG(mtmp)->hungrytime) {
+			verbl_msg = "Wait, I need a pit stop! Be back in a minute!";
+			break;
+		}
+
 		{
 		static const char *principal_msgs[] = {
 		"What's up?",
@@ -2757,7 +3760,193 @@ register struct monst *mtmp;
 		break;
 
 	case MS_SMITH:
-		verbalize("I'm working. Please don't disturb me again!");
+		/* this assumes that it's Duri, however actually there's also other monsters using this... --Amy
+		 * you can only request services at his forge, but other monsters can bring you the artifacts */
+		if (u.duriworking) {
+			verbalize("I'm working. Please don't disturb me again!");
+			break;
+		}
+
+		if (!mtmp->mpeaceful) {
+			verbalize("That's it. No soup for you!");
+			break;
+		}
+
+		/* request variable: 0 = nothing, 1 = evil artifact, 2 = good artifact */
+		if (u.durirequest == 1) {
+			u.durirequest = 0;
+			bad_artifact();
+			if (mtmp->data == &mons[PM_BLACKSMITH]) verbalize("Here's your artifact. Watch out, it's cursed and may well have downsides.");
+			else verbalize("Here, I'm supposed to give you this cursed artifact from the blacksmith. Watch out, it may well have downsides.");
+			break;
+		}
+
+		if (u.durirequest == 2) {
+			struct obj *durifact;
+			u.durirequest = 0;
+
+			boolean havegifts = u.ugifts;
+			if (!havegifts) u.ugifts++;
+
+			durifact = mk_artifact((struct obj *)0, !rn2(3) ? A_CHAOTIC : rn2(2) ? A_NEUTRAL : A_LAWFUL, TRUE);
+			if (durifact) {
+
+				if (P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_ISRESTRICTED) {
+				    unrestrict_weapon_skill(get_obj_skill(durifact, TRUE));
+				} else if (P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_UNSKILLED) {
+					unrestrict_weapon_skill(get_obj_skill(durifact, TRUE));
+					P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_BASIC;
+				} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_BASIC) {
+					P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_SKILLED;
+				} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_SKILLED) {
+					P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_EXPERT;
+				} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_EXPERT) {
+					P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_MASTER;
+				} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_MASTER) {
+					P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_GRAND_MASTER;
+				} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_GRAND_MASTER) {
+					P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_SUPREME_MASTER;
+				}
+				if (Race_if(PM_RUSMOT)) {
+					if (P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_ISRESTRICTED) {
+					    unrestrict_weapon_skill(get_obj_skill(durifact, TRUE));
+					} else if (P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_UNSKILLED) {
+						unrestrict_weapon_skill(get_obj_skill(durifact, TRUE));
+						P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_BASIC;
+					} else if (rn2(2) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_BASIC) {
+						P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_SKILLED;
+					} else if (!rn2(4) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_SKILLED) {
+						P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_EXPERT;
+					} else if (!rn2(10) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_EXPERT) {
+						P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_MASTER;
+					} else if (!rn2(100) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_MASTER) {
+						P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_GRAND_MASTER;
+					} else if (!rn2(200) && P_MAX_SKILL(get_obj_skill(durifact, TRUE)) == P_GRAND_MASTER) {
+						P_MAX_SKILL(get_obj_skill(durifact, TRUE)) = P_SUPREME_MASTER;
+					}
+				}
+
+				dropy(durifact);
+				discover_artifact(durifact->oartifact);
+			}
+
+			if (!havegifts) u.ugifts--;
+
+			if (mtmp->data == &mons[PM_BLACKSMITH]) verbalize("Here's your artifact. You'll find it on the floor beneath you. Have fun!");
+			else verbalize("Duri sent me to give you this artifact, so I'm dropping it at the floor beneath you. Have fun!");
+			break;
+		}
+
+		if (mtmp->data == &mons[PM_BLACKSMITH]) {
+			verbalize("Welcome to Duri's forge! I offer various services, including equipment repair, proofing, and artifact forging.");
+
+			winid tmpwin;
+			anything any;
+			menu_item *selected;
+			int n;
+
+			any.a_void = 0;         /* zero out all bits */
+			tmpwin = create_nhwindow(NHW_MENU);
+			start_menu(tmpwin);
+			any.a_int = 1;
+			add_menu(tmpwin, NO_GLYPH, &any , 'r', 0, ATR_NONE, "Repair", MENU_UNSELECTED);
+			any.a_int = 2;
+			add_menu(tmpwin, NO_GLYPH, &any , 'e', 0, ATR_NONE, "Erosionproofing", MENU_UNSELECTED);
+			any.a_int = 3;
+			add_menu(tmpwin, NO_GLYPH, &any , 'b', 0, ATR_NONE, "Bad artifact", MENU_UNSELECTED);
+			any.a_int = 4;
+			add_menu(tmpwin, NO_GLYPH, &any , 'g', 0, ATR_NONE, "Good artifact", MENU_UNSELECTED);
+
+			end_menu(tmpwin, "Services Available:");
+			n = select_menu(tmpwin, PICK_ONE, &selected);
+			destroy_nhwindow(tmpwin);
+
+			if (n > 0) {
+				switch (selected[0].item.a_int) {
+					case 1:
+						verbalize("For only %d zorkmids, I can repair all damage on an item of your choice!", u.durirepaircost);
+						if (u.ugold < u.durirepaircost) {
+							verbalize("But sadly you don't seem to have enough money.");
+							break;
+						}
+						struct obj *repairobj;
+						repairobj = getobj(all_count, "repair");
+						if (!repairobj) break;
+						if (repairobj) {
+							if (!(repairobj->oeroded) && !(repairobj->oeroded2)) {
+								verbalize("That item isn't damaged. You don't need to repair it!");
+								break;
+							}
+							if (yn("Pay for the repairs?") == 'y') {
+								u.ugold -= u.durirepaircost;
+								u.durirepaircost += 500;
+								if (!stack_too_big(repairobj)) {
+									repairobj->oeroded = repairobj->oeroded2 = 0;
+									verbalize("Alright! Your item is in tiptop shape again!");
+								} else verbalize("Oh no! The stack was too big, causing my repair attempt to fail!");
+							}
+						}
+						break;
+					case 2:
+						verbalize("So you want to erodeproof your items? All you need to do is give me %d zorkmids!", u.durienchantcost);
+						if (u.ugold < u.durienchantcost) {
+							verbalize("Well %s, it seems you can't afford it. Bummer.", flags.female ? "lady" : "dude");
+							break;
+						}
+						struct obj *proofobj;
+						proofobj = getobj(all_count, "erosionproof");
+						if (!proofobj) break;
+						if (proofobj) {
+							if (proofobj->oerodeproof) {
+								verbalize("That item is erosionproof already!");
+								break;
+							}
+							if (yn("Pay for erosionproofing?") == 'y') {
+								u.ugold -= u.durienchantcost;
+								u.durienchantcost += 2000;
+								if (!stack_too_big(proofobj)) {
+									proofobj->oerodeproof = 1;
+									verbalize("Your item is untouchable now!");
+								} else verbalize("Bad luck, %s - proofing such a large stack of items can fail, and it seems you didn't get lucky this time.", flags.female ? "gal" : "lad");
+							}
+						}
+						break;
+					case 3:
+						verbalize("Forging a bad artifact will cost %d zorkmids.", u.duriarticostevil);
+						if (u.ugold < u.duriarticostevil) {
+							verbalize("Unfortunately you don't have enough money!");
+							break;
+						}
+						if (yn("Forge a bad artifact?") == 'y') {
+							u.ugold -= u.duriarticostevil;
+							u.duriarticostevil += 5000;
+							u.duriworking = 1000;
+							u.durirequest = 1;
+							verbalize("Alright, give me about 1000 turns and I'll have something for you.");
+						}
+						break;
+					case 4:
+						verbalize("Forging a good artifact will cost %d zorkmids.", u.duriarticostnormal);
+						if (u.ugold < u.duriarticostnormal) {
+							verbalize("Unfortunately you don't have enough money!");
+							break;
+						}
+						if (yn("Forge a good artifact?") == 'y') {
+							u.ugold -= u.duriarticostnormal;
+							u.duriarticostnormal += 10000;
+							u.duriworking = 2000;
+							u.durirequest = 2;
+							verbalize("Alright, give me about 2000 turns and I'll have something for you. It'll be worth the wait, I promise!");
+						}
+						break;
+				}
+			}
+			break;
+
+		}
+
+		verbalize("Sorry, I don't think I can help you. Look for Duri in the Blacksmith's Forge.");
+
 		break;
 
     }
@@ -2781,13 +3970,32 @@ dotalk()
 	return 0;
 	}
 
+	if (HardcoreAlienMode) {
+
+		static const char *hcalien_msgs[] = {
+			"Wouwou.",
+			"Wouuu.",
+			"Www-wouwou.",
+			"Wwouwwouww.",
+			"Wowou.",
+			"Wwwouu.",
+		};
+		verbalize("%s", hcalien_msgs[rn2(SIZE(hcalien_msgs))]);
+		u.cnd_wouwoucount;
+		if (Role_if(PM_SOCIAL_JUSTICE_WARRIOR)) sjwtrigger();
+		wake_nearby();
+
+		return 1;
+
+	}
+
     int result;
     boolean save_soundok = flags.soundok;
     if (!(YouAreDeaf)) flags.soundok = 1;	/* always allow sounds while chatting */
     result = dochat();
     flags.soundok = save_soundok;
 
-	if (FemaleTrapSolvejg) {
+	if (FemtrapActiveSolvejg) {
 
 		pline("Your grating, annoying voice aggravates everyone in your vicinity.");
 
@@ -2809,7 +4017,7 @@ dotalk()
 					}
 				}
 
-				if (untamingchance > rnd(10) && !((rnd(30 - ACURR(A_CHA))) < 4) ) {
+				if (untamingchance > rnd(10) && !(Role_if(PM_DRAGONMASTER) && uarms && Is_dragon_shield(uarms) && mtmp2->data->mlet == S_DRAGON) && !((rnd(30 - ACURR(A_CHA))) < 4) ) {
 
 					mtmp2->mtame = mtmp2->mpeaceful = 0;
 
@@ -2936,6 +4144,62 @@ dochat()
 	return (0);
     }
 
+    if (mtmp->mtame && (((stationary(mtmp->data) || mtmp->data->mmove == 0 || mtmp->data->mlet == S_TURRET) && !Race_if(PM_GOAULD)) || (!(stationary(mtmp->data) || mtmp->data->mmove == 0 || mtmp->data->mlet == S_TURRET) && Race_if(PM_GOAULD))) && !mtmp->mfrenzied && !(mtmp->data->mlevel > 29 || (mtmp->data->mlevel > (u.ulevel + 10)) || cannot_be_tamed(mtmp->data) || (mtmp->cham == CHAM_ZRUTINATOR) || mtmp->isshk || mtmp->isgd || mtmp->ispriest || mtmp->isminion || mtmp->isgyp || (mtmp->oldmonnm != monsndx(mtmp->data))) ) {
+	
+	pline("You can attempt to turn this pet into a symbiote. Warning: if it's an intelligent monster, it may fail and result in a frenzied monster instead!");
+	getlin("Attempt to turn the pet into a symbiote? [yes/no]", buf);
+	(void) lcase (buf);
+	if (!(strcmp (buf, "yes")) ) {
+
+		int resistrounds = 0;
+		if (!mindless(mtmp->data)) resistrounds++;
+		if (humanoid(mtmp->data)) resistrounds++;
+		if (resistrounds >= 1 && resist(mtmp, TOOL_CLASS, 0, 0)) {
+			mtmp->mtame = FALSE;
+			mtmp->mpeaceful = FALSE;
+			mtmp->mfrenzied = TRUE;
+			pline("Oh no! %s is frenzied!", Monnam(mtmp));
+			return 1;
+		}
+		if (resistrounds >= 2 && resist(mtmp, TOOL_CLASS, 0, 0)) {
+			mtmp->mtame = FALSE;
+			mtmp->mpeaceful = FALSE;
+			mtmp->mfrenzied = TRUE;
+			pline("Oh no! %s is frenzied!", Monnam(mtmp));
+			return 1;
+		}
+
+		if (uinsymbiosis && u.usymbiote.cursed) {
+			pline(FunnyHallu ? "Apparently Morgoth himself decided to curse you with some ancient hex." : "Since your current symbiote is cursed, you cannot get a new one.");
+			return 1;
+		}
+
+		/* it worked! */
+
+		if (touch_petrifies(mtmp->data) && (!Stone_resistance || (!IntStone_resistance && !rn2(20))) ) {
+			if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))
+				display_nhwindow(WIN_MESSAGE, FALSE);
+			else {
+				char kbuf[BUFSZ];
+				pline("Incorporating a petrifying creature is a fatal mistake.");
+				sprintf(kbuf, "picking the wrong symbiote");
+				instapetrify(kbuf);
+			}
+		}
+		if (slime_on_touch(mtmp->data) && !Slimed && !flaming(youmonst.data) && !Unchanging && !slime_on_touch(youmonst.data)) {
+			You("don't feel very well.");
+			make_slimed(100);
+			killer_format = KILLED_BY_AN;
+			delayed_killer = "slimed by picking the wrong symbiote";
+		}
+
+		turnmonintosymbiote(mtmp, FALSE); /* WARNING: mtmp is removed at this point */
+
+		return 1;
+	}
+
+    }
+
     if (Role_if(PM_CONVICT) && is_rat(mtmp->data) && !mtmp->mpeaceful &&
      !mtmp->mtame) {
         You("attempt to soothe the %s with chittering sounds.",
@@ -2946,17 +4210,17 @@ dochat()
             if (rnl(10) > 8) {
                 pline("%s unfortunately ignores your overtures.",
                  Monnam(mtmp));
-                return 0;
+                return 1;
             }
             if (!mtmp->mfrenzied) mtmp->mpeaceful = 1;
             set_malign(mtmp);
         }
-        return 0;
+        return 1;
     }
 
     if (u.ugold >= 1000 && !mtmp->mtame && mtmp->mnum != quest_info(MS_NEMESIS) && uarmh && uarmh->oartifact == ART_CLAUDIA_S_SEXY_SCENT && mtmp->data->msound == MS_STENCH) {
 
-		if (yn("Hire this pretty lady for 1000 dollars") == 'y') {
+		if (yn("Hire this pretty lady for 1000 dollars?") == 'y') {
 
 			(void) tamedog(mtmp, (struct obj *) 0, FALSE);
 			u.ugold -= 1000;
@@ -3003,7 +4267,7 @@ dochat()
 		}
 	}
 
-	if (((uarmf && OBJ_DESCR(objects[uarmf->otyp]) && ( !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "fetish heels") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "idol kabluki") || !strcmp(OBJ_DESCR(objects[uarmf->otyp]), "but poshnalar") ))) && (mtmp->data->mlet == S_NYMPH || mtmp->data->msound == MS_FART_NORMAL || mtmp->data->msound == MS_FART_QUIET || mtmp->data->msound == MS_FART_LOUD)) {
+	if (((uarmf && itemhasappearance(uarmf, APP_FETISH_HEELS))) && (mtmp->data->mlet == S_NYMPH || mtmp->data->msound == MS_FART_NORMAL || mtmp->data->msound == MS_FART_QUIET || mtmp->data->msound == MS_FART_LOUD)) {
 
 		if (yn("Pacify this monster?") == 'y') {
 	      	pline("You attempt to pacify %s.",mon_nam(mtmp) );
@@ -3022,9 +4286,9 @@ dochat()
 
 			if (u.homosexual == 0) {
 				pline("You're discovering your sexuality...");
-				getlin("Are you homosexual? [yes/no] (If you answer no, you're heterosexual.)", buf);
+				getlin("Are you homosexual? [y/yes/no] (If you answer no, you're heterosexual.)", buf);
 				(void) lcase (buf);
-				if (!(strcmp (buf, "yes"))) u.homosexual = 2;
+				if (!(strcmp (buf, "yes")) || !(strcmp (buf, "y"))) u.homosexual = 2;
 				else u.homosexual = 1;
 			}
 

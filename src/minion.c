@@ -7,8 +7,9 @@
 #include "epri.h"
 
 void
-msummon(mon)		/* mon summons a monster */
+msummon(mon, ownloc)		/* mon summons a monster */
 struct monst *mon;
+boolean ownloc; /* TRUE = summon wherever I am (REQUIRES A MONSTER TO EXIST!!!), FALSE = summon at player's location --Amy */
 {
 	register struct permonst *ptr;
 	register int dtype = NON_PM, cnt = 0;
@@ -18,7 +19,7 @@ struct monst *mon;
 	if (mon) {
 	    ptr = mon->data;
 	    atyp = (ptr->maligntyp==A_NONE) ? A_NONE : sgn(ptr->maligntyp);
-	    if (mon->ispriest || mon->data == &mons[PM_ALIGNED_PRIEST]
+	    if (mon->ispriest || mon->data == &mons[PM_ALIGNED_PRIEST] || mon->data == &mons[PM_MASTER_PRIEST] || mon->data == &mons[PM_ELITE_PRIEST]
 		|| mon->data == &mons[PM_ANGEL])
 		atyp = EPRI(mon)->shralign;
 	} else {
@@ -74,12 +75,17 @@ struct monst *mon;
 	}
 
 	while (cnt > 0) {
-	    mtmp = makemon(&mons[dtype], u.ux, u.uy, NO_MM_FLAGS);
+	    if (ownloc) mtmp = makemon(&mons[dtype], mon->mx, mon->my, MM_ADJACENTOK);
+	    else mtmp = makemon(&mons[dtype], u.ux, u.uy, NO_MM_FLAGS);
 	    if (mtmp && (dtype == PM_ANGEL)) {
 		/* alignment should match the summoner */
 		EPRI(mtmp)->shralign = atyp;
 	    }
 	    cnt--;
+
+	    u.cnd_demongates++;
+	    if (dtype >= PM_JUIBLEX && dtype <= PM_YEENOGHU) u.cnd_demonlordgates++;
+	    if (dtype >= PM_ORCUS && dtype <= PM_DEMOGORGON) u.cnd_demonprincegates++;
 	}
 }
 

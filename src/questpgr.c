@@ -17,7 +17,6 @@
 static void Fread(void *,int,int,dlb *);
 STATIC_DCL struct qtmsg * construct_qtlist(long);
 STATIC_DCL const char * intermed(void);
-STATIC_DCL const char * neminame(void);
 STATIC_DCL const char * guardname(void);
 STATIC_DCL const char * homebase(void);
 STATIC_DCL struct qtmsg * msg_in(struct qtmsg *,int);
@@ -147,7 +146,7 @@ unload_qtlist()
 	return;
 }
 
-short
+int
 quest_info(typ)
 int typ;
 {
@@ -185,7 +184,7 @@ struct obj *otmp;
 	return((boolean)( (unsigned int) otmp->oartifact == (unsigned int) urole.questarti));
 }
 
-STATIC_OVL const char *
+const char *
 neminame()	/* return your role nemesis' name */
 {
 	int i = urole.neminum;
@@ -420,6 +419,23 @@ int	msgnum;
 	if (qt_msg->delivery == 'p' && strcmp(windowprocs.name, "X11"))
 		deliver_by_pline(qt_msg);
 	else	deliver_by_window(qt_msg, NHW_TEXT);
+
+	if (practicantterror && msgnum == QT_FIRSTNEMESIS && !u.pract_trespassing) {
+		fineforpracticant(2000, 0, 0);
+		u.pract_trespassing = TRUE;
+	}
+	if (practicantterror && msgnum == QT_NEXTNEMESIS && !u.pract_trespassing2) {
+		fineforpracticant(4000, 0, 0);
+		u.pract_trespassing2 = TRUE;
+	}
+	if (practicantterror && msgnum == QT_OTHERNEMESIS) { /* can be repeated an arbitrary amount of times */
+		fineforpracticant(5000, 0, 0);
+	}
+	if (practicantterror && msgnum == QT_NEMWANTSIT && !u.pract_artitheft) {
+		fineforpracticant(50000, 0, 0);
+		u.pract_artitheft = TRUE;
+	}
+
 	return;
 }
 

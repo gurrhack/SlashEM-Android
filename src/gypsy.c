@@ -313,7 +313,7 @@ fortune (mtmp)
 	if (card_istrump(card))
 		switch (card_trump(card)) {
 		case 0:	/* the Fool */
-			adjattrib(A_WIS, -1, 0);
+			adjattrib(A_WIS, -1, 0, TRUE);
 			change_luck(-3);
 			break;
 		case 1:	/* the Magician */
@@ -345,12 +345,12 @@ fortune (mtmp)
 			if (gypsy_offer(mtmp, 5000L,
 					"teleport you to a level of your choosing")) {
 				incr_itimeout(&HTeleport_control, 1);
-				    if (!flags.lostsoul && !flags.uberlostsoul && !(flags.wonderland && !(u.wonderlandescape)) && !(u.uprops[STORM_HELM].extrinsic) && !(In_bellcaves(&u.uz)) && !(In_subquest(&u.uz)) && !(In_voiddungeon(&u.uz)) && !(In_netherrealm(&u.uz))) level_tele();
+				    if (!flags.lostsoul && !flags.uberlostsoul && !(flags.wonderland && !(u.wonderlandescape)) && !(iszapem && !(u.zapemescape)) && !(u.uprops[STORM_HELM].extrinsic) && !(In_bellcaves(&u.uz)) && !(In_subquest(&u.uz)) && !(In_voiddungeon(&u.uz)) && !(In_netherrealm(&u.uz))) level_tele();
 				else pline("But unfortunately you aren't allowed to level teleport.");
 			}
 			break;
 		case 6: /* Strength */
-			adjattrib(A_STR, 1, 0);
+			adjattrib(A_STR, 1, 0, TRUE);
 			incr_itimeout(&HHalf_physical_damage, rn1(500, 500));
 			break;
 		case 7: /* the Hermit */
@@ -360,7 +360,7 @@ fortune (mtmp)
 			newsym(u.ux, u.uy);
 			break;
 		case 8: /* the Wheel of Fortune */
-			if (Hallucination)
+			if (FunnyHallu)
 				pline("Where is Vanna?");
 			else
 				You_feel("lucky!");
@@ -382,12 +382,11 @@ fortune (mtmp)
 			summon_minion(A_NONE, TRUE);
 			break;
 		case 12: /* Sorcery */
-			adjattrib(urole.spelstat, 1, 0);
+			adjattrib(urole.spelstat, 1, 0, TRUE);
 			incr_itimeout(&HHalf_spell_damage, rn1(500, 500));
 			break;
 		case 13: /* Death */
-			if (nonliving(youmonst.data) || is_demon(youmonst.data) || Death_resistance
-					|| Antimagic)
+			if (nonliving(youmonst.data) || is_demon(youmonst.data) || PlayerResistsDeathRays)
 				shieldeff(u.ux, u.uy);
 			else if(Hallucination)
 				You("have an out of body experience.");
@@ -407,10 +406,10 @@ fortune (mtmp)
 			if (rn2(3)) break; /* greatly reduce player's farming ability --Amy */
 			otyp = birthstones[getmonth()];
 			makeknown(otyp);
-			if ((otmp = mksobj(otyp, TRUE, FALSE)) != (struct obj *)0) {
+			if ((otmp = mksobj(otyp, TRUE, FALSE, TRUE)) != (struct obj *)0) {
 				pline("%s reaches behind your %s and pulls out %s.",
 						Monnam(mtmp), body_part(HEAD), doname(otmp));
-				if (pickup_object(otmp, otmp->quan, FALSE) <= 0) {
+				if (pickup_object(otmp, otmp->quan, FALSE, FALSE) <= 0) {
 					obj_extract_self(otmp);
 					place_object(otmp, u.ux, u.uy);
 					newsym(u.ux, u.uy);
@@ -435,7 +434,7 @@ fortune (mtmp)
 					pline_The("moon is waxing tonight.");
 					break;
 				case FULL_MOON:
-					You(Hallucination ? "are on the moon tonight!" : "are lucky!  Full moon tonight.");
+					You(FunnyHallu ? "are on the moon tonight!" : "are lucky!  Full moon tonight.");
 					change_luck(1);
 					break;
 				case 5:	case 6:	case 7:
@@ -465,7 +464,7 @@ fortune (mtmp)
 				mongone(mtmp);
 			} else if (gypsy_offer(mtmp, 10000L, "grant you a wish")) {
 				mtmp->mcan = TRUE;
-				makewish();
+				makewish(TRUE);
 			}
 			break;
 		default:
@@ -756,6 +755,11 @@ pawn (mtmp)
 	if (otmp->otyp < DILITHIUM_CRYSTAL || otmp->otyp > LAST_GEM) {
 		/* Reject glass */
 		verbalize("Don\'t bother with that junk!");
+		return;
+	}
+
+	if (otmp->objwassold) { /* filthy exploit exploiter --Amy */
+		verbalize("It was sold once already! I don't want it!");
 		return;
 	}
 

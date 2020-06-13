@@ -144,14 +144,16 @@ boolean restore;
 			}
 			if (otmp) {
 
-				if(rn2(2)) curse(otmp);
+				if(!rn2(3)) curse(otmp);
 
 				/* still blessed? Roll for a chance to make it uncursed. --Amy */
-				if(rn2(2) && otmp->blessed) unbless(otmp);
+				if(!rn2(3) && otmp->blessed) unbless(otmp);
 
 				/* degrade everything to reduce the # of free stuff the finder will get */
-				if (otmp->spe > 2) otmp->spe /= 2;
-				else if (otmp->spe > -20) otmp->spe--;
+				if (rn2(2)) {
+					if (otmp->spe > 2) otmp->spe /= 2;
+					else if (otmp->spe > -20) otmp->spe--;
+				}
 
 			}
 		}
@@ -246,6 +248,124 @@ can_make_bones()
 	return TRUE;
 }
 
+char *
+bonedunlvl(dnum)
+xchar dnum;
+{
+	static char buf[BUFSZ];
+
+	strcpy(buf, "XXX"); /* placeholder */
+
+	if (!strcmp(dungeons[u.uz.dnum].dname, "Angmar"))
+		strcpy(buf, "ANG");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Hell's Bathroom"))
+		strcpy(buf, "BAT");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Bell Caves"))
+		strcpy(buf, "BEL");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Dead Grounds"))
+		strcpy(buf, "DEA");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Deep Mines"))
+		strcpy(buf, "DEE");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "The Dungeons of Doom"))
+		strcpy(buf, "DOO");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Forging Chamber"))
+		strcpy(buf, "FOR");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Gamma Caves"))
+		strcpy(buf, "GAM");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Gehennom"))
+		strcpy(buf, "GEH");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "The Giant Caverns"))
+		strcpy(buf, "GIA");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "The Gnomish Mines"))
+		strcpy(buf, "GNO");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Grund's Stronghold"))
+		strcpy(buf, "GRU");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Illusory Castle"))
+		strcpy(buf, "ILL");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Fort Ludios"))
+		strcpy(buf, "KNX");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Frankenstein's Lab"))
+		strcpy(buf, "LAB");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Mainframe"))
+		strcpy(buf, "MAI");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "The Temple of Moloch"))
+		strcpy(buf, "MOL");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Nether Realm"))
+		strcpy(buf, "NET");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Ordered Chaos"))
+		strcpy(buf, "ORD");
+	else if (In_quest(&u.uz))
+		strcpy(buf, "QUE");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone A"))
+		strcpy(buf, "RAZ");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone GA"))
+		strcpy(buf, "RGA");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone GB"))
+		strcpy(buf, "RGB");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone GC"))
+		strcpy(buf, "RGC");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone GD"))
+		strcpy(buf, "RGD");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone GE"))
+		strcpy(buf, "RGE");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone S"))
+		strcpy(buf, "RSZ");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TA"))
+		strcpy(buf, "RTA");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TB"))
+		strcpy(buf, "RTB");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TC"))
+		strcpy(buf, "RTC");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TD"))
+		strcpy(buf, "RTD");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TE"))
+		strcpy(buf, "RTE");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TF"))
+		strcpy(buf, "RTF");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TG"))
+		strcpy(buf, "RTG");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TH"))
+		strcpy(buf, "RTH");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TI"))
+		strcpy(buf, "RTI");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Resting Zone TJ"))
+		strcpy(buf, "RTJ");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "One-eyed Sam's Market"))
+		strcpy(buf, "SAM");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "The Subquest"))
+		strcpy(buf, "SBQ");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "The Sunless Sea"))
+		strcpy(buf, "SEA");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Sewer Plant"))
+		strcpy(buf, "SEW");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Sheol"))
+		strcpy(buf, "SHL");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Sokoban"))
+		strcpy(buf, "SOK");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Space Base"))
+		strcpy(buf, "SPC");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "The Spider Caves"))
+		strcpy(buf, "SPI");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Swimming Pool"))
+		strcpy(buf, "SWI");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "The Lost Tomb"))
+		strcpy(buf, "TOM");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Town"))
+		strcpy(buf, "TOW");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Vlad's Tower"))
+		strcpy(buf, "VLA");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Void"))
+		strcpy(buf, "VOI");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "The Wyrm Caves"))
+		strcpy(buf, "WYR");
+	else if (!strcmp(dungeons[u.uz.dnum].dname, "Yendorian Tower"))
+		strcpy(buf, "YEN");
+	else impossible("Error! No bones level identifier found. Please notify Amy about this bug and tell her on which level it occurred.");
+
+	return buf;
+
+}
+
 /* save bones and possessions of a deceased adventurer */
 void
 savebones(corpse)
@@ -281,12 +401,13 @@ struct obj *corpse;
  make_bones:
 #endif
 	unleash_all();
+
 	/* in case these characters are not in their home bases */
 	for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
 	    if (DEADMONSTER(mtmp)) continue;
 	    mptr = mtmp->data;
 	    if (mtmp->iswiz || mptr == &mons[PM_MEDUSA] ||
-		    (mptr->msound == MS_NEMESIS &&  mptr->mlet != S_NEMESE && mptr != &mons[PM_STARLIT_SKY] && mptr != &mons[PM_MISNAMED_STARLIT_SKY] && mptr != &mons[PM_WRONG_NAMED_STARLIT_SKY] && mptr != &mons[PM_ERRONEOUS_STARLIT_SKY] && mptr != &mons[PM_DARK_STARLIT_SKY] && mptr != &mons[PM_BLACK_STARLIT_SKY] && mptr != &mons[PM_RED_STARLIT_SKY] && mptr != &mons[PM_BROWN_STARLIT_SKY] && mptr != &mons[PM_GREEN_STARLIT_SKY] && mptr != &mons[PM_PURPLE_STARLIT_SKY] && mptr != &mons[PM_YELLOW_STARLIT_SKY] && mptr != &mons[PM_ORANGE_STARLIT_SKY] && mptr != &mons[PM_CYAN_STARLIT_SKY] && mptr != &mons[PM_VIOLET_STARLIT_SKY] && mptr != &mons[PM_TRUE_MISSINGNO] && mptr != &mons[PM_ETHEREAL_MISSINGNO] && mptr != &mons[PM_DESTABILIZER] && mptr != &mons[PM_POLYINITOR]) || mptr->msound == MS_LEADER ||
+		    (mptr->msound == MS_NEMESIS && mtmp->mnum >= PM_LORD_CARNARVON && mtmp->mnum <= PM_UPPER_BULL) || mptr->msound == MS_LEADER ||
 		    mptr == &mons[PM_VLAD_THE_IMPALER] ||
 		    mptr == &mons[PM_NIGHTMARE] ||
 		    mptr == &mons[PM_BEHOLDER] || mptr == &mons[PM_VECNA] ||

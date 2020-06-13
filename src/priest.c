@@ -163,7 +163,8 @@ register struct monst *priest;
 	gy += rn1(3,-1);
 
 	if(!priest->mpeaceful ||
-	   (Conflict && !resist(priest, RING_CLASS, 0, 0))) {
+	   (Conflict && !resist(priest, RING_CLASS, 0, 0)) ||
+	   (StrongConflict && !resist(priest, RING_CLASS, 0, 0))) {
 		if(monnear(priest, u.ux, u.uy)) {
 			if(Displaced)
 				Your("displaced image doesn't fool %s!",
@@ -198,7 +199,7 @@ boolean sanctum;   /* is it the seat of the high priest? */
 	if(MON_AT(sx+1, sy))
 		(void) rloc(m_at(sx+1, sy), FALSE); /* insurance */
 
-	priest = makemon(&mons[(In_yendorian(&u.uz) && depth(&u.uz) == 1) ? PM_DNETHACK_ELDER_PRIEST_TM_ : isevilvariant ? PM_DNETHACK_ELDER_PRIEST_TM_ : sanctum ? PM_HIGH_PRIEST : PM_ALIGNED_PRIEST],
+	priest = makemon(&mons[(In_yendorian(&u.uz) && depth(&u.uz) == 1) ? PM_DNETHACK_ELDER_PRIEST_TM_ : isevilvariant ? PM_DNETHACK_ELDER_PRIEST_TM_ : sanctum ? PM_HIGH_PRIEST : (level_difficulty() > 39 && Amask2align(levl[sx][sy].altarmask) != A_NONE) ? PM_ELITE_PRIEST : (level_difficulty() > 19 && Amask2align(levl[sx][sy].altarmask) != A_NONE) ? PM_MASTER_PRIEST : PM_ALIGNED_PRIEST],
 			 sx + 1, sy, NO_MM_FLAGS);
 
 	if (priest) {
@@ -218,15 +219,18 @@ boolean sanctum;   /* is it the seat of the high priest? */
 		     on_level(&sanctum_level, &u.uz)) {
 			(void) mongets(priest, AMULET_OF_YENDOR);
 		}
-		/* 2 to 4 spellbooks */
-		for (cnt = rn1(3,2); cnt > 0; --cnt) {
-		    (void) mpickobj(priest, mkobj(SPBOOK_CLASS, FALSE), TRUE);
+		/* 2 to 4 spellbooks - but less later on
+		 * Amy edit: 50% chance of having just one, har-har :P
+		 * they're just free loot anyway, the priest doesn't benefit from having them! */
+		cnt = (rn2(2) ? 1 : rn1(3,2));
+		for (cnt; cnt > 0; --cnt) {
+		    if (timebasedlowerchance()) (void) mpickobj(priest, mkobj(SPBOOK_CLASS, FALSE, FALSE), TRUE);
 		}
 		/* [ALI] Upgrade existing robe or aquire new */
 
 		if (In_yendorian(&u.uz) && depth(&u.uz) == 1) {
 			struct obj *obj;
-			obj = mksobj(ROBE, TRUE, FALSE);
+			obj = mksobj(ROBE, TRUE, FALSE, FALSE);
 			if (obj) {
 				obj = oname(obj, artiname(ART_MOTHERFUCKER_TROPHY));
 				if (obj) {
@@ -239,7 +243,7 @@ boolean sanctum;   /* is it the seat of the high priest? */
 		} else if (rn2(2) || (otmp = which_armor(priest, W_ARM)) == 0) {
 		    struct obj *obj;
 		    obj = mksobj(rn2(p_coaligned(priest) ? 2 : 5) ?
-			    ROBE_OF_PROTECTION : ROBE_OF_POWER, TRUE, FALSE);
+			    ROBE_OF_PROTECTION : ROBE_OF_POWER, TRUE, FALSE, FALSE);
 		    if (obj) { /* this should fix a STUPID segfault for minimalist characters --Amy */
 			    if (p_coaligned(priest))
 				uncurse(obj, TRUE);
@@ -283,7 +287,7 @@ char *pname;		/* caller-supplied output buffer */
 
 	strcpy(pname, "the ");
 	if (mon->minvis) strcat(pname, "invisible ");
-	if (mon->ispriest || mon->data == &mons[PM_ALIGNED_PRIEST] ||
+	if (mon->ispriest || mon->data == &mons[PM_ALIGNED_PRIEST] || mon->data == &mons[PM_MASTER_PRIEST] || mon->data == &mons[PM_ELITE_PRIEST] ||
 					mon->data == &mons[PM_ANGEL]) {
 		/* use epri */
 		if (mon->mtame && mon->data == &mons[PM_ANGEL])
@@ -300,7 +304,7 @@ char *pname;		/* caller-supplied output buffer */
 				strcat(pname, "high ");
 			if (mon->data == &mons[PM_DNETHACK_ELDER_PRIEST_TM_])
 				strcat(pname, "elder ");
-			if (Hallucination)
+			if (FunnyHallu)
 				strcat(pname, "poohbah ");
 			else if (mon->female)
 				strcat(pname, "priestess ");
@@ -387,6 +391,7 @@ register int roomno;
 		    if(priest->mpeaceful) {	/* never the case in this game --Amy */
 			msg1 = "Infidel, you have entered Moloch's Sanctum!";
 			if (Role_if(PM_GANG_SCHOLAR)) msg1 = "Infidel, you have entered Anna's Sanctum!";
+			if (Role_if(PM_WALSCHOLAR)) msg1 = "Infidel, you have entered Anna's Sanctum!";
 			msg2 = "Be gone!";
 			priest->mpeaceful = 0;
 			set_malign(priest);
@@ -395,6 +400,7 @@ register int roomno;
 			else {
 			msg1 = "Infidel, you have entered Moloch's Sanctum!";
 			if (Role_if(PM_GANG_SCHOLAR)) msg1 = "Infidel, you have entered Anna's Sanctum!";
+			if (Role_if(PM_WALSCHOLAR)) msg1 = "Infidel, you have entered Anna's Sanctum!";
 			msg2 = "Be gone!";
 			}
 			}
@@ -450,8 +456,17 @@ register struct monst *priest;
 	boolean coaligned = p_coaligned(priest);
 	boolean strayed = (u.ualign.record < 0);
 
+	if (Race_if(PM_MACTHEIST)) {
+		pline("Did you forget by any chance that you're an atheist? You cannot talk to priests!");
+		return;
+	}
+
 	/* KMH, conduct */
 	u.uconduct.gnostic++;
+	if (Race_if(PM_MAGYAR)) {
+		You_feel("bad about breaking the atheist conduct.");
+		badeffect();
+	}
 
 	if(priest->mflee || (!priest->ispriest && coaligned && strayed)) {
 	    pline("%s doesn't want anything to do with you!",
@@ -494,7 +509,7 @@ register struct monst *priest;
 		if (priest->mgold > 0L) {
 		    /* Note: two bits is actually 25 cents.  Hmm. */
 		    pline("%s gives you %s for an ale.", Monnam(priest),
-			Hallucination ? ((priest->mgold == 1L) ? "one bitcoin" : "two bitcoins") :
+			FunnyHallu ? ((priest->mgold == 1L) ? "one bitcoin" : "two bitcoins") :
 			(priest->mgold == 1L) ? "one bit" : "two bits");
 		    if (priest->mgold > 1L)
 			u.ugold = 2L;
@@ -552,17 +567,21 @@ register struct monst *priest;
 		    /* KMH, intrinsic patch */
 		    incr_itimeout(&HClairvoyant, rn1(500,500));
 		}
+		/* Amy edit: it's way too easy to get lots of protection. Fixing that. */
 	    } else if(offer < (issoviet ? (u.ulevel * 600) : 6000) &&
 		      u.ublessed < 20 &&
-		      (u.ublessed < 9 || !rn2(u.ublessed))) {
+		      (u.ublessed < 1 || !rn2(u.ublessed))) {
 		verbalize("Thy devotion has been rewarded.");
 		if (Role_if(PM_PRIEST) || Role_if(PM_NECROMANCER) || Role_if(PM_CHEVALIER) || Race_if(PM_VEELA)) {
 			use_skill(P_SPIRITUALITY, Role_if(PM_PRIEST) ? 3 : 1);
 		}
 		if (!(HProtection & INTRINSIC))  {
 			HProtection |= FROMOUTSIDE;
-			if (!u.ublessed)  u.ublessed = rn1(3, 2);
-		} else u.ublessed++;
+			if (!u.ublessed)  u.ublessed = rno(Race_if(PM_MAYMES) ? 8 : 4);
+		} else {
+			u.ublessed++;
+			if (Race_if(PM_MAYMES) && u.ublessed < 20) u.ublessed++;
+		}
 	    } else {
 		verbalize("Thy selfless generosity is deeply appreciated.");
 		if (Role_if(PM_PRIEST) || Role_if(PM_NECROMANCER) || Role_if(PM_CHEVALIER) || Race_if(PM_VEELA)) {
@@ -597,7 +616,7 @@ boolean peaceful;
 	register struct monst *roamer;
 	register boolean coaligned = (u.ualign.type == alignment);
 
-	if (ptr != &mons[PM_ALIGNED_PRIEST] && ptr != &mons[PM_ANGEL])
+	if (ptr != &mons[PM_ALIGNED_PRIEST] && ptr != &mons[PM_MASTER_PRIEST] && ptr != &mons[PM_ELITE_PRIEST] && ptr != &mons[PM_ANGEL])
 		return((struct monst *)0);
 	
 	if (MON_AT(x, y)) (void) rloc(m_at(x, y), FALSE);	/* insurance */
@@ -623,7 +642,7 @@ void
 reset_hostility(roamer)
 register struct monst *roamer;
 {
-	if(!(roamer->isminion && (roamer->data == &mons[PM_ALIGNED_PRIEST] ||
+	if(!(roamer->isminion && (roamer->data == &mons[PM_ALIGNED_PRIEST] || roamer->data == &mons[PM_MASTER_PRIEST] || roamer->data == &mons[PM_ELITE_PRIEST] ||
 				  roamer->data == &mons[PM_ANGEL])))
 	        return;
 
@@ -688,7 +707,7 @@ struct monst *priest;
 	 * a door then (u.ux, u.uy) may be counted as a possible source which
 	 * is later rejected by linedup() letting the hero off the hook.
 	 */
-	if((u.ux == x && u.uy == y) || !linedup(u.ux, u.uy, x, y) ||
+	if((u.ux == x && u.uy == y) || !linedup(u.ux, u.uy, x, y, FALSE) ||
 		stpx == sgn(tbx) && stpy == sgn(tby)) {
 	    if(IS_DOOR(levl[u.ux][u.uy].typ)) {
 
@@ -801,7 +820,7 @@ struct monst *priest;
 		    return;
 		}
 	    }
-	    if(!linedup(u.ux, u.uy, x, y))
+	    if(!linedup(u.ux, u.uy, x, y, FALSE))
 		return;
 	}
 

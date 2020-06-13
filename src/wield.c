@@ -49,7 +49,7 @@
  * No item may be in more than one of these slots.
  */
 
-STATIC_DCL int ready_weapon(struct obj *, BOOLEAN_P);
+/*STATIC_DCL int ready_weapon(struct obj *, BOOLEAN_P);*/
 static const char all_count[] = { ALLOW_COUNT, ALL_CLASSES, 0 };
 
 /* used by will_weld() */
@@ -86,9 +86,10 @@ static const char all_count[] = { ALLOW_COUNT, ALL_CLASSES, 0 };
  *       (rather than dropped, destroyed, etc)
  */
 void
-setuwep(obj, put_away)
+setuwep(obj, put_away, cancurseshit)
 register struct obj *obj;
 boolean put_away;
+boolean cancurseshit; /* otherwise, saving and loading would trigger it every time! --Amy */
 {
 	struct obj *olduwep = uwep;
 
@@ -113,6 +114,15 @@ boolean put_away;
 				) : !is_weptool(obj);
 	} else
 		unweapon = TRUE;	/* for "bare hands" message */
+
+	if (!cancurseshit) goto cursingdone;
+
+	if (uwep && objects[uwep->otyp].oc_skill == P_TRIDENT && Race_if(PM_NEMESIS) && !uwep->nemtrident && uwep->spe < 1) {
+		uwep->nemtrident = 1;
+		uwep->spe += rne(2);
+		pline_The("trident glows in your %s for a moment.", body_part(HAND));
+		if (uwep->spe > 120) uwep->spe = 120; /* fail safe */
+	}
 
 	if (uwep && uwep->oartifact == ART_ALASSEA_TELEMNAR && !uwep->hvycurse) {
 		curse(uwep);
@@ -222,6 +232,8 @@ boolean put_away;
 	if (uwep && (AutocursingEquipment || u.uprops[AUTOCURSE_EQUIP].extrinsic || have_autocursestone())) curse(uwep);
 	
 	if (uwep && uwep->spe > -10 && (TrashingBugEffect || u.uprops[TRASHING_EFFECT].extrinsic || have_trashstone())) uwep->spe--;
+
+cursingdone:
 
 	/* MRKR: Handle any special effects of unwielding a weapon */
 	if (olduwep && olduwep != uwep)
@@ -371,7 +383,7 @@ swapweaponchoice:
 
 }
 
-STATIC_OVL int
+int
 ready_weapon(wep, put_away)
 struct obj *wep;
 boolean put_away;
@@ -383,7 +395,7 @@ boolean put_away;
 	    /* No weapon */
 	    if (uwep) {
 		You("are empty %s.", body_part(HANDED));
-		setuwep((struct obj *) 0, put_away);
+		setuwep((struct obj *) 0, put_away, TRUE);
 		/* You can just drop your weapon and pick it back up in zero turns, so unwielding something should not
 		 * take time either.
 		 * Except in Soviet Russia of course, where dropping and picking up items isn't free, because nothing done
@@ -394,7 +406,7 @@ boolean put_away;
 		}
 	    } else
 		You("are already empty %s.", body_part(HANDED));
-	} else if ( (!uarmg || FingerlessGloves) && !Stone_resistance && wep->otyp == CORPSE
+	} else if ( (!uarmg || FingerlessGloves) && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && wep->otyp == CORPSE
 				&& touch_petrifies(&mons[wep->corpsenm])) {
 	    /* Prevent wielding cockatrice when not wearing gloves --KAA */
 	    char kbuf[BUFSZ];
@@ -403,7 +415,7 @@ boolean put_away;
 		mons[wep->corpsenm].mname, makeplural(body_part(HAND)));
 	    sprintf(kbuf, "%s corpse", an(mons[wep->corpsenm].mname));
 	    instapetrify(kbuf);
-	} else if ( (!uarmg || FingerlessGloves) && !Stone_resistance && wep->otyp == EGG
+	} else if ( (!uarmg || FingerlessGloves) && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && wep->otyp == EGG && wep->corpsenm != PM_PLAYERMON
 				&& touch_petrifies(&mons[wep->corpsenm])) {
 	    /* Prevent wielding cockatrice when not wearing gloves --KAA */
 	    char kbuf[BUFSZ];
@@ -459,7 +471,7 @@ boolean put_away;
 		prinv((char *)0, wep, 0L);
 		wep->owornmask = dummy;
 	    }
-	    setuwep(wep, put_away);
+	    setuwep(wep, put_away, TRUE);
 
 	    /* KMH -- Talking artifacts are finally implemented */
 	    arti_speak(wep);
@@ -473,7 +485,7 @@ boolean put_away;
 #if 0
 	    /* we'll get back to this someday, but it's not balanced yet */
 	    if (Race_if(PM_ELF) && !wep->oartifact &&
-			    objects[wep->otyp].oc_material == IRON) {
+			    objects[wep->otyp].oc_material == MT_IRON) {
 		/* Elves are averse to wielding cold iron */
 		You("have an uneasy feeling about wielding cold iron.");
 		change_luck(-1);
@@ -859,7 +871,7 @@ const char *verb;	/* "rub",&c */
 	if (uswapwep == obj) return FALSE;
     } else {
 	You("now wield %s.", doname(obj));
-	setuwep(obj, TRUE);
+	setuwep(obj, TRUE, TRUE);
     }
     if (uwep != obj) return FALSE;	/* rewielded old object after dying */
     /* applying weapon or tool that gets wielded ends two-weapon combat */
@@ -937,7 +949,7 @@ can_twoweapon()
 	    pline("%s resists being held second to another weapon!",
 		    Yname2(uswapwep));
 #endif
-	else if ( (!uarmg || FingerlessGloves) && !Stone_resistance && 
+	else if ( (!uarmg || FingerlessGloves) && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && 
 		(uswapwep && uswapwep->otyp == CORPSE &&                   
                 (touch_petrifies(&mons[uswapwep->corpsenm])))) {
 	    char kbuf[BUFSZ];
@@ -946,8 +958,8 @@ can_twoweapon()
 		    mons[uswapwep->corpsenm].mname, body_part(HAND));
 	    sprintf(kbuf, "%s corpse", an(mons[uswapwep->corpsenm].mname));
 	    instapetrify(kbuf);
-        } 	else if ( (!uarmg || FingerlessGloves) && !Stone_resistance && 
-		(uswapwep && uswapwep->otyp == EGG &&
+        } 	else if ( (!uarmg || FingerlessGloves) && (!Stone_resistance || (!IntStone_resistance && !rn2(20)) ) && 
+		(uswapwep && uswapwep->otyp == EGG && uswapwep->corpsenm != PM_PLAYERMON &&
                 (touch_petrifies(&mons[uswapwep->corpsenm])))) {
 	    char kbuf[BUFSZ];
 
@@ -1104,18 +1116,18 @@ boolean fade_scrolls;
 
 	if (target->oartifact && rn2(4)) return;
 
-	if (OBJ_DESCR(objects[target->otyp]) && ( !strcmp(OBJ_DESCR(objects[target->otyp]), "brand-new gloves") || !strcmp(OBJ_DESCR(objects[target->otyp]), "sovershenno novyye perchatki") || !strcmp(OBJ_DESCR(objects[target->otyp]), "yangi qo'lqop") ) && rn2(4) ) return;
+	if (itemhasappearance(target, APP_BRAND_NEW_GLOVES) && rn2(4) ) return;
 
-	if (OBJ_DESCR(objects[target->otyp]) && ( !strcmp(OBJ_DESCR(objects[target->otyp]), "imaginary heels") || !strcmp(OBJ_DESCR(objects[target->otyp]), "voobrazhayemyye kabluki") || !strcmp(OBJ_DESCR(objects[target->otyp]), "xayoliy to'pi") ) ) return;
+	if (itemhasappearance(target, APP_IMAGINARY_HEELS) ) return;
 
-	if (OBJ_DESCR(objects[target->otyp]) && ( !strcmp(OBJ_DESCR(objects[target->otyp]), "withered cloak") || !strcmp(OBJ_DESCR(objects[target->otyp]), "uvyadshiye plashch") || !strcmp(OBJ_DESCR(objects[target->otyp]), "shol plash") ) ) return;
+	if (itemhasappearance(target, APP_WITHERED_CLOAK) ) return;
 
 	if (uarmf && !rn2(2) && uarmf->oartifact == ART_LUISA_S_IRRESISTIBLE_CHARM) return;
 
 	if (target->greased && (!issoviet || !rn2(2)) ) {
 	    grease_protect(target,(char *)0,victim);
 	} else if (target->oclass == SCROLL_CLASS) {
-	    if(fade_scrolls && target->otyp != SCR_BLANK_PAPER && !target->oartifact && target->otyp != SCR_HEALING && target->otyp != SCR_EXTRA_HEALING && target->otyp != SCR_STANDARD_ID && target->otyp != SCR_MANA && target->otyp != SCR_GREATER_MANA_RESTORATION && target->otyp != SCR_CURE && target->otyp != SCR_PHASE_DOOR
+	    if(fade_scrolls && target->otyp != SCR_BLANK_PAPER && !target->oartifact && target->otyp != SCR_HEALING && target->otyp != SCR_EXTRA_HEALING && target->otyp != SCR_STANDARD_ID && target->otyp != SCR_HEAL_OTHER && target->otyp != SCR_MANA && target->otyp != SCR_GREATER_MANA_RESTORATION && target->otyp != SCR_CURE && target->otyp != SCR_PHASE_DOOR
 #ifdef MAIL
 	    && target->otyp != SCR_MAIL
 #endif
@@ -1133,7 +1145,7 @@ boolean fade_scrolls;
 		target->otyp = SCR_BLANK_PAPER;
 		target->spe = 0;
 	    }
-	} else if (target->oerodeproof ||
+	} else if (target->oerodeproof || (Race_if(PM_CHIQUAI) && rn2(4)) ||
 		(acid_dmg ? !is_corrodeable(target) : !is_rustprone(target))) {
 	    if (flags.verbose || !(target->oerodeproof && target->rknown)) {
 		if (victim == &youmonst)
@@ -1287,6 +1299,8 @@ register int amount;
 		makeknown(otyp);
 	}
 	uwep->spe += amount;
+	if (uwep && uwep->oartifact == ART_BOARDED_SHELF && amount > 0 && uwep->spe < 22) uwep->spe += 4;
+	if (Race_if(PM_SPARD) && amount > 0) uwep->spe++;
 	if(amount > 0) {
 
 		if ((uwep->morgcurse || uwep->evilcurse || uwep->bbrcurse) && !rn2(100) ) {

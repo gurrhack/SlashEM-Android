@@ -1,4 +1,625 @@
 Changelog for SLASH'EM Extended, written by Amy, given in reverse chronological order
+ 
+2.6.6 - Apr 2020
+- Eating disenchanters in evilvariant mode can steal the player's intrinsics.
+- Most detection spells no longer work on the entire level, but in a radius around the player.
+- Fixed the bug where chrome horns were shooting fireballs instead of poison rays.
+- Fixed a fallthrough bug when summoning a demon lord.
+- Added resting zones to Gehennom, the Yendorian Tower and a few other "hellish" dungeons. The player can pray and convert altars in there.
+- Fixed some code execution exploits (thanks to David Mendenhall for discovering them and providing a fix).
+- Some monsters are now immune to time stop.
+- Stationary pets can now actually attack monsters.
+- The Juyo, Shien and Wedi forms can be trained more quickly.
+- The number of monster species exceeds 32768 now; a bunch of variables had to have their types changed to fix the bugs that cropped up.
+- Fixed the calculations for healing symbiotes; they have been bugged since the introduction of symbiotes.
+- The knock spell now only works sometimes when used against an engulfer or steed.
+- Added new effects for thrones and pentagrams.
+- In evilvariant mode, reading a cursed scroll of identify while confused now causes amnesia.
+- Reverse genocide is now more dangerous, by summoning OOD monsters or otherwise backfiring on occasion.
+- Fixed problems where the player's pets wouldn't always be able to ascend with the player and could segfault if there were too many.
+- If the player's game ends while in freeplay mode, it should now show the artifacts and other valuables in a list.
+- If the player is playing a ZAPM role/race or is in the ZAPM branch, zorkmids are now referred to as buckazoids.
+- New option "inertiaconfirm" that changes the y/n prompt from inertia control to require a full yes/no answer. Also, it's now possible to choose 'q' on that prompt, which will end inertia control immediately.
+- Added more failsafes that should prevent the player from getting stuck with uncurable blindness (which is a bug as long as it's not XBlind).
+- New shopkeeper service: "establish credit", which can be used to establish credit without being cheated by the shopkeeper.
+- Reduced the rate at which general stores get their stock reduced, meaning that they should now have more items on average.
+- Prevented the iraha race from buying services in shops.
+- Fixed a potential segfault when a mindflaying explosion attack hit the player.
+- Sustain ability only prevents stat loss 90% of the time now (unless playing the sustainer race). Stat gains are still completely prevented.
+- Implemented a (hopefully) better fix for the problem where players with the demon flag in their natural form would sometimes summon buggy crash-prone monsters.
+- Spellbooks now spawn with less charges on average and gain less extra charges when recharged. Many rechargable items also have higher odds of exploding when recharged now.
+- Nexus swap will now permanently eat some stat points when it swaps a player's high strength stat with another stat.
+- The first time a player can enhance a skill, the game will now tell them how to do so.
+- Improved the odds that a player-read scroll of offlevel item works.
+- The player can no longer offer trove corpses on altars, and corpses that have ever been in an ice box can only be sacrificed in soviet mode.
+- Many spells that target monsters will now anger peaceful ones. Some spells have also been rebalanced and the menus for inertia control, dememorize and add spell memory are significantly improved.
+- Fixed the oversight that allowed items with different brittleness values to stack.
+- Slow digestion no longer provides complete immunity from engulfing monsters.
+- At the start of the game there may be a property selected for which the player cannot have the double in+extrinsic effect.
+- Fixed a bug that could cause skill loss effects to sometimes refund too many skill points.
+- Changed the calculation when eating rings made of viva.
+- Fixed a bug that could cause the player to sometimes not have an improved chance of doing stuff while polymorphed into a handless form.
+
+2.6.5 - Mar 2020
+- Fixed the error message when offering a stoaning eye corpse.
+- Some item materials have additional effects now.
+- Added a new option "simpledescs" that shortens many item attribute names to make it more likely for them to fit in a single line.
+- Added a synergy for when the player has both the squeaking and gun control skills.
+- Exploding monsters may occasionally survive after exploding, allowing them to explode again.
+- Monsters can now use high heels to kick the player's pets.
+- Diluting oil in a pool can now summon the kops.
+- Fixed an oversight that caused the stinking cloud spell to sometimes not gain memory or skill training when cast.
+- Fixed a long-standing bug that caused all of the player's inventory to take lethe damage when dipping a single item in a lethe fountain.
+- Monsters may now randomly spawn asleep and should be less likely to wake up, however the magical sleep effect from the wand or spell is more likely to end when the monster gets attacked or otherwise disturbed.
+- Corrected the chance that a monster with the reviver egotype will revive.
+- Added failsafes for players hanging up at a mind flayer instadeath.
+- Throwing a grenade can display funny messages sometimes.
+- Added a #spelldelete command that the player can use to remove forgotten spells from their list.
+- Fixed bugs that could occur when the player character leveled up beyond experience level 30.
+- Randomized the average artifact invocation timeout even more, and made it depend on squeaking skill.
+- Buff spells now generally get a lower duration only if the player already has it as an intrinsic; it used to give lower durations even if the player only had the extrinsic version.
+- Another change to the technique menu that should make it easier to see which ones can be used.
+
+2.6.4 - Mar 2020
+- Shops can now offer blessed charging even when they're not wand shops.
+- Fixed a design error with the interface for selecting techniques.
+- Fixed a bug that could occur if an ak Thief is dead! player character in their normal form had the demon flag, which could cause error messages and the occasional segfault.
+
+2.6.3 - Jan 2020
+- At the start of the game, the RNG can now decide to make shop items more scarce or traps more difficult to find.
+- As the game goes on, high-level monsters will become gradually less uncommon to ensure that game difficulty goes up if the player procrastinates.
+- Forgotten spells can fail now, cost Pw to attempt, and having too many of them may remove the ones at the bottom of the player's list entirely after a while.
+- Spell amnesia will now be more eager to remove forgotten spells, especially if the player has many of those, and can also significantly reduce the memory of any random spell in the player's list.
+- If the player leaves a level that has the "spooky" flag, it now correctly unsets the flag so that the messages don't keep appearing even while the player is on other levels.
+- Fixed defunct shops on certain special levels; they had a chance of crashing the game.
+- The scroll of world fall now costs 150 ink to write.
+- At high experience levels, gain level effects are no longer guaranteed to give an experience level to the player; they can grant at most 200k points of experience.
+- Dipping potions and scrolls into lethe water can now finalize and/or curse them.
+- Greatly reduced the generation rate for random scrolls of wishing.
+- World fall used by the player is only guaranteed to wipe out monsters up to half of its effect level now, but still has a chance of affecting higher-level ones.
+- Fixed the error where monsters dying to another monster's ranged thorns effect could throw a dmonsfree error.
+- Fixed an old bug where shoplifting would add to the sin counter only as a chaotic character. Now, it properly does that for lawful characters only.
+- The skill training decrease, technique timeout, spell memory loss and random feminism trap effects have all been boosted to be more dangerous.
+- The effects of purchasing a shopkeeper's uncursing service while impaired are much less likely to be beneficial and have a chance of putting powerful curses on the item instead.
+- Symbiotes now weigh much more if the player's skill is low, and having low charisma makes them take longer to regenerate hit points but high charisma speeds up their regeneration.
+- Dropping rings or amulets down sinks/toilets, as well as kicking sinks, now has a significant chance of breaking the furniture, turning it into a fountain.
+- Cursed unicorn horns are more dangerous to use, and mundane musical instruments or magical ones without charges can occasionally shatter when used.
+- Fixed an off-by-one error when the player levels up.
+- Dropping items from a height will no longer shatter them if they land on snow, sand or grass.
+- Enlightenment can now display the amount of turns for which a player will fumble intermittently.
+- Fixed an oversight that could cause the effects of health- and manastones to not be updated correctly.
+- Made high-level pets more likely to participate in combat, even with things that are quite a bunch of levels higher than themselves.
+- The HC converters' taunts can now occasionally cause random bad effects.
+- Effects that can lower the player's skill caps are much more significant now.
+- Fixed a segfault that could occur when Rodney's harassment summoned monsters around the player.
+- Using a touchstone now has a chance of it degrading.
+- Fixed a segfault that got introduced when making monsters able to block missiles with shields.
+- Added some higher-level shopkeepers and vault guards that are more dangerous than their vanilla counterparts.
+- Nurses now only offer specific services, determined when the monster is spawned, and they can run out, like shopkeeper services.
+- Entering a special room that is empty of monsters will no longer cause monsters on the level to wake up.
+- Autosearching is much less likely to find things now.
+- Temple priests and guards can fly now.
+- Monsters can now shoot at the player through boulders.
+- Reduced another bunch of vectors of item generation.
+- Armor pieces are less likely to spawn with random enchantments ("object properties").
+- Quaffing a potion of vampire blood no longer permanently polymorphs the player, and the monster to polymorph into is a random type of vampire instead of always being the plain "vampire" one.
+- Restored the ability to drop gold by selecting $ in the drop menu, fixing the bug where the game would say "The LRS would be very interested in knowing you had that much".
+- If the player unchecks all item types in the autopickup options menu, the character should now properly not autopickup anything (except thrown objects if pickup_thrown is TRUE) anymore instead of picking up everything.
+- Fixed the bug where alter reality wouldn't correctly re-initialize certain monsters.
+- Nerfed certain ranged weapons (especially ones with high multishot) for the player by reducing their to-hit.
+- Monsters in weird-looking rooms should always spawn hostile now, like monsters in other special rooms already do.
+- Eating poisonous corpses in soviet mode now drains much more strength than before.
+- The great wyrm of power summoned by defeating certain monsters now spawns frenzied.
+- The reverse identify and secure identify scrolls now cost more ink to write, and world fall as well as resurrection are no longer wishable nor can they be randomly more common than usual.
+- Fixed an oversight that caused the minimalist hybrid race's special effect to not always be in effect.
+- Overhauled the spellcasting system to make it much harder to reach 0% fail rate, while also nerfing some spells that were too strong and ensuring that it takes a long time to reach 2000% spell memory. However, metal spellcasting penalties are lower, making spellcasting in plate mail more feasible.
+- Several changes to make it harder to secure an endless food supply via stone to flesh.
+- Engraving with a wand can now cause it to explode, with the same chance as zapping it.
+- Symbiote tokens now have a failure chance, which is higher the lower the player's skill is.
+- Greatly lengthened the attire charm technique's timeout for most roles.
+- If the player is a vampire, polymorphing no longer always results in becoming a vampire bat.
+- Stone to flesh can now actually produce huge chunks of meat again when used on a boulder, with the originally intended 1 in 20 chance.
+
+2.6.2 - Jan 2020
+- Gavil and sheep players are capable of taming demons reliably.
+- Cannibalism and eating corpses that give aggravate monster will now only give temporary aggravate monster, however it can result in monsters coming out of a portal.
+- Special rooms now have less monsters and loot on average.
+- Added a new random effect that gives the player a nasty gray stone.
+- Toned down the zrutinator.
+- Players can now receive extra skill points by leveling past XL30, and high-level monsters will give more experience when killed.
+- Temple priests spawn with less spellbooks, especially as the game goes on.
+- Hopefully fixed a bug where crapping effects could leave the player semi-permanently blinded.
+- Fixed an oversight with zapping the wand of undead turning at a rider corpse.
+- Some shopkeeper services are more expensive and/or more likely to run out.
+- After the game ends, the player may now also see how much they used restricted skills.
+- Branch stairs and portals that don't lead to mandatory branches can now be placed completely randomly on a level, including in corridors on a rooms-and-corridors level.
+- Rebalanced the penalty for using heavy two-handed weapons.
+- Zapping monsters with the wand of haste monster will now make them fast even if they were slow before.
+- Fixed a bug when polymorphing into a monster while slimed.
+- Toned down the stronger versions of the three alignment key bosses that may be met when imbuing the Amulet of Yendor. Also, Cthulhu was moved to the elder priest level; a new boss is now the sidekick of the high priest on the sanctum.
+- Death ray resistance now also protects against touch of death.
+- Trees are less likely to randomly drop fruit. If a tree has already dropped fruit, cutting it down with an axe should no longer drop another fruit now.
+- Monsters that can cast spells will do so more rarely, and the mechanic for selecting which spell to cast has also been overhauled.
+- Increased the average timeouts for some techniques.
+- If the game goes on for long enough, effective monster difficulty starts to increase slowly, resulting in a higher chance of encountering high-level monsters.
+- The amount of artifacts in existence now has a lesser effect on the odds of gaining an artifact via sacrificing compared to before.
+- Potions of speed can reduce inertia, or completely cure it if blessed, and blessed ones also give intrinsic speed.
+- Fixed a bug with some practicant messages not showing the correct name.
+- Made credit cloning much harder to perform, by lowering sell prices (but not buy prices) for many item types and making it so that as soon as an item is sold in a shop, it can never be sold in any shop ever again.
+- Toned down some monsters on certain quests that were too annoying to defeat, sometimes introducing new, weaker variants of those monsters specifically for the quests.
+
+2.6.1 - December 2019
+- Monsters should spam breaths and similar ranged attacks less often.
+- The player starts with 2 skill slots that can be spent as soon as a skill has received enough training.
+- Some mechanisms of spawning random zorkmids spawn less of them on average.
+- The iron skin technique lasts longer on average.
+- Toned down the spell memory loss effect from the cyan spell trap.
+- Fixed an oversight that caused some monsters to still be hittable with attacks that shouldn't harm them.
+- Toned down the effects when monsters throw certain harmful potions at the player.
+- Fixed the bug from Vanilla NetHack that made artifacts with drain life effects not work correctly when a monster used them.
+- Thrones and pentagrams may rarely give the player an additional skill slot.
+- The amulet of strangulation now takes 10 turns to kill the player rather than 5.
+- Using a magic marker in evilvariant mode can drain the player's intelligence.
+- Improved the handling for doors that need specific artifact keys, found mostly on Vlad's tower. In particular, certain rewards that are supposed to be obtainable only with the correct key can no longer be obtained without the key now.
+- The player now gains extra skill slots upon reaching experience levels divisible by 10, and also when showing the quest artifact to their quest leader.
+- Fixed the oversight that allowed players to tell the real Amulet of Yendor apart from fakes via the materialglyph option.
+- The natalje trap effect now stops the player's occupation after a few turns, to ensure that multi-turn actions no longer automatically lead to losing stats and health.
+- Rodney's intervention happens less often in general now and the Zrutinator isn't guaranteed to spawn.
+- Implants are more likely to generate in containers.
+- Reduced the chance that an item in a shop is replaced with a mimic.
+- Many types of monsters now have additional "sounds" that they can make when they're a pet, which allows players to check their status via chatting, among other things.
+- A monster that has the steed egotype can now be saddled more easily.
+- Pets, steeds and symbiotes now have a reduced risk of getting attacked when low on health, but also a reduced chance of actively attacking monsters. This is done to increase their survivability.
+- If the player eats or sleeps while having a symbiote, the symbiote will be healed now.
+- Whip tricks can now be performed with all whip-type weapons except rubber hoses.
+- Certain sokoban penalties that were removed earlier will now be in effect again when playing soviet mode.
+- If a riding player moves, the steed can now retaliate upon getting hit.
+- Toned down monster swarms on some Sheol levels, and replaced guaranteed crystal ice golems with a weaker monster type.
+- Many terrain-altering effects now use a better algorithm to determine whether a tile should block sight or not.
+- Fixed some loopholes that would allow players to still get a full view of their inventory or containers while the inventorylessness effect was active.
+- The gun control and squeaking skills can now be trained at the normal rate if the player character is of the correct gender.
+- Confusion resistance only reduces the player's spellcasting failure chance when confused now, instead of removing it outright.
+- Successfully untrapping chest/door traps trains searching now, and breaking a wand that had charges trains devices by the amount of charges.
+- Pentagram and throne traps can no longer be more common.
+- Wands made of vivadoradorium no longer lose charges only 50% of the time if the type of wand can only be recharged once.
+- Toned down the reduction of loot that the player gets, so the player will now get more stuff than before (but there is still a gradual reduction). Also, weapon tools and sling ammo are now affected by the loot reduction.
+- If the player ignites a grenade or stick of dynamite, it now trains firearms skill.
+- Robes of weakness now reduce the player's strength when worn.
+
+2.6.0 - December 2019
+- Fixed a loophole that allowed the player to dig with artifacts without getting blasted.
+- Reduced the damage bonuses of Shii-Cho, Makashi and Vaapad forms.
+- Polymorphing a monster that has engulfed the player no longer unconditionally sets the monster's HP to 1.
+- Using the force on a farmland tile now properly updates the player's vision.
+- Fixed an error introduced in an earlier commit that would allow the player to turn on the second blade of lightsabers that don't actually have a second blade.
+- Removed the "couldn't load makemase.lev - making a maze" warning that appeared when we used our hacky way of forcing maze generation.
+- Stacks of health/manastones are less effective.
+- Riders and sins no longer revive when killed in freeplay mode.
+- Rebalanced the damage output of certain weapons.
+- When grave walls or farmland tiles are removed, the player's sight is now properly updated.
+- Several techniques have had their average timeouts increased.
+- Heavy two-handed weapons give an AC penalty for the player and are less effective versus tiny monsters but more effective versus gigantic ones.
+- Angelic beings are less likely to drop long swords and shields.
+
+2.5.9 - November 2019
+- Rebalanced the effect that farting monsters have in combination with toilets.
+- Tame nonmoving monsters were sometimes unable to finish eating food (so they would be eating forever and be unable to follow the player up/down a staircase), this has been corrected.
+- The player no longer automatically fails to ride a monster when confused or fumbling.
+- Fixed a crash when trying to apply a polearm at certain domestic monsters.
+- Fixed some issues with the elemental planes in bigslex, as well as a segfault on the plane of water in freeplay mode.
+- Trees no longer continue to drop ripe fruit while the player is on another dungeon level.
+- Symbiotes will occasionally be healed by a higher amount.
+- Increased the average timeout for the world fall technique.
+- Fixed a bug that caused missile weapons skill to sometimes be more effective at lower skill levels than it would be at higher ones.
+- The player can no longer price identify the BUC status of potions of water.
+- Fixed more bugs associated with the bigslex castle that would dump the player in unwalkable terrain when coming up from the valley of the dead.
+
+2.5.8 - November 2019
+- Fixed a bug in bigslex that could cause the player to be surrounded by solid undiggable rock when coming up to the castle from the valley of the dead.
+- Altered the bones file generation method which now allows every dungeon branch to have its own bones file pool, even when there are more than 26 bones-eligible branches.
+- Fixed the oversight that caused iron balls to not deal more damage when they were heavier unless they were a regular heavy iron ball base type.
+- The player can no longer try to write genocided or otherwise nonexistant scrolls.
+- Taking off the three specific alignment helmets should properly reset the player's alignment now.
+- Fixed a potential segfault with corpse names.
+- Cancelling a monster with Magicbane or similar weapons will now increase the player's maximum mana only if the monster wasn't already cancelled to begin with.
+- Monsters generated by reverse genocide should always be frenzied now.
+- Kicking a tree or sink, or messing with fountains etc., will now create a more diverse monster mix.
+
+2.5.7 - October 2019
+- Certain quest artifact tools are now much weaker when the player isn't of the correct role.
+- Fixed the issue with learning or forgetting techniques when the player has a recursion effect.
+- Sinking in lava or being affected by other detrimental terrain types now interrupts the player.
+- Disarming traps can now give experience points.
+- Did a bunch of changes that should make the game less brutally hard.
+- Being attacked by a nurse or successfully praying may reduce the player's sanity.
+- Fixed the problem that could cause certain characters to not always get all their level-up effects when they should.
+- Artifact gifts for items that don't have a skill associated with them will now unlock random skills.
+- Hopefully fixed a bug where sometimes tiles to the right of a highlighted tile would be gray regardless of the color they should have.
+- Spellbook generation can now sometimes be biased towards specific spell schools.
+- Quaffing from a well slightly reduces sanity.
+- The arduous mountain and machinery special rooms may sometimes spawn with an implant.
+- Being cancelled in evilvariant mode will temporarily reduce the player's magic cancellation.
+- In evilvariant mode, giants can try to crush the player.
+- Fixed the oversight that caused metal race player characters to have no weapon attack.
+- Toned down some of the bad effects that could affect the player's pets, and also made them a bit more capable of surviving. Petkeeping and riding skills will help.
+- Fixed an error introduced earlier which made healing wands and spells not work correctly on monsters.
+- If the player is pushed back, the target square can now once again also be one that has a trap, but the trap in question will not trigger.
+- The player can now enter symbiosis with stationary monsters, and there is also a new symbiosis skill.
+
+2.5.6 - October 2019
+- Some dangerous terrain types will now interrupt multi-turn commands.
+- Domestic metallivores, lithivores and organivores can now be tamed by throwing an appropriate object at them.
+- Added a fuzzer, which can be used for debugging the game.
+- Fracturing a hazy object into individual rocks will no longer result in a hazy stack of rocks that could be split to have each of them individually polymorph back into a copy of the original item.
+- If the player ascends, there is now an option to continue playing.
+
+2.5.5 - August 2019
+- Added another layer of security for the autorecover prompt.
+- Engravings on the floor now stop travel.
+- Item destruction by poison can no longer destroy potions of poison or sickness.
+- The automatic teleportation effect when reaching certain goals in the ZAPM branch can no longer be controlled if the player happens to have teleport control.
+- Flicker strip and fleecescript trap effects will now make every single letter fleecy-colored when the player character is hallucinating.
+- Fixed error messages caused by the different way of how armor class works for soviet race characters.
+- Fixed the possibility for undefined player race characters to start with large amounts of powerful items.
+- Player characters with expert riding skill can now ride cockatrices and other petrifying monsters without the danger of being petrified.
+- The player's conduct now displays a lot more statistics.
+- Wands of starvation used by monsters against the player are less powerful now.
+- Slightly improved the diamond barrier technique for the Mason role.
+- Hopefully fixed a savegame error that would occur when the game was checking for the player's implant during saving.
+- When the game asks the player which hybrid races they want to pick, they are now presented in alphabetical order.
+- Fixed the oversight that allowed certain spellbooks to still be price-identified.
+- Added some ways in which the player character can gain alignment points.
+- Fixed segfaults that could happen when changing dungeon levels while the game was displaying certain glyphs from the old level, as well as ones caused by the game trying to access item appearances during bones file creation.
+- Added more services when chatting to nurses.
+- Trying to do alchemy involving finalized potions is more dangerous now.
+- If a monster is generated with wearable equipment, it will be wearing it even if it normally wouldn't be able to (e.g. because it has no hands or is the wrong monster size).
+- Bad luck makes bleeding time out slower.
+- HC aliens may occasionally spawn with a shemagh.
+- Fixed the exploits and obj_is_local panic errors associated with reverse identify effects.
+- If the player bumps into a peaceful or tame monster that is hiding and has passive attacks, the passive attack should no longer trigger. It still triggers when bumping into a hostile monster though.
+- Changed the method for saving randomized stats monsters into the savegame file. This new method makes savegame files slightly bigger but should cut down on the potential of "forgetting" monsters when new ones are added.
+- Drowning in water doesn't instakill a player who has a lot of HP, but instead damages them quickly over time. This does not affect the drowning attack of eels, which are still an instakill.
+- Firearms and Vaapad skills add extra options when applying automatic firearms and two-handed lightsabers, respectively, as soon as they reach expert skill level.
+- Added the paranoidquit option, which is on by default and should never be turned off. If the player does turn it off, #quit can be confirmed by a simple 'y' which is highly dangerous.
+- Lawful characters gain a point of alignment whenever they purchase a shopkeeper service.
+- Higher sanity can occasionally replace regular messages with hallucinatory ones.
+- Being hit by a shuriken can cause the player to bleed.
+- Made it possible to try to perform a few more actions while not having the necessary hands, with the usual chance of failure and bad effects.
+- Huge monsters or players can still be engulfed as long as the engulfer is also at least huge size.
+- Fixed the vanilla bug where saving the game while punished caused errors and usually ate the iron ball or chain.
+- Scent view and echolocation no longer display all monsters.
+- For the undead slayer role, undead pets are always capable of turning traitor.
+- Spell retention values are now displayed in the enlightenment screen.
+- The damage done to the player by the nadja trap scales up more slowly.
+- Implants are picked much less often as the item class to generate more frequently.
+- Monsters are less likely to attack pets, and ranged monster-versus-monster attacks now take evasiveness, armor class, the presence of a shield and other factors into account.
+- If the player's sanity is greater than 90000, any further sanity increases will cause really bad effects.
+- Added some new item materials: sand, obsidian, ceramic, shadowstuff, lead, chrome and nanomachine.
+
+2.5.4 - August 2019
+- Moving into a detected monster should no longer cause the player to waste a turn. Now, the player will correctly attack the monster.
+- Monster-versus-monster hug attacks now take to-hit into account.
+- Fixed the bug where monsters could hit pets with gaze attacks through walls.
+- Hallucination messages are no longer suppressed by hallucination resistance, although the actual effects from hallucination still are.
+- The slowness effect from wearing fetish heels or velcro sandals now applies only if the player is moving.
+- Rooms-and-corridors levels should no longer spawn excessive amounts of special rooms in Gehennom or when playing bigslex.
+- Throwing weapons now gain multishot bonus from the missile weapons skill, while crossbows and certain types of firearms gain extra damage bonuses when their respective weapon skills are high enough.
+- Chatting to a nurse now offers a service to cure sanity, and quaffing from a fountain can also occasionally cure it.
+- Monsters no longer pick up switchers, chargers or ugh memory to create inventory windows.
+- New skills: gun control and squeaking.
+- New properties: scent view, echolocation and diminished bleeding.
+
+2.5.3 - July 2019
+- Monsters can use magic traps or potions of gain energy when cancelled to become uncancelled.
+- Polypiling is now a bit less likely to shudder an item.
+- Limited the length of a captcha string to ensure that the player doesn't get stuck with captchas that are longer than the maximum possible input length.
+- Fixed a bug where a side effect of the spell memory reduction effect would not trigger if the player's last spell on the list was a forgotten one.
+- In evilvariant mode, player monsters can now steal the Amulet of Yendor. If that happens on the Astral Plane, the monster in question can ascend and thereby end the game, which counts as a loss for the player.
+- Fixed a bug that caused hc converters to convert the game to nonexistant alignments.
+- The demon crossbow and catapult weapons have been nerfed for the player, and the catapult is now two-handed.
+- Artifact lockpicking tools can once again pick locks, but when a regular such tool would have broken, the artifact tool receives a flag that prevents it from being used for future lockpicking attempts.
+- Certain effects of the polymorphing and juyo skills now allow the player to opt out, in case the player feels that the effect is counterproductive in a given situation.
+- The blessing technique has a longer average timeout now, and the power surge technique gives less of a boost to Pw.
+- The scroll of mail no longer violates the illiterate conduct.
+- Cancelling a monster should now always remove its egotypes, if any.
+- The huge club and mancatcher weapons are two-handed now, and javelins are less effective when the player uses them in melee.
+- Fixed a bug that could cause the player's maximum HP to become negative due to passive touch of death effects.
+- The psybolt and open wounds spells used by monsters now deal half as much damage but also have other side effects.
+- Fixed a corner case that could lead to crashes when the player used multishot ranged attacks on monsters with certain passive effects.
+- Gaze attacks used by the player via #monster now scale in cost depending on the level of the player's polymorph form.
+- More monsters resist psi and/or light.
+- Fixed a bug where monsters could still sometimes get turns even if the player had stopped time.
+- Cancelled monsters may rarely spontaneously uncancel themselves.
+- Fixed incorrect calculations for the chance to remove fake artifact projectiles.
+- Robber hideouts can spawn monsters with amulet-stealing attacks now.
+- Smashing iron bars with a weapon now uses a new attribute instead of erosion, to determine whether the weapon will break.
+
+2.5.2 - June 2019
+- Certain yes/no prompts accept a simple "y" as a "yes" now.
+- Autodig interacts correctly with certain nasty traps now.
+- A few more messages force a --More-- now, unless the player disables the moreforced option.
+- Changed the downsides to the create monster and summon undead spells, and made trap creation more dangerous to cast.
+- The portal to Fort Ludios no longer requires a rooms-and-corridors level with a vault now, meaning it may generate on other dungeon levels too.
+- The astronaut role is capable of resisting permanent stat damage now.
+- The janitor role will now have to pay for trashed items in a shop.
+- Fixed a crash associated with punishment and engulfing.
+- Levitator race players can now push boulders.
+- Fixed a segfault that could occur when the player used a switcher; this was left over from the speaking artifact bugfix.
+- Hostile monsters can now use ranged attacks against the player's pets, and more melee attack types and other monster effects can affect pets now.
+- Drain life effects are less harsh on the player early on.
+- Fixed some corner cases where the missingno race could still segfault.
+- Intelligent monsters may occasionally spawn with food.
+- The hussy role gains alignment and can potentially find treasure when digging out grave walls.
+- Monster attacks should no longer teleport the player onto traps, due to potential segfaults when the trap in question teleports the player off the current dungeon level before all of the monster's attacks have been processed.
+- Changed an impossible message that had a tendency to segfault due to it expecting the name of a monster, which was not guaranteed to be a valid monster and could therefore have its name pointer pointing to an arbitrary location.
+
+2.5.1 - May 2019
+- Changed the function that pushes back the player to hopefully fix a weird segfault.
+- Monsters can now swing at pets in melee of their own volition, instead of only when the pet hits them.
+- Polearms now have damage bonuses versus steeds, and can dismount a riding player.
+- The #mark command cannot be used to make pets hold macguffins permanently.
+- If a pet misses a monster with a melee attack, the monster in question may now retaliate anyway.
+- Player characters of the jabberwock race are now too thick to fit through diagonal passages, and meleeing a monster will speed up the monster in question so that it can retaliate faster.
+- Corpses, eggs and other items that can be of a specific monster will now have pokedex entries when viewed in the item description screen.
+- Smashing iron bars with a weapon capable of doing so should now always damage the weapon.
+- Improved the sliming dialogue to make it more obvious for the player how long they have until they become a green slime.
+- Enhancing a lightsaber form skill won't always use up a skill point now.
+- For the slave master role, pets will tolerate much more abuse before revolting.
+- The riders and deadly sins will now always drop a corpse even if corpses cannot be generated, to thwart the tactic of genociding corpses that would allow players to easily get rid of them permanently.
+- Robes and mummy wrappings drop less often upon death of wraiths and mummies, respectively.
+- Fixed a loophole that allowed the player to gain information about their spells when certain nasty traps were supposed to obscure it.
+- Fixed a bug which may have been introduced earlier, that made monsters not always get angry when the player uses a gaze attack against them.
+- It's no longer possible to price identify the level of spellbooks or the enchantment value of weapons and armor.
+- Polymorphed items may sometimes not be hazy.
+- The charisma loss caused by a natalje trap can no longer be prevented with sustain ability.
+- Made the question posed by the #quit command more verbose to indicate that it will erase the game permanently.
+- Added the three stooges from Nethack 2.3e.
+- Implemented the sortloot patch.
+- When the player is engulfed, autopickup should no longer cause them to lose a turn instead of attacking.
+- Tried to make it more clear to players what the memorization skill does and how to use it effectively.
+- Fixed an oversight that caused the calculation for spell failure rates to be wrong.
+- Nerfed some status-curing spells as well as knock and wizard lock.
+- Dipping for Excalibur in evilvariant mode while confused can have unwanted side effects.
+- Added some effects to fountains and pentagrams.
+- Fixed a bug where plain eggs could sometimes petrify the player or monsters.
+
+2.5.0 - April 2019
+- Fixed the SLASH'EM bug that caused the game to crash if a punished player tried to move on the Plane of Water. With this bug fixed, the player can now also be punished on the Plane of Water again; in previous versions that was made impossible to "seal" the crash bug.
+- Attempted to fix a segfault on bones level generation, though whether the fix works remains to be seen.
+- Fixed a bug where the ZAPM roles would still start in the space base even when using lostsoul or other playing modes.
+- If the player uses the autodig option while wielding an artifact pick that would blast the character, every attempt to move into a wall can now trigger the blast just as if the player had tried to dig manually.
+- Fixed a bug where you could freely lie to vault guards if you didn't set an alias name for your character.
+- Dirge can now also be created via the Sporkhack method.
+- Fixed the date.h dependency issue that caused the game to be recompiled completely even if just a single source file was changed; this problem was introduced when the endgame dumplog screen was updated to show the version number.
+- Fixed a bug inherited from SLASH'EM where lightning spells could sometimes damage monsters that are immune.
+- Fixed a segfault that could occur when the player was subjected to the nastycurse effect.
+- Changed some more special rooms to make them less deadly when they spawn early.
+
+2.4.9 - April 2019
+- Fixed a rare crash that could occur when changing dungeon levels.
+- Toned down some monster spawn routines to make the game less of a slog.
+- Loosened the ascension turn clock a bit.
+- Improved maze level generation routines to make them more interesting.
+- Certain special rooms are less deadly if they spawn early.
+- Changed "cannot find the monster usteed" panic into an impossible, and fixed a segfault associated with it.
+- Fixed a segfault that could occasionally happen when changing dungeon levels.
+- Fixed a segfault that happened if an inka race player character shot projectiles without a launcher.
+- Added the memorization spell, and some functionality for the spellcasting menu.
+- Fixed some code that could occasionally freeze the game upon entering a new level.
+
+2.4.8 - March 2019
+- Toned down the bad effects that players are subjected to when falling into lava.
+- Reduced the chance of nymphs spawning with mirrors.
+- If the player is using both ZAPM and ironman/roommate modes, the first space base level now gets a grace period.
+- The player may now randomly gain the "The Force" intrinsic from pentagrams and lose it to gremlins.
+- Increased the maximum amount of spell memory a player can have for a spell to 2000% (was 700%).
+- Fixed the oversight that would assume a polymorphing monster's base level was 10 even when it wasn't.
+- Fixed the bug that could cause mushroom race players to be unable to use polearms.
+- Some RNG stuff that is determined at game start is not always present now, making the game easier on average.
+- Fixed a bug in the pumps minigame that could cause a female character to be kicked in the nuts.
+- Some sources of attribute loss take off less attribute points on average.
+- Fire traps are less likely to take off max HP.
+- Fixed an oversight that could cause unintended out of depth monster spawns in ZAPM mode.
+- Some types of low-level monsters no longer spawn with strong weapons, to reduce the odds of beginning players getting killed by them.
+- Greatly reduced the amount of time for which cursed spellbooks paralyze the reader.
+- If contamination would cause the player to lose wisdom, and the contamination counter is below 100, it can't kill the player anymore now.
+- Added some potions to the list of types that can be cleared by a unicorn horn.
+- The sin counter has a lesser effect on chokhmah attacks now.
+- Made the doorning trap effect less harsh.
+- Changed the effect of some scrolls and potions to make use-testing them less dangerous.
+- "Weak" monsters have less HP on average. They're also less likely to hit the player in combat and have less multishot with ranged attacks.
+- Ether items contaminate the player more slowly, and very low contamination can also sometimes go away on its own.
+- Fixed a bug that caused some random helmet to convey clairvoyance.
+- Several special monster attack effects are less common.
+
+2.4.7 - February 2019
+- Player monsters on the Astral Plane are no longer almost exclusively male.
+- Players of the HC alien race anger their gods when eating quadrupeds.
+- Fixed a bug that caused dryads to get cannibalism penalties.
+- Fixed the annoyance where moving into an I marker or warning symbol could waste a turn even if the player clearly intended to attack the monster.
+- Fixed an information leak associated with the knowledge trap.
+- Fixed a bug that caused the chances of random items in rooms to be all weird.
+- Fixed a bunch of panics in curses mode.
+
+2.4.6 - January 2019
+- Monsters using damage armor spells against the player will now remove erosionproofing in evilvariant mode.
+- Fixed the loophole where players could circumvent the wing yellow changer trap effect in curses mode.
+- Fixed an information leak associated with the mojibake trap.
+- If the player is on the level that has the portal to the Subquest, there can now be periodic messages hinting at its presence.
+- Rooms-and-corridors levels can use a few more room joining mechanisms now.
+- The line telling the player that an unknown command was used will no longer be displayed in the dumplog.
+- Fixed a panic that could occur if a mushroom used certain weapons at range.
+- Mushroom race player characters move slowly when not riding.
+- Monsters with healing spells will now heal more depending on their level.
+
+2.4.5 - January 2019
+- Fixed the error where saving and loading the game could trigger some on-equip item effects.
+- Really fixed the error where being zapped by a wand of cancellation would not interrupt the player's occupation.
+- Fixed segfaults if the player clicks with the mouse during character generation on Windows.
+- Shapeshifters are now less likely to polymorph into monsters whose levels are much higher than the base shapeshifter form's level.
+- Frenzied monsters deal less damage on average (but still more than non-frenzied ones).
+- Fixed the error that caused automore trap effects to persist even after the trap's effect has timed out.
+- Polymorphing an object will now only degrade it if it's being done via wand/spell.
+- If the player commits unallowed cannibalism, sanity will now increase.
+- Fix the oversight where invisible/nownsible trap effects were swapped.
+- Using traps via > is now possible even if the trap is invisible.
+- Increased the to-hit reduction of the wild slashing technique.
+- Fixed segfaults and bus errors when passive banishment attacks trigger.
+- Fixed a bug that could cause items to have the wrong weight, especially loadstones (possible game-ending bug).
+- Leaving bones or polypiling no longer unconditionally degrades items.
+- Dipping a too large stack of items into a potion of gain level will now correctly use up the potion.
+- A weapon that is thoroughly eroded can't be used to bash down iron bars anymore.
+
+2.4.4 - December 2018
+- Nerfed the power of the map level spell.
+- Using the search command should reveal the adjacent squares even if the player is not blind, useful when certain nasty traps are in effect.
+- Fixed the jousting chances with lances, which were broken in an earlier version by mistake.
+- The artifact bell's effect was nerfed.
+- Fixed a crash associated with Duri's services.
+- Nasty traps that can hinder movement in specific directions can no longer be circumvented by certain commands.
+- Writing a spellbook now keeps the original spellbook's charge count.
+- The automore trap now blocks the use of Ctrl-P.
+- Really fixed the error message spam caused by farting monsters, the earlier bugfix wasn't working.
+- If the player is standing on sand terrain, all damage is reduced by 20%.
+- Shopkeepers now have a credit limit depending on the depth of their shop. Trying to get credit past that amount will always fail.
+- Fixed the savegame error that could be caused by the game checking for a cursed called cloak when doing the ripe tree fruit check upon saving, introduced when that cloak type was added.
+- Added a playable ZAPM mode, activated via the OPTIONS=zapem option. This causes the player to start in the Space Base.
+- The intrinsic change effect should have an effect more often. It may now be slightly skewed towards losing an intrinsic.
+
+2.4.3 - December 2018
+- Fixed a potential corner case bug with the calm steed technique.
+- In evilvariant mode, certain wish sources can only be used for nonmagical items and don't break the wishless conduct.
+- The xlogfile now tracks the player's starting role and race.
+- Fixed the SLASH'EM bug that caused lightsabers to recharge over time when the player puts them in an ice box.
+- Fixed the SLASH'EM bug that caused cloned monsters to not have their weapon pointer emptied. This probably never happened in SLASH'EM because no multiplying monsters with weapon attacks existed.
+- Fixed the regions in the edited Vlad's Tower levels, and tried to make it harder to get to the items behind the artifact doors if you lack the keys.
+- The Gauntlet Key artifact door in Vlad's Tower no longer automatically unlocks.
+- Picking up the candelabrum or book of the dead should give the full-screen message only once.
+- Fixed a previously introduced bug that caused certain artifact effects to apply unconditionally even when they should be targetting specific monster types only.
+- Certain monster-summoning mechanisms can now also create frenzied monsters.
+- The presence of a weird-looking room makes teleport control likely to fail.
+- Teleport control allows the player to teleport on traps, which are triggered in the process.
+- Certain playable races get the good bonuses from implants despite having hands.
+- Fixed a previously introduced bug that caused all characters without the implants skill to have worse AC.
+- Displacing a peaceful monster should no longer result in drowning without a prompt.
+- Fixed bugs with monsters that use nemesis taunts without actually being the real quest nemesis.
+- Clockwork automaton speed was changed to be less slow.
+- The damage done by the water flame and volt rock spells is lower, and water flame also costs more mana to cast.
+- It should no longer be possible to restore strength loss caused by being weak from hunger when the player's mithril equipment prevented the strength loss from happening.
+- The damage done to the player by falling piercers now scales with the monster's level.
+- Snow reduces the player's speed by a lower amount if the player isn't moving, and can cause the freeze status effect.
+
+2.4.2 - December 2018
+- Trap disarming effects redraw the screen now to reflect the removal of traps.
+- Fixed the bug that caused alias name prompts to always say the character was neutral.
+- Fixed the bug that caused cloned saddled monsters to be impossible to saddle.
+- Fixed a bug that allowed octopodes to wear cloaks.
+- Permamimics and other problematic steeds can now be mounted.
+- If a pentagram unlocks a skill based on how much it has been used, the cap is now randomized.
+- Fixed some phantom crash bugs that were occurring on Ubuntu 18.04.
+- Some passive attacks that the player can have were affecting monsters that should be immune, this has been fixed.
+- Nerfed the scaling of summon team ant and booze techniques.
+- Fixed a segfault that could happen when trying to start the game with certain character classes.
+- Fixed the bug where feminist player characters with negative alignment could cause the game to freeze.
+- Several monster-versus-player ranged attacks are now harder to avoid.
+- Playable races with multiple weapon attacks don't get the extra attacks every single time. Instead, they have a chance of getting the extra attacks per attack attempt.
+- Monsters no longer automatically know where the player is when they're far away, with the "detection range" depending on sight, stealth and aggravate monster.
+- Putting "bgf" in a wishing prompt makes the item blessed, greased and fixed. With "bgfi" the same happens but the item additionally becomes invisible.
+- Fixed a potential segfault when a hallucinating player was on a level with a quest portal.
+- Potions created by the booze technique are finalized now.
+- Special levels should no longer replace grave walls with random other terrain types.
+- Added some effects to fountains and magic traps.
+- The game will really select monsters with passive attacks when that trait is requested.
+- Healing attacks should always do something specific to the player now, not just when it's a melee attack.
+- Players that are capable of eating walls can now also eat the top part of a water tunnel while flying.
+- Murdering NPCs on town levels can anger the watch now.
+- Rodney now has the Zrutinator as a pet.
+- Fixed the bug where players could select techniques that were beyond recall.
+- If the player's items are destroyed by rust, the game now mentions which item got destroyed.
+- Djinni from magic lamps no longer give bottles.
+- Fixed the buffer overflow when giving an alias name to the character.
+- If the player contracts a STD, their sanity increases.
+- Overhauled the speed system so that players no longer get excessive speed bonuses.
+- Duri the Blacksmith actually offers services when chatted to.
+- Bumping into a monster that has passive attacks can trigger those attacks.
+- Players can use the aklys, spined ball and chain-and-sickle weapons like polearms.
+- The illusory castle has more illusion rooms.
+- Double swimming now reduces the odds of water currents affecting the player.
+- Fixed the bug where if the game tried to destroy indestructible items, it would still say that one of your items was destroyed when it really wasn't.
+- Added two new attacks that monsters can use.
+
+2.4.1 - November 2018
+- Increased the rate at which the Djem So skill is trained.
+- In evilvariant mode, shoe monsters can attack with their sweaty inlays.
+- Monsters that trigger magic portals or recursion traps will reveal those traps now.
+- Items in crystal water are shown only if the player can reach them without having to touch the water.
+- Added a failsafe to a light source related function in the hopes of fixing a rare crash.
+- Carrying around another role's quest artifact, and especially equipping or invoking it, will increase the player's sanity and contamination, and reduce the alignment record.
+- Player's AC and to-hit are no longer capped at +-127.
+
+2.4.0 - November 2018
+- Fixed the bug that caused bad equipment/artifact effects to sometimes leave the player stuck with a phantom weapon in their hands that is not listed in the inventory screen and goes away when saving and loading.
+- Players with very good AC are a bit more likely to be hit now compared to before.
+- Fixed the error message spam caused by farting monsters, which was also introduced in an earlier version.
+- Fixed a bug that was introduced earlier which made it impossible to wear towels.
+- The Sword of Bheleu has a downside now.
+- Nerfed a bunch of lightsaber-related things.
+- Made contamination resistance more useful in the Gamma Caves.
+- Peaceful monsters should no longer make themselves invisible if you won't be able to see them.
+- Made it much harder to get a lot of protection from priests. The costs are the same but more donations are required on average.
+- Wearing an implant while in a form with hands gives less extra AC now, and if the player is also restricted in the implants skill they may actually make the player's AC worse.
+- The roommate race will now encounter special rooms on levels with branch entrances too.
+- Exploding wands deal less damage to low-level players to make them less of a game-ender.
+
+2.3.9 - November 2018
+- Darkness attacks deal extra damage to angels.
+- If the player is capable of oozing through doors, it should now work regardless of the open/closed state of the door and regardless of whether the player is trying to ooze into or out of the door.
+- Early on, the player hitting themselves with ray wands (rebounds) deals less damage to increase the player's survivability.
+- Certain special behavior in Sokoban no longer applies to the entire dungeon when playing a sokosolver.
+- Toned down the effect of deprovement traps.
+- Perfume monsters, odor shots and certain other things cause sanity now.
+- Perfume and converter monsters now have a higher than average chance of getting certain egotypes.
+- Made it less likely that the game ends up placing a branch stair/portal on top of an existing staircase.
+- Snails can no longer be forced to wear flat shoes.
+- Fixed a bug that caused many starting pets to have the player's cat name, if one was set.
+- In evilvariant mode, ghosts have aging attacks.
+- Every point in a lightsaber form gives a small chance of avoiding sanity.
+- Killing the quest nemesis makes clones of him even more likely to spawn.
+- Cursed weapons deal extra damage to angels.
+- Monsters in roommate rooms can sometimes spawn in walls.
+- Added a BIGSLEX define to config.h that can be turned on to make the dungeon levels much bigger.
+- Monsters can have ranged thorns now, an "attack" that retaliates if the player uses ranged attacks.
+- It's now possible to successfully pick a lock while under the auto destruct trap effect.
+- Nerfed the effect of the left inventory trap.
+- Having a property both intrinsically and extrinsically now improves its effect, and is also reflected in enlightenment.
+- Added a message when the player completes the Deep Mines.
+- Using the quest artifact for a prolonged time will increase the player's alignment record.
+- Turret-class monsters are nonliving now.
+- Artifacts that are supposed to drain life now actually do so.
+- The sokosolver can now #monster to create boulders or disarm traps.
+- Captcha and quiz trap prompts no longer get mangled by other nasty trap effects.
+- Fixed extrainfo bug that caused it to always report the player as being in Sokoban when playing the sokosolver race.
+- The pet attack directive can now be set so that pets will only attack hostile monsters.
+- The wing yellow changer effect now correctly switches back to the original tileset when it times out.
+
+2.3.8 - October 2018
+- Using #sit on a fountain while polymorphed into a coin monster gives a YAFM.
+- Randomly generated traps on Sokoban are much less likely to be ones that swallow boulders, and boulders will now plug giant chasms on Sokoban.
+- Fixed erroneous flag on snow rabbit monster.
+- Fixed an oversight that allowed players under the effect of a wereform trap to summon too many minions.
+- The wand/scroll of bad equipment will now force the player to equip the generated item even if it would burden them.
+- Artifacts with multiple attack effects can now actually use all of them.
+- Cursed potions of gain level can no longer transport the player to the plane of Earth when the amulet is not fully imbued.
+- Equipment with low enchantment values will dull less often.
+- Leprechauns and grid bugs no longer have artificially low monster difficulty.
+- Several nasty trap effects have been nerfed in effectiveness, making their effects more palatable for the player.
+- When the player is asked for an alias name, the game now uses the correct gender.
+- Polymorphing into jonadab-script-generated monsters is much more difficult for both players and monsters.
+- Fixed a bug in ruined churches that caused the spellbook to appear in an odd location.
+- Gods can now also give artifact gifts to player characters whose level is below 3.
+- Adjusted calculations for the fluctuating speed trap to make it nastier.
+- Prevent players from getting role-specific sacrifice gifts too often.
+- Early on, the player is protected from bad polymorph results if the polymorph was due to a trap.
 
 2.3.7 - October 2018
 - Fixed a bug that caused certain musical instruments to be tonal when they shouldn't be.
@@ -1404,7 +2025,381 @@ Changelog for SLASH'EM Extended, written by Amy, given in reverse chronological 
 - Added playable DQ Slime and Erdrick roles, and 7 new races.
 - In soviet mode, performing operations on stacks of items will always work again.
 
-(older stuff still needs to be added here)
+1.3.4 - August 2015
+- Eating corpses is much faster for both players and monsters.
+- Cthulhu no longer gets an Amulet of Yendor, because the high priest already has one.
+- Artifacts resist theft attempts with a certain chance.
+- New option "showlongstats" that shortens stuff displayed on the bottom status line for those who want to fit everything into an 80x24 terminal (the recommended terminal size is 80x25 though).
+
+1.3.3 - August 2015
+- The nasty trap effect that causes the player's items to repeatedly curse themselves triggers less often.
+- Tweaked the odds of items being heavily/prime cursed.
+- Made many boss monsters immune to disintegration.
+- Increased the average timeout of power surge.
+- If the player gains a level while already XL30, they now receive smaller boosts to maximum HP and Pw than before.
+- Wands of gain level and increase max hitpoints spawn with less charges and can only be recharged once.
+- Fixed a certain level freezing the game on loading.
+- Monsters will now only delete musable items if they were part of their starting inventory.
+- Certain beneficial effects happen less often the longer a game goes on.
+
+1.3.2 - August 2015
+- Pets are less likely to attack enemies when their own HP are really low or the enemy has a powerful passive attack.
+- Pets no longer attack shopkeepers, vault guards or priests.
+- Monsters are less likely to leave corpses, and molds grow on corpses less often.
+- Vampire and ghast race player characters gain more nutrition from corpses.
+- Reduced the frequency of the unidentify trap effect.
+- Some monster generation mechanisms specifically avoid spawning troves.
+- Monsters no longer always levelport after stealing an alignment key.
+- Uncursed food is less likely to be rotten.
+- Added faux artifact items, which are given names from a list that make them look like artifacts.
+- Fake amulets of Yendor weigh 500 and can't be dropped.
+- Energy regeneration now causes hunger. Also, regular regeneration can no longer be hungerless when granted by an artifact.
+- Armor pieces can have egotypes, i.e. an additional enchantment that the player benefits from when wearing the item in question.
+- Halved the # of levels and items forgotten by amnesia.
+- Fumbling can rarely drain INT/WIS or cause amnesia.
+- Player characters who lack a head don't get the bad effects from falling down stairs.
+- The player should no longer waste a turn when moving into a hidden monster seen only by monster detection. Instead, the proper response from the game is that you attack the monster.
+- Players dying in corridors can now leave tombstones in a bones level.
+- Boss monsters have extra HP compared to regular monsters.
+
+1.3.1 - August 2015
+- Tried to seal the segfaults that happen with monsters that have the %s string in their name. This involves players no longer being able to wish for items of a specific monster (corpse, statue, figurine etc.); you can now only wish for "figurine", "statue" etc., and it will give a random level-appropriate one.
+- Casting a spell that can give a blessed equivalent of a potion/scroll effect will give that effect less often if the player's spell skill is low.
+- Lowered the duration of player-cast paralysis spells.
+- Certain items have MC values greater than 3 now.
+- Shields give different amounts of AC than before.
+- Banishment and warping can once again deposit the player in Gehennom.
+- Floor tiles can randomly turn into rock over time.
+- Items embedded in rock can now also be generated on special levels.
+- Made terrain-altering scrolls more powerful, by allowing them to work in some places where they used to do nothing.
+- If the player has the Amulet of Yendor and tries to cast a spell while having enough mana to cast it without the amulet, they will always attempt to cast it now, and if the amulet-caused cost increase would make it too expensive, the player's Pw is drained to zero.
+- When trying to overcast a spell, the game will not tell the player in advance what the cost would be; that information was moved to after you say no to the prompt.
+- Nerfed the godmode, finger of death, petrify and disintegration spells. Also, spells/wands of disintegration can now destroy items on the ground.
+- Trap detection only has a 50% chance per trap to actually reveal it.
+- Falling down stairs can drain INT/WIS or cause amnesia.
+- If the player is damaged by a mind flayer's blast, there's a small chance of getting amnesia.
+- Very rarely, all boulders on a sokoban level are invisible.
+- HP damage from eating poisonous, acidic or too old corpses now scales with the monster's level.
+- Fixed the bug where levels on Vlad's tower could be replaced by random other levels, rendering the game potentially unwinnable when Vlad's level was replaced that way.
+- Fixed a bug that allowed monsters to smash artifact doors.
+- Unidentified items can now merge onto identified stacks, as long as the stack it will be merged into doesn't lack any known flags present on the to-be-merged stack. Example: "a dagger" will merge into "a +0 dagger" if they're otherwise identical, but "a blessed dagger" will not merge into "a +0 dagger".
+- Jubilex can correctly split now.
+- Entering special rooms is more likely to wake up nearby monsters.
+- Occasionally, amnesia can remove several of the player's known spells at once.
+- Removed the ability of vampire mages to grow up into vampire dazzlers.
+- Added new stuff that can spawn in weird-looking rooms.
+- Thrown boulder damage now scales with the thrower's level.
+- Manipulating a stack of items can fail if the # of items in the stack is large enough. This applies both for beneficial manipulations (dipping 5 scrolls of enchant weapon into holy water works 1 in 5 times and otherwise wastes the potion) and detrimental ones (a stack of 200 shuriken has 1 in 8 chance of being affected by the wand of corrosion and will otherwise be unaffected).
+- Fixed a bug with the wounded legs timeout.
+- Mimics are less likely to mimic statues and more likely to mimic boulders.
+- Improved the AC granted by regular armors, e.g. plate mail.
+- The repair armor spell now allows the player to choose the item that can be repaired.
+- Fixed a bug associated with the frequency of the uninitialized -1 monster.
+- The rogue level is compiled into the game by default now, and some of its rules have been softened.
+
+1.3.0 - August 2015
+- The player can still fiddle with locks even in a form without hands.
+- Monks can now properly hit monsters with enchantment resistance by kicking them with appropriately enchanted boots.
+- The player can use the #force command on monsters, and it also works when wielding iron balls or chains.
+- Some monster species are never generated randomly and some others are generated more often than they normally would, determined at game start.
+- Some items are generated more often than they normally would, determined at game start, while some other items won't generate at all.
+- In-game item descriptions now include color, material and appearance.
+- Occasionally a level will be seeded with "useful" items.
+- Items can be heavily/prime cursed.
+- Magic resistance helps prevent the effect from scrolls of destroy armor read by monsters.
+- Occasinally, a bones level file will not be deleted when it is loaded, allowing other characters to find it again later.
+- If the player tries to pray while confused, there's a tiny chance to accidentally pray to the wrong deity.
+- Fixed the bug where martial arts would do nothing and be impossible to train if the player was unskilled.
+- Reduced the chance of fire traps spawning in Gehennom.
+- For rodneyan race player characters, uncommon monsters are just as common as regular ones.
+
+1.2.9 - August 2015
+- If the player is killed by a soldier ant, the death message will say "Go Team Ant!"
+- High-level deathmold player characters have more polymorph forms to choose from.
+
+1.2.8 - July 2015
+- Monster groups that sometimes create monsters of the same letter instead of the same species now use a slightly different calculation.
+- Spellcasting skill and spell memory will decrease failure rates of spells now.
+- Fungi that don't decay will also no longer revive.
+- Blessed items are more resistant to water/lethe damage.
+- Scrolls of flood are less likely to create a pool underneath the player.
+- Reduced the chance that musable items are removed when a monster dies.
+- Some monster species are uncommon now, which is used to control the frequency of difficult ones spawning.
+
+1.2.7 - July 2015
+- Occasionally, weird dungeon level creation effects can affect dungeon level 1 (normally it's grace period).
+- Most item-cancellation effects are less likely to affect blessed items.
+- Toned down the odds of items being damaged by water.
+- Added sokosolver and specialist (hybrid) races.
+
+1.2.6 - July 2015
+- Some roles have effect level bonuses for certain types of items, making them stronger and less likely to be resisted by monsters.
+- Fixed a bug with some new gem types that caused prices to be off in shops.
+- Applying a polearm repeatedly can now disenchant it, or break if it's already +0 or lower.
+- Occasionally, a player character that loses alignment points will be punished.
+- Occasionally, wishing for an object will greatly reduce the player's luck.
+- Very rarely, going from one dungeon level to another via stairs will cause traps to be placed on the new level, even if it was one that the player had visited before.
+- Zapping a wand while impaired may result in it exploding.
+- Eroded tinning kits may sometimes create cursed tins even if the kit itself wasn't cursed.
+- Sometimes, Asmodeus's cold spell will deal much more damage.
+- Sometimes, the riders may be covetous or demonic, or even both.
+- Unicorn horns no longer automatically vaporize if the player gets unlucky; instead, positively enchanted ones will lose enchantment and may also lose BUC.
+- Ray spells/wands are more likely to hit targets.
+- Wands and other items with an effect level will now scale with the player character's experience level.
+- Increased the base prices of some weapons.
+- Fixed the oversight that caused monster-thrown potions of cancellation to cancel everything in the player's inventory unconditionally.
+- Status lines will now report some status ailments that weren't displayed before.
+- Spheres summoned by the player can no longer be farmed for items.
+- Vampiric pets can no longer repeatedly drain the same corpse.
+- Certain types of footwear add bonus damage if the player is using martial arts.
+- Added "showmc" and "showmovement" options, which can be used to control whether the bottom status line displays the player's magic cancellation and base movement rate.
+- Certain dungeon features can be generated on all maze tiles now.
+- Greased armors will now be protected from scrolls of destroy armor read by monsters, but may lose their grease in the process.
+- Fixed a loophole that still allowed the player to access the "show previous messages" command if it was deactivated.
+- Introduced a hangup penalty that will trigger if the player hangs up at a prompt, in an attempt to thwart cheating attempts.
+
+1.2.4 - July 2015
+- Moved the showdmg message after the actual HP reduction to make it harder for players to hangup cheat the damage away.
+- If the player is about to enter a lava tile or attack a peaceful monster, hitting y will give an extra yes/no prompt. This eliminates the problem where vikeys users have to be very careful when moving in the direction represented by y, but doesn't screw up the muscle memory of players who used to dismiss the y/n prompt with the space bar.
+- The warper race now has a reduced chance of getting sucky polymorph forms.
+- Highly enchanted armor pieces are now resistant to monster-read scrolls of destroy armor.
+- If a monster polymorphs by using an item (potion, wand...) its new form will have full HP now.
+- Uncontrolled player polymorphs are more likely to result in a useful form.
+- Most unique monsters can now be randomly generated.
+- Monster group spawning was toned down somewhat.
+- Fixed a segfault when the game tried to spawn an uncommon monster but failed to find one.
+- If the player somehow ends up with a tame monster of a species that normally cannot be tamed, the monster in question is now much more likely to spontaneously become hostile.
+- Shopkeepers, aligned priests and watchmen cannot be tamed now and also have the traitor flag.
+- Fixed fallthrough bugs when keystone kops were summoned by an angry shopkeeper.
+- Adjusted the spawn frequency of fungi to make them less common.
+
+1.2.3 - July 2015
+- Shopkeepers calling the kops should now also result in kops being spawned if the level is already full of monsters, as long as there's still empty space.
+- Monsters that spawn in groups will occasionally spawn with other monsters of the same letter, instead of a group made up of only one species.
+- Fixed bugs where certain exploding wands didn't have their proper effects.
+- Fishes are now considered vegetarian food.
+- Added Failed Existence and Murderer roles.
+
+1.2.2 - July 2015
+- Fixed a previously introduced bug that caused pets to lose their inventory items whenever they tried to drop something.
+- If a player has high riding skill, the steed's HP will recover faster.
+- Fixed the bug that made the "Ring them Around" sokoban level impossible to solve.
+- Fixed a possible compiling issue that could make the game segfault on unix.
+- Scrolls of proof armor now allow the player to select the piece of armor that can be enchanted.
+- Added a compile-time flag that can turn off certain bits of information regarding the pokedex.
+- Added bastard and undefined races.
+- All sliming monsters work like the green slime now, which means that e.g. eating their corpses will slime the player.
+- Fixed the bug where reading certain scrolls off the floor wouldn't remove them.
+
+1.2.1 - June 2015
+- Fixed the issue that caused the game to lag when creating a statue trap.
+- Heavy iron balls created by punishment are no longer always +1.
+
+1.2.0 - June 2015
+- Random eggs may occasionally have the player's markings, causing them to spawn tame.
+- Monsters no longer have reduced corpse drop odds if their frequency is exactly 1.
+
+1.1.9 - June 2015
+- Fixed a bug with the magic mapping spell.
+- Fixed an information leak that allowed the player to find out what an item is when blind.
+- Fixed the bug where certain breath attacks would segfault if a polymorphed player tried to use them.
+- High spellcasting skill will now make failed spellcasting attempts use less mana.
+- Disabled artifacts being shown on the discoveries screen; they were re-enabled in a later version.
+- Fixed a bug where artifacts with the "protection" effect would cause the bonus to stack when it shouldn't.
+- Fixed a bug with the wallwalking monster egotype that caused monsters to spawn in walls even if they didn't have the egotype.
+- Fungi have a bigger chance of spawning with egotypes compared to other monsters.
+- Fixed some parser bugs that made it impossible to wish for certain types of gray stones.
+
+1.1.8 - June 2015
+- Fixed the bug where a deaf player would sometimes become capable of hearing again prematurely.
+- The cannibalism penalty's magnitude now depends on the player's alignment.
+- The uninformation trap now prevents the player from viewing the discoveries screen.
+- Artifact unicorn horns are less likely to turn to dust.
+- Fixed a segfault with the uninformation trap.
+- Toned down the message spam on item-stealing gaze attacks.
+- Tins and eggs now have a chance of spawning already identified.
+- Sessile monsters may occasionally get turns now.
+- Rarely, a monster may be generated with an egg in its starting inventory.
+- The player has an extra saving throw against the disrobing attack of item-stealers.
+- Monsters can now have egotypes.
+- Fixed the bug with the death message of a player killed by a gray fungus.
+- Item-stealing monsters no longer always teleport away after stealing something.
+- Fixed a bug where the scroll of food detection wouldn't always work properly.
+- Reduced the odds of crashing the game if a chained heavy iron ball is destroyed.
+- Tunneling monsters moving through undiggable rock (due to also being phasing) no longer spam the game with error messages.
+- Monsters will now pick up and use scrolls of fire.
+- Sitting on a throne has more effects to choose from.
+- Monkeys are more likely to successfully steal items, but item-stealers in general are less likely to succeed.
+- Vlad's Tower is now accessed from Sheol.
+- Potions of oil no longer abuse wisdom if a clockwork automaton player character quaffs one.
+- The artifact keys from alignment quests will no longer go into containers.
+- Monster difficulty calculations now take the monster's movement speed into account.
+- Made maze levels more random.
+- Fixed bugs with the scroll of consecration.
+- The monster spell that reduces the player's strength is less powerful now.
+
+1.1.7 - May 2015
+- Fixed bugs with null or randomizer lostsoul player characters.
+- Vlad's Tower now has special rooms that require artifact keys to reach.
+- Monsters can now pick up items on their tile before moving.
+- Fixed an oversight that caused quest leaders, shopkeepers and priests to sometimes change levels with the player when they shouldn't.
+- Maze levels may now have interesting dungeon features.
+- Highly skilled player characters will deal more damage with weapons.
+- After a player uses a staircase, there's now a small chance that using stairs becomes impossible for a period of time and hostile monsters are spawned around the player upon entering the new level.
+- Scrolls that create dungeon features will now cause those dungeon features to block the player's line of sight.
+- Implemented the showsym patch.
+- Rooms can now be irregular sometimes.
+- Many changes to dungeon level generation, especially concerning the chance of unusual terrain types appearing.
+
+1.1.6 - May 2015
+- Occasionally, a pet may walk over a cursed item without the "moves only reluctantly" message.
+- More aspects of randomized appearance items will be shuffled now.
+- Revised the way out of depth monsters are generated, by no longer making it depend on the amount of monsters that would be out of depth. Instead, the game rolls a maximum level that the spawned monster can have, and then selects one at random that fulfills the requirement. Also, they're no longer skewed towards very low-level monsters if the player's experience level is low.
+- The rage eruption and power surge techniques can now also be used by a polymorphed player.
+- Gremlin attacks can also steal temporary intrinsics now.
+- Fixed bugs when a cockatrice race player character tried to eat a corpse.
+- Fixed an oversight that caused the "ak Thief is dead!" race to not get all of its special effects.
+- Flying players can now pick up items from a pit.
+- Statues of very small monsters are no longer prevented from containing a spellbook.
+- Whetstones can now break if used often.
+- Shield block chance is displayed in the enlightenment screen now.
+- A player with food appraisal will see an "Oversatiated" display on the status line when their nutrition is at a critically high level.
+- Players can now score critical hits with weapon attacks.
+- Some monsters that aren't supposed to be visible to the player are now prevented from showing up in the creatures killed screen.
+- The player's maximum alignment record is calculated dynamically now, and increases more slowly if it's already very high.
+- Improved the edibility of trove corpses; vampires can eat them now, and they shouldn't be rotten anymore.
+
+1.1.5 - May 2015
+- If the player gains intrinsic acid or stoning resistance from a corpse, there's now a 1% chance for it to be permanent.
+- Player race vampires once again have weapon attacks; due to an earlier change they erroneously lost that ability.
+- Getting a four-leaf clover while the player's luck is negative now only gives one point of luck back, instead of unconditionally setting it back to 0.
+- Fixed a bug that was introduced earlier, which allowed animals to wear armor.
+- Cockatrice player characters that managed to eat a heavy iron ball should no longer panic.
+- Sticky attacks used by monsters now give a message.
+- Implemented the epitaph patch, which allows the player to leave a gravestone message upon dying.
+- Sometimes, the game generates a bunch of random items on a dungeon level.
+
+1.1.4 - April 2015
+- Occasionally, items will spawn with some parts of them already identified.
+- Occasionally, the player will regenerate an extra chunk of HP or Pw.
+- Monsters can randomly generate invisible now.
+- Fixed a bug that caused batman race player characters to not always get the correct boomerang skill level.
+- Rarely, a monster that spawns in groups can spawn in larger than usual group sizes.
+- Fixed a bug where special rooms would spawn in rooms that have an upstair.
+
+1.1.3 - April 2015
+- Increased the nutrition span from weak to oversatiated. Famine's attacks now drain more nutrition per hit.
+- A hallucinating player will no longer get a confirmation from trying to step on a visible trap.
+- Gravestones in special rooms can now have buried items.
+- Fixed impossible messages appearing for elemental race players.
+
+1.1.2 - April 2015
+- There will now be one monster glyph that's ungenocidable in a given game, and one monster glyph that spawns more frequently.
+- If a monster steals an item from the player, it may now rarely receive a levelporting scroll. If the stolen item was an artifact, the scroll is always generated.
+- Eating a shapeshifting monster has a small chance of conveying intrinsic polymorphitis.
+- Permanently converting to a different alignment will greatly increase the average prayer timeout.
+- Quaffing from a fountain has a small chance of instakilling the player.
+- Shopkeepers and temple priests occasionally generate with a cloak of invisibility.
+- Nymphs occasionally spawn with a scroll of root password detection.
+- Quaffing from a sink has a chance of generating a green slime.
+- Human-sized or larger monsters with legs have a greater chance of kicking down doors.
+- If a bones level is loaded, it will have additional monsters spawned on top of the ones that were already there when the previous player died.
+- Eroded wands can explode when zapped.
+- The player's HP and Pw regeneration rates are halved while standing on an active Elbereth engraving.
+- Monsters with exactly 1 HP completely ignore Elbereth, scare monster and temple sanctuary effects.
+- Slightly increased the chance of a monster attacking the player in a temple sanctuary.
+- Vaults may occasionally contain a bunch of sleeping liches.
+
+1.1.0 - April 2015
+- Fixed a bug that caused certain special room types to almost never appear.
+- The player still has a minuscule chance of being affected by wands of cancellation even when magic resistant.
+- Fixed bugs that caused rodneyan player characters to not always receive the correct spellbooks upon leveling up.
+- Pets no longer attack Izchak.
+- Filler levels can now be replaced with random special levels sometimes.
+
+1.0.9 - April 2015
+- Hitting Ctrl-X will now display the player's HP and Pw.
+- The display loss trap prevents the player from seeing showdamage-related messages.
+- Monsters sometimes follow the player up or down staircases when adjacent.
+- Monsters with multiplying attacks no longer have death drops.
+- A few trap-related messages now force a --More--.
+
+1.0.8 - April 2015
+- Fixed a segfault with monsters that use a wand of digging.
+- Reduced the chance of projectiles breaking. However, magical gray stones now have a chance of breaking when used as a ranged weapon.
+- The player can now have hybrid races. At this point they could only be selected in tty mode.
+
+1.0.6 - March 2015
+- A monster that polymorphs into a creature of base level 50 or higher no longer receives excessive boosts to its HP.
+- The main missingno race crash no longer happens unless the player disables the missing_safety option.
+- Rodneyan race player characters now see monsters that are holding macguffins, and can revive on death.
+
+1.0.5 - March 2015
+- Special game modes like lostsoul or blindfox are birth options now instead of depending on the player character's name.
+
+1.0.3 - March 2015
+- Blessed scrolls of genocide and mass murder are more powerful.
+
+1.0.2 - March 2015
+- Implemented some segfault fixes from NAO.
+- Teleporting onto a sink while wearing levitation boots no longer segfaults.
+- Implemented the bones pool patch that allows several bones files per level to exist.
+- If the player dies while helpless, the death message now shows why they were helpless.
+- Applied the livelog patch.
+- Missile flurry technique was improved.
+- Rocker and hobbit get multishot bonuses when using a sling.
+- Ctrl-T teleportation no longer fails if the player had exactly enough mana to use it.
+- Applied the statuscolors patch.
+- Fixed the bug where level teleporters could occur on no-teleport branches of the dungeon.
+- Firearms that shoot single bullets had their range increased while automatic ones had it decreased.
+- Wearing racial equipment gives damage or AC bonuses to the player.
+- Sokoban boulders may sometimes be generated invisible.
+- Players can now block projectile attacks with shields or evade them with a chance based on experience level.
+- Higher level soldier types only have one weapon attack now.
+- Soldiers no longer always spawn with grenades.
+- Monsters with firearms will fire them at their actual range now.
+- Monsters use polymorph items in a smarter way.
+- Wishing for a stack of ranged weapon ammo now allows to wish for up to 100 projectiles.
+- Fortunes from eating food can affect the player's luck now.
+- Some branches that used to disallow the generation of bones files can now generate and load them.
+- Made it easier to keep spells memorized when casting them a lot, and the spellcasting skills also train slightly faster than before.
+- Weapons are more likely to generate with a non-zero enchantment value.
+- Monsters using gaze attacks now take the attack's actual damage dice into account now.
+- Status effects can sometimes be "heavy", i.e. unfixable other than by waiting them out.
+
+1.0.1 - February 2015
+- Pick-axes are more common.
+- Fixed a crash with the wand of banishment.
+- Spirit race player characters are resistant to stoning now.
+- Corrected the issue with monster difficulty for very high-level monsters that was causing them to spawn too early.
+- Some powerful spells have had their base level increased.
+- The player can only use #youpoly a certain number of times, depending on their race.
+
+1.0.0 - February 2015
+- Fixed a segfault that happened when a monster died to its own reflected wand beam.
+- The showdamage option now also displays the player's remaining amount of HP in the top line.
+- Monsters can now have multiple passive attacks.
+- Players polymorphed into spellcaster monsters do extra melee damage now.
+- Unseen monsters firing projectiles at the player now give a message.
+- Cursed luckstones and healthstones can no longer be dropped.
+- If the game requests a monster that cannot move, it can now also pick sessile ones with a movement speed greater than zero.
+- A player trying to polymorph into a high-level monster may randomly fail.
+- Techniques now display what they do when selected.
+- Slings now do more damage depending on the player's strength.
+- Food appraisal now warns the player of hallucinatory corpses, among other things.
+- Implemented the hilite items patch.
+- Fixed the bug where artifacts with internal index numbers greater than 127 were malfunctioning.
+
+0.9.8 - February 2015
+- Being on a level that has an alignment quest portal will occasionally give a message.
+- The drain resistance flag on artifacts now works.
+- Fixed the issue where quest nemeses would very rarely actually use the quest artifact.
+- The undertaker role now has the pick-axe skill.
+- The locksmith role is more proficient at picking locks.
+- Some roles get messages about a monster's health status.
+- Land-based monsters can now attack underwater player characters.
+
+Everything from the first version to 0.9.7 wasn't under version control, but we may eventually add the older changes in a random order here.
 
 :-) <3 *bundlebundlebundle* <3 :D
 

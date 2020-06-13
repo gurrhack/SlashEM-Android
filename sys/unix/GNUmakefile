@@ -206,7 +206,16 @@ QUEST_DES = Abuser.des Acid.des Act.des Altmer.des Amazon.des		\
  Zooke.des Murderer.des Failed.des Camper.des Slime.des Erdrick.des	\
  Feminist.des Form.des Nuclear.des Scholar.des Tracer.des	\
  Element.des Chaos.des Occult.des Wildtal.des Kurwa.des Prost.des	\
- Acu.des Hussy.des Mason.des
+ Acu.des Hussy.des Mason.des Demago.des Cellar.des Grenad.des \
+ Walsch.des Social.des Cyber.des Dissi.des Astro.des Crack.des \
+ Janit.des Smarin.des Yautja.des Xelnaga.des Weirdboy.des \
+ Stormboy.des Empath.des Psyker.des Software.des Quarter.des \
+ Mastermi.des Tosser.des Symbia.des Pract.des Millsw.des \
+ Gender.des Fjorde.des Emera.des Combat.des Aklyst.des Drag.des \
+ Carto.des
+
+
+
 
 SPEC_DES = beholder.des bigroom.des blkmar.des castle.des compu.des	\
  dragons.des endgame.des exmall.des forge.des frnknstn.des levgn.des		\
