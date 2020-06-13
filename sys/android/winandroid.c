@@ -747,13 +747,20 @@ int *color, *attr;
 	return FALSE;
 }
 #endif /* MENU_COLOR */
-void and_add_menu(winid wid, int glyph, const ANY_P *ident, CHAR_P accelerator, CHAR_P groupacc, int attr, const char *str, BOOLEAN_P preselected)
-{
-	int tile, color;
-	if(glyph == NO_GLYPH)
+
+static int get_tile_from_glyph(int glyph) {
+	int tile;
+	if(glyph == NO_GLYPH || glyph < 0 || glyph >= MAX_GLYPH)
 		tile = -1;
 	else
-		tile = glyph2tile[glyph];
+		tile = (int)glyph2tile[glyph] & 0xFFFF;
+	return tile;
+}
+
+
+void and_add_menu(winid wid, int glyph, const ANY_P *ident, CHAR_P accelerator, CHAR_P groupacc, int attr, const char *str, BOOLEAN_P preselected)
+{
+	int tile = get_tile_from_glyph(glyph), color;
 
 #ifdef MENU_COLOR
 	if(iflags.use_menu_color && get_menu_coloring((char*)str, &color, &attr)) {
@@ -976,15 +983,11 @@ int nhcolor_to_RGB(int c)
 void and_print_glyph(winid wid, XCHAR_P x, XCHAR_P y, int glyph)
 {
 	//debuglog("and_print_glyph wid=%d %dx%d", wid, x, y);
-	int tile;
-	if(glyph == NO_GLYPH)
-		tile = -1;
-	else
-		tile = glyph2tile[glyph];
+	int tile = get_tile_from_glyph(glyph);
 	int ch;
 	int col;
 	int special;
-	mapglyph(glyph, &ch, &col, &special, x, y);
+	mapglyph(glyph, &ch, &col, (unsigned*)&special, x, y);
 
 	special &= ~(MG_CORPSE|MG_INVIS|MG_RIDDEN); // TODO support
 	if(!iflags.hilite_pet)
