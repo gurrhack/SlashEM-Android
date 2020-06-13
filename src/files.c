@@ -1316,7 +1316,6 @@ get_saved_games()
 		    char* r;
 		    sprintf(filename,"./%d%s",uid,name);
 		    r = plname_from_file(filename);
-		    debuglog("%s", r?r:"noname");
 		    if ( r )
 				if(j==0 || strcmp(result[j-1], r))
 					result[j++] = r;

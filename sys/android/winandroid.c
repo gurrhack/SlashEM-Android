@@ -1630,7 +1630,7 @@ void get_ext_cmd_auto(const char *query, register char *bufp)
  */
 int do_ext_cmd_text()
 {
-	debuglog("do_ext_cmd_text");
+//	debuglog("do_ext_cmd_text");
 
 	int i;
 	char buf[BUFSZ];
