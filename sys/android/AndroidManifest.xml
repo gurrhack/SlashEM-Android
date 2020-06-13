@@ -2,8 +2,8 @@
 <manifest
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.tbd.slex"
-	android:versionCode="2370"
-	android:versionName="2.3.7"
+	android:versionCode="2660"
+	android:versionName="2.6.6"
 	android:installLocation="auto">
 	<uses-sdk android:minSdkVersion="7"
 	          android:targetSdkVersion="15"/>
