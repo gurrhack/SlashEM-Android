@@ -72,9 +72,9 @@ x11big3dtiles.map:	x11tiles.map
 	cp x11tiles.map x11big3dtiles.map
 
 beostiles: ../util/tile2beos ../win/share/monsters.txt ../win/share/objects.txt \
-				../win/share/other.txt
+			../win/share/other.txt
 	../util/tile2beos ../win/share/monsters.txt ../win/share/objects.txt \
-				../win/share/other.txt
+			../win/share/other.txt
 
 gltile16.png: ../util/tile2png ../win/share/monsters.txt ../win/share/objects.txt \
 				../win/share/other.txt
@@ -223,7 +223,7 @@ Info.plist: ../win/Qt/Info.pli
 ../util/xpm2img.ttp:
 	(cd ../util ; make xpm2img.ttp)
 nh16.img: ../util/tile2img.ttp ../win/share/monsters.txt \
-				../win/share/objects.txt ../win/share/other.txt
+                              ../win/share/objects.txt ../win/share/other.txt
 	../util/tile2img.ttp nh16.img
 
 rip.img: ../util/xpm2img.ttp
@@ -345,7 +345,14 @@ spec_levs: ../util/lev_comp \
 	Occult.des Element.des Chaos.des Wildtal.des \
 	Medium.des Poison.des Transs.des Unbel.des Kurwa.des Prost.des \
 	Form.des Feminist.des Tracer.des Nuclear.des Scholar.des \
-	Acu.des Hussy.des Mason.des
+	Acu.des Hussy.des Mason.des Demago.des Cellar.des Grenad.des \
+	Social.des Walsch.des Cyber.des Dissi.des Astro.des Crack.des \
+	Janit.des Smarin.des Yautja.des Xelnaga.des Weirdboy.des \
+	Stormboy.des Empath.des Psyker.des Software.des Quarter.des \
+	Mastermi.des Tosser.des Symbia.des Pract.des Millsw.des \
+	Gender.des Fjorde.des Emera.des Combat.des Aklyst.des \
+	Drag.des Carto.des
+
 	../util/lev_comp Abuser.des
 	../util/lev_comp Acid.des
 	../util/lev_comp Act.des
@@ -363,6 +370,11 @@ spec_levs: ../util/lev_comp \
 	../util/lev_comp Hobbit.des
 	../util/lev_comp Gnome.des
 	../util/lev_comp Barb.des
+	../util/lev_comp Demago.des
+	../util/lev_comp Cellar.des
+	../util/lev_comp Grenad.des
+	../util/lev_comp Social.des
+	../util/lev_comp Walsch.des
 	../util/lev_comp Bard.des
 	../util/lev_comp Binder.des
 	../util/lev_comp Acu.des
@@ -458,6 +470,32 @@ spec_levs: ../util/lev_comp \
 	../util/lev_comp Slime.des
 	../util/lev_comp Spacew.des
 	../util/lev_comp Stunt.des
+	../util/lev_comp Cyber.des
+	../util/lev_comp Dissi.des
+	../util/lev_comp Astro.des
+	../util/lev_comp Crack.des
+	../util/lev_comp Janit.des
+	../util/lev_comp Smarin.des
+	../util/lev_comp Yautja.des
+	../util/lev_comp Xelnaga.des
+	../util/lev_comp Weirdboy.des
+	../util/lev_comp Stormboy.des
+	../util/lev_comp Empath.des
+	../util/lev_comp Psyker.des
+	../util/lev_comp Software.des
+	../util/lev_comp Quarter.des
+	../util/lev_comp Mastermi.des
+	../util/lev_comp Tosser.des
+	../util/lev_comp Symbia.des
+	../util/lev_comp Pract.des
+	../util/lev_comp Millsw.des
+	../util/lev_comp Gender.des
+	../util/lev_comp Fjorde.des
+	../util/lev_comp Emera.des
+	../util/lev_comp Combat.des
+	../util/lev_comp Aklyst.des
+	../util/lev_comp Drag.des
+	../util/lev_comp Carto.des
 	../util/lev_comp Supermar.des
 	../util/lev_comp Thalmor.des
 	../util/lev_comp Top.des

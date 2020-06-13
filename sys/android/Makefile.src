@@ -85,8 +85,7 @@ SYSOBJ = ioctl.o androidmain.o unixtty.o androidunix.o recover.o
 #
 
 # For cross-compiling with Android NDK
-#NDK = /path/to/android-ndk-r19c
-NDK = /home/gurr/android-ndk-r19c
+NDK = /path/to/android-ndk-r19c
 NDK_TOOLCHAIN = $(NDK)/toolchains/llvm/prebuilt/linux-x86_64/bin
 
 # Choose an ABI
@@ -160,7 +159,7 @@ LINK := $(CC)
 
 # flags for Linux
 #   compile normally
-CFLAGS = -DANDROID -O2 -g -Wno-format -fsigned-char -fPIC -I../include
+CFLAGS = -DANDROID -O2 -g -Wno-format -Wno-logical-op-parentheses -Wno-implicit-function-declaration -fsigned-char -fPIC -I../include
 #CFLAGS = -DANDROID -DDEBUG -g -Wno-format -fsigned-char -fPIC -I../include
 LFLAGS = -shared -Wl,--fix-cortex-a8
 
@@ -183,8 +182,20 @@ LFLAGS = -shared -Wl,--fix-cortex-a8
 # flags for debugging:
 # CFLAGS = -g -I../include
 
-# CFLAGS = -O -I../include
-# LFLAGS =
+# CFLAGS = -g -O
+# CFLAGS += -I../include
+# LFLAGS = -g
+
+# Compile with PDCurses installed in a separate directory that doesn't
+# conflict with the system curses/ncurses library
+#CFLAGS = -O -I../include -I/usr/local/include/pdcurses
+# Same as above, but for Mac OS X
+#CFLAGS = -O2 -I../include
+# Same as above, but for XCurses
+#CFLAGS = -O -DXCURSES -I../include -I/usr/local/include/pdcurses
+# Compile against system curses library, such as ncurses
+#CFLAGS = -O -I../include
+
 
 # Only used for the Gnome interface.
 # When including the Gnome interface, you need to include gnome specific
@@ -278,11 +289,11 @@ WINGTKOBJ = gtk.o gtkgetlin.o gtkstatus.o gtkmenu.o gtkyn.o gtkextcmd.o \
 # Files for a Gnome port
 #
 WINGNOMESRC = ../win/gnome/gnaskstr.c ../win/gnome/gnbind.c \
-	../win/gnome/gnglyph.c ../win/gnome/gnmain.c ../win/gnome/gnmap.c \
-	../win/gnome/gnmenu.c ../win/gnome/gnmesg.c ../win/gnome/gnopts.c \
-	../win/gnome/gnplayer.c ../win/gnome/gnsignal.c \
-	../win/gnome/gnstatus.c ../win/gnome/gntext.c ../win/gnome/gnyesno.c \
-	../win/gnome/gnworn.c
+      ../win/gnome/gnglyph.c ../win/gnome/gnmain.c ../win/gnome/gnmap.c \
+      ../win/gnome/gnmenu.c ../win/gnome/gnmesg.c ../win/gnome/gnopts.c \
+      ../win/gnome/gnplayer.c ../win/gnome/gnsignal.c \
+      ../win/gnome/gnstatus.c ../win/gnome/gntext.c ../win/gnome/gnyesno.c \
+      ../win/gnome/gnworn.c
 WINGNOMEOBJ = gnaskstr.o gnbind.o gnglyph.o gnmain.o gnmap.o gnmenu.o \
       gnmesg.o gnopts.o gnplayer.o gnsignal.o gnstatus.o gntext.o \
       gnyesno.o gnworn.o nhwin.a
@@ -537,7 +548,7 @@ SYSCSRC = ../sys/atari/tos.c ../sys/share/pcmain.c ../sys/share/pcsys.c \
 	../sys/android/androidmain.c ../sys/android/androidunix.c
 
 # generated source files (tile.c is handled separately)
-GENCSRC = monstr.c vis_tab.c	#tile.c
+GENCSRC = monstr.c vis_tab.c  #tile.c
 
 # all windowing-system-dependent .c (for dependencies and such)
 WINCSRC = $(WINTTYSRC) $(WINX11SRC) $(WINGTKSRC) $(WINGNOMESRC) $(WINGEMSRC) \
